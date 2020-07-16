@@ -1,31 +1,28 @@
 let 
     pluginsManager = require(_$+'helpers/pluginsManager'),
-    Build = require(_$+ 'types/build'),
+    Build = require(_$+ 'types/build')
 
-    create = async function (){
+module.exports = {
+    
+    async page (jobId, index, pageSize){
         const data = await pluginsManager.getByCategory('dataProvider')
-        let build = Build();
-        await data.insertBuild(build);
+        await data.pageBuilds(jobId, index, pageSize)
     },
 
-    remove = async function (build){
+    async remove (build){
         const data = await pluginsManager.getByCategory('dataProvider')
-        await data.removeBuild(build);
+        await data.removeBuild(build)
     },
 
-    page = async function (jobId, index, pageSize){
+    async update  (build){
         const data = await pluginsManager.getByCategory('dataProvider')
-        await data.pageBuilds(jobId, index, pageSize);
+        await data.updateBuild(build)
     },
 
-    update = async function (build){
+    async create (){
         const data = await pluginsManager.getByCategory('dataProvider')
-        await data.updateBuild(build);
-    };
-
-    module.exports = {
-        page,
-        remove,
-        update,
-        create
+        let build = Build()
+        await data.insertBuild(build)
     }
+
+}
