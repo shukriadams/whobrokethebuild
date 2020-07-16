@@ -1,0 +1,21 @@
+.pager {
+    padding: 0 0 8px 0;
+}
+
+.pager-item {
+    display: inline-block;
+    margin: 4px 2px;
+    position: relative;
+}
+
+
+.pager-link {
+    background-color:var(--color-royalPurple);
+    color: white;
+    display: block;
+    padding: 10px 14px;
+}
+
+.pager-link.pager-link--active {
+    background-color: lightcoral;
+}

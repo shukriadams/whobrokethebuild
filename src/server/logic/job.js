@@ -1,0 +1,47 @@
+const
+    pluginsManager = require(_$+'helpers/pluginsManager')
+    Job = require(_$+ 'types/job')
+
+module.exports = {
+
+    getAll : async job => {
+        const data = await pluginsManager.getByCategory('dataProvider')
+        await data.getAllJobs(job);
+    },
+
+    delete : async id => {
+        const data = await pluginsManager.getByCategory('dataProvider')
+        await data.removeJob(id)
+    },
+
+    update : async properties => {
+        const data = await pluginsManager.getByCategory('dataProvider')
+            job = await data.getJob(properties.id)
+
+        if (!job)
+            throw 'not found'
+        
+        job.name = properties.name
+        job.tags = properties.tags
+        job.VCServerId = properties.VCServerId
+        job.CIServerId = properties.CIServerId
+        job.isPublic = properties.isPublic
+        job.logParser = properties.logParser
+        
+        await data.updateJob(job)
+    },
+
+    insert : async  properties => {
+        const data = await pluginsManager.getByCategory('dataProvider')
+            job = Job()
+
+        job.name = properties.name
+        job.tags = properties.tags
+        job.CIServerId = properties.CIServerId
+        job.VCServerId = properties.VCServerId
+        job.vcs = properties.vcs
+        job.isPublic = properties.isPublic
+
+        await data.insertJob(job)
+    }
+}

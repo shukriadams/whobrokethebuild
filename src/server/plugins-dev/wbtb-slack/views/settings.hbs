@@ -1,0 +1,26 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+        <div class="wbtbSlack-settings">
+            <form action="/wbtb-slack/settings" method="POST">
+                <h1>Slack Settings</h1>
+                <div>
+                    Token
+                    <input name="token" value="{{wbtbSlack.accessToken}}" placeholder="Slack access token" type="text" /> 
+                </div>
+                {{#each jobs}}
+                    <div>{{name}}</div>
+                    <div>
+                        <select name="select_{{id}}">
+                            {{#each ../channels}}
+                                <option value="{{id}}" {{#eq id ../__contactMethod.channelId}}selected{{/eq}}>{{name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                {{/each}}
+                <button type="submit">Update</button>
+            </form>
+        </div>
+    {{/content}}
+{{/extend}}
+
+

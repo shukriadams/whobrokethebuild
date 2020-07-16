@@ -1,0 +1,34 @@
+{{! Global layout for all pages - everything inherits from this, directly or via another layout, so keep it _common_ }}
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <link rel="stylesheet" href="/css/style{{layout.bundlemode}}.css" type="text/css">
+        <link rel='shortcut icon' type='image/x-icon' href='/images/favicon.png'/>
+        <meta http-equiv="content-type" name="description" content="">
+        <meta http-equiv="content-type" name="keywords" content="">
+        <title>{{layout.title}}</title>
+        {{{block "basehead"}}}
+    </head>
+    <body>
+        <header class="header">
+            <div class="layout-scaffold">
+                <a class="header-title" href="/">Who Broke the build</a>
+                {{>session}}
+            </div>
+        </header>
+
+        <main class="layout-main">
+            <div class="layout-scaffold">
+                {{>menu}}
+                {{{block "body"}}}
+            </div>
+        </main>
+
+        <footer>
+            <div class="layout-scaffold">
+            </div>
+        </footer>
+        <script src="/scripts/scripts.js"></script>
+    </body>
+</html>

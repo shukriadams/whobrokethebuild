@@ -1,0 +1,14 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+        <h1>Users</h1>
+        <ul>
+            {{#each users}}
+                <li>
+                    <a href="/user/{{id}}">{{name}}</a>
+                </li>
+            {{/each}}
+        </ul>
+    {{/content}}
+{{/extend}}
+
+

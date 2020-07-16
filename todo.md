@@ -1,0 +1,4 @@
+- change updates so we send only explicitly set properties back to db (instead of entire object)
+- routes should use logic layer instead of containing logic themselves
+- add caching
+- write postgres layer with https://sequelize.org/

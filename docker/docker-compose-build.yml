@@ -1,0 +1,12 @@
+version: "2"
+services:
+  buildcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile-build
+    container_name: buildcontainer
+    restart: unless-stopped
+    environment:
+      SSH_AUTH_SOCK: /ssh-agent
+    volumes:
+    - $SSH_AUTH_SOCK:/ssh-agent

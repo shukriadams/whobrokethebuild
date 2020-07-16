@@ -1,0 +1,10 @@
+@import "../common/variables";
+
+.header {
+    background-color: var(--color-royalPurple);
+}
+
+.header-title{
+    @include typography-title ;
+    color: var(--color-white);
+}

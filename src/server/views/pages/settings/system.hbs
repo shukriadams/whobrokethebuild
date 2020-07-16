@@ -1,0 +1,43 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+        <h1>System settings</h1>
+        
+        <h2>CI Servers</h2>
+        <ul>
+            {{#each ciservers}}
+                <li>
+                    <div>
+                        <a href="/settings/ciserver/{{this.id}}">{{this.name}}</a>
+                    </div>
+                    <div>
+                        {{this.url}}
+                    </div>
+                </li>
+            {{/each}}
+        </ul>
+        <a href="/settings/ciserver">New CIServer</a>
+
+        <h2>VC Servers</h2>
+        <ul>
+            {{#each vcservers}}
+                <li>
+                    <div>
+                        <a href="/settings/vcserver/{{this.id}}">{{this.name}}</a>
+                    </div>
+                    <div>
+                        {{this.url}}
+                    </div>
+                </li>
+            {{/each}}
+        </ul>
+        <a href="/settings/vcserver">New VCServer</a>
+
+        <h2>Plugins</h2>
+        {{#each pluginLinks}}
+            <a href="{{url}}">{{text}}</a>
+        {{/each}}
+
+    {{/content}}
+{{/extend}}
+
+

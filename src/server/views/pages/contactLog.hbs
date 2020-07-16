@@ -1,0 +1,27 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+        <h1>Notifications</h1>
+        <ul>
+            {{#each contactLogs.items}}
+                <li>
+                    <div>
+                        <a href="/user/{{__user.id}}">{{__user.name}}</a>
+                    </div>
+                    <div>
+                        {{context}}
+                    </div>
+                    <div>
+                        {{ago __user.created}}
+                    </div>
+                </li>
+            {{/each}}
+
+            <div>
+                {{{pager "/contactLog" contactLogs }}}
+            </div>
+
+        </ul>
+    {{/content}}
+{{/extend}}
+
+

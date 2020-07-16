@@ -1,0 +1,10 @@
+version: "2"
+services:
+  mycontainer:
+    image: shukriadams/expreactboilerplate:latest
+    container_name: mycontainer
+    restart: unless-stopped
+    environment:
+      port : 5001
+    ports:
+    - "3000:3001"

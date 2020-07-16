@@ -1,0 +1,52 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+        <div class="ciserver">
+            <h1>CI Server</h1>
+
+            <input class="ciserver-id" value="{{ciserver.id}}" type="hidden" />
+            <input class="ciserver-name" placeholder="Name" value="{{ciserver.name}}" type="text" />
+            <input class="ciserver-url" placeholder="Url" value="{{ciserver.url}}" type="text" />
+            <input class="ciserver-username" placeholder="Username" value="{{ciserver.username}}" type="text" />
+            <input class="ciserver-password" placeholder="Password" value="{{ciserver.password}}" type="password" />
+
+            <select class="ciserver-type">
+                {{#each CIServerTypes}}
+                    <option {{markSelected ../ciserver.type this}}>{{this}}</option>
+                {{/each}}
+            </select>
+
+            <button class="ciserver-post">{{#if isCreate}}Create{{else}}Update{{/if}}</button> 
+
+            {{#unless isCreate}}
+                <h2>jobs</h2>
+                <ul>
+                    {{#each jobs}}
+                        <li>
+                            <div>
+                                {{name}}
+                            </div>
+
+                            {{#if __noLongerAvailable}}
+                                NO LONGER AVAILABLE
+                            {{/if}}
+
+                            {{#if __isImported}}
+                                <a href="/settings/job/{{id}}">Edit</a>
+                            {{else}}
+                                <a href="/settings/job?name={{__nameUrlFriendly}}">Add</a>
+                            {{/if}}
+                            
+                            {{#if __isImported}}
+                                <button class="button ciserver-deleteJob" data-id="{{id}}">Delete</button>
+                            {{/if}}
+
+                        </li>
+                    {{/each}}
+                </ul>
+            {{/unless}}
+        </div>
+            
+    {{/content}}
+{{/extend}}
+
+

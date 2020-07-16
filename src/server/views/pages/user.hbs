@@ -1,0 +1,21 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+        <div>
+            <h1>User {{user.name}}</h1>
+            <a href="/settings/user/{{user.id}}">{{user.name}}'s settings</a>
+            
+            <h2>Recent builds</h2>
+            <ul>
+                {{#each buildInvolvements}}
+                    <li>
+                        {{__build.__job.name}}
+                        status : {{__build.status}}
+                    </li>
+                {{/each}}
+            </ul>
+
+        </div>
+    {{/content}}
+{{/extend}}
+
+

@@ -1,0 +1,29 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+    
+        <div>
+            <form action="/activeDirectory/users" method="POST">
+                <ul>
+                    {{#each users}}
+                        <li>
+                            {{#if mail}}
+                                <input type="checkbox" name="cb_userImport_{{guid}}" id="cb_userImport_{{guid}}" {{#eq isImported "on"}}checked{{/eq}}  />
+                            {{else}}
+                                No email set - cannot import
+                            {{/if}}
+                            <label for="cb_userImport_{{guid}}">
+                                {{name}}
+                            </label>
+                        </li>
+                    {{/each}}
+                </ul>
+                <button type="submit">Save</button>
+            </form>
+        </div>
+
+    {{/content}}
+{{/extend}}
+
+
+
+

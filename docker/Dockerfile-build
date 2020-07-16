@@ -1,0 +1,21 @@
+FROM alpine:3.9
+
+RUN apk update \
+    && apk upgrade \
+    && apk add bash \
+    && apk add git \
+    && apk add nodejs=10.14.2-r0 \
+    && apk add npm=10.14.2-r0 \
+    && mkdir -p /tmp/build \
+    && mkdir -p /tmp/stage \
+    && mkdir -p /root/.ssh 
+
+RUN npm install jspm@0.16x -g
+RUN npm install yarn -g
+RUN npm install uglify-es -g
+RUN npm install concat-cli -g
+RUN npm install typescript -g
+RUN npm install tslint -g 
+
+# clean out build folders incase restart, then keep container alive forever for building
+CMD ["/bin/bash", "-c", "while true ; sleep 5; do continue ; done"]

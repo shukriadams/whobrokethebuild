@@ -1,0 +1,56 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+        <h1>{{job.name}}</h1>
+        <a href="/settings/job/{{job.id}}">Settings</a>
+
+        <h2>Builds</h2>
+        <ul class="list">
+            {{#if jobBuilds.items}}
+                {{#each jobBuilds.items}}
+                    <li class="list-item">
+                        <div>
+                            <a href="/build/{{id}}">
+                                Build : {{build}}
+                            </a>
+                        </div>
+                        <div>
+                            Status : {{statusTranslate status}}
+                        </div>
+                        <div>
+                            {{ago started}} @ {{shortTime started}}
+                        </div>
+
+                        <h3>Revisions</h3>
+                        <ul>
+                            {{#each __revisions}}
+                                <li_>
+                                    <div>
+                                        {{revision}} - {{description}} {{ago date}}
+                                        by 
+                                        {{#if __user}}
+                                            <a href="/user/{{__user.id}}">{{__user.name}}</a>
+                                        {{else}}
+                                            {{user}}
+                                        {{/if}}
+
+                                    </div>
+                                </li_>
+                            {{/each}}
+                        </ul>
+                    </li>
+                {{/each}}
+
+                {{{pager ../job.__baseUrl jobBuilds }}}
+
+
+            {{else}}
+                This job hasn't built yet
+            {{/if}}
+
+
+        </ul>
+
+    {{/content}}
+{{/extend}}
+
+

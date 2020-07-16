@@ -1,0 +1,23 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+        <h1>Version control server</h1>
+        <div class="vcserver">
+            <input class="vcserver-id" value="{{vcserver.id}}" type="hidden" />
+            <input class="vcserver-name" placeholder="Name" value="{{vcserver.name}}" type="text" />
+            <input class="vcserver-url" placeholder="Url" value="{{vcserver.url}}" type="text" />
+            <input class="vcserver-username" placeholder="Username" value="{{vcserver.username}}" type="text" />
+            <input class="vcserver-password" placeholder="Password" value="{{vcserver.password}}" type="password" />
+            <input class="vcserver-accessToken" placeholder="Access token" value="{{vcserver.accessToken}}" type="password" />
+
+            <select class="vcserver-vcs">
+                {{#each VCServerTypes}}
+                    <option {{markSelected ../vcserver.vcs this}}>{{this}}</option>
+                {{/each}}
+            </select>
+
+            <button class="vcserver-post">Create|Update</button> 
+        </div>
+    {{/content}}
+{{/extend}}
+
+

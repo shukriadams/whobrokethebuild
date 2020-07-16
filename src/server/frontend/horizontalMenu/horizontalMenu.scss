@@ -1,0 +1,11 @@
+.horizontalMenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    height: 32px;
+}
+
+.horizontalMenu-item {
+    float: left;
+    padding: var(--universalPadding) var(--universalPadding) var(--universalPadding) 0;
+}

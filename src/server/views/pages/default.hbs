@@ -1,0 +1,51 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+        <div>
+            {{#if jobs}}
+                <h1>State of the builds</h1>
+                <ul class="list">
+                    {{#each jobs}}
+                        <li class="list-item {{#if __breakingBuild}}list-item--error{{/if}}">
+
+                            <div class="buildStatus buildStatus--{{status}}">
+
+                            </div>
+
+                            <div>
+                                <a href="/job/{{id}}">{{name}}</a>
+                                {{#if __latestBuild}}
+                                        last build was {{__latestBuild.build}} - {{statusTranslate __latestBuild.status}}
+                                {{else}}
+                                    hasn't run yet
+                                {{/if}}       
+                            </div>
+
+                            {{#if __breakingBuild}}
+                                <div>
+                                    Broke @ {{__breakingBuild.build}} ({{ago __breakingBuild.started}})
+                                </div>             
+                                {{#if __breakingBuild.__buildInvolvements}}
+                                    Broken by : 
+                                    {{#each __breakingBuild.__buildInvolvements}}
+                                        {{#if __user}}
+                                            <a href="/user/{{__user.id}}">{{__user.name}}</a>
+                                        {{else}}
+                                            {{externalUsername}}
+                                        {{/if}}
+                                    {{/each}}
+                                {{/if}}
+                            {{/if}}
+                        </li>
+                    {{/each}}
+                </ul>
+            {{else}}
+                <p>
+                    There are currently no builds to show
+                </p>
+            {{/if}}
+
+        </div>
+    {{/content}}
+{{/extend}}
+
+
