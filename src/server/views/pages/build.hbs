@@ -2,7 +2,10 @@
     {{#content "body"}}
         <div class="build">
             <h1>Build {{build.build}}</h1>
-            
+
+            <div>
+                Status : {{statusTranslate build.status}}
+            </div>
             <div>
                 Revisions 
                 <ul>
@@ -15,13 +18,15 @@
             </div>
             
             <div>
-                Job <a href="/job/{{build.jobId}}">{{job.name}}</a>
+                Job <a href="/job/{{build.jobId}}">{{build.__job.name}}</a>
             </div>
 
             <div>
                 <h2>Log</h2>
                 {{{preserveSpaces build.log}}}
-                <a href="/build/log/{{build.id}}">Full log</a>
+                <div>
+                    <a href="/build/log/{{build.id}}">Full log</a>
+                </div>
             </div>
 
             <div>

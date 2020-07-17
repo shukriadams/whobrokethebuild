@@ -2,3 +2,4 @@
 - routes should use logic layer instead of containing logic themselves
 - add caching
 - write postgres layer with https://sequelize.org/
+- harden plugin system - define required-by-category, single-by-category
