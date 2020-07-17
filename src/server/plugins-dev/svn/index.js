@@ -35,7 +35,18 @@ module.exports = {
     },
 
     /**
+     * Required by interface.
+     * Gets name of local partial view that will render revision on generic pages
+     */
+    getRevisionPartialName(){
+        return 'svn/partials/revision'
+    },
+
+    /**
+     * Required by interface.
      * Does SVN log on a revision and returns an object with revision info
+     * revision : string, revision id
+     * vcServer : object, internal vcServer object
      */
     async getRevision(revision, vcServer){
         // assert vcServer.url

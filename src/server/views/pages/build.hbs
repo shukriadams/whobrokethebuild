@@ -9,9 +9,9 @@
             <div>
                 Revisions 
                 <ul>
-                    {{#each build.revisions}}
+                    {{#each build.__revisions}}
                         <li>
-                            {{this}}
+                           {{{renderPartialByName __viewName this}}}
                         </li>
                     {{/each}}
                 </ul>
