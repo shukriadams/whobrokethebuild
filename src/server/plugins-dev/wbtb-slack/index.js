@@ -48,12 +48,19 @@ module.exports = {
     },
 
 
+    /**
+     * Gets an array of all available channels in slack. Returns an empty array if slack has not been configured yet.
+     */ 
     async getChannels(){
         const data = await pluginsManager.getByCategory('dataProvider'),
             Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
-            token = await data.getPluginSetting('wbtb-slack', 'token'),
-            slack = new Slack({ token : token.value }),
-            slackQuery = await slack.channels.list({ token : token.value }),
+            tokenSetting = await data.getPluginSetting('wbtb-slack', 'token')
+
+        if (!tokenSetting)
+            return []
+
+        const slack = new Slack({ token : tokenSetting.value }),
+            slackQuery = await slack.channels.list({ token : tokenSetting.value }),
             channels = []
 
         for (let channel of slackQuery.channels)

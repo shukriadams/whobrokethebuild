@@ -7,26 +7,21 @@ const
     errorHandler = require(_$+'helpers/errorHandler')
 
 module.exports = function(app){
-    
-    app.get('/activeDirectory', async function(req, res){
-        try {
-            const view = await handlebars.getView('activeDirectory/views/settings')
-            res.send(view())
-        } catch(ex){
-            errorHandler(res, ex)
-        }
-    })
 
-    app.get('/activeDirectory/users', async function(req, res){
+    app.get('/activeDirectory', async function(req, res){
         try {
             const data = await pluginsManager.getByCategory('dataProvider'),
                 view = await handlebars.getView('activeDirectory/views/users'),
                 localUsers = await data.getAllUsers(),
                 users = await logic.getAllRemoteUsers()
 
-            for (const user of users)
+            for (const user of users){
                 if (!!localUsers.find(localUser => user.mail === localUser.publicId))
                     user.isImported = 'on'
+
+                // user must have a mail value to be importable
+                user.canBeImported = !!user.mail
+            }
 
             res.send(view({ users }))
         } catch(ex){
@@ -63,11 +58,10 @@ module.exports = function(app){
 
             }
 
-            res.redirect('/activeDirectory/users')
+            res.redirect('/activeDirectory')
         } catch(ex){
             errorHandler(res, ex)
         }
     })
 
 }
-

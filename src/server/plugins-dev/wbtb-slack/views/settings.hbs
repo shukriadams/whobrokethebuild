@@ -7,20 +7,29 @@
                     Token
                     <input name="token" value="{{wbtbSlack.accessToken}}" placeholder="Slack access token" type="text" /> 
                 </div>
-                {{#each jobs}}
-                    <div>{{name}}</div>
-                    <div>
-                        <select name="select_{{id}}">
-                            {{#each ../channels}}
-                                <option value="{{id}}" {{#eq id ../__contactMethod.channelId}}selected{{/eq}}>{{name}}</option>
-                            {{/each}}
-                        </select>
-                    </div>
-                {{/each}}
+                
+                <div>
+                    {{#if wbtbSlack.accessToken}}
+                        {{#each jobs}}
+                            <div>{{name}}</div>
+                            <div>
+                                <select name="select_{{id}}">
+                                    {{#each ../channels}}
+                                        <option value="{{id}}" {{#eq id ../__contactMethod.channelId}}selected{{/eq}}>{{name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                        {{/each}}
+                    {{else}}
+                        <p>
+                            Slack access token hasn't been set yet - cannot list channels
+                        </p>
+                    {{/if}}
+                </div>                
+
                 <button type="submit">Update</button>
             </form>
         </div>
     {{/content}}
 {{/extend}}
-
 
