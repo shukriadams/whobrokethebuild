@@ -28,6 +28,8 @@ src/server/plugins-dev/postgres.json
 src/server/plugins-dev/*.json
 src/.plugin.conf
 src/.env
+build/.clone
+build/.stage
 src/server/plugins-dev/jenkins/package-lock.json
 src/server/plugins-dev/jenkins/package.json
 src/server/plugins-dev/jenkins/package.json
