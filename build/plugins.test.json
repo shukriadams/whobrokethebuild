@@ -7,7 +7,7 @@
         "source" : "git",
         "enabled" : true
     },
-    "mongodata": {
+    "dummydata" : {
         "enabled" : true
     },
     "postgres": {

@@ -8,7 +8,7 @@
         "enabled" : true
     },
     "mongodata": {
-        "enabled" : true
+        "enabled" : false
     },
     "postgres": {
         "enabled" : false
@@ -29,6 +29,9 @@
         "enabled" : true
     },
     "unreallogparser": {
+        "enabled" : true
+    },
+    "dummydata" : {
         "enabled" : true
     }
 }
