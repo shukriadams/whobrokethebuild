@@ -37,23 +37,23 @@ let settings = {
     postgresPassword: null,
     
     forceReloadViews : 'true'
-};
+}
 
 
 // apply custom .env settings
-customEnv.env();
+customEnv.env()
 
 // capture settings from process.env
 for (let property in settings){
 
-    settings[property] = process.env[property] || settings[property];
+    settings[property] = process.env[property] || settings[property]
 
     // parse env bools
     if (settings[property] === 'true')
-        settings[property] = true;
+        settings[property] = true
 
     if (settings[property] === 'false')
-        settings[property] = false;
+        settings[property] = false
 }
 
-module.exports = settings;
+module.exports = settings

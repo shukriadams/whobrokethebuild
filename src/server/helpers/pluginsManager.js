@@ -54,7 +54,7 @@ module.exports = {
 
             pluginsConfig = Object.assign(pluginsConfig, devPluginsConfig)
         }
-
+        
         // strip out all plugin config if explicitly disabled 
         let disabledCount = 0
         for (const pluginName in pluginsConfig)

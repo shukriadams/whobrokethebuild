@@ -29,7 +29,6 @@ const
     pluginsManager = require(_$+'helpers/pluginsManager')
     http = require('http');
 
-
 (async function(){
     try {
         await fs.ensureDir(settings.dataFolder)

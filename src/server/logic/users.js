@@ -31,7 +31,7 @@ module.exports = {
         
         let user = await data.getByPublicId(constants.ADMINUSERNAME, 'AUTHPROVIDER_INTERNAL');
         if (!user)
-            user = await createInternal(constants.ADMINUSERNAME, settings.adminPassword);
+            user = await this.createInternal(constants.ADMINUSERNAME, settings.adminPassword);
 
         user.password = settings.adminPassword
         user.isAuthApproved = true

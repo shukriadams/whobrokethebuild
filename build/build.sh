@@ -53,6 +53,14 @@ cd node
 docker build -t shukriadams/whobrokethebuild . &&
 cd -
 
+# test build
+docker-compose -f docker-compose-testmount.yml up -d
+LOOKUP= $(curl localhost:4000)
+if [ "$LOOKUP" != "200" ] ; then
+    echo "container test failed"
+    exit 1
+fi
+
 if [ $DOCKERPUSH -eq 1 ]; then
     TAG=$(git describe --tags --abbrev=0) &&
     docker login -u $DOCKER_USER -p $DOCKER_PASS &&

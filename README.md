@@ -11,6 +11,11 @@ The mongo admin interface is @
 
     http://localhost:3002
 
+You will probably want to run with dev plugins and sandboxing all services - create a .env file in your project root and add the following to it
+
+    sandboxMode=true
+    enableDevPlugins=true
+
 ## To run with live-reload and debug
 
 Standard debug
@@ -100,6 +105,8 @@ node --inspect-brk=0.0.0.0:3001 tests/run-all.js tests/server/logic/user
             }
         }
 
+- Plugin categories : ciserver|dataProvider
+
 ### Plugin Express
 
 - a plugin can contain it's own Express UI. 
@@ -114,5 +121,6 @@ node --inspect-brk=0.0.0.0:3001 tests/run-all.js tests/server/logic/user
 
             {{/content}}
         {{/extend}}
+
 
 

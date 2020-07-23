@@ -94,10 +94,10 @@ module.exports = {
         return new Promise((resolve, reject)=>{
             try{
                 if (!settings.activeDirectoryUrl)
-                    throw '"ActiveDirectoryUrl" value missing from settings'
+                    throw '"activeDirectoryUrl" value missing from settings'
 
                 if (!settings.activeDirectoryBase)
-                    throw '"ActiveDirectoryBase" value missing from settings'
+                    throw '"activeDirectoryBase" value missing from settings'
 
                 if (!settings.activeDirectoryUser)
                     throw '"activeDirectoryUser" value missing from settings'
