@@ -11,7 +11,6 @@ sudo apt install docker-compose -y
 sudo usermod -aG docker vagrant
 
 # nodejs packages
-sudo npm install jspm@0.16x -g
 sudo npm install yarn -g
 sudo npm install uglify-es -g
 sudo npm install concat-cli -g
