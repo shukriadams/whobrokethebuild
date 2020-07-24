@@ -5,17 +5,17 @@ const
 module.exports = {
 
     getAll : async job => {
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         await data.getAllJobs(job);
     },
 
     delete : async id => {
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         await data.removeJob(id)
     },
 
     update : async properties => {
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
             job = await data.getJob(properties.id)
 
         if (!job)
@@ -32,7 +32,7 @@ module.exports = {
     },
 
     insert : async  properties => {
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
             job = Job()
 
         job.name = properties.name

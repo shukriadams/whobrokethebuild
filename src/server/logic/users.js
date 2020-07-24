@@ -27,7 +27,7 @@ module.exports = {
     
     async initializeAdmin (){
         // enforce master password
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         
         let user = await data.getByPublicId(constants.ADMINUSERNAME, 'AUTHPROVIDER_INTERNAL');
         if (!user)
@@ -43,7 +43,7 @@ module.exports = {
     },
 
     async createInternal(name, password){
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
 
         let user = User()
         user.authData = AuthMethod(constants.AUTHPROVIDER_INTERNAL)
@@ -57,29 +57,29 @@ module.exports = {
     },
 
     async update (user){
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         user = _processPassword(user)
         await data.updateUser(user)
     },
     
     async remove (user){
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         await data.removeUser(user)
     },
 
     async reject (){
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         user.isAuthApproved = false
         await data.updateUser(user)
     },
 
     async getAll (){
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         await data.getAllUsers()
     },
 
     async approve (user){
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         user.isAuthApproved = true
         await data.updateUser(user)
     }

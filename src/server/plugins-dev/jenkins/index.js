@@ -135,7 +135,7 @@ module.exports = {
     async mapUsers(job, revisions){
         
         const 
-            data = await pluginsHelper.getByCategory('dataProvider'),
+            data = await pluginsHelper.getExclusive('dataProvider'),
             vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
             vcs = await pluginsHelper.get(vcServer.vcs)
 
@@ -156,7 +156,7 @@ module.exports = {
      */
     async importBuildsForJob(jobId){
         const 
-            data = await pluginsHelper.getByCategory('dataProvider'),
+            data = await pluginsHelper.getExclusive('dataProvider'),
             job = await data.getJob(jobId, { expected : true}),
             ciServer = await data.getCIServer(job.CIServerId, { expected : true}),
             vcServer = await data.getVCServer(job.VCServerId, { expected : true }),

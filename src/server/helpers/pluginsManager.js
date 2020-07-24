@@ -12,7 +12,14 @@ let
     exec = require('madscience-node-exec'),
     hash = require(_$+'helpers/hash'),
     logger = require('winston-wrapper').new(settings.logPath),
-    _plugins = {}
+    exclusiveCategories = ['dataProvider'],
+    requiredCategories = ['dataProvider'],
+    _plugins = {
+        // hash table of names of installed plugins
+        plugins : {},
+        // hash table of 
+        byCategory : {}
+    }
 
 module.exports = {
 
@@ -66,7 +73,7 @@ module.exports = {
         if (disabledCount)
             logger.info.info(`${disabledCount} plugin(s) were declared but disabled`)
 
-        // validate plugins
+        // validate plugin static config
         let errors = false
         for (const pluginName in pluginsConfig){
             const pluginConfig = pluginsConfig[pluginName]
@@ -167,6 +174,7 @@ module.exports = {
                 packageHasErrors = true
             }
 
+            // npm install plugin if it hasn't yet been installed, or if plugin's package.json has changed
             if (!packageHasErrors){
                 const manifestHash = await hash.file(packageManifestPath)
 
@@ -190,7 +198,6 @@ module.exports = {
         const installedPluginFolders = await this.getPluginsFolders()
 
         // bind all discovered plugins
-        _plugins = { categoriesAll : {}, categories : { }, plugins: { } }
         for (let installedPlugin of installedPluginFolders){
             const 
                 pluginName = path.basename(installedPlugin),
@@ -200,13 +207,8 @@ module.exports = {
             // plugin folder exists locally, but is not defined in pluginsConfig, ignore it
             if (!pluginConfig)
                 continue
-                
-            if (!await fs.pathExists(pluginPackageJsonPath)){
-                console.log(colors.red(`ERROR : "Plugin ${pluginName}" missing package.json`))
-                errors = true
-                continue
-            }
 
+            // validate package.json structure
             const packageJson = await fs.readJson(pluginPackageJsonPath);
             if (!packageJson.wbtb){
                 logger.error.error(`ERROR : Plugin "${pluginName}" missing package.json:wbtb`)
@@ -214,6 +216,7 @@ module.exports = {
                 continue
             }
 
+            // validate package.json wbtb config - plugin category
             if (!packageJson.wbtb.category){
                 logger.error.error(`ERROR : Plugin "${pluginName}" missing package.json:wbtb.category`)
                 errors = true
@@ -221,22 +224,30 @@ module.exports = {
             }
 
             _plugins.plugins[pluginName] = installedPlugin
-            _plugins.categoriesAll[packageJson.wbtb.category] = _plugins.categoriesAll[packageJson.wbtb.category] || {}
-            _plugins.categoriesAll[packageJson.wbtb.category][pluginName] = installedPlugin 
-
-            // try to find plugin in pluginconfig, if found, bind to category as active
-            if (pluginConfig){
-                
-                const overrittenPlugin = _plugins.categories[packageJson.wbtb.category];
-                if (overrittenPlugin)
-                    console.log(colors.yellow(`WARNING : Plugin "${pluginName}" will overwrite "${overrittenPlugin}" in category "${packageJson.wbtb.category}"`))
-
-                 _plugins.categories[packageJson.wbtb.category] = installedPlugin
-            }
+            _plugins.byCategory[packageJson.wbtb.category] = _plugins.byCategory[packageJson.wbtb.category] || {}
+            _plugins.byCategory[packageJson.wbtb.category][pluginName] = installedPlugin 
 
             logger.info.info(`Plugin "${pluginName}" loaded`)
         }
 
+        // enforce required
+        for (const requiredCategory of requiredCategories)
+            if (!_plugins.byCategory[requiredCategory]){
+                errors = true
+                logger.error.error(`Required plugin category "${requiredCategory}" not found`)
+            }
+
+        // enforce exclusive 
+        for (const exclusiveCategory of exclusiveCategories){
+            if (!_plugins.byCategory[exclusiveCategory])
+                continue
+            
+            const keys = Object.keys(_plugins.byCategory[exclusiveCategory])
+            if (keys.length > 1){
+                errors = true
+                logger.error.error(`Only 1 plugin of category "${exclusiveCategory}" is allowed`)
+            }
+        }
         
         if (errors){
             logger.error.error(`One or more plugins have invalid internal configuration - Who Broke The Build cannot start`)
@@ -261,6 +272,7 @@ module.exports = {
 
             pluginConf[description.id] ={ 
                 url : `/${urljoin(description.id)}/`,
+                hasUI : description.hasUI,
                 text : description.name
             }
         }
@@ -270,14 +282,19 @@ module.exports = {
 
 
     /**
-     * Gets a plugin by category. If the plugin doesn't exist, an exception is thrown
+     * Gets a single plugin by category, if more than one is registered for that category throws error
      */
-    getByCategory(category){
-        const pluginPath = _plugins.categories[category]
-        if (!pluginPath)
-            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `Category : ${category}` })
-        return require(`${path.resolve(pluginPath)}/index`)
+    getExclusive(category){
+        if (! _plugins.byCategory[category])
+            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `No plugin for category : ${category}, getExclusive() failed.` })
+
+        const plugins = Object.keys( _plugins.byCategory[category])
+        if (plugins.length > 1)
+            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `Multiple plugins found for category : ${category}, getExclusive() failed.` })
+
+        return require(`${path.resolve(_plugins.byCategory[category][plugins[0]])}/index`)
     },
+
 
     /**
      * 
@@ -291,14 +308,14 @@ module.exports = {
     },
 
     getAllByCategory(category){
-        const categoriesAll = _plugins.categoriesAll[category]
-        if (!categoriesAll)
+        const byCategory = _plugins.byCategory[category]
+        if (!byCategory)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `Category : ${category}` })
 
         let plugins = []
-        for (let pluginPath in categoriesAll){
-            console.log(`${path.resolve(categoriesAll[pluginPath])}/index`);
-            plugins.push(require(`${path.resolve(categoriesAll[pluginPath])}/index`))
+        for (let pluginPath in byCategory){
+            console.log(`${path.resolve(byCategory[pluginPath])}/index`);
+            plugins.push(require(`${path.resolve(byCategory[pluginPath])}/index`))
         }
         
         return plugins

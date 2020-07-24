@@ -14,7 +14,7 @@ module.exports = function(express){
         try {
 
             const
-                data = await pluginsManager.getByCategory('dataProvider'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('default'),
                 model = {
                     default : {

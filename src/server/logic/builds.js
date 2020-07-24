@@ -8,7 +8,7 @@ module.exports = {
      * Gets a build for display purposes, throws exception if not found.
      */
     async get(id){
-        const data = await pluginsManager.getByCategory('dataProvider'),
+        const data = await pluginsManager.getExclusive('dataProvider'),
             build = await data.getBuild(id, { expected : true })
             
         build.__job = await data.getJob(build.jobId, { expected : true })
@@ -42,22 +42,22 @@ module.exports = {
     },
 
     async page (jobId, index, pageSize){
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         await data.pageBuilds(jobId, index, pageSize)
     },
 
     async remove (buildId){
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         await data.removeBuild(buildId)
     },
 
     async update  (build){
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         await data.updateBuild(build)
     },
 
     async create (){
-        const data = await pluginsManager.getByCategory('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider')
         let build = Build()
         await data.insertBuild(build)
     }

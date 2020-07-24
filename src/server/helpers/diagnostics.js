@@ -12,7 +12,7 @@ module.exports = {
     async run(){
         
         const 
-            data = await pluginsManager.getByCategory('dataProvider'),
+            data = await pluginsManager.getExclusive('dataProvider'),
             ciservers = await data.getAllCIServers(),
             jobs = await data.getAllJobs()
         

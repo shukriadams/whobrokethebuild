@@ -13,15 +13,16 @@ module.exports = function(app){
             const 
                 view = await handlebars.getView('settings/ciserver'),
                 model = { },
-                data = await pluginsManager.getByCategory('dataProvider'),
-                ciServerPlugin = await pluginsManager.getByCategory('ciserver')
-
+                data = await pluginsManager.getExclusive('dataProvider')
+    
             model.CIServerTypes = await pluginsManager.getTypeCodesOf('ciserver')
             model.isCreate = !req.params.id
 
             if (req.params.id){
                 model.ciserver = await data.getCIServer(req.params.id)
-                const existingJobs = await data.getAllJobsByCIServer(req.params.id),
+
+                const ciServerPlugin = await pluginsManager.get(model.ciserver.type)
+                    existingJobs = await data.getAllJobsByCIServer(req.params.id),
                     availableJobs = await ciServerPlugin.getJobs(model.ciserver.url)
 
                 model.jobs = []

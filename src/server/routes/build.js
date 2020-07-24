@@ -19,7 +19,7 @@ module.exports = function(app){
     app.get('/build/log/:id', async (req, res)=>{
         try {
             const view = await handlebars.getView('buildLog'),
-                data = await pluginsManager.getByCategory('dataProvider'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 build = await data.getBuild(req.params.id, { expected : true }),
                 model = {
                     build

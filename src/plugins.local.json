@@ -8,7 +8,7 @@
         "enabled" : true
     },
     "mongodata": {
-        "enabled" : false
+        "enabled" : true
     },
     "postgres": {
         "enabled" : false
@@ -32,6 +32,6 @@
         "enabled" : true
     },
     "dummydata" : {
-        "enabled" : true
+        "enabled" : false
     }
 }

@@ -3,9 +3,9 @@
         <h1>System settings</h1>
         
         <h2>CI Servers</h2>
-        <ul>
+        <ul class="list">
             {{#each ciservers}}
-                <li>
+                <li class="list-item">
                     <div>
                         <a href="/settings/ciserver/{{this.id}}">{{this.name}}</a>
                     </div>
@@ -18,9 +18,9 @@
         <a href="/settings/ciserver">New CIServer</a>
 
         <h2>VC Servers</h2>
-        <ul>
+        <ul class="list">
             {{#each vcservers}}
-                <li>
+                <li class="list-item">
                     <div>
                         <a href="/settings/vcserver/{{this.id}}">{{this.name}}</a>
                     </div>
@@ -33,9 +33,13 @@
         <a href="/settings/vcserver">New VCServer</a>
 
         <h2>Plugins</h2>
-        {{#each pluginLinks}}
-            <a href="{{url}}">{{text}}</a>
-        {{/each}}
+        <ul class="list">
+            {{#each pluginLinks}}
+                <li class="list-item">
+                    <a href="{{url}}">{{text}}</a>
+                </li>
+            {{/each}}
+        </ul>
 
     {{/content}}
 {{/extend}}

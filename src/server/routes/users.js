@@ -9,7 +9,7 @@ module.exports = function(app){
     app.get('/users', async function(req, res){
         try {
             const 
-                data = await pluginsManager.getByCategory('dataProvider'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 users = await data.getAllUsers(),
                 view = await handlebars.getView('users'),
                 model = { users }

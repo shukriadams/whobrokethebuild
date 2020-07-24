@@ -12,7 +12,7 @@ module.exports = {
             return null
             
         const 
-            data = await pluginsManager.getByCategory('dataProvider')
+            data = await pluginsManager.getExclusive('dataProvider')
             session = await data.getSession(req.cookies[constants.COOKIE_AUTHKEY])
 
         if (!session)

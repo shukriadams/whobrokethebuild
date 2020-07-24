@@ -14,7 +14,7 @@ const
  * 
  */
 async function processLoginRequest(username, password, userAgent){
-    const data = await pluginsManager.getByCategory('dataProvider')
+    const data = await pluginsManager.getExclusive('dataProvider')
 
     let user = await data.getByPublicId(username, constants.AUTHPROVIDER_INTERNAL)
     if (!user)

@@ -9,7 +9,7 @@ module.exports = function(app){
     app.get('/settings/user/:user', async function(req, res){
         try {
             const 
-                data = await pluginsManager.getByCategory('dataProvider'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('settings/user'),
                 user = await data.getUserById(req.params.user),
                 vcServers  = await data.getAllVCServers(),
@@ -48,7 +48,7 @@ module.exports = function(app){
     app.post('/settings/user/updateVCServerMappings', async function(req, res){
         try {
             const 
-                data = await pluginsManager.getByCategory('dataProvider'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 user = await data.getUserById(req.body.user)
 
             if (!user)
@@ -74,7 +74,7 @@ module.exports = function(app){
     app.post('/settings/userSettings/addVCServerMapping', async function(req, res){
         try {
             const 
-                data = await pluginsManager.getByCategory('dataProvider'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 user = await data.getUserById(req.body.user)
 
             if(!user)

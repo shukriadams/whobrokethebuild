@@ -36,7 +36,7 @@ module.exports = {
     getAllRemoteUsers : async () => {
         const 
             ActiveDirectory =  settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
-            data = await pluginsManager.getByCategory('dataProvider'),
+            data = await pluginsManager.getExclusive('dataProvider'),
             activeDirectory = new ActiveDirectory({
                 url: settings.activeDirectoryUrl,
                 base: settings.activeDirectoryBase

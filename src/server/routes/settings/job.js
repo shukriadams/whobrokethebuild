@@ -13,7 +13,7 @@ module.exports = function(app){
             const 
                 view = await handlebars.getView('settings/job'),
                 model = { },
-                data = await pluginsManager.getByCategory('dataProvider')
+                data = await pluginsManager.getExclusive('dataProvider')
 
             if (req.params.id)
                 model.job = await data.getJob(req.params.id)

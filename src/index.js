@@ -48,7 +48,7 @@ const
         let 
             root = path.join(__dirname, 'server'),
             routeFiles = [],
-            data = await pluginsManager.getByCategory('dataProvider')
+            data = await pluginsManager.getExclusive('dataProvider')
 
         routeFiles = routeFiles.concat(await fsUtils.readFilesUnderDir(path.join(root, 'routes')))
         // find all plugins, then routes folder under those

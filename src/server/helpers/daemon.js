@@ -20,7 +20,7 @@ module.exports = {
  
             try {
                 const 
-                    data = await pluginsManager.getByCategory('dataProvider')
+                    data = await pluginsManager.getExclusive('dataProvider')
                     jobs = await data.getAllJobs()
 
                 // import latest builds

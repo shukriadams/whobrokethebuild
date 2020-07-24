@@ -13,7 +13,7 @@ module.exports = function(app){
             const 
                 view = await handlebars.getView('settings/vcserver'),
                 model = { },
-                data = await pluginsManager.getByCategory('dataProvider')
+                data = await pluginsManager.getExclusive('dataProvider')
 
             model.VCServerTypes = await pluginsManager.getTypeCodesOf('vcs')
 

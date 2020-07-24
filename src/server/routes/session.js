@@ -43,7 +43,7 @@ module.exports = function(app){
             }
 
             const 
-                auth = await pluginsManager.getByCategory('authProvider'), 
+                auth = await pluginsManager.getExclusive('authProvider'), 
                 authResult = await auth.processLoginRequest(username, password, req.useragent.source)
                 
             if (authResult.result !== constants.LOGINRESULT_SUCCESS){

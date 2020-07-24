@@ -38,7 +38,7 @@ module.exports = {
      * Required by all "contact" plugins
      */
     async canTransmit(){
-        const data = await pluginsManager.getByCategory('dataProvider'),
+        const data = await pluginsManager.getExclusive('dataProvider'),
             token = await data.getPluginSetting('wbtb-slack', 'token')
         
         if (!token || !token.value)
@@ -52,7 +52,7 @@ module.exports = {
      * Gets an array of all available channels in slack. Returns an empty array if slack has not been configured yet.
      */ 
     async getChannels(){
-        const data = await pluginsManager.getByCategory('dataProvider'),
+        const data = await pluginsManager.getExclusive('dataProvider'),
             Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
             tokenSetting = await data.getPluginSetting('wbtb-slack', 'token')
 
@@ -79,7 +79,7 @@ module.exports = {
      * delta : the change (constants.BUILDDELTA_*)
      */
     async alertChannel(slackContactMethod, job, build, delta){
-        const data = await pluginsManager.getByCategory('dataProvider'),
+        const data = await pluginsManager.getExclusive('dataProvider'),
             token = await data.getPluginSetting('wbtb-slack', 'token'),
             Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : token.value }),
@@ -125,7 +125,7 @@ module.exports = {
      * build : build object for failing build
      */
     async alertBrokenBuild(user, build){
-        const data = await pluginsManager.getByCategory('dataProvider'),
+        const data = await pluginsManager.getExclusive('dataProvider'),
             token = await data.getPluginSetting('wbtb-slack', 'token'),
             Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : token.value }),

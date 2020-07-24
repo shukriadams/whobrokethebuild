@@ -22,7 +22,7 @@ module.exports = function(app){
             const 
                 view = await handlebars.getView('job'),
                 model = { },
-                data = await pluginsManager.getByCategory('dataProvider'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 page = parseInt(req.query.page || 1) - 1 // pages are publicly 1-rooted, 0-rooted internally
             
 

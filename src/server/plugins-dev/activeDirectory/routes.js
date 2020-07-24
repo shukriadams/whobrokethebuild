@@ -10,7 +10,7 @@ module.exports = function(app){
 
     app.get('/activeDirectory', async function(req, res){
         try {
-            const data = await pluginsManager.getByCategory('dataProvider'),
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('activeDirectory/views/users'),
                 localUsers = await data.getAllUsers(),
                 users = await logic.getAllRemoteUsers()
@@ -31,7 +31,7 @@ module.exports = function(app){
 
     app.post('/activeDirectory/users', async function(req, res){
         try {
-            const data = await pluginsManager.getByCategory('dataProvider'),
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 User = require(_$+'types/user'),
                 users = await logic.getAllRemoteUsers()
 

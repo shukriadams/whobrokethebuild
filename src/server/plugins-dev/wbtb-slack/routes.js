@@ -16,7 +16,7 @@ module.exports = function(app){
     app.get('/wbtb-slack/', async function(req, res){
         try {
             const view = await handlebars.getView('wbtb-slack/views/settings'),
-                data = await pluginsManager.getByCategory('dataProvider'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 token = await data.getPluginSetting(thisType, 'token'),
                 model = {
                     wbtbSlack : {
@@ -41,7 +41,7 @@ module.exports = function(app){
     app.get('/wbtb-slack/user/:userId', async function(req, res){
         try {
             const view = await handlebars.getView('wbtb-slack/views/user')
-                data = await pluginsManager.getByCategory('dataProvider'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 user = await data.getUser(req.params.userId, {expected : true}),
                 model = {
                     wbtbSlack : { 
@@ -59,7 +59,7 @@ module.exports = function(app){
 
     app.post('/wbtb-slack/settings', async function(req, res){
         try {
-            let data = await pluginsManager.getByCategory('dataProvider'),
+            let data = await pluginsManager.getExclusive('dataProvider'),
                 token = await data.getPluginSetting(thisType, 'token'),
                 jobs = await data.getAllJobs()
 
@@ -98,7 +98,7 @@ module.exports = function(app){
     
     app.post('/wbtb-slack/user/:userId', async function(req, res){
         try {
-            const data = await pluginsManager.getByCategory('dataProvider'),
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 user = await data.getUser(req.params.userId, {expected : true})
 
             const contactMethod = user.contactMethods[thisType] || {}
