@@ -20,21 +20,21 @@ stopwatch.start();
     await fs.ensureDir(settings.logPath)
 
     const
-        colors = require('colors/safe')
-        bodyParser = require('body-parser')
-        cookieParser = require('cookie-parser')
-        path = require('path')
+        colors = require('colors/safe'),
+        bodyParser = require('body-parser'),
+        cookieParser = require('cookie-parser'),
+        path = require('path'),
         glob = require('glob'),
-        useragent = require('express-useragent')
-        fsUtils = require('madscience-fsUtils')
-        Express = require('express')
-        app = Express()
-        socket = require(_$+ 'helpers/socket')
-        daemon = require(_$+'helpers/daemon')
-        diagnosticsHelper = require(_$+'helpers/diagnostics')
-        userLogic = require(_$+ 'logic/users')
-        pluginsManager = require(_$+'helpers/pluginsManager')
-        http = require('http');
+        useragent = require('express-useragent'),
+        fsUtils = require('madscience-fsUtils'),
+        Express = require('express'),
+        app = Express(),
+        socket = require(_$+ 'helpers/socket'),
+        daemon = require(_$+'helpers/daemon'),
+        diagnosticsHelper = require(_$+'helpers/diagnostics'),
+        userLogic = require(_$+ 'logic/users'),
+        pluginsManager = require(_$+'helpers/pluginsManager'),
+        http = require('http')
 
     try {
         

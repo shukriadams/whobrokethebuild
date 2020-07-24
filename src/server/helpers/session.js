@@ -7,7 +7,7 @@ module.exports = {
     /**
      * 
      */    
-    getCurrentUser : async function(req){
+    getCurrentUser : async (req)=>{
         if (!req.cookies[constants.COOKIE_AUTHKEY])
             return null
             

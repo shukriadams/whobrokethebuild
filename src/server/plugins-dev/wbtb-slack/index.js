@@ -1,6 +1,7 @@
 const Exception = require(_$+'types/exception'),
     ContactLog = require(_$+'types/contactLog'),
     constants = require(_$+'types/constants'),
+    pluginsManager = require(_$+'helpers/pluginsManager'),
     urljoin = require('urljoin'),
     thisType = 'wbtb-slack',    
     settings = require(_$+'helpers/settings')
@@ -32,7 +33,8 @@ module.exports = {
      * Required by all "contact" plugins
      */
     async canTransmit(){
-        const data = await pluginsManager.getExclusive('dataProvider'),
+        const 
+            data = await pluginsManager.getExclusive('dataProvider'),
             token = await data.getPluginSetting('wbtb-slack', 'token')
         
         if (!token || !token.value)

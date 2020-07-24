@@ -289,11 +289,11 @@ module.exports = {
      */
     getExclusive(category){
         if (! _plugins.byCategory[category])
-            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `No plugin for category : ${category}, getExclusive() failed.` })
+            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `No plugin for category : ${category}, getExclusive() failed.` })
 
         const plugins = Object.keys( _plugins.byCategory[category])
         if (plugins.length > 1)
-            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `Multiple plugins found for category : ${category}, getExclusive() failed.` })
+            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Multiple plugins found for category : ${category}, getExclusive() failed.` })
 
         const plugin = require(`${path.resolve(_plugins.byCategory[category][plugins[0]].path)}/index`)
         plugin.__wbtb = _plugins.byCategory[category][plugins[0]]
@@ -305,9 +305,9 @@ module.exports = {
      * 
     */
     get(name){
-        const pluginPath = _plugins.plugins[name] ? _plugins.plugins[name].path : nulll
+        const pluginPath = _plugins.plugins[name] ? _plugins.plugins[name].path : null
         if (!pluginPath)
-            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `name : ${name}` })
+            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Mising plugin : ${name}` })
 
         const plugin = require(`${path.resolve(pluginPath)}/index`)
         plugin.__wbtb = _plugins.plugins[name]
@@ -317,7 +317,7 @@ module.exports = {
     getAllByCategory(category){
         const pluginsForCategory = _plugins.byCategory[category]
         if (!pluginsForCategory)
-            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `Category : ${category}` })
+            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Category : ${category}` })
 
         const plugins = []
         for (let pluginName in pluginsForCategory){
