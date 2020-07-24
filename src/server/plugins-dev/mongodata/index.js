@@ -176,10 +176,6 @@ module.exports = {
         await _mongo.initialize()
     },
     
-    getTypeCode : ()=>{
-        return 'mongodata'
-    },
-
     // required by plugin interface
     getDescription(){
         return {

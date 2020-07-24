@@ -11,14 +11,6 @@ let
 module.exports = {
 
     /**
-     * required by plugin interface
-     */
-    getTypeCode(){
-        return 'activedirectory'
-    },
-
-
-    /**
      * plugin interface
      */
     getDescription(){

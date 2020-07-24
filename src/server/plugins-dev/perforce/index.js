@@ -1,8 +1,4 @@
 module.exports = {
-    
-    getTypeCode(){
-        return 'perforce'
-    },
 
     validateSettings: async () => {
         return true

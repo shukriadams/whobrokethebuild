@@ -22,7 +22,7 @@ module.exports = {
         for (let plugin of plugins){
 
             await plugin.validateSettings()
-            console.log(`${plugin.getTypeCode()} passed`)
+            console.log(`${plugin.getDescription().id} passed`)
         }
 
         // verify ciserver urls

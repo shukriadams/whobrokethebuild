@@ -7,10 +7,6 @@ const
     encryption = require(_$+'helpers/encryption')
 
 module.exports = {
-
-    getTypeCode(){
-        return 'svn'
-    },
     
     validateSettings: async () => {
         // check if svn is installed locally, we need this for talking to remote server

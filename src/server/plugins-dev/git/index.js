@@ -1,7 +1,4 @@
 module.exports = {
-    getTypeCode(){
-        return 'git'
-    },
 
     // required by plugin interface
     getDescription(){

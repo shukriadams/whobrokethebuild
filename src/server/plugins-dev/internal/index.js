@@ -53,9 +53,6 @@ async function verify(){
 } 
 
 module.exports = {
-    getTypeCode : ()=>{
-        return 'internal'
-    },
 
     // required by plugin interface
     getDescription(){

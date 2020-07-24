@@ -12,14 +12,6 @@ const
 
 module.exports = {
     
-    /**
-     * Unique CI server identifier associated with this plugin. Cannot be used by another ci plugin 
-     */
-    getTypeCode(){
-        // must be same name as package in package.json
-        return 'jenkins'
-    },
-
     // required by plugin interface
     getDescription(){
         return {

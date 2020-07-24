@@ -7,12 +7,6 @@ const Exception = require(_$+'types/exception'),
 
 module.exports = {
 
-    /**
-     * required by plugin interface
-     */
-    getTypeCode(){
-        return 'wbtb-slack'
-    },
     
     /**
      * required by plugin interface

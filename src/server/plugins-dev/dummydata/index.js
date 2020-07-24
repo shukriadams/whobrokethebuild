@@ -8,10 +8,6 @@ module.exports = {
         
     },
     
-    getTypeCode : ()=>{
-        return 'dummydata'
-    },
-
     // required by plugin interface
     getDescription(){
         return {

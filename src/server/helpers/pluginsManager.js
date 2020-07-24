@@ -342,7 +342,7 @@ module.exports = {
             plugins = await pluginsManager.getAllByCategory(category)
 
         for (let plugin of plugins)
-            types.push(plugin.getTypeCode()) 
+            types.push(plugin.getDescription().id) 
 
         return types
     },
