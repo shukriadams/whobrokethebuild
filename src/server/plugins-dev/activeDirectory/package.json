@@ -1,7 +1,11 @@
 {
     "name": "activedirectory",
+    "description": "WBTB plugin for active directory integration",
     "version": "0.0.1",
     "wbtb": {
-        "category": "authProvider"
+        "category": "authProvider",
+        "label": "Active Directory",
+        "description": "Active directory integration",
+        "hasUI": true
     }
 }

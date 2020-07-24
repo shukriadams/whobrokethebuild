@@ -22,7 +22,7 @@ module.exports = function(express){
                         bundle : settings.bundle
                     }
                 }
-
+            
             model.jobs = await data.getAllJobs()
                 
             // add latest and breaking build to job

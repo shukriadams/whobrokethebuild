@@ -15,9 +15,9 @@ let
     exclusiveCategories = ['dataProvider'],
     requiredCategories = ['dataProvider'],
     _plugins = {
-        // hash table of names of installed plugins
+        // hash table of installed plugins paths, mapped by id
         plugins : {},
-        // hash table of 
+        // hash table of installed plugins (full data), mapped by id.
         byCategory : {}
     }
 
@@ -198,10 +198,10 @@ module.exports = {
         const installedPluginFolders = await this.getPluginsFolders()
 
         // bind all discovered plugins
-        for (let installedPlugin of installedPluginFolders){
+        for (let pluginFolderPath of installedPluginFolders){
             const 
-                pluginName = path.basename(installedPlugin),
-                pluginPackageJsonPath = path.join(installedPlugin,  'package.json'),
+                pluginName = path.basename(pluginFolderPath),
+                pluginPackageJsonPath = path.join(pluginFolderPath,  'package.json'),
                 pluginConfig = pluginsConfig[pluginName]
 
             // plugin folder exists locally, but is not defined in pluginsConfig, ignore it
@@ -209,7 +209,7 @@ module.exports = {
                 continue
 
             // validate package.json structure
-            const packageJson = await fs.readJson(pluginPackageJsonPath);
+            const packageJson = await fs.readJson(pluginPackageJsonPath)
             if (!packageJson.wbtb){
                 logger.error.error(`ERROR : Plugin "${pluginName}" missing package.json:wbtb`)
                 errors = true
@@ -223,10 +223,12 @@ module.exports = {
                 continue
             }
 
-            _plugins.plugins[pluginName] = installedPlugin
             _plugins.byCategory[packageJson.wbtb.category] = _plugins.byCategory[packageJson.wbtb.category] || {}
-            _plugins.byCategory[packageJson.wbtb.category][pluginName] = installedPlugin 
-
+            // default structure for plugin definition data is taken straight package.json as the "wbtb" section. This means
+            _plugins.byCategory[packageJson.wbtb.category][pluginName] = packageJson.wbtb 
+            // add other stuff to definition - path f.ex is calculated at load time.
+            _plugins.byCategory[packageJson.wbtb.category][pluginName].path = pluginFolderPath 
+            _plugins.plugins[pluginName] = _plugins.byCategory[packageJson.wbtb.category][pluginName]
             logger.info.info(`Plugin "${pluginName}" loaded`)
         }
 
@@ -292,7 +294,9 @@ module.exports = {
         if (plugins.length > 1)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `Multiple plugins found for category : ${category}, getExclusive() failed.` })
 
-        return require(`${path.resolve(_plugins.byCategory[category][plugins[0]])}/index`)
+        const plugin = require(`${path.resolve(_plugins.byCategory[category][plugins[0]].path)}/index`)
+        plugin.__wbtb = _plugins.byCategory[category][plugins[0]]
+        return plugin
     },
 
 
@@ -300,22 +304,25 @@ module.exports = {
      * 
     */
     get(name){
-        const pluginPath = _plugins.plugins[name]
+        const pluginPath = _plugins.plugins[name] ? _plugins.plugins[name].path : nulll
         if (!pluginPath)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `name : ${name}` })
 
-        return require(`${path.resolve(pluginPath)}/index`)
+        const plugin = require(`${path.resolve(pluginPath)}/index`)
+        plugin.__wbtb = _plugins.plugins[name]
+        return plugin
     },
 
     getAllByCategory(category){
-        const byCategory = _plugins.byCategory[category]
-        if (!byCategory)
+        const pluginsForCategory = _plugins.byCategory[category]
+        if (!pluginsForCategory)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, public : `Category : ${category}` })
 
-        let plugins = []
-        for (let pluginPath in byCategory){
-            console.log(`${path.resolve(byCategory[pluginPath])}/index`);
-            plugins.push(require(`${path.resolve(byCategory[pluginPath])}/index`))
+        const plugins = []
+        for (let pluginName in pluginsForCategory){
+            const plugin = require(`${path.resolve(pluginsForCategory[pluginName].path)}/index`)
+            plugin.__wbtb = pluginsForCategory[pluginName]
+            plugins.push(plugin)
         }
         
         return plugins
@@ -327,8 +334,11 @@ module.exports = {
      */
     getAll(){
         let plugins = []
-        for (let pluginPath in  _plugins.plugins)
-            plugins.push(require(`${path.resolve(_plugins.plugins[pluginPath])}/index`))
+        for (let pluginPath in  _plugins.plugins){
+            const plugin = require(`${path.resolve(_plugins.plugins[pluginPath].path)}/index`)
+            plugin.__wbtb = _plugins.plugins[pluginPath]
+            plugins.push(plugin)
+        }
         
         return plugins
     },
