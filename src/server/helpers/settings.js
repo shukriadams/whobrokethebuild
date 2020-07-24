@@ -10,7 +10,6 @@ let settings = {
     poolSize : 10,
     bundle: true,
     runDiagnosticOnStart : false,
-    enableDevPlugins: false,
     daemonInterval : '* * * * *',
     cookiesDays: 365,
     standardPageSize: 10,

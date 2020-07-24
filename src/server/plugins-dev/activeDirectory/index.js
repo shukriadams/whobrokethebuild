@@ -27,7 +27,7 @@ module.exports = {
      */
     getAllRemoteUsers : async () => {
         const 
-            ActiveDirectory =  settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
+            ActiveDirectory = settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
             data = await pluginsManager.getExclusive('dataProvider'),
             activeDirectory = new ActiveDirectory({
                 url: settings.activeDirectoryUrl,
@@ -61,10 +61,11 @@ module.exports = {
 
 
     processLoginRequest : async (username, password) => {
-        const activeDirectory = new ActiveDirectory({
-            url: settings.activeDirectoryUrl,
-            base: settings.activeDirectoryBase
-        })
+        const ActiveDirectory = settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
+            activeDirectory = new ActiveDirectory({
+                url: settings.activeDirectoryUrl,
+                base: settings.activeDirectoryBase
+            })
     
         const response = await activeDirectory.loginUser(username, password)
         let sessionKey,

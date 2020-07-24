@@ -122,10 +122,10 @@ const
      * 
      */ 
     getById = async function(collectionName, id, options = {}){
-        return new Promise(async function(resolve, reject){
+        return new Promise(async (resolve, reject)=>{
             try {
                 const mongo = await _getCollection(collectionName)
-                mongo.collection.findOne({ _id : new ObjectID(id) },function(err, record){
+                mongo.collection.findOne({ _id : new ObjectID(id) },(err, record)=>{
                     if (err)
                         return reject(err)
                     

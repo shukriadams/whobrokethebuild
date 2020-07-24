@@ -55,7 +55,7 @@ module.exports = {
             pluginsConfig = await fs.readJson('./plugins.json')
 
         // if a dev plugin list exists, load and merge that with the regular plugins list, let dev plugins override regular ones
-        if (settings.enableDevPlugins && await fs.pathExists('./plugins.local.json')){
+        if (await fs.pathExists('./plugins.local.json')){
             const devPluginsConfig = await fs.readJson('./plugins.local.json')
             // mark all plugins defined in plugins.local.json as internal
             for (const plugin in devPluginsConfig)

@@ -42,3 +42,4 @@ src/server/plugins-dev/activeDirectory/package-lock.json
 src/.env
 src/.envreference
 build/node/.stage.tar.gz
+src/plugins.local.json

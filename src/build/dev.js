@@ -147,7 +147,7 @@ function startExpress(){
         })
 
     // start watching server js files
-    let expressWatcher = chokidar.watch(['./index.js', './server/**/*.js', '!./server/frontend/**', '!./server/plugins/**' ], {
+    let expressWatcher = chokidar.watch(['./index.js', './server/**/*.js', '!./server/frontend/**', '!./server/plugins/**', '!**/node_modules/**' ], {
         persistent: true,
         usePolling: true,
         // always ignore initial for server file watcher

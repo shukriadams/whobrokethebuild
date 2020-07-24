@@ -2,6 +2,9 @@
     "name": "activedirectory",
     "description": "WBTB plugin for active directory integration",
     "version": "0.0.1",
+    "dependencies": {
+        "node-ad-tools": "1.2.1"
+    },
     "wbtb": {
         "category": "authProvider",
         "label": "Active Directory",
