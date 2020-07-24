@@ -10,29 +10,33 @@ const
 
 stopwatch.start();
 
-const
-    colors = require('colors/safe')
-    bodyParser = require('body-parser')
-    cookieParser = require('cookie-parser')
-    path = require('path')
-    glob = require('glob'),
-    fs = require('fs-extra'),
-    useragent = require('express-useragent')
-    fsUtils = require('madscience-fsUtils')
-    settings = require(_$+ 'helpers/settings')
-    Express = require('express')
-    app = Express()
-    socket = require(_$+ 'helpers/socket')
-    daemon = require(_$+'helpers/daemon')
-    diagnosticsHelper = require(_$+'helpers/diagnostics')
-    userLogic = require(_$+ 'logic/users')
-    pluginsManager = require(_$+'helpers/pluginsManager')
-    http = require('http');
 
 (async function(){
+    // need to do this before we start requiring other componens, as these will often need to write to log folder at start
+    const settings = require(_$+ 'helpers/settings'),
+        fs = require('fs-extra')
+
+    await fs.ensureDir(settings.dataFolder)
+    await fs.ensureDir(settings.logPath)
+
+    const
+        colors = require('colors/safe')
+        bodyParser = require('body-parser')
+        cookieParser = require('cookie-parser')
+        path = require('path')
+        glob = require('glob'),
+        useragent = require('express-useragent')
+        fsUtils = require('madscience-fsUtils')
+        Express = require('express')
+        app = Express()
+        socket = require(_$+ 'helpers/socket')
+        daemon = require(_$+'helpers/daemon')
+        diagnosticsHelper = require(_$+'helpers/diagnostics')
+        userLogic = require(_$+ 'logic/users')
+        pluginsManager = require(_$+'helpers/pluginsManager')
+        http = require('http');
+
     try {
-        await fs.ensureDir(settings.dataFolder)
-        await fs.ensureDir(settings.logPath)
         
         // ensure that all required plugins are installed and up-to-date
         await pluginsManager.initializeAll()

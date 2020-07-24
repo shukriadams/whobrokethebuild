@@ -1,34 +1,5 @@
 {
-    "activeDirectory": {
-        "source" : "df",
-        "enabled" :  true
-    },
-    "internal": {
-        "source" : "git",
-        "enabled" : true
-    },
     "dummydata" : {
-        "enabled" : true
-    },
-    "postgres": {
-        "enabled" : false
-    },
-    "jenkins": {
-        "enabled" : true
-    },
-    "git": {
-        "enabled" : true
-    },
-    "svn": {
-        "enabled" : true
-    },
-    "wbtb-slack": {
-        "source" : "npm"
-    },
-    "perforce": {
-        "enabled" : true
-    },
-    "unreallogparser": {
-        "enabled" : true
+ 
     }
 }

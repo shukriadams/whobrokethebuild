@@ -28,8 +28,7 @@ module.exports = {
      */
     async getPluginsFolders(){
         let installedPlugins = await fsUtils.getChildDirs('./server/plugins')
-        if (settings.enableDevPlugins)
-            installedPlugins = installedPlugins.concat( await fsUtils.getChildDirs('./server/plugins-dev') )
+        installedPlugins = installedPlugins.concat( await fsUtils.getChildDirs('./server/plugins-dev') )
 
         return installedPlugins
     },
@@ -45,23 +44,26 @@ module.exports = {
      * installed it must be flagged as active
      */
     async initializeAll(){
-        const 
-            sources = ['git'], // removed npm as option as not yet implemented
+        let 
+            sources = ['git','internal'], // removed npm as option as not yet implemented
             // this is where plugins will normally be installed
-            externalPluginsFolder = './server/plugins'
+            externalPluginsFolder = './server/plugins',
             // read the regular plugins list
+            pluginsConfig = {}
+            
+        if (await fs.exists('./plugins.json'))
             pluginsConfig = await fs.readJson('./plugins.json')
 
         // if a dev plugin list exists, load and merge that with the regular plugins list, let dev plugins override regular ones
         if (settings.enableDevPlugins && await fs.pathExists('./plugins.local.json')){
             const devPluginsConfig = await fs.readJson('./plugins.local.json')
-            // each dev plugin needs a .dev flag so we know to load from plugins-dev folder
+            // mark all plugins defined in plugins.local.json as internal
             for (const plugin in devPluginsConfig)
-                devPluginsConfig[plugin].dev = true
+                devPluginsConfig[plugin].source = 'internal'
 
             pluginsConfig = Object.assign(pluginsConfig, devPluginsConfig)
         }
-        
+
         // strip out all plugin config if explicitly disabled 
         let disabledCount = 0
         for (const pluginName in pluginsConfig)
@@ -79,7 +81,7 @@ module.exports = {
             const pluginConfig = pluginsConfig[pluginName]
 
             // dev plugins don't require any config validation
-            if (pluginConfig.dev)
+            if (pluginConfig.source === 'internal')
                 continue
 
             // .source is required
@@ -119,12 +121,11 @@ module.exports = {
 
         await fs.ensureDir(externalPluginsFolder)
 
-
         // install all external plugins, npm install on all plugins
         for (const pluginName in pluginsConfig){
             let 
                 pluginConfig = pluginsConfig[pluginName],
-                pluginParentFolder = pluginConfig.dev ? './server/plugins-dev' : './server/plugins',
+                pluginParentFolder = pluginConfig.source === 'internal' ? './server/plugins-dev' : './server/plugins',
                 pluginFolder = `${path.join(pluginParentFolder, pluginName)}`, 
                 // we write out own per-plugin JSON file in root of plugins folder, this contains metadata about the installation
                 pluginInstallStatus = {},
@@ -135,7 +136,7 @@ module.exports = {
             if (await fs.pathExists(pluginInstallStatusPath))
                 pluginInstallStatus = await fs.readJson(pluginInstallStatusPath)
 
-            if (!pluginConfig.dev && pluginConfig.source === 'git'){
+            if (pluginConfig.source === 'git'){
 
                 // check if installed plugin version matches requested version
                 const alreadyInstalled = pluginInstallStatus.url === pluginConfig.url

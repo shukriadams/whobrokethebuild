@@ -1,3 +1,5 @@
 {
-
+    "dummydata" : {
+        "source" : "internal"
+    }
 }

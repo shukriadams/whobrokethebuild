@@ -54,9 +54,12 @@ docker build -t shukriadams/whobrokethebuild . &&
 cd -
 
 # test build
-docker-compose -f docker-compose-testmount.yml up -d
-LOOKUP= $(curl localhost:4000)
-if [ "$LOOKUP" != "200" ] ; then
+docker-compose -f docker-compose-testmount.yml up -d &&
+# give container a chance to start
+sleep 1 &&
+# confirm app has started
+LOOKUP=$(curl --silent localhost:4000/isalive) &&
+if [ "$LOOKUP" != "1" ] ; then
     echo "container test failed"
     exit 1
 fi

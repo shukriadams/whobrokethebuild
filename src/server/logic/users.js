@@ -27,11 +27,12 @@ module.exports = {
     
     async initializeAdmin (){
         // enforce master password
-        const data = await pluginsManager.getExclusive('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider'),
+            settings = require(_$+'helpers/settings')
         
-        let user = await data.getByPublicId(constants.ADMINUSERNAME, 'AUTHPROVIDER_INTERNAL');
+        let user = await data.getByPublicId(constants.ADMINUSERNAME, 'AUTHPROVIDER_INTERNAL')
         if (!user)
-            user = await this.createInternal(constants.ADMINUSERNAME, settings.adminPassword);
+            user = await this.createInternal(constants.ADMINUSERNAME, settings.adminPassword)
 
         user.password = settings.adminPassword
         user.isAuthApproved = true

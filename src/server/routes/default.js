@@ -7,6 +7,15 @@ const
 
 module.exports = function(express){
     
+
+    /**
+     * Simple logic-free HTTP get alive check 
+     */
+    express.get('/isalive', async (req, res)=>{
+        res.send('1')
+    })
+
+
     /**
      * 
      */
