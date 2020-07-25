@@ -1,0 +1,12 @@
+{
+    "name": "wbtb-slack",
+    "version": "0.0.1",
+    "dependencies": {
+        "slack": "11.0.2"
+    },
+    "wbtb": {
+        "category": "contactMethod",
+        "name": "Slack",
+        "hasUI": true
+    }
+}

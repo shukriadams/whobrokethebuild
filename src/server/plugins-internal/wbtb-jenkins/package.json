@@ -1,0 +1,8 @@
+{
+    "name": "wbtb-jenkins",
+    "version": "0.0.1",
+    "dependencies": {},
+    "wbtb": {
+        "category": "ciserver"
+    }
+}

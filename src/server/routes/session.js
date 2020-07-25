@@ -3,6 +3,7 @@ const
     constants = require(_$+ 'types/constants'),
     errorHandler = require(_$+'helpers/errorHandler'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
+    sessionLogic = require(_$+'logic/session'),
     commonModelHelper = require(_$+ 'helpers/commonModels')
     
 module.exports = function(app){
@@ -42,10 +43,17 @@ module.exports = function(app){
                 })
             }
 
-            const 
-                auth = await pluginsManager.getExclusive('authProvider'), 
-                authResult = await auth.processLoginRequest(username, password, req.useragent.source)
+            let
+                authProviders = await pluginsManager.getAllByCategory('authProvider'), 
+                authResult = null
                 
+            // try to log in with all available auth providers
+            for (const authProvider of authProviders){
+                authResult = await authProvider.processLoginRequest(username, password, req.useragent.source)
+                if (authResult.result === constants.LOGINRESULT_SUCCESS)
+                    break
+            }
+
             if (authResult.result !== constants.LOGINRESULT_SUCCESS){
                 res.status(401)
                 return res.json({
@@ -55,7 +63,17 @@ module.exports = function(app){
                 })
             }
 
-            res.cookie(constants.COOKIE_AUTHKEY, authResult.sessionKey, {
+            if (!authResult.userId){
+                res.status(401)
+                return res.json({
+                    code : constants.RESPONSECODES_INVALIDCREDENTIALS,
+                    status : 401,
+                    error : 'login passed but external credentials not mapped to internal user'
+                })
+            }
+
+            let session = await sessionLogic.insert(authResult.userId, req.useragent.source)
+            res.cookie(constants.COOKIE_AUTHKEY, session.id, {
                 maxAge: 1000 * 60 * 1440 * settings.cookiesDays, // 1440 minutes in day
                 httpOnly: true
             })

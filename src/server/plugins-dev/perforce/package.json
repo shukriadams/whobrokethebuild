@@ -1,8 +1,0 @@
-{
-    "name": "perforce",
-    "version": "0.0.1",
-    "dependencies": {},
-    "wbtb": {
-        "category": "vcs"
-    }
-}

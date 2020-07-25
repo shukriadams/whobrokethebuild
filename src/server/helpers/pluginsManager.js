@@ -13,7 +13,7 @@ let
     hash = require(_$+'helpers/hash'),
     logger = require('winston-wrapper').new(settings.logPath),
     exclusiveCategories = ['dataProvider'],
-    requiredCategories = ['dataProvider'],
+    requiredCategories = ['dataProvider', 'authProvider'],
     _plugins = {
         // hash table of installed plugins paths, mapped by id
         plugins : {},
@@ -28,7 +28,7 @@ module.exports = {
      */
     async getPluginsFolders(){
         let installedPlugins = await fsUtils.getChildDirs('./server/plugins')
-        installedPlugins = installedPlugins.concat( await fsUtils.getChildDirs('./server/plugins-dev') )
+        installedPlugins = installedPlugins.concat( await fsUtils.getChildDirs('./server/plugins-internal') )
 
         return installedPlugins
     },
@@ -125,7 +125,7 @@ module.exports = {
         for (const pluginName in pluginsConfig){
             let 
                 pluginConfig = pluginsConfig[pluginName],
-                pluginParentFolder = pluginConfig.source === 'internal' ? './server/plugins-dev' : './server/plugins',
+                pluginParentFolder = pluginConfig.source === 'internal' ? './server/plugins-internal' : './server/plugins',
                 pluginFolder = `${path.join(pluginParentFolder, pluginName)}`, 
                 // we write out own per-plugin JSON file in root of plugins folder, this contains metadata about the installation
                 pluginInstallStatus = {},
@@ -225,11 +225,22 @@ module.exports = {
             }
 
             _plugins.byCategory[packageJson.wbtb.category] = _plugins.byCategory[packageJson.wbtb.category] || {}
+            
             // default structure for plugin definition data is taken straight package.json as the "wbtb" section. This means
             _plugins.byCategory[packageJson.wbtb.category][pluginName] = packageJson.wbtb 
+            
             // add other stuff to definition - path f.ex is calculated at load time.
             _plugins.byCategory[packageJson.wbtb.category][pluginName].path = pluginFolderPath 
+
+            // wbtb uses package's name as its "id" value, id is a code used for data linking, name is used to display to humans
+            _plugins.byCategory[packageJson.wbtb.category][pluginName].id = packageJson.name
+
+            // ensure name, fall back to package name if none is set
+            _plugins.byCategory[packageJson.wbtb.category][pluginName].name = _plugins.byCategory[packageJson.wbtb.category][pluginName].name || packageJson.name 
+
+            // keep a copy of the plugin definition in a second hash table by plugin name, this if lookup if we don't know a plugin's category
             _plugins.plugins[pluginName] = _plugins.byCategory[packageJson.wbtb.category][pluginName]
+
             logger.info.info(`Plugin "${pluginName}" loaded`)
         }
 
@@ -263,12 +274,9 @@ module.exports = {
             allPlugins = this.getAll()
 
         for (const plugin of allPlugins){
-            if (!plugin.getDescription)
-                continue
-
-            const description = plugin.getDescription()
+            const description = plugin.__wbtb
             if (!description)
-                throw `a plugin getDescription() returned empty value`
+                throw `a plugin __wbtb is not set`
            
             if (description.hasUI && !description.name)
                 throw `plugin ${description.id} has a ui but no name` 
@@ -353,7 +361,7 @@ module.exports = {
             plugins = await pluginsManager.getAllByCategory(category)
 
         for (let plugin of plugins)
-            types.push(plugin.getDescription().id) 
+            types.push(plugin.__wbtb.id) 
 
         return types
     },
@@ -363,7 +371,7 @@ module.exports = {
         for(const plugin of plugins){
             const isValid = await plugin.validateSettings()
             if (!isValid)
-                throw `Settings validation failed for plugin ${plugin.getDescription().id}`
+                throw `Settings validation failed for plugin ${plugin.__wbtb.id}`
         }
     },
 

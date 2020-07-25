@@ -1,0 +1,12 @@
+{
+    "name": "wbtb-svn",
+    "version": "0.0.1",
+    "dependencies": {
+        "fs-extra": "9.0.0",
+        "madscience-node-exec": "https://github.com/shukriadams/node-exec.git#0.0.5",
+        "madscience-svnhelper": "https://github.com/shukriadams/madscience-svnhelper.git#0.0.1"
+    },
+    "wbtb": {
+        "category": "vcs"
+    }
+}

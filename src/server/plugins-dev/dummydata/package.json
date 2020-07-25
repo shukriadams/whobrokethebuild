@@ -1,9 +1,0 @@
-{
-    "name": "dummydata",
-    "version": "0.0.1",
-    "desription": "Fakes a data backend so we can run WhoBrokeTheBuild in complete isolation",
-    "dependencies": {},
-    "wbtb": {
-        "category": "dataProvider"
-    }
-}

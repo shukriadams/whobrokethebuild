@@ -1,6 +1,7 @@
 let
     settings = require(_$+'helpers/settings'),
     jsonfile = require('jsonfile'),
+    fs = require('fs-extra'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),

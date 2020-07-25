@@ -23,8 +23,8 @@ module.exports = function(app){
             // build contact methods
             for(const contactMethod of contactMethods)
                 model.contactMethods.push({
-                    link : `/${contactMethod.getDescription().id}/user/${user.id}`,
-                    name : contactMethod.getDescription().name,
+                    link : `/${contactMethod.__wbtb.id}/user/${user.id}`,
+                    name : contactMethod.__wbtb.name,
                 })
 
             // add vcserver names

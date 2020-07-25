@@ -22,7 +22,7 @@ module.exports = {
         for (let plugin of plugins){
 
             await plugin.validateSettings()
-            console.log(`${plugin.getDescription().id} passed`)
+            console.log(`${plugin.__wbtb.name} passed`)
         }
 
         // verify ciserver urls

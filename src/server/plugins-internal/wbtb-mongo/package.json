@@ -1,0 +1,10 @@
+{
+    "name": "wbtb-mongo",
+    "version": "0.0.1",
+    "dependencies": {
+        "mongodb": "3.5.7"
+    },
+    "wbtb": {
+        "category": "dataProvider"
+    }
+}

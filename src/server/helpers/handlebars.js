@@ -63,7 +63,7 @@ module.exports = {
             }
 
             // plugin dev pages
-            root = path.join(_$+'plugins-dev')
+            root = path.join(_$+'plugins-internal')
             pagePaths = glob.sync(`${root}/**/views/**/*.hbs`, { ignore : ['**/node_modules/**']})
             for (let pagePath of pagePaths){
                 let content = fs.readFileSync(pagePath, 'utf8'),
@@ -78,7 +78,7 @@ module.exports = {
             }
 
             // plugin dev partials
-            root = path.join(_$+'plugins-dev')
+            root = path.join(_$+'plugins-internal')
             pagePaths = glob.sync(`${root}/**/partials/**/*.hbs`, { ignore : ['**/node_modules/**']})
             for (let pagePath of pagePaths){
                 let content = fs.readFileSync(pagePath, 'utf8'),
