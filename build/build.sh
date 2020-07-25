@@ -60,9 +60,12 @@ sleep 1 &&
 # confirm app has started
 LOOKUP=$(curl --silent localhost:4000/isalive) &&
 if [ "$LOOKUP" != "1" ] ; then
-    echo "container test failed"
+    echo "ERROR : container test failed"
     exit 1
 fi
+
+echo "container test passed"
+
 
 if [ $DOCKERPUSH -eq 1 ]; then
     TAG=$(git describe --tags --abbrev=0) &&
