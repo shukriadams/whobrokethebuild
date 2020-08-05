@@ -64,6 +64,12 @@ module.exports = {
             pluginsConfig = Object.assign(pluginsConfig, devPluginsConfig)
         }
 
+        // add dummydate if config empty, this is required for app to run in "idle" mode
+        if (!Object.keys(pluginsConfig).length){
+            pluginsConfig['wbtb-dummydata'] = { source : 'internal' }
+            pluginsConfig['wbtb-internalusers'] = { source : 'internal' }
+        }
+
         // strip out all plugin config if explicitly disabled 
         let disabledCount = 0
         for (const pluginName in pluginsConfig)
@@ -110,7 +116,6 @@ module.exports = {
                 logger.error.error(`plugin "${pluginName}" has source "npm" but does not define "package"`)
                 errors = true
             }
-
         }
 
         if (errors){
