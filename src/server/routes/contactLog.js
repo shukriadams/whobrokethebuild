@@ -2,6 +2,7 @@ const
     pluginsManager = require(_$+'helpers/pluginsManager'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     errorHandler = require(_$+'helpers/errorHandler'),
+    settings = require(_$+ 'helpers/settings'),
     handlebars = require(_$+'helpers/handlebars')
 
 module.exports = function(app){

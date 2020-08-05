@@ -167,9 +167,16 @@ module.exports = {
                 console.log(`Plugin "${pluginName}" git cloned from ${pluginConfig.url}`)
             }
 
+            if (!await fs.exists(pluginFolder)){
+                logger.error.error(`Plugin "${pluginName}" does not exist`)
+                errors = true
+                packageHasErrors = true
+            }
+
+
             // ensure plugin has package manifest
             const packageManifestPath = path.join(pluginFolder, 'package.json')
-            if (!await fs.exists(packageManifestPath)){
+            if (!packageHasErrors && !await fs.exists(packageManifestPath)){
                 logger.error.error(`Plugin "${pluginName}" does not not have a package.json file`)
                 errors = true
                 packageHasErrors = true
