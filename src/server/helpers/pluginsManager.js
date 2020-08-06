@@ -370,7 +370,7 @@ module.exports = {
      */
     async getTypeCodesOf(category){
         const types = [],
-            plugins = await pluginsManager.getAllByCategory(category)
+            plugins = await this.getAllByCategory(category)
 
         for (let plugin of plugins)
             types.push(plugin.__wbtb.id) 

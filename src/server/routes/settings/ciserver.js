@@ -6,9 +6,9 @@ const
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars')
 
-module.exports = function(app){
+module.exports = app => {
 
-    app.get('/settings/ciserver/:id?', async function(req, res){
+    app.get('/settings/ciserver/:id?', async (req, res) =>{
         try {
             const 
                 view = await handlebars.getView('settings/ciserver'),
