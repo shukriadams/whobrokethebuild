@@ -1,12 +1,15 @@
-FROM alpine:3.10
+FROM ubuntu:20.04
 
-RUN apk update \
-    && apk upgrade \
-    && apk add bash \
-    && apk add nodejs=10.19.0-r0 \
-    && apk add npm=10.19.0-r0 \
+# squelch idiotic tzdata prompt
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install bash -y \
+    && apt-get install git -y \
+    && apt-get install nodejs -y \
+    && apt-get install npm -y\
     && mkdir -p /usr/app \
-    && adduser -D -u 1000 app \
+    && adduser -u 1000 app \
     && chmod 700 -R /usr/app \
     && chown -R app /usr/app
 

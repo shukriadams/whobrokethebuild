@@ -23,7 +23,9 @@
 src/_data
 src/.cache-require-paths.json
 src/public/scripts/
+src/server/plugins
 dev/pgadmin
+build/plugins
 src/server/plugins-internal/postgres.json
 src/server/plugins-internal/*.json
 src/.plugin.conf

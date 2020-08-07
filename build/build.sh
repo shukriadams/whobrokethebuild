@@ -54,6 +54,7 @@ docker build -t shukriadams/whobrokethebuild . &&
 cd -
 
 # test build
+docker-compose -f docker-compose-testmount.yml down &&
 docker-compose -f docker-compose-testmount.yml up -d &&
 # give container a chance to start
 sleep 1 &&
