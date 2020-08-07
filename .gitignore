@@ -20,7 +20,7 @@
 /docker/build.tar.gz
 /dev/gitlab
 /dev/jenkins
-src/_data/logs
+src/_data
 src/.cache-require-paths.json
 src/public/scripts/
 dev/pgadmin

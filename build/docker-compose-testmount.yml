@@ -7,8 +7,7 @@ services:
         container_name: whobrokethetest
         ports:
         - "4000:3000"
-        environment:
-          sandboxMode: 1
-          enableDevPlugins: 1
-        volumes:
-          - ./plugins.test.json:/usr/app/plugins.local.json
+        #environment:
+        #command: /bin/sh -c  "while true ;sleep 5; do continue; done"
+        #volumes:
+        #  - ./plugins.test.json:/usr/app/plugins.local.json
