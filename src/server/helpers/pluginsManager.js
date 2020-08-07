@@ -126,11 +126,32 @@ module.exports = {
 
         await fs.ensureDir(externalPluginsFolder)
 
+
+        // copy internal plugins
+        for (const pluginName in pluginsConfig){
+            const pluginConfig = pluginsConfig[pluginName]
+            if (pluginConfig.source !== 'internal')
+                continue
+            
+            const sourceFolder = path.join('./server/plugins-internal', pluginName),
+                targetFolder = path.join('./server/plugins', pluginName)
+            
+            if (!await fs.pathExists(sourceFolder)){
+                console.log(`internal plugin "${pluginName}" does not exist in internal plugin cache`)
+                errors = true
+                continue
+            }
+
+            await fs.copy(sourceFolder, targetFolder)
+
+        }
+
+
         // install all external plugins, npm install on all plugins
         for (const pluginName in pluginsConfig){
             let 
                 pluginConfig = pluginsConfig[pluginName],
-                pluginParentFolder = pluginConfig.source === 'internal' ? './server/plugins-internal' : './server/plugins',
+                pluginParentFolder = './server/plugins',
                 pluginFolder = `${path.join(pluginParentFolder, pluginName)}`, 
                 // we write out own per-plugin JSON file in root of plugins folder, this contains metadata about the installation
                 pluginInstallStatus = {},
