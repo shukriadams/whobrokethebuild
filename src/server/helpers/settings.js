@@ -14,6 +14,9 @@ let
         dataFolder : './_data',
         logPath : './_data/logs',
         externalPluginsFolder : './server/plugins',
+        // set this to true to run npm install directly in plugins-internal folder. This is for dev only, do not do on this in a docker container, your modules will be destroyed when the contiaier resets
+        bindInternalPlugins : false,
+
         authType : constants.AUTHPROVIDER_INTERNAL,
         adminPassword: 'admin', // password for master user, auto enforced on start
         bundlemode : '', // ''|.min

@@ -28,7 +28,8 @@ module.exports = {
      */
     async getPluginsFolders(){
         let installedPlugins = await fsUtils.getChildDirs('./server/plugins')
-        installedPlugins = installedPlugins.concat( await fsUtils.getChildDirs('./server/plugins-internal') )
+        if (settings.bindInternalPlugins)
+            installedPlugins = installedPlugins.concat( await fsUtils.getChildDirs('./server/plugins-internal') )
 
         return installedPlugins
     },
