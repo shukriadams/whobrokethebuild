@@ -45,3 +45,4 @@ src/.env
 src/.envreference
 build/node/.stage.tar.gz
 src/plugins.local.json
+__testing
