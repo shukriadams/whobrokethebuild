@@ -3,15 +3,16 @@ const
     handlebars = require(_$+'helpers/handlebars'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     PluginSetting = require(_$+'types/pluginSetting'),
-    ContactMethod = require(_$+'types/contactMethod')
+    ContactMethod = require(_$+'types/contactMethod'),
     thisType = 'wbtb-slack',
     slackLogic = require('./index'),
     errorHandler = require(_$+'helpers/errorHandler'),
     contactSetting = {
         channels: [] // string array of slack channel ids to broadcast errors to
-    }
+    };
 
-module.exports = function(app){
+
+module.exports = app => {
 
     app.get('/wbtb-slack/', async function(req, res){
         try {
@@ -113,4 +114,5 @@ module.exports = function(app){
     })
 
 }
+
 

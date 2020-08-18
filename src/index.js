@@ -54,10 +54,14 @@ stopwatch.start();
             routeFiles = [],
             data = await pluginsManager.getExclusive('dataProvider')
 
+        // load core routes
         routeFiles = routeFiles.concat(await fsUtils.readFilesUnderDir(path.join(root, 'routes')))
+
         // find all plugins, then routes folder under those
-        routeFiles = routeFiles.concat(glob.sync(`${root}/plugins-internal/*/routes.js`, { ignore : ['**/node_modules/**']}))
-        routeFiles = routeFiles.concat(glob.sync(`${root}/plugins/*/routes.js`, { ignore : ['**/node_modules/**']}))
+        if (settings.bindInternalPlugins)
+            routeFiles = routeFiles.concat(glob.sync(`${root}/plugins-internal/*/routes.js`, { ignore : ['**/node_modules/**']}))
+        else
+            routeFiles = routeFiles.concat(glob.sync(`${root}/plugins/*/routes.js`, { ignore : ['**/node_modules/**']}))
 
         await data.initialize()
         await userLogic.initializeAdmin()

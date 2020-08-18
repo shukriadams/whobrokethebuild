@@ -27,10 +27,15 @@ module.exports = {
      * gets folders of all plugins on system, AFTER plugin folders have been scaffolded up
      */
     async getPluginsFolders(){
-        let installedPlugins = await fsUtils.getChildDirs('./server/plugins')
-        if (settings.bindInternalPlugins)
-            installedPlugins = installedPlugins.concat( await fsUtils.getChildDirs('./server/plugins-internal') )
+        let installedPlugins
 
+        if (settings.bindInternalPlugins){
+            installedPlugins =  await fsUtils.getChildDirs('./server/plugins-internal')
+            console.log('Binding internal plugins')
+        } else {
+            installedPlugins = await fsUtils.getChildDirs('./server/plugins')
+        }
+ 
         return installedPlugins
     },
 
@@ -131,6 +136,8 @@ module.exports = {
         // copy internal plugins
         for (const pluginName in pluginsConfig){
             const pluginConfig = pluginsConfig[pluginName]
+
+            //  
             if (pluginConfig.source !== 'internal')
                 continue
             
@@ -144,7 +151,6 @@ module.exports = {
             }
 
             await fs.copy(sourceFolder, targetFolder)
-
         }
 
 
@@ -152,8 +158,9 @@ module.exports = {
         for (const pluginName in pluginsConfig){
             let 
                 pluginConfig = pluginsConfig[pluginName],
-                pluginParentFolder = './server/plugins',
-                pluginFolder = `${path.join(pluginParentFolder, pluginName)}`, 
+                pluginParentFolder = settings.bindInternalPlugins ? './server/plugins-internal' :  './server/plugins'
+
+            let pluginFolder = `${path.join(pluginParentFolder, pluginName)}`, 
                 // we write out own per-plugin JSON file in root of plugins folder, this contains metadata about the installation
                 pluginInstallStatus = {},
                 pluginInstallStatusPath = `${path.join(pluginParentFolder, `${pluginName}.json`)}`,
@@ -355,6 +362,7 @@ module.exports = {
         plugin.__wbtb = _plugins.plugins[name]
         return plugin
     },
+
 
     getAllByCategory(category){
         const pluginsForCategory = _plugins.byCategory[category]
