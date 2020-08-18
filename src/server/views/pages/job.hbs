@@ -25,7 +25,7 @@
                             {{#each __revisions}}
                                 <li_>
                                     <div>
-                                        {{revision}} - {{description}} {{ago date}}
+                                        {{revision}} - {{gistOf description 100 "..."}} {{ago date}}
                                         by 
                                         {{#if __user}}
                                             <a href="/user/{{__user.id}}">{{__user.name}}</a>

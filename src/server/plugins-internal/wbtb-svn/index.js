@@ -52,7 +52,7 @@ module.exports = {
 
             rawRevisionText = await fs.readFile(mockRevisionFile, 'utf8')
         } else {
-            rawRevisionText = (await exec.sh({ cmd : `svn log -r ${revision} ${vcServer.url} --username ${vcServer.username} --password ${password}`})).result
+            rawRevisionText = (await exec.sh({ cmd : `svn log --verbose -r ${revision} ${vcServer.url} --username ${vcServer.username} --password ${password}`})).result
         }
 
         let parsedRevisions = svnhelper.parseSVNLog(rawRevisionText)
