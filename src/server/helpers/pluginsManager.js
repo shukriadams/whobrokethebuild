@@ -364,9 +364,9 @@ module.exports = {
     },
 
 
-    getAllByCategory(category){
+    getAllByCategory(category, failOnNoMathes = true){
         const pluginsForCategory = _plugins.byCategory[category]
-        if (!pluginsForCategory)
+        if (!pluginsForCategory && failOnNoMathes)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Category : ${category}` })
 
         const plugins = []
@@ -400,7 +400,7 @@ module.exports = {
      */
     async getTypeCodesOf(category){
         const types = [],
-            plugins = await this.getAllByCategory(category)
+            plugins = await this.getAllByCategory(category, false) // don't fail if no plugins of given type found
 
         for (let plugin of plugins)
             types.push(plugin.__wbtb.id) 

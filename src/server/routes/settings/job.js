@@ -20,7 +20,7 @@ module.exports = function(app){
 
             model.vcServers = await data.getAllVCServers()
             model.ciServers = await data.getAllCIServers()
-            model.logParsers = await pluginsManager.getTypeCodesOf('logParser')
+            model.logParsers = await pluginsManager.getTypeCodesOf('logParser', false)
             model.logParsers.unshift('')// add blank value
 
             // hey, looking for contactMethod saving? it's done via the contactMethod plugin using it, f.ex, slack

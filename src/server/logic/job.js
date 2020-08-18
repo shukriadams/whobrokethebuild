@@ -1,5 +1,5 @@
 const
-    pluginsManager = require(_$+'helpers/pluginsManager')
+    pluginsManager = require(_$+'helpers/pluginsManager'),
     Job = require(_$+ 'types/job')
 
 module.exports = {
@@ -15,7 +15,7 @@ module.exports = {
     },
 
     update : async properties => {
-        const data = await pluginsManager.getExclusive('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider'),
             job = await data.getJob(properties.id)
 
         if (!job)
@@ -28,11 +28,11 @@ module.exports = {
         job.isPublic = properties.isPublic
         job.logParser = properties.logParser
         
-        await data.updateJob(job)
+        return await data.updateJob(job)
     },
 
     insert : async  properties => {
-        const data = await pluginsManager.getExclusive('dataProvider')
+        const data = await pluginsManager.getExclusive('dataProvider'),
             job = Job()
 
         job.name = properties.name
@@ -42,6 +42,6 @@ module.exports = {
         job.vcs = properties.vcs
         job.isPublic = properties.isPublic
 
-        await data.insertJob(job)
+        return await data.insertJob(job)
     }
 }

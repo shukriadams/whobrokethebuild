@@ -3,5 +3,7 @@
     "wbtb-internalusers" : { "source" : "internal" },
     "wbtb-activedirectory" : { "source" : "internal" },
     "wbtb-slack" : { "source" : "internal" },    
+    "wbtb-svn" : { "source" : "internal" },    
+    "wbtb-unreallogparser" : { "source" : "internal" },    
     "wbtb-jenkins" : { "source" : "internal" }
 }
