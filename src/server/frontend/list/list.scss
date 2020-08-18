@@ -5,12 +5,14 @@
 }
 
 .list-item {
+    background-color: var(--color-mineshaft);
+    color: var(--color-gray);
     padding: var(--universalPadding);
 
 }
 
 .list-item:nth-child( odd ) {
-    background-color: var(--color-alabaster);
+
 }
 
 .list-item.list-item--error {

@@ -1,9 +1,14 @@
 :root {
+    --color-crusta: #FE752F;
     --color-royalPurple: #7B40A5;
     --color-alabaster: #f7f7f7;
     --color-white: #fff;
-    --universalPadding: 8px;
+    --color-gray: #818181;
+    --color-mineshaft: #242424;
+    --color-black :#000;
+    --universalPadding: 32px;
     --layout-maxWidth: 1400px;
+    --layout-headerHeight: 100px;
 }
 
 @mixin typography-title {

@@ -1,7 +1,8 @@
 @import "../common/variables";
 
 .header {
-    background-color: var(--color-royalPurple);
+    height: var(--layout-headerHeight);
+    background-color: var(--color-crusta);
 }
 
 .header-title{
