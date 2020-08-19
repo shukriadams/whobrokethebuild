@@ -15,6 +15,14 @@
     @include session-link;
 }
 
+.session-logoutImg {
+    max-width: 32px;
+}
+
+.session-loginImg {
+    max-width: 32px;
+}
+
 .session-join {
     @include session-link;
 }

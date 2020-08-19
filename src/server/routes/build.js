@@ -1,8 +1,9 @@
 const 
     settings = require(_$+ 'helpers/settings'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
+    pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
-    buildLogic = require(_$+'logic/builds')
+    buildLogic = require(_$+'logic/builds'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){

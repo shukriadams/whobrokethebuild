@@ -1,3 +1,27 @@
+.layout-page {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    padding-left: 120px;
+    background: rgb(32,37,77);
+    background: linear-gradient(0deg, rgba(32,37,77,1) 0%, rgba(57,65,114,1) 110%);    
+}
+
+.layout-header {
+    position: fixed;
+    left: 0;
+    height: 100%;
+    width: 100px;   
+}
+
+.layout-main {
+    flex: 1 1 0%;
+}
+
+.layout-topMenu{
+    height: 128px;
+}
+
 .layout-scaffold {
     max-width: var(--layout-maxWidth);
     margin-left: auto;

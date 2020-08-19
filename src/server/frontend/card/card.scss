@@ -1,0 +1,24 @@
+@import "./../typography/typography";
+
+.card {
+    position: relative;
+}
+
+.card-title {
+    @include typography-title;
+    display: block;
+}
+
+.card-section{
+    display: inline-block;
+
+    &:not(:last-of-type){
+        padding-right: var(--universalPadding);
+    }
+}
+
+.card-status {
+    width: 10px;
+    height: 100px;
+    background-color: var(--color-toxicHulk);
+}

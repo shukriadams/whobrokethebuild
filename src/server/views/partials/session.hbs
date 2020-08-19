@@ -1,9 +1,12 @@
 <div class="session">
     {{#if session.isLoggedIn}}
         Hi there <a class="session-username" href="/settings">{{session.name}}</a>
-        <a class="session-logout" href="javascript:void(0)">Logout</a>
+        <a class="session-logout" href="javascript:void(0)">
+            <img class="session-logoutImg" src="/images/logout128_white.png" />
+        </a>
     {{else}}
-        <a class="session-login" href="/login">Login</a>
-        <a class="session-join" href="/join">Join</a>
+        <a class="session-login" href="/login">
+            <img class="session-loginImg" src="/images/login128_white.png" />
+        </a>
     {{/if}}
 </div>

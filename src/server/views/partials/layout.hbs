@@ -12,16 +12,17 @@
     </head>
     <body>
         <div class="layout-page">
-            <header class="header">
+
+            <header class="layout-header  header">
                 <div class="layout-scaffold">
-                    <a class="header-title" href="/">Who Broke the build</a>
+                    <a class="header-title" href="/">Who Broke the build?</a>
                     {{>session}}
                 </div>
             </header>
 
             <main class="layout-main">
-                <div class="layout-scaffold">
-                    {{>menu}}
+                {{>menu}}
+                <div>
                     {{{block "body"}}}
                 </div>
             </main>
@@ -30,6 +31,7 @@
                 <div class="layout-scaffold">
                 </div>
             </footer>
+
         </div>
         <script src="/scripts/scripts.js"></script>
     </body>

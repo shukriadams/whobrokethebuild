@@ -5,14 +5,17 @@
                 <h1>State of the builds</h1>
                 <ul class="list">
                     {{#each jobs}}
-                        <li class="list-item {{#if __breakingBuild}}list-item--error{{/if}}">
+                        <li class="card list-item {{#if __breakingBuild}}list-item--error{{/if}}">
 
-                            <div class="buildStatus buildStatus--{{status}}">
+                            <div class="card-section ">
+                                <div class="card-status card-status--{{status}}">
 
+                                </div>
                             </div>
 
-                            <div>
-                                <a href="/job/{{id}}">{{name}}</a>
+                            <div class="card-section">
+                                <a class="card-title" href="/job/{{id}}">{{name}}</a>
+
                                 {{#if __latestBuild}}
                                         last build was {{__latestBuild.build}} - {{ago __latestBuild.ended}} {{statusTranslate __latestBuild.status}}
                                 {{else}}
@@ -44,9 +47,6 @@
                     There are currently no builds to show
                 </p>
             {{/if}}
-
         </div>
     {{/content}}
 {{/extend}}
-
-

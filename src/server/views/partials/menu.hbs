@@ -1,16 +1,19 @@
-<ul class="horizontalMenu">
-    <li class="horizontalMenu-item">
-        <a href="/users">Users</a> 
-    </li>
-    <li class="horizontalMenu-item">
-        <a href="/contactLog">Contact log</a> 
-    </li>
-    {{#if session.isAdmin}}
+<div class="layout-topMenu">
+    <ul class="horizontalMenu">
         <li class="horizontalMenu-item">
-            <a href="/settings">profile</a> 
+            <a href="/users">Users</a> 
         </li>
         <li class="horizontalMenu-item">
-            <a href="/settings/system">System</a>
+            <a href="/contactLog">Contact log</a> 
         </li>
-    {{/if}}
-</ul>
+        {{#if session.isAdmin}}
+            <li class="horizontalMenu-item">
+                <a href="/settings">profile</a> 
+            </li>
+            <li class="horizontalMenu-item">
+                <a href="/settings/system">System</a>
+            </li>
+        {{/if}}
+    </ul>
+
+</div>
