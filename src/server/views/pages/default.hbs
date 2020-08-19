@@ -2,7 +2,6 @@
     {{#content "body"}}
         <div>
             {{#if jobs}}
-                <h1>State of the builds</h1>
                 <ul class="list">
                     {{#each jobs}}
                         <li class="card list-item {{#if __breakingBuild}}list-item--error{{/if}}">

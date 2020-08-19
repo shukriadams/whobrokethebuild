@@ -15,13 +15,13 @@
                 {{/each}}
             </select>
 
-            <button class="ciserver-post">{{#if isCreate}}Create{{else}}Update{{/if}}</button> 
+            <button class="button ciserver-post">{{#if isCreate}}Create{{else}}Update{{/if}}</button> 
 
             {{#unless isCreate}}
                 <h2>jobs</h2>
-                <ul>
+                <ul class="list">
                     {{#each jobs}}
-                        <li>
+                        <li class="list-item">
                             <div>
                                 {{name}}
                             </div>
@@ -33,7 +33,7 @@
                             {{#if __isImported}}
                                 <a href="/settings/job/{{id}}">Edit</a>
                             {{else}}
-                                <a href="/settings/job?name={{__nameUrlFriendly}}">Add</a>
+                                <a class="button" href="/settings/job?name={{__nameUrlFriendly}}">Add</a>
                             {{/if}}
                             
                             {{#if __isImported}}

@@ -18,3 +18,7 @@ ul, li {
 h1 {
     @include typography-title;
 }
+
+h2 {
+    @include typography-title2;
+}
