@@ -11,24 +11,26 @@
         {{{block "basehead"}}}
     </head>
     <body>
-        <header class="header">
-            <div class="layout-scaffold">
-                <a class="header-title" href="/">Who Broke the build</a>
-                {{>session}}
-            </div>
-        </header>
+        <div class="layout-page">
+            <header class="header">
+                <div class="layout-scaffold">
+                    <a class="header-title" href="/">Who Broke the build</a>
+                    {{>session}}
+                </div>
+            </header>
 
-        <main class="layout-main">
-            <div class="layout-scaffold">
-                {{>menu}}
-                {{{block "body"}}}
-            </div>
-        </main>
+            <main class="layout-main">
+                <div class="layout-scaffold">
+                    {{>menu}}
+                    {{{block "body"}}}
+                </div>
+            </main>
 
-        <footer>
-            <div class="layout-scaffold">
-            </div>
-        </footer>
+            <footer>
+                <div class="layout-scaffold">
+                </div>
+            </footer>
+        </div>
         <script src="/scripts/scripts.js"></script>
     </body>
 </html>

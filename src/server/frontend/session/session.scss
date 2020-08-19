@@ -1,0 +1,20 @@
+@mixin session-link{
+    color: var(--color-white);
+    text-decoration: underline;
+}
+
+.session-username {
+    @include session-link;
+}
+
+.session-login {
+    @include session-link;
+}
+
+.session-logout {
+    @include session-link;
+}
+
+.session-join {
+    @include session-link;
+}

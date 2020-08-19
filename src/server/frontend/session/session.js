@@ -1,13 +1,13 @@
 if (document.querySelector('.session')){
-    const logoutButton = document.querySelector('.session-end');
+    const logoutButton = document.querySelector('.session-logout')
 
     if (logoutButton)
         logoutButton.addEventListener('click', async ()=>{
-            await endSession();
-        }, false);
+            await endSession()
+        }, false)
 
     async function endSession(){
-        await fetchDo({url : 'session', method: 'DELETE'});
-        window.location = window.location;
+        await fetchDo({ url : 'session', method: 'DELETE' })
+        window.location = window.location
     }
 }

@@ -1,4 +1,5 @@
 @import "../common/variables";
+@import "../typography/typography";
 
 .header {
     height: var(--layout-headerHeight);
@@ -6,6 +7,6 @@
 }
 
 .header-title{
-    @include typography-title ;
+    @include typography-title;
     color: var(--color-white);
 }

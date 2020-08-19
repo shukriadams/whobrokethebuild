@@ -14,7 +14,7 @@
                             <div>
                                 <a href="/job/{{id}}">{{name}}</a>
                                 {{#if __latestBuild}}
-                                        last build was {{__latestBuild.build}} - {{statusTranslate __latestBuild.status}}
+                                        last build was {{__latestBuild.build}} - {{ago __latestBuild.ended}} {{statusTranslate __latestBuild.status}}
                                 {{else}}
                                     hasn't run yet
                                 {{/if}}       

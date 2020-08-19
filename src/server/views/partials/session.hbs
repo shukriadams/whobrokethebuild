@@ -1,9 +1,9 @@
 <div class="session">
     {{#if session.isLoggedIn}}
-        Hi there <a href="/settings">{{session.name}}</a>
-        <a class="session-end" href="javascript:void(0)">Logout</a>
+        Hi there <a class="session-username" href="/settings">{{session.name}}</a>
+        <a class="session-logout" href="javascript:void(0)">Logout</a>
     {{else}}
-        <a href="/login">Login</a>
-        <a href="/join">Join</a>
+        <a class="session-login" href="/login">Login</a>
+        <a class="session-join" href="/join">Join</a>
     {{/if}}
 </div>
