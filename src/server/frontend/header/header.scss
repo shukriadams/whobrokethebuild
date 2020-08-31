@@ -1,6 +1,11 @@
 @import "../common/variables";
 @import "../typography/typography";
 
+@mixin header-link{
+    color: var(--color-white);
+    text-decoration: underline;
+}
+
 .header {
     height: var(--layout-headerHeight);
     background-color: var(--color-crusta);
@@ -10,4 +15,28 @@
     font-size: 16px;
     font-weight: bold;
     color: var(--color-white);
+}
+
+.header-username {
+    @include header-link;
+}
+
+.header-login {
+    @include header-link;
+}
+
+.header-logout {
+    @include header-link;
+}
+
+.header-join {
+    @include header-link;
+}
+
+.header-items {
+    list-style: none;
+}
+
+.header-items li {
+    padding-bottom: var(--universalPadding);
 }
