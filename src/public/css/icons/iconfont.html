@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>iconfont</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			margin: 0;
+			padding: 10px 20px;
+		}
+
+		.preview {
+			line-height: 2em;
+		}
+
+		.preview__icon {
+			display: inline-block;
+			width: 32px;
+			text-align: center;
+		}
+
+		.icon {
+			display: inline-block;
+			font-size: 16px;
+		}
+
+		@font-face {
+	font-family: "iconfont";
+	src: url("/css/icons/iconfont.eot?62bb689ef8ff93453139b920352b9931?#iefix") format("embedded-opentype"),
+url("/css/icons/iconfont.woff2?62bb689ef8ff93453139b920352b9931") format("woff2"),
+url("/css/icons/iconfont.woff?62bb689ef8ff93453139b920352b9931") format("woff"),
+url("/css/icons/iconfont.ttf?62bb689ef8ff93453139b920352b9931") format("truetype");
+}
+
+.icon {
+	line-height: 1;
+}
+
+.icon:before {
+	font-family: iconfont !important;
+	font-style: normal;
+	font-weight: normal !important;
+	vertical-align: top;
+}
+
+.icon-gear:before {
+	content: "\f101";
+}
+.icon-logout:before {
+	content: "\f102";
+}
+.icon-login:before {
+	content: "\f103";
+}
+.icon-log:before {
+	content: "\f104";
+}
+.icon-users:before {
+	content: "\f105";
+}
+.icon-user:before {
+	content: "\f106";
+}
+
+	</style>
+</head>
+<body>
+	<h1>iconfont</h1>
+	<div class="preview">
+		<span class="preview__icon">
+			<span class=" icon-gear"></span>
+		</span>
+		<span>gear</span>
+	</div>
+	<div class="preview">
+		<span class="preview__icon">
+			<span class=" icon-logout"></span>
+		</span>
+		<span>logout</span>
+	</div>
+	<div class="preview">
+		<span class="preview__icon">
+			<span class=" icon-login"></span>
+		</span>
+		<span>login</span>
+	</div>
+	<div class="preview">
+		<span class="preview__icon">
+			<span class=" icon-log"></span>
+		</span>
+		<span>log</span>
+	</div>
+	<div class="preview">
+		<span class="preview__icon">
+			<span class=" icon-users"></span>
+		</span>
+		<span>users</span>
+	</div>
+	<div class="preview">
+		<span class="preview__icon">
+			<span class=" icon-user"></span>
+		</span>
+		<span>user</span>
+	</div>
+</body>
+</html>

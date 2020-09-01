@@ -3,7 +3,6 @@
 
 @mixin header-link{
     color: var(--color-white);
-    text-decoration: underline;
 }
 
 .header {
@@ -19,6 +18,7 @@
 
 .header-username {
     @include header-link;
+    text-decoration: underline;
 }
 
 .header-login {

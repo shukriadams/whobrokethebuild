@@ -4,6 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
         <link rel="stylesheet" href="/css/style{{layout.bundlemode}}.css" type="text/css">
+        <link rel="stylesheet" href="/css/icons/iconfont.css" type="text/css">
         <link rel='shortcut icon' type='image/x-icon' href='/images/favicon.png'/>
         <meta http-equiv="content-type" name="description" content="">
         <meta http-equiv="content-type" name="keywords" content="">
@@ -19,23 +20,25 @@
                         <li>
                             <a class="header-title" href="/">Who Broke the build?</a>
                         </li>
+                        
                         {{#if session.isLoggedIn}}
                             <li>
                                 Hi there <a class="header-username" href="/settings">{{session.name}}</a>
                             </li>
                         {{/if}}
+
                         <li>
                             {{#if session.isLoggedIn}}
-                                <a class="header-logout" href="javascript:void(0)">
-                                    <img class="icon" src="/images/logout128_white.png" />
+                                <a class="header-logout" href="javascript:void(0)" title="Logout">
+                                    <i class="icon icon-logout"></i>
                                 </a>
                             {{else}}
-                                <a class="header-login" href="/login">
-                                    <img class="icon" src="/images/login128_white.png" />
+                                <a class="header-login" href="/login" title="Login">
+                                    <i class="icon icon-login"></i>
                                 </a>
                             {{/if}}
-
                         </li>
+
                     </ul>
                 </div>
             </header>

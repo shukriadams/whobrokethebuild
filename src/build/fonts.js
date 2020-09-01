@@ -6,9 +6,17 @@ const webfontsGenerator = require('webfonts-generator')
  
 webfontsGenerator({
         files: [
-            'svgs/gear.svg'
+            'svgs/gear.svg',
+            'svgs/logout.svg',
+            'svgs/login.svg',
+            'svgs/log.svg',
+            'svgs/users.svg',
+            'svgs/user.svg'
         ],
-        dest: './../public/icon-font/',
+        dest: './../public/css/icons/',
+        cssFontsUrl : '/css/icons',
+        types :['woff2', 'woff', 'eot', 'ttf'],
+        html : true
     }, function(error) {
         if (error)
             console.log('Fail!', error)
