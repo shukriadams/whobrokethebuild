@@ -7,7 +7,7 @@
                         <li class="card list-item {{#if __breakingBuild}}list-item--error{{/if}}">
 
                             <div class="card-section ">
-                                <div class="card-status card-status--{{status}}">
+                                <div class="card-status card-status--{{statusTranslate __latestBuild.status}}">
 
                                 </div>
                             </div>
@@ -16,7 +16,7 @@
                                 <a class="card-title" href="/job/{{id}}">{{name}}</a>
 
                                 {{#if __latestBuild}}
-                                        last build was {{__latestBuild.build}} - {{ago __latestBuild.ended}} {{statusTranslate __latestBuild.status}}
+                                        last build was <a href="/build/{{__latestBuild.id}}">{{__latestBuild.build}}</a> ({{ago __latestBuild.ended}}), and is {{statusTranslate __latestBuild.status}}
                                 {{else}}
                                     hasn't run yet
                                 {{/if}}       
@@ -36,7 +36,6 @@
                                         {{/if}}
                                     {{/each}}
                                 {{/if}}
-                                <a href="/build/{{__breakingBuild.id}}">View</a>
                             {{/if}}
                         </li>
                     {{/each}}

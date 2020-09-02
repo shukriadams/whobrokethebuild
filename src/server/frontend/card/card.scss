@@ -20,5 +20,15 @@
 .card-status {
     width: 10px;
     height: 73px;
-    background-color: var(--color-toxicHulk);
+    background-color: var(--color-crusta);
+   
+
+    &.card-status--passing {
+        background-color: var(--color-toxicHulk);
+    }
+
+    &.card-status--broken {
+        background-color: var(--color-redRibbon);
+    }
 }
+

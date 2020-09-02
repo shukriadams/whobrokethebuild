@@ -33,10 +33,6 @@
     @include header-link;
 }
 
-.header-items {
-    list-style: none;
-}
-
 .header-items li {
     padding-bottom: var(--universalPadding);
 }
