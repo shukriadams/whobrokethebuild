@@ -1,14 +1,9 @@
-.list-item {
+.list li {
     background-color: var(--color-cloudburst);
-    color: var(--color-lynch);
+    color: var(--color-alabaster);
     padding: var(--universalPadding);
-    margin-bottom: var(--universalPadding);
 }
 
-.list-item:nth-child( odd ) {
-
-}
-
-.list-item.list-item--error {
-    color: red;
+.list li:nth-child(odd) {
+    background-color: var(--color-indigo);
 }

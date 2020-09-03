@@ -1,22 +1,27 @@
 {{#extend "layout"}}
     {{#content "body"}}
-        <div class="build">
+        <ul class="list build">
 
-            <div class="card">
-                <div class="card-status card-status--{{statusTranslate __latestBuild.status}}"></div>
-                <div class="card-content">
-                    <h1>Build {{build.build}}</h1>
-                    <p>
-                        Status : {{statusTranslate build.status}}
-                    </p>
+            <li>
+                <div class="card">
+                    <div class="card-status card-status--{{statusTranslate __latestBuild.status}}"></div>
+                    <div class="card-content">
+                        <h1>Build {{build.build}}</h1>
+                        <p>
+                            Status : {{statusTranslate build.status}}
+                        </p>
+                    </div>
                 </div>
-            </div>
 
-            <p>
-                Job <a href="/job/{{build.jobId}}">{{build.__job.name}}</a>
-            </p>
+                <p>
+                    Job : <a href="/job/{{build.jobId}}">{{build.__job.name}}</a>
+                </p>
+                {{#if session.isAdmin}}
+                    <button class="button build-delete" data-id="{{build.id}}">Delete build</button>    
+                {{/if}}
+            </li>
 
-            <div>
+            <li>
                 <h2>Revisions</h2>
                 <ul>
                     {{#if build.__revisions}}
@@ -30,13 +35,10 @@
                             That's odd - there are no revisions in this build?
                         </li>
                     {{/if}}
-
                 </ul>
-            </div>
-            
+            </li>
 
-
-            <div class="build-log">
+            <li class="build-log">
                 <h2>Log</h2>
                 <p>
                     {{{preserveSpaces build.log}}}
@@ -44,12 +46,9 @@
                 <div>
                     <a href="/build/log/{{build.id}}">Full log</a>
                 </div>
-            </div>
+            </li>
 
-            <div>
-                <button class="build-delete" data-id="{{build.id}}">Delete build</button>    
-            </div>
-        </div>
+        </ul>
 
     {{/content}}
 {{/extend}}
