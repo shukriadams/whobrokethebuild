@@ -1,29 +1,46 @@
 {{#extend "layout"}}
     {{#content "body"}}
         <div class="build">
-            <h1>Build {{build.build}}</h1>
+
+            <div class="card">
+                <div class="card-status card-status--{{statusTranslate __latestBuild.status}}"></div>
+                <div class="card-content">
+                    <h1>Build {{build.build}}</h1>
+                    <p>
+                        Status : {{statusTranslate build.status}}
+                    </p>
+                </div>
+            </div>
+
+            <p>
+                Job <a href="/job/{{build.jobId}}">{{build.__job.name}}</a>
+            </p>
 
             <div>
-                Status : {{statusTranslate build.status}}
-            </div>
-            <div>
-                Revisions 
+                <h2>Revisions</h2>
                 <ul>
-                    {{#each build.__revisions}}
+                    {{#if build.__revisions}}
+                        {{#each build.__revisions}}
+                            <li>
+                                {{{renderPartialByName __viewName this}}}
+                            </li>
+                        {{/each}}
+                    {{else}}
                         <li>
-                           {{{renderPartialByName __viewName this}}}
+                            That's odd - there are no revisions in this build?
                         </li>
-                    {{/each}}
+                    {{/if}}
+
                 </ul>
             </div>
             
-            <div>
-                Job <a href="/job/{{build.jobId}}">{{build.__job.name}}</a>
-            </div>
+
 
             <div class="build-log">
                 <h2>Log</h2>
-                {{{preserveSpaces build.log}}}
+                <p>
+                    {{{preserveSpaces build.log}}}
+                </p>
                 <div>
                     <a href="/build/log/{{build.id}}">Full log</a>
                 </div>

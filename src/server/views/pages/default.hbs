@@ -2,41 +2,36 @@
     {{#content "body"}}
         <div>
             {{#if jobs}}
-                <ul class="list">
+                <ul class="list jobs">
                     {{#each jobs}}
                         <li class="card list-item {{#if __breakingBuild}}list-item--error{{/if}}">
 
-                            <div class="card-section ">
-                                <div class="card-status card-status--{{statusTranslate __latestBuild.status}}">
+                            <div class="card-status card-status--{{statusTranslate __latestBuild.status}}"></div>
 
-                                </div>
-                            </div>
-
-                            <div class="card-section">
-                                <a class="card-title" href="/job/{{id}}">{{name}}</a>
+                            <div class="card-content">
+                                <a class="jobs-title" href="/job/{{id}}">{{name}}</a>
 
                                 {{#if __latestBuild}}
-                                        last build was <a href="/build/{{__latestBuild.id}}">{{__latestBuild.build}}</a> ({{ago __latestBuild.ended}}), and is {{statusTranslate __latestBuild.status}}
+                                    last build was <a href="/build/{{__latestBuild.id}}">{{__latestBuild.build}}</a> ({{ago __latestBuild.started}})
+
+                                    {{#if __breakingBuild}}
+                                        {{#if __breakingBuild.__buildInvolvements}}
+                                            Broken by  
+                                            {{#each __breakingBuild.__buildInvolvements}}
+                                                {{#if __user}}
+                                                    <a href="/user/{{__user.id}}">{{__user.name}}</a>
+                                                {{else}}
+                                                    {{externalUsername}}
+                                                {{/if}}
+                                            {{/each}}
+                                        {{/if}}
+                                    {{/if}}
+
                                 {{else}}
                                     hasn't run yet
                                 {{/if}}       
                             </div>
 
-                            {{#if __breakingBuild}}
-                                <div>
-                                    Broke @ {{__breakingBuild.build}} ({{ago __breakingBuild.started}})
-                                </div>             
-                                {{#if __breakingBuild.__buildInvolvements}}
-                                    Broken by : 
-                                    {{#each __breakingBuild.__buildInvolvements}}
-                                        {{#if __user}}
-                                            <a href="/user/{{__user.id}}">{{__user.name}}</a>
-                                        {{else}}
-                                            {{externalUsername}}
-                                        {{/if}}
-                                    {{/each}}
-                                {{/if}}
-                            {{/if}}
                         </li>
                     {{/each}}
                 </ul>

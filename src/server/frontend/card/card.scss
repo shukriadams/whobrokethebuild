@@ -4,24 +4,13 @@
     position: relative;
 }
 
-.card-title {
-    @include typography-title;
-    display: block;
-}
-
-.card-section{
-    display: inline-block;
-
-    &:not(:last-of-type){
-        padding-right: var(--universalPadding);
-    }
-}
-
 .card-status {
+    display: inline-block;
+    margin-right: var(--universalPadding);
     width: 10px;
-    height: 73px;
+    height: 68px;
     background-color: var(--color-crusta);
-   
+  
 
     &.card-status--passing {
         background-color: var(--color-toxicHulk);
@@ -32,3 +21,6 @@
     }
 }
 
+.card-content {
+    display: inline-block;
+}

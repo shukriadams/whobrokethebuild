@@ -4,6 +4,7 @@ const
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
     buildLogic = require(_$+'logic/builds'),
+    jobsLogic = require(_$+'logic/job'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){
@@ -36,12 +37,16 @@ module.exports = function(app){
     app.get('/build/:id', async (req, res)=>{
         try {
             const
-                build = await buildLogic.get(req.params.id),
+                build = await buildLogic.getById(req.params.id),
+                job = await jobsLogic.getById(build.jobId),
+                logParser = job.logParser ? await pluginsManager.get(job.logParser) : null,
                 view = await handlebars.getView('build'),
                 model = {
                     build
                 }
-
+            
+            if (logParser)
+                model.build.log = logParser.parseErrors(model.build.log)
             await commonModelHelper(model, req)
             res.send(view(model))
 

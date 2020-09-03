@@ -3,6 +3,10 @@ const
     Job = require(_$+ 'types/job')
 
 module.exports = {
+    getById : async id => {
+        const data = await pluginsManager.getExclusive('dataProvider')
+        return await data.getJob(id)
+    },
 
     getAll : async job => {
         const data = await pluginsManager.getExclusive('dataProvider')

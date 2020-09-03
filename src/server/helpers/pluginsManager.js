@@ -2,7 +2,6 @@ let
     settings = require(_$+'helpers/settings'),
     path = require('path'),
     fs = require('fs-extra'),
-    colors = require('colors/safe'),
     urljoin = require('urljoin'),
     jsonfile = require('jsonfile'),
     Exception = require(_$+ 'types/exception'),
@@ -20,6 +19,21 @@ let
         // hash table of installed plugins (full data), mapped by id.
         byCategory : {}
     }
+
+// own dir copy function, fs-extra corrupts files on vagrant/windows    
+async function copyDirectory(source, target){
+    const path = require('path'), 
+        sourceFiles = await fsUtils.readFilesUnderDir(source)
+
+    for (let sourceFile of sourceFiles){
+        sourceFile = sourceFile.replace(source, '')
+        const sourceFileFull = path.join(source, sourceFile),
+            targetPath = path.join(target, sourceFile)
+
+        await fs.ensureDir(path.dirname(targetPath))
+        fs.createReadStream(sourceFileFull).pipe(fs.createWriteStream(targetPath))
+    }
+}
 
 module.exports = {
 
@@ -150,7 +164,7 @@ module.exports = {
                 continue
             }
 
-            await fs.copy(sourceFolder, targetFolder)
+            await copyDirectory(sourceFolder, targetFolder)
         }
 
 

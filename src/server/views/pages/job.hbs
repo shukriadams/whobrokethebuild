@@ -4,7 +4,7 @@
 
         {{#if session.isAdmin}}
             <a href="/settings/job/{{job.id}}">
-                <img class="icon" src="/images/settings128_crusta.png" />
+                <i class="icon icon-gear"></i>
             </a>
         {{/if}}
 
@@ -13,16 +13,22 @@
             {{#if jobBuilds.items}}
                 {{#each jobBuilds.items}}
                     <li class="list-item">
-                        <div>
-                            <a class="job-buildTitle" href="/build/{{id}}">
-                                # {{build}}
-                            </a>
-                        </div>
-                        <div>
-                            Status : {{statusTranslate status}}
-                        </div>
-                        <div>
-                            {{ago started}} @ {{shortTime started}}
+
+                        <div class="card">
+                            <div class="card-status card-status--{{statusTranslate status}}"></div>
+                            <div class="card-content">
+                                <div>
+                                    <a class="job-buildTitle" href="/build/{{id}}">
+                                        # {{build}}
+                                    </a>
+                                </div>
+                                <div>
+                                    Status : {{statusTranslate status}}
+                                </div>
+                                <div>
+                                    {{ago started}} @ {{shortTime started}}
+                                </div>
+                            </div>    
                         </div>
 
                         <h3>Revisions</h3>

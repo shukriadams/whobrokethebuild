@@ -1,4 +1,7 @@
+@import "./../common/mixins.scss";
+
 .button {
+    @include common-input;
     border: none;
     cursor: pointer;
     display: inline-block;
@@ -8,5 +11,4 @@
     white-space: nowrap;    
     background-color:var(--color-crusta);
     color: white;
-    padding: 10px 20px;
 }

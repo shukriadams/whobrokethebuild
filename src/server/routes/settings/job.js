@@ -25,9 +25,11 @@ module.exports = function(app){
 
             // hey, looking for contactMethod saving? it's done via the contactMethod plugin using it, f.ex, slack
             
+            // name query arg indicates this is a new job being set up
             if (req.query.name)
                 model.job = {
-                    name : req.query.name
+                    name : req.query.name,
+                    isPublic : true
                 }
 
             await commonModelHelper(model, req)

@@ -28,7 +28,7 @@ module.exports = {
      * Gets name of local partial view that will render revision on generic pages
      */
     getRevisionPartialName(){
-        return 'svn/partials/revision'
+        return 'wbtb-svn/partials/revision'
     },
 
     /**
