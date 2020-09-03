@@ -17,6 +17,7 @@
                                     {{#if __breakingBuild}}
                                         {{#if __breakingBuild.__buildInvolvements}}
                                             Broken by  
+
                                             {{#each __breakingBuild.__buildInvolvements}}
                                                 {{#if __user}}
                                                     <a href="/user/{{__user.id}}">{{__user.name}}</a>
@@ -24,6 +25,7 @@
                                                     {{externalUsername}}
                                                 {{/if}}
                                             {{/each}}
+                                            
                                         {{/if}}
                                     {{/if}}
 

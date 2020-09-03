@@ -8,7 +8,7 @@
                     <div class="card-content">
                         <h1>Build {{build.build}}</h1>
                         <p>
-                            Status : {{statusTranslate build.status}}
+                            Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
                         </p>
                     </div>
                 </div>
@@ -24,10 +24,10 @@
             <li>
                 <h2>Revisions</h2>
                 <ul>
-                    {{#if build.__revisions}}
-                        {{#each build.__revisions}}
+                    {{#if build.__buildInvolvements}}
+                        {{#each build.__buildInvolvements}}
                             <li>
-                                {{{renderPartialByName __viewName this}}}
+                                {{>buildInvolvementUserLink this}}
                             </li>
                         {{/each}}
                     {{else}}
@@ -40,8 +40,16 @@
 
             <li class="build-log">
                 <h2>Log</h2>
+
                 <p>
                     {{{preserveSpaces build.log}}}
+                </p>
+                <p class="build-logParserName">
+                    {{#if build.__job.logParser}}
+                        Log parsed with : {{build.__job.logParser}}
+                    {{else}}
+                        No log parser set
+                    {{/if}}
                 </p>
                 <div>
                     <a href="/build/log/{{build.id}}">Full log</a>

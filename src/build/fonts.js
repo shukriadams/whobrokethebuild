@@ -6,6 +6,8 @@ const webfontsGenerator = require('webfonts-generator')
  
 webfontsGenerator({
         files: [
+            'svgs/add.svg',
+            'svgs/delete.svg',
             'svgs/gear.svg',
             'svgs/logout.svg',
             'svgs/login.svg',

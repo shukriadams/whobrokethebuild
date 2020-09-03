@@ -44,7 +44,7 @@ module.exports = {
                     if (user){
                         buildInvolvement.userId = user.id      
                         await data.updateBuildInvolvement(buildInvolvement)
-                        console.log(`added user ${user} to build ${build} ` )
+                        console.log(`added user ${user.name} to build ${build.id} ` )
                     }
                 }
                 
@@ -58,6 +58,7 @@ module.exports = {
                     // inform culprits they've been caught red-handed
                     const buildInvolvements = await data.getBuildInvolementsByBuild(breakingBuild.id)
                     for (const buildInvolvement of buildInvolvements){
+                        // no local user found for build, we'll get them next time
                         if (!buildInvolvement.userId)
                             continue
                         

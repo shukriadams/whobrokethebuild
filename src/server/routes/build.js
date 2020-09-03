@@ -38,15 +38,26 @@ module.exports = function(app){
         try {
             const
                 build = await buildLogic.getById(req.params.id),
-                job = await jobsLogic.getById(build.jobId),
-                logParser = job.logParser ? await pluginsManager.get(job.logParser) : null,
+                data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('build'),
                 model = {
                     build
                 }
+
+            build.__buildInvolvements = await data.getBuildInvolementsByBuild(build.id)
+            // REFACTOR THIS TO LOGIC LAYER
+            for (const buildInvolvement of build.__buildInvolvements)
+                if (buildInvolvement.userId)
+                    // extend 
+                    buildInvolvement.__user = await data.getUser(buildInvolvement.userId)
+        
+
+            build.__job = await jobsLogic.getById(build.jobId)
+            build.__job.__logParser = build.__job.logParser ? await pluginsManager.get(build.__job.logParser) : null
             
-            if (logParser)
-                model.build.log = logParser.parseErrors(model.build.log)
+            if (build.__job.__logParser)
+                model.build.log = build.__job.__logParser.parseErrors(model.build.log)
+
             await commonModelHelper(model, req)
             res.send(view(model))
 
