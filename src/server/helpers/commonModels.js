@@ -5,8 +5,12 @@ let sessionHelper = require(_$+ 'helpers/session'),
 
 /**
  * Attach data required by entire page stack (sub views)
+ * model : required
+ * req : required
+ * pageOwnerPublicId : optional. If page is owned by a user, user's publicId, normally derived from URL parameter
  */
-module.exports = async (model, req)=>{
+
+module.exports = async (model, req, pageOwnerPublicId)=>{
     if (!pluginLinks){
 
         if (await fs.exists('./.plugin.conf'))
@@ -21,10 +25,14 @@ module.exports = async (model, req)=>{
 
     const currentUser = await sessionHelper.getCurrentUser(req)
 
+    const canViewUserPage = currentUser && currentUser.roles.includes('admin')
+        || currentUser.publicId === pageOwnerPublicId
+
     // view @ /partials/session relies on this
     model.session = {
         isLoggedIn : !!currentUser,
         isAdmin : !!currentUser && currentUser.roles.includes('admin'),
+        canViewUserPage,
         name : currentUser ? currentUser.name : ''
     }
 

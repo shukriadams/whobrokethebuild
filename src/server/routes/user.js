@@ -27,7 +27,7 @@ module.exports = function(app){
                 buildInvolvement.__build.__job = await data.getJob(buildInvolvement.__build.jobId)
             }
 
-            await commonModelHelper(model, req)
+            await commonModelHelper(model, req, req.params.user)
             res.send(view(model))
 
         } catch(ex){

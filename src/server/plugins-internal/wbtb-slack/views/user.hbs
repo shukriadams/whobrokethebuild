@@ -1,9 +1,9 @@
 {{#extend "layout"}}
     {{#content "body"}}
         <form action="/wbtb-slack/user/{{wbtbSlack.user.id}}" method="POST">
-            <h1>Slack Settings for {{wbtbSlack.user.name}}</h1>
-            <input name="slackId" value="{{wbtbSlack.slackId}}" placeholder="Slack id for user" type="text" /> 
-            <button type="submit">Update</button>
+            <h1>{{wbtbSlack.user.name}} - Slack settings</h1>
+            <input name="slackId" value="{{wbtbSlack.slackId}}" placeholder="Slack id" type="text" /> 
+            <button class="button" type="submit">Update</button>
         </form>
     {{/content}}
 {{/extend}}
