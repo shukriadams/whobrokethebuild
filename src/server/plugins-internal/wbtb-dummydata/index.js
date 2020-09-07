@@ -210,7 +210,7 @@ module.exports = {
         
     },
     
-    getBuildInvolvementByExternalUsername : async (buildId, externalUsername)=>{
+    getBuildInvolvementByRevision : async (buildId, externalUsername)=>{
         return null
     },
 

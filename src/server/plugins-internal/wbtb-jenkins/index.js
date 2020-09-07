@@ -202,7 +202,7 @@ module.exports = {
             for (let revisionId of localBuild.revisions){
                 const revisionData = await vcs.getRevision(revisionId, vcServer)
                 if (revisionData){
-                    let buildInvolvment = await data.getBuildInvolvementByExternalUsername(localBuild.id, revisionData.user)
+                    let buildInvolvment = await data.getBuildInvolvementByRevision(localBuild.id, revisionData.user)
                     if (buildInvolvment)
                         continue 
 

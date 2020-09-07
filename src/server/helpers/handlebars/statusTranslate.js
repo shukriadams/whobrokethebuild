@@ -12,7 +12,7 @@ module.exports = Handlebars => {
                 return 'passing'
             }
             default : {
-                return 'unknown'
+                return 'building'
             }
         }
 

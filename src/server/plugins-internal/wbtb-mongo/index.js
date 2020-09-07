@@ -534,10 +534,13 @@ module.exports = {
         await _mongo.update(constants.TABLENAME_BUILDINVOLVEMENTS, _denormalizeBuildInvolvement(record))
     },
     
-    getBuildInvolvementByExternalUsername : async (buildId, externalUsername)=>{
+    /** 
+     * Gets build involvements for a given build and given revision
+     */
+    getBuildInvolvementByRevision : async (buildId, revisionId)=>{
         return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDINVOLVEMENTS, {
             $and: [
-                { 'externalUsername' :{ $eq : externalUsername } },
+                { 'revisionId' :{ $eq : revisionId } },
                 { 'buildId' :{ $eq : new ObjectID(buildId) } }
             ]
         }), _normalizeBuildInvolvement)
@@ -547,7 +550,6 @@ module.exports = {
      * Gets builds that a giver user has been mapped to
      */
     getBuildInvolvementByUserId : async userId =>{
-        // build.id <> buildInvolvement.buildId where  buildInvolvement.userId === user.id 
         const buildInvolvements = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
             {
                 "$lookup": {

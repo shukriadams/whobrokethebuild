@@ -40,15 +40,14 @@ const
                     if (err)
                         return reject(err)
 
-                    let db = client.db(settings.mongoDBName)
+                    const db = client.db(settings.mongoDBName)
 
                     await db.collection(constants.TABLENAME_USERS).createIndex( { 'publicId': 1, 'authMethod' : 1 }, { unique: true, name : `${constants.TABLENAME_USERS}_unique` })
                     await db.collection(constants.TABLENAME_CISERVERS).createIndex( { 'name': 1 }, { unique: true, name : `${constants.TABLENAME_CISERVERS}_unique` })
                     await db.collection(constants.TABLENAME_BUILDS).createIndex( { 'jobId': 1, 'build' : 1  }, { unique: true, name : `${constants.TABLENAME_BUILDS}_unique` })
                     await db.collection(constants.TABLENAME_JOBS).createIndex( { 'name': 1, 'CIServerId' : 1  }, { unique: true, name : `${constants.TABLENAME_JOBS}_unique` })
-                    await db.collection(constants.TABLENAME_BUILDINVOLVEMENTS).createIndex( { 'buildId' : 1, 'externalUsername' : 1 }, { unique: true, name : `${constants.TABLENAME_BUILDINVOLVEMENTS}_unique` })
+                    await db.collection(constants.TABLENAME_BUILDINVOLVEMENTS).createIndex( { 'buildId' : 1, 'revisionId' : 1 }, { unique: true, name : `${constants.TABLENAME_BUILDINVOLVEMENTS}_unique` })
                     await db.collection(constants.TABLENAME_CONTACTLOGS).createIndex( { 'receiverContext' : 1, 'type' : 1, 'eventContext' : 1 }, { unique: true, name : `${constants.TABLENAME_CONTACTLOGS}_unique` })
-
                     
 
                     client.close()
