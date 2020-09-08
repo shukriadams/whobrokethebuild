@@ -9,6 +9,7 @@ let
         bundle: true,
         runDiagnosticOnStart : false,
         daemonInterval : '* * * * *',
+        systemDaemonInterval : '* * * * *',
         cookiesDays: 365,
         standardPageSize: 10,
         dataFolder : './_data',

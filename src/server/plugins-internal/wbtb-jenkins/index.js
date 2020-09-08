@@ -209,6 +209,7 @@ module.exports = {
                     buildInvolvment = BuildInvolvment()
                     buildInvolvment.externalUsername = revisionData.user
                     buildInvolvment.buildId = localBuild.id
+                    buildInvolvment.revisionId = revisionId
                     buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SOURCECHANGE
                     await data.insertBuildInvolvement(buildInvolvment)
                 }

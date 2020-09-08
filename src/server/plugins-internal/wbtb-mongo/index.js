@@ -5,6 +5,8 @@
 const 
     constants = require(`${_$}types/constants`),
     ObjectID = require('mongodb').ObjectID,
+    settings = require(_$+'helpers/settings'),
+    logger = require('winston-wrapper').new(settings.logPath),
     _mongo = require('./mongo'),
     _normalize = (input, normalizer)=>{
         if (Array.isArray(input)){
@@ -172,21 +174,20 @@ module.exports = {
     
     _mongo,
 
-    initialize : async function(){
+    async initialize (){
         await _mongo.initialize()
     },
 
-    
-    validateSettings: async () => {
+
+    async validateSettings() {
         return true
     },
-    
 
 
     /****************************************************
      * USERS
      ****************************************************/
-    getByPublicId : async (username, authMethod)=>{
+    async getByPublicId (username, authMethod){
         return _normalize(await _mongo.findFirst(constants.TABLENAME_USERS, {
             $and: [ 
                 { 'authMethod' :{ $eq : authMethod } },
@@ -195,33 +196,33 @@ module.exports = {
         }), _normalizeUsers)
     },
 
-    getUserById : async id =>{
+    async getUserById(id){
         return _normalize(await _mongo.getById(constants.TABLENAME_USERS, id), _normalizeUsers)
     },
 
-    getAllUsers : async () => {
+    async getAllUsers () {
         return _normalize( await _mongo.find(constants.TABLENAME_USERS, { }), _normalizeUsers)
     },
 
-    removeUser : async id => {
+    async removeUser(id) {
         await _mongo.remove(constants.TABLENAME_USERS, { 
             _id : new ObjectID(id) 
         })
     },
 
-    insertUser : async user =>{
+    async insertUser (user){
         return _normalize(await _mongo.insert(constants.TABLENAME_USERS, _denormalizeUsers(user)), _normalizeUsers)
     },
     
-    updateUser : async user => {
+    async updateUser(user) {
         await _mongo.update(constants.TABLENAME_USERS, _denormalizeUsers(user))
     },
 
-    getUser : async id => {
+    async getUser (id) {
         return _normalize(await _mongo.getById(constants.TABLENAME_USERS, id), _normalizeUsers)
     },
 
-    getUserByExternalName : async (VCServerId, externalName) => {
+    async getUserByExternalName (VCServerId, externalName) {
         return _normalize(await _mongo.findFirst(constants.TABLENAME_USERS, {
             $and: [ 
                 { 'userMappings.name' : { $eq : externalName } },
@@ -233,11 +234,11 @@ module.exports = {
     /****************************************************
      * SESSION
      ****************************************************/
-    insertSession : async session =>{
+    async insertSession (session){
         return _normalize(await _mongo.insert(constants.TABLENAME_SESSIONS, _denormalizeSession(session)), _normalizeSession)
     },
 
-    getSession: async id =>{
+    async getSession(id) {
         return _normalize(await _mongo.getById(constants.TABLENAME_SESSIONS, id), _normalizeSession)
     },
 
@@ -245,23 +246,23 @@ module.exports = {
     /****************************************************
      * CIServer
      ****************************************************/
-    insertCIServer : async server => {
+    async insertCIServer (server) {
         return _normalize(await _mongo.insert(constants.TABLENAME_CISERVERS, _denormalizeCIServer(server)), _normalizeCIServer)
     },
     
-    getCIServer: async (id, options) => {
+    async getCIServer (id, options){
         return _normalize(await _mongo.getById(constants.TABLENAME_CISERVERS, id, options), _normalizeCIServer)
     },
     
-    getAllCIServers: async () => {
+    async getAllCIServers () {
         return _normalize(await _mongo.find(constants.TABLENAME_CISERVERS, { }), _normalizeCIServer)
     },
 
-    updateCIServer : async server => {
+    async updateCIServer (server) {
         await _mongo.update(constants.TABLENAME_CISERVERS, _denormalizeCIServer(server))
     },
 
-    removeCIServer : async id => {
+    async removeCIServer (id) {
         await _mongo.remove(constants.TABLENAME_CISERVERS, { 
             _id : new ObjectID(id) 
         })
@@ -271,29 +272,29 @@ module.exports = {
     /****************************************************
      * JOBS
      ****************************************************/
-    insertJob : async job => {
+    async insertJob (job) {
         return _normalize(await _mongo.insert(constants.TABLENAME_JOBS, _denormalizeJob(job)), _normalizeJob)
     },
 
-    getJob : async id => {
+    async getJob(id) {
         return _normalize(await _mongo.getById(constants.TABLENAME_JOBS, id), _normalizeJob)
     },
 
-    getAllJobs : async () => {
+    async getAllJobs () {
         return _normalize(await _mongo.find(constants.TABLENAME_JOBS, { }), _normalizeJob)
     },
 
-    getAllJobsByCIServer : async (ciserverId)=>{
+    async getAllJobsByCIServer (ciserverId){
         return _normalize(await _mongo.find(constants.TABLENAME_JOBS, {
             CIServerId : new ObjectID(ciserverId)
          }), _normalizeJob)
     },
 
-    updateJob : async job => {
+    async updateJob (job) {
         await _mongo.update(constants.TABLENAME_JOBS, _denormalizeJob(job))
     },
 
-    removeJob : async id => {
+    async removeJob (id) {
         await _mongo.remove(constants.TABLENAME_JOBS, { 
             _id : new ObjectID(id) 
         })
@@ -303,23 +304,23 @@ module.exports = {
     /****************************************************
      * VCServer
      ****************************************************/
-    insertVCServer : async server => {
+    async insertVCServer (server) {
         return _normalize(await _mongo.insert(constants.TABLENAME_VCSERVERS, _denormalizeVCServer(server)), _normalizeVCServer)
     },
     
-    getAllVCServers: async () => {
+    async getAllVCServers(){
         return _normalize(await _mongo.find(constants.TABLENAME_VCSERVERS, { }), _normalizeVCServer)
     },
     
-    getVCServer: async (id, options) =>{
+    async getVCServer (id, options) {
         return _normalize(await _mongo.getById(constants.TABLENAME_VCSERVERS, id, options), _normalizeVCServer)
     },
 
-    updateVCServer : async server => {
+    async updateVCServer (server) {
         await _mongo.update(constants.TABLENAME_VCSERVERS, _denormalizeVCServer(server))
     },
 
-    removeVCServer : async id => {
+    async removeVCServer(id) {
         await _mongo.remove(constants.TABLENAME_VCSERVERS, { 
             _id : new ObjectID(id) 
         })
@@ -329,15 +330,19 @@ module.exports = {
     /****************************************************
      * Build
      ****************************************************/
-    insertBuild : async build => {
+    async insertBuild(build) {
         return _normalize(await _mongo.insert(constants.TABLENAME_BUILDS, _denormalizeBuild(build)), _normalizeBuild)
     },
 
-    getBuild : async (id, options) =>{
+    async getAllBuilds () {
+        return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, { }), _normalizeBuild)
+    },
+
+    async getBuild (id, options) {
         return _normalize(await _mongo.getById(constants.TABLENAME_BUILDS, id, options), _normalizeBuild)
     },
 
-    getLatestBuild: async jobId => {
+    async getLatestBuild(jobId) {
         return _normalize((await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match : {
@@ -360,7 +365,7 @@ module.exports = {
      * Pages through builds. Note that this is inefficient as it pages in server memory instead of in mongo, but oh yeah,
      * mongo can't page
      */
-    pageBuilds : async(jobId, index, pageSize)=>{
+    async pageBuilds (jobId, index, pageSize){
         let items = await _mongo.find(constants.TABLENAME_BUILDS, 
             {
                 $and: [ 
@@ -385,7 +390,7 @@ module.exports = {
     /**
      * 
      */
-    getBuildByExternalId: async (jobId, build) =>{
+    async getBuildByExternalId (jobId, build){
         return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDS, {
             $and: [ 
                 { 'jobId' :{ $eq : new ObjectID(jobId) } },
@@ -394,11 +399,11 @@ module.exports = {
         }), _normalizeBuild)
     },
 
-    updateBuild : async build => {
+    async updateBuild(build) {
         await _mongo.update(constants.TABLENAME_BUILDS, _denormalizeBuild(build))
     },
 
-    removeBuild : async id => {
+    async removeBuild(id) {
         // remove children
         await _mongo.remove(constants.TABLENAME_BUILDINVOLVEMENTS, { 
             buildId : new ObjectID(id) 
@@ -413,7 +418,7 @@ module.exports = {
     /**
      * Gets finished builds with no delta, but also the last build with a delta to server as delta start
      */
-    getBuildsWithNoDelta: async()=>{
+    async getBuildsWithNoDelta(){
         let lastWithDelta = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match : {
@@ -467,7 +472,7 @@ module.exports = {
      * This works by finding the last known passing build in the job, and then takes the earliest _subsequent_ build which
      * failed.
     */
-   getCurrentlyBreakingBuild : async jobId =>{
+   async getCurrentlyBreakingBuild (jobId){
         const lastWorkingBuild = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match : {
@@ -515,10 +520,11 @@ module.exports = {
         return _normalize(breakingBuild.length ? breakingBuild[0] : null, _normalizeBuild)
     },
 
+
      /****************************************************
      * Build Involvement
      ****************************************************/
-    getUnmappedBuildInvolvements : async()=> {
+    async getUnmappedBuildInvolvements (){
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, {
             $and: [ 
                 { 'userId' :{ $eq : null } }
@@ -526,18 +532,28 @@ module.exports = {
         }), _normalizeBuildInvolvement)
     },
 
-    insertBuildInvolvement : async record => {
+    async insertBuildInvolvement(record) {
         return _normalize(await _mongo.insert(constants.TABLENAME_BUILDINVOLVEMENTS, _denormalizeBuildInvolvement(record)), _normalizeBuildInvolvement)
     },
 
-    updateBuildInvolvement : async record => {
+    async removeBuildInvolvement(id) {
+        await _mongo.remove(constants.TABLENAME_BUILDINVOLVEMENTS, { 
+            _id : new ObjectID(id) 
+        })
+    },
+
+    async updateBuildInvolvement(record) {
         await _mongo.update(constants.TABLENAME_BUILDINVOLVEMENTS, _denormalizeBuildInvolvement(record))
     },
     
+    async getAllBuildInvolvement () {
+        return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, { }), _normalizeBuildInvolvement)
+    },
+
     /** 
      * Gets build involvements for a given build and given revision
      */
-    getBuildInvolvementByRevision : async (buildId, revisionId)=>{
+    async getBuildInvolvementByRevision (buildId, revisionId){
         return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDINVOLVEMENTS, {
             $and: [
                 { 'revisionId' :{ $eq : revisionId } },
@@ -549,7 +565,7 @@ module.exports = {
     /**
      * Gets builds that a giver user has been mapped to
      */
-    getBuildInvolvementByUserId : async userId =>{
+    async getBuildInvolvementByUserId (userId){
         const buildInvolvements = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
             {
                 "$lookup": {
@@ -575,7 +591,7 @@ module.exports = {
         return _normalize(buildInvolvements, _normalizeBuildInvolvement)
     },
 
-    getBuildInvolementsByBuild: async (buildId)=>{
+    async getBuildInvolementsByBuild (buildId){
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, {
             $and: [
                 { 'buildId' :{ $eq : new ObjectID(buildId) } }
@@ -587,15 +603,15 @@ module.exports = {
     /****************************************************
      * Contact log
      ****************************************************/
-    insertContactLog : async contactLog => {
+    async insertContactLog (contactLog){
         return _normalize(await _mongo.insert(constants.TABLENAME_CONTACTLOGS, _denormalizeContactLog(contactLog)), _normalizeContactLog)
     }, 
     
-    getContactLog : async id => {
+    async getContactLog (id) {
         return _normalize(await _mongo.getById(constants.TABLENAME_CONTACTLOGS, id), _normalizeContactLog)
     },
 
-    getContactLogByContext : async (receiverContext, type, eventContext) => {
+    async getContactLogByContext (receiverContext, type, eventContext) {
         return _normalize(await _mongo.findFirst(constants.TABLENAME_CONTACTLOGS, {
             $and: [
                 { 'receiverContext' :{ $eq : receiverContext } },
@@ -605,7 +621,7 @@ module.exports = {
         }), _normalizeContactLog)
     }, 
 
-    pageContactLogs : async(index, pageSize)=>{
+    async pageContactLogs (index, pageSize){
         const items = await _mongo.find(constants.TABLENAME_CONTACTLOGS, 
             {
 
@@ -618,11 +634,11 @@ module.exports = {
         return _arrayToNormalizedPage(items, index, pageSize, _normalizeContactLog)
     },
 
-    updateContactLog : async contactLog => {
+    async updateContactLog (contactLog) {
         await _mongo.update(constants.TABLENAME_CONTACTLOGS, _denormalizeContactLog(contactLog))
     },
 
-    clearContactLog : async beforeDate => {
+    async clearContactLog (beforeDate) {
         await _mongo.remove(constants.TABLENAME_CONTACTLOGS, { 
             $and: [
                 { 'created' :{ $lt : beforeDate.getTime() } }
@@ -633,15 +649,15 @@ module.exports = {
     /****************************************************
      * Plugin settings
      ****************************************************/
-    insertPluginSetting : async setting => {
+    async insertPluginSetting (setting) {
         return _normalize(await _mongo.insert(constants.TABLENAME_PLUGINSETTINGS, _denormalizePluginSetting(setting)), _normalizePluginSetting)
     }, 
 
-    updatePluginSetting : async setting => {
+    async updatePluginSetting (setting) {
         await _mongo.update(constants.TABLENAME_PLUGINSETTINGS, _denormalizePluginSetting(setting))
     }, 
 
-    getPluginSetting : async (plugin, name) => {
+    async getPluginSetting (plugin, name) {
         return _normalize(await _mongo.findFirst(constants.TABLENAME_PLUGINSETTINGS, {
             $and: [
                 { 'plugin' :{ $eq : plugin } },
@@ -650,7 +666,7 @@ module.exports = {
         }), _normalizePluginSetting)
     }, 
 
-    getPluginSettings : async (plugin) => {
+    async getPluginSettings (plugin) {
         return _normalize(await _mongo.findFirst(constants.TABLENAME_PLUGINSETTINGS, {
             $and: [
                 { 'plugin' :{ $eq : plugin } }
@@ -658,11 +674,58 @@ module.exports = {
         }), _normalizePluginSetting)
     }, 
 
-    removePluginSettings : async plugin => {
+    async removePluginSettings (plugin) {
         await _mongo.remove(constants.TABLENAME_PLUGINSETTINGS, { 
             $and: [
                 { 'plugin' :{ $eq : plugin } }
             ]
         })
     },
+
+    /****************************************************
+     * Utility
+     ****************************************************/
+    async clean () {
+        const vcServers = await this.getAllVCServers(),
+            ciServers = await this.getAllCIServers(),
+            jobs = await this.getAllJobs(),
+            builds = await this.getAllBuilds(),
+            buildInvolvements = await this.getAllBuildInvolvement()
+        
+        for (let i = 0; i < jobs.length ; i ++){
+            let job = jobs[jobs.length - 1 - i],
+                remove = false
+
+            if (!ciServers.find(ciServer => ciServer.id === job.CIServerId))
+                remove = true
+
+            if (!vcServers.find(vcServer => vcServer.id === job.VCServerId))
+                remove = true
+
+            if (remove){
+                await this.removeJob(job.id)
+                jobs.splice(i, 1)
+                logger.info.info(`Cleaned out orphan job ${job.id}`)
+            }
+        }
+        
+        for (let i = 0 ; i < builds.length ; i ++){
+            const build = builds[builds.length - 1 - i]
+            if (!jobs.find(job => job.id === build.jobId)){
+                await this.removeBuild(build.id)
+                builds.splice(i, 1)
+                logger.info.info(`Cleaned out orphan build ${build.id}`)
+            }
+        }
+
+        for (let i = 0 ; i < buildInvolvements.length ; i ++){
+            const buildInvolvement = buildInvolvements[buildInvolvements.length - 1 - i]
+            if (!builds.find(build => build.id === buildInvolvement.buildId)){
+                await this.removeBuildInvolvement(buildInvolvement.id)
+                buildInvolvements.splice(i, 1)
+                logger.info.info(`Cleaned out orphan buildInvolvement ${buildInvolvement.id}`)
+            }
+        }
+    }
+
 }

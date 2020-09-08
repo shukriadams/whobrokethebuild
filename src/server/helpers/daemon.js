@@ -4,19 +4,21 @@ let
     logger = require('winston-wrapper').new(settings.logPath),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     constants = require(_$+'types/constants'),
-    busy = false,
-    cronjob = null
+    commonBusy = false,
+    systemBusy = false,
+    commonDaemon = null,
+    systemDaemon = null
 
 module.exports = {
  
     start : ()=>{
 
-        cronjob = new CronJob(settings.daemonInterval, async ()=>{
+        commonDaemon = new CronJob(settings.daemonInterval, async ()=>{
 
-            if (busy)
+            if (commonBusy)
                 return
 
-            busy = true
+                commonBusy = true
  
             try {
                 const 
@@ -167,10 +169,37 @@ module.exports = {
 
             } finally {
 
-                busy = false
+                commonBusy = false
 
             }
         }, 
+        null, 
+        true, 
+        null, 
+        null, 
+        true /* runonitit */ )
+
+        systemDaemon = new CronJob(settings.systemDaemonInterval, async()=>{
+            if (systemBusy)
+                return
+
+            systemBusy = true
+
+            try {
+
+                const data = await pluginsManager.getExclusive('dataProvider')
+                await data.clean()
+
+            } catch (ex) {
+
+                logger.error.error(ex)
+
+            } finally {
+
+                systemBusy = false
+
+            }
+        },
         null, 
         true, 
         null, 
