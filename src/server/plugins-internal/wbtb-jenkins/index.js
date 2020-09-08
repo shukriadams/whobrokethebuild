@@ -199,8 +199,8 @@ module.exports = {
             localBuild = await data.insertBuild(localBuild)
 
             // insert buildInvolvement
-            for (let revisionId of localBuild.revisions){
-                const revisionData = await vcs.getRevision(revisionId, vcServer)
+            for (let revision of localBuild.revisions){
+                const revisionData = await vcs.getRevision(revision, vcServer)
                 if (revisionData){
                     let buildInvolvment = await data.getBuildInvolvementByRevision(localBuild.id, revisionData.user)
                     if (buildInvolvment)
@@ -209,7 +209,7 @@ module.exports = {
                     buildInvolvment = BuildInvolvment()
                     buildInvolvment.externalUsername = revisionData.user
                     buildInvolvment.buildId = localBuild.id
-                    buildInvolvment.revisionId = revisionId
+                    buildInvolvment.revision = revision
                     buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SOURCECHANGE
                     await data.insertBuildInvolvement(buildInvolvment)
                 }

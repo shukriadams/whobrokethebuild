@@ -553,10 +553,10 @@ module.exports = {
     /** 
      * Gets build involvements for a given build and given revision
      */
-    async getBuildInvolvementByRevision (buildId, revisionId){
+    async getBuildInvolvementByRevision (buildId, revision){
         return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDINVOLVEMENTS, {
             $and: [
-                { 'revisionId' :{ $eq : revisionId } },
+                { 'revision' :{ $eq : revision } },
                 { 'buildId' :{ $eq : new ObjectID(buildId) } }
             ]
         }), _normalizeBuildInvolvement)

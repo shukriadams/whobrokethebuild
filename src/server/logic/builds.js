@@ -25,14 +25,14 @@ module.exports = {
 
         // convert revisions array into objects of revisions, mapped to VC-specific partial that can render them
         build.__revisions = []
-        for (const revisionId of build.revisions){
-            let revisionObject = await vcPlugin.getRevision(revisionId, vcServer)
+        for (const revision of build.revisions){
+            let revisionObject = await vcPlugin.getRevision(revision, vcServer)
             // if we can't retrieve an object describing revision, we need to make a placeholder so the view
             // can render something
             if (!revisionObject)
                 revisionObject = {
                     description: '--!revision not found!-',
-                    revision : revisionId
+                    revision : revision
                 }
             revisionObject.__viewName = vcPlugin.getRevisionPartialName()
             build.__revisions.push(revisionObject)

@@ -4,7 +4,7 @@
 
             <li>
                 <div class="card">
-                    <div class="card-status card-status--{{statusTranslate __latestBuild.status}}"></div>
+                    <div class="card-status card-status--{{statusTranslate build.status}}"></div>
                     <div class="card-content">
                         <h1>Build {{build.build}}</h1>
                         <p>
@@ -17,13 +17,13 @@
                     Job : <a href="/job/{{build.jobId}}">{{build.__job.name}}</a>
                 </p>
                 {{#if session.isAdmin}}
-                    <button class="button build-delete" data-id="{{build.id}}">Delete build</button>    
+                    <button class="button build-delete" data-id="{{build.id}}">Remove build</button>    
                 {{/if}}
             </li>
 
             <li>
                 <h2>Revisions</h2>
-                <ul>
+                <ul class="list">
                     {{#if build.__buildInvolvements}}
                         {{#each build.__buildInvolvements}}
                             <li>
@@ -34,7 +34,12 @@
                                 <ul>
                                     {{#each __revision.files}}
                                         <li>
-                                            {{this.file}}
+                                            {{file}}
+                                            {{#if __isFault}}
+                                                <span>
+                                                    IS FAULT
+                                                </span>
+                                            {{/if}}
                                         </li>
                                     {{/each}}
                                 </ul>

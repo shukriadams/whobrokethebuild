@@ -40,12 +40,12 @@ module.exports = function(app){
                     vcServer = await data.getVCServer(job.VCServerId, { expected : true}),
                     vcsPlugin = await pluginsManager.get(vcServer.vcs)
 
-                for (let revisionId of build.revisions){
-                    const revision = await vcsPlugin.getRevision(revisionId, vcServer)
-                    revisions.push(revision)
+                for (let revision of build.revisions){
+                    const revisionData = await vcsPlugin.getRevision(revision, vcServer)
+                    revisions.push(revisionData)
 
                     // try to map user to revision
-                    revision.__user = await data.getUserByExternalName(job.VCServerId, revision.user)
+                    revisionData.__user = await data.getUserByExternalName(job.VCServerId, revisionData.user)
                 }
 
                 build.__revisions = revisions

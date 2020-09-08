@@ -1,9 +1,9 @@
-.list li {
+.list > li {
     background-color: var(--color-cloudburst);
     color: var(--color-alabaster);
     padding: 4px 0;
 }
 
-.list li:nth-child(odd) {
+.list > li:nth-child(odd) {
     background-color: var(--color-indigo);
 }
