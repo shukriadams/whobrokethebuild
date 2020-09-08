@@ -3,6 +3,7 @@ const
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     handlebars = require(_$+ 'helpers/handlebars'),
     errorHandler = require(_$+'helpers/errorHandler'),
+    buildInvolvementLogic = require(_$+'logic/buildInvolvements'),
     pluginsManager = require(_$+'helpers/pluginsManager')
 
 module.exports = function(express){
@@ -41,8 +42,8 @@ module.exports = function(express){
 
                 if (job.__breakingBuild){
                     
-                    // extend 
-                    job.__breakingBuild.__buildInvolvements = await data.getBuildInvolementsByBuild(job.__breakingBuild.id)
+                    // extend
+                    job.__breakingBuild.__buildInvolvements = buildInvolvementLogic.filterUniqueUser( await data.getBuildInvolementsByBuild(job.__breakingBuild.id))
 
                     for (const buildInvolvement of job.__breakingBuild.__buildInvolvements)
                         if (buildInvolvement.userId)

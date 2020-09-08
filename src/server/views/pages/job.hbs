@@ -9,6 +9,9 @@
         {{/if}}
 
         <h2>Builds</h2>
+
+        {{{pager ../job.__baseUrl jobBuilds }}}
+
         <ul class="list">
             {{#if jobBuilds.items}}
                 {{#each jobBuilds.items}}
@@ -23,7 +26,7 @@
                                     </a>
                                 </div>
                                 <div>
-                                    Status : {{statusTranslate status}}
+                                    Status : {{statusTranslate status}}, {{deltaTranslate delta}}
                                 </div>
                                 <div>
                                     {{ago started}} @ {{shortTime started}}
@@ -51,8 +54,6 @@
                         </ul>
                     </li>
                 {{/each}}
-
-                {{{pager ../job.__baseUrl jobBuilds }}}
 
             {{else}}
                 This job hasn't built yet

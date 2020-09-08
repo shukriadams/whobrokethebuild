@@ -24,8 +24,14 @@ module.exports = {
         await data.insertVCServer(vcserver)
     },
 
-    async delete(id){
+    async getById (id) {
+        const data = await pluginsManager.getExclusive('dataProvider')
+        return await data.getVCServer(id)
+    },
 
+    async delete(id){
+        const data = await pluginsManager.getExclusive('dataProvider')
+        await data.removeVCServer(id)
     },
 
     async update(properties){

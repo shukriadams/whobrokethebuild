@@ -5,6 +5,7 @@ const
     errorHandler = require(_$+'helpers/errorHandler'),
     buildLogic = require(_$+'logic/builds'),
     jobsLogic = require(_$+'logic/job'),
+    vcServerLogic = require(_$+'logic/VCServer'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){
@@ -37,8 +38,11 @@ module.exports = function(app){
     app.get('/build/:id', async (req, res)=>{
         try {
             const
-                build = await buildLogic.getById(req.params.id),
                 data = await pluginsManager.getExclusive('dataProvider'),
+                build = await buildLogic.getById(req.params.id),
+                job = await jobsLogic.getById(build.jobId),
+                vcServer = await vcServerLogic.getById(job.VCServerId),
+                vcServerPlugin = await pluginsManager.get(vcServer.vcs)
                 view = await handlebars.getView('build'),
                 model = {
                     build
@@ -46,11 +50,12 @@ module.exports = function(app){
 
             build.__buildInvolvements = await data.getBuildInvolementsByBuild(build.id)
             // REFACTOR THIS TO LOGIC LAYER
-            for (const buildInvolvement of build.__buildInvolvements)
+            for (const buildInvolvement of build.__buildInvolvements){
+                buildInvolvement.__revision = await vcServerPlugin.getRevision(buildInvolvement.revisionId, vcServer) 
                 if (buildInvolvement.userId)
                     // extend 
                     buildInvolvement.__user = await data.getUser(buildInvolvement.userId)
-        
+            }
 
             build.__job = await jobsLogic.getById(build.jobId)
             build.__job.__logParser = build.__job.logParser ? await pluginsManager.get(build.__job.logParser) : null

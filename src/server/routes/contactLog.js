@@ -17,7 +17,7 @@ module.exports = function(app){
             
             model.contactLogs = await data.pageContactLogs(page, settings.standardPageSize)
             for (const contactLog of model.contactLogs.items)
-                contactLog.__user = await data.getUser(contactLog.userId)
+                contactLog.__user = await data.getUser(contactLog.receiverContext)
 
             await commonModelHelper(model, req)
             res.send(view(model))

@@ -1,7 +1,7 @@
 .list li {
     background-color: var(--color-cloudburst);
     color: var(--color-alabaster);
-    padding: var(--universalPadding);
+    padding: 4px 0;
 }
 
 .list li:nth-child(odd) {

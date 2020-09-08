@@ -4,15 +4,15 @@
         <ul>
             {{#if contactLogs.items}}
                 {{#each contactLogs.items}}
-                    <li>
-                        <div>
+                    <li class="struc-row struc-row--padded">
+                        <div class="struc-cell">
                             <a href="/user/{{__user.id}}">{{__user.name}}</a>
                         </div>
-                        <div>
-                            {{context}}
+                        <div class="struc-cell">
+                            {{eventContext}}
                         </div>
-                        <div>
-                            {{ago __user.created}}
+                        <div class="struc-cell">
+                            {{ago created}}
                         </div>
                     </li>
                 {{/each}}

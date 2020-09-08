@@ -27,7 +27,18 @@
                     {{#if build.__buildInvolvements}}
                         {{#each build.__buildInvolvements}}
                             <li>
-                                {{>buildInvolvementUserLink this}}
+                                <div>
+                                    {{>buildInvolvementUserLink this}}
+                                </div>
+                                {{__revision.description}}
+                                <ul>
+                                    {{#each __revision.files}}
+                                        <li>
+                                            {{this.file}}
+                                        </li>
+                                    {{/each}}
+                                </ul>
+
                             </li>
                         {{/each}}
                     {{else}}
