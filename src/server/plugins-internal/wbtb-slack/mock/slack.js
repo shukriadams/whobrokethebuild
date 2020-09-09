@@ -1,6 +1,10 @@
-const Exception = require(_$+'types/exception')
+const Exception = require(_$+'types/exception'),
+    settings = require(_$+'helpers/settings'),
+    path = require('path'),
+    fs = require('fs-extra')
 
 module.exports = class {
+
     constructor(){
 
         this.conversations = {
@@ -60,6 +64,9 @@ module.exports = class {
                     })
     
                 console.log(`mock slack sending message to channel ${args.channel} :`)
+                const writeFolder = path.join(settings.dataFolder, 'slackMockMessages')
+                fs.ensureDirSync(writeFolder)
+                fs.outputJsonSync(path.join(writeFolder, `${new Date().getTime()}-slack-post.json`), args)
                 console.log(args.text)
                 return 'message posted'
             }

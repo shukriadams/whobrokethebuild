@@ -42,6 +42,16 @@
             {{/each}}
         </ul>
 
+        <h2>Daemon</h2>
+
+        {{#if daemonRunning}}
+            Daemon is currently running.
+            <a class="button" href="/settings/system/daemon/stop">Stop</a>
+        {{else}}
+            Daemon is currently stopped.
+            <a class="button" href="/settings/system/daemon/start">Start</a>
+        {{/if}}
+
     {{/content}}
 {{/extend}}
 

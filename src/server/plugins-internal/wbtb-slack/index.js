@@ -76,20 +76,31 @@ module.exports = {
             return
 
         // generate a string of user names involved in build if build broke
-        let userString = ''
+        let userString = '',
+            userUniqueCheck = []
+
         if (delta === constants.BUILDDELTA_CAUSEBREAK){
             for (const buildInvolvement of buildInvolvements){
-                const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null
-                userString += `${user ? user.name : buildInvolvement.externalUsername}, `
+                const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null,
+                    username = user ? user.name : buildInvolvement.externalUsername
+
+                if (userUniqueCheck.indexOf(username) === -1){
+                    userUniqueCheck.push(username)
+                    userString += `${username}, `
+                }
             }
 
             if (userString.length){
                 userString = userString.substring(0, userString.length - 2) // clip off trailing ', '
-                userString = `People : ${userString}`
+                userString = `People involved : ${userString}`
             }
         }
 
-        const message = delta === constants.BUILDDELTA_CAUSEBREAK ? `Build ${job.name} is broken.\n${userString}` : `Build ${job.name} is working again`
+        const buildLink = urljoin(settings.localUrl, `build/${build.id}`)
+        const message = delta === constants.BUILDDELTA_CAUSEBREAK ? 
+            `Build ${job.name} is broken.\n${userString}. \nMore info : ${buildLink}` : 
+            `Build ${job.name} is working again`
+
         const response = await slack.chat.postMessage({ token : token.value, channel : slackContactMethod.channelId, text : message });
 
         contactLog = ContactLog()
@@ -128,7 +139,7 @@ module.exports = {
                 message : `unable to create conversation channel for user ${user.id}`
             })
 
-        const buildLink = urljoin(settings.localUrl, `builds/${build.id}`)
+        const buildLink = urljoin(settings.localUrl, `build/${build.id}`)
         log = logParser ? `\`\`\`${(await logParser.parseErrors(build.log))}\`\`\`\n` : ''
         const message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}More info : ${buildLink}`
         await slack.chat.postMessage({ token : token.value, channel : conversation.channel.id, text : message })

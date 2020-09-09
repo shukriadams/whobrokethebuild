@@ -427,12 +427,24 @@ module.exports = {
                     ]            
                 }
             },
+
             {
                 $sort: { 'started': -1 } // sort latest first
             },
+
+            {
+                $group: {
+                    "_id":{
+                        "build":"$build"
+                    },
+                    "build": {$first:"$$ROOT"}
+                }
+            },
+
             {
                 $limit: 1
-            })).pop()
+            })
+        ).pop()
 
         // return all null deltas, and if exists, last with delta to server as starting history
         return _normalize(await _mongo.aggregate(constants.TABLENAME_BUILDS, 

@@ -1,6 +1,6 @@
 let 
     pluginsManager = require(_$+'helpers/pluginsManager'),
-    Build = require(_$+ 'types/build')
+    Build = require(_$+'types/build')
 
 module.exports = {
 

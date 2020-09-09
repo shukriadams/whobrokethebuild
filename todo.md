@@ -3,3 +3,4 @@
 - add caching
 - write postgres layer with https://sequelize.org/
 - harden plugin system - define required-by-category, single-by-category
+- add next/previous links to build page
