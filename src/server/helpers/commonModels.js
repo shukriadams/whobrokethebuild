@@ -25,8 +25,8 @@ module.exports = async (model, req, pageOwnerPublicId)=>{
 
     const currentUser = await sessionHelper.getCurrentUser(req)
 
-    const canViewUserPage = currentUser && currentUser.roles.includes('admin')
-        || currentUser.publicId === pageOwnerPublicId
+    const canViewUserPage = currentUser && (currentUser.roles.includes('admin')
+        || currentUser.publicId === pageOwnerPublicId)
 
     // view @ /partials/session relies on this
     model.session = {

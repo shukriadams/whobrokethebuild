@@ -1,9 +1,10 @@
 .list > li {
-    background-color: var(--color-cloudburst);
+    background-color: var(--color-indigo);
     color: var(--color-alabaster);
     padding: 4px 0;
 }
 
-.list > li:nth-child(odd) {
-    background-color: var(--color-indigo);
+.list > li:not(:last-child) {
+    /* acts as bottom border by allowing background color to show through*/
+    margin-bottom: 2px;
 }
