@@ -18,6 +18,8 @@ module.exports = function(){
         delta : null,                               // STRING. Status of build relative to other builds. WBTB assigns this.
         ignoreFromBreakHistory : false,             // BOOL. if true, build does not count towards break history. Use this to ignore activity that we know didn't break anything
         comment: null,                              // STRING. admin comments
-        log : null                                  // STRING. Full buildlog from server. Normally compressed.
+        log : null,                                 // STRING. Full buildlog from server. Normally compressed.
+        logParsed : null,                           //
+        isLogParsed : false                         //
     })
 }

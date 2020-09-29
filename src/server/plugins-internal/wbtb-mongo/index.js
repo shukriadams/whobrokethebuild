@@ -416,6 +416,17 @@ module.exports = {
     },
 
     /**
+     * 
+     */
+    async getBuildsWithUnparsedLogs(){
+        return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
+            $and: [ 
+                { 'isLogParsed' :{ $eq : false } }
+            ]
+        }), _normalizeBuild)
+    },
+
+    /**
      * Gets finished builds with no delta, but also the last build with a delta to server as delta start
      */
     async getBuildsWithNoDelta(){

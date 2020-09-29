@@ -41,10 +41,9 @@ module.exports = {
                         await ciServerPlugin.importBuildsForJob(job.id)
                     }
 
-                    // map local users to users in vcs for a given build
+                    // try to map map local users to users in vcs for a given build
                     const buildInvolvements = await data.getUnmappedBuildInvolvements()
                     for (const buildInvolvement of buildInvolvements){
-                        // try to find user object based on external user id
                         const build = await data.getBuild(buildInvolvement.buildId, { expected : true })
                         const job = await data.getJob(build.jobId, { expected : true })
                         
@@ -57,7 +56,7 @@ module.exports = {
                     }
                     
 
-                    // for each job, get the currently breaking build (if broken). Then send message to people what broke it
+                    // for each job, check if current build is broken, and if so send message to people what broke it
                     for (let job of jobs){
                         const breakingBuild = await data.getCurrentlyBreakingBuild(job.id) 
                         if (!breakingBuild)
@@ -88,9 +87,27 @@ module.exports = {
                         }
                     }
 
-                    
-                    // set build deltas - this is a per-build flag showing its relationship to previous build, so we
-                    // we don't have to query all builds again to determine relationship
+                    // parse build logs 
+                    const unprocessedBuilds = await data.getBuildsWithUnparsedLogs()
+                    for (const build of unprocessedBuilds){
+                        // try to parse build log for all builds
+                        const job = await data.getJob(build.jobId)
+                        if (!job)
+                            continue
+
+                        const logParser = job.logParser ? await pluginsManager.get(job.logParser) : null
+                        if (!logParser)
+                            continue
+
+                        build.logParsed = logParser.parseErrors(build.log)
+                        build.isLogParsed = true
+                        await data.updateBuild(build)
+                        console.log(`parsed log for build ${build.id}`)
+                    }
+
+
+                    // set build deltas - this is a per-build flag showing its relationship to its preceding build. In this way we can query any
+                    // given build and get its delta without also having to query its predecessor.
                     let builds = await data.getBuildsWithNoDelta(),
                         lastDelta = null
 

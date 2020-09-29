@@ -43,7 +43,7 @@ module.exports = function(app){
                 build = await buildLogic.getById(req.params.id),
                 job = await jobsLogic.getById(build.jobId),
                 vcServer = await vcServerLogic.getById(job.VCServerId),
-                vcServerPlugin = await pluginsManager.get(vcServer.vcs)
+                vcServerPlugin = await pluginsManager.get(vcServer.vcs),
                 view = await handlebars.getView('build'),
                 model = {
                     build
