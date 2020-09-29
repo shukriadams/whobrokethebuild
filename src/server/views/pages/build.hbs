@@ -8,6 +8,9 @@
                     <div class="card-content">
                         <h1>Build {{build.build}}</h1>
                         <p>
+                            Built on :  {{build.host}}
+                        </p>
+                        <p>
                             Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
                         </p>
                     </div>

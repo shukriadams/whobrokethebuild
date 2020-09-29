@@ -13,6 +13,7 @@ module.exports = function(){
         triggerType : constants.BUILDTRIGGER_OTHER, // STRING, NOT ALWAYS PRESENT. event that triggered build
         started : null,                             // NUMBER. Ticks, when build started
         ended : null,                               // NUMBER. Ticks, when build ended. null if build is ongoing or hanging.
+        host : null,                                // STRING. Host machine on which build was done
         status : constants.BUILDSTATUS_OTHER,       // STRING. Status of build from CI server
         delta : null,                               // STRING. Status of build relative to other builds. WBTB assigns this.
         ignoreFromBreakHistory : false,             // BOOL. if true, build does not count towards break history. Use this to ignore activity that we know didn't break anything

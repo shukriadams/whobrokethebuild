@@ -8,6 +8,7 @@
             "id" : "3833",
             "number" : 3833,
             "result" : "PENDING",
+            "builtOn" : "Build2",
             "timestamp" : 1594197546340
         },
         {
@@ -17,6 +18,7 @@
             "id" : "3832",
             "number" : 3832,
             "result" : "SUCCESS",
+            "builtOn" : "Build1",
             "timestamp" : 1594194864358
         }
     ]

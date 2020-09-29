@@ -156,7 +156,7 @@ module.exports = {
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
-        let url = urljoin(baseUrl, `job/${encodeURIComponent(job.name)}/api/json?pretty=true&tree=allBuilds[fullDisplayName,id,number,timestamp,duration,result]`)
+        let url = urljoin(baseUrl, `job/${encodeURIComponent(job.name)}/api/json?pretty=true&tree=allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]`)
         const response = await httputils.downloadString(url)
         let json = null
 
@@ -194,6 +194,7 @@ module.exports = {
             localBuild.jobId = jobId
             localBuild.status = this.resultToStatus(remoteBuild.result)
             localBuild.build = remoteBuild.number
+            localBuild.host = remoteBuild.builtOn
             localBuild.revisions = await this.getBuildCommits(baseUrl, job.name, remoteBuild.number)
             localBuild.started = remoteBuild.timestamp
             localBuild = await data.insertBuild(localBuild)

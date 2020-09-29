@@ -8,6 +8,7 @@
             "id" : "1834",
             "number" : 1834,
             "result" : "SUCCESS",
+            "builtOn" : "Build2",
             "timestamp" : 1594199546340
         },
         {
@@ -17,6 +18,7 @@
             "id" : "1833",
             "number" : 1833,
             "result" : "FAILURE",
+            "builtOn" : "Build1",
             "timestamp" : 1594197546340
         },
         {
@@ -26,6 +28,7 @@
             "id" : "1832",
             "number" : 1832,
             "result" : "SUCCESS",
+            "builtOn" : "Build2",
             "timestamp" : 1594194864358
         }
     ]

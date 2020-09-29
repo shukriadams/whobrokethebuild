@@ -64,7 +64,7 @@ module.exports = function(app){
      */
     app.get('/jenkins/mock/job/:jobname/api/json', async function(req, res){
         try {
-             if (req.query.pretty === 'true' && req.query.tree === 'allBuilds[fullDisplayName,id,number,timestamp,duration,result]'){
+             if (req.query.pretty === 'true' && req.query.tree === 'allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]'){
                 const filepath = path.join(__dirname, 'mock', 'jobs', req.params.jobname, 'builds.json' )
                 if (! await fs.exists(filepath))
                     throw `Expected mock file ${filepath} not found`
