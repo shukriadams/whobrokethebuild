@@ -1,5 +1,5 @@
-let
-    CronJob = require('cron').CronJob,
+let CronJob = require('cron').CronJob,
+    stringSimilarity = require('string-similarity'),
     settings = require(_$+'helpers/settings'),
     logger = require('winston-wrapper').new(settings.logPath),
     pluginsManager = require(_$+'helpers/pluginsManager'),
@@ -75,7 +75,7 @@ module.exports = {
                         await data.updateBuild(build)
                         console.log(`parsed log for build ${build.id}`)
                     }
-
+                   
 
                     // map revision codes to revision objects
                     const unprocessedBuildInvolvements = await data.getBuildInvolvementsWithoutRevisionObjects()
@@ -98,16 +98,22 @@ module.exports = {
                             continue
 
                         buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
-                        if (!buildInvolvement.revisionObject){
+                        // force placeholder revision object if lookup to vc fails to retrieve it
+                        if (!buildInvolvement.revisionObject)
                             buildInvolvement.revisionObject = {
                                 revision : `${buildInvolvement.revision} lookup failed`,
                                 user : buildInvolvement.externalUsername,
                                 description : '', files : [] 
                             }
-                        }
+
+                        // calculate fail chance of each file in revision
+                        for (const file of buildInvolvement.revisionObject.files)
+                            file.faultChance = stringSimilarity.compareTwoStrings(file.file, build.log) 
+
                         console.log(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
                         await data.updateBuildInvolvement(buildInvolvement)
                     }
+
 
 
                     // for each job, check if current build is broken, and if so send message to people what broke it

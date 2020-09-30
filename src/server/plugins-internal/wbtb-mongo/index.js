@@ -416,12 +416,13 @@ module.exports = {
     },
 
     /**
-     * 
+     * A build's log must already be fetched (ie, be not null) to qualify
      */
     async getBuildsWithUnparsedLogs(){
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [ 
-                { 'isLogParsed' :{ $eq : false } }
+                { 'isLogParsed' :{ $eq : false } },
+                { 'log' :{ $ne : null } }
             ]
         }), _normalizeBuild)
     },
@@ -623,6 +624,28 @@ module.exports = {
     },
 
     async getBuildInvolvementsWithoutRevisionObjects(){
+        const buildInvolvements = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
+            {
+                "$lookup": {
+                    "from": constants.TABLENAME_BUILDS,
+                    "localField": "buildId",
+                    "foreignField": "_id",
+                    "as": "__build"
+                }
+            },
+            
+            {
+                $match: { 
+                    $and: [ 
+                        { 'revisionObject' :{ $eq : null }},
+                        { '__build.log' :{ $ne : null }}
+                    ] 
+                }
+            }
+        )
+
+        return _normalize(buildInvolvements, _normalizeBuildInvolvement)
+
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, {
             $and: [
                 { 'revisionObject' :{ $eq : null} }
