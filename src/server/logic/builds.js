@@ -12,32 +12,6 @@ module.exports = {
             build = await data.getBuild(id, { expected : true })
             
         build.__job = await data.getJob(build.jobId, { expected : true })
-        const vcServer = await data.getVCServer(build.__job.VCServerId, { expected : true }),
-            vcPlugin = await pluginsManager.get(vcServer.vcs)
-
-        // parses the build log if a log is set at job level
-        if (build.__job.logParser){
-            // todo : get should internally log error if plugin not found
-            const logParserPlugin = await pluginsManager.get(build.__job.logParser)
-            if (logParserPlugin)
-                build.__parsedLog = logParserPlugin.parseErrors(build.log)
-        }
-
-        // convert revisions array into objects of revisions, mapped to VC-specific partial that can render them
-        build.__revisions = []
-        for (const revision of build.revisions){
-            let revisionObject = await vcPlugin.getRevision(revision, vcServer)
-            // if we can't retrieve an object describing revision, we need to make a placeholder so the view
-            // can render something
-            if (!revisionObject)
-                revisionObject = {
-                    description: '--!revision not found!-',
-                    revision : revision
-                }
-            revisionObject.__viewName = vcPlugin.getRevisionPartialName()
-            build.__revisions.push(revisionObject)
-        }
-
         return build
     },
 

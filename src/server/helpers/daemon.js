@@ -31,6 +31,7 @@ module.exports = {
                         data = await pluginsManager.getExclusive('dataProvider')
                         jobs = await data.getAllJobs()
 
+                        
                     // import latest builds
                     for (let job of jobs){
                         const ciserver = await data.getCIServer(job.CIServerId)
@@ -40,6 +41,7 @@ module.exports = {
                         const ciServerPlugin = await pluginsManager.get(ciserver.type)
                         await ciServerPlugin.importBuildsForJob(job.id)
                     }
+
 
                     // try to map map local users to users in vcs for a given build
                     const buildInvolvements = await data.getUnmappedBuildInvolvements()
@@ -55,6 +57,58 @@ module.exports = {
                         }
                     }
                     
+                    
+                    // parse build logs 
+                    const unprocessedBuilds = await data.getBuildsWithUnparsedLogs()
+                    for (const build of unprocessedBuilds){
+                        // try to parse build log for all builds
+                        const job = await data.getJob(build.jobId)
+                        if (!job)
+                            continue
+
+                        const logParser = job.logParser ? await pluginsManager.get(job.logParser) : null
+                        if (!logParser)
+                            continue
+
+                        build.logParsed = logParser.parseErrors(build.log)
+                        build.isLogParsed = true
+                        await data.updateBuild(build)
+                        console.log(`parsed log for build ${build.id}`)
+                    }
+
+
+                    // map revision codes to revision objects
+                    const unprocessedBuildInvolvements = await data.getBuildInvolvementsWithoutRevisionObjects()
+                    for (const buildInvolvement of unprocessedBuildInvolvements){
+                        
+                        const build = await data.getBuild(buildInvolvement.buildId)
+                        if (!build)
+                            continue
+
+                        const job = await data.getJob(build.jobId)
+                        if(!job)
+                            continue
+
+                        const vcServer = await data.getVCServer(job.VCServerId)
+                        if (!vcServer)
+                            continue
+
+                        const vcPlugin = await pluginsManager.get(vcServer.vcs)
+                        if (!vcPlugin)
+                            continue
+
+                        buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
+                        if (!buildInvolvement.revisionObject){
+                            buildInvolvement.revisionObject = {
+                                revision : `${buildInvolvement.revision} lookup failed`,
+                                user : buildInvolvement.externalUsername,
+                                description : '', files : [] 
+                            }
+                        }
+                        console.log(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
+                        await data.updateBuildInvolvement(buildInvolvement)
+                    }
+
 
                     // for each job, check if current build is broken, and if so send message to people what broke it
                     for (let job of jobs){
@@ -85,24 +139,6 @@ module.exports = {
                                 await contactPlugin.alertBrokenBuild(user, breakingBuild)
                             }
                         }
-                    }
-
-                    // parse build logs 
-                    const unprocessedBuilds = await data.getBuildsWithUnparsedLogs()
-                    for (const build of unprocessedBuilds){
-                        // try to parse build log for all builds
-                        const job = await data.getJob(build.jobId)
-                        if (!job)
-                            continue
-
-                        const logParser = job.logParser ? await pluginsManager.get(job.logParser) : null
-                        if (!logParser)
-                            continue
-
-                        build.logParsed = logParser.parseErrors(build.log)
-                        build.isLogParsed = true
-                        await data.updateBuild(build)
-                        console.log(`parsed log for build ${build.id}`)
                     }
 
 

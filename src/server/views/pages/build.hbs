@@ -61,15 +61,13 @@
                 <h2>Log</h2>
 
                 <p>
-                    {{{preserveSpaces build.log}}}
-                </p>
-                <p class="build-logParserName">
-                    {{#if build.__job.logParser}}
-                        Log parsed with : {{build.__job.logParser}}
+                    {{#if build.isLogParsed}}
+                        {{{preserveSpaces build.logParsed}}}
                     {{else}}
-                        No log parser set
+                        Log not parsed.
                     {{/if}}
                 </p>
+
                 <div>
                     <a href="/build/log/{{build.id}}">Full log</a>
                 </div>

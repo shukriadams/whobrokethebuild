@@ -622,6 +622,13 @@ module.exports = {
         }), _normalizeBuildInvolvement)
     },
 
+    async getBuildInvolvementsWithoutRevisionObjects(){
+        return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, {
+            $and: [
+                { 'revisionObject' :{ $eq : null} }
+            ]
+        }), _normalizeBuildInvolvement)
+    },
 
     /****************************************************
      * Contact log

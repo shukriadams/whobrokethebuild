@@ -50,10 +50,7 @@ module.exports = function(app){
                 }
 
             build.__job = await jobsLogic.getById(build.jobId)
-            build.__job.__logParser = build.__job.logParser ? await pluginsManager.get(build.__job.logParser) : null
             
-            if (build.__job.__logParser)
-                model.build.log = build.__job.__logParser.parseErrors(model.build.log)
             
             let highestFaultChance = 0
 
@@ -61,17 +58,16 @@ module.exports = function(app){
             build.__buildInvolvements = await data.getBuildInvolementsByBuild(build.id)
 
             for (const buildInvolvement of build.__buildInvolvements){
-                // get revision from source control
+                // get revision for a given buildinvolment from source control
                 buildInvolvement.__revision = await vcServerPlugin.getRevision(buildInvolvement.revision, vcServer) 
 
                 // determine which revision files were mostl likely involved in build failure - we do this by
                 // simply looking for which file path occurred in build log text - really quick+dirty
-                if (build.__job.__logParser)
-                    for (const file of buildInvolvement.__revision.files){
-                        file.__faultChance = stringSimilarity.compareTwoStrings(file.file, model.build.log) 
-                        if (file.__faultChance > highestFaultChance)
-                            highestFaultChance = file.__faultChance
-                    }
+                for (const file of buildInvolvement.__revision.files){
+                    file.__faultChance = stringSimilarity.compareTwoStrings(file.file, model.build.log) 
+                    if (file.__faultChance > highestFaultChance)
+                        highestFaultChance = file.__faultChance
+                }
                     
                 // get user object for revision, if mapped
                 if (buildInvolvement.userId)
