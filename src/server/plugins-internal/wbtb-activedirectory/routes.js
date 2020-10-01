@@ -1,5 +1,7 @@
 
 const 
+    settings = require(_$+'helpers/settings'),
+    logger = require('winston-wrapper').new(settings.logPath),
     handlebars = require(_$+'helpers/handlebars'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     logic = require('./index'),
@@ -46,13 +48,13 @@ module.exports = function(app){
                         newUser.authMethod = authMethod
 
                         await data.insertUser(newUser)
-                        console.log(`added user ${user.name}`)
+                        logger.info.info(`added user ${user.name}`)
                     }
                 } else {
                     const existingUser = await data.getByPublicId(user.mail, authMethod)
                     if (existingUser){
                         await data.removeUser(existingUser.id)
-                        console.log(`removed user ${existingUser.name}`)
+                        logger.info.info(`removed user ${existingUser.name}`)
                     }
                 }
 

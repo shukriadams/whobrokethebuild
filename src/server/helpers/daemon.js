@@ -53,7 +53,7 @@ module.exports = {
                         if (user){
                             buildInvolvement.userId = user.id      
                             await data.updateBuildInvolvement(buildInvolvement)
-                            console.log(`added user ${user.name} to build ${build.id} ` )
+                            logger.info.info(`added user ${user.name} to build ${build.id} ` )
                         }
                     }
                     
@@ -73,7 +73,7 @@ module.exports = {
                         build.logParsed = logParser.parseErrors(build.log)
                         build.isLogParsed = true
                         await data.updateBuild(build)
-                        console.log(`parsed log for build ${build.id}`)
+                        logger.info.info(`parsed log for build ${build.id}`)
                     }
                    
 
@@ -110,7 +110,7 @@ module.exports = {
                         for (const file of buildInvolvement.revisionObject.files)
                             file.faultChance = stringSimilarity.compareTwoStrings(file.file, build.log) 
 
-                        console.log(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
+                        logger.info.info(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
                         await data.updateBuildInvolvement(buildInvolvement)
                     }
 
@@ -131,14 +131,14 @@ module.exports = {
                             
                             const user = await data.getUser(buildInvolvement.userId)
                             if (!user){
-                                console.log(`throw exception here! - expected user ${buildInvolvement.userId} in buildInvolvement ${buildInvolvement.id} not found`)
+                                logger.info.info(`throw exception here! - expected user ${buildInvolvement.userId} in buildInvolvement ${buildInvolvement.id} not found`)
                                 continue
                             }
 
                             for (const contactMethod in user.contactMethods){
                                 const contactPlugin = await pluginsManager.get(contactMethod)
                                 if (!contactPlugin){
-                                    console.log(`throw exception here! - expected plugin ${contactMethod.type} not found`)
+                                    logger.info.info(`throw exception here! - expected plugin ${contactMethod.type} not found`)
                                     continue
                                 }
                                 

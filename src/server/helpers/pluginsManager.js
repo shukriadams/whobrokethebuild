@@ -159,7 +159,7 @@ module.exports = {
                 targetFolder = path.join('./server/plugins', pluginName)
             
             if (!await fs.pathExists(sourceFolder)){
-                console.log(`internal plugin "${pluginName}" does not exist in internal plugin cache`)
+                logger.error.error(`internal plugin "${pluginName}" does not exist in internal plugin cache`)
                 errors = true
                 continue
             }
@@ -212,7 +212,7 @@ module.exports = {
                 pluginInstallStatus.version = pluginConfig.version
                 pluginInstallStatus.installDate = new Date().getTime()
 
-                console.log(`Plugin "${pluginName}" git cloned from ${pluginConfig.url}`)
+                logger.info.info(`Plugin "${pluginName}" git cloned from ${pluginConfig.url}`)
             }
 
             if (!await fs.exists(pluginFolder)){

@@ -163,7 +163,7 @@ module.exports = {
         try {
             json = JSON.parse(response.body)
         } catch(ex){
-            console.log(ex, response.body);
+            logger.error.error(ex, response.body);
             return
         }
         
@@ -216,7 +216,7 @@ module.exports = {
                 }
             }
             
-            console.log(`Imported build ${job.name}:${remoteBuild.number}`)
+            logger.info.info(`Imported build ${job.name}:${remoteBuild.number}`)
         }
     },
 
