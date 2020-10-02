@@ -128,6 +128,22 @@ module.exports = {
             logParser = job.logParser ? pluginsManager.get(job.logParser) : null,
             context = `build_fail_${build.id}`
 
+        let buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
+            usersInvolved = buildInvolvements.map(involvement => involvement.externalUsername)
+
+        // convert to unique users
+        usersInvolved = Array.from(new Set(usersInvolved)) 
+
+        // 
+        let isImplicated = false
+        if (usersInvolved.length)
+            for (const buildInvolvement of buildInvolvements)
+                for (const file of buildInvolvement.revisionObject.files)
+                   if (file.faultChance > .5) {
+                        isImplicated = true
+                        break
+                   }
+
         // check if user has already been informed about this build failure
         let contactLog = await data.getContactLogByContext(user.id, thisType, context)
         if (contactLog)
@@ -141,7 +157,17 @@ module.exports = {
 
         const buildLink = urljoin(settings.localUrl, `build/${build.id}`)
         log = logParser ? `\`\`\`${(await logParser.parseErrors(build.log))}\`\`\`\n` : ''
-        const message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}More info : ${buildLink}`
+        const message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}`
+        if (usersInvolved.length){
+            if (isImplicated)
+                message += `There were ${usersInvolved.length} people in this break, but it's likely your code broke it.\n`
+            else
+                message += `There were ${usersInvolved.length} people in this break, but don't worry, it looks like you're an innocent bystander.\n`
+        } else {
+            message += `You were the only person involved in this break.\n`
+        }
+
+        message += `More info : ${buildLink}`
         await slack.chat.postMessage({ token : token.value, channel : conversation.channel.id, text : message })
 
         contactLog = ContactLog()
