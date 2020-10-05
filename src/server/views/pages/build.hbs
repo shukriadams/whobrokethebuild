@@ -35,14 +35,12 @@
                                 </div>
                                 {{__revision.description}}
                                 <ul>
-                                    {{#each __revision.files}}
+                                    {{#each revisionObject.files}}
                                         <li>
                                             {{file}}
-                                            {{#if __isFault}}
-                                                <span>
-                                                    IS FAULT
-                                                </span>
-                                            {{/if}}
+                                            <div>
+                                                fault change :{{faultChance}}   
+                                            </div>
                                         </li>
                                     {{/each}}
                                 </ul>

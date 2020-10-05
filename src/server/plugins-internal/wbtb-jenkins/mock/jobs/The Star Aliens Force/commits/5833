@@ -5,7 +5,11 @@
         "items" : [
             {
                 "_class" : "hudson.scm.SubversionChangeLogSet$LogEntry",
-                "commitId" : "0003"
+                "commitId" : "0005"
+            },
+            {
+                "_class" : "hudson.scm.SubversionChangeLogSet$LogEntry",
+                "commitId" : "0006"
             }
         ]
     }

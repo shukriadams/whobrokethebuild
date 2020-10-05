@@ -2,7 +2,7 @@ Started by an SCM change
 Building remotely on BuildMACHINE (editor unreal) in workspace c:\tools\jenkins\workspace\the_game
 Updating svn://ourproject/trunk at revision '2019-12-05T14:31:06.311 +0100' --quiet
 Using sole credentials admin/****** (admin SVN) in realm ‘<svn://ourproject:3690> Gaminator’
-At revision 3412
+At revision 0006
 
 Using sole credentials admin/****** (admin SVN) in realm ‘<svn://ourproject:3690> Gaminator’
 [OurProject] $ cmd /c call C:\Windows\TEMP\jenkins9178595117446154498.bat
@@ -97,7 +97,7 @@ Updated to revision 3412.
   LogInit: Display: LogSavePackage: Warning: /path/to/resource imported Serialize:/path/to/resource/thing_file, but it was never saved as an export.
   LogInit: Display: LogSavePackage: Warning: /path/to/resource imported Serialize:/path/to/resource/thing_file.BP__C:DefaultSceneRoot_GEN_VARIABLE, but it was never saved as an export.
   LogInit: Display: LogSavePackage: Warning: /path/to/resource imported Serialize:/path/to/resource/thing_file.BP__C:Sphere_GEN_VARIABLE, but it was never saved as an export.
-  LogInit: Display: LogLinker: Error: AddRedirectList(d:/mygame/Saved/Config/Windows/Engine.ini) failed to add redirector from None to /Script/thing.myclass with empty name!
+  LogInit: Display: LogLinker: Error: AddRedirectList(d:/mygame/Config/Windows/Engine.ini) failed to add redirector from None to /Script/thing.myclass with empty name!
   LogInit: Display: LogConsoleManager: Warning: Setting the console variable 'r.Streaming.LimitPoolSizeToVRAM' with 'SetByScalability' was ignored as it is lower priority than the previous 'SetByProjectSetting'. Value remains '1'
   LogInit: Display: NOTE: Only first 50 warnings displayed.
   LogInit: Display:

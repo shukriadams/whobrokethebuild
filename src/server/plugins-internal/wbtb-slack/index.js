@@ -120,34 +120,40 @@ module.exports = {
      * build : build object for failing build
      */
     async alertBrokenBuild(user, build){
-        const data = await pluginsManager.getExclusive('dataProvider'),
+        let data = await pluginsManager.getExclusive('dataProvider'),
             token = await data.getPluginSetting('wbtb-slack', 'token'),
             Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : token.value }),
             job = await data.getJob(build.jobId),
             logParser = job.logParser ? pluginsManager.get(job.logParser) : null,
-            context = `build_fail_${build.id}`
-
-        let buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
+            context = `build_fail_${build.id}`,
+            buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
             usersInvolved = buildInvolvements.map(involvement => involvement.externalUsername)
 
         // convert to unique users
         usersInvolved = Array.from(new Set(usersInvolved)) 
 
-        // 
+        // check if user has already been informed about this build failure
+        let contactLog = await data.getContactLogByContext(user.id, thisType, context)
+        if (contactLog)
+            return console.log(`user ${user} already alerted for ${context}`)
+
+        // there are multiple users involved, determine if the user being targetted was likely responsible for the break
         let isImplicated = false
         if (usersInvolved.length)
-            for (const buildInvolvement of buildInvolvements)
+            for (const buildInvolvement of buildInvolvements){
+                
+                // ensure that buildInvolvement has been mapped, if not, abort this send, we'll try later
+                if (!buildInvolvement.revisionObject)
+                    return
+
                 for (const file of buildInvolvement.revisionObject.files)
                    if (file.faultChance > .5) {
                         isImplicated = true
                         break
                    }
+            }
 
-        // check if user has already been informed about this build failure
-        let contactLog = await data.getContactLogByContext(user.id, thisType, context)
-        if (contactLog)
-            return
 
         let conversation = await slack.conversations.open({ token : token.value, users : user.contactMethods[thisType].slackId })
         if (!conversation.channel)
@@ -155,10 +161,11 @@ module.exports = {
                 message : `unable to create conversation channel for user ${user.id}`
             })
 
-        const buildLink = urljoin(settings.localUrl, `build/${build.id}`)
-        log = logParser ? `\`\`\`${(await logParser.parseErrors(build.log))}\`\`\`\n` : ''
-        const message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}`
-        if (usersInvolved.length){
+        let buildLink = urljoin(settings.localUrl, `build/${build.id}`),
+            log = logParser ? `\`\`\`${(await logParser.parseErrors(build.log))}\`\`\`\n` : '',
+            message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}`
+
+        if (usersInvolved.length > 1){
             if (isImplicated)
                 message += `There were ${usersInvolved.length} people in this break, but it's likely your code broke it.\n`
             else

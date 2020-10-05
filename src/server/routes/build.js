@@ -4,7 +4,6 @@ const
     errorHandler = require(_$+'helpers/errorHandler'),
     buildLogic = require(_$+'logic/builds'),
     jobsLogic = require(_$+'logic/job'),
-    vcServerLogic = require(_$+'logic/VCServer'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){
@@ -39,9 +38,6 @@ module.exports = function(app){
             const
                 data = await pluginsManager.getExclusive('dataProvider'),
                 build = await buildLogic.getById(req.params.id),
-                job = await jobsLogic.getById(build.jobId),
-                vcServer = await vcServerLogic.getById(job.VCServerId),
-                vcServerPlugin = await pluginsManager.get(vcServer.vcs),
                 view = await handlebars.getView('build'),
                 model = {
                     build
@@ -53,9 +49,6 @@ module.exports = function(app){
             build.__buildInvolvements = await data.getBuildInvolementsByBuild(build.id)
 
             for (const buildInvolvement of build.__buildInvolvements){
-                // get revision for a given buildinvolment from source control
-                buildInvolvement.__revision = await vcServerPlugin.getRevision(buildInvolvement.revision, vcServer) 
-
                 // get user object for revision, if mapped
                 if (buildInvolvement.userId)
                     buildInvolvement.__user = await data.getUser(buildInvolvement.userId)

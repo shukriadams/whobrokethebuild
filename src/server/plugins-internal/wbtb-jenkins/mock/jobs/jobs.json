@@ -15,6 +15,10 @@
         },
         {
             "_class" : "hudson.model.FreeStyleProject",
+            "name" : "The Star Aliens Force"
+        },
+        {
+            "_class" : "hudson.model.FreeStyleProject",
             "name" : "Zombie Avengers Universe"
         }
     ]

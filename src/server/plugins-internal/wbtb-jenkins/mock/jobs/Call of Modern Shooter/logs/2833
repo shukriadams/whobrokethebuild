@@ -97,7 +97,7 @@ Updated to revision 3412.
   LogInit: Display: LogSavePackage: Warning: /path/to/resource imported Serialize:/path/to/resource/thing_file, but it was never saved as an export.
   LogInit: Display: LogSavePackage: Warning: /path/to/resource imported Serialize:/path/to/resource/thing_file.BP__C:DefaultSceneRoot_GEN_VARIABLE, but it was never saved as an export.
   LogInit: Display: LogSavePackage: Warning: /path/to/resource imported Serialize:/path/to/resource/thing_file.BP__C:Sphere_GEN_VARIABLE, but it was never saved as an export.
-  LogInit: Display: LogLinker: Error: AddRedirectList(d:/mygame/Saved/Config/Windows/Engine.ini) failed to add redirector from None to /Script/thing.myclass with empty name!
+  LogInit: Display: LogLinker: Error: AddRedirectList(d:/mygame/Config/Windows/Engine.ini) failed to add redirector from None to /Script/thing.myclass with empty name!
   LogInit: Display: LogConsoleManager: Warning: Setting the console variable 'r.Streaming.LimitPoolSizeToVRAM' with 'SetByScalability' was ignored as it is lower priority than the previous 'SetByProjectSetting'. Value remains '1'
   LogInit: Display: NOTE: Only first 50 warnings displayed.
   LogInit: Display:
