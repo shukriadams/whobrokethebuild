@@ -154,13 +154,13 @@ module.exports = {
                         lastDelta = null
 
                     for (const build of builds){
-                        // if build already has delta, it's here only to start sequence, don't assign anything to it
-                        if (build.delta){
-                            lastDelta = build.delta
-                            continue
-                        }
+                        const previousBuilds = data.getPreviousBuild(build)
 
-                        if (lastDelta) {
+                        if (build) {
+                            
+                            // previous build is still in progress, cannot calculate delta yet, so wait
+                            if (!previousBuilds.ended)
+                                continue
 
                             // note - change break is not assigned here, but we need to take it into account when generating deltas
 
@@ -178,7 +178,11 @@ module.exports = {
                                     || lastDelta === constants.BUILDDELTA_CONTINUEBREAK 
                                     || lastDelta === constants.BUILDDELTA_CHANGEBREAK)
                                 )
+                            {
+                                console.log('cont from > ', lastDelta, previousBuild)
                                 build.delta = constants.BUILDDELTA_CONTINUEBREAK
+                            }
+                                
 
                             // build is now working but was broken before, I fixed it, go me
                             if (build.status === constants.BUILDDELTA_PASS && 
@@ -194,6 +198,8 @@ module.exports = {
                         }
 
                         await data.updateBuild(build)
+
+                        /*
                         lastDelta = build.delta
 
                         // if this build broke or fixed the build, broadcast to public channels
@@ -208,7 +214,31 @@ module.exports = {
                                 await plugin.alertChannel(job.contactMethods[jobContactMethodKey], job, build, lastDelta)
                             }
                         }
+                        */
                     }
+
+                    // alert on build status changed
+                    for (let job of jobs){
+                        const latestBuild = await data.getLatestBuild(job.id)
+
+                        if (!latestBuild || !latestBuild.ended)
+                            continue
+
+                        if ((latestBuild.status === constants.BUILDSTATUS_PASSED && !job.isPassing) ||
+                            (latestBuild.status === constants.BUILDSTATUS_FAILED && job.isPassing)){
+                                for (jobContactMethodKey in job.contactMethods){
+                                    // todo : log that require plugin not found
+                                    const plugin = await pluginsManager.get(jobContactMethodKey)
+                                    if (!plugin) 
+                                        continue
+                                
+                                    await plugin.alertChannel(job.contactMethods[jobContactMethodKey], job, latestBuild)
+                                }
+
+                                job.isPassing = latestBuild.status === constants.BUILDSTATUS_PASSED
+                                await data.updateJob(job)
+                            }
+                    }                    
 
                     // for all builds which are done, broken and has not already been blamed
                     // for all revisions in builds

@@ -428,14 +428,15 @@ module.exports = {
     },
 
     /**
-     * Gets finished builds with no delta, but also the last build with a delta to server as delta start
+     * Gets finished builds with no delta
      */
     async getBuildsWithNoDelta(){
+        /*
         let lastWithDelta = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match : {
                     $and: [ 
-                        { 'delta' :{ $ne : null } }
+                        { 'delta' :{ $ne : null } },
                     ]            
                 }
             },
@@ -444,6 +445,7 @@ module.exports = {
                 $sort: { 'started': -1 } // sort latest first
             },
 
+            // group by parent build
             {
                 $group: {
                     "_id":{
@@ -457,19 +459,14 @@ module.exports = {
                 $limit: 1
             })
         ).pop()
-
+            */
         // return all null deltas, and if exists, last with delta to server as starting history
         return _normalize(await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match : {
                     $and: [ 
                         // builds with no delta or last with delta
-                        { 
-                            $or : [
-                                { '_id' :{ $eq : lastWithDelta ? lastWithDelta._id : null } },
-                                { 'delta' :{ $eq : null } } 
-                            ]
-                        },
+                        { 'delta' :{ $eq : null } },
 
                         // finished builds only - either passed or failed
                         {
@@ -480,14 +477,37 @@ module.exports = {
                         }
                     ]            
                 }
-            },
-
-            {
-                // sort earliest first
-                $sort: { 'started': 1 }
             }
 
         ), _normalizeBuild)
+    },
+
+
+    /**
+     * Gets the previous build before a given build object.
+     */
+    async getPreviousBuild(build){
+        const previosBuild = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
+            {
+                $match : {
+                    $and: [ 
+                        { 'jobId' :{ $eq : new ObjectID(build.jobId) } },
+                        { 'started' :{ $lt : build.started } }
+                    ]
+                }
+            },
+        
+            {
+                // sort latest first
+                $sort: { 'started': -1}
+            },
+
+            {
+                $limit: 1
+            }
+        )).pop()
+
+        return previosBuild ? _normalize(previosBuild, _normalizeBuild) : null
     },
 
     /**

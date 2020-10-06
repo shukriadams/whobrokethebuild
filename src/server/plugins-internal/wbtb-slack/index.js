@@ -68,7 +68,10 @@ module.exports = {
             Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : token.value }),
             buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
-            context = `build_${delta}_${build.id}`
+            context = `build_${build.status}_${build.id}`
+
+        if (build.status !== constants.BUILDSTATUS_FAILED && build.status !== constants.BUILDSTATUS_PASSED)
+            return
 
         // check if channel has already been informed about this build failure
         let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
@@ -79,7 +82,7 @@ module.exports = {
         let userString = '',
             userUniqueCheck = []
 
-        if (delta === constants.BUILDDELTA_CAUSEBREAK){
+        if (build.status === constants.BUILDSTATUS_FAILED){
             for (const buildInvolvement of buildInvolvements){
                 const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null,
                     username = user ? user.name : buildInvolvement.externalUsername
@@ -97,11 +100,11 @@ module.exports = {
         }
 
         const buildLink = urljoin(settings.localUrl, `build/${build.id}`)
-        const message = delta === constants.BUILDDELTA_CAUSEBREAK ? 
+        const message = build.status === constants.BUILDSTATUS_FAILED ? 
             `Build ${job.name} is broken.\n${userString}. \nMore info : ${buildLink}` : 
             `Build ${job.name} is working again`
 
-        const response = await slack.chat.postMessage({ token : token.value, channel : slackContactMethod.channelId, text : message });
+        await slack.chat.postMessage({ token : token.value, channel : slackContactMethod.channelId, text : message });
 
         contactLog = ContactLog()
         contactLog.receiverContext = slackContactMethod.channelId
@@ -136,7 +139,7 @@ module.exports = {
         // check if user has already been informed about this build failure
         let contactLog = await data.getContactLogByContext(user.id, thisType, context)
         if (contactLog)
-            return console.log(`user ${user} already alerted for ${context}`)
+            return
 
         // there are multiple users involved, determine if the user being targetted was likely responsible for the break
         let isImplicated = false
