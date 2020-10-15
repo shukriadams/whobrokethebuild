@@ -5,7 +5,7 @@ global._$ = `${__dirname}/server/`
 require('cache-require-paths')
 
 const 
-    Stopwatch = require('statman-stopwatch')
+    Stopwatch = require('statman-stopwatch'),
     stopwatch = new Stopwatch()
 
 stopwatch.start();
@@ -29,7 +29,6 @@ stopwatch.start();
         fsUtils = require('madscience-fsUtils'),
         Express = require('express'),
         app = Express(),
-        socket = require(_$+ 'helpers/socket'),
         daemon = require(_$+'helpers/daemon'),
         diagnosticsHelper = require(_$+'helpers/diagnostics'),
         userLogic = require(_$+ 'logic/users'),

@@ -67,6 +67,7 @@ module.exports = {
             token = await data.getPluginSetting('wbtb-slack', 'token'),
             Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : token.value }),
+            logger = require('winston-wrapper').new(settings.logPath),
             buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
             context = `build_${build.status}_${build.id}`
 
@@ -99,12 +100,16 @@ module.exports = {
             }
         }
 
-        const buildLink = urljoin(settings.localUrl, `build/${build.id}`)
-        const message = build.status === constants.BUILDSTATUS_FAILED ? 
-            `Build ${job.name} is broken.\n${userString}. \nMore info : ${buildLink}` : 
-            `Build ${job.name} is working again`
+        const targetChannelId = settings.slackOverrideChannelId || slackContactMethod.channelId,
+            buildLink = urljoin(settings.localUrl, `build/${build.id}`),
+            message = build.status === constants.BUILDSTATUS_FAILED ? 
+                `Build ${job.name} is broken.\n${userString}. \nMore info : ${buildLink}` : 
+                `Build ${job.name} is working again`
 
-        await slack.chat.postMessage({ token : token.value, channel : slackContactMethod.channelId, text : message });
+        if (settings.slackOverrideChannelId)
+            logger.info.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.slackOverrideChannelId}`)
+    
+        await slack.chat.postMessage({ token : token.value, channel : targetChannelId, text : message });
 
         contactLog = ContactLog()
         contactLog.receiverContext = slackContactMethod.channelId
@@ -130,6 +135,7 @@ module.exports = {
             job = await data.getJob(build.jobId),
             logParser = job.logParser ? pluginsManager.get(job.logParser) : null,
             context = `build_fail_${build.id}`,
+            logger = require('winston-wrapper').new(settings.logPath),
             buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
             usersInvolved = buildInvolvements.map(involvement => involvement.externalUsername)
 
@@ -157,8 +163,11 @@ module.exports = {
                    }
             }
 
+        const targetSlackId = settings.slackOverrideUserId || user.contactMethods[thisType].slackId
+        if (settings.slackOverrideUserId)
+            logger.info.info(`slackOverrideUserId set, diverting post to meant for user slackid ${user.contactMethods[thisType].slackId} to override user id ${settings.slackOverrideUserId}`)
 
-        let conversation = await slack.conversations.open({ token : token.value, users : user.contactMethods[thisType].slackId })
+        let conversation = await slack.conversations.open({ token : token.value, users : targetSlackId })
         if (!conversation.channel)
             throw new Exception({
                 message : `unable to create conversation channel for user ${user.id}`
