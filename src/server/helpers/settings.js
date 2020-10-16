@@ -1,5 +1,6 @@
 let 
     process = require('process'),
+    fs = require('fs-extra'),
     customEnv = require('custom-env'),
     constants = require(_$+ 'types/constants'),
     settings = {
@@ -49,7 +50,11 @@ let
 
 
 // apply custom .env settings
-customEnv.env()
+if (fs.existsSync('./.env')){
+    customEnv.env()
+    console.log('.env loaded')
+}
+
 
 // capture settings from process.env
 for (let property in settings){

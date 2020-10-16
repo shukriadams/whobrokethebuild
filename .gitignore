@@ -30,6 +30,7 @@ src/server/plugins-internal/postgres.json
 src/server/plugins-internal/*.json
 src/.plugin.conf
 src/.env
+src/HIDE.env
 build/.clone
 build/.stage
 src/server/plugins-internal/jenkins/package-lock.json

@@ -9,6 +9,14 @@ services:
         - "4000:3000"
         # enable this to park container, makes debugging easier
         # command: /bin/sh -c  "while true ;sleep 5; do continue; done"
+        environment:
+          sandboxMode: "true"
+          mongoConnectionString: "mongodb://root:example@0.0.0.0:27017"
+          activeDirectoryUrl: ldap://myurl:1234
+          activeDirectoryBase: "dc=foo,dc=bar"
+          activeDirectoryUser: user@thing
+          activeDirectoryPassword: mypass
+          activeDirectorySearch: "OU=Users,OU=foo,DC=foo,DC=local"
         volumes:
-          - ./plugins.test.json:/usr/app/plugins.local.json
+          - ./plugins.json:/usr/app/plugins.json
           - ./plugins:/usr/app/server/plugins:rw

@@ -69,22 +69,21 @@ module.exports = {
             // this is where plugins will normally be installed
             externalPluginsFolder = './server/plugins',
             // read the regular plugins list
-            pluginsConfig = {}
-            
-        if (await fs.exists('./plugins.json'))
             pluginsConfig = await fs.readJson('./plugins.json')
 
         // if a dev plugin list exists, load and merge that with the regular plugins list, let dev plugins override regular ones
         if (await fs.pathExists('./plugins.local.json')){
             const devPluginsConfig = await fs.readJson('./plugins.local.json')
-            // mark all plugins defined in plugins.local.json as internal
-            for (const plugin in devPluginsConfig)
-                devPluginsConfig[plugin].source = 'internal'
+
 
             pluginsConfig = Object.assign(pluginsConfig, devPluginsConfig)
         }
 
-        // add dummydate if config empty, this is required for app to run in "idle" mode
+        // set plugin source to internal if no source defined
+        for (const plugin in pluginsConfig)
+            pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
+
+        // if config empty, add dummydata + internalusers, these are required for app to start idle
         if (!Object.keys(pluginsConfig).length){
             pluginsConfig['wbtb-dummydata'] = { source : 'internal' }
             pluginsConfig['wbtb-internalusers'] = { source : 'internal' }
@@ -170,11 +169,9 @@ module.exports = {
 
         // install all external plugins, npm install on all plugins
         for (const pluginName in pluginsConfig){
-            let 
-                pluginConfig = pluginsConfig[pluginName],
-                pluginParentFolder = settings.bindInternalPlugins ? './server/plugins-internal' :  './server/plugins'
-
-            let pluginFolder = `${path.join(pluginParentFolder, pluginName)}`, 
+            let pluginConfig = pluginsConfig[pluginName],
+                pluginParentFolder = settings.bindInternalPlugins ? './server/plugins-internal' :  './server/plugins',
+                pluginFolder = `${path.join(pluginParentFolder, pluginName)}`, 
                 // we write out own per-plugin JSON file in root of plugins folder, this contains metadata about the installation
                 pluginInstallStatus = {},
                 pluginInstallStatusPath = `${path.join(pluginParentFolder, `${pluginName}.json`)}`,

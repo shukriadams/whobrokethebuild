@@ -144,6 +144,10 @@ module.exports = {
         return { id : '' }
     },
 
+    getAllBuilds () {
+        return []
+    },
+
     getBuild : async (id, options) =>{
         return null
     },
@@ -157,7 +161,7 @@ module.exports = {
      * Pages through builds. Note that this is inefficient as it pages in server memory instead of in mongo, but oh yeah,
      * mongo can't page
      */
-    pageBuilds : async(jobId, index, pageSize)=>{
+    pageBuilds : async()=>{
         return { items : [], pages : 0 } 
     },
 
@@ -178,11 +182,19 @@ module.exports = {
         
     },
 
+    getBuildsWithUnparsedLogs(){
+        return []
+    },
+
     /**
      * Gets finished builds with no delta, but also the last build with a delta to server as delta start
      */
     getBuildsWithNoDelta: async()=>{
         return []
+    },
+
+    getPreviousBuild(){
+        return null
     },
 
     /**
@@ -205,11 +217,19 @@ module.exports = {
     insertBuildInvolvement : async record => {
         return { id : '' }
     },
+    
+    removeBuildInvolvement(){
+
+    },
 
     updateBuildInvolvement : async record => {
         
     },
     
+    getAllBuildInvolvement(){
+        return null
+    },
+
     getBuildInvolvementByRevision : async (buildId, externalUsername)=>{
         return null
     },
@@ -225,6 +245,9 @@ module.exports = {
         return []
     },
 
+    getBuildInvolvementsWithoutRevisionObjects(){
+        return []
+    },
 
     /****************************************************
      * Contact log
@@ -275,6 +298,14 @@ module.exports = {
     }, 
 
     removePluginSettings : async plugin => {
+
+    },
+
+        
+    /****************************************************
+     * Utility
+     ****************************************************/
+    clean(){
 
     }
 }
