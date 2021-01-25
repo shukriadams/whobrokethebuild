@@ -1,3 +1,20 @@
+# Who broke the build?
+
+## Start
+
+- Create a json file and `plugins.json`. Add some plugins to it. The following internal plugins are available f.ex
+
+        {
+            "wbtb-mongo" : { "source" : "internal" },
+            "wbtb-internalusers" : { "source" : "internal" },
+            "wbtb-activedirectory" : { "source" : "internal" },
+            "wbtb-jenkins" : { "source" : "internal" }
+        }
+
+- Create a folder `plugins`, Chown 1000 it.
+- start container
+
+
 ## Setup
 
 To initialize mongo and mongo admin,

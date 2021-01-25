@@ -12,11 +12,12 @@ services:
         environment:
           sandboxMode: "true"
           mongoConnectionString: "mongodb://root:example@0.0.0.0:27017"
+          mongoDBName: "whobreakthebuild"
           activeDirectoryUrl: ldap://myurl:1234
           activeDirectoryBase: "dc=foo,dc=bar"
           activeDirectoryUser: user@thing
           activeDirectoryPassword: mypass
           activeDirectorySearch: "OU=Users,OU=foo,DC=foo,DC=local"
         volumes:
-          - ./plugins.json:/usr/app/plugins.json
+          - ./plugins2.json:/usr/app/plugins.json
           - ./plugins:/usr/app/server/plugins:rw

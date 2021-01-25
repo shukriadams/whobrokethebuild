@@ -1,0 +1,6 @@
+{
+    "wbtb-mongo" : { "source" : "internal" },
+    "wbtb-internalusers" : { "source" : "internal" },
+    "wbtb-activedirectory" : { "source" : "internal" },
+    "wbtb-jenkins" : { "source" : "internal" }
+}

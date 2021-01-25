@@ -180,6 +180,15 @@ module.exports = {
 
 
     async validateSettings() {
+        if (!settings.mongoConnectionString){
+            console.log(`mongo plugin requires "mongoConnectionString" with format "mongodb://USER:PASSWORD@IP:PORT"`)
+            return false
+        }
+        if (!settings.mongoDBName){
+            console.log(`mongo plugin requires "mongoDBName" with name of database to use`)
+            return false
+        }
+
         return true
     },
 
