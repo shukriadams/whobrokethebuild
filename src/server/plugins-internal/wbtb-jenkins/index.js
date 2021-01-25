@@ -158,12 +158,17 @@ module.exports = {
 
         let url = urljoin(baseUrl, `job/${encodeURIComponent(job.name)}/api/json?pretty=true&tree=allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]`)
         const response = await httputils.downloadString(url)
-        let json = null
+        
+        if (response.statusCode === 404){
+            logger.error.error(`Build job ${job.name} was not found on Jenkins server ${ciServer.name}.`)
+            return
+        }
 
+        let json = null
         try {
             json = JSON.parse(response.body)
         } catch(ex){
-            logger.error.error(ex, response.body);
+            logger.error.error(`Failed to parse JSON from  job ${job.name}`, ex, response.body)
             return
         }
         
@@ -181,8 +186,11 @@ module.exports = {
                     localBuild.ended = timebelt.addMinutes(localBuild.started, remoteBuild.duration).getTime()
 
                 // fetch log if build is complete
-                if (!localBuild.log && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED))
+                if (!localBuild.log && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
                     localBuild.log = await this.downloadBuildLog(baseUrl, job.name, localBuild.build)
+                    if (localBuild.log && localBuild.log.length > 10000)
+                        localBuild.log = localBuild.log.substring(0, 10000)
+                }
 
                 // bad : this will constantly update records, even if not dirty
                 await data.updateBuild(localBuild)

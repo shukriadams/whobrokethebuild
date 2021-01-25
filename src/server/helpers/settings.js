@@ -23,7 +23,9 @@ let
         // if set, all user-targetted slack messages will be sent to this user
         slackOverrideUserId : null,
 
-        // set this to true to run npm install directly in plugins-internal folder. This is for dev only, do not do on this in a docker container, your modules will be destroyed when the contiaier resets
+        // set this to true to run npm install directly in plugins-internal folder. This is for dev only, 
+        // and allows you to debug and step through the code in internal plugins. Do not do on this in a 
+        // docker container, your modules will be destroyed when the container resets
         bindInternalPlugins : false,
 
         authType : constants.AUTHPROVIDER_INTERNAL,

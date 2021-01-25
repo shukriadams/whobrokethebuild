@@ -21,17 +21,24 @@ To initialize mongo and mongo admin,
     
     cd /dev
     sh ./setup.sh
-
+    docker-compose up -d
+    
 This is needed once only
 
 The mongo admin interface is @
 
     http://localhost:3002
 
+If not available, make sure the mongo db and admin containers have started properly.
+
 You will probably want to run with dev plugins and sandboxing all services - create a .env file in your project root and add the following to it
 
     sandboxMode=true
     enableDevPlugins=true
+
+`Sandboxmode` enables sandboxmode inside plugins - plugins which support this mode will mock calls to external servers using internal data. This is useful for developing without requiring actual running endpoint integrations. 
+
+`enableDevPlugins` will load plugins from the `/server/plugins-internal` folder, which makes debugging and stepping through code possible.
 
 ## To run with live-reload and debug
 

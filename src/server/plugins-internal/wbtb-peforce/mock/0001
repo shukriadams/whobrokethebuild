@@ -1,0 +1,17 @@
+Change 0001 by user@worspace on 2021/01/25 14:38:07
+
+        Did some things to change some stuff.
+
+Affected files ...
+
+... //mydepot/mystream/path/to/file.txt#2 edit
+
+Differences ...
+
+==== //mydepot/mystream/path/to/file.txt#2 (text) ====
+
+65c65,68
+<       henlo thar
+---
+>       this is way more serious
+>       please don't use meme text, thanks

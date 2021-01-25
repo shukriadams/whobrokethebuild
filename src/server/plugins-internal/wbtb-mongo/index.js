@@ -285,8 +285,8 @@ module.exports = {
         return _normalize(await _mongo.insert(constants.TABLENAME_JOBS, _denormalizeJob(job)), _normalizeJob)
     },
 
-    async getJob(id) {
-        return _normalize(await _mongo.getById(constants.TABLENAME_JOBS, id), _normalizeJob)
+    async getJob(id, options) {
+        return _normalize(await _mongo.getById(constants.TABLENAME_JOBS, id, options), _normalizeJob)
     },
 
     async getAllJobs () {
