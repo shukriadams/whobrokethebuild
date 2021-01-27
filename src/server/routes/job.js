@@ -1,5 +1,4 @@
-const 
-    pluginsManager = require(_$+'helpers/pluginsManager'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
     settings = require(_$+ 'helpers/settings'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     jobLogic = require(_$+'logic/job'),
@@ -19,14 +18,12 @@ module.exports = function(app){
 
     app.get('/job/:id?', async function(req, res){
         try {
-            const 
-                view = await handlebars.getView('job'),
+            const view = await handlebars.getView('job'),
                 model = { },
                 data = await pluginsManager.getExclusive('dataProvider'),
                 page = parseInt(req.query.page || 1) - 1 // pages are publicly 1-rooted, 0-rooted internally
             
-
-            model.job = await data.getJob(req.params.id)
+            model.job = await data.getJob(req.params.id, { expected : true })
             model.job.__baseUrl = `/job/${req.params.id}`
 
             model.jobBuilds = await data.pageBuilds(req.params.id, page, settings.standardPageSize)
