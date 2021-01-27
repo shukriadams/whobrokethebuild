@@ -13,6 +13,7 @@ let settings = require(_$+'helpers/settings'),
     exclusiveCategories = ['dataProvider'],
     requiredCategories = ['dataProvider', 'authProvider'],
     pluginConfPath = path.join(settings.dataFolder, '.plugin.conf'),
+    _pluginConf = {},
     _plugins = {
         // hash table of installed plugins paths, mapped by id
         plugins : {},
@@ -332,8 +333,7 @@ module.exports = {
 
 
         // generate ui route index file - some plugins expose a UI
-        const pluginConf = {},
-            allPlugins = this.getAll()
+        const allPlugins = this.getAll()
 
         for (const plugin of allPlugins){
             const description = plugin.__wbtb
@@ -343,14 +343,14 @@ module.exports = {
             if (description.hasUI && !description.name)
                 throw `plugin ${description.id} has a ui but no name` 
 
-            pluginConf[description.id] ={ 
+            _pluginConf[description.id] ={ 
                 url : `/${urljoin(description.id)}/`,
                 hasUI : description.hasUI,
                 text : description.name
             }
         }
 
-        jsonfile.writeFileSync(pluginConfPath, pluginConf)
+        jsonfile.writeFileSync(pluginConfPath, _pluginConf)
     },
 
 
@@ -358,7 +358,7 @@ module.exports = {
      * 
      */
     getPluginConf(){
-        return pluginConf
+        return _pluginConf
     },
 
 
