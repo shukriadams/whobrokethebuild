@@ -1,10 +1,11 @@
-.list > li {
+.list-item {
     background-color: var(--color-indigo);
     color: var(--color-alabaster);
     padding: 4px 0;
+    display: flex;  // prevent linebreak when text in one item in row overflows
 }
 
-.list > li:not(:last-child) {
+.list-item:not(:last-child) {
     /* acts as bottom border by allowing background color to show through*/
     margin-bottom: 2px;
 }

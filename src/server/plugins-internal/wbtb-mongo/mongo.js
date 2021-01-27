@@ -124,10 +124,13 @@ const
         return new Promise(async (resolve, reject)=>{
 
             // if an id is corrupt/ invalid we don't want objectId to throw a parse error
-            // and derail entire call - an invalid id should yield a null result instead
+            // and derail entire call - an invalid id should be treated as "not found"
+            // which is a null return
             try {
                 id = new ObjectID(id)
             }catch(ex){
+                if (options.expected)
+                    return reject(`Expected record id ${id} from table ${collectionName} not found`)
                 resolve(null)
             }
 

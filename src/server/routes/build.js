@@ -1,5 +1,4 @@
-const 
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+const commonModelHelper = require(_$+ 'helpers/commonModels'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
     buildLogic = require(_$+'logic/builds'),
@@ -28,15 +27,14 @@ module.exports = function(app){
 
             await commonModelHelper(model, req)
             res.send(view(model))
-        }catch(ex){
+        } catch(ex) {
             errorHandler(res, ex)
         }
     })
 
     app.get('/build/:id', async (req, res)=>{
         try {
-            const
-                data = await pluginsManager.getExclusive('dataProvider'),
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 build = await buildLogic.getById(req.params.id),
                 view = await handlebars.getView('build'),
                 model = {
