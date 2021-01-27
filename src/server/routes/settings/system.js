@@ -1,8 +1,4 @@
-let
-    settings = require(_$+'helpers/settings'),
-    jsonfile = require('jsonfile'),
-    fs = require('fs-extra'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+let commonModelHelper = require(_$+ 'helpers/commonModels'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars'),
@@ -38,12 +34,8 @@ module.exports = function(app){
                 }
 
             // get plugins with UI's
-            if (!pluginConf){
-                if (!await fs.exists('./.plugin.conf'))
-                    throw `.plugin.conf not found`
-
-                pluginConf = Object.freeze(jsonfile.readFileSync('./.plugin.conf'))
-            }
+            if (!pluginConf)
+                pluginConf = Object.freeze(pluginsManager.getPluginConf())
                 
             model.pluginLinks = Object.assign({}, pluginConf)
             for(const plugin in model.pluginLinks)

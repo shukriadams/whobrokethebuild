@@ -1,6 +1,5 @@
 let sessionHelper = require(_$+ 'helpers/session'),
-    jsonfile = require('jsonfile'),
-    fs = require('fs-extra'),
+    pluginsHelper = require(_$+ 'helpers/pluginsManager'),
     pluginLinks
 
 /**
@@ -13,10 +12,8 @@ let sessionHelper = require(_$+ 'helpers/session'),
 module.exports = async (model, req, pageOwnerPublicId)=>{
     if (!pluginLinks){
 
-        if (await fs.exists('./.plugin.conf'))
-            pluginLinks = jsonfile.readFileSync('./.plugin.conf')
-        else
-            pluginLinks = {}
+        // get plugins config, if not present force empty structure
+        pluginLinks = pluginsHelper.getPluginConf() || { }
 
         const pluginsArray = []
         for (const prop in pluginLinks)

@@ -1,5 +1,4 @@
-let
-    settings = require(_$+'helpers/settings'),
+let settings = require(_$+'helpers/settings'),
     path = require('path'),
     fs = require('fs-extra'),
     urljoin = require('urljoin'),
@@ -13,6 +12,7 @@ let
     logger = require('winston-wrapper').new(settings.logPath),
     exclusiveCategories = ['dataProvider'],
     requiredCategories = ['dataProvider', 'authProvider'],
+    pluginConfPath = path.join(settings.dataFolder, '.plugin.conf'),
     _plugins = {
         // hash table of installed plugins paths, mapped by id
         plugins : {},
@@ -90,8 +90,13 @@ module.exports = {
 
         // if config empty, add dummydata + internalusers, these are required for app to start idle
         if (!Object.keys(pluginsConfig).length){
+            // a data plugin is always needed. todo : refactor this, add it if no data plugin present
             pluginsConfig['wbtb-dummydata'] = { source : 'internal' }
+            console.log(`Added fallback data plugin wbtb-dummydata`)
+
+            // we always need a users plugin. todo : figure out if / when this should be forced
             pluginsConfig['wbtb-internalusers'] = { source : 'internal' }
+            console.log(`Added fallback users plugin wbtb-internalusers`)
         }
 
         // strip out all plugin config if explicitly disabled 
@@ -345,7 +350,15 @@ module.exports = {
             }
         }
 
-        jsonfile.writeFileSync('./.plugin.conf', pluginConf)
+        jsonfile.writeFileSync(pluginConfPath, pluginConf)
+    },
+
+
+    /**
+     * 
+     */
+    getPluginConf(){
+        return pluginConf
     },
 
 
