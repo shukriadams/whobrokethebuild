@@ -1,3 +1,4 @@
+const constants = require(_$+'types/constants')
 /**
  * This module hides our data layer's query logic, and thereby its type. Currently this is
  * build on mongo, but we can replace that with other providers in time.
@@ -21,7 +22,9 @@ module.exports = {
         return null
     },
 
-    getUserById : async id =>{
+    getUserById : async (id, options = {}) =>{
+        if (options.expected)
+            throw `Expected record id ${id} from table "${constants.TABLENAME_USERS}" not found`
         return null
     },
 
@@ -41,7 +44,9 @@ module.exports = {
         
     },
 
-    getUser : async id => {
+    getUser : async (id, options = {}) => {
+        if (options.expected)
+            throw `Expected record id ${id} from table "${constants.TABLENAME_USERS}" not found`
         return null
     },
 
@@ -68,7 +73,9 @@ module.exports = {
         return { id : '' }
     },
     
-    getCIServer: async (id, options) => {
+    getCIServer: async (id, options = {}) => {
+        if (options.expected)
+            throw `Expected record id ${id} from table "${constants.TABLENAME_CISERVERS}" not found`
         return null
     },
     
@@ -92,7 +99,9 @@ module.exports = {
         return { id : '' }
     },
 
-    getJob : async id => {
+    getJob : async (id, options = {}) => {
+        if (options.expected)
+            throw `Expected record id ${id} from table "${constants.TABLENAME_JOBS}" not found`
         return null
     },
 
@@ -124,7 +133,9 @@ module.exports = {
         return []
     },
     
-    getVCServer: async (id, options) =>{
+    getVCServer: async (id, options = {}) =>{
+        if (options.expected)
+            throw `Expected record id ${id} from table "${constants.TABLENAME_VCSERVERS}" not found`
         return null
     },
 
@@ -148,7 +159,9 @@ module.exports = {
         return []
     },
 
-    getBuild : async (id, options) =>{
+    getBuild : async (id, options = {}) =>{
+        if (options.expected)
+            throw `Expected record id ${id} from table "${constants.TABLENAME_BUILDS}" not found`
         return null
     },
 
@@ -170,7 +183,9 @@ module.exports = {
     /**
      * 
      */
-    getBuildByExternalId: async (jobId, build) =>{
+    getBuildByExternalId: async (jobId, build, options = {}) =>{
+        if (options.expected)
+            throw `Expected record id ${id} from table "${constants.TABLENAME_BUILDS}" not found`
         return null
     },
 
@@ -256,7 +271,9 @@ module.exports = {
         return { id : '' }
     }, 
     
-    getContactLog : async id => {
+    getContactLog : async (id, options = {}) => {
+        if (options.expected)
+            throw `Expected record id ${id} from table "${constants.TABLENAME_CONTACTLOGS}" not found`
         return null
     },
 

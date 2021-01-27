@@ -1,5 +1,4 @@
-const
-    settings = require(_$+'helpers/settings'),
+const settings = require(_$+'helpers/settings'),
     constants = require(_$+'types/constants'),
     MongoClient = require('mongodb').MongoClient,
     ObjectID = require('mongodb').ObjectID,
