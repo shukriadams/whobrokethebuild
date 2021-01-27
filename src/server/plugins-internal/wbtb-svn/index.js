@@ -1,5 +1,4 @@
-const 
-    exec = require('madscience-node-exec'),
+const exec = require('madscience-node-exec'),
     svnhelper = require('madscience-svnhelper'),
     settings = require(_$+ 'helpers/settings'),
     path = require('path'),

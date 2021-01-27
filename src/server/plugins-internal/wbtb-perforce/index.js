@@ -1,3 +1,9 @@
+const perforcehelper = require('madscience-perforcehelper'),
+    settings = require(_$+ 'helpers/settings'),
+    path = require('path'),
+    fs = require('fs-extra'),
+    encryption = require(_$+'helpers/encryption')
+
 module.exports = {
 
     validateSettings: async () => {
@@ -18,7 +24,7 @@ module.exports = {
 
     /**
      * Required by interface.
-     * Does SVN log on a revision and returns an object with revision info
+     * Does p4 describe on a revision and returns an object with revision info
      * revision : string, revision id
      * vcServer : object, internal vcServer object
      */
@@ -27,7 +33,7 @@ module.exports = {
         // assert vcServer.password
         // assert vcServer.username
         let password = await encryption.decrypt(vcServer.password),
-            rawRevisionText
+            rawDescribeText
 
         if (settings.sandboxMode){
             let mockRevisionFile = path.join(__dirname, `/mock/revisions/${revision}`)
@@ -35,14 +41,13 @@ module.exports = {
             if (!await fs.exists(mockRevisionFile))
                 mockRevisionFile = path.join(__dirname, `/mock/revisions/generic`)
 
-            rawRevisionText = await fs.readFile(mockRevisionFile, 'utf8')
+            rawDescribeText = await fs.readFile(mockRevisionFile, 'utf8')
         } else {
-            rawRevisionText = (await exec.sh({ cmd : `echo ${password} | p4 login -u ${vcServer.username} && p4 describe ${revision}`})).result
+            rawDescribeText = await perforcehelper.getDescribe(vcServer.username, password, vcServer.url, revision )
         }
 
-        let parsedRevisions = svnhelper.parseSVNLog(rawRevisionText)
+        let revisionParsed = perforcehelper.parseDescribe(rawDescribeText, false)
 
-        // we've queried only one revision, so array should contain only one item
-        return parsedRevisions.length ? parsedRevisions[0] : null
+        return revisionParsed
     }
 }
