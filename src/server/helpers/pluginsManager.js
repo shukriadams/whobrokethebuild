@@ -69,13 +69,18 @@ module.exports = {
             // this is where plugins will normally be installed
             externalPluginsFolder = './server/plugins',
             // read the regular plugins list
-            pluginsConfig = await fs.readJson('./plugins.json')
+            pluginsConfigPath = './plugins.json'
+
+        if (!await fs.exists(pluginsConfigPath)){
+            logger.error.error(`ERROR - Expected plugins definition file ${path.resolve(pluginsConfigPath)} was not found. Please create this file and restart.`)
+            return process.exit(1)
+        }
+
+        let pluginsConfig = await fs.readJson('./plugins.json')
 
         // if a dev plugin list exists, load and merge that with the regular plugins list, let dev plugins override regular ones
         if (await fs.pathExists('./plugins.local.json')){
             const devPluginsConfig = await fs.readJson('./plugins.local.json')
-
-
             pluginsConfig = Object.assign(pluginsConfig, devPluginsConfig)
         }
 

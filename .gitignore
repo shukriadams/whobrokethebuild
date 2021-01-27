@@ -21,6 +21,7 @@
 /dev/gitlab
 /dev/jenkins
 src/_data
+src-copy
 src/.cache-require-paths.json
 src/public/scripts/
 src/server/plugins
