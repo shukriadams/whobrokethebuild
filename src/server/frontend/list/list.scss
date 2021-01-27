@@ -1,8 +1,6 @@
 .list-item {
     background-color: var(--color-indigo);
     color: var(--color-alabaster);
-    padding: 4px 0;
-    display: flex;  // prevent linebreak when text in one item in row overflows
 }
 
 .list-item:not(:last-child) {

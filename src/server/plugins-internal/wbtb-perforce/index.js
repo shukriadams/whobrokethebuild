@@ -47,6 +47,9 @@ module.exports = {
         }
 
         let revisionParsed = perforcehelper.parseDescribe(rawDescribeText, false)
+    
+        // remap values, we expect user on revision, but this lib uses username
+        revisionParsed.user = revisionParsed.username
 
         return revisionParsed
     }

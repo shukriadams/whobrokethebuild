@@ -2,29 +2,30 @@
     {{#content "body"}}
         <ul class="list build">
 
-            <li>
-                <div class="card">
-                    <div class="card-status card-status--{{statusTranslate build.status}}"></div>
-                    <div class="card-content">
-                        <h1>Build {{build.build}}</h1>
-                        <p>
-                            Built on :  {{build.host}}
-                        </p>
-                        <p>
-                            Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
-                        </p>
-                    </div>
+            <li class="list-item card">
+                <div class="card-status card-status--{{statusTranslate build.status}}"></div>
+                <div class="card-content">
+                    <h1>Build {{build.build}}</h1>
+                    <p>
+                        Built on :  {{build.host}}
+                    </p>
+                    <p>
+                        Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
+                    </p>
                 </div>
 
-                <p>
-                    Job : <a href="/job/{{build.jobId}}">{{build.__job.name}}</a>
-                </p>
-                {{#if session.isAdmin}}
-                    <button class="button build-delete" data-id="{{build.id}}">Remove build</button>    
-                {{/if}}
             </li>
+            
+            <li class="list-item build-item">
+                <div>
+                    <p>
+                        Job : <a href="/job/{{build.jobId}}">{{build.__job.name}}</a>
+                    </p>
+                    {{#if session.isAdmin}}
+                        <button class="button build-delete" data-id="{{build.id}}">Remove build</button>    
+                    {{/if}}
+                </div>
 
-            <li>
                 <h2>Revisions</h2>
                 <ul class="list">
                     {{#if build.__buildInvolvements}}
@@ -53,11 +54,8 @@
                         </li>
                     {{/if}}
                 </ul>
-            </li>
 
-            <li class="build-log">
                 <h2>Log</h2>
-
                 <p>
                     {{#if build.isLogParsed}}
                         {{{preserveSpaces build.logParsed}}}
@@ -69,8 +67,8 @@
                 <div>
                     <a href="/build/log/{{build.id}}">Full log</a>
                 </div>
-            </li>
 
+            </li>
         </ul>
 
     {{/content}}
