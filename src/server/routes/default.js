@@ -1,5 +1,4 @@
-const 
-    settings = require(_$+ 'helpers/settings'),
+const settings = require(_$+ 'helpers/settings'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     handlebars = require(_$+ 'helpers/handlebars'),
     errorHandler = require(_$+'helpers/errorHandler'),
@@ -23,8 +22,7 @@ module.exports = function(express){
     express.get('/', async function (req, res) {
         try {
 
-            const
-                data = await pluginsManager.getExclusive('dataProvider'),
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('default'),
                 model = {
                     default : {

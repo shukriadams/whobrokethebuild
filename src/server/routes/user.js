@@ -1,6 +1,4 @@
-const 
-    settings = require(_$+ 'helpers/settings'),
-    pluginsManager = require(_$+'helpers/pluginsManager'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     handlebars = require(_$+ 'helpers/handlebars')
@@ -8,10 +6,9 @@ const
 module.exports = function(app){
     app.get('/user/:user', async function(req, res){
         try {
-            const 
-                data = await pluginsManager.getExclusive('dataProvider'),
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('user'),
-                user = await data.getUserById(req.params.user),
+                user = await data.getUserById(req.params.user, { expected : true }),
                 model = {
                     user
                 }

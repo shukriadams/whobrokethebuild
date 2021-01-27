@@ -1,9 +1,7 @@
-const 
-    settings = require(_$+ 'helpers/settings'),
+const settings = require(_$+ 'helpers/settings'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     fs = require('fs-extra'),
     fsUtils = require('madscience-fsUtils'),
-    path = require('path'),
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars')
 
@@ -11,8 +9,7 @@ module.exports = function(app){
 
     app.get('/log/:type?', async function(req, res){
         try {
-            const 
-                view = await handlebars.getView('log'),
+            const view = await handlebars.getView('log'),
                 type = req.params.type || 'info',
                 model = { }
 

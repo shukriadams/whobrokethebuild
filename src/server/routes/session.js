@@ -1,10 +1,8 @@
-const 
-    settings = require(_$+ 'helpers/settings'),
+const settings = require(_$+ 'helpers/settings'),
     constants = require(_$+ 'types/constants'),
     errorHandler = require(_$+'helpers/errorHandler'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
-    sessionLogic = require(_$+'logic/session'),
-    commonModelHelper = require(_$+ 'helpers/commonModels')
+    sessionLogic = require(_$+'logic/session')
     
 module.exports = function(app){
 
@@ -28,8 +26,7 @@ module.exports = function(app){
      */
     app.post('/session', async function(req, res){
         try {
-            const 
-                username = req.body.username,
+            const username = req.body.username,
                 password = req.body.password
 
             if (!username || !password){
@@ -43,8 +40,7 @@ module.exports = function(app){
                 })
             }
 
-            let
-                authProviders = await pluginsManager.getAllByCategory('authProvider'), 
+            let authProviders = await pluginsManager.getAllByCategory('authProvider'), 
                 authResult = null
                 
             // try to log in with all available auth providers

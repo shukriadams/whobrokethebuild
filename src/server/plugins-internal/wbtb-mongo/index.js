@@ -348,8 +348,7 @@ module.exports = {
     },
 
     async getBuild (id, options) {
-        const record = await _mongo.getById(constants.TABLENAME_BUILDS, id, options)
-        return _normalize(record, _normalizeBuild)
+        return _normalize(await _mongo.getById(constants.TABLENAME_BUILDS, id, options), _normalizeBuild)
     },
 
     async getLatestBuild(jobId) {
