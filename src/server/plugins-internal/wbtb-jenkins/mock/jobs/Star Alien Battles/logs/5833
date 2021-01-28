@@ -1,0 +1,119 @@
+Started by an SCM change
+Building remotely on BuildMACHINE (editor unreal) in workspace c:\tools\jenkins\workspace\the_game
+Updating svn://ourproject/trunk at revision '2019-12-05T14:31:06.311 +0100' --quiet
+Using sole credentials admin/****** (admin SVN) in realm ‘<svn://ourproject:3690> Gaminator’
+At revision 0006
+
+Using sole credentials admin/****** (admin SVN) in realm ‘<svn://ourproject:3690> Gaminator’
+[OurProject] $ cmd /c call C:\Windows\TEMP\jenkins9178595117446154498.bat
+
+c:\tools\jenkins\workspace\OurProject>d:
+
+D:\>cd d:\buildpipeline2\OurProject
+
+d:\buildpipeline2\OurProject>svn revert -R . 
+Reverted 'Config\BuildServer.ini'
+Reverted 'Config\DefaultGame.ini'
+
+d:\buildpipeline2\OurProject>svn update --non-interactive --username **** --password **** 
+Updating '.':
+U    \path\to\somefile.uasset
+Updated to revision 3412.
+
+  LogCook: Display: Cooked packages 500 Packages Remain 509 Total 1009
+  LogCook: Display: Cooked packages 550 Packages Remain 508 Total 1058
+  LogCook: Display: Cooked packages 550 Packages Remain 324 Total 874
+  LogCook: Display: Cooked packages 585 Packages Remain 323 Total 908
+  LogCook: Display: Cooked packages 586 Packages Remain 322 Total 908
+  LogCook: Display: Cooked packages 587 Packages Remain 321 Total 908
+  LogCook: Display: Cooked packages 588 Packages Remain 320 Total 908
+  LogCook: Display: Cooked packages 589 Packages Remain 319 Total 908
+  LogCook: Display: Cooked packages 590 Packages Remain 318 Total 908
+  LogCook: Display: Cooked packages 591 Packages Remain 317 Total 908
+  LogCook: Display: Cooked packages 592 Packages Remain 316 Total 908
+  LogCook: Display: Cooked packages 593 Packages Remain 315 Total 908
+  LogCook: Display: Cooked packages 594 Packages Remain 314 Total 908
+  LogCook: Display: Cooked packages 595 Packages Remain 313 Total 908
+  LogCook: Display: Cooked packages 596 Packages Remain 227 Total 823
+  LogCook: Display: Cooked packages 597 Packages Remain 224 Total 821
+  LogCook: Display: Cooked packages 598 Packages Remain 209 Total 807
+  LogCook: Display: Cooked packages 599 Packages Remain 208 Total 807
+  LogCook: Display: Cooked packages 600 Packages Remain 207 Total 807
+  LogCook: Display: Cooked packages 601 Packages Remain 206 Total 807
+  LogCook: Display: Cooked packages 602 Packages Remain 205 Total 807
+  LogCook: Display: Cooked packages 603 Packages Remain 204 Total 807
+  LogCook: Display: Cooked packages 604 Packages Remain 203 Total 807
+  LogCook: Display: Cooked packages 605 Packages Remain 202 Total 807
+  LogCook: Display: Cooked packages 606 Packages Remain 201 Total 807
+  LogCookCommandlet: Display: Cook Profile
+  LogCookCommandlet: Display: ============
+  LogCookCommandlet: Display:  0.CookWallTimeSec=12.184244
+  LogCookCommandlet: Display:  0. 0.StartupWallTimeSec=3.763196
+  LogCookCommandlet: Display:  0. 1.CookByTheBookTimeSec=8.421034
+  LogCookCommandlet: Display:  0. 1. 0.StartCookByTheBookTimeSec=1.150547
+  LogCookCommandlet: Display:  0. 1. 0. 0.GameCookModificationDelegateTimeSec=0.000017
+  LogCookCommandlet: Display:  0. 1. 1.TickCookOnTheSideTimeSec=7.238243
+  LogCookCommandlet: Display:  0. 1. 1. 0.TickCookOnTheSideLoadPackagesTimeSec=1.878358
+  LogCookCommandlet: Display:  0. 1. 1. 1.TickCookOnTheSideSaveCookedPackageTimeSec=4.519436
+  LogCookCommandlet: Display:  0. 1. 1. 1. 0.TickCookOnTheSideResolveRedirectorsTimeSec=0.000000
+  LogCookCommandlet: Display:  0. 1. 1. 2.TickCookOnTheSideBeginPackageCacheForCookedPlatformDataTimeSec=0.460015
+  LogCookCommandlet: Display:  0. 1. 1. 3.TickCookOnTheSideFinishPackageCacheForCookedPlatformDataTimeSec=0.055443
+  LogCookCommandlet: Display:  0. 1. 2.TickLoopGCTimeSec=0.000000
+  LogCookCommandlet: Display:  0. 1. 3.TickLoopRecompileShaderRequestsTimeSec=0.000033
+  LogCookCommandlet: Display:  0. 1. 4.TickLoopShaderProcessAsyncResultsTimeSec=0.000021
+  LogCookCommandlet: Display:  0. 1. 5.TickLoopProcessDeferredCommandsTimeSec=0.000027
+  LogCookCommandlet: Display:  0. 1. 6.TickLoopTickCommandletStatsTimeSec=0.000005
+  LogCookCommandlet: Display:
+  LogCookCommandlet: Display: DDC Summary Stats
+  LogCookCommandlet: Display: =================
+  LogCookCommandlet: Display: TotalGetHits  =      3181
+  LogCookCommandlet: Display: TotalGets     =      3185
+  LogCookCommandlet: Display: TotalGetHitPct=  0.998744
+  LogCookCommandlet: Display: LocalGetHitPct=  0.915542
+  LogCookCommandlet: Display: SharedGetHitPct=  0.000000
+  LogCookCommandlet: Display: OtherGetHitPct=  0.083203
+  LogCookCommandlet: Display: GetMissPct    =  0.001256
+  LogCookCommandlet: Display: TotalPutHits  =      1280
+  LogCookCommandlet: Display: TotalPuts     =      1280
+  LogCookCommandlet: Display: TotalPutHitPct=  1.000000
+  LogCookCommandlet: Display: PutMissPct    =  0.000000
+  LogCookCommandlet: Display:
+  LogCookCommandlet: Display: DDC Resource Stats
+  LogCookCommandlet: Display: =======================================================================================================
+  LogCookCommandlet: Display: Asset Type                          Total Time (Sec)  GameThread Time (Sec)  Assets Built  MB Processed
+  LogCookCommandlet: Display: ----------------------------------  ----------------  ---------------------  ------------  ------------
+  LogCookCommandlet: Display: Texture (Streaming)                             1.39                   0.00             0        861.93
+  LogCookCommandlet: Display: LandscapeCollision (Heightfield)                0.23                   0.23             0         28.15
+  LogCookCommandlet: Display: StaticMesh                                      0.17                   0.17             0        100.48
+  LogCookCommandlet: Display: MaterialShader                                  0.15                   0.15             0          7.86
+  LogCookCommandlet: Display: PhysX (BodySetup)                               0.08                   0.08             0         40.83
+  LogCookCommandlet: Display: SkeletalMesh                                    0.02                   0.02             0         17.56
+  LogCookCommandlet: Display: NavCollision                                    0.01                   0.01             0          5.06
+  LogCookCommandlet: Display: DistanceField                                   0.01                   0.01             0          3.69
+  LogCookCommandlet: Display: GlobalShader                                    0.01                   0.01             0          3.43
+  LogCookCommandlet: Display: Texture (Inline)                                0.00                   0.00             0         92.54
+  LogCookCommandlet: Display: SoundWave   
+  LogInit: Display: LogSavePackage: Warning: /path/to/resource imported Serialize:/path/to/resource/thing_file.BP__C:Drone, but it was never saved as an export.
+  LogInit: Display: LogSavePackage: Warning: /path/to/resource imported Serialize:/path/to/resource/thing_file, but it was never saved as an export.
+  LogInit: Display: LogSavePackage: Warning: /path/to/resource imported Serialize:/path/to/resource/thing_file.BP__C:DefaultSceneRoot_GEN_VARIABLE, but it was never saved as an export.
+  LogInit: Display: LogSavePackage: Warning: /path/to/resource imported Serialize:/path/to/resource/thing_file.BP__C:Sphere_GEN_VARIABLE, but it was never saved as an export.
+  LogInit: Display: LogLinker: Error: AddRedirectList(d:/mygame/Config/Windows/Engine.ini) failed to add redirector from None to /Script/thing.myclass with empty name!
+  LogInit: Display: LogConsoleManager: Warning: Setting the console variable 'r.Streaming.LimitPoolSizeToVRAM' with 'SetByScalability' was ignored as it is lower priority than the previous 'SetByProjectSetting'. Value remains '1'
+  LogInit: Display: NOTE: Only first 50 warnings displayed.
+  LogInit: Display:
+  LogInit: Display: Failure - 1 error(s), 241 warning(s)
+  LogInit: Display:
+  
+  Execution of commandlet took:  8.45 seconds
+  LogShaderCompilers: Display: Shaders left to compile 0
+  FGlobalDynamicReadBuffer::Cleanup()
+  FGlobalDynamicReadBuffer::Cleanup()
+  FGlobalDynamicReadBuffer::Cleanup()
+Took 13,2947651s to run UE4Editor-Cmd.exe, ExitCode=1
+ERROR: Cook failed.
+       (see C:\Windows\system32\config\systemprofile\AppData\Roaming\Unreal Engine\AutomationTool\Logs\d+buildpipeline2+UnrealEditor\Log.txt for full exception trace)
+AutomationTool exiting with ExitCode=25 (Error_UnknownCookFailure)
+
+d:\buildpipeline2\UnrealEditor\Engine\Binaries\DotNET>exit 25 
+Build step 'Execute Windows batch command' marked build as failure
+Finished: FAILURE

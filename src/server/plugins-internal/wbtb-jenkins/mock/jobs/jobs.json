@@ -7,7 +7,7 @@
         },
         {
             "_class" : "hudson.model.FreeStyleProject",
-            "name" : "Ninja Sniper Battle Survivor Royale"
+            "name" : "Ninja Sniper Survivor Royale"
         },
         {
             "_class" : "hudson.model.FreeStyleProject",
@@ -15,7 +15,7 @@
         },
         {
             "_class" : "hudson.model.FreeStyleProject",
-            "name" : "The Star Aliens Force"
+            "name" : "Star Alien Battles"
         },
         {
             "_class" : "hudson.model.FreeStyleProject",

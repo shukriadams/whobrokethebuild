@@ -16,7 +16,8 @@ module.exports = function(app){
                 data = await pluginsManager.getExclusive('dataProvider')
 
             model.VCServerTypes = await pluginsManager.getTypeCodesOf('vcs')
-
+            model.isCreate = !req.params.id
+            
             if (req.params.id)
                 model.vcserver = await data.getVCServer(req.params.id, { expected : true })
 

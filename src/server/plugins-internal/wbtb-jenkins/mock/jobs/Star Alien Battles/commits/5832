@@ -1,0 +1,12 @@
+{
+    "_class" : "hudson.model.FreeStyleBuild",
+    "changeSet" : {
+        "_class" : "hudson.scm.SubversionChangeLogSet",
+        "items" : [
+            {
+                "_class" : "hudson.scm.SubversionChangeLogSet$LogEntry",
+                "commitId" : "0004"
+            }
+        ]
+    }
+}

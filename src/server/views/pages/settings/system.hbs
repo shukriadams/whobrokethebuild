@@ -2,44 +2,71 @@
     {{#content "body"}}
         <h1>System settings</h1>
         
-        <h2>CI Servers</h2>
-        <a class="icon icon-add" href="/settings/ciserver" title="New CIServer"></a>
+        <h2>
+            Build Servers
+            <a class="icon icon-add" href="/settings/ciserver" title="New CIServer"></a>
+        </h2>
         <ul class="list">
-            {{#each ciservers}}
-                <li class="list-item">
-                    <div>
-                        <a href="/settings/ciserver/{{this.id}}">{{this.name}}</a>
-                    </div>
-                    <div>
-                        {{this.url}}
-                    </div>
+            {{#if ciservers}}
+                {{#each ciservers}}
+                    <li class="list-item list-item--textContent">
+                        <div>
+                            <a href="/settings/ciserver/{{this.id}}">{{this.name}}</a>
+                        </div>
+                        <div>
+                            {{this.url}}
+                        </div>
+                    </li>
+                {{/each}}
+            {{else}}
+                <li class="list-item list-item--textContent">
+                    No build (continous integrations) servers have been added yet. These servers includes the likes of Jenkins,
+                    Team City, etc. They coordinate your builds.
                 </li>
-            {{/each}}
+            {{/if}}
         </ul>
         
 
-        <h2>Version Control Servers</h2>
-        <a class="icon icon-add" href="/settings/vcserver" title="New VCServer"></a>
+        <h2>
+            Version Control 
+            <a class="icon icon-add" href="/settings/vcserver" title="New VCServer"></a>
+        </h2>
+        
         <ul class="list">
-            {{#each vcservers}}
-                <li class="list-item">
-                    <div>
-                        <a href="/settings/vcserver/{{this.id}}">{{this.name}}</a>
-                    </div>
-                    <div>
-                        {{this.url}}
-                    </div>
-                </li>
-            {{/each}}
+            {{#if vcservers}}
+                {{#each vcservers}}
+                    <li class="list-item list-item--textContent">
+                        <div>
+                            <a href="/settings/vcserver/{{this.id}}">{{this.name}}</a>
+                        </div>
+                        <div>
+                            {{this.url}}
+                        </div>
+                    </li>
+                {{/each}}
+            {{else}}
+                <li class="list-item list-item--textContent">
+                    No version controls servers have been added yet. Version control servers includes the likes of Git,
+                    SVN, Perforce, etc. Your source code and its history is stored here.
+                </li>                
+            {{/if}}
         </ul>
 
-        <h2>Plugins</h2>
+        <h2>
+            Plugins
+        </h2>
         <ul class="list">
-            {{#each pluginLinks}}
-                <li class="list-item">
-                    <a href="{{url}}">{{text}}</a>
-                </li>
-            {{/each}}
+            {{#if vcservers}}
+                {{#each pluginLinks}}
+                    <li class="list-item list-item--textContent">
+                        <a href="{{url}}">{{text}}</a>
+                    </li>
+                {{/each}}
+            {{else}}
+                <li class="list-item list-item--textContent">
+                    No plugins are bound. Plugins are defined in the plugins.json file, in the project root.
+                </li>                
+            {{/if}}                
         </ul>
 
         <h2>Daemon</h2>

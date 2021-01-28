@@ -1,21 +1,38 @@
 {{#extend "layout"}}
     {{#content "body"}}
         <div class="ciserver">
-            <h1>CI Server</h1>
-
-            <input class="ciserver-id" value="{{ciserver.id}}" type="hidden" />
-            <input class="ciserver-name" placeholder="Name" value="{{ciserver.name}}" type="text" />
-            <input class="ciserver-url" placeholder="Url" value="{{ciserver.url}}" type="text" />
-            <input class="ciserver-username" placeholder="Username" value="{{ciserver.username}}" type="text" />
-            <input class="ciserver-password" placeholder="Password" value="{{ciserver.password}}" type="password" />
-
-            <select class="ciserver-type">
-                {{#each CIServerTypes}}
-                    <option {{markSelected ../ciserver.type this}}>{{this}}</option>
-                {{/each}}
-            </select>
-
-            <button class="button ciserver-post">{{#if isCreate}}Create{{else}}Update{{/if}}</button> 
+            <h1>Build Server</h1>
+            <p>
+                Build or continuous integration servers coordinate and run your project's builds. We will hook into 
+                them to monitor your build history.
+            </p>
+            
+            <div>
+                <input class="ciserver-id" value="{{ciserver.id}}" type="hidden" />
+                <input class="ciserver-name" placeholder="Name (display only)" value="{{ciserver.name}}" type="text" />
+            </div>
+            <div>
+                <input class="ciserver-url" placeholder="Url" value="{{ciserver.url}}" type="text" />
+            </div>
+            <div>
+                <input class="ciserver-username" placeholder="Admin username" value="{{ciserver.username}}" type="text" />
+            </div>
+            <div>
+                <input class="ciserver-password" placeholder="Admin password" value="{{ciserver.password}}" type="password" />
+            </div>
+            <div>
+                <select class="ciserver-type">
+                    {{#each CIServerTypes}}
+                        <option {{markSelected ../ciserver.type this}}>{{this}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div>
+                <button class="button ciserver-post">{{#if isCreate}}Add{{else}}Update{{/if}}</button> 
+                {{#unless isCreate}}
+                    <button class="button ciserver-delete">Delete</button> 
+                {{/unless}}
+            </div>
 
             {{#unless isCreate}}
                 <h2>jobs</h2>

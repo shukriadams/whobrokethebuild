@@ -10,8 +10,7 @@ module.exports = app => {
 
     app.get('/settings/ciserver/:id?', async (req, res) =>{
         try {
-            const 
-                view = await handlebars.getView('settings/ciserver'),
+            const view = await handlebars.getView('settings/ciserver'),
                 model = { },
                 data = await pluginsManager.getExclusive('dataProvider')
     
@@ -55,6 +54,21 @@ module.exports = app => {
 
             await commonModelHelper(model, req)
             res.send(view(model))
+
+        } catch(ex){
+            errorHandler(res,ex)
+        }
+    })
+
+    app.delete('/settings/ciserver/:id', async (req, res) =>{
+        try {
+            const id = req.params.id,
+                data = await pluginsManager.getExclusive('dataProvider')
+
+            await data.removeCIServer(id)
+            res.json({
+                foo : 'bar'
+            })
 
         } catch(ex){
             errorHandler(res,ex)
