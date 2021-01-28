@@ -1,10 +1,38 @@
 @import "../common/variables";
+@import "../typography/typography";
+
+@mixin header-link{
+    color: var(--color-white);
+}
 
 .header {
-    background-color: var(--color-royalPurple);
+    height: var(--layout-headerHeight);
+    background-color: var(--color-crusta);
 }
 
 .header-title{
-    @include typography-title ;
+    font-size: 16px;
+    font-weight: bold;
     color: var(--color-white);
+}
+
+.header-username {
+    @include header-link;
+    text-decoration: underline;
+}
+
+.header-login {
+    @include header-link;
+}
+
+.header-logout {
+    @include header-link;
+}
+
+.header-join {
+    @include header-link;
+}
+
+.header-items li {
+    padding-bottom: var(--universalPadding);
 }

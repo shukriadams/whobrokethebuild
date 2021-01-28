@@ -11,10 +11,11 @@ sudo apt install docker-compose -y
 sudo usermod -aG docker vagrant
 
 # nodejs packages
-sudo npm install jspm@0.16x -g
 sudo npm install yarn -g
 sudo npm install uglify-es -g
 sudo npm install concat-cli -g
+# reguired by webfonts-generator package
+sudo apt-get install build-essential -y
 
 # 
 sudo apt-get install subversion -y

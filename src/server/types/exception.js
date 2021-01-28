@@ -15,7 +15,7 @@ let constants = require(_$+'types/constants');
  *     forceLog : bool. If true, exception will always be written to logs when reaching API. Use this to log user-oriented errors that should not be happening.
  * }
  */
-function Exception(options) {
+function Exception(options = {}) {
 
     /*
         this.message = options.message || 'no message given';
@@ -24,15 +24,20 @@ function Exception(options) {
         // append stack trace
         this.stack = (new Error()).stack;
     */
-    this.code = options.code || constants.ERROR_DEFAULT;
-    this.inner = options.inner || null;
-    this.message = options.message || '';
-    this.public = options.public || '';
-    this.forceLog = options.forceLog === undefined ? false : options.forceLog;
+    this.code = options.code || constants.ERROR_DEFAULT
+    this.inner = options.inner || null
+    this.message = options.message || ''
+    this.public = options.public || ''
+    this.forceLog = options.forceLog === undefined ? false : options.forceLog
+
+    if ("captureStackTrace" in Error)
+        Error.captureStackTrace(this, Exception)
+    else
+        this.stack = (new Error()).stack
 }
 
-Exception.prototype = Object.create(Exception.prototype);
+Exception.prototype = Object.create(Error.prototype)
+Exception.prototype.name = "Exception"
+Exception.prototype.constructor = Exception
 
-Exception.prototype.constructor = Exception;
-
-module.exports = Exception;
+module.exports = Exception

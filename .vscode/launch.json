@@ -13,7 +13,7 @@
             "localRoot": "${workspaceFolder}/src",
             "remoteRoot": "/vagrant/src",
             "smartStep": true,
-            "skipFiles": ["<node_internals>/**"]
+            "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
         }
     ]
 }

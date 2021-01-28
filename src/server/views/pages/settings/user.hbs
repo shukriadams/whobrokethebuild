@@ -21,14 +21,14 @@
                 {{#each user.userMappings}}
                     <li class="userSettings-vcServerBinding">
                         <div>
-                            <input class="userSettings-vcServerBindingName" value="{{name}}" data-vcServerId="{{vcServer.id}}" type="text" />
                             <div>
                                 {{vcServer.name}}
                             </div>
+                            <input class="userSettings-vcServerBindingName" value="{{name}}" data-vcServerId="{{vcServer.id}}" type="text" />
                         </div>
                     </li>
                 {{/each}}
-                <button class="userSetting-saveVCServerBindings">Update</button>
+                <button class="button userSetting-saveVCServerBindings">Update</button>
             </ul>
 
             <div>
@@ -37,7 +37,7 @@
                         <option value="{{id}}">{{name}}</option>
                     {{/each}}
                 </select>
-                <button data="vcServer-addUser">Add to server</button>
+                <button class="button" data="vcServer-addUser">Add to server</button>
             </div>
 
         </div>

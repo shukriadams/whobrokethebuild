@@ -6,7 +6,7 @@ const
 module.exports = {
     async insert(properties){
         const 
-            data = await pluginsManager.getByCategory('dataProvider'),
+            data = await pluginsManager.getExclusive('dataProvider'),
             vcserver = VCServer()
 
         vcserver.name = properties.name
@@ -24,13 +24,19 @@ module.exports = {
         await data.insertVCServer(vcserver)
     },
 
-    async delete(id){
+    async getById (id) {
+        const data = await pluginsManager.getExclusive('dataProvider')
+        return await data.getVCServer(id)
+    },
 
+    async delete(id){
+        const data = await pluginsManager.getExclusive('dataProvider')
+        await data.removeVCServer(id)
     },
 
     async update(properties){
         const 
-            data = await pluginsManager.getByCategory('dataProvider'),
+            data = await pluginsManager.getExclusive('dataProvider'),
             vcserver = await data.getVCServer(properties.id, { expected : true })
         
         vcserver.name = properties.name

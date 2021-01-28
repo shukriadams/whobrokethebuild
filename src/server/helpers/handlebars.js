@@ -30,7 +30,7 @@ module.exports = {
             pages = {}
             views = {}
         
-            // partials
+            // core partials
             let root = path.join(_$+'views/partials'),
                 partialPaths = await fsUtils.readFilesUnderDir(path.join(__dirname,'./../views/partials'))  // findViews(path.join(__dirname,'./../views/partials'))
 
@@ -47,7 +47,7 @@ module.exports = {
                 views[name] = true
             }
         
-            // pages
+            // core pages
             root = path.join(_$+'views/pages')
             let pagePaths = await fsUtils.readFilesUnderDir(root)
             for (let pagePath of pagePaths){
@@ -62,8 +62,8 @@ module.exports = {
                 pages[name] = Handlebars.compile(content)
             }
 
-            // plugin views
-            root = path.join(_$+'plugins-dev')
+            // plugin dev pages
+            root = path.join(_$+'plugins-internal')
             pagePaths = glob.sync(`${root}/**/views/**/*.hbs`, { ignore : ['**/node_modules/**']})
             for (let pagePath of pagePaths){
                 let content = fs.readFileSync(pagePath, 'utf8'),
@@ -75,7 +75,25 @@ module.exports = {
                 }    
                     
                 pages[name] = Handlebars.compile(content)
-            }            
+            }
+
+            // plugin dev partials
+            root = path.join(_$+'plugins-internal')
+            pagePaths = glob.sync(`${root}/**/partials/**/*.hbs`, { ignore : ['**/node_modules/**']})
+            for (let pagePath of pagePaths){
+                let content = fs.readFileSync(pagePath, 'utf8'),
+                    name = pagePath.replace(root, '').match(/\/(.*).hbs/).pop()
+
+                if (views[name]){
+                    console.warn(`The partial "${name}" (from view ${partialPath}) is already taken by another partial.`)
+                    continue
+                }    
+
+                Handlebars.registerPartial(name, content)
+                views[name] = true
+            }
+
+            // add external plugins too!
         }
 
         return pages[page]

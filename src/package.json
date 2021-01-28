@@ -20,11 +20,13 @@
     "node-sass": "4.11.0",
     "minimist": "1.2.5",
     "cross-spawn": "6.0.5",
+    "webfonts-generator": "0.4.0",
     "madscience-node-assert": "https://github.com/shukriadams/node-assert.git#0.0.2",
     "node-sass-runner": "https://github.com/shukriadams/node-sass-runner.git#0.0.1"
   },
   "dependencies": {
     "cache-require-paths": "0.3.0",
+    "string-similarity": "4.0.2",
     "colors": "1.4.0",
     "randomstring": "1.1.5",
     "glob": "7.1.1",

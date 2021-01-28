@@ -1,0 +1,15 @@
+@import "./../common/mixins.scss";
+
+.button {
+    @include common-input;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: none;  
+    white-space: nowrap;    
+    background-color:var(--color-crusta);
+    color: white;
+    padding: 10px 20px;
+}

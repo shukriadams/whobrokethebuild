@@ -1,5 +1,4 @@
-const 
-    pluginsManager = require(_$+'helpers/pluginsManager'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
     settings = require(_$+ 'helpers/settings'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     jobLogic = require(_$+'logic/job'),
@@ -19,14 +18,12 @@ module.exports = function(app){
 
     app.get('/job/:id?', async function(req, res){
         try {
-            const 
-                view = await handlebars.getView('job'),
+            const view = await handlebars.getView('job'),
                 model = { },
-                data = await pluginsManager.getByCategory('dataProvider'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 page = parseInt(req.query.page || 1) - 1 // pages are publicly 1-rooted, 0-rooted internally
             
-
-            model.job = await data.getJob(req.params.id)
+            model.job = await data.getJob(req.params.id, { expected : true })
             model.job.__baseUrl = `/job/${req.params.id}`
 
             model.jobBuilds = await data.pageBuilds(req.params.id, page, settings.standardPageSize)
@@ -40,12 +37,12 @@ module.exports = function(app){
                     vcServer = await data.getVCServer(job.VCServerId, { expected : true}),
                     vcsPlugin = await pluginsManager.get(vcServer.vcs)
 
-                for (let revisionId of build.revisions){
-                    const revision = await vcsPlugin.getRevision(revisionId, vcServer)
-                    revisions.push(revision)
+                for (let revision of build.revisions){
+                    const revisionData = await vcsPlugin.getRevision(revision, vcServer)
+                    revisions.push(revisionData)
 
                     // try to map user to revision
-                    revision.__user = await data.getUserByExternalName(job.VCServerId, revision.user)
+                    revisionData.__user = await data.getUserByExternalName(job.VCServerId, revisionData.user)
                 }
 
                 build.__revisions = revisions

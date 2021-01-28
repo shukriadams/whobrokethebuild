@@ -1,0 +1,7 @@
+{
+    "name": "wbtb-internalusers",
+    "version": "0.0.1",
+    "wbtb": {
+        "category": "authProvider"
+    }
+}

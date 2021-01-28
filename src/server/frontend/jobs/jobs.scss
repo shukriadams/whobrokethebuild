@@ -1,0 +1,6 @@
+@import "./../typography/typography";
+
+.jobs-title {
+    @include typography-title;
+    display: block;
+}

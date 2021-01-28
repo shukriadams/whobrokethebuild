@@ -1,33 +1,75 @@
 {{#extend "layout"}}
     {{#content "body"}}
-        <div class="build">
-            <h1>Build {{build.build}}</h1>
+        <ul class="list build">
+
+            <li class="list-item card">
+                <div class="card-status card-status--{{statusTranslate build.status}}"></div>
+                <div class="card-content">
+                    <h1>Build {{build.build}}</h1>
+                    <p>
+                        Built on :  {{build.host}}
+                    </p>
+                    <p>
+                        Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
+                    </p>
+                </div>
+
+            </li>
             
-            <div>
-                Revisions 
-                <ul>
-                    {{#each build.revisions}}
+            <li class="list-item build-item">
+                <div>
+                    <p>
+                        Job : <a href="/job/{{build.jobId}}">{{build.__job.name}}</a>
+                    </p>
+                    {{#if session.isAdmin}}
+                        <button class="button build-delete" data-id="{{build.id}}">Remove build</button>    
+                    {{/if}}
+                </div>
+
+                <h2>Revisions</h2>
+                <ul class="list">
+                    {{#if build.__buildInvolvements}}
+                        {{#each build.__buildInvolvements}}
+                            <li>
+                                <div>
+                                    {{>buildInvolvementUserLink this}}
+                                </div>
+                                {{__revision.description}}
+                                <ul>
+                                    {{#each revisionObject.files}}
+                                        <li>
+                                            {{file}}
+                                            <div>
+                                                fault change :{{faultChance}}   
+                                            </div>
+                                        </li>
+                                    {{/each}}
+                                </ul>
+
+                            </li>
+                        {{/each}}
+                    {{else}}
                         <li>
-                            {{this}}
+                            That's odd - there are no revisions in this build?
                         </li>
-                    {{/each}}
+                    {{/if}}
                 </ul>
-            </div>
-            
-            <div>
-                Job <a href="/job/{{build.jobId}}">{{job.name}}</a>
-            </div>
 
-            <div>
                 <h2>Log</h2>
-                {{{preserveSpaces build.log}}}
-                <a href="/build/log/{{build.id}}">Full log</a>
-            </div>
+                <p>
+                    {{#if build.isLogParsed}}
+                        {{{preserveSpaces build.logParsed}}}
+                    {{else}}
+                        Log not parsed.
+                    {{/if}}
+                </p>
 
-            <div>
-                <button class="build-delete" data-id="{{build.id}}">Delete build</button>    
-            </div>
-        </div>
+                <div>
+                    <a href="/build/log/{{build.id}}">Full log</a>
+                </div>
+
+            </li>
+        </ul>
 
     {{/content}}
 {{/extend}}

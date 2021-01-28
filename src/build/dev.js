@@ -12,6 +12,8 @@ let
     _expressProcess = null,
     _triggerFile = null
 
+console.log(`Fast mode: ${isFast}`)
+
 /** 
  * Converts a Sass file map to its destination compiled css path in ./tmp folder
  */
@@ -78,11 +80,11 @@ async function handleSassEvent(file){
  */
 function startExpress(){
     if (_expressProcess){
-        console.log('stopping existing express process');
-        _expressProcess.kill('SIGINT');
+        console.log('stopping existing express process')
+        _expressProcess.kill('SIGINT')
     }
     
-    const breakSwitch = process.argv.includes('--brk') ? '-brk' : '';
+    const breakSwitch = process.argv.includes('--brk') ? '-brk' : ''
     if (breakSwitch)
         console.log(`BREAK enabled`)
 
@@ -90,11 +92,11 @@ function startExpress(){
 
     _expressProcess.stdout.on('data', function (data) {
         console.log(data.toString('utf8'))
-    });
+    })
      
     _expressProcess.stderr.on('data', function (data) {
         console.log(data.toString('utf8'))
-    });
+    })
 }
 
 
@@ -145,10 +147,11 @@ function startExpress(){
         })
 
     // start watching server js files
-    let expressWatcher = chokidar.watch(['./index.js', './server/**/*.js', '!./server/frontend/**', '!./server/plugins/**' ], {
+    let expressWatcher = chokidar.watch(['./index.js', './server/**/*.js', '!./server/frontend/**', '!./server/plugins/**', '!**/node_modules/**' ], {
         persistent: true,
         usePolling: true,
-        ignoreInitial : isFast,
+        // always ignore initial for server file watcher
+        ignoreInitial : true
     })
 
     expressWatcher

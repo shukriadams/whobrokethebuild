@@ -4,6 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
         <link rel="stylesheet" href="/css/style{{layout.bundlemode}}.css" type="text/css">
+        <link rel="stylesheet" href="/css/icons/iconfont.css" type="text/css">
         <link rel='shortcut icon' type='image/x-icon' href='/images/favicon.png'/>
         <meta http-equiv="content-type" name="description" content="">
         <meta http-equiv="content-type" name="keywords" content="">
@@ -11,24 +12,50 @@
         {{{block "basehead"}}}
     </head>
     <body>
-        <header class="header">
-            <div class="layout-scaffold">
-                <a class="header-title" href="/">Who Broke the build</a>
-                {{>session}}
-            </div>
-        </header>
+        <div class="layout-page">
 
-        <main class="layout-main">
-            <div class="layout-scaffold">
+            <header class="layout-header header">
+                <div class="layout-scaffold">
+                    <ul class="header-items">
+                        <li>
+                            <a class="header-title" href="/">Who Broke the build?</a>
+                        </li>
+                        
+                        {{#if session.isLoggedIn}}
+                            <li>
+                                Hi there <a class="header-username" href="/settings">{{session.name}}</a>
+                            </li>
+                        {{/if}}
+
+                        <li>
+                            {{#if session.isLoggedIn}}
+                                <a class="header-logout" href="javascript:void(0)" title="Logout">
+                                    <i class="icon icon-logout"></i>
+                                </a>
+                            {{else}}
+                                <a class="header-login" href="/login" title="Login">
+                                    <i class="icon icon-login"></i>
+                                </a>
+                            {{/if}}
+                        </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <main class="layout-main">
                 {{>menu}}
-                {{{block "body"}}}
-            </div>
-        </main>
+                <div>
+                    {{{block "body"}}}
+                </div>
+            </main>
 
-        <footer>
-            <div class="layout-scaffold">
-            </div>
-        </footer>
+            <footer>
+                <div class="layout-scaffold">
+                </div>
+            </footer>
+
+        </div>
         <script src="/scripts/scripts.js"></script>
     </body>
 </html>

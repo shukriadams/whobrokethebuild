@@ -5,12 +5,12 @@ module.exports = {
     async file (filePath){
         return new Promise(async (resolve, reject)=>{
             try {
-                md5File(filePath,(err, hash)=> {
+                md5File(filePath,(err, hash)=>{
                     return err ? 
                         reject(err) : 
                         resolve(hash)
                 })            
-            }catch(ex){
+            } catch(ex){
                 reject(ex)
             }
         })

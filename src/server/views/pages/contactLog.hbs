@@ -2,23 +2,28 @@
     {{#content "body"}}
         <h1>Notifications</h1>
         <ul>
-            {{#each contactLogs.items}}
-                <li>
-                    <div>
-                        <a href="/user/{{__user.id}}">{{__user.name}}</a>
-                    </div>
-                    <div>
-                        {{context}}
-                    </div>
-                    <div>
-                        {{ago __user.created}}
-                    </div>
-                </li>
-            {{/each}}
+            {{#if contactLogs.items}}
+                {{#each contactLogs.items}}
+                    <li class="struc-row struc-row--padded">
+                        <div class="struc-cell">
+                            <a href="/user/{{__user.id}}">{{__user.name}}</a>
+                        </div>
+                        <div class="struc-cell">
+                            {{eventContext}}
+                        </div>
+                        <div class="struc-cell">
+                            {{ago created}}
+                        </div>
+                    </li>
+                {{/each}}
 
-            <div>
                 {{{pager "/contactLog" contactLogs }}}
-            </div>
+                
+            {{else}}
+                <p>
+                    No alerts have been sent out yet.
+                </p>
+            {{/if}}
 
         </ul>
     {{/content}}

@@ -1,0 +1,6 @@
+/* common mixins go here */
+
+/* visual styling for all input elements */
+@mixin common-input {
+    height: var(--layout-inputElementHeight);
+}

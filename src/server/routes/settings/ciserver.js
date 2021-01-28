@@ -6,22 +6,22 @@ const
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars')
 
-module.exports = function(app){
+module.exports = app => {
 
-    app.get('/settings/ciserver/:id?', async function(req, res){
+    app.get('/settings/ciserver/:id?', async (req, res) =>{
         try {
-            const 
-                view = await handlebars.getView('settings/ciserver'),
+            const view = await handlebars.getView('settings/ciserver'),
                 model = { },
-                data = await pluginsManager.getByCategory('dataProvider'),
-                ciServerPlugin = await pluginsManager.getByCategory('ciserver')
-
+                data = await pluginsManager.getExclusive('dataProvider')
+    
             model.CIServerTypes = await pluginsManager.getTypeCodesOf('ciserver')
             model.isCreate = !req.params.id
 
             if (req.params.id){
                 model.ciserver = await data.getCIServer(req.params.id)
-                const existingJobs = await data.getAllJobsByCIServer(req.params.id),
+
+                const ciServerPlugin = await pluginsManager.get(model.ciserver.type)
+                    existingJobs = await data.getAllJobsByCIServer(req.params.id),
                     availableJobs = await ciServerPlugin.getJobs(model.ciserver.url)
 
                 model.jobs = []
@@ -54,6 +54,21 @@ module.exports = function(app){
 
             await commonModelHelper(model, req)
             res.send(view(model))
+
+        } catch(ex){
+            errorHandler(res,ex)
+        }
+    })
+
+    app.delete('/settings/ciserver/:id', async (req, res) =>{
+        try {
+            const id = req.params.id,
+                data = await pluginsManager.getExclusive('dataProvider')
+
+            await data.removeCIServer(id)
+            res.json({
+                foo : 'bar'
+            })
 
         } catch(ex){
             errorHandler(res,ex)

@@ -1,20 +1,28 @@
-const 
-    settings = require(_$+ 'helpers/settings'),
+const settings = require(_$+ 'helpers/settings'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     handlebars = require(_$+ 'helpers/handlebars'),
     errorHandler = require(_$+'helpers/errorHandler'),
+    buildInvolvementLogic = require(_$+'logic/buildInvolvements'),
     pluginsManager = require(_$+'helpers/pluginsManager')
 
 module.exports = function(express){
     
+
+    /**
+     * Simple logic-free HTTP get alive check 
+     */
+    express.get('/isalive', async (req, res)=>{
+        res.send('1')
+    })
+
+
     /**
      * 
      */
     express.get('/', async function (req, res) {
         try {
 
-            const
-                data = await pluginsManager.getByCategory('dataProvider'),
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('default'),
                 model = {
                     default : {
@@ -22,7 +30,7 @@ module.exports = function(express){
                         bundle : settings.bundle
                     }
                 }
-
+            
             model.jobs = await data.getAllJobs()
                 
             // add latest and breaking build to job
@@ -32,8 +40,8 @@ module.exports = function(express){
 
                 if (job.__breakingBuild){
                     
-                    // extend 
-                    job.__breakingBuild.__buildInvolvements = await data.getBuildInvolementsByBuild(job.__breakingBuild.id)
+                    // extend
+                    job.__breakingBuild.__buildInvolvements = buildInvolvementLogic.filterUniqueUser( await data.getBuildInvolementsByBuild(job.__breakingBuild.id))
 
                     for (const buildInvolvement of job.__breakingBuild.__buildInvolvements)
                         if (buildInvolvement.userId)

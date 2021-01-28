@@ -1,0 +1,5 @@
+@import "./../typography/typography";
+
+.job-buildTitle {
+    @include typography-title2;
+}

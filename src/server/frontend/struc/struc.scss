@@ -1,0 +1,13 @@
+.struc-row {
+    white-space: nowrap;
+
+    &.struc-row--padded {
+        .struc-cell {
+            padding: calc(var(--universalPadding)/2);
+        }        
+    }
+}
+
+.struc-cell {
+    display: inline-block;
+}

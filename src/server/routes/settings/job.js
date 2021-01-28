@@ -13,21 +13,23 @@ module.exports = function(app){
             const 
                 view = await handlebars.getView('settings/job'),
                 model = { },
-                data = await pluginsManager.getByCategory('dataProvider')
+                data = await pluginsManager.getExclusive('dataProvider')
 
             if (req.params.id)
                 model.job = await data.getJob(req.params.id)
 
             model.vcServers = await data.getAllVCServers()
             model.ciServers = await data.getAllCIServers()
-            model.logParsers = await pluginsManager.getTypeCodesOf('logParser')
+            model.logParsers = await pluginsManager.getTypeCodesOf('logParser', false)
             model.logParsers.unshift('')// add blank value
 
             // hey, looking for contactMethod saving? it's done via the contactMethod plugin using it, f.ex, slack
             
+            // name query arg indicates this is a new job being set up
             if (req.query.name)
                 model.job = {
-                    name : req.query.name
+                    name : req.query.name,
+                    isPublic : true
                 }
 
             await commonModelHelper(model, req)

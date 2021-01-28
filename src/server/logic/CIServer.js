@@ -13,7 +13,7 @@ function fixUrl(url){
 module.exports = {
     async insert(properties){
         const 
-            data = await pluginsManager.getByCategory('dataProvider'),
+            data = await pluginsManager.getExclusive('dataProvider'),
             ciserver = CIServer()
 
         ciserver.name = properties.name
@@ -33,7 +33,7 @@ module.exports = {
 
     async update(properties){
         const 
-            data = await pluginsManager.getByCategory('dataProvider'),
+            data = await pluginsManager.getExclusive('dataProvider'),
             ciserver = await data.getCIServer(properties.id, { expected : true })
         
         ciserver.name = properties.name

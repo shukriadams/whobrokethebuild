@@ -1,3 +1,5 @@
+// cwd needs to be parent folder
+
 const fs = require('fs-extra'),
     concatenateCss = require('./concatenate-css'),
     concatenateJs = require('./concatenate-js'),

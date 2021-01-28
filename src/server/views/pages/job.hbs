@@ -1,23 +1,37 @@
 {{#extend "layout"}}
     {{#content "body"}}
         <h1>{{job.name}}</h1>
-        <a href="/settings/job/{{job.id}}">Settings</a>
+
+        {{#if session.isAdmin}}
+            <a href="/settings/job/{{job.id}}">
+                <i class="icon icon-gear"></i>
+            </a>
+        {{/if}}
 
         <h2>Builds</h2>
+
+        {{{pager ../job.__baseUrl jobBuilds }}}
+
         <ul class="list">
             {{#if jobBuilds.items}}
                 {{#each jobBuilds.items}}
                     <li class="list-item">
-                        <div>
-                            <a href="/build/{{id}}">
-                                Build : {{build}}
-                            </a>
-                        </div>
-                        <div>
-                            Status : {{statusTranslate status}}
-                        </div>
-                        <div>
-                            {{ago started}} @ {{shortTime started}}
+
+                        <div class="card">
+                            <div class="card-status card-status--{{statusTranslate status}}"></div>
+                            <div class="card-content">
+                                <div>
+                                    <a class="job-buildTitle" href="/build/{{id}}">
+                                        # {{build}}
+                                    </a>
+                                </div>
+                                <div>
+                                    Status : {{statusTranslate status}}, {{deltaTranslate delta}}
+                                </div>
+                                <div>
+                                    {{ago started}} @ {{shortTime started}}
+                                </div>
+                            </div>    
                         </div>
 
                         <h3>Revisions</h3>
@@ -25,13 +39,14 @@
                             {{#each __revisions}}
                                 <li_>
                                     <div>
-                                        {{revision}} - {{description}} {{ago date}}
-                                        by 
+                                        {{revision}} -                                         by 
                                         {{#if __user}}
                                             <a href="/user/{{__user.id}}">{{__user.name}}</a>
                                         {{else}}
                                             {{user}}
                                         {{/if}}
+
+                                        {{gistOf description 100 "..."}} 
 
                                     </div>
                                 </li_>
@@ -40,13 +55,9 @@
                     </li>
                 {{/each}}
 
-                {{{pager ../job.__baseUrl jobBuilds }}}
-
-
             {{else}}
                 This job hasn't built yet
             {{/if}}
-
 
         </ul>
 

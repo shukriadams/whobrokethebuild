@@ -12,7 +12,7 @@ module.exports = {
     async run(){
         
         const 
-            data = await pluginsManager.getByCategory('dataProvider'),
+            data = await pluginsManager.getExclusive('dataProvider'),
             ciservers = await data.getAllCIServers(),
             jobs = await data.getAllJobs()
         
@@ -22,7 +22,7 @@ module.exports = {
         for (let plugin of plugins){
 
             await plugin.validateSettings()
-            console.log(`${plugin.getTypeCode()} passed`)
+            console.log(`${plugin.__wbtb.name} passed`)
         }
 
         // verify ciserver urls

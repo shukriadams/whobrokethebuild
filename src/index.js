@@ -5,35 +5,37 @@ global._$ = `${__dirname}/server/`
 require('cache-require-paths')
 
 const 
-    Stopwatch = require('statman-stopwatch')
+    Stopwatch = require('statman-stopwatch'),
     stopwatch = new Stopwatch()
 
 stopwatch.start();
 
-const
-    colors = require('colors/safe')
-    bodyParser = require('body-parser')
-    cookieParser = require('cookie-parser')
-    path = require('path')
-    glob = require('glob'),
-    fs = require('fs-extra'),
-    useragent = require('express-useragent')
-    fsUtils = require('madscience-fsUtils')
-    settings = require(_$+ 'helpers/settings')
-    Express = require('express')
-    app = Express()
-    socket = require(_$+ 'helpers/socket')
-    daemon = require(_$+'helpers/daemon')
-    diagnosticsHelper = require(_$+'helpers/diagnostics')
-    userLogic = require(_$+ 'logic/users')
-    pluginsManager = require(_$+'helpers/pluginsManager')
-    http = require('http');
-
 
 (async function(){
+    // need to do this before we start requiring other componens, as these will often need to write to log folder at start
+    const settings = require(_$+ 'helpers/settings'),
+        fs = require('fs-extra')
+
+    await fs.ensureDir(settings.dataFolder)
+    await fs.ensureDir(settings.logPath)
+
+    const
+        colors = require('colors/safe'),
+        bodyParser = require('body-parser'),
+        cookieParser = require('cookie-parser'),
+        path = require('path'),
+        glob = require('glob'),
+        useragent = require('express-useragent'),
+        fsUtils = require('madscience-fsUtils'),
+        Express = require('express'),
+        app = Express(),
+        daemon = require(_$+'helpers/daemon'),
+        diagnosticsHelper = require(_$+'helpers/diagnostics'),
+        userLogic = require(_$+ 'logic/users'),
+        pluginsManager = require(_$+'helpers/pluginsManager'),
+        http = require('http')
+
     try {
-        await fs.ensureDir(settings.dataFolder)
-        await fs.ensureDir(settings.logPath)
         
         // ensure that all required plugins are installed and up-to-date
         await pluginsManager.initializeAll()
@@ -49,12 +51,16 @@ const
         let 
             root = path.join(__dirname, 'server'),
             routeFiles = [],
-            data = await pluginsManager.getByCategory('dataProvider')
+            data = await pluginsManager.getExclusive('dataProvider')
 
+        // load core routes
         routeFiles = routeFiles.concat(await fsUtils.readFilesUnderDir(path.join(root, 'routes')))
+
         // find all plugins, then routes folder under those
-        routeFiles = routeFiles.concat(glob.sync(`${root}/plugins-dev/*/routes.js`, { ignore : ['**/node_modules/**']}))
-        routeFiles = routeFiles.concat(glob.sync(`${root}/plugins/*/routes.js`, { ignore : ['**/node_modules/**']}))
+        if (settings.bindInternalPlugins)
+            routeFiles = routeFiles.concat(glob.sync(`${root}/plugins-internal/*/routes.js`, { ignore : ['**/node_modules/**']}))
+        else
+            routeFiles = routeFiles.concat(glob.sync(`${root}/plugins/*/routes.js`, { ignore : ['**/node_modules/**']}))
 
         await data.initialize()
         await userLogic.initializeAdmin()

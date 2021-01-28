@@ -1,0 +1,26 @@
+@import "./../typography/typography";
+
+.card {
+    position: relative;
+    display: flex;  // prevent linebreak when text in one item in row overflows
+}
+
+.card-status {
+    display: inline-block;
+    margin-right: var(--universalPadding);
+    min-width: 10px;
+    background-color: var(--color-cyan);
+  
+
+    &.card-status--passing {
+        background-color: var(--color-toxicHulk);
+    }
+
+    &.card-status--broken {
+        background-color: var(--color-redRibbon);
+    }
+}
+
+.card-content {
+    display: inline-block;
+}

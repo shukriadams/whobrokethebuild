@@ -1,18 +1,14 @@
-.list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
 .list-item {
-    padding: var(--universalPadding);
+    background-color: var(--color-indigo);
+    color: var(--color-alabaster);
 
+    &.list-item--textContent {
+        padding: var(--universalPaddingLesser)
+    }
 }
 
-.list-item:nth-child( odd ) {
-    background-color: var(--color-alabaster);
+.list-item:not(:last-child) {
+    /* acts as bottom border by allowing background color to show through*/
+    margin-bottom: 2px;
 }
 
-.list-item.list-item--error {
-    color: red;
-}

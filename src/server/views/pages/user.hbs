@@ -1,10 +1,12 @@
 {{#extend "layout"}}
     {{#content "body"}}
         <div>
-            <h1>User {{user.name}}</h1>
-            <a href="/settings/user/{{user.id}}">{{user.name}}'s settings</a>
-            
-            <h2>Recent builds</h2>
+            <h1>{{user.name}}</h1>
+            {{#if session.canViewUserPage}}
+                <a href="/settings/user/{{user.id}}">Settings</a>
+            {{/if}}
+
+            <h2>{{user.name}}'s recent builds</h2>
             <ul>
                 {{#each buildInvolvements}}
                     <li>
