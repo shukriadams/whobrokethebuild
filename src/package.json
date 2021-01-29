@@ -52,6 +52,7 @@
     "madscience-httputils": "https://github.com/shukriadams/node-httpUtils.git#0.0.4",
     "madscience-node-exec": "https://github.com/shukriadams/node-exec.git#0.0.6",
     "madscience-fsUtils": "https://github.com/shukriadams/node-fsUtils.git#0.0.5",
+    "pguid": "https://github.com/shukriadams/pguid.git#0.0.1",
     "handlebars-layouts": "3.1.4"
   },
   "jspm": {

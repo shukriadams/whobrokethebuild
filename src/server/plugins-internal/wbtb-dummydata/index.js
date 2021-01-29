@@ -1,4 +1,44 @@
-const constants = require(_$+'types/constants')
+const constants = require(_$+'types/constants'),
+    fs = require('fs-extra'),
+    pguid = require('pguid'),
+    path = require('path'),
+    fsUtils = require('madscience-fsUtils'),
+    settings = require(_$+'helpers/settings')
+
+async function loadById(table, id, options = {}){
+    let recordPath = path.join(settings.dataFolder, 'internaldata', table, `${id}.json`),
+        data
+
+    if (await fs.exists(recordPath))
+        data = await fs.readJson(recordPath)
+
+    if (!data && options.expected)
+        throw `Expected record id ${id} from table "${table}" not found`
+
+    return data
+}
+
+async function loadByInternalProperty(table, field, value, options){
+    let data = null,
+        dataFolder = path.join(settings.dataFolder, 'internaldata', table)
+    
+    if (await fs.exists(dataFolder)){
+        let records = await fsUtils.readFilesInDir(dataFolder)
+        for (const recordPath of records){
+            const record = await fs.readJson(recordPath)
+            if (record[field] === value){
+                data = record
+                break
+            }
+        }
+    }
+
+    if (!data && options.expected)
+        throw `Expected record id ${id} from table "${table}" not found`
+    
+    return data
+}
+
 /**
  * This module hides our data layer's query logic, and thereby its type. Currently this is
  * build on mongo, but we can replace that with other providers in time.
@@ -18,14 +58,12 @@ module.exports = {
     /****************************************************
      * USERS
      ****************************************************/
-    getByPublicId : async (username, authMethod)=>{
-        return null
+    getByPublicId : async (publicId, options)=>{
+        return await loadByInternalProperty('users', 'publicId', publicId,  options)
     },
 
     getUserById : async (id, options = {}) =>{
-        if (options.expected)
-            throw `Expected record id ${id} from table "${constants.TABLENAME_USERS}" not found`
-        return null
+        return await loadById('users', id, options)
     },
 
     getAllUsers : async () => {
@@ -37,7 +75,11 @@ module.exports = {
     },
 
     insertUser : async user =>{
-        return { id : ''}
+        user.id = pguid()
+        const usersPath = path.join(settings.dataFolder, 'internaldata', 'users')
+        await fs.ensureDir(usersPath)
+        await fs.writeJson(path.join(usersPath, `${user.id}.json`), user)
+        return user
     },
     
     updateUser : async user => {
