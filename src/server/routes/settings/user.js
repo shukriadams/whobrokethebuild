@@ -11,7 +11,7 @@ module.exports = function(app){
             const 
                 data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('settings/user'),
-                user = await data.getUserById(req.params.user),
+                user = await data.getUser(req.params.user),
                 vcServers  = await data.getAllVCServers(),
                 contactMethods = await pluginsManager.getAllByCategory('contactMethod'),
                 model = {
@@ -49,7 +49,7 @@ module.exports = function(app){
         try {
             const 
                 data = await pluginsManager.getExclusive('dataProvider'),
-                user = await data.getUserById(req.body.user)
+                user = await data.getUser(req.body.user)
 
             if (!user)
                 throw `user ${req.body.user} not found`
@@ -75,7 +75,7 @@ module.exports = function(app){
         try {
             const 
                 data = await pluginsManager.getExclusive('dataProvider'),
-                user = await data.getUserById(req.body.user)
+                user = await data.getUser(req.body.user)
 
             if(!user)
                 return res.json({

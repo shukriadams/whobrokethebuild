@@ -99,8 +99,8 @@ module.exports = {
 
         // a data plugin is always needed, add fallback if none defined
         if (!containsCategory(pluginsConfig, 'dataProvider')){
-            pluginsConfig['wbtb-dummydata'] = { source : 'internal' }
-            console.log(`Added fallback dataProvider plugin wbtb-dummydata`)
+            pluginsConfig['wbtb-internaldata'] = { source : 'internal' }
+            console.log(`Added fallback dataProvider plugin wbtb-internaldata`)
         }
 
         // we always need an auth / users plugin, add fallback if none defined

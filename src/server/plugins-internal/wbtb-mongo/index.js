@@ -205,10 +205,6 @@ module.exports = {
         }), _normalizeUsers)
     },
 
-    async getUserById(id){
-        return _normalize(await _mongo.getById(constants.TABLENAME_USERS, id), _normalizeUsers)
-    },
-
     async getAllUsers () {
         return _normalize( await _mongo.find(constants.TABLENAME_USERS, { }), _normalizeUsers)
     },

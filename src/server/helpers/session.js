@@ -8,7 +8,7 @@ module.exports = {
      * 
      */    
     getCurrentUser : async (req)=>{
-        if (!req.cookies[constants.COOKIE_AUTHKEY])
+        if (req.cookies[constants.COOKIE_AUTHKEY] === undefined)
             return null
             
         const 

@@ -8,7 +8,7 @@ module.exports = function(app){
         try {
             const data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('user'),
-                user = await data.getUserById(req.params.user, { expected : true }),
+                user = await data.getUser(req.params.user, { expected : true }),
                 model = {
                     user
                 }

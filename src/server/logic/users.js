@@ -52,7 +52,6 @@ module.exports = {
         user.authData = AuthMethod(constants.AUTHPROVIDER_INTERNAL)
         user.authMethod = constants.AUTHPROVIDER_INTERNAL
         user.name = name
-        user.id = 
         user.password = password
         user.publicId = name
         user = _processPassword(user)
