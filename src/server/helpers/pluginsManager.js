@@ -36,6 +36,14 @@ async function copyDirectory(source, target){
     }
 }
 
+function containsCategory(pluginsConfig, category){
+    for (const plugin in pluginsConfig)
+        if (pluginsConfig[plugin].category === category)
+            return true
+            
+    return false
+}
+
 module.exports = {
 
     /**
@@ -89,27 +97,24 @@ module.exports = {
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
 
-        // if config empty, add dummydata + internalusers, these are required for app to start idle
-        if (!Object.keys(pluginsConfig).length){
-            // a data plugin is always needed. todo : refactor this, add it if no data plugin present
+        // a data plugin is always needed, add fallback if none defined
+        if (!containsCategory(pluginsConfig, 'dataProvider')){
             pluginsConfig['wbtb-dummydata'] = { source : 'internal' }
-            console.log(`Added fallback data plugin wbtb-dummydata`)
+            console.log(`Added fallback dataProvider plugin wbtb-dummydata`)
+        }
 
-            // we always need a users plugin. todo : figure out if / when this should be forced
+        // we always need an auth / users plugin, add fallback if none defined
+        if (!containsCategory(pluginsConfig, 'authProvider')){
             pluginsConfig['wbtb-internalusers'] = { source : 'internal' }
-            console.log(`Added fallback users plugin wbtb-internalusers`)
+            console.log(`Added fallback authProvider plugin wbtb-internalusers`)
         }
 
         // strip out all plugin config if explicitly disabled 
-        let disabledCount = 0
         for (const pluginName in pluginsConfig)
             if (pluginsConfig[pluginName].enabled === false){
                 delete pluginsConfig[pluginName]
-                disabledCount ++
+                console.log(`Plugin "${pluginName}" is marked as disabled`)
             }
-
-        if (disabledCount)
-            logger.info.info(`${disabledCount} plugin(s) were declared but disabled`)
 
         // validate plugin static config
         let errors = false
