@@ -30,13 +30,26 @@ stopwatch.start();
         Express = require('express'),
         app = Express(),
         daemon = require(_$+'helpers/daemon'),
+        exec = require('madscience-node-exec'),
         diagnosticsHelper = require(_$+'helpers/diagnostics'),
         userLogic = require(_$+ 'logic/users'),
         pluginsManager = require(_$+'helpers/pluginsManager'),
         http = require('http')
 
     try {
-        
+        // allow user to run start cmd
+        if (await fs.exists('./onStart.sh')){
+            console.log('onstart command executing')
+            const cmd = await fs.readFile('./onStart.sh')
+            try {
+                const result = await exec.sh({ cmd })
+                console.log(`onstart finished with result`, result)
+            } catch(ex){
+                console.log(`onstart failed with`, ex)
+                process.exit(1)
+            }
+        }
+
         // ensure that all required plugins are installed and up-to-date
         await pluginsManager.initializeAll()
 
