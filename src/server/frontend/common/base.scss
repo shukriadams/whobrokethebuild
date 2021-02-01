@@ -28,6 +28,6 @@ h2 {
     @include typography-title2;
 }
 
-input, select {
+input[type=text], input[type=password], select {
     @include common-input;
 }

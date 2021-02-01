@@ -1,6 +1,6 @@
 
-const 
-    settings = require(_$+'helpers/settings'),
+const settings = require(_$+'helpers/settings'),
+    commonModelHelper = require(_$+'helpers/commonModels'),
     logger = require('winston-wrapper').new(settings.logPath),
     handlebars = require(_$+'helpers/handlebars'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
@@ -15,17 +15,21 @@ module.exports = function(app){
             const data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('wbtb-activedirectory/views/users'),
                 localUsers = await data.getAllUsers(),
-                users = await logic.getAllRemoteUsers()
+                model = { }
 
-            for (const user of users){
+            model.users = await logic.getAllRemoteUsers()
+
+            for (const user of model.users){
                 if (!!localUsers.find(localUser => user.mail === localUser.publicId))
                     user.isImported = 'on'
 
                 // user must have a mail value to be importable
                 user.canBeImported = !!user.mail
             }
+            
+            await commonModelHelper(model, req)
+            res.send(view(model))
 
-            res.send(view({ users }))
         } catch(ex){
             errorHandler(res, ex)
         }

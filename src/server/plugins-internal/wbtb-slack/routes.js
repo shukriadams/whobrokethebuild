@@ -3,7 +3,7 @@ const
     handlebars = require(_$+'helpers/handlebars'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     PluginSetting = require(_$+'types/pluginSetting'),
-    ContactMethod = require(_$+'types/contactMethod'),
+    commonModelHelper = require(_$+'helpers/commonModels'),
     thisType = 'wbtb-slack',
     slackLogic = require('./index'),
     errorHandler = require(_$+'helpers/errorHandler'),
@@ -33,6 +33,9 @@ module.exports = app => {
 
             model.channels = await slackLogic.getChannels()
             model.channels.unshift({ id : null, name : 'No channel'})
+            
+            await commonModelHelper(model, req)
+
             res.send(view(model))
         } catch(ex){
             errorHandler(res, ex)
@@ -51,6 +54,8 @@ module.exports = app => {
                 }
 
             model.wbtbSlack.slackId = user.contactMethods[thisType] ? user.contactMethods[thisType].slackId : null
+
+            await commonModelHelper(model, req)
 
             res.send(view(model))
         } catch(ex){

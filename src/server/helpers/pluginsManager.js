@@ -87,27 +87,23 @@ module.exports = {
 
         let pluginsConfig = await fs.readJson('./plugins.json')
 
+
         // if a dev plugin list exists, load and merge that with the regular plugins list, let dev plugins override regular ones
         if (await fs.pathExists('./plugins.local.json')){
             const devPluginsConfig = await fs.readJson('./plugins.local.json')
             pluginsConfig = Object.assign(pluginsConfig, devPluginsConfig)
         }
 
+
         // set plugin source to internal if no source defined
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
 
-        // a data plugin is always needed, add fallback if none defined
-        if (!containsCategory(pluginsConfig, 'dataProvider')){
-            pluginsConfig['wbtb-internaldata'] = { source : 'internal' }
-            console.log(`Added fallback dataProvider plugin wbtb-internaldata`)
-        }
 
         // we always need an auth / users plugin, add fallback if none defined
-        if (!containsCategory(pluginsConfig, 'authProvider')){
-            pluginsConfig['wbtb-internalusers'] = { source : 'internal' }
-            console.log(`Added fallback authProvider plugin wbtb-internalusers`)
-        }
+        pluginsConfig['wbtb-internalusers'] = pluginsConfig['wbtb-internalusers']|| { source : 'internal' }
+        console.log(`Added fallback authProvider plugin wbtb-internalusers`)
+
 
         // strip out all plugin config if explicitly disabled 
         for (const pluginName in pluginsConfig)
@@ -116,7 +112,8 @@ module.exports = {
                 console.log(`Plugin "${pluginName}" is marked as disabled`)
             }
 
-        // validate plugin static config
+
+        // validate plugin.json static config
         let errors = false
         for (const pluginName in pluginsConfig){
             const pluginConfig = pluginsConfig[pluginName]
@@ -152,6 +149,8 @@ module.exports = {
                 errors = true
             }
         }
+
+
 
         if (errors){
             logger.error.error(`Setup errors were detected in plugins - Who Broke The Build cannot start`)
@@ -312,14 +311,16 @@ module.exports = {
             logger.info.info(`Plugin "${pluginName}" loaded`)
         }
 
-        // enforce required
+
+        // fail if required plugins missing
         for (const requiredCategory of requiredCategories)
             if (!_plugins.byCategory[requiredCategory]){
                 errors = true
                 logger.error.error(`Required plugin category "${requiredCategory}" not found`)
             }
 
-        // enforce exclusive 
+
+        // fail if a plugin category that can exist only once is overbooked
         for (const exclusiveCategory of exclusiveCategories){
             if (!_plugins.byCategory[exclusiveCategory])
                 continue
@@ -337,7 +338,7 @@ module.exports = {
         }
 
 
-        // generate ui route index file - some plugins expose a UI
+        // generate UI route index file for all plugins which expose their own UIs
         const allPlugins = this.getAll()
 
         for (const plugin of allPlugins){
@@ -356,6 +357,8 @@ module.exports = {
         }
 
         jsonfile.writeFileSync(pluginConfPath, _pluginConf)
+
+
     },
 
 
