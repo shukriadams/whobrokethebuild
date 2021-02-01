@@ -47,8 +47,8 @@ cp -R .clone/src/public .stage
 cp .clone/src/index.js .stage
 cp .clone/src/package.json .stage 
 rm -rf .stage/server/reference 
-rm -f node/.stage.tar.gz 
-tar -czvf node/.stage.tar.gz .stage 
+rm -f base/.stage.tar.gz 
+tar -czvf base/.stage.tar.gz .stage 
 
 # build 3: Build the base container, using the zip. We do this in a subfolder so we can limit the size of the docker build context,
 # else docker will pass in everything in current folder 
