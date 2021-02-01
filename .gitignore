@@ -48,3 +48,4 @@ src/.envreference
 build/node/.stage.tar.gz
 src/plugins.local.json
 __testing
+build/base/.stage.tar.gz
