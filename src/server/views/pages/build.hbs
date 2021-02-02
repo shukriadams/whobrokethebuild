@@ -38,7 +38,14 @@
                                 <ul>
                                     {{#each revisionObject.files}}
                                         <li>
-                                            {{>buildInvolvementFile faultChance=faultChance file=file isFailing=../../build.__isFailing }}
+                                            <div class="{{#if __isLikelyFaultCause}}typography-warning{{/if}}">
+                                                {{file}}
+                                                <span>
+                                                    {{#if __isLikelyFaultCause}}
+                                                        {{__faultChancePercent}}% chance 
+                                                    {{/if}}
+                                                </span>
+                                            </div>
                                         </li>
                                     {{/each}}
                                 </ul>
