@@ -3,6 +3,7 @@ const commonModelHelper = require(_$+ 'helpers/commonModels'),
     errorHandler = require(_$+'helpers/errorHandler'),
     buildLogic = require(_$+'logic/builds'),
     jobsLogic = require(_$+'logic/job'),
+    constants = require(_$+'types/constants'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){
@@ -42,6 +43,7 @@ module.exports = function(app){
                 }
 
             build.__job = await jobsLogic.getById(build.jobId)
+            build.__isFailing = build.status === constants.BUILDSTATUS_FAILED 
 
             // REFACTOR THIS TO LOGIC LAYER
             build.__buildInvolvements = await data.getBuildInvolementsByBuild(build.id)

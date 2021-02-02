@@ -18,10 +18,19 @@ module.exports = app => {
             if (req.params.id){
                 model.ciserver = await data.getCIServer(req.params.id)
 
-                const ciServerPlugin = await pluginsManager.get(model.ciserver.type)
-                    existingJobs = await data.getAllJobsByCIServer(req.params.id),
+                let ciServerPlugin = await pluginsManager.get(model.ciserver.type)
                     url = await model.ciserver.getUrl(),
+                    availableJobs = [],
+                    existingJobs = []
+                
+                try 
+                {
+                    existingJobs = await data.getAllJobsByCIServer(req.params.id)
                     availableJobs = await ciServerPlugin.getJobs(url)
+                }catch(ex){
+                    console.log(ex)
+                    model.error = JSON.stringify(ex)
+                }
 
                 model.jobs = []
 

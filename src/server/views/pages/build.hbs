@@ -31,21 +31,17 @@
                     {{#if build.__buildInvolvements}}
                         {{#each build.__buildInvolvements}}
                             <li>
-                                <div>
+                                <h3>
                                     {{>buildInvolvementUserLink this}}
-                                </div>
+                                </h3>
                                 {{__revision.description}}
                                 <ul>
                                     {{#each revisionObject.files}}
                                         <li>
-                                            {{file}}
-                                            <div>
-                                                fault change :{{faultChance}}   
-                                            </div>
+                                            {{>buildInvolvementFile faultChance=faultChance file=file isFailing=../../build.__isFailing }}
                                         </li>
                                     {{/each}}
                                 </ul>
-
                             </li>
                         {{/each}}
                     {{else}}

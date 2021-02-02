@@ -102,7 +102,8 @@ module.exports = {
                             buildInvolvement.revisionObject = {
                                 revision : `${buildInvolvement.revision} lookup failed`,
                                 user : buildInvolvement.externalUsername,
-                                description : '', files : [] 
+                                description : '', 
+                                files : [] 
                             }
 
                         // calculate fail chance of each file in revision

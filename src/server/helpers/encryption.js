@@ -1,5 +1,6 @@
 let path = require('path'),
     settings = require(_$+'helpers/settings'),
+    Exception = require(_$+'types/exception'),
     randomstring = require('randomstring'),
     crypto = require('crypto'),
     key = null,

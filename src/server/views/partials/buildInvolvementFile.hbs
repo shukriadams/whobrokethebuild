@@ -1,0 +1,17 @@
+{{!
+    Expected vars:
+
+    file : string
+    isFailing : bool
+    faultChance : float
+}}
+<div>
+    {{file}}
+    {{#if isFailing}}
+        {{#gt faultChance 50}}
+            <div>
+                fault chance :{{faultChance}}   
+            </div>
+        {{/gt}}
+    {{/if}}
+</div>

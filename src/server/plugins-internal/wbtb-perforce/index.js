@@ -1,5 +1,7 @@
 const perforcehelper = require('madscience-perforcehelper'),
-    settings = require(_$+ 'helpers/settings'),
+    settings = require(_$+'helpers/settings'),
+    Revision = require(_$+'types/revision'),
+    RevisionFile = require(_$+'types/revisionFile'),
     path = require('path'),
     fs = require('fs-extra'),
     encryption = require(_$+'helpers/encryption')
@@ -46,11 +48,22 @@ module.exports = {
             rawDescribeText = await perforcehelper.getDescribe(vcServer.username, password, vcServer.url, revision )
         }
 
-        let revisionParsed = perforcehelper.parseDescribe(rawDescribeText, false)
-    
-        // remap values, we expect user on revision, but this lib uses username
-        revisionParsed.user = revisionParsed.username
+        const revisionParsed = perforcehelper.parseDescribe(rawDescribeText, false),
+            revisionFinal = Revision()
 
-        return revisionParsed
+        revisionFinal.user = revisionParsed.username
+        revisionFinal.revision = revisionParsed.revision
+        revisionFinal.date = revisionParsed.date
+        revisionFinal.description = revisionParsed.description
+        revisionFinal.files = []
+        
+        for (const revFile of parsedRevisions[0].files){
+            const revisionFile = RevisionFile()
+            revisionFile.file = revFile.file
+            revisionFile.change = revFile.change
+            revisionFinal.files.push(revisionFile)
+        }
+
+        return revisionFinal
     }
 }

@@ -1,6 +1,8 @@
 const exec = require('madscience-node-exec'),
     svnhelper = require('madscience-svnhelper'),
     settings = require(_$+ 'helpers/settings'),
+    Revision = require(_$+'types/revision'),
+    RevisionFile = require(_$+'types/revisionFile'),
     path = require('path'),
     fs = require('fs-extra'),
     encryption = require(_$+'helpers/encryption')
@@ -55,8 +57,25 @@ module.exports = {
         }
 
         let parsedRevisions = svnhelper.parseSVNLog(rawRevisionText)
+        if (!parsedRevisions.length)
+            return null
+        
+        const revisionFinal = Revision()
 
         // we've queried only one revision, so array should contain only one item
-        return parsedRevisions.length ? parsedRevisions[0] : null
+        revisionFinal.user = parsedRevisions[0].user
+        revisionFinal.revision = parsedRevisions[0].revision
+        revisionFinal.date = parsedRevisions[0].date
+        revisionFinal.description = parsedRevisions[0].description
+        revisionFinal.files = []
+        
+        for (const revFile of parsedRevisions[0].files){
+            const revisionFile = RevisionFile()
+            revisionFile.file = revFile.file
+            revisionFile.change = revFile.change
+            revisionFinal.files.push(revisionFile)
+        }
+
+        return revisionFinal
     }
 }
