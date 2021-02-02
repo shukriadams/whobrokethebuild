@@ -2,11 +2,11 @@
  * This module hides our data layer's query logic, and thereby its type. Currently this is
  * build on mongo, but we can replace that with other providers in time.
  */
-const 
-    constants = require(`${_$}types/constants`),
+const constants = require(_$+'types/constants'),
     ObjectID = require('mongodb').ObjectID,
     settings = require(_$+'helpers/settings'),
     logger = require('winston-wrapper').new(settings.logPath),
+    CIServer = require(_$+'types/CIServer'),
     _mongo = require('./mongo'),
     _normalize = (input, normalizer)=>{
         if (Array.isArray(input)){
@@ -94,10 +94,11 @@ const
         }         
         return server
     },     
-    _normalizeCIServer = server =>{
-        server.id = server._id.toString()
-        delete server._id
-        return server
+    _normalizeCIServer = rawRecord =>{
+        const record = Object.assign( CIServer(), rawRecord)
+        record.id = record._id.toString()
+        delete record._id
+        return record
     },
     _denormalizeCIServer = record =>{
         const server = Object.assign({}, record)

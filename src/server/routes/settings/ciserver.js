@@ -1,6 +1,4 @@
-const 
-    settings = require(_$+'helpers/settings'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+const commonModelHelper = require(_$+ 'helpers/commonModels'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     ciServerLogic = require(_$+'logic/CIServer'),
     errorHandler = require(_$+'helpers/errorHandler'),
@@ -22,7 +20,8 @@ module.exports = app => {
 
                 const ciServerPlugin = await pluginsManager.get(model.ciserver.type)
                     existingJobs = await data.getAllJobsByCIServer(req.params.id),
-                    availableJobs = await ciServerPlugin.getJobs(model.ciserver.url)
+                    url = await model.ciserver.getUrl(),
+                    availableJobs = await ciServerPlugin.getJobs(url)
 
                 model.jobs = []
 

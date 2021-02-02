@@ -1,5 +1,4 @@
-const 
-    httputils = require('madscience-httputils'),
+const httputils = require('madscience-httputils'),
     urljoin = require('urljoin'),
     colors = require('colors/safe'),
     pluginsManager = require(_$+'helpers/pluginsManager')
@@ -11,8 +10,7 @@ module.exports = {
      */
     async run(){
         
-        const 
-            data = await pluginsManager.getExclusive('dataProvider'),
+        const data = await pluginsManager.getExclusive('dataProvider'),
             ciservers = await data.getAllCIServers(),
             jobs = await data.getAllJobs()
         
@@ -28,9 +26,9 @@ module.exports = {
         // verify ciserver urls
         for(let ciserver of ciservers){
             try {
-
                 console.log(colors.yellow(`verfiying ciserver ${ciserver.name}...`))
-                await httputils.downloadString(ciserver.url)
+                const url = ciserver.getUrl()
+                await httputils.downloadString(url)
                 console.log(colors.green(`ciserver ${ciserver.name} verified`))
                 
             } catch (ex){
@@ -50,7 +48,8 @@ module.exports = {
                     console.error(`ERROR : CIServer ${job.CIServerId} defined in job ${job.id} not found`)
                     continue
                 }
-                const url = encodeURI( urljoin(ciServer.url, ciServer.name))
+                
+                const url = encodeURI( urljoin(await ciServer.getUrl(), ciServer.name))
                 try {
                     await httputils.downloadString(url)
                     console.log(colors.green(`job ${job.name} verified`))
