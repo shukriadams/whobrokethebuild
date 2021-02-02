@@ -1,6 +1,4 @@
-const
-    pluginsHelper = require(_$+'helpers/pluginsManager'),
-    encryption = require(_$+'helpers/encryption'),
+const pluginsHelper = require(_$+'helpers/pluginsManager'),
     constants = require(_$+'types/constants'),
     Build = require(_$+'types/build'),
     BuildInvolvment = require(_$+'types/buildInvolvement'),
@@ -141,30 +139,26 @@ module.exports = {
      * build history for the given job
      */
     async importBuildsForJob(jobId){
-        const 
-            data = await pluginsHelper.getExclusive('dataProvider'),
+        let data = await pluginsHelper.getExclusive('dataProvider'),
             job = await data.getJob(jobId, { expected : true}),
             ciServer = await data.getCIServer(job.CIServerId, { expected : true}),
             vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
-            vcs = await pluginsHelper.get(vcServer.vcs)
+            vcs = await pluginsHelper.get(vcServer.vcs),
+            baseUrl = await ciServer.getUrl()
 
         // jobname must be url encoded
-        let baseUrl = ciServer.url
-        if (ciServer.username) 
-            baseUrl = ciServer.url.replace('://', `://${ciServer.username}:${await encryption.decrypt(ciServer.password)}@`) 
-
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
-        let url = urljoin(baseUrl, `job/${encodeURIComponent(job.name)}/api/json?pretty=true&tree=allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]`)
-        const response = await httputils.downloadString(url)
+        let url = urljoin(baseUrl, `job/${encodeURIComponent(job.name)}/api/json?pretty=true&tree=allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]`),
+            json = null,
+            response = await httputils.downloadString(url)
         
         if (response.statusCode === 404){
             logger.error.error(`Build job ${job.name} was not found on Jenkins server ${ciServer.name}.`)
             return
         }
 
-        let json = null
         try {
             json = JSON.parse(response.body)
         } catch(ex){

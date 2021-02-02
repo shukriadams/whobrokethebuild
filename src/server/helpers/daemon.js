@@ -27,8 +27,7 @@ module.exports = {
                     commonBusy = true
     
                 try {
-                    const 
-                        data = await pluginsManager.getExclusive('dataProvider')
+                    const data = await pluginsManager.getExclusive('dataProvider'),
                         jobs = await data.getAllJobs()
 
                         
@@ -46,10 +45,10 @@ module.exports = {
                     // try to map map local users to users in vcs for a given build
                     const buildInvolvements = await data.getUnmappedBuildInvolvements()
                     for (const buildInvolvement of buildInvolvements){
-                        const build = await data.getBuild(buildInvolvement.buildId, { expected : true })
-                        const job = await data.getJob(build.jobId, { expected : true })
-                        
-                        const user = await data.getUserByExternalName(job.VCServerId, buildInvolvement.externalUsername)
+                        const build = await data.getBuild(buildInvolvement.buildId, { expected : true }),
+                            job = await data.getJob(build.jobId, { expected : true }),
+                            user = await data.getUserByExternalName(job.VCServerId, buildInvolvement.externalUsername)
+                            
                         if (user){
                             buildInvolvement.userId = user.id      
                             await data.updateBuildInvolvement(buildInvolvement)
