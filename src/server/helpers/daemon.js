@@ -52,7 +52,7 @@ module.exports = {
                         if (user){
                             buildInvolvement.userId = user.id      
                             await data.updateBuildInvolvement(buildInvolvement)
-                            logger.info.info(`added user ${user.name} to build ${build.id} ` )
+                            logger.info.info(`added user ${user.name} to build ${build.id}` )
                         }
                     }
                     

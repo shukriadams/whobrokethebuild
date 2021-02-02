@@ -57,7 +57,7 @@ module.exports = {
         revisionFinal.description = revisionParsed.description
         revisionFinal.files = []
         
-        for (const revFile of parsedRevisions[0].files){
+        for (const revFile of revisionParsed.files){
             const revisionFile = RevisionFile()
             revisionFile.file = revFile.file
             revisionFile.change = revFile.change

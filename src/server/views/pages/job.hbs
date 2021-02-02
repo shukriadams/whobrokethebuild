@@ -15,26 +15,22 @@
         <ul class="list">
             {{#if jobBuilds.items}}
                 {{#each jobBuilds.items}}
-                    <li class="list-item">
+                    <li class="list-item card">
+                        <div class="card-status card-status--{{statusTranslate status}}"></div>
+                        <div class="card-content">
+                            <div>
+                                <a class="job-buildTitle" href="/build/{{id}}">
+                                    # {{build}}
+                                </a>
+                            </div>
+                            <div>
+                                Status : {{statusTranslate status}}, {{deltaTranslate delta}}
+                            </div>
+                            <div>
+                                {{ago started}} @ {{shortTime started}}
+                            </div>
+                        </div>    
 
-                        <div class="card">
-                            <div class="card-status card-status--{{statusTranslate status}}"></div>
-                            <div class="card-content">
-                                <div>
-                                    <a class="job-buildTitle" href="/build/{{id}}">
-                                        # {{build}}
-                                    </a>
-                                </div>
-                                <div>
-                                    Status : {{statusTranslate status}}, {{deltaTranslate delta}}
-                                </div>
-                                <div>
-                                    {{ago started}} @ {{shortTime started}}
-                                </div>
-                            </div>    
-                        </div>
-
-                        <h3>Revisions</h3>
                         <ul>
                             {{#each __revisions}}
                                 <li_>

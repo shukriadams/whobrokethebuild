@@ -1,6 +1,7 @@
 const commonModelHelper = require(_$+ 'helpers/commonModels'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
+    settings = require(_$+'helpers/settings'),
     buildLogic = require(_$+'logic/builds'),
     jobsLogic = require(_$+'logic/job'),
     constants = require(_$+'types/constants'),
@@ -60,7 +61,7 @@ module.exports = function(app){
                             continue
 
                         file.__faultChancePercent = Math.floor(file.faultChance * 100)
-                        file.__isLikelyFaultCause = build.__isFailing && file.__faultChancePercent > 50 
+                        file.__isLikelyFaultCause = build.__isFailing && file.__faultChancePercent > settings.faultChanceThreshold 
                     }
                 }
             }

@@ -7,11 +7,15 @@
             {{/if}}
 
             <h2>{{user.name}}'s recent builds</h2>
-            <ul>
+            <ul class="list">
                 {{#each buildInvolvements}}
-                    <li>
-                        {{__build.__job.name}}
-                        status : {{__build.status}}
+                    <li class="list-item card">
+                        <div class="card-status card-status--{{statusTranslate __build.status}}"></div>
+
+                        <div class="card-content">
+                            <a href="/build/{{__build.id}}">{{__build.build}} - {{__build.__job.name}}</a>
+                            {{ago __build.started}}
+                        </div>
                     </li>
                 {{/each}}
             </ul>

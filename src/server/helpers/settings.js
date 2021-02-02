@@ -41,6 +41,7 @@ let
         activeDirectoryPassword : null,
         activeDirectorySearch: null,
         
+        faultChanceThreshold: 50,
         postgresHost: null,
         postgresPort: null,
         postgresDatabase: null,

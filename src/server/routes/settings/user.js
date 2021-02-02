@@ -1,6 +1,4 @@
-const 
-    settings = require(_$+'helpers/settings'),
-    pluginsManager = require(_$+'helpers/pluginsManager'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars')
@@ -8,8 +6,7 @@ const
 module.exports = function(app){
     app.get('/settings/user/:user', async function(req, res){
         try {
-            const 
-                data = await pluginsManager.getExclusive('dataProvider'),
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('settings/user'),
                 user = await data.getUser(req.params.user),
                 vcServers  = await data.getAllVCServers(),
@@ -47,8 +44,7 @@ module.exports = function(app){
     
     app.post('/settings/user/updateVCServerMappings', async function(req, res){
         try {
-            const 
-                data = await pluginsManager.getExclusive('dataProvider'),
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 user = await data.getUser(req.body.user)
 
             if (!user)
@@ -59,7 +55,7 @@ module.exports = function(app){
                 if (!mapping)
                     continue // mapping must always be created in add flow below
                 
-                mapping.name = item.name
+                mapping.name = item.name.trim()
             }
 
             await data.updateUser(user)
@@ -73,8 +69,7 @@ module.exports = function(app){
 
     app.post('/settings/userSettings/addVCServerMapping', async function(req, res){
         try {
-            const 
-                data = await pluginsManager.getExclusive('dataProvider'),
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 user = await data.getUser(req.body.user)
 
             if(!user)
