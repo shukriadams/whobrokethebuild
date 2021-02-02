@@ -6,10 +6,12 @@ set -e
 CI=0
 JSPM=0
 DOCKERPUSH=0
+TESTMOUNT=0
 while [ -n "$1" ]; do 
     case "$1" in
     --ci) CI=1 ;;
     --dockerpush) DOCKERPUSH=1 ;;
+    --testmount) TESTMOUNT=1 ;;
     esac 
     shift
 done
@@ -60,19 +62,22 @@ cd allruntimes
 docker build -t shukriadams/whobrokethebuild-allruntimes .
 cd - 
 
-# test build
-docker-compose -f docker-compose-testmount.yml down 
-docker-compose -f docker-compose-testmount.yml up -d 
-# give container a chance to start
-sleep 1 
-# confirm app has started
-LOOKUP=$(curl --silent localhost:4000/isalive) 
-if [ "$LOOKUP" != "1" ] ; then
-    echo "ERROR : container test failed"
-    exit 1
+
+if [ $TESTMOUNT -eq 1 ]; then
+    # test build
+    docker-compose -f docker-compose-testmount.yml down 
+    docker-compose -f docker-compose-testmount.yml up -d 
+    # give container a chance to start
+    sleep 1 
+    # confirm app has started
+    LOOKUP=$(curl --silent localhost:4000/isalive) 
+    if [ "$LOOKUP" != "1" ] ; then
+        echo "ERROR : container test failed"
+        exit 1
+    fi
+    echo "container test passed"
 fi
 
-echo "container test passed"
 
 if [ $DOCKERPUSH -eq 1 ]; then
     TAG=$(git describe --tags --abbrev=0) 
@@ -82,5 +87,6 @@ if [ $DOCKERPUSH -eq 1 ]; then
     docker push shukriadams/whobrokethebuild:$TAG 
     docker push shukriadams/whobrokethebuild-allruntimes:$TAG
 fi
+
 
 echo "Build complete"
