@@ -16,25 +16,21 @@ module.exports = {
         
         // verify plugin config
         let plugins = pluginsManager.getAll()
-        console.log(`${plugins.length} active plugins found`)
-        for (let plugin of plugins){
+        __log.info(`${plugins.length} active plugins found`)
 
+        for (let plugin of plugins)
             await plugin.validateSettings()
-            console.log(`${plugin.__wbtb.name} passed`)
-        }
+        
 
         // verify ciserver urls
         for(let ciserver of ciservers){
             try {
-                console.log(colors.yellow(`verfiying ciserver ${ciserver.name}...`))
                 const url = ciserver.getUrl()
                 await httputils.downloadString(url)
-                console.log(colors.green(`ciserver ${ciserver.name} verified`))
+                __log.info(`ciserver ${ciserver.name} verified`)
                 
             } catch (ex){
-
-                console.log(colors.red(`ciserver ${ciserver.name} check failed - ${ex}`))
-
+                __log.info(`ciserver ${ciserver.name} remote check failed - ${ex}`)
             }
         }
 
@@ -42,24 +38,24 @@ module.exports = {
         for(let job of jobs){
             try {
 
-                console.log(colors.yellow(`verfiying job ${job.name}...`))
+                __log.info(`verfiying job ${job.name}...`)
                 const ciServer = await data.getCIServer(job.CIServerId)
                 if (!ciServer){
-                    console.error(`ERROR : CIServer ${job.CIServerId} defined in job ${job.id} not found`)
+                    __log.error(`ERROR : CIServer ${job.CIServerId} defined in job ${job.id} not found`)
                     continue
                 }
                 
                 const url = encodeURI( urljoin(await ciServer.getUrl(), ciServer.name))
                 try {
                     await httputils.downloadString(url)
-                    console.log(colors.green(`job ${job.name} verified`))
+                    __log.info(`job ${job.name} verified`)
                 } catch(ex) {
-                    console.error(colors.red(`job ${job.name} was not found at url ${url}: ${ex}`))
+                    __log.error(`job ${job.name} was not found at url ${url}: ${ex}`)
                 }
                 
             } catch (ex){
 
-                console.log(colors.red(`job ${job.name} check failed - ${ex}`))
+                __log.error(`job ${job.name} check failed - ${ex}`)
 
             }
         }        

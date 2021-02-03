@@ -14,7 +14,7 @@ module.exports = {
      */
     async validateSettings() {
         if (!settings.slackAccessToken){
-            console.log(`slack plugin requires "slackAccessToken" property on global settings`)
+            __log.error(`slack plugin requires "slackAccessToken" property on global settings`)
             return false
         }
 

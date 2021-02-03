@@ -15,7 +15,7 @@ module.exports = {
             await exec.sh({ cmd : `svn help`})
             return true
         } catch(ex){
-            console.log(`svn check failed with ${ex}. Please install subversion locally`)
+            __log.error(`svn check failed with ${ex}. Please install subversion locally`)
         }
     },
 

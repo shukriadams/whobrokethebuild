@@ -178,7 +178,6 @@ module.exports = {
                                     || lastDelta === constants.BUILDDELTA_CHANGEBREAK)
                                 )
                             {
-                                console.log('cont from > ', lastDelta, previousBuild)
                                 build.delta = constants.BUILDDELTA_CONTINUEBREAK
                             }
                                 

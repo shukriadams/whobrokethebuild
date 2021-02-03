@@ -8,6 +8,4 @@ module.exports  = (res, error)=>{
     } else {
         res.end(error)
     }
-
-    console.log(show)
 }

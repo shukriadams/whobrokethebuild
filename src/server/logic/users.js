@@ -33,7 +33,7 @@ module.exports = {
 
         if (!user){
             user = await this.createInternal(constants.ADMINUSERNAME, settings.adminPassword)
-            console.log(`internal admin user autocreated`)
+            __log.info(`internal admin user autocreated`)
         }
 
         user.password = settings.adminPassword

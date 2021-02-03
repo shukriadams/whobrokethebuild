@@ -60,7 +60,7 @@ module.exports = {
 
         if (settings.bindInternalPlugins){
             installedPlugins =  await fsUtils.getChildDirs('./server/plugins-internal')
-            console.log('Binding internal plugins')
+            __log.info('Binding internal plugins enabled')
         } else {
             installedPlugins = await fsUtils.getChildDirs('./server/plugins')
         }
@@ -108,14 +108,14 @@ module.exports = {
 
         // we always need an auth / users plugin, add fallback if none defined
         pluginsConfig['wbtb-internalusers'] = pluginsConfig['wbtb-internalusers']|| { source : 'internal' }
-        console.log(`Added fallback authProvider plugin wbtb-internalusers`)
+        __log.info(`Added fallback authProvider plugin wbtb-internalusers`)
 
 
         // strip out all plugin config if explicitly disabled 
         for (const pluginName in pluginsConfig)
             if (pluginsConfig[pluginName].enabled === false){
                 delete pluginsConfig[pluginName]
-                console.log(`Plugin "${pluginName}" is marked as disabled`)
+                __log.info(`Plugin "${pluginName}" is marked as disabled`)
             }
 
 
@@ -466,7 +466,7 @@ module.exports = {
             // check structure of plugins
             const requiredConfig = _pluginStructure[plugin.__wbtb.category]
             if (!requiredConfig){
-                console.log(`WARNING : category ${plugin.__wbtb.category} has no structure definition`)
+                __log.info(`Note : category ${plugin.__wbtb.category} has no interface structure enforcement. Consider adding this.`)
                 continue
             }
 

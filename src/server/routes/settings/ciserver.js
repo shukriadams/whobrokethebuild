@@ -28,7 +28,7 @@ module.exports = app => {
                     existingJobs = await data.getAllJobsByCIServer(req.params.id)
                     availableJobs = await ciServerPlugin.getJobs(url)
                 }catch(ex){
-                    console.log(ex)
+                    __log.error(ex)
                     model.error = JSON.stringify(ex)
                 }
 
