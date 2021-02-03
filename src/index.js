@@ -31,7 +31,7 @@ stopwatch.start();
         fsUtils = require('madscience-fsUtils'),
         Express = require('express'),
         app = Express(),
-        daemon = require(_$+'helpers/daemon'),
+        daemonManager = require(_$+'daemon/manager'),
         exec = require('madscience-node-exec'),
         diagnosticsHelper = require(_$+'helpers/diagnostics'),
         userLogic = require(_$+ 'logic/users'),
@@ -79,8 +79,9 @@ stopwatch.start();
 
         await data.initialize()
         await userLogic.initializeAdmin()
-        daemon.start()
         
+        daemonManager.startAll()
+
         // middleware must be loaded before routes
         app.use(bodyParser.urlencoded({ extended: false }))
         app.use(bodyParser.json())

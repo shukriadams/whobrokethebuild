@@ -2,13 +2,13 @@ let commonModelHelper = require(_$+ 'helpers/commonModels'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars'),
-    daemon = require(_$+'helpers/daemon'),
+    daemonManager = require(_$+'daemon/manager'),
     pluginConf
 
 module.exports = function(app){
     app.get('/settings/system/daemon/stop', async (req, res)=>{
         try {
-            daemon.stop()
+            daemonManager.stop()
             res.redirect('/settings/system')
         } catch (ex) {
             errorHandler(res,ex)
@@ -17,7 +17,7 @@ module.exports = function(app){
 
     app.get('/settings/system/daemon/start', async (req, res)=>{
         try {
-            daemon.start()
+            daemonManager.start()
             res.redirect('/settings/system')
         } catch (ex) {
             errorHandler(res,ex)
@@ -26,8 +26,7 @@ module.exports = function(app){
 
     app.get('/settings/system', async function(req, res){
         try {
-            const 
-                view = await handlebars.getView('settings/system'),
+            const view = await handlebars.getView('settings/system'),
                 data = await pluginsManager.getExclusive('dataProvider'),
                 model = {
                     pluginLinks : {}
