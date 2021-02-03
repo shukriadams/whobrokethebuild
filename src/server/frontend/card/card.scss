@@ -3,6 +3,7 @@
 .card {
     position: relative;
     display: flex;  // prevent linebreak when text in one item in row overflows
+
 }
 
 .card-status {
@@ -10,7 +11,6 @@
     margin-right: var(--universalPadding);
     min-width: 10px;
     background-color: var(--color-cyan);
-  
 
     &.card-status--passing {
         background-color: var(--color-toxicHulk);
@@ -23,4 +23,7 @@
 
 .card-content {
     display: inline-block;
+    margin-right: var(--universalPadding);
+    padding-bottom: var(--universalPaddingLesser);
+    padding-top: var(--universalPaddingLesser);    
 }
