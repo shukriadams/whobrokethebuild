@@ -48,7 +48,7 @@
     "jsonfile": "6.0.1",
     "statman-stopwatch": "2.11.1",
     "timebelt": "https://github.com/shukriadams/timebelt.git#0.1.6",
-    "winston-wrapper": "https://github.com/shukriadams/winston-wrapper.git#0.0.5",
+    "winston-wrapper": "https://github.com/shukriadams/winston-wrapper.git#0.0.7",
     "madscience-httputils": "https://github.com/shukriadams/node-httpUtils.git#0.0.4",
     "madscience-node-exec": "https://github.com/shukriadams/node-exec.git#0.0.6",
     "madscience-fsUtils": "https://github.com/shukriadams/node-fsUtils.git#0.0.5",

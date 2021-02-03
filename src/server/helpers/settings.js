@@ -1,3 +1,8 @@
+/**
+ * Do not user __log in this file! Settings is the only file in the app that is loaded before the logger is available
+ */
+
+
 let process = require('process'),
     fs = require('fs-extra'),
     customEnv = require('custom-env'),
@@ -15,6 +20,7 @@ let process = require('process'),
         dataFolder : './_data',
         logPath : './_data/logs',
         externalPluginsFolder : './server/plugins',
+        logLevel : 'error', // set to 'info' for full spam
         forceReloadViews : 'true',
         // set this to true to run npm install directly in plugins-internal folder. This is for dev only, 
         // and allows you to debug and step through the code in internal plugins. Do not do on this in a 

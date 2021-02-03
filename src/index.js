@@ -18,17 +18,16 @@ stopwatch.start();
     // bind log first, this will be globally referenced
     global.__log = {
         info(data){
-            const logger = require('winston-wrapper').new(settings.logPath)
+            const logger = require('winston-wrapper').new(settings.logPath, settings.logLevel)
             logger.info.info(data)
         },
         error(data){
-            const logger = require('winston-wrapper').new(settings.logPath)
+            const logger = require('winston-wrapper').new(settings.logPath, settings.logLevel)
             logger.error.error(data)
         }
     }
 
     // need to do this before we start requiring other componens, as these will often need to write to log folder at start
-
     await fs.ensureDir(settings.dataFolder)
     await fs.ensureDir(settings.logPath)
 
