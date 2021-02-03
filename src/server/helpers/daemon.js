@@ -1,7 +1,6 @@
 let CronJob = require('cron').CronJob,
     stringSimilarity = require('string-similarity'),
     settings = require(_$+'helpers/settings'),
-    logger = require('winston-wrapper').new(settings.logPath),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     constants = require(_$+'types/constants'),
     commonBusy = false,
@@ -52,7 +51,7 @@ module.exports = {
                         if (user){
                             buildInvolvement.userId = user.id      
                             await data.updateBuildInvolvement(buildInvolvement)
-                            logger.info.info(`added user ${user.name} to build ${build.id}` )
+                            __log.info(`added user ${user.name} to build ${build.id}` )
                         }
                     }
                     
@@ -72,7 +71,7 @@ module.exports = {
                         build.logParsed = logParser.parseErrors(build.log)
                         build.isLogParsed = true
                         await data.updateBuild(build)
-                        logger.info.info(`parsed log for build ${build.id}`)
+                        __log.info(`parsed log for build ${build.id}`)
                     }
                    
 
@@ -110,7 +109,7 @@ module.exports = {
                         for (const file of buildInvolvement.revisionObject.files)
                             file.faultChance = stringSimilarity.compareTwoStrings(file.file, build.log) 
 
-                        logger.info.info(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
+                        __log.info(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
                         await data.updateBuildInvolvement(buildInvolvement)
                     }
 
@@ -131,14 +130,14 @@ module.exports = {
                             
                             const user = await data.getUser(buildInvolvement.userId)
                             if (!user){
-                                logger.info.info(`WARNING - expected user ${buildInvolvement.userId} in buildInvolvement ${buildInvolvement.id} not found`)
+                                __log.info(`WARNING - expected user ${buildInvolvement.userId} in buildInvolvement ${buildInvolvement.id} not found`)
                                 continue
                             }
 
                             for (const contactMethod in user.contactMethods){
                                 const contactPlugin = await pluginsManager.get(contactMethod)
                                 if (!contactPlugin){
-                                    logger.info.info(`WARNING - expected plugin ${contactMethod.type} not found`)
+                                    __log.info(`WARNING - expected plugin ${contactMethod.type} not found`)
                                     continue
                                 }
                                 
@@ -261,7 +260,7 @@ module.exports = {
 
                 } catch (ex) {
 
-                    logger.error.error(ex)
+                    __log.error(ex)
 
                 } finally {
 
@@ -289,7 +288,7 @@ module.exports = {
 
                 } catch (ex) {
 
-                    logger.error.error(ex)
+                    __log.error(ex)
 
                 } finally {
 

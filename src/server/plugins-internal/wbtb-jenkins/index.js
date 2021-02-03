@@ -4,7 +4,6 @@ const pluginsHelper = require(_$+'helpers/pluginsManager'),
     BuildInvolvment = require(_$+'types/buildInvolvement'),
     urljoin = require('urljoin'),
     settings = require(_$+ 'helpers/settings'),
-    logger = require('winston-wrapper').new(settings.logPath),
     httputils = require('madscience-httputils'),
     timebelt = require('timebelt')
 
@@ -54,7 +53,7 @@ module.exports = {
             let response = await httputils.downloadString(url)
             return response.body
         } catch(ex){
-            logger.error.error(ex)
+            __log.error(ex)
             return `log retrieval failed : ${ex}`
         }
     },
@@ -83,7 +82,7 @@ module.exports = {
             return jobs
         } catch(ex){
             // return empty, write to log
-            logger.error.error(`failed to download/parse job list : ${ex}. Body was : ${body}`)
+            __log.error(`failed to download/parse job list : ${ex}. Body was : ${body}`)
             return []
         }
     },
@@ -111,7 +110,7 @@ module.exports = {
 
             return items
         } catch(ex){
-            logger.error.error(`failed to download/parse commit list : ${ex}. Body was : ${body}`)
+            __log.error(`failed to download/parse commit list : ${ex}. Body was : ${body}`)
             return []
         }
     },
@@ -155,14 +154,14 @@ module.exports = {
             response = await httputils.downloadString(url)
         
         if (response.statusCode === 404){
-            logger.error.error(`Build job ${job.name} was not found on Jenkins server ${ciServer.name}.`)
+            __log.error(`Build job ${job.name} was not found on Jenkins server ${ciServer.name}.`)
             return
         }
 
         try {
             json = JSON.parse(response.body)
         } catch(ex){
-            logger.error.error(`Failed to parse JSON from  job ${job.name}`, ex, response.body)
+            __log.error(`Failed to parse JSON from  job ${job.name}`, ex, response.body)
             return
         }
         
@@ -218,7 +217,7 @@ module.exports = {
                 }
             }
             
-            logger.info.info(`Imported build ${job.name}:${remoteBuild.number}`)
+            __log.info(`Imported build ${job.name}:${remoteBuild.number}`)
         }
     },
 

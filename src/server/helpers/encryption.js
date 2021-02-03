@@ -1,6 +1,5 @@
 let path = require('path'),
     settings = require(_$+'helpers/settings'),
-    Exception = require(_$+'types/exception'),
     randomstring = require('randomstring'),
     crypto = require('crypto'),
     key = null,
@@ -20,6 +19,7 @@ module.exports = {
             if (await fs.pathExists(keyPath))
                 key = await fs.promises.readFile(keyPath, 'utf8')
             else{
+                __log.info(`Generating master auth key`)
                 key = randomstring.generate(24)
                 await fs.outputFile(keyPath, key)
             }

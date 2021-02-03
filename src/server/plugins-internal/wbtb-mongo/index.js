@@ -5,7 +5,6 @@
 const constants = require(_$+'types/constants'),
     ObjectID = require('mongodb').ObjectID,
     settings = require(_$+'helpers/settings'),
-    logger = require('winston-wrapper').new(settings.logPath),
     CIServer = require(_$+'types/CIServer'),
     _mongo = require('./mongo'),
     _normalize = (input, normalizer)=>{
@@ -785,7 +784,7 @@ module.exports = {
             if (remove){
                 await this.removeJob(job.id)
                 jobs.splice(i, 1)
-                logger.info.info(`Cleaned out orphan job ${job.id}`)
+                __log.info(`Cleaned out orphan job ${job.id}`)
             }
         }
         
@@ -794,7 +793,7 @@ module.exports = {
             if (!jobs.find(job => job.id === build.jobId)){
                 await this.removeBuild(build.id)
                 builds.splice(i, 1)
-                logger.info.info(`Cleaned out orphan build ${build.id}`)
+                __log.info(`Cleaned out orphan build ${build.id}`)
             }
         }
 
@@ -803,7 +802,7 @@ module.exports = {
             if (!builds.find(build => build.id === buildInvolvement.buildId)){
                 await this.removeBuildInvolvement(buildInvolvement.id)
                 buildInvolvements.splice(i, 1)
-                logger.info.info(`Cleaned out orphan buildInvolvement ${buildInvolvement.id}`)
+                __log.info(`Cleaned out orphan buildInvolvement ${buildInvolvement.id}`)
             }
         }
     }
