@@ -1,5 +1,4 @@
-let 
-    process = require('process'),
+let process = require('process'),
     fs = require('fs-extra'),
     customEnv = require('custom-env'),
     constants = require(_$+ 'types/constants'),

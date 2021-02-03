@@ -142,7 +142,7 @@ module.exports = {
                                     continue
                                 }
                                 
-                                await contactPlugin.alertBrokenBuild(user, breakingBuild)
+                                await contactPlugin.alertUser(user, breakingBuild)
                             }
                         }
                     }
@@ -211,7 +211,7 @@ module.exports = {
                                 if (!plugin) 
                                     continue
                             
-                                await plugin.alertChannel(job.contactMethods[jobContactMethodKey], job, build, lastDelta)
+                                await plugin.alertGroup(job.contactMethods[jobContactMethodKey], job, build, lastDelta)
                             }
                         }
                         */
@@ -231,8 +231,9 @@ module.exports = {
                                     const plugin = await pluginsManager.get(jobContactMethodKey)
                                     if (!plugin) 
                                         continue
-                                
-                                    await plugin.alertChannel(job.contactMethods[jobContactMethodKey], job, latestBuild)
+                                    
+                                    // send alert to channel / public forum etc
+                                    await plugin.alertGroup(job.contactMethods[jobContactMethodKey], job, latestBuild)
                                 }
 
                                 job.isPassing = latestBuild.status === constants.BUILDSTATUS_PASSED

@@ -1,7 +1,6 @@
 
 
-let 
-    Handlebars = require('handlebars'),
+let Handlebars = require('handlebars'),
     fs = require('fs-extra'),
     fsUtils = require('madscience-fsUtils'),
     pages = null,
@@ -9,14 +8,12 @@ let
     path = require('path'),
     glob = require('glob'),
     settings = require(_$+ 'helpers/settings'),
-    layouts = require('handlebars-layouts')
-
+    layouts = require('handlebars-layouts'),
+    helpers = fsUtils.getFilesAsModulePathsSync(_$+'helpers/handlebars')
 
 // load and register file-based helpers
-const helpers = fsUtils.getFilesAsModulePathsSync(_$+'helpers/handlebars')
 for (let helperPath of helpers)
     (require(helperPath))(Handlebars)
-
 
 // register handlebars helpers
 Handlebars.registerHelper(layouts(Handlebars))

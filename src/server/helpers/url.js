@@ -17,6 +17,5 @@ module.exports = {
         }
 
         return baseUrl
-
     }
 }

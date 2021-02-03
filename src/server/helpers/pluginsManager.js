@@ -19,6 +19,13 @@ let settings = require(_$+'helpers/settings'),
         plugins : {},
         // hash table of installed plugins (full data), mapped by id.
         byCategory : {}
+    },
+    _pluginStructure = {
+        contactMethod : [
+            'canTransmit',
+            'alertGroup',
+            'alertUser'
+        ]            
     }
 
 // own dir copy function, fs-extra corrupts files on vagrant/windows    
@@ -242,6 +249,8 @@ module.exports = {
                 packageHasErrors = true
             }
 
+            
+
             // npm install plugin if it hasn't yet been installed, or if plugin's package.json has changed
             if (!packageHasErrors){
                 const manifestHash = await hash.file(packageManifestPath)
@@ -267,8 +276,7 @@ module.exports = {
 
         // bind all discovered plugins
         for (let pluginFolderPath of installedPluginFolders){
-            const 
-                pluginName = path.basename(pluginFolderPath),
+            const pluginName = path.basename(pluginFolderPath),
                 pluginPackageJsonPath = path.join(pluginFolderPath,  'package.json'),
                 pluginConfig = pluginsConfig[pluginName]
 
@@ -447,10 +455,21 @@ module.exports = {
 
     async validateSettings(){
         const plugins = await this.getAll()
+
         for(const plugin of plugins){
-            const isValid = await plugin.validateSettings()
-            if (!isValid)
+            if (!await plugin.validateSettings())
                 throw `Settings validation failed for plugin ${plugin.__wbtb.id}`
+
+            // check structure of plugins
+            const requiredConfig = _pluginStructure[plugin.__wbtb.category]
+            if (!requiredConfig){
+                console.log(`WARNING : category ${plugin.__wbtb.category} has no structure definition`)
+                continue
+            }
+
+            for (const member of requiredConfig)
+                if (!plugin[member])
+                    throw `Plugin ${plugin.__wbtb.id} does not impliment member "${member}" expected for category "${plugin.__wbtb.category}"`
         }
     },
 

@@ -58,11 +58,12 @@ module.exports = {
     
 
     /**
+     * Required by all "contact" plugins
      * slackContactMethod : contactMethod from job, written by this plugin 
      * job : job object 
      * delta : the change (constants.BUILDDELTA_*)
      */
-    async alertChannel(slackContactMethod, job, build, delta){
+    async alertGroup(slackContactMethod, job, build, delta){
         const data = await pluginsManager.getExclusive('dataProvider'),
             token = await data.getPluginSetting('wbtb-slack', 'token'),
             Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
@@ -122,12 +123,13 @@ module.exports = {
 
 
     /**
+     * Required by all "contact" plugins
      * Sends a message to user that that user was involved in build break
      * user : user object
      * slackContactMethod : contactMethod from user object
      * build : build object for failing build
      */
-    async alertBrokenBuild(user, build){
+    async alertUser(user, build){
         let data = await pluginsManager.getExclusive('dataProvider'),
             token = await data.getPluginSetting('wbtb-slack', 'token'),
             Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
