@@ -9,7 +9,6 @@ let settings = require(_$+'helpers/settings'),
     fsUtils = require('madscience-fsUtils'),
     exec = require('madscience-node-exec'),
     hash = require(_$+'helpers/hash'),
-    logger = require('winston-wrapper').new(settings.logPath),
     exclusiveCategories = ['dataProvider'],
     requiredCategories = ['dataProvider', 'authProvider'],
     pluginConfPath = path.join(settings.dataFolder, '.plugin.conf'),
@@ -88,11 +87,11 @@ module.exports = {
             pluginsConfigPath = './plugins.json'
 
         if (!await fs.exists(pluginsConfigPath)){
-            logger.error.error(`ERROR - Expected plugins definition file ${path.resolve(pluginsConfigPath)} was not found. Please create this file and restart.`)
+            __log.error(`ERROR - Expected plugins definition file ${path.resolve(pluginsConfigPath)} was not found. Please create this file and restart.`)
             return process.exit(1)
         }
 
-        let pluginsConfig = await fs.readJson('./plugins.json')
+        let pluginsConfig = await fs.readJson(pluginsConfigPath)
 
 
         // if a dev plugin list exists, load and merge that with the regular plugins list, let dev plugins override regular ones
@@ -131,28 +130,28 @@ module.exports = {
 
             // .source is required
             if (!pluginConfig.source){
-                logger.error.error(`plugin "${pluginName}" config does not define "source"`)
+                __log.error(`plugin "${pluginName}" config does not define "source"`)
                 errors = true
             }
 
             // .version is required
             if (!pluginConfig.version){
-                logger.error.error(`plugin "${pluginName}" config does not define "version"`)
+                __log.error(`plugin "${pluginName}" config does not define "version"`)
                 errors = true
             }
 
             if (pluginConfig.source && !sources.includes(pluginConfig.source)){
-                logger.error.error(`plugin "${pluginName}" source "${pluginConfig.source}" is not supported. Allowed values : "${sources.join(',')}"`)
+                __log.error(`plugin "${pluginName}" source "${pluginConfig.source}" is not supported. Allowed values : "${sources.join(',')}"`)
                 errors = true
             }
 
             if (pluginConfig.source === 'git' && !pluginConfig.url){
-                logger.error.error(`plugin "${pluginName}" has source "git" but does not define "url"`)
+                __log.error(`plugin "${pluginName}" has source "git" but does not define "url"`)
                 errors = true
             }
 
             if (pluginConfig.source === 'npm' && !pluginConfig.package){
-                logger.error.error(`plugin "${pluginName}" has source "npm" but does not define "package"`)
+                __log.error(`plugin "${pluginName}" has source "npm" but does not define "package"`)
                 errors = true
             }
         }
@@ -160,7 +159,7 @@ module.exports = {
 
 
         if (errors){
-            logger.error.error(`Setup errors were detected in plugins - Who Broke The Build cannot start`)
+            __log.error(`Setup errors were detected in plugins - Who Broke The Build cannot start`)
             return process.exit(1)
         }
 
@@ -180,7 +179,7 @@ module.exports = {
                 targetFolder = path.join('./server/plugins', pluginName)
             
             if (!await fs.pathExists(sourceFolder)){
-                logger.error.error(`internal plugin "${pluginName}" does not exist in internal plugin cache`)
+                __log.error(`internal plugin "${pluginName}" does not exist in internal plugin cache`)
                 errors = true
                 continue
             }
@@ -210,7 +209,7 @@ module.exports = {
                     && pluginInstallStatus.version === pluginConfig.version
 
                 if (alreadyInstalled)
-                    logger.info.info(`Plugin "${pluginName}" is up to date @ version ${pluginConfig.version}`)
+                    __log.info(`Plugin "${pluginName}" is up to date @ version ${pluginConfig.version}`)
                 else {
                     // if plugin is not installed or does not match required version, nuke and reinstall, 
                     // Note : use sync because for some reason async/await trips itself up here
@@ -231,11 +230,11 @@ module.exports = {
                 pluginInstallStatus.version = pluginConfig.version
                 pluginInstallStatus.installDate = new Date().getTime()
 
-                logger.info.info(`Plugin "${pluginName}" git cloned from ${pluginConfig.url}`)
+                __log.info(`Plugin "${pluginName}" git cloned from ${pluginConfig.url}`)
             }
 
             if (!await fs.exists(pluginFolder)){
-                logger.error.error(`Plugin "${pluginName}" does not exist`)
+                __log.error(`Plugin "${pluginName}" does not exist`)
                 errors = true
                 packageHasErrors = true
             }
@@ -244,7 +243,7 @@ module.exports = {
             // ensure plugin has package manifest
             const packageManifestPath = path.join(pluginFolder, 'package.json')
             if (!packageHasErrors && !await fs.exists(packageManifestPath)){
-                logger.error.error(`Plugin "${pluginName}" does not not have a package.json file`)
+                __log.error(`Plugin "${pluginName}" does not not have a package.json file`)
                 errors = true
                 packageHasErrors = true
             }
@@ -287,17 +286,21 @@ module.exports = {
             // validate package.json structure
             const packageJson = await fs.readJson(pluginPackageJsonPath)
             if (!packageJson.wbtb){
-                logger.error.error(`ERROR : Plugin "${pluginName}" missing package.json:wbtb`)
+                __log.error(`ERROR : Plugin "${pluginName}" missing package.json:wbtb`)
                 errors = true
                 continue
             }
 
             // validate package.json wbtb config - plugin category
             if (!packageJson.wbtb.category){
-                logger.error.error(`ERROR : Plugin "${pluginName}" missing package.json:wbtb.category`)
+                __log.error(`ERROR : Plugin "${pluginName}" missing package.json:wbtb.category`)
                 errors = true
                 continue
             }
+
+            // merge local plugin config with .wbtb member of package.json - in this way, local config is available
+            // via .wbtb to code
+            packageJson.wbtb = Object.assign(pluginsConfig[pluginName], packageJson.wbtb)
 
             _plugins.byCategory[packageJson.wbtb.category] = _plugins.byCategory[packageJson.wbtb.category] || {}
             
@@ -316,7 +319,7 @@ module.exports = {
             // keep a copy of the plugin definition in a second hash table by plugin name, this if lookup if we don't know a plugin's category
             _plugins.plugins[pluginName] = _plugins.byCategory[packageJson.wbtb.category][pluginName]
 
-            logger.info.info(`Plugin "${pluginName}" loaded`)
+            __log.info(`Plugin "${pluginName}" loaded`)
         }
 
 
@@ -324,7 +327,7 @@ module.exports = {
         for (const requiredCategory of requiredCategories)
             if (!_plugins.byCategory[requiredCategory]){
                 errors = true
-                logger.error.error(`Required plugin category "${requiredCategory}" not found`)
+                __log.error(`Required plugin category "${requiredCategory}" not found`)
             }
 
 
@@ -336,12 +339,12 @@ module.exports = {
             const keys = Object.keys(_plugins.byCategory[exclusiveCategory])
             if (keys.length > 1){
                 errors = true
-                logger.error.error(`Only 1 plugin of category "${exclusiveCategory}" is allowed`)
+                __log.error(`Only 1 plugin of category "${exclusiveCategory}" is allowed`)
             }
         }
         
         if (errors){
-            logger.error.error(`One or more plugins have invalid internal configuration - Who Broke The Build cannot start`)
+            __log.error(`One or more plugins have invalid internal configuration - Who Broke The Build cannot start`)
             return process.exit(1)
         }
 
@@ -359,7 +362,7 @@ module.exports = {
 
             _pluginConf[description.id] ={ 
                 url : `/${urljoin(description.id)}/`,
-                hasUI : description.hasUI,
+                hasUI : description.hasUI === true,
                 text : description.name
             }
         }

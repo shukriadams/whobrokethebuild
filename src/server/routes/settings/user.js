@@ -17,12 +17,16 @@ module.exports = function(app){
                     user 
                 }
             
-            // build contact methods
-            for(const contactMethod of contactMethods)
+            // add links to contact methods that have UI's
+            for(const contactMethod of contactMethods){
+                if (!contactMethod.__wbtb.hasUI)
+                    continue
+
                 model.contactMethods.push({
                     link : `/${contactMethod.__wbtb.id}/user/${user.id}`,
                     name : contactMethod.__wbtb.name,
                 })
+            }
 
             // add vcserver names
             for (const mapping of user.userMappings){

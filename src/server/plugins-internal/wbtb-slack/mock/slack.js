@@ -66,7 +66,7 @@ module.exports = class {
                 console.log(`mock slack sending message to channel ${args.channel} :`)
                 const writeFolder = path.join(settings.dataFolder, 'slackMockMessages')
                 fs.ensureDirSync(writeFolder)
-                fs.outputJsonSync(path.join(writeFolder, `${new Date().getTime()}-slack-post.json`), args)
+                fs.outputJsonSync(path.join(writeFolder, `${new Date().getTime()}-slack-post.json`), args, { spaces : 4 })
                 console.log(args.text)
                 return 'message posted'
             }

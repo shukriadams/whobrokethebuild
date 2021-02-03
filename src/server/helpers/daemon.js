@@ -131,14 +131,14 @@ module.exports = {
                             
                             const user = await data.getUser(buildInvolvement.userId)
                             if (!user){
-                                logger.info.info(`throw exception here! - expected user ${buildInvolvement.userId} in buildInvolvement ${buildInvolvement.id} not found`)
+                                logger.info.info(`WARNING - expected user ${buildInvolvement.userId} in buildInvolvement ${buildInvolvement.id} not found`)
                                 continue
                             }
 
                             for (const contactMethod in user.contactMethods){
                                 const contactPlugin = await pluginsManager.get(contactMethod)
                                 if (!contactPlugin){
-                                    logger.info.info(`throw exception here! - expected plugin ${contactMethod.type} not found`)
+                                    logger.info.info(`WARNING - expected plugin ${contactMethod.type} not found`)
                                     continue
                                 }
                                 

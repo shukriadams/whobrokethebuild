@@ -15,25 +15,21 @@ let process = require('process'),
         dataFolder : './_data',
         logPath : './_data/logs',
         externalPluginsFolder : './server/plugins',
-        
-        // if set, all channel-targetted slack messages will be sent to this channel
-        slackOverrideChannelId : null,
-
-        // if set, all user-targetted slack messages will be sent to this user
-        slackOverrideUserId : null,
-
+        forceReloadViews : 'true',
         // set this to true to run npm install directly in plugins-internal folder. This is for dev only, 
         // and allows you to debug and step through the code in internal plugins. Do not do on this in a 
         // docker container, your modules will be destroyed when the container resets
         bindInternalPlugins : false,
-
         authType : constants.AUTHPROVIDER_INTERNAL,
         adminPassword: 'admin', // password for master user, auto enforced on start
         bundlemode : '', // ''|.min
-        mongoConnectionString : 'mongodb://root:example@127.0.0.1:27017',
-        mongoDBName : 'wbtb',
         localUrl : 'http://localhost:3000',
 
+        // PLUGIN SETTINGS : TODO - MOVE THESE TO PLUGIN
+
+        mongoConnectionString : 'mongodb://root:example@127.0.0.1:27017',
+        mongoDBName : 'wbtb',
+        
         activeDirectoryUrl : null,
         activeDirectoryBase : null,
         activeDirectoryUser : null,
@@ -47,7 +43,11 @@ let process = require('process'),
         postgresUser: null,
         postgresPassword: null,
         
-        forceReloadViews : 'true'
+        slackAccessToken : null,
+        // if set, all channel-targetted slack messages will be sent to this channel
+        slackOverrideChannelId : null,
+        // if set, all user-targetted slack messages will be sent to this user
+        slackOverrideUserId : null
     }
 
 

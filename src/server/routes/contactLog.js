@@ -1,5 +1,4 @@
-const 
-    pluginsManager = require(_$+'helpers/pluginsManager'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
     errorHandler = require(_$+'helpers/errorHandler'),
     settings = require(_$+ 'helpers/settings'),
@@ -9,8 +8,7 @@ module.exports = function(app){
     
     app.get('/contactLog/:page?', async function(req, res){
         try {
-            const 
-                view = await handlebars.getView('contactLog'),
+            const view = await handlebars.getView('contactLog'),
                 model = { },
                 data = await pluginsManager.getExclusive('dataProvider'),
                 page = parseInt(req.query.page || 1) - 1 // pages are publicly 1-rooted, 0-rooted internally
