@@ -2,28 +2,25 @@
  * Providers active directory-based access. 
  */
 
-let
-    pluginsManager = require(_$+'helpers/pluginsManager'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
     constants = require(_$+'types/constants'),
     authMethod = 'wbtb-activedirectory',
     settings = require(_$+ 'helpers/settings')
 
 module.exports = {
-
     
     /**
      * gets an array of user objects from remote active directory
      */
     getAllRemoteUsers : async () => {
-        const 
-            ActiveDirectory = settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
+        const ActiveDirectory = settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
             data = await pluginsManager.getExclusive('dataProvider'),
             activeDirectory = new ActiveDirectory({
                 url: settings.activeDirectoryUrl,
                 base: settings.activeDirectoryBase
-            })
+            }),
+            loginAttempt = await activeDirectory.loginUser(settings.activeDirectoryUser, settings.activeDirectoryPassword)
 
-        const loginAttempt = await activeDirectory.loginUser(settings.activeDirectoryUser, settings.activeDirectoryPassword)
         if(!loginAttempt.success) 
             throw loginAttempt
 
@@ -50,23 +47,23 @@ module.exports = {
 
 
     processLoginRequest : async (username, password) => {
-        const ActiveDirectory = settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
+        let ActiveDirectory = settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
             data = await pluginsManager.getExclusive('dataProvider'),
             activeDirectory = new ActiveDirectory({
                 url: settings.activeDirectoryUrl,
                 base: settings.activeDirectoryBase
-            })
-    
-        const response = await activeDirectory.loginUser(username, password)
-        let userId = null,
+            }),
+            response = await activeDirectory.loginUser(username, password),
+            userId = null,
             result = response.success ? 
                 constants.LOGINRESULT_SUCCESS : 
                 constants.LOGINRESULT_INVALIDCREDENTIALS 
 
         if (response.success){
             //get user via AD guid, then return id
-            const adUser = ActiveDirectory.createUserObj(response.entry)
-            const user = await data.getByPublicId(adUser.guid, authMethod)
+            const adUser = ActiveDirectory.createUserObj(response.entry),
+                user = await data.getByPublicId(adUser.guid, authMethod)
+                
             if (user)
                 userId = user.id
         }
