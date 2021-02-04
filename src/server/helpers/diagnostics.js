@@ -1,6 +1,5 @@
 const httputils = require('madscience-httputils'),
     urljoin = require('urljoin'),
-    colors = require('colors/safe'),
     pluginsManager = require(_$+'helpers/pluginsManager')
 
 
@@ -30,7 +29,7 @@ module.exports = {
                 __log.info(`ciserver ${ciserver.name} verified`)
                 
             } catch (ex){
-                __log.info(`ciserver ${ciserver.name} remote check failed - ${ex}`)
+                __log.warn(`ciserver ${ciserver.name} remote check failed - ${ex}`)
             }
         }
 
@@ -38,25 +37,23 @@ module.exports = {
         for(let job of jobs){
             try {
 
-                __log.info(`verfiying job ${job.name}...`)
+                __log.debug(`verfiying job ${job.name}...`)
                 const ciServer = await data.getCIServer(job.CIServerId)
                 if (!ciServer){
-                    __log.error(`ERROR : CIServer ${job.CIServerId} defined in job ${job.id} not found`)
+                    __log.warn(`ERROR : CIServer ${job.CIServerId} defined in job ${job.id} not found`)
                     continue
                 }
                 
                 const url = encodeURI( urljoin(await ciServer.getUrl(), ciServer.name))
                 try {
                     await httputils.downloadString(url)
-                    __log.info(`job ${job.name} verified`)
+                    __log.debug(`job ${job.name} verified`)
                 } catch(ex) {
-                    __log.error(`job ${job.name} was not found at url ${url}: ${ex}`)
+                    __log.warn(`job ${job.name} was not found at url ${url}: ${ex}`)
                 }
                 
             } catch (ex){
-
                 __log.error(`job ${job.name} check failed - ${ex}`)
-
             }
         }        
     }

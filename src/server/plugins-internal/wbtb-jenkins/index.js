@@ -222,7 +222,7 @@ module.exports = {
     },
 
     async verifyInstance (){
-        __log.info(' not implemented yet')
+        __log.debug(' not implemented yet')
     }
 
 }

@@ -37,7 +37,7 @@ async function processLoginRequest(username, password, userAgent){
 
 
 async function verify(){
-    __log.info('internal auth verify not implemented yet')
+    __log.debug('internal auth verify not implemented yet')
     // no need to do anything,  internal test always works
 } 
 

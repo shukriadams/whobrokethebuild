@@ -29,14 +29,14 @@ module.exports = class extends BaseDaemon {
                     
                     const user = await data.getUser(buildInvolvement.userId)
                     if (!user){
-                        __log.info(`WARNING - expected user ${buildInvolvement.userId} in buildInvolvement ${buildInvolvement.id} not found`)
+                        __log.warn(`WARNING - expected user ${buildInvolvement.userId} in buildInvolvement ${buildInvolvement.id} not found`)
                         continue
                     }
     
                     for (const contactMethod in user.contactMethods){
                         const contactPlugin = await pluginsManager.get(contactMethod)
                         if (!contactPlugin){
-                            __log.info(`WARNING - expected plugin ${contactMethod.type} not found`)
+                            __log.warn(`WARNING - expected plugin ${contactMethod.type} not found`)
                             continue
                         }
                         
