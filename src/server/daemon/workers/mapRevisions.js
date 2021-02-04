@@ -1,4 +1,5 @@
-const BaseDaemon = require(_$+'daemon/base')
+const BaseDaemon = require(_$+'daemon/base'),
+    stringSimilarity = require('string-similarity')
 
 module.exports = class extends BaseDaemon {
 
@@ -42,7 +43,7 @@ module.exports = class extends BaseDaemon {
                 __log.debug(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
 
             } catch (ex){
-                __log.error(`Unexpected error trying to map revision for buildInvolvement "${buildInvolvement.id}"`, ex)
+                __log.error(`Unexpected error in mapRevisions : buildInvolvement "${buildInvolvement.id}"`, ex)
             }
         }
 

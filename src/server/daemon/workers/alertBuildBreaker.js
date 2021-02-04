@@ -44,7 +44,7 @@ module.exports = class extends BaseDaemon {
                     }
                 }
             } catch (ex) {
-                __log.error(`Unexpected error trying to alert user of build break in job "${job.id}"`, ex)
+                __log.error(`Unexpected error in alertBuildBreaker : job "${job.id}"`, ex)
             }
 
         }

@@ -31,7 +31,7 @@ module.exports = class extends BaseDaemon {
 
             }
             catch(ex){
-                __log.error(`Unexpected error trying to map user to build for buildInvolvement "${buildInvolvement.id}"`, ex)
+                __log.error(`Unexpected error in mapUsersToRevisions : buildInvolvement "${buildInvolvement.id}"`, ex)
             }
         }
 

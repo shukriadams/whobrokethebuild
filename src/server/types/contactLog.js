@@ -1,5 +1,3 @@
-const constants = require(_$+ 'types/constants')
-
 module.exports = () =>{
     return Object.assign( {}, {
         plugin : null,          // STRING. key of contact plugin

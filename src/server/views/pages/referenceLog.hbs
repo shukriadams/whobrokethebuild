@@ -1,0 +1,66 @@
+{{#extend "layout"}}
+    {{#content "body"}}
+        <div>
+            <h1>Reference Log {{id}}</h1>
+            
+            {{#if referenceLog.error}}
+                {{referenceLog.error}}
+            {{else}}
+                <div>
+                    
+                    <div>
+                        <select class="referenceLog-logParser">
+                            {{#each logParsers}}
+                                <option value="{{this}}" {{markSelected ../activeLogParser this}}>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+
+                    <div>
+                        <select class="referenceLog-vcsType">
+                            {{#each VCSTypes}}
+                                <option value="{{this}}" {{markSelected ../activeVCSType this}}>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+
+                    <div>
+                        <h2>Raw log</h2>
+                       {{{preserveSpaces referenceLog.log}}}
+                    </div>
+
+                    {{#if parsedErrors}}
+                        <div>
+                            <h2>Errors</h2>
+                            {{{preserveSpaces parsedErrors}}}
+                        </div>
+                    {{/if}}
+
+                    <h2>Revisions</h2>
+                    <ul class="list">
+                        {{#if referenceLog.revisions}}
+                            {{#each referenceLog.revisions}}
+                                <li class="list-item list-item--textContent">
+                                    revision : {{revision}}
+                                    message : {{description}}
+                                    {{#each files}}
+                                        File : {{file}}
+                                        Fault chance : {{faultChance}}
+                                    {{/each}}
+                                </li>
+                            {{/each}}
+                        {{else}}
+                            <li>
+                                No revisions defined
+                            </li>
+                        {{/if}}
+                    </ul>
+
+                </div>
+            {{/if}}
+
+        </div>
+    {{/content}}
+{{/extend}}
+
+

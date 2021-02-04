@@ -24,7 +24,7 @@ module.exports = class extends BaseDaemon {
 
                 await ciServerPlugin.importBuildsForJob(job.id)
             } catch (ex){
-                __log.error(`Unexpected error trying to retrieve builds for job "${job.id}"`, ex)
+                __log.error(`Unexpected error in buildImporter : job "${job.id}"`, ex)
             }
         }
     }

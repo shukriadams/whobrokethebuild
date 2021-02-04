@@ -24,7 +24,12 @@ let settings = require(_$+'helpers/settings'),
             'canTransmit',
             'alertGroup',
             'alertUser'
-        ]            
+        ],
+        vcs : [
+            'getRevisionPartialName',
+            'parseRawRevision',
+            'getRevision'
+        ]
     }
 
 // own dir copy function, fs-extra corrupts files on vagrant/windows    
@@ -466,7 +471,7 @@ module.exports = {
             // check structure of plugins
             const requiredConfig = _pluginStructure[plugin.__wbtb.category]
             if (!requiredConfig){
-                __log.info(`Note : category ${plugin.__wbtb.category} has no interface structure enforcement. Consider adding this.`)
+                __log.warn(`Category ${plugin.__wbtb.category} has no interface structure enforcement. Consider adding this.`)
                 continue
             }
 

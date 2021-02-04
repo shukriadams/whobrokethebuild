@@ -31,7 +31,7 @@ module.exports = class extends BaseDaemon {
                 __log.debug(`parsed log for build ${build.id}`)
 
             } catch(ex){
-                __log.error(`Unexpected error trying to parse log for build "${build.id}"`, ex)
+                __log.error(`Unexpected error in buildLogParser : build "${build.id}"`, ex)
             }
         }
                    

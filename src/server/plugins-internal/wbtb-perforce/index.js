@@ -26,6 +26,14 @@ module.exports = {
 
     /**
      * Required by interface.
+     */
+    async parseRawRevision(rawRevisionText){
+        return perforcehelper.parseDescribe(rawRevisionText, true)
+    },
+
+
+    /**
+     * Required by interface.
      * Does p4 describe on a revision and returns an object with revision info
      * revision : string, revision id
      * vcServer : object, internal vcServer object

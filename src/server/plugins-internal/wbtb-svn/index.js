@@ -32,6 +32,14 @@ module.exports = {
         return 'wbtb-svn/partials/revision'
     },
 
+
+    /**
+     * Required by interface.
+     */
+    async parseRawRevision(rawRevisionText){
+        return svnhelper.parseSVNLog(rawRevisionText)
+    },
+
     /**
      * Required by interface.
      * Does SVN log on a revision and returns an object with revision info
