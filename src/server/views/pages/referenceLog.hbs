@@ -29,10 +29,16 @@
                        {{{preserveSpaces referenceLog.log}}}
                     </div>
 
-                    {{#if parsedErrors}}
+                    {{#if parsedLog}}
                         <div>
                             <h2>Errors</h2>
-                            {{{preserveSpaces parsedErrors}}}
+                            <ul class="buildLog">
+                                {{#each parsedLog.lines}}
+                                    <li class="buildLog-item buildLog-item--{{type}}">
+                                        {{text}}
+                                    </li>
+                                {{/each}}
+                            </ul>
                         </div>
                     {{/if}}
 
@@ -43,10 +49,14 @@
                                 <li class="list-item list-item--textContent">
                                     revision : {{revision}}
                                     message : {{description}}
+                                    <ul>
                                     {{#each files}}
-                                        File : {{file}}
-                                        Fault chance : {{faultChance}}
+                                        <li>
+                                            File : {{file}}
+                                            Fault chance : {{faultChance}}
+                                        </li>
                                     {{/each}}
+                                    </ul>
                                 </li>
                             {{/each}}
                         {{else}}

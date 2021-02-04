@@ -53,24 +53,22 @@ module.exports = function(app){
 
             if (model.activeLogParser){
                 const logParser = pluginsManager.get(model.activeLogParser)
-                model.parsedErrors = logParser.parseErrors(model.referenceLog.log)
+                model.parsedLog = logParser.parse(model.referenceLog.log)
+                model.parsedErrors = logParser.parseErrors(model.referenceLog.log) || ''
+                model.parsedErrors = model.parsedErrors.split('\n')
             }
 
-            if (model.activeVCSType){
+            if (model.activeVCSType && model.parsedLog){
                 const vcs = pluginsManager.get(model.activeVCSType)
 
-                if (model.referenceLog)
-                    for (let i = 0 ; i < model.referenceLog.revisions.length ; i ++){
-                        model.referenceLog.revisions[i] = await vcs.parseRawRevision(model.referenceLog.revisions[i])
+                for (let i = 0 ; i < model.referenceLog.revisions.length ; i ++){
+                    // convert revision from string to object
+                    model.referenceLog.revisions[i] = await vcs.parseRawRevision(model.referenceLog.revisions[i])
 
-                        for (let j = 0 ; j < model.referenceLog.revisions[i].files.length ; j ++)
-                            model.referenceLog.revisions[i].files[j].faultChance = Math.floor(stringSimilarity.compareTwoStrings(
-                                model.referenceLog.revisions[i].files[j].file,
-                                model.referenceLog.log
-                            ) * 100)
-                        
-
-                    }
+                    for (const errorLine of model.parsedErrors)
+                        for (let file of model.referenceLog.revisions[i].files)
+                            file.faultChance = stringSimilarity.compareTwoStrings(file.file, errorLine)
+                }
             }
 
             model.id = req.params.id
