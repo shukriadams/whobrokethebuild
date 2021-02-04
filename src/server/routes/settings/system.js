@@ -8,7 +8,7 @@ let commonModelHelper = require(_$+ 'helpers/commonModels'),
 module.exports = function(app){
     app.get('/settings/system/daemon/stop', async (req, res)=>{
         try {
-            daemonManager.stop()
+            daemonManager.stopAll()
             res.redirect('/settings/system')
         } catch (ex) {
             errorHandler(res,ex)
@@ -17,7 +17,7 @@ module.exports = function(app){
 
     app.get('/settings/system/daemon/start', async (req, res)=>{
         try {
-            daemonManager.start()
+            daemonManager.startAll()
             res.redirect('/settings/system')
         } catch (ex) {
             errorHandler(res,ex)
@@ -43,7 +43,7 @@ module.exports = function(app){
 
             model.ciservers = await data.getAllCIServers()
             model.vcservers = await data.getAllVCServers()
-            model.daemonRunning = daemon.isRunning()
+            model.daemonRunning = daemonManager.isRunning()
 
             await commonModelHelper(model, req)
             res.send(view(model))

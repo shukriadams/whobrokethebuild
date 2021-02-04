@@ -1,5 +1,5 @@
 // add daemon workers here
-const daemonTypes = [
+let daemonTypes = [
         'daemon/workers/alertBuildBreaker',
         'daemon/workers/alertBuildStatusChange',
         'daemon/workers/buildDeltaCalculator',
@@ -8,6 +8,7 @@ const daemonTypes = [
         'daemon/workers/mapUsersToRevisions',
         'daemon/workers/mapRevisions'
     ],
+    isRunning = false,
     daemonInstances = {}
 
 module.exports = {
@@ -25,11 +26,19 @@ module.exports = {
 
         for (const p in daemonInstances)
             daemonInstances[p].start()
+
+        isRunning = true
     },
 
     stopAll(){
         for (const p in daemonInstances)
             daemonInstances[p].stop()
+        
+        isRunning = false
+    },
+
+    isRunning(){
+        return isRunning
     }
 
 }

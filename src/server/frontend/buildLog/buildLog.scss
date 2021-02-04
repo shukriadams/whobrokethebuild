@@ -1,0 +1,19 @@
+.buildLog {
+    padding: var(--universalPaddingLesser) 0;
+    background-color: var(--color-gray);
+    color: var(--color-white);
+}
+
+.buildLog-item {
+    padding: 0 var(--universalPaddingLesser);
+    
+    &.buildLog-item--error {
+        background-color: var(--color-redRibbon);
+        color: var(--color-white);
+    }
+
+    &.buildLog-item--warning {
+        background-color: var(--color-crusta);
+        color: var(--color-white);
+    }    
+}

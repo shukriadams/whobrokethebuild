@@ -14,6 +14,8 @@ module.exports = class extends BaseDaemon {
             data = await pluginsManager.getExclusive('dataProvider'),
             unprocessedBuilds = await data.getBuildsWithUnparsedLogs()
 
+        __log.debug(`found ${unprocessedBuilds.length} builds with unprocessed logs`)
+
         for (const build of unprocessedBuilds){
             try {
                 // try to parse build log for all builds
@@ -24,7 +26,7 @@ module.exports = class extends BaseDaemon {
                 if (!logParser)
                     continue
 
-                build.logParsed = logParser.parseErrors(build.log)
+                build.logParsed = logParser.parse(build.log)
                 build.isLogParsed = true
                 await data.updateBuild(build)
                 
