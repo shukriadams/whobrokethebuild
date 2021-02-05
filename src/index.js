@@ -32,6 +32,7 @@ stopwatch.start();
         Express = require('express'),
         app = Express(),
         daemonManager = require(_$+'daemon/manager'),
+        encryption = require(_$+'helpers/encryption'),
         exec = require('madscience-node-exec'),
         diagnosticsHelper = require(_$+'helpers/diagnostics'),
         userLogic = require(_$+ 'logic/users'),
@@ -81,6 +82,7 @@ stopwatch.start();
         await userLogic.initializeAdmin()
         
         daemonManager.startAll()
+        await encryption.testKey()
 
         // middleware must be loaded before routes
         app.use(bodyParser.urlencoded({ extended: false }))
