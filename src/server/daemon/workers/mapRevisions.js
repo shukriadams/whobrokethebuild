@@ -1,5 +1,5 @@
-const BaseDaemon = require(_$+'daemon/base'),
-    stringSimilarity = require('string-similarity')
+const BaseDaemon = require(_$+'daemon/base')
+    
 
 module.exports = class extends BaseDaemon {
 
@@ -13,6 +13,7 @@ module.exports = class extends BaseDaemon {
 
         // try to map map local users to users in vcs for a given build
         const pluginsManager = require(_$+'helpers/pluginsManager'),
+            faultHelper = require(_$+ 'helpers/fault'),
             data = await pluginsManager.getExclusive('dataProvider'),
             unprocessedBuildInvolvements = await data.getBuildInvolvementsWithoutRevisionObjects()
 
@@ -24,7 +25,11 @@ module.exports = class extends BaseDaemon {
                     job = await data.getJob(build.jobId, { expected : true }),
                     vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
                     vcPlugin = await pluginsManager.get(vcServer.vcs, { expected : true })
-    
+
+                // ignore builds that have not yet had their logs fetched
+                if (!build.errorsParsed)
+                    continue
+                    
                 buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
                 // force placeholder revision object if lookup to vc fails to retrieve it
                 if (!buildInvolvement.revisionObject)
@@ -34,12 +39,10 @@ module.exports = class extends BaseDaemon {
                         description : '', 
                         files : [] 
                     }
-    
-                // calculate fail chance of each file in revision
-                for (const file of buildInvolvement.revisionObject.files)
-                    file.faultChance = stringSimilarity.compareTwoStrings(file.file, build.log) 
-    
+                
+                faultHelper.processRevision(buildInvolvement.revisionObject, build.errorsParsed)
                 await data.updateBuildInvolvement(buildInvolvement)
+                
                 __log.debug(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
 
             } catch (ex){

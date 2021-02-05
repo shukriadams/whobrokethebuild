@@ -1,6 +1,6 @@
 const errorHandler = require(_$+'helpers/errorHandler'),
     commonModelHelper = require(_$+ 'helpers/commonModels'),
-    stringSimilarity = require('string-similarity'),
+    faultHelper = require(_$+ 'helpers/fault'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){
@@ -54,20 +54,18 @@ module.exports = function(app){
             if (model.activeLogParser){
                 const logParser = pluginsManager.get(model.activeLogParser)
                 model.parsedLog = logParser.parse(model.referenceLog.log)
-                model.parsedErrors = logParser.parseErrors(model.referenceLog.log) || ''
-                model.parsedErrors = model.parsedErrors.split('\n')
+                model.parsedErrors = logParser.parseErrors(model.referenceLog.log)
             }
 
-            if (model.activeVCSType && model.parsedLog){
+            // if both vcs and parser are set, we can try to calculate fault chance
+            if (model.activeVCSType && model.activeLogParser){
                 const vcs = pluginsManager.get(model.activeVCSType)
 
                 for (let i = 0 ; i < model.referenceLog.revisions.length ; i ++){
                     // convert revision from string to object
                     model.referenceLog.revisions[i] = await vcs.parseRawRevision(model.referenceLog.revisions[i])
 
-                    for (const errorLine of model.parsedErrors)
-                        for (let file of model.referenceLog.revisions[i].files)
-                            file.faultChance = stringSimilarity.compareTwoStrings(file.file, errorLine)
+                    faultHelper.processRevision(model.referenceLog.revisions[i], model.parsedErrors)
                 }
             }
 

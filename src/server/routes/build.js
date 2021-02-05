@@ -66,6 +66,11 @@ module.exports = function(app){
                 }
             }
 
+            // filter out log if only certain lines should be shown
+            let allowedTypes = ['error']
+            if (build.logParsed)
+                build.logParsed.lines = build.logParsed.lines.filter(line => allowedTypes.includes(line.type))
+
             await commonModelHelper(model, req)
             res.send(view(model))
 

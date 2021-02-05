@@ -5,7 +5,10 @@
             <li class="list-item card">
                 <div class="card-status card-status--{{statusTranslate build.status}}"></div>
                 <div class="card-content">
-                    <h1>Build {{build.build}}</h1>
+                    <h1>Build #{{build.build}}</h1>
+                    <p>
+                        {{ago build.started}}
+                    </p>
                     <p>
                         Built on :  {{build.host}}
                     </p>
@@ -26,7 +29,7 @@
                     {{/if}}
                 </div>
 
-                <h2>Revisions</h2>
+                <h2>Changes in this build</h2>
                 <ul class="list">
                     {{#if build.__buildInvolvements}}
                         {{#each build.__buildInvolvements}}
@@ -69,7 +72,7 @@
                             {{/each}}
                         </ul>
                     {{else}}
-                        Log not parsed.
+                        Log not parsed yet
                     {{/if}}
                 </p>
 

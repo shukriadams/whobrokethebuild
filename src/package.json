@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "cache-require-paths": "0.3.0",
-    "string-similarity": "4.0.2",
     "colors": "1.4.0",
     "randomstring": "1.1.5",
     "glob": "7.1.1",

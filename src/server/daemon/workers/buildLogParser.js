@@ -27,6 +27,7 @@ module.exports = class extends BaseDaemon {
                     continue
 
                 build.logParsed = logParser.parse(build.log)
+                build.errorsParsed = logParser.parseErrors(build.log)
                 build.isLogParsed = true
                 await data.updateBuild(build)
                 

@@ -12,21 +12,19 @@ module.exports = {
 
 
     /**
-     * Parses error out of build log
+     * Parses error lines out of build log. Returns array of strings
      */
     parseErrors(raw){
         if (!raw) 
-            return ''
+            return []
 
         // force unix paths on log, this helps reduce noise when getting distinct lines
-        const fullErrorLog = raw.replace(/\\/g,'/')
+        let fullErrorLog = raw.replace(/\\/g,'/'),
+            // use "error" word in log as marker for errors
+            errors = fullErrorLog.match(/^.*\berror\b.*$/gmi)
 
-        // use "error" word in log as marker for errors
-        let errors = fullErrorLog.match(/^.*\berror\b.*$/gmi)
-
-        // give up, cant' parse log, use whole thing
-        if (!errors || !errors.length)
-            errors = [fullErrorLog]
+        if (!errors)
+            return []
 
         // remove known noise line with "error" in it
         errors = errors.filter(function(item){
@@ -34,7 +32,7 @@ module.exports = {
                 return item
         })
 
-        // get distinct items in list - thi
+        // get distinct items in list
         const distinct = {}
         for (let error of errors)
         if (!distinct[error.toLowerCase()])
@@ -44,12 +42,13 @@ module.exports = {
         for (const key in distinct)
             errors.push(distinct[key])
 
-        return errors && errors.length ? errors.join('\n\n') : 'Non-standard error, unable to parse.'
+        return errors
     },
 
 
     /**
-     * Returns log as an array of lines
+     * Returns entire log as an array of lines objects. Lines are marked for errors or warnings.
+     * 
      * {
      *      error : STRING. if not null, error for why log coudln't be parsed
      *      lines : [{

@@ -19,7 +19,8 @@ module.exports = function(){
         ignoreFromBreakHistory : false,             // BOOL. if true, build does not count towards break history. Use this to ignore activity that we know didn't break anything
         comment: null,                              // STRING. admin comments
         log : null,                                 // STRING. Full buildlog from server. Normally compressed.
-        logParsed : null,                           // log parse object.
+        logParsed : null,                           // log parse object { error: null,lines: [ {type, text }] }
+        errorsParsed: null,                         // ARRAY (STRING). Errors parsed from log
         isLogParsed : false                         //
     })
 }
