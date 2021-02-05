@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} Build
  * @property {string} jobId ObjectID string, parent job's id
@@ -19,7 +17,6 @@
  * @property {boolean} isLogParsed . REFACTOR OUT
  */
 
-// @ts-ignore
 const constants = require(_$+ 'types/constants')
 
 /**

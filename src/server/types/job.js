@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} Job
  * @property {string} CIServerId Required. objectid of ciserver job is tied to

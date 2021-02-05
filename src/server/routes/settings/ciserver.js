@@ -1,4 +1,4 @@
-const commonModelHelper = require(_$+ 'helpers/commonModels'),
+const appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     ciServerLogic = require(_$+'logic/CIServer'),
     errorHandler = require(_$+'helpers/errorHandler'),
@@ -18,7 +18,7 @@ module.exports = app => {
             if (req.params.id){
                 model.ciserver = await data.getCIServer(req.params.id)
 
-                let ciServerPlugin = await pluginsManager.get(model.ciserver.type)
+                let ciServerPlugin = await pluginsManager.get(model.ciserver.type),
                     url = await model.ciserver.getUrl(),
                     availableJobs = [],
                     existingJobs = []
@@ -60,7 +60,7 @@ module.exports = app => {
                 })
             }
 
-            await commonModelHelper(model, req)
+            await appendCommonViewModel(model, req)
             res.send(view(model))
 
         } catch(ex){

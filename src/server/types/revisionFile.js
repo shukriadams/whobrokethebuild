@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} RevisionFile
  * @property {string} file path of file in version control system

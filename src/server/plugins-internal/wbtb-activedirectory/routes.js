@@ -1,6 +1,5 @@
 
-const settings = require(_$+'helpers/settings'),
-    commonModelHelper = require(_$+'helpers/commonModels'),
+const appendCommonViewModel = require(_$+'helpers/appendCommonViewModel'),
     handlebars = require(_$+'helpers/handlebars'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     logic = require('./index'),
@@ -26,7 +25,7 @@ module.exports = function(app){
                 user.canBeImported = !!user.mail
             }
             
-            await commonModelHelper(model, req)
+            await appendCommonViewModel(model, req)
             res.send(view(model))
 
         } catch(ex){

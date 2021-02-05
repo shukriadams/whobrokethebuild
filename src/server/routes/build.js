@@ -1,4 +1,4 @@
-const commonModelHelper = require(_$+ 'helpers/commonModels'),
+const appendCommonViewModel = require(_$+'helpers/appendCommonViewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
     settings = require(_$+'helpers/settings'),
@@ -27,7 +27,7 @@ module.exports = function(app){
                     build
                 }
 
-            await commonModelHelper(model, req)
+            await appendCommonViewModel(model, req)
             res.send(view(model))
         } catch(ex) {
             errorHandler(res, ex)
@@ -71,7 +71,7 @@ module.exports = function(app){
             if (build.logParsed)
                 build.logParsed.lines = build.logParsed.lines.filter(line => allowedTypes.includes(line.type))
 
-            await commonModelHelper(model, req)
+            await appendCommonViewModel(model, req)
             res.send(view(model))
 
         } catch(ex){

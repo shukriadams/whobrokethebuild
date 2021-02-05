@@ -372,7 +372,7 @@ module.exports = {
             }
         }
 
-        jsonfile.writeFileSync(pluginConfPath, _pluginConf)
+        await fs.outputJson(pluginConfPath, _pluginConf, { spaces : 4})
 
 
     },

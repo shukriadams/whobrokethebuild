@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} User
  * @property {string} publicId required. fixed username of user, on whatever platform the user account is from.

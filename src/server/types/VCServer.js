@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} VCServer
  * @property {string} name Name of server, for display only

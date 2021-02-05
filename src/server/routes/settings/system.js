@@ -1,4 +1,4 @@
-let commonModelHelper = require(_$+ 'helpers/commonModels'),
+let appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars'),
@@ -45,7 +45,7 @@ module.exports = function(app){
             model.vcservers = await data.getAllVCServers()
             model.daemonRunning = daemonManager.isRunning()
 
-            await commonModelHelper(model, req)
+            await appendCommonViewModel(model, req)
             res.send(view(model))
 
         } catch(ex){

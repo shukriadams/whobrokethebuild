@@ -1,6 +1,4 @@
-const 
-    settings = require(_$+'helpers/settings'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+const appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     vcServerLogic = require(_$+'logic/VCServer'),
     errorHandler = require(_$+'helpers/errorHandler'),
@@ -21,7 +19,7 @@ module.exports = function(app){
             if (req.params.id)
                 model.vcserver = await data.getVCServer(req.params.id, { expected : true })
 
-            await commonModelHelper(model, req)
+            await appendCommonViewModel(model, req)
             res.send(view(model))
 
         } catch(ex){

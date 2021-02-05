@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} CIServer
  * @property {string} name Name of server, for display only
@@ -25,7 +23,6 @@ module.exports = class CIServer {
      * Returns url with embedded credentials if necessary
      */
     async getUrl(){
-        // @ts-ignore
         const urlHelper = require(_$+'helpers/url')
         return urlHelper.ensureEmbeddedCredentials(this.url, this.username, this.password)
     }

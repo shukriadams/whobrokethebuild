@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} Session
  * @property {string} userId ObjectID.id of user that owns this session

@@ -1,8 +1,19 @@
 {
     "compilerOptions": {
-      "module": "commonjs",
-      "target": "es6"
+        "checkJs": true,
+        "moduleResolution": "node",
+        "target": "es6"
     },
     "exclude": ["node_modules"],
-    "include": ["server/**/*"]
+    "include": ["server/**/*"],
+    "lib": [
+        "es2017",
+        "dom",
+        "es2015.generator",
+        "es2015.iterable",
+        "es2015.promise",
+        "es2015.symbol",
+        "es2015.symbol.wellknown",
+        "esnext.asynciterable"
+      ]
   }

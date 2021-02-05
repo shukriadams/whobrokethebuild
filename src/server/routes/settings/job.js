@@ -1,7 +1,5 @@
-const 
-    pluginsManager = require(_$+'helpers/pluginsManager'),
-    settings = require(_$+ 'helpers/settings'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
+    appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
     jobLogic = require(_$+'logic/job'),
     handlebars = require(_$+'helpers/handlebars'),
     errorHandler = require(_$+'helpers/errorHandler')
@@ -32,7 +30,7 @@ module.exports = function(app){
                     isPublic : true
                 }
 
-            await commonModelHelper(model, req)
+            await appendCommonViewModel(model, req)
             res.send(view(model))
 
         } catch(ex){

@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} ContactLog
  * @property {string} plugin key of contact plugin

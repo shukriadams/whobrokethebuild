@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} Exception
  * @property {string} code
@@ -9,7 +7,6 @@
  * @property {boolean} forceLog
  */
 
-// @ts-ignore
 const constants = require(_$+'types/constants')
 /**
  * Custom error, all throws in app should be of this type.
@@ -46,6 +43,7 @@ function exception(options = {}) {
         // @ts-ignore
         Error.captureStackTrace(this, exception)
     else
+        // @ts-ignore
         this.stack = (new Error()).stack
 }
 

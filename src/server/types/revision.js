@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} Revision
  * @property {string} revision Revision number / code / id, depending on source control 

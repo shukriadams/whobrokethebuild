@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} BuildInvolment
  * @property {string} buildId objectId of parent Build. always set

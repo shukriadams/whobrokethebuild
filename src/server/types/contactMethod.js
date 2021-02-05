@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} ContactMethod
  * @property {string} type

@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} UserMapping
  * @property {string} userId user identifier in external system
