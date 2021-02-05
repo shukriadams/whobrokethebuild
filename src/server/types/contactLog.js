@@ -1,3 +1,5 @@
+// @ts-check
+
 module.exports = () =>{
     return Object.assign( {}, {
         plugin : null,          // STRING. key of contact plugin

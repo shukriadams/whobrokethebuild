@@ -94,7 +94,7 @@ const constants = require(_$+'types/constants'),
         return server
     },     
     _normalizeCIServer = rawRecord =>{
-        const record = Object.assign( CIServer(), rawRecord)
+        const record = Object.assign( new CIServer(), rawRecord)
         record.id = record._id.toString()
         delete record._id
         return record

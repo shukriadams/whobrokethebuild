@@ -1,3 +1,5 @@
+// @ts-check
+
 module.exports = () =>{
     return Object.assign( {}, {
         name : null,        // STRING. Name of server, for display only

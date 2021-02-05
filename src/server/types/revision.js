@@ -2,20 +2,18 @@
 
 /**
  * @typedef {Object} Revision
- * @property {string} revision
- * @property {Date} date
- * @property {string} user
- * @property {string} description
- * @property {Array<import("./revisionFile").RevisionFile>} files
+ * @property {string} revision Revision number / code / id, depending on source control 
+ * @property {Date} date Date revision was created.
+ * @property {string} user User name
+ * @property {string} description Revision message
+ * @property {Array<import("./revisionFile").RevisionFile>} files Files in revisions 
  */
-module.exports = function(){
-    return Object.assign({}, {
-        revision : null,    // string. Revision number / code / id, depending on source control 
-        date : null,        // DATE. date revision was created.
-        user : null,        // string. user name
-        description : null, // string 
-        files : [ ]         // array of stings, or RevisionFile with revisions that have been fault tested
-    })
+module.exports = class Revision {
+    constructor(){
+        this.revision = null    
+        this.date = null        
+        this.user = null        
+        this.description = null 
+        this.files = [ ]        
+    }
 }
-
-

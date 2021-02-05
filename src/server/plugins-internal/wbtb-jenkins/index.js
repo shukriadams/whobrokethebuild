@@ -191,7 +191,7 @@ module.exports = {
             }
             
             // insert build
-            localBuild = Build()
+            localBuild = new Build()
             localBuild.jobId = jobId
             localBuild.status = this.resultToStatus(remoteBuild.result)
             localBuild.build = remoteBuild.number

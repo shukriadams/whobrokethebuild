@@ -68,7 +68,7 @@ module.exports = {
         if (!parsedRevisions.length)
             return null
         
-        const revisionFinal = Revision()
+        const revisionFinal = new Revision()
 
         // we've queried only one revision, so array should contain only one item
         revisionFinal.user = parsedRevisions[0].user

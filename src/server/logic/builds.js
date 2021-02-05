@@ -32,7 +32,7 @@ module.exports = {
 
     async create (){
         const data = await pluginsManager.getExclusive('dataProvider')
-        let build = Build()
+        let build = new Build()
         await data.insertBuild(build)
     }
 

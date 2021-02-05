@@ -1,26 +1,47 @@
+// @ts-check
+
+/**
+ * @typedef {Object} Build
+ * @property {string} jobId ObjectID string, parent job's id
+ * @property {string} build Unique build id from CI server this build originates from
+ * @property {Array<string>} revisions VCS revision or hash code at head when build was triggered. Can be empty.
+ * @property {string} triggerType constants.BUILDTRIGGER_*. STRING, NOT ALWAYS PRESENT. event that triggered build
+ * @property {number} started Ticks, when build started
+ * @property {number} ended Ticks, when build ended. null if build is ongoing or hanging.
+ * @property {string} host Name of machine on which build was done
+ * @property {string} status constants.BUILDSTATUS_*. Status of build from CI server
+ * @property {string} delta constants.BUILDSTATUS_*. Status of build relative to other builds. WBTB assigns this.
+ * @property {boolean} ignoreFromBreakHistory if true, build does not count towards break history. Use this to ignore activity that we know didn't break anything
+ * @property {string} comment admin comments
+ * @property {string} log Full buildlog from server. 
+ * @property {ParsedLog} logParsed log parse object { error: null,lines: [ {type, text }] }. REFACTOR OUT
+ * @property {Array<string>} errorsParsed Errors parsed from log . REFACTOR OUT
+ * @property {boolean} isLogParsed . REFACTOR OUT
+ */
+
+// @ts-ignore
 const constants = require(_$+ 'types/constants')
 
 /**
  * Builds don't always have revisions - on jenkins, a manually triggered build never has a build, and to figure out what code is being built we have to assume 
  * that the last preceeding build with a revision nr is the revision being built
  */    
-
-module.exports = function(){
-    return Object.assign({}, {
-        jobId : null,                               // objectID, required, parent job's id
-        build : null,                               // STRING. external build id
-        revisions : [],                             // ARRAY (STRING), VCS revision or hash code at head when build was triggered. Can be empty.
-        triggerType : constants.BUILDTRIGGER_OTHER, // STRING, NOT ALWAYS PRESENT. event that triggered build
-        started : null,                             // NUMBER. Ticks, when build started
-        ended : null,                               // NUMBER. Ticks, when build ended. null if build is ongoing or hanging.
-        host : null,                                // STRING. Host machine on which build was done
-        status : constants.BUILDSTATUS_OTHER,       // STRING. Status of build from CI server
-        delta : null,                               // STRING. Status of build relative to other builds. WBTB assigns this.
-        ignoreFromBreakHistory : false,             // BOOL. if true, build does not count towards break history. Use this to ignore activity that we know didn't break anything
-        comment: null,                              // STRING. admin comments
-        log : null,                                 // STRING. Full buildlog from server. Normally compressed.
-        logParsed : null,                           // log parse object { error: null,lines: [ {type, text }] }
-        errorsParsed: null,                         // ARRAY (STRING). Errors parsed from log
-        isLogParsed : false                         //
-    })
+module.exports = class Build{
+    constructor(){
+        this.jobId = null
+        this.build = null
+        this.revisions = []
+        this.triggerType = constants.BUILDTRIGGER_OTHER
+        this.started = null
+        this.ended = null
+        this.host = null
+        this.status = constants.BUILDSTATUS_OTHER
+        this.delta = null
+        this.ignoreFromBreakHistory = false
+        this.comment = null
+        this.log = null
+        this.logParsed = null
+        this.errorsParsed = null
+        this.isLogParsed = false
+    }
 }

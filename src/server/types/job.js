@@ -1,3 +1,5 @@
+// @ts-check
+
 module.exports = function(){
     return Object.assign({}, {
         CIServerId: null,       // STRING. Required. objectid of ciserver job is tied to

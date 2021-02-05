@@ -1,4 +1,4 @@
-const constants = require(_$+ 'types/constants');
+// @ts-check
 
 module.exports = function(){
     return Object.assign({}, {

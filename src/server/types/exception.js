@@ -1,4 +1,4 @@
-let constants = require(_$+'types/constants');
+let constants = require(_$+'types/constants')
 
 /**
  * Custom error, all throws in app should be of this type.

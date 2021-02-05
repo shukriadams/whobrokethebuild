@@ -1,3 +1,5 @@
+// @ts-check
+
 module.exports = function(){
     return Object.assign({}, {
         publicId : null,        // STRING. required. fixed username of user, on whatever platform the user account is from.

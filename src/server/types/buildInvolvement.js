@@ -1,3 +1,5 @@
+// @ts-check
+
 module.exports = function(){
     return Object.assign({}, {
         buildId: null,                  // string, objectId of Build. always set

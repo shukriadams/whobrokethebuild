@@ -57,7 +57,7 @@ module.exports = {
         }
 
         const revisionParsed = perforcehelper.parseDescribe(rawDescribeText, false),
-            revisionFinal = Revision()
+            revisionFinal = new Revision()
 
         revisionFinal.user = revisionParsed.username
         revisionFinal.revision = revisionParsed.revision
