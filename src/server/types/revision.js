@@ -1,3 +1,13 @@
+// @ts-check
+
+/**
+ * @typedef {Object} Revision
+ * @property {string} revision
+ * @property {Date} date
+ * @property {string} user
+ * @property {string} description
+ * @property {Array<import("./revisionFile").RevisionFile>} files
+ */
 module.exports = function(){
     return Object.assign({}, {
         revision : null,    // string. Revision number / code / id, depending on source control 

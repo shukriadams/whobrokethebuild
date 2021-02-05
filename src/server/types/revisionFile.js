@@ -1,4 +1,15 @@
+// @ts-check
+
+/**
+ * 
+ * @typedef {Object} RevisionFile
+ * @property {string} file
+ * @property {string} change
+ * @property {number} faultChance
+ */
 module.exports = function(){
+
+
     return Object.assign({}, {
         file : null,     // string. path of file in version control system
         change : null,   // string. change in file for this revision

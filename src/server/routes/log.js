@@ -10,11 +10,9 @@ module.exports = function(app){
     app.get('/log/:type?', async function(req, res){
         try {
             let view = await handlebars.getView('log'),
-                type = req.params.type || 'info',
                 model = { },
                 logFiles = await fsUtils.readFilesInDir(settings.logPath)
 
-            logFiles = logFiles.filter(file => file.includes(`${type}.`))
             logFiles = logFiles.sort()
             model.log = `No logs found`
 

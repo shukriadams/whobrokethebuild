@@ -1,15 +1,19 @@
-module.exports = {
+// @ts-check
 
+module.exports = {
+    
     /**
      * Adds faultchance to files in revision, based on how many times a file appears in error log
      * revision : Revision object, must have .files array, with .file property in each object in that array
      * buildErrors: array of strings, each string is an error line from build log.
      * 
-     */
+     * @param {import('../types/revision').Revision} revision
+     * @param {Array<string>} buildErrors
+     */    
     processRevision(revision, buildErrors){
-        let fsUtils = require('madscience-fsUtils')
+        const fsUtils = require('madscience-fsUtils')
 
-        for (let file of revision.files){
+        for (const file of revision.files){
             file.faultChance = 0
 
             const fileNameFragments = fsUtils.fullPathWithoutExtension(file.file)
