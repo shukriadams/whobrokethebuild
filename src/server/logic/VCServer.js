@@ -7,7 +7,7 @@ module.exports = {
     async insert(properties){
         const 
             data = await pluginsManager.getExclusive('dataProvider'),
-            vcserver = VCServer()
+            vcserver = new VCServer()
 
         vcserver.name = properties.name
         vcserver.vcs = properties.vcs

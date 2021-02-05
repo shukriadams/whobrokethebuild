@@ -208,7 +208,7 @@ module.exports = {
                     if (buildInvolvment)
                         continue 
 
-                    buildInvolvment = BuildInvolvment()
+                    buildInvolvment = new BuildInvolvment()
                     buildInvolvment.externalUsername = revisionData.user
                     buildInvolvment.buildId = localBuild.id
                     buildInvolvment.revision = revision

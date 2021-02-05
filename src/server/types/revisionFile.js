@@ -1,20 +1,15 @@
 // @ts-check
 
 /**
- * 
  * @typedef {Object} RevisionFile
- * @property {string} file
- * @property {string} change
- * @property {number} faultChance
+ * @property {string} file path of file in version control system
+ * @property {string} change change in file for this revision
+ * @property {number} faultChance Chance of (0-1) that this file change was responsible for build error, if the given revision caused a build error
  */
-module.exports = function(){
-
-
-    return Object.assign({}, {
-        file : null,     // string. path of file in version control system
-        change : null,   // string. change in file for this revision
-        faultChance: 0   // float. Chance of (0-1) that this file change was responsible for build error, if the given revision caused a build error
-    })
+module.exports = class RevisionFile {
+    constructor(){
+        this.file = null
+        this.change =  null
+        this.faultChance = 0
+    }
 }
-
-

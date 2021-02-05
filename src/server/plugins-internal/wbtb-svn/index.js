@@ -78,7 +78,7 @@ module.exports = {
         revisionFinal.files = []
         
         for (const revFile of parsedRevisions[0].files){
-            const revisionFile = RevisionFile()
+            const revisionFile = new RevisionFile()
             revisionFile.file = revFile.file
             revisionFile.change = revFile.change
             revisionFinal.files.push(revisionFile)

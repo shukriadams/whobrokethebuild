@@ -48,7 +48,7 @@ module.exports = {
     async createInternal(name, password){
         const data = await pluginsManager.getExclusive('dataProvider')
 
-        let user = User()
+        let user = new User()
         user.authData = AuthMethod(constants.AUTHPROVIDER_INTERNAL)
         user.authMethod = constants.AUTHPROVIDER_INTERNAL
         user.name = name

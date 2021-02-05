@@ -44,7 +44,7 @@ module.exports = function(app){
                 if (req.body[`cb_userImport_${user.guid}`] === 'on'){
                     let newUser = await data.getByPublicId(user.mail, authMethod)
                     if (!newUser){
-                        newUser = User()
+                        newUser = new User()
                         newUser.publicId = user.mail
                         newUser.name = user.name
                         newUser.email = user.mail

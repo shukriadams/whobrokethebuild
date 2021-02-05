@@ -6,7 +6,7 @@ module.exports = {
 
     insert : async (userId, agent, ip) => {
         const data = await pluginsManager.getExclusive('dataProvider'),
-            session = Session()
+            session = new Session()
 
         session.userId = userId
         session.userAgent = agent

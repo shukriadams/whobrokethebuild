@@ -122,7 +122,7 @@ module.exports = {
     
         await slack.chat.postMessage({ token : settings.slackAccessToken, channel : targetChannelId, text : message });
 
-        contactLog = ContactLog()
+        contactLog = new ContactLog()
         contactLog.receiverContext = slackContactMethod.channelId
         contactLog.type = slackContactMethod.type
         contactLog.eventContext = context
@@ -203,7 +203,7 @@ module.exports = {
         message += `More info : ${buildLink}`
         await slack.chat.postMessage({ token : settings.slackAccessToken, channel : conversation.channel.id, text : message })
 
-        contactLog = ContactLog()
+        contactLog = new ContactLog()
         contactLog.receiverContext = user.id
         contactLog.type = thisType
         contactLog.eventContext = context

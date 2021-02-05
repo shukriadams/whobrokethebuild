@@ -37,7 +37,7 @@ module.exports = {
 
     insert : async  properties => {
         const data = await pluginsManager.getExclusive('dataProvider'),
-            job = Job()
+            job = new Job()
 
         job.name = properties.name
         job.tags = properties.tags
