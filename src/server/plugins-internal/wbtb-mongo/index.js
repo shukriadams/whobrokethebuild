@@ -24,7 +24,7 @@ const constants = require(_$+'types/constants'),
         if (items.length % pageSize)
             pages ++
 
-        item = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), normalizer)
+        items = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), normalizer)
         return { items, pages} 
     },    
     _normalizeJob = job =>{
