@@ -1,6 +1,9 @@
 const BaseDaemon = require(_$+'daemon/base')
 
-module.exports = class extends BaseDaemon {
+/**
+ * @extends {BaseDaemon}
+ */
+module.exports = class BuildImporter extends BaseDaemon {
 
     constructor(...args){
         super(...args)

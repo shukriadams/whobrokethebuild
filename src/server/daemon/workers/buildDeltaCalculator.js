@@ -1,6 +1,9 @@
 const BaseDaemon = require(_$+'daemon/base')
 
-module.exports = class extends BaseDaemon {
+/**
+ * @extends {BaseDaemon}
+ */
+module.exports = class BuildDeltaCalculator extends BaseDaemon {
 
     constructor(...args){
         super(...args)
@@ -10,7 +13,8 @@ module.exports = class extends BaseDaemon {
 
         __log.debug(`buildDeltaCalculator daemon doing work ....`)
 
-        let pluginsManager = require(_$+'helpers/pluginsManager'),
+        let constants = require(_$+'types/constants'),
+            pluginsManager = require(_$+'helpers/pluginsManager'),
             data = await pluginsManager.getExclusive('dataProvider'),
             builds = await data.getBuildsWithNoDelta(),
             lastDelta = null

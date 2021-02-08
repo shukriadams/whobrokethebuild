@@ -1,6 +1,9 @@
 const BaseDaemon = require(_$+'daemon/base')
 
-module.exports = class extends BaseDaemon {
+/**
+ * @extends {BaseDaemon}
+ */
+module.exports = class MapUsersToRevisions extends BaseDaemon {
 
     constructor(...args){
         super(...args)
@@ -28,7 +31,6 @@ module.exports = class extends BaseDaemon {
                     await data.updateBuildInvolvement(buildInvolvement)
                     __log.debug(`added user ${user.name} to build ${build.id}`)
                 }
-
             }
             catch(ex){
                 __log.error(`Unexpected error in mapUsersToRevisions : buildInvolvement "${buildInvolvement.id}"`, ex)

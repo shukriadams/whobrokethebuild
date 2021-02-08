@@ -6,7 +6,7 @@
  * @property {boolean} isAuthApproved if true, an admin has approved user for authentication
  * @property {Array<import("./avatar").Avatar>} avatars 
  * @property {Array<string>} roles Use these to flag user for rolls.
- * @property {object} contactMethods hashtable of ContactMethod objects
+ * @property {import("./contactMethod").ContactMethod} contactMethods hashtable of ContactMethod objects
  * @property {Array<object>} externalIds Array of UserMapping objects
  * @property {string} authMethod Identifier for auth method.
  * @property {object} authData Auth object(?)

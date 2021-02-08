@@ -1,6 +1,9 @@
 const BaseDaemon = require(_$+'daemon/base')
 
-module.exports = class extends BaseDaemon {
+/**
+ * @extends {BaseDaemon}
+ */
+module.exports = class AlertBuildStatusChange extends BaseDaemon {
 
     constructor(...args){
         super(...args)
@@ -24,7 +27,7 @@ module.exports = class extends BaseDaemon {
     
                 if ((latestBuild.status === constants.BUILDSTATUS_PASSED && !job.isPassing) ||
                     (latestBuild.status === constants.BUILDSTATUS_FAILED && job.isPassing)){
-                        for (jobContactMethodKey in job.contactMethods){
+                        for (const jobContactMethodKey in job.contactMethods){
                             // todo : log that require plugin not found
                             const plugin = await pluginsManager.get(jobContactMethodKey)
                             if (!plugin) 

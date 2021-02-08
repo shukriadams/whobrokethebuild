@@ -1,6 +1,9 @@
 const BaseDaemon = require(_$+'daemon/base')
 
-module.exports = class extends BaseDaemon {
+/**
+ * @extends {BaseDaemon}
+ */
+module.exports = class AlertBuildBreaker extends BaseDaemon {
 
     constructor(...args){
         super(...args)
@@ -36,7 +39,7 @@ module.exports = class extends BaseDaemon {
                     for (const contactMethod in user.contactMethods){
                         const contactPlugin = await pluginsManager.get(contactMethod)
                         if (!contactPlugin){
-                            __log.warn(`WARNING - expected plugin ${contactMethod.type} not found`)
+                            __log.warn(`WARNING - expected plugin ${contactPlugin.type} not found`)
                             continue
                         }
                         
