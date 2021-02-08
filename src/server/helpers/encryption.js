@@ -68,7 +68,12 @@ module.exports = {
             // @ts-ignore
             decipher = crypto.createDecipher(algorithm, key)
 
-        return decipher.update(text, 'hex', 'utf8') + decipher.final('utf8')
+        try {
+            return decipher.update(text, 'hex', 'utf8') + decipher.final('utf8')
+        } catch(ex){
+            console.log(`Decrypt failed, recreate original text`, ex)
+            return ''
+        }
     },
 
 
