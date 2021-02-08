@@ -70,11 +70,16 @@ module.exports = {
         await data.removeUser(user)
     },
 
-    async reject (){
+
+    /**
+     * revokes user's ability to log in
+     */
+    async reject (user){
         const data = await pluginsManager.getExclusive('dataProvider')
         user.isAuthApproved = false
         await data.updateUser(user)
     },
+
 
     async getAll (){
         const data = await pluginsManager.getExclusive('dataProvider')

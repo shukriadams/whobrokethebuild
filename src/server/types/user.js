@@ -2,6 +2,7 @@
  * @typedef {Object} User
  * @property {string} publicId required. fixed username of user, on whatever platform the user account is from.
  * @property {string} name optional. For display purposes only, no logic should use this. authMethod contains id-purpose user name.
+ * @property {string} password Used to carry plaintext password to database, never persisted
  * @property {string} email optional. Doesn't mean user wants to be contacted!
  * @property {boolean} isAuthApproved if true, an admin has approved user for authentication
  * @property {Array<import("./avatar").Avatar>} avatars 
@@ -17,6 +18,7 @@ module.exports = class User {
     constructor(){
         this.publicId = null
         this.name = null
+        this.password = null
         this.email = null
         this.isAuthApproved = false
         this.avatars = []

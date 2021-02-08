@@ -105,6 +105,10 @@ module.exports = {
         return await loadById(constants.TABLENAME_SESSIONS, id, options)
     },
 
+    removeSession : async id => {
+
+    },
+
 
     /****************************************************
      * CIServer

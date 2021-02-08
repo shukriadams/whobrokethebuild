@@ -10,11 +10,10 @@ module.exports = {
 
     /**
      * @return {Promise<number>}
-     * 
      * Gets and if necesssary generates encryption key if one doesn't exist. Obviously not ideal way to handle secrets, but
      * better than storing and display secrets in plain text.
      */
-    async getKey(){
+    async _getKey(){
         if (!key){
             let keyPath = path.join(settings.dataFolder, 'key'),
                 keyCreated = false
@@ -39,6 +38,10 @@ module.exports = {
         return key
     },
 
+
+    /**
+     * Tests local key, this primarily a workaround due to stability issues with keys right now.
+     */
     async testKey(){
         const testPath = path.join(settings.dataFolder, 'key.test')
         if (await fs.pathExists(testPath)){
@@ -54,12 +57,14 @@ module.exports = {
             __log.warn('No key test file found, restart app to ensure it exists.')
     },
 
+
     /**
+     * @return {Promise<string>}
      * Decrypts text. TODO : this method is archaic and not secure anymore, update
-     * @param {*} text The encrypted text to decrypt
+     * @param {string} text The encrypted text to decrypt
      */
     async decrypt(text){
-        const key = await this.getKey(),
+        const key = await this._getKey(),
             // @ts-ignore
             decipher = crypto.createDecipher(algorithm, key)
 
@@ -68,10 +73,12 @@ module.exports = {
 
 
     /**
+     * @return {Promise<string>}
      * Encrypts text. TODO : this method is archaic and not secure anymore, update
+     * @param {string} text The text to encrypt
      */
     async encrypt(text){
-        const key = await this.getKey(),
+        const key = await this._getKey(),
             // @ts-ignore
             cipher = crypto.createCipher(algorithm, key)
             

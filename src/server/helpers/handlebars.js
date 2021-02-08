@@ -82,7 +82,7 @@ module.exports = {
                     name = pagePath.replace(root, '').match(/\/(.*).hbs/).pop()
 
                 if (views[name]){
-                    console.warn(`The partial "${name}" (from view ${partialPath}) is already taken by another partial.`)
+                    console.warn(`The partial "${name}" (from page ${pagePath}) is already taken by another partial.`)
                     continue
                 }    
 

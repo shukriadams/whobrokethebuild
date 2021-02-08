@@ -1,6 +1,5 @@
 
 module.exports  = (res, error)=>{
-    let show = error
     res.status(500)
     let out =typeof error === 'object' ? error.toString() : error
     if (error.stack)

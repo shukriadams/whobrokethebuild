@@ -248,6 +248,11 @@ module.exports = {
         return _normalize(await _mongo.getById(constants.TABLENAME_SESSIONS, id), _normalizeSession)
     },
 
+    async removeSession(id) {
+        await _mongo.remove(constants.TABLENAME_SESSIONS, { 
+            _id : new ObjectID(id) 
+        })
+    },
 
     /****************************************************
      * CIServer

@@ -18,5 +18,15 @@ module.exports = {
             return null
 
         return await data.getUser(session.userId)
+    },
+
+    getCurrentSession : async (req)=>{
+        if (req.cookies[constants.COOKIE_AUTHKEY] === undefined)
+            return null
+            
+        const data = await pluginsManager.getExclusive('dataProvider'),
+            session = await data.getSession(req.cookies[constants.COOKIE_AUTHKEY])
+            
+        return session
     }
 }
