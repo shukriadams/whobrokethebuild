@@ -62,24 +62,26 @@
                 </ul>
 
                 <h2>Log</h2>
-                <p>
-                    {{#if build.isLogParsed}}
-                        <ul class="buildLog">
-                            {{#each build.logParsed.lines}}
-                                <li class="buildLog-item buildLog-item--{{type}}">
-                                    {{text}}
-                                </li>
-                            {{/each}}
-                        </ul>
+                {{#if build.log}}
+                    {{#if build.__isLogParsed }}
+                        <p>
+                            <ul class="buildLog">
+                                {{#each build.__logParsedLines}}
+                                    <li class="buildLog-item buildLog-item--{{type}}">
+                                        {{text}}
+                                    </li>
+                                {{/each}}
+                            </ul>
+                        </p>
                     {{else}}
                         Log not parsed yet
-                    {{/if}}
-                </p>
-
-                <div>
-                    <a href="/build/log/{{build.id}}">Full log</a>
-                </div>
-
+                    {{/if}}                
+                    <div>
+                        <a href="/build/log/{{build.id}}">Full log</a>
+                    </div>
+                {{else}}
+                    Build log not fetched yet
+                {{/if}}
             </li>
         </ul>
 

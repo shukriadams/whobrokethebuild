@@ -26,13 +26,16 @@ module.exports = class MapRevisions extends BaseDaemon {
                 const build = await data.getBuild(buildInvolvement.buildId, { expected : true }),
                     job = await data.getJob(build.jobId, { expected : true }),
                     vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
-                    vcPlugin = await pluginsManager.get(vcServer.vcs, { expected : true })
+                    vcPlugin = await pluginsManager.get(vcServer.vcs, { expected : true }),
+                    logParser = job.logParser ? await pluginsManager.get(job.logParser) : null
 
                 // ignore builds that have not yet had their logs fetched
-                if (!build.errorsParsed)
+                // ignore jobs that don't have log parsers defined
+                if (!build.log || !logParser)
                     continue
                     
                 buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
+                
                 // force placeholder revision object if lookup to vc fails to retrieve it
                 if (!buildInvolvement.revisionObject)
                     buildInvolvement.revisionObject = {
@@ -42,7 +45,8 @@ module.exports = class MapRevisions extends BaseDaemon {
                         files : [] 
                     }
                 
-                faultHelper.processRevision(buildInvolvement.revisionObject, build.errorsParsed)
+                const errorLines = logParser.parseErrors(build.log)
+                faultHelper.processRevision(buildInvolvement.revisionObject, errorLines)
                 await data.updateBuildInvolvement(buildInvolvement)
                 
                 __log.debug(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)

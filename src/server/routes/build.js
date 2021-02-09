@@ -66,10 +66,16 @@ module.exports = function(app){
                 }
             }
 
-            // filter out log if only certain lines should be shown
-            let allowedTypes = ['error']
-            if (build.logParsed)
-                build.logParsed.lines = build.logParsed.lines.filter(line => allowedTypes.includes(line.type))
+
+            // parse and filter log if only certain lines should be shown
+            const logParser = build.__job.logParser ? await pluginsManager.get(build.__job.logParser) : null,
+                allowedTypes = ['error']
+
+            if (logParser){
+                const parsedLog = logParser.parse(build.log)
+                build.__logParsedLines = parsedLog.lines.filter(line => allowedTypes.includes(line.type))
+                build.__isLogParsed = true
+            }
 
             await appendCommonViewModel(model, req)
             res.send(view(model))

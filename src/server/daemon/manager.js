@@ -4,7 +4,6 @@ let daemonTypes = [
         'daemon/workers/alertBuildStatusChange',
         'daemon/workers/buildDeltaCalculator',
         'daemon/workers/buildImporter',
-        'daemon/workers/buildLogParser',
         'daemon/workers/mapUsersToRevisions',
         'daemon/workers/mapRevisions'
     ],

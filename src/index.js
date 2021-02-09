@@ -130,12 +130,10 @@ stopwatch.start();
 
         console.log(colors.green(`Who Broke The Build started, listening on port ${settings.port}`))    
         console.log(`started in ${stopwatch.read()}`)
-        
+        console.log(`Log level: ${settings.logLevel}`)
     }catch(ex){
-
         console.log(colors.red(`ERROR - Who Broke The Build failed to start`))
         console.log(colors.red(ex))
-
     }
     
 })()

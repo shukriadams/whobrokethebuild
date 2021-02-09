@@ -37,8 +37,5 @@ module.exports = class Build{
         this.ignoreFromBreakHistory = false
         this.comment = null
         this.log = null
-        this.logParsed = null
-        this.errorsParsed = null
-        this.isLogParsed = false
     }
 }

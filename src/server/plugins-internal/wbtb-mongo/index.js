@@ -287,6 +287,10 @@ module.exports = {
         return _normalize(await _mongo.insert(constants.TABLENAME_JOBS, _denormalizeJob(job)), _normalizeJob)
     },
 
+
+    /**
+     * @returns {Promise<import('../../types/job').Job>}
+     */
     async getJob(id, options) {
         return _normalize(await _mongo.getById(constants.TABLENAME_JOBS, id, options), _normalizeJob)
     },
