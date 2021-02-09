@@ -36,7 +36,7 @@ module.exports = {
                     name = partialPath.replace(root, '').match(/\/(.*).hbs/).pop()
 
                 if (views[name]){
-                    console.warn(`The partial "${name}" (from view ${partialPath}) is already taken by another partial.`)
+                    console.warn(`The core partial "${name}" (from ${partialPath}) is already taken by another partial.`)
                     continue
                 }    
 
@@ -52,37 +52,37 @@ module.exports = {
                     name = pagePath.replace(root, '').match(/\/(.*).hbs/).pop();
                 
                 if (pages[name]){
-                    console.warn(`The page "${name}" (from view ${pagePath}) is already taken by another view.`)
+                    console.warn(`The core page "${name}" (from ${pagePath}) is already taken by another view.`)
                     continue
                 }    
                 
                 pages[name] = Handlebars.compile(content)
             }
 
-            // plugin dev pages
-            root = path.join(_$+'plugins-internal')
+            // plugin pages
+            root = path.join(_$+'plugins'+settings.bindInternalPlugins?'-internal':'')
             pagePaths = glob.sync(`${root}/**/views/**/*.hbs`, { ignore : ['**/node_modules/**']})
             for (let pagePath of pagePaths){
                 let content = fs.readFileSync(pagePath, 'utf8'),
                     name = pagePath.replace(root, '').match(/\/(.*).hbs/).pop()
 
                 if (pages[name]){
-                    console.warn(`The page "${name}" (from view ${pagePath}) is already taken by another view.`)
+                    console.warn(`The plugin page "${name}" (from ${pagePath}) is already taken by another view.`)
                     continue
                 }    
                     
                 pages[name] = Handlebars.compile(content)
             }
 
-            // plugin dev partials
-            root = path.join(_$+'plugins-internal')
+            // plugin partials
+            root = path.join(_$+'plugins'+settings.bindInternalPlugins?'-internal':'')
             pagePaths = glob.sync(`${root}/**/partials/**/*.hbs`, { ignore : ['**/node_modules/**']})
             for (let pagePath of pagePaths){
                 let content = fs.readFileSync(pagePath, 'utf8'),
                     name = pagePath.replace(root, '').match(/\/(.*).hbs/).pop()
 
                 if (views[name]){
-                    console.warn(`The partial "${name}" (from page ${pagePath}) is already taken by another partial.`)
+                    console.warn(`The plugin partial "${name}" (from ${pagePath}) is already taken by another partial.`)
                     continue
                 }    
 
