@@ -2,7 +2,7 @@ const settings = require(_$+'helpers/settings'),
     constants = require(_$+'types/constants'),
     MongoClient = require('mongodb').MongoClient,
     ObjectID = require('mongodb').ObjectID,
-
+    
     /** 
      * Gets a mongo collection, and db instance for closing.
      */
@@ -121,19 +121,19 @@ const settings = require(_$+'helpers/settings'),
      */ 
     getById = async function(collectionName, id, options = {}){
         return new Promise(async (resolve, reject)=>{
-
-            // if an id is corrupt/ invalid we don't want objectId to throw a parse error
-            // and derail entire call - an invalid id should be treated as "not found"
-            // which is a null return
             try {
-                id = new ObjectID(id)
-            }catch(ex){
-                if (options.expected)
-                    return reject(`Expected record id ${id} from table ${collectionName} not found`)
-                resolve(null)
-            }
+                // if an id is corrupt/ invalid we don't want objectId to throw a parse error
+                // and derail entire call - an invalid id should be treated as "not found"
+                // which is a null return
+                try {
+                    id = new ObjectID(id)
+                }catch(ex){
+                    if (options.expected)
+                        return reject(`Expected record id ${id} from table ${collectionName} not found`)
 
-            try {
+                    resolve(null)
+                }
+
                 const mongo = await _getCollection(collectionName)
                 mongo.collection.findOne({ _id : id },(err, record)=>{
                     if (err)
@@ -228,7 +228,6 @@ const settings = require(_$+'helpers/settings'),
         return new Promise(async function(resolve, reject){
             try {
                 const mongo = await _getCollection(collectionName)
-
                 mongo.collection.deleteMany(query, function(err){
                     if (err)
                         return reject(err)
@@ -249,7 +248,6 @@ const settings = require(_$+'helpers/settings'),
     update = async function update(collectionName, record){
         return new Promise(async function(resolve, reject){
             try {
-                
                 const mongo = await _getCollection(collectionName)
                 mongo.collection.updateOne({ _id : record._id }, { $set: record }, {}, function(err){
                     if (err)

@@ -54,6 +54,8 @@ module.exports = function(app){
             if (model.activeLogParser){
                 const logParser = pluginsManager.get(model.activeLogParser)
                 model.parsedLog = logParser.parse(model.referenceLog.log)
+                model.parsedLog.lines = model.parsedLog.lines.filter(line => ['error'].includes(line.type) )
+                
                 model.parsedErrors = logParser.parseErrors(model.referenceLog.log)
             }
 

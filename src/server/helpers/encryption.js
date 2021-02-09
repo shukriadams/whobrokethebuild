@@ -78,9 +78,10 @@ module.exports = {
 
 
     /**
-     * @return {Promise<string>}
      * Encrypts text. TODO : this method is archaic and not secure anymore, update
+     * 
      * @param {string} text The text to encrypt
+     * @return {Promise<string>}
      */
     async encrypt(text){
         const key = await this._getKey(),

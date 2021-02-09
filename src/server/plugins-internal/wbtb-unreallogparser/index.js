@@ -1,4 +1,8 @@
-
+// tries to find an error an line in a log based on the assumption that an error's anatomy is
+// file-path : some-text error some-code : some-explanation
+// gmi : errors can be multiline
+// ignore case
+const errorRegex = /(.?)*:(.?)*( error )(.?)*:(.?)*/gmi
 
 module.exports = {
 
@@ -21,7 +25,7 @@ module.exports = {
         // force unix paths on log, this helps reduce noise when getting distinct lines
         let fullErrorLog = raw.replace(/\\/g,'/'),
             // use "error" word in log as marker for errors
-            errors = fullErrorLog.match(/^.*\berror\b.*$/gmi)
+            errors = fullErrorLog.match(errorRegex)
 
         if (!errors)
             return []
@@ -81,7 +85,7 @@ module.exports = {
             if (line.match(/warning/i))
                 type = 'warning'
 
-            if (line.match(/error/i))
+            if (line.match(errorRegex))
                 type = 'error'
 
             result.lines.push({

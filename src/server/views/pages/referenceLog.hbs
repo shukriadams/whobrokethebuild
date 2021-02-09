@@ -24,10 +24,6 @@
                         </select>
                     </div>
 
-                    <div>
-                        <h2>Raw log</h2>
-                       {{{preserveSpaces referenceLog.log}}}
-                    </div>
 
                     {{#if parsedLog}}
                         <div>
@@ -65,6 +61,12 @@
                             </li>
                         {{/if}}
                     </ul>
+
+                    <h2>Raw log</h2>
+                    <div>
+                        {{{preserveSpaces referenceLog.log}}}
+                    </div>
+
 
                 </div>
             {{/if}}
