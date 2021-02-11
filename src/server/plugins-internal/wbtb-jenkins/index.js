@@ -146,14 +146,21 @@ module.exports = {
             ciServer = await data.getCIServer(job.CIServerId, { expected : true}),
             vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
             vcs = await pluginsHelper.get(vcServer.vcs),
-            baseUrl = await ciServer.getUrl()
+            baseUrl = await ciServer.getUrl(),
+            json = null
+
+        if (!settings.buildLogsDump){
+            __log.error(`settings.buildLogsDump not set`)
+            return 
+        }
+
+        await fs.ensureDir(settings.buildLogsDump)
 
         // jobname must be url encoded
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
         let url = urljoin(baseUrl, `job/${encodeURIComponent(job.name)}/api/json?pretty=true&tree=allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]`),
-            json = null,
             response = await httputils.downloadString(url)
         
         if (response.statusCode === 404){
@@ -181,24 +188,23 @@ module.exports = {
                 if (remoteBuild.duration)
                     localBuild.ended = timebelt.addMinutes(localBuild.started, remoteBuild.duration).getTime()
 
-                // fetch log if build is complete
-                if (!localBuild.log && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
-                    localBuild.log = await this.downloadBuildLog(baseUrl, job.name, localBuild.build)
+                // fetch log if build is complete and log has not be previous fetched
+                if (!localBuild.logPath && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
 
-                    if (settings.buildLogsDump){
-                        await fs.ensureDir(settings.buildLogsDump)
-                        const writePath = path.join(settings.buildLogsDump, `${sanitize(job.name)}-${localBuild.build}`)
-                        
-                        try {
-                            await fs.writeFile(writePath, localBuild.log)
-                        } catch (ex){
-                            __log.error(`unexpected error dumping reference log ${writePath}`, ex)
-                        }
+                    const pathFragment = `${sanitize(job.name)}-${localBuild.build}`,
+                        writePath = path.join(settings.buildLogsDump, pathFragment)
+                    
+                    try {
+                        const log = await this.downloadBuildLog(baseUrl, job.name, localBuild.build)
+                        await fs.writeFile(writePath, log)
+                        localBuild.logPath = pathFragment
+                        await data.updateBuild(localBuild)
+
+                    } catch (ex){
+                        __log.error(`unexpected error dumping reference log ${writePath}`, ex)
                     }
                 }
 
-                // bad : this will constantly update records, even if not dirty
-                await data.updateBuild(localBuild)
                 continue
             }
             

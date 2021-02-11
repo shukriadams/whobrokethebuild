@@ -2,7 +2,9 @@
 // file-path : some-text error some-code : some-explanation
 // gmi : errors can be multiline
 // ignore case
-const errorRegex = /(.?)*:(.?)*(error)(.?)*:(.?)*/gmi
+const ParsedErrorLog = require(_$+'types/parsedBuildLog'),
+    ParsedErrorLogItem = require(_$+'types/parsedBuildLogLine'),
+    errorRegex = /(.?)*:(.?)*(error)(.?)*:(.?)*/gmi
 
 module.exports = {
 
@@ -62,10 +64,7 @@ module.exports = {
      * }
      */
     parse(raw){
-        let result = {
-            error: null,
-            lines : []
-        }
+        let result = new ParsedErrorLog()
 
         if (!raw) {
             result.error = 'input is empty'
@@ -87,11 +86,11 @@ module.exports = {
 
             if (line.match(errorRegex))
                 type = 'error'
-
-            result.lines.push({
-                text : line,
-                type
-            })
+                
+            const lineItem = new ParsedErrorLogItem()
+            lineItem.text = line
+            lineItem.type = type
+            result.lines.push(lineItem)
         }
 
         return result

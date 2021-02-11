@@ -11,7 +11,7 @@
  * @property {string} delta constants.BUILDSTATUS_*. Status of build relative to other builds. WBTB assigns this.
  * @property {boolean} ignoreFromBreakHistory if true, build does not count towards break history. Use this to ignore activity that we know didn't break anything
  * @property {string} comment admin comments
- * @property {string} log Full buildlog from server. 
+ * @property {string} logPath if not null, path to log file within local log store folder
  */
 
 const constants = require(_$+ 'types/constants')
@@ -33,6 +33,6 @@ module.exports = class Build{
         this.delta = null
         this.ignoreFromBreakHistory = false
         this.comment = null
-        this.log = null
+        this.logPath = null
     }
 }

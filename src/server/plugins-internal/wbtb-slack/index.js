@@ -146,13 +146,18 @@ module.exports = {
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.slackAccessToken }),
             job = await data.getJob(build.jobId, { expected: true }),
-            logParser = job.logParser ? pluginsManager.get(job.logParser) : null,
+            logHelper = require(_$+'helpers/log'),
             context = `build_fail_${build.id}`,
             buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
             usersInvolved = buildInvolvements.map(involvement => involvement.externalUsername)
 
         // convert to unique users
         usersInvolved = Array.from(new Set(usersInvolved)) 
+
+        if (!build.logPath){
+            __log.warn(`Attepting to warn user on build that has no local log, build "${build.id}" to user "${user.id}"`)
+            return
+        }
 
         // check if user has already been informed about this build failure
         let contactLog = force ? null : await data.getContactLogByContext(user.id, thisType, context)
@@ -188,7 +193,7 @@ module.exports = {
             })
 
         let buildLink = urljoin(settings.localUrl, `build/${build.id}`),
-            log = logParser ? `\`\`\`${(await logParser.parseErrors(build.log))}\`\`\`\n` : '',
+            log = `\`\`\`${(await logHelper.parseErrorsFromFileToString(build.logPath, job.logParser))}\`\`\`\n`,
             message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}`
 
         if (usersInvolved.length > 1){

@@ -1,0 +1,27 @@
+{{!
+    takes parsedBuildLog object
+}}
+<div>
+    {{#if error}}
+        <div>
+            Error reading log : {{error}}
+        </div>
+    {{else}}
+        {{#if lines}}
+            <div class="parsedBuildLog-lineCount">
+                {{lines.length}} lines in log
+            </div>
+            <ul class="buildLog">
+                {{#each lines}}
+                    <li class="buildLog-item buildLog-item--{{type}}">
+                        {{{text}}}
+                    </li>
+                {{/each}}
+            </ul>
+        {{else}}
+            <div>
+                Log is empty
+            </div>
+        {{/if}}
+    {{/if}}
+</div>

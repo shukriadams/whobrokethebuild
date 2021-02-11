@@ -1,7 +1,7 @@
 const appendCommonViewModel = require(_$+'helpers/appendCommonViewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
-    settings = require(_$+'helpers/settings'),
+    logHelper = require(_$+'helpers/log'),
     buildLogic = require(_$+'logic/builds'),
     jobsLogic = require(_$+'logic/job'),
     constants = require(_$+'types/constants'),
@@ -22,11 +22,14 @@ module.exports = function(app){
         try {
             const view = await handlebars.getView('buildLog'),
                 data = await pluginsManager.getExclusive('dataProvider'),
+                logHelper = require(_$+'helpers/log'),
                 build = await data.getBuild(req.params.id, { expected : true }),
+                job = await jobsLogic.getById(build.jobId),
                 model = {
                     build
                 }
 
+            model.log = await logHelper.parseFromFile(build.logPath, job.logParser)
             await appendCommonViewModel(model, req)
             res.send(view(model))
         } catch(ex) {
@@ -62,8 +65,8 @@ module.exports = function(app){
                 allowedTypes = ['error']
 
             if (logParser){
-                const parsedLog = logParser.parse(build.log)
-                build.__logParsedLines = parsedLog.lines.filter(line => allowedTypes.includes(line.type))
+                const parsedLog = await logHelper.parseFromFile(build.logPath, build.__job.logParser)
+                build.__logParsedLines = parsedLog.lines ? parsedLog.lines.filter(line => allowedTypes.includes(line.type)) : []
                 build.__isLogParsed = true
             }
 

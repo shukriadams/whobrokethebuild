@@ -17,6 +17,7 @@ module.exports = class MapRevisions extends BaseDaemon {
         const pluginsManager = require(_$+'helpers/pluginsManager'),
             faultHelper = require(_$+ 'helpers/fault'),
             data = await pluginsManager.getExclusive('dataProvider'),
+            logHelper = require(_$+'helpers/log'),
             unprocessedBuildInvolvements = await data.getBuildInvolvementsWithoutRevisionObjects()
 
         __log.debug(`found ${unprocessedBuildInvolvements.length} buildInvolvements with unmapped revisions`)
@@ -26,12 +27,11 @@ module.exports = class MapRevisions extends BaseDaemon {
                 const build = await data.getBuild(buildInvolvement.buildId, { expected : true }),
                     job = await data.getJob(build.jobId, { expected : true }),
                     vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
-                    vcPlugin = await pluginsManager.get(vcServer.vcs, { expected : true }),
-                    logParser = job.logParser ? await pluginsManager.get(job.logParser) : null
+                    vcPlugin = await pluginsManager.get(vcServer.vcs, { expected : true })
 
                 // ignore builds that have not yet had their logs fetched
                 // ignore jobs that don't have log parsers defined
-                if (!build.log || !logParser)
+                if (!build.logPath || !job.logParser)
                     continue
                     
                 buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
@@ -45,7 +45,7 @@ module.exports = class MapRevisions extends BaseDaemon {
                         files : [] 
                     }
                 
-                const errorLines = logParser.parseErrors(build.log)
+                const errorLines = await logHelper.parseErrorsFromFile(build.logPath, job.logParser)
                 faultHelper.processRevision(buildInvolvement.revisionObject, errorLines)
                 await data.updateBuildInvolvement(buildInvolvement)
                 

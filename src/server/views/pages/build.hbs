@@ -57,20 +57,16 @@
                 </ul>
 
                 <h2>Log</h2>
-                {{#if build.log}}
-                    {{#if build.__isLogParsed }}
-                        <p>
-                            <ul class="buildLog">
-                                {{#each build.__logParsedLines}}
-                                    <li class="buildLog-item buildLog-item--{{type}}">
-                                        {{text}}
-                                    </li>
-                                {{/each}}
-                            </ul>
-                        </p>
-                    {{else}}
-                        Log not parsed yet
-                    {{/if}}                
+                {{#if build.__isLogParsed}}
+                    <p>
+                        <ul class="buildLog">
+                            {{#each build.__logParsedLines}}
+                                <li class="buildLog-item buildLog-item--{{type}}">
+                                    {{text}}
+                                </li>
+                            {{/each}}
+                        </ul>
+                    </p>
                     <div>
                         <a href="/build/log/{{build.id}}">Full log</a>
                     </div>

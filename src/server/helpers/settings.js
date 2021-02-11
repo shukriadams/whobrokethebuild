@@ -20,7 +20,7 @@ let process = require('process'),
         logPath : './data/logs',
         // set to some writeable path if you want build logs from CI servers can be dumped to local text files for reference
         // path will be created if it doesn't exist
-        buildLogsDump : null,
+        buildLogsDump : './data/buildLogs',
         externalPluginsFolder : './server/plugins',
         logLevel : 'error', // set to 'info' for full spam
         forceReloadViews : 'true',
