@@ -60,7 +60,7 @@ module.exports = {
             }
 
             // plugin pages
-            root = path.join(_$+'plugins'+settings.bindInternalPlugins?'-internal':'')
+            root = path.join(_$+'plugins' + (settings.bindInternalPlugins ? '-internal':''))
             pagePaths = glob.sync(`${root}/**/views/**/*.hbs`, { ignore : ['**/node_modules/**']})
             for (let pagePath of pagePaths){
                 let content = fs.readFileSync(pagePath, 'utf8'),
@@ -75,7 +75,7 @@ module.exports = {
             }
 
             // plugin partials
-            root = path.join(_$+'plugins'+settings.bindInternalPlugins?'-internal':'')
+            root = path.join(_$+'plugins' + (settings.bindInternalPlugins ? '-internal':''))
             pagePaths = glob.sync(`${root}/**/partials/**/*.hbs`, { ignore : ['**/node_modules/**']})
             for (let pagePath of pagePaths){
                 let content = fs.readFileSync(pagePath, 'utf8'),
