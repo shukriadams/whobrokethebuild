@@ -5,7 +5,7 @@
 }
 
 .buildLog-item {
-    padding: 0 var(--universalPaddingLesser);
+    padding: 4px var(--universalPaddingLesser);
     
     &.buildLog-item--error {
         background-color: var(--color-redRibbon);

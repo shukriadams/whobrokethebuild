@@ -54,16 +54,6 @@ module.exports = function(app){
                 if (buildInvolvement.userId)
                     buildInvolvement.__user = await data.getUser(buildInvolvement.userId)
 
-                // convert fault chance to percent
-                if (buildInvolvement.revisionObject && buildInvolvement.revisionObject.files){
-                    for (const file of buildInvolvement.revisionObject.files){
-                        if (!file.faultChance)
-                            continue
-
-                        file.__faultChancePercent = Math.floor(file.faultChance * 100)
-                        file.__isLikelyFaultCause = build.__isFailing && file.__faultChancePercent > settings.faultChanceThreshold 
-                    }
-                }
             }
 
 

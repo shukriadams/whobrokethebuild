@@ -37,18 +37,13 @@
                                 <h3>
                                     {{>buildInvolvementUserLink this}} ({{revision}})
                                 </h3>
-                                {{__revision.description}}
+                                <p>
+                                    {{__revision.description}}
+                                </p>
                                 <ul>
                                     {{#each revisionObject.files}}
-                                        <li>
-                                            <div class="{{#if __isLikelyFaultCause}}typography-warning{{/if}}">
-                                                {{file}}
-                                                <span>
-                                                    {{#if __isLikelyFaultCause}}
-                                                        {{__faultChancePercent}}% chance 
-                                                    {{/if}}
-                                                </span>
-                                            </div>
+                                        <li class="revision-file revision-file--{{#if isFault}}atFault{{/if}}">
+                                            {{file}}
                                         </li>
                                     {{/each}}
                                 </ul>
@@ -56,7 +51,7 @@
                         {{/each}}
                     {{else}}
                         <li>
-                            That's odd - there are no revisions in this build?
+                            There are no revisions in this build
                         </li>
                     {{/if}}
                 </ul>
