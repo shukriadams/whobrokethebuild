@@ -430,6 +430,14 @@ module.exports = {
         })
     },
 
+    async removeAllBuilds(){
+        // remove children
+        await _mongo.remove(constants.TABLENAME_BUILDINVOLVEMENTS)
+
+        // remove record
+        await _mongo.remove(constants.TABLENAME_BUILDS)
+    },
+
     /**
      * A build's log must already be fetched (ie, be not null) to qualify
      */

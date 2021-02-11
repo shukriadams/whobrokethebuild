@@ -3,6 +3,7 @@ let appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars'),
     daemonManager = require(_$+'daemon/manager'),
+    dataHelper = require(_$+'helpers/data'),
     pluginConf
 
 module.exports = function(app){
@@ -23,6 +24,17 @@ module.exports = function(app){
             errorHandler(res,ex)
         }
     })
+
+
+    app.delete('/settings/system/builds', async (req, res)=>{
+        try {
+            await dataHelper.deleteAllBuilds()
+            res.end('builds cleared1')
+        } catch (ex) {
+            errorHandler(res,ex)
+        }
+    })
+
 
     app.get('/settings/system', async function(req, res){
         try {

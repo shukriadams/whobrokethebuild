@@ -12,9 +12,6 @@
  * @property {boolean} ignoreFromBreakHistory if true, build does not count towards break history. Use this to ignore activity that we know didn't break anything
  * @property {string} comment admin comments
  * @property {string} log Full buildlog from server. 
- * @property {ParsedLog} logParsed log parse object { error: null,lines: [ {type, text }] }. REFACTOR OUT
- * @property {Array<string>} errorsParsed Errors parsed from log . REFACTOR OUT
- * @property {boolean} isLogParsed . REFACTOR OUT
  */
 
 const constants = require(_$+ 'types/constants')

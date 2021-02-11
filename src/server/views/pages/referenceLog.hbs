@@ -45,11 +45,11 @@
                                 <li class="list-item list-item--textContent">
                                     revision : {{revision}}
                                     message : {{description}}
+                                    <h3>Files</h3>
                                     <ul>
                                     {{#each files}}
-                                        <li>
-                                            File : {{file}}
-                                            Fault chance : {{faultChance}}
+                                        <li class="revision-file revision-file--{{#if isFault}}atFault{{/if}}">
+                                            {{file}}
                                         </li>
                                     {{/each}}
                                     </ul>
@@ -61,12 +61,6 @@
                             </li>
                         {{/if}}
                     </ul>
-
-                    <h2>Raw log</h2>
-                    <div>
-                        {{{preserveSpaces referenceLog.log}}}
-                    </div>
-
 
                 </div>
             {{/if}}

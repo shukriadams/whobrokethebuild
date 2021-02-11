@@ -10,15 +10,16 @@ module.exports = {
     async list(){
         const settings = require(_$+'helpers/settings'),
             fs = require('fs-extra'),
-            path = require('path'),
-            fsUtils = require('madscience-fsUtils'),
-            referenceLogsPath = path.join(settings.dataFolder, 'referenceLogs')
+            fsUtils = require('madscience-fsUtils')
 
-        if (!await fs.exists(referenceLogsPath))
-            return { error : `reference log folder "${referenceLogsPath}" does not exist` }
+        if (!settings.buildLogsDump)
+            return {error : `settings.buildLogsDump not set`}
+
+        if (!await fs.exists(settings.buildLogsDump))
+            return { error : `log dump folder "${settings.buildLogsDump}" does not exist` }
 
         return {
-            logs :  await fsUtils.getChildDirs(referenceLogsPath, false)
+            logs :  await fsUtils.getChildDirs(settings.buildLogsDump, false)
         }
     },
 
@@ -36,9 +37,9 @@ module.exports = {
             path = require('path'),
             fs = require('fs-extra'),
             fsUtils = require('madscience-fsUtils'),
-            referenceLogPath = path.join(settings.dataFolder, 'referenceLogs', logId),
-            rawLogPath = path.join(settings.dataFolder, 'referenceLogs', logId, 'log'),
-            revisionsPath = path.join(settings.dataFolder, 'referenceLogs', logId, 'revisions')
+            referenceLogPath = path.join(settings.buildLogsDump, logId),
+            rawLogPath = path.join(settings.buildLogsDump, logId, 'log'),
+            revisionsPath = path.join(settings.buildLogsDump, logId, 'revisions')
 
         if (!await fs.exists(referenceLogPath))
             return { error : `reference log folder "${referenceLogPath}" does not exist` }

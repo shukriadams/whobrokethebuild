@@ -2,7 +2,7 @@
 // file-path : some-text error some-code : some-explanation
 // gmi : errors can be multiline
 // ignore case
-const errorRegex = /(.?)*:(.?)*( error )(.?)*:(.?)*/gmi
+const errorRegex = /(.?)*:(.?)*(error)(.?)*:(.?)*/gmi
 
 module.exports = {
 

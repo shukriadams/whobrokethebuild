@@ -60,14 +60,16 @@ module.exports = function(app){
             }
 
             // if both vcs and parser are set, we can try to calculate fault chance
-            if (model.activeVCSType && model.activeLogParser){
-                const vcs = pluginsManager.get(model.activeVCSType)
-
-                for (let i = 0 ; i < model.referenceLog.revisions.length ; i ++){
-                    // convert revision from string to object
-                    model.referenceLog.revisions[i] = await vcs.parseRawRevision(model.referenceLog.revisions[i])
-
-                    faultHelper.processRevision(model.referenceLog.revisions[i], model.parsedErrors)
+            if (!model.referenceLog.error){
+                if (model.activeVCSType && model.activeLogParser){
+                    const vcs = pluginsManager.get(model.activeVCSType)
+    
+                    for (let i = 0 ; i < model.referenceLog.revisions.length ; i ++){
+                        // convert revision from string to object
+                        model.referenceLog.revisions[i] = await vcs.parseRawRevision(model.referenceLog.revisions[i])
+    
+                        faultHelper.processRevision(model.referenceLog.revisions[i], model.parsedErrors)
+                    }
                 }
             }
 

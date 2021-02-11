@@ -21,14 +21,22 @@ module.exports = {
 
             for (const errorLine of buildErrors){
                 for (const fileNameFragment of fileNameFragments){
-                    if (!errorLine.includes(`/${fileNameFragment}`))
+                    if (!errorLine.match(new RegExp(`/${fileNameFragment}`, 'i')))
                         break
 
                     file.faultChance ++                    
                 }
             }
-
         }
+
+        let maxFaultScore = Math.max(...revision.files.map(file => file.faultChance))
+        if (maxFaultScore > 0)
+            revision.files.map(file =>{
+                file.isFault = file.faultChance >= maxFaultScore
+                return file
+            })
+
+        
     }
 
 }

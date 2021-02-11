@@ -1,6 +1,9 @@
 const pluginsHelper = require(_$+'helpers/pluginsManager'),
     constants = require(_$+'types/constants'),
     Build = require(_$+'types/build'),
+    fs = require('fs-extra'),
+    path = require('path'),
+    sanitize = require('sanitize-filename'),
     BuildInvolvment = require(_$+'types/buildInvolvement'),
     urljoin = require('urljoin'),
     settings = require(_$+ 'helpers/settings'),
@@ -181,8 +184,17 @@ module.exports = {
                 // fetch log if build is complete
                 if (!localBuild.log && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
                     localBuild.log = await this.downloadBuildLog(baseUrl, job.name, localBuild.build)
-                    if (localBuild.log && localBuild.log.length > 10000)
-                        localBuild.log = localBuild.log.substring(0, 10000)
+
+                    if (settings.buildLogsDump){
+                        await fs.ensureDir(settings.buildLogsDump)
+                        const writePath = path.join(settings.buildLogsDump, `${sanitize(job.name)}-${localBuild.build}`)
+                        
+                        try {
+                            await fs.writeFile(writePath, localBuild.log)
+                        } catch (ex){
+                            __log.error(`unexpected error dumping reference log ${writePath}`, ex)
+                        }
+                    }
                 }
 
                 // bad : this will constantly update records, even if not dirty
