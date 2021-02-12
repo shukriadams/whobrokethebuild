@@ -42,32 +42,36 @@ module.exports = function(app){
             const data = await pluginsManager.getExclusive('dataProvider'),
                 build = await buildLogic.getById(req.params.id),
                 view = await handlebars.getView('build'),
+                job = await jobsLogic.getById(build.jobId),
+                vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
+                vcsPlugin = await pluginsManager.get(vcServer.vcs),
                 model = {
-                    build
+                    build,
+                    job
                 }
 
-            build.__job = await jobsLogic.getById(build.jobId)
             build.__isFailing = build.status === constants.BUILDSTATUS_FAILED 
 
             // REFACTOR THIS TO LOGIC LAYER
-            build.__buildInvolvements = await data.getBuildInvolementsByBuild(build.id)
+            model.buildInvolvements = await data.getBuildInvolementsByBuild(build.id)
 
-            for (const buildInvolvement of build.__buildInvolvements){
+            for (const buildInvolvement of model.buildInvolvements){
                 // get user object for revision, if mapped
                 if (buildInvolvement.userId)
                     buildInvolvement.__user = await data.getUser(buildInvolvement.userId)
 
+                buildInvolvement.__revision = await vcsPlugin.getRevision(buildInvolvement.revision, vcServer)
             }
 
 
             // parse and filter log if only certain lines should be shown
-            const logParser = build.__job.logParser ? await pluginsManager.get(build.__job.logParser) : null,
+            const logParser = model.job.logParser ? await pluginsManager.get(model.job.logParser) : null,
                 allowedTypes = ['error']
 
             if (logParser){
-                const parsedLog = await logHelper.parseFromFile(build.logPath, build.__job.logParser)
-                build.__logParsedLines = parsedLog.lines ? parsedLog.lines.filter(line => allowedTypes.includes(line.type)) : []
-                build.__isLogParsed = true
+                const parsedLog = await logHelper.parseFromFile(build.logPath, model.job.logParser)
+                model.logParsedLines = parsedLog.lines ? parsedLog.lines.filter(line => allowedTypes.includes(line.type)) : []
+                model.isLogParsed = true
             }
 
             await appendCommonViewModel(model, req)

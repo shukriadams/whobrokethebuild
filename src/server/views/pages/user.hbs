@@ -9,10 +9,6 @@
             <h2>{{user.name}}'s recent builds</h2>
             <ul class="list">
                 {{#if buildInvolvements}}
-                    <p>
-                        {{user.name}} hasn't triggered any builds yet.
-                    </p>
-                {{else}}
                     {{#each buildInvolvements}}
                         <li class="list-item card">
                             <div class="card-status card-status--{{statusTranslate __build.status}}"></div>
@@ -23,6 +19,10 @@
                             </div>
                         </li>
                     {{/each}}
+                {{else}}
+                    <p>
+                        {{user.name}} hasn't triggered any builds yet.
+                    </p>
                 {{/if}}
             </ul>
 
