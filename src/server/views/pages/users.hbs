@@ -5,6 +5,16 @@
             {{#each users}}
                 <li class="list-item list-item--textContent">
                     <a href="/user/{{id}}">{{name}}</a>
+                    <div>
+                        {{#each userMappings}}
+                            Mapped to :
+                            {{#if __error}}
+                                {{__error}}
+                            {{else}}
+                                {{__vcServerBinding.name}}
+                            {{/if}}
+                        {{/each}}
+                    </div>
                 </li>
             {{/each}}
         </ul>

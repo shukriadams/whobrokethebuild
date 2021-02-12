@@ -11,6 +11,20 @@ module.exports = function(app){
                 view = await handlebars.getView('users'),
                 model = { users }
 
+            // map usermappings on vcservers
+            for (const user of users){
+                if (!user.userMappings)
+                    continue
+
+                for (let mapping of user.userMappings){
+                    const vcServer = await data.getVCServer(mapping.VCServerId)
+                    if (!vcServer)
+                        mapping.__error = `Mapped to invalid vcserver ${mapping.VCServerId}`
+                    
+                    mapping.__vcServerBinding = vcServer
+                }
+            }
+
             await appendCommonViewModel(model, req)
             res.send(view(model))
 
