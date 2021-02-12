@@ -174,7 +174,12 @@ module.exports = {
             __log.error(`Failed to parse JSON from  job ${job.name}`, ex, response.body)
             return
         }
-        
+    
+        // limit the number of jobs back in time to import, if necessay.
+        let historyLimit = settings.historyLimit || job.historyLimit
+        if (!!historyLimit)
+            json.allBuilds = json.allBuilds.slice(0, historyLimit)
+            
         for (let remoteBuild of json.allBuilds){
             let localBuild = await data.getBuildByExternalId(jobId, remoteBuild.number)
             

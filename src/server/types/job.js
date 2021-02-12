@@ -8,6 +8,7 @@
  * @property {boolean} isEnabled if false, daemon should ignore processing
  * @property {boolean} isPublic True if job will be visible to anon users.
  * @property {boolean} isPassing true if build is passing.
+ * @property {number} historyLimit Number of builds back in time to import. Use this to throttle import when binding to existing jobs
  * @property {string} changeContext if build fails or passes, context of that build. used for messaging and status change updates
  * @property {object} contactMethods
  */
@@ -22,6 +23,7 @@ module.exports = class Job {
         this.isEnabled = true
         this.isPublic = false
         this.isPassing = false
+        this.historyLimit = null
         this.changeContext = null
         this.contactMethods = {}
     }
