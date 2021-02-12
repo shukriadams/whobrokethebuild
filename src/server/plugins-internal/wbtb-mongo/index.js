@@ -574,7 +574,7 @@ module.exports = {
             },
 
             {
-                // sort earliest first
+                // sort latest first
                 $sort: { 'started': 1 }
             },
 
@@ -647,6 +647,10 @@ module.exports = {
                         { "userId" :{ $eq : new ObjectID(userId) } }
                     ] 
                 }
+            },
+            {
+                // sort latest first
+                $sort: { 'started': -1 }
             }
         )
 

@@ -4,6 +4,46 @@
         {
             "_class" : "hudson.model.FreeStyleBuild",
             "duration" : 0,
+            "fullDisplayName" : "Call of Modern Shooter #2838",
+            "id" : "2838",
+            "number" : 2838,
+            "result" : "FAILURE",
+            "builtOn" : "Build1",
+            "timestamp" : 1594199576341
+        },           
+        {
+            "_class" : "hudson.model.FreeStyleBuild",
+            "duration" : 0,
+            "fullDisplayName" : "Call of Modern Shooter #2837",
+            "id" : "2837",
+            "number" : 2837,
+            "result" : "FAILURE",
+            "builtOn" : "Build1",
+            "timestamp" : 1594199566341
+        },             
+        {
+            "_class" : "hudson.model.FreeStyleBuild",
+            "duration" : 0,
+            "fullDisplayName" : "Call of Modern Shooter #2836",
+            "id" : "2836",
+            "number" : 2836,
+            "result" : "FAILURE",
+            "builtOn" : "Build1",
+            "timestamp" : 1594199556341
+        },         
+        {
+            "_class" : "hudson.model.FreeStyleBuild",
+            "duration" : 0,
+            "fullDisplayName" : "Call of Modern Shooter #2835",
+            "id" : "2835",
+            "number" : 2835,
+            "result" : "FAILURE",
+            "builtOn" : "Build1",
+            "timestamp" : 1594199546351
+        },        
+        {
+            "_class" : "hudson.model.FreeStyleBuild",
+            "duration" : 0,
             "fullDisplayName" : "Call of Modern Shooter #2834",
             "id" : "2834",
             "number" : 2834,

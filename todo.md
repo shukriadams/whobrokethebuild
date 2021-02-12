@@ -8,7 +8,6 @@
 - change updates so we send only explicitly set properties back to db (instead of entire object)
 - routes should use logic layer instead of containing logic themselves
 - add caching
-- activedirectory login no longer reliably returns userid, remove this dependency
 - write postgres layer with https://sequelize.org/
 - harden plugin system - define required-by-category, single-by-category
 - add next/previous links to build page
@@ -16,7 +15,6 @@
 - warn if a more than one user have identical VCServer mappings, but allow
 - add option to wipe and reset user mapping for a given build, this is needed when a user mapping is changed and data must be reboun / reprocessed for that build
 - recent builds order must be reversed to latest first
-- user recent builds has no placeholder text when no commits available
 - user recenty builds shoudld state that no builds can be shown if no mapping is available
 - do not parse error logs for builds that are not failing
 - change sort order of builds without delta to oldest first, this should speed up processing of concurrent builds

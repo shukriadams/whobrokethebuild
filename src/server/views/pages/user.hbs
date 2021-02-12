@@ -8,16 +8,22 @@
 
             <h2>{{user.name}}'s recent builds</h2>
             <ul class="list">
-                {{#each buildInvolvements}}
-                    <li class="list-item card">
-                        <div class="card-status card-status--{{statusTranslate __build.status}}"></div>
+                {{#if buildInvolvements}}
+                    <p>
+                        {{user.name}} hasn't triggered any builds yet.
+                    </p>
+                {{else}}
+                    {{#each buildInvolvements}}
+                        <li class="list-item card">
+                            <div class="card-status card-status--{{statusTranslate __build.status}}"></div>
 
-                        <div class="card-content">
-                            <a href="/build/{{__build.id}}">{{__build.build}} - {{__build.__job.name}}</a>
-                            {{ago __build.started}}
-                        </div>
-                    </li>
-                {{/each}}
+                            <div class="card-content">
+                                <a href="/build/{{__build.id}}">{{__build.build}} - {{__build.__job.name}}</a>
+                                {{ago __build.started}}
+                            </div>
+                        </li>
+                    {{/each}}
+                {{/if}}
             </ul>
 
         </div>
