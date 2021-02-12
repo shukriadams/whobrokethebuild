@@ -1,3 +1,4 @@
+- port to typescipt, current complexity is unworking
 - change updates so we send only explicitly set properties back to db (instead of entire object)
 - routes should use logic layer instead of containing logic themselves
 - add caching
@@ -14,3 +15,4 @@
 - do not parse error logs for builds that are not failing
 - change sort order of builds without delta to oldest first, this should speed up processing of concurrent builds
 - add link back to original CISysem to build pages
+- need several hundreds of records per build, across multiple builds, to test performance

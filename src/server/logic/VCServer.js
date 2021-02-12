@@ -1,12 +1,10 @@
-const
-    encryption = require(_$+'helpers/encryption'),
+const encryption = require(_$+'helpers/encryption'),
     VCServer = require(_$+'types/VCServer'),
     pluginsManager = require(_$+'helpers/pluginsManager')
 
 module.exports = {
     async insert(properties){
-        const 
-            data = await pluginsManager.getExclusive('dataProvider'),
+        const data = await pluginsManager.getExclusive('dataProvider'),
             vcserver = new VCServer()
 
         vcserver.name = properties.name
@@ -35,8 +33,7 @@ module.exports = {
     },
 
     async update(properties){
-        const 
-            data = await pluginsManager.getExclusive('dataProvider'),
+        const data = await pluginsManager.getExclusive('dataProvider'),
             vcserver = await data.getVCServer(properties.id, { expected : true })
         
         vcserver.name = properties.name

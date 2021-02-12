@@ -1,5 +1,4 @@
-const
-    pluginsManager = require(_$+'helpers/pluginsManager'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
     Job = require(_$+ 'types/job')
 
 module.exports = {
