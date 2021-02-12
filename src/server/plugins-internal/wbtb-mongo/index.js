@@ -444,8 +444,7 @@ module.exports = {
     async getBuildsWithUnparsedLogs(){
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [ 
-                { 'isLogParsed' :{ $eq : false } },
-                { 'log' :{ $ne : null } }
+                { 'logPath' :{ $eq : null } }
             ]
         }), _normalizeBuild)
     },

@@ -1,3 +1,9 @@
+- need "watcher" - alert on all build status changes, regardless of who was responsible for them
+- need function to assign a failing build to one or more people
+- ensure that build error change works, and that this is adequetyly warned for
+- unreal log parser needs to be able to catch "system" errors, build machine state errors, CIserver internal errors
+- add non-unique lookup indexes to cover all query fields in mongo
+- need function to wipe out all builds after a given build
 - port to typescipt, current complexity is unworking
 - change updates so we send only explicitly set properties back to db (instead of entire object)
 - routes should use logic layer instead of containing logic themselves

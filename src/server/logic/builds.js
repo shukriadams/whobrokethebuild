@@ -1,4 +1,4 @@
-let pluginsManager = require(_$+'helpers/pluginsManager'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
     Build = require(_$+'types/build')
 
 module.exports = {
@@ -30,8 +30,8 @@ module.exports = {
     },
 
     async create (){
-        const data = await pluginsManager.getExclusive('dataProvider')
-        let build = new Build()
+        const data = await pluginsManager.getExclusive('dataProvider'),
+            build = new Build()
         await data.insertBuild(build)
     }
 
