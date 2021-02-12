@@ -1,10 +1,11 @@
-const perforcehelper = require('madscience-perforcehelper'),
+let perforcehelper = require('madscience-perforcehelper'),
     settings = require(_$+'helpers/settings'),
     Revision = require(_$+'types/revision'),
     RevisionFile = require(_$+'types/revisionFile'),
     path = require('path'),
     fs = require('fs-extra'),
-    encryption = require(_$+'helpers/encryption')
+    encryption = require(_$+'helpers/encryption'),
+    isBusy
 
 module.exports = {
 
@@ -43,8 +44,15 @@ module.exports = {
         // assert vcServer.password
         // assert vcServer.username
         let password = await encryption.decrypt(vcServer.password),
-            rawDescribeText
+            rawDescribeText,
+            cachedPath = path.join(settings.dataFolder, 'wbtb-perforce', 'cache'),
+            itemPath = path.join(cachedPath, revision)
 
+        // lookup cache
+        await fs.ensureDir(cachedPath)
+        if (await fs.exists(itemPath))
+            return await fs.readJson(itemPath)
+        
         if (settings.sandboxMode){
             let mockRevisionFile = path.join(__dirname, `/mock/revisions/${revision}`)
             // if the revision we're looking for isn't mocked, fall back to generic
@@ -72,6 +80,7 @@ module.exports = {
             revisionFinal.files.push(revisionFile)
         }
 
+        await fs.outputJson(itemPath, revisionFinal, { spaces : 4 })
         return revisionFinal
     }
 }
