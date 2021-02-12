@@ -53,19 +53,19 @@ module.exports = {
                 url: settings.activeDirectoryUrl,
                 base: settings.activeDirectoryBase
             }),
-            response = await activeDirectory.loginUser(username, password),
             userId = null,
+            response = await activeDirectory.loginUser(username, password),
             result = response.success ? 
                 constants.LOGINRESULT_SUCCESS : 
                 constants.LOGINRESULT_INVALIDCREDENTIALS 
 
         if (response.success){
-            //get user via AD guid, then return id
-            const adUser = ActiveDirectory.createUserObj(response.entry),
-                user = await data.getByPublicId(adUser.guid, authMethod)
-                
+            const user = await data.getByPublicId(username, authMethod)
+
             if (user)
                 userId = user.id
+            else 
+                result = constants.LOGINRESULT_USERNOTMAPPED
         }
 
         return {
