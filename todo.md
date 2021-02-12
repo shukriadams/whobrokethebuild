@@ -11,3 +11,6 @@
 - recent builds order must be reversed to latest first
 - user recent builds has no placeholder text when no commits available
 - user recenty builds shoudld state that no builds can be shown if no mapping is available
+- do not parse error logs for builds that are not failing
+- change sort order of builds without delta to oldest first, this should speed up processing of concurrent builds
+- add link back to original CISysem to build pages

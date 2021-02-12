@@ -31,10 +31,9 @@ module.exports = function(app){
             // populate revision array (array of string ids) with revision objects from source control
             //
             for (let build of model.jobBuilds.items){
-                const
-                    revisions = [],
-                    job = await data.getJob(build.jobId, { expected : true}),
-                    vcServer = await data.getVCServer(job.VCServerId, { expected : true}),
+                const revisions = [],
+                    job = await data.getJob(build.jobId, { expected : true }),
+                    vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
                     vcsPlugin = await pluginsManager.get(vcServer.vcs)
 
                 for (let revision of build.revisions){
