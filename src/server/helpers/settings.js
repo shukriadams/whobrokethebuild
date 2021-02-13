@@ -22,6 +22,9 @@ let process = require('process'),
         // path will be created if it doesn't exist
         buildLogsDump : './data/buildLogs',
 
+        // set to false to bypass tests on start, this will greatly speed up app start, at the expense of checks. 
+        checkPluginsOnStart: true,
+
         // Number of builds back in time to import. Use this to throttle import when binding to existing jobs. global. Set per job to override
         historyLimit : null, 
         externalPluginsFolder : './server/plugins',

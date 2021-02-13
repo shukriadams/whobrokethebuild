@@ -2,7 +2,6 @@ let settings = require(_$+'helpers/settings'),
     path = require('path'),
     fs = require('fs-extra'),
     urljoin = require('urljoin'),
-    jsonfile = require('jsonfile'),
     Exception = require(_$+ 'types/exception'),
     process = require('process'),
     constants = require(_$+ 'types/constants'),
@@ -10,6 +9,7 @@ let settings = require(_$+'helpers/settings'),
     exec = require('madscience-node-exec'),
     hash = require(_$+'helpers/hash'),
     exclusiveCategories = ['dataProvider'],
+    sources = ['git','internal'],
     requiredCategories = ['dataProvider', 'authProvider'],
     pluginConfPath = path.join(settings.dataFolder, '.plugin.conf'),
     _pluginConf = {},
@@ -80,52 +80,73 @@ module.exports = {
 
 
     /**
-     * Ensures that all plugins are installed and up-to-date (git clone + npm install on all plugins). For a plugin to be 
-     * installed it must be flagged as active
+     * Copies internal plugins to standard plugin folder, this is necessary during early dev only when a lot of 
+     * standard plugins are shipped as part of the core project.
+     * 
+     * 
      */
-    async initializeAll(){
-        let 
-            sources = ['git','internal'], // removed npm as option as not yet implemented
-            // this is where plugins will normally be installed
-            externalPluginsFolder = './server/plugins',
-            // read the regular plugins list
-            pluginsConfigPath = './plugins.json'
+    async _copyInternalPlugins(pluginsConfig){
+        let errors = false
+        for (const pluginName in pluginsConfig){
+            const pluginConfig = pluginsConfig[pluginName]
 
-        if (!await fs.exists(pluginsConfigPath)){
-            __log.error(`ERROR - Expected plugins definition file ${path.resolve(pluginsConfigPath)} was not found. Please create this file and restart.`)
-            return process.exit(1)
-        }
-
-        let pluginsConfig = await fs.readJson(pluginsConfigPath)
-
-
-        // if a dev plugin list exists, load and merge that with the regular plugins list, let dev plugins override regular ones
-        if (await fs.pathExists('./plugins.local.json')){
-            const devPluginsConfig = await fs.readJson('./plugins.local.json')
-            pluginsConfig = Object.assign(pluginsConfig, devPluginsConfig)
-        }
-
-
-        // set plugin source to internal if no source defined
-        for (const plugin in pluginsConfig)
-            pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
-
-
-        // we always need an auth / users plugin, add fallback if none defined
-        pluginsConfig['wbtb-internalusers'] = pluginsConfig['wbtb-internalusers']|| { source : 'internal' }
-        __log.info(`Added fallback authProvider plugin wbtb-internalusers`)
-
-
-        // strip out all plugin config if explicitly disabled 
-        for (const pluginName in pluginsConfig)
-            if (pluginsConfig[pluginName].enabled === false){
-                delete pluginsConfig[pluginName]
-                __log.info(`Plugin "${pluginName}" is marked as disabled`)
+            //  
+            if (pluginConfig.source !== 'internal')
+                continue
+            
+            const sourceFolder = path.join('./server/plugins-internal', pluginName),
+                targetFolder = path.join('./server/plugins', pluginName)
+            
+            if (!await fs.pathExists(sourceFolder)){
+                __log.error(`internal plugin "${pluginName}" does not exist in internal plugin cache`)
+                errors = true
+                continue
             }
 
+            await copyDirectory(sourceFolder, targetFolder)
+        }
 
-        // validate plugin.json static config
+        if (errors){
+            __log.error('Plugin copy failed, shutting down')
+            process.exit(1)
+        }
+    },
+
+    async _generateRouteIndexData(allPlugins){
+        for (const plugin of allPlugins){
+            const description = plugin.__wbtb
+            if (!description)
+                throw `a plugin __wbtb is not set`
+           
+            if (description.hasUI && !description.name)
+                throw `plugin ${description.id} has a ui but no name` 
+
+            _pluginConf[description.id] ={ 
+                url : `/${urljoin(description.id)}/`,
+                hasUI : description.hasUI === true,
+                text : description.name
+            }
+        }
+    },
+
+    async _initializeAllPlugins(allPlugins){
+        for (const plugin of allPlugins){
+            if (plugin.initialize && typeof plugin.initialize === 'function'){
+                try {
+                    await plugin.initialize()
+                } catch (ex){
+                    __log.error(`Error trying to initialize plugin ${plugin.__wbtb} : `, ex)
+                }
+            }
+        }
+    },
+
+    /**
+     * Validates the contents of pluginconfig. Logs errors out. Shuts app down if validation fails.
+     */
+    async _ensurePluginsValid(pluginsConfig){
         let errors = false
+
         for (const pluginName in pluginsConfig){
             const pluginConfig = pluginsConfig[pluginName]
 
@@ -161,39 +182,19 @@ module.exports = {
             }
         }
 
-
-
         if (errors){
-            __log.error(`Setup errors were detected in plugins - Who Broke The Build cannot start`)
-            return process.exit(1)
+            __log.error('Plugin validation failed, shutting down')
+            process.exit(1)
         }
+    },
 
 
-        await fs.ensureDir(externalPluginsFolder)
+    /**
+     * 
+    */
+    async _setupAllPlugins(pluginsConfig){
+        let errors = true
 
-
-        // copy internal plugins
-        for (const pluginName in pluginsConfig){
-            const pluginConfig = pluginsConfig[pluginName]
-
-            //  
-            if (pluginConfig.source !== 'internal')
-                continue
-            
-            const sourceFolder = path.join('./server/plugins-internal', pluginName),
-                targetFolder = path.join('./server/plugins', pluginName)
-            
-            if (!await fs.pathExists(sourceFolder)){
-                __log.error(`internal plugin "${pluginName}" does not exist in internal plugin cache`)
-                errors = true
-                continue
-            }
-
-            await copyDirectory(sourceFolder, targetFolder)
-        }
-
-
-        // install all external plugins, npm install on all plugins
         for (const pluginName in pluginsConfig){
             let pluginConfig = pluginsConfig[pluginName],
                 pluginParentFolder = settings.bindInternalPlugins ? './server/plugins-internal' :  './server/plugins',
@@ -253,8 +254,6 @@ module.exports = {
                 packageHasErrors = true
             }
 
-            
-
             // npm install plugin if it hasn't yet been installed, or if plugin's package.json has changed
             if (!packageHasErrors){
                 const manifestHash = await hash.file(packageManifestPath)
@@ -274,6 +273,71 @@ module.exports = {
             await fs.outputJson(pluginInstallStatusPath, pluginInstallStatus)
 
         } // foreach plugin
+
+        if (errors){
+            __log.error('Plugin setup failed, shutting down')
+            process.exit(1)
+        }
+    },
+
+
+    /**
+     * Ensures that all plugins are installed and up-to-date (git clone + npm install on all plugins). For a plugin to be 
+     * installed it must be flagged as active
+     */
+    async initializeAll(){
+        // this is where plugins will normally be installed
+        let externalPluginsFolder = './server/plugins',
+            // read the regular plugins list
+            pluginsConfigPath = './plugins.json',
+            testAll = !!settings.checkPluginsOnStart
+
+        if (!await fs.exists(pluginsConfigPath)){
+            __log.error(`ERROR - Expected plugins definition file ${path.resolve(pluginsConfigPath)} was not found. Please create this file and restart.`)
+            return process.exit(1)
+        }
+
+        let pluginsConfig = await fs.readJson(pluginsConfigPath)
+
+        // if a dev plugin list exists, load and merge that with the regular plugins list, let dev plugins override regular ones
+        if (await fs.pathExists('./plugins.local.json')){
+            const devPluginsConfig = await fs.readJson('./plugins.local.json')
+            pluginsConfig = Object.assign(pluginsConfig, devPluginsConfig)
+        }
+
+
+        // set plugin source to internal if no source defined
+        for (const plugin in pluginsConfig)
+            pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
+
+
+        // we always need an auth / users plugin, add fallback if none defined
+        pluginsConfig['wbtb-internalusers'] = pluginsConfig['wbtb-internalusers']|| { source : 'internal' }
+        __log.info(`Added fallback authProvider plugin wbtb-internalusers`)
+
+
+        // strip out all plugin config if explicitly disabled 
+        for (const pluginName in pluginsConfig)
+            if (pluginsConfig[pluginName].enabled === false){
+                delete pluginsConfig[pluginName]
+                __log.info(`Plugin "${pluginName}" is marked as disabled`)
+            }
+
+
+        // validate plugin.json static config
+        let errors = false
+        if (testAll)
+            await this._ensurePluginsValid(pluginsConfig)
+
+        await fs.ensureDir(externalPluginsFolder)
+
+        // copy internal plugins
+        if (testAll)
+            await this._copyInternalPlugins(pluginsConfig)
+
+        // install all external plugins, npm install on all plugins
+        if (testAll)
+            await this._setupAllPlugins(pluginsConfig)
 
 
         const installedPluginFolders = await this.getPluginsFolders()
@@ -353,40 +417,15 @@ module.exports = {
             return process.exit(1)
         }
 
-
-        // generate UI route index file for all plugins which expose their own UIs
         const allPlugins = this.getAll()
 
-        for (const plugin of allPlugins){
-            const description = plugin.__wbtb
-            if (!description)
-                throw `a plugin __wbtb is not set`
-           
-            if (description.hasUI && !description.name)
-                throw `plugin ${description.id} has a ui but no name` 
-
-            _pluginConf[description.id] ={ 
-                url : `/${urljoin(description.id)}/`,
-                hasUI : description.hasUI === true,
-                text : description.name
-            }
-
-        }
+        // generate UI route index file for all plugins which expose their own UIs
+        await this._generateRouteIndexData(allPlugins)
 
         // initialize plugin
-        for (const plugin of allPlugins){
-            if (plugin.initialize && typeof plugin.initialize === 'function'){
-                try {
-                    await plugin.initialize()
-                } catch (ex){
-                    __log.error(`Error trying to initialize plugin ${plugin.__wbtb} : `, ex)
-                }
-            }
-        }
+        await this._initializeAllPlugins(allPlugins)
 
         await fs.outputJson(pluginConfPath, _pluginConf, { spaces : 4})
-
-
     },
 
 
