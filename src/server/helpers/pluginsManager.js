@@ -370,6 +370,18 @@ module.exports = {
                 hasUI : description.hasUI === true,
                 text : description.name
             }
+
+        }
+
+        // initialize plugin
+        for (const plugin of allPlugins){
+            if (plugin.initialize && typeof plugin.initialize === 'function'){
+                try {
+                    await plugin.initialize()
+                } catch (ex){
+                    __log.error(`Error trying to initialize plugin ${plugin.__wbtb} : `, ex)
+                }
+            }
         }
 
         await fs.outputJson(pluginConfPath, _pluginConf, { spaces : 4})
