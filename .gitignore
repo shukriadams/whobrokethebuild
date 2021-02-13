@@ -29,6 +29,7 @@ dev/pgadmin
 build/plugins
 src/server/plugins-internal/postgres.json
 src/server/plugins-internal/*.json
+src/server/plugins-internal
 src/.plugin.conf
 src/.env
 src/HIDE.env
@@ -49,3 +50,4 @@ build/node/.stage.tar.gz
 src/plugins.local.json
 __testing
 build/base/.stage.tar.gz
+src/server/plugins-internal/**/mock

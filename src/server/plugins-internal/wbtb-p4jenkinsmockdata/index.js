@@ -8,8 +8,8 @@ module.exports = {
         
         const path = require('path'),
             fs = require('fs-extra'),
-            jenkinsMockRoot = path.join(__dirname, '..', 'wbtb-jenkins', 'mock', 'lol_jobs'),
-            perforceMockRoot = path.join(__dirname, '..', 'wbtb-perforce', 'mock', 'lol_revisions')
+            jenkinsMockRoot = path.join(__dirname, '..', 'wbtb-jenkins', 'mock', 'jobs'),
+            perforceMockRoot = path.join(__dirname, '..', 'wbtb-perforce', 'mock', 'revisions')
 
         if (await fs.exists(jenkinsMockRoot))
             return
@@ -17,7 +17,7 @@ module.exports = {
         let { uniqueNamesGenerator } = require('unique-names-generator'),
             sample = require('lodash.sample'),
             timebelt = require('timebelt'),
-            jobsCount = 1,
+            jobsCount = 2,
             buildsPerJob = 10,
             minCommitsPerBuild = 0,
             maxCommitsPerBuild = 3,
@@ -28,15 +28,13 @@ module.exports = {
             users = await data.getAllUsers(),
             vsServers = await data.getAllVCServers(),
             jsonOptions = { spaces : 4 },
-            verbs = ['Call', 'Rage', 'Attack', 'Battle', 'War', 'Operation', 'Alliance'],
-            adverbs = ['in', 'of', 'from', 'with', 'against', 'between', 'among', 'despite'],
-            buzzwords =[
-                'Asssassin', 'Duty', 'Craft', 'Ninja', 'Royale', 'Unknown', 'Star', 'Alien', 'Zombie', 'Avenger',
-                'Modern', 'Shooter', 'Sniper', 'Survivor', 'Backops', 'Counter', 'Field', 'Arena', 'Cold', 'Universe', 'Sword', 'Legend',
-                'League', 'Orc', 'Ultra', 'Blood', 'Cop', 'Quest', 'Commando'
-            ],
+            verbs = ['Call', 'Rage', 'Attack', 'Battle', 'War', 'Operation', 'Alliance', 'League', 'Quest'],
+            adverbs = ['of', 'with', 'against', 'despite'],
+            adjectives = ['Modern', 'Crossover', 'Ultra', 'Commando', 'Farming', 'Blood', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Cyber', 'Orcish', 'Elvish', 'Feudal', 'Alien', 'Social', 'Insta', 'Star Battle', 'Unknownplayer', 'Backops', 'Counter'],
+            nouns =[ 'Ninja', 'Zombie', 'Avenger', 'Shooter', 'Sniper', 'Cop', 'Commando'],
+            nouns2 =[ 'Craft', 'Raider', 'Duty', 'Warfare', 'Arena', '- Battle Royale', 'Remastered', '4KHD' ],
             // Pass every username to the generator.
-            dictionaries = [verbs, adverbs, buzzwords, buzzwords, buzzwords],
+            dictionaries = [verbs, adverbs, adjectives, nouns, nouns2],
             // loop, generate unique job names
             jobNames = [...Array(jobsCount)].map(()=>
                 uniqueNamesGenerator({
@@ -136,9 +134,9 @@ module.exports = {
             // write build list for job
             await fs.outputJson(path.join(jenkinsMockRoot, jobName, 'builds.json'), {
                 _class : 'hudson.model.FreeStyleProject',
-                allBuilds : [...Array(buildsPerJob)].map((_ ,buildnumber) =>{
+                allBuilds : [...Array(buildsPerJob - 1)].map((_ ,buildnumber) =>{
                     // count backwards
-                    buildnumber = buildsPerJob - buildnumber
+                    buildnumber = buildsPerJob - buildnumber - 1
 
                     // count backwards an hour per build
                     buildTime = subtractHours(buildTime, 1)
