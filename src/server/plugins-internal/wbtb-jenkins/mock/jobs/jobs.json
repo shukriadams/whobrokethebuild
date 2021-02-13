@@ -1,25 +1,13 @@
 {
-    "_class" : "hudson.model.Hudson",
-    "jobs" : [
+    "_class": "hudson.model.Hudson",
+    "jobs": [
         {
-            "_class" : "hudson.model.FreeStyleProject",
-            "name" : "Call of Modern Shooter"
+            "_class": "hudson.model.FreeStyleProject",
+            "name": "Battle Against Universal Commando Duty"
         },
         {
-            "_class" : "hudson.model.FreeStyleProject",
-            "name" : "Ninja Sniper Survivor Royale"
-        },
-        {
-            "_class" : "hudson.model.FreeStyleProject",
-            "name" : "Playerknown Backops Counter Arena 14"
-        },
-        {
-            "_class" : "hudson.model.FreeStyleProject",
-            "name" : "Star Alien Battles"
-        },
-        {
-            "_class" : "hudson.model.FreeStyleProject",
-            "name" : "Zombie Avengers Universe"
+            "_class": "hudson.model.FreeStyleProject",
+            "name": "League Against Social Shooter - Battle Royale"
         }
     ]
 }
