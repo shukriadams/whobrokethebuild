@@ -57,7 +57,7 @@ module.exports = {
             let mockRevisionFile = path.join(__dirname, `/mock/revisions/${revision}`)
             // if the revision we're looking for isn't mocked, fall back to generic
             if (!await fs.exists(mockRevisionFile))
-                mockRevisionFile = path.join(__dirname, `/mock/revisions/generic`)
+                mockRevisionFile = path.join(__dirname, `/mock/generic`)
 
             rawDescribeText = await fs.readFile(mockRevisionFile, 'utf8')
         } else {
