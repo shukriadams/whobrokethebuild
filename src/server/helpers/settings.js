@@ -85,4 +85,8 @@ for (let property in settings){
         settings[property] = false
 }
 
+// fix things that are desperately broken
+// this must always be an int
+settings.standardPageSize = parseInt(settings.standardPageSize.toString())
+
 module.exports = settings

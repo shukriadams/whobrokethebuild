@@ -8,8 +8,8 @@
 
             <h2>{{user.name}}'s recent builds</h2>
             <ul class="list">
-                {{#if buildInvolvements}}
-                    {{#each buildInvolvements}}
+                {{#if buildInvolvements.items}}
+                    {{#each buildInvolvements.items}}
                         <li class="list-item card">
                             <div class="card-status card-status--{{statusTranslate __build.status}}"></div>
 
@@ -25,6 +25,8 @@
                     </p>
                 {{/if}}
             </ul>
+
+            {{{pager baseUrl buildInvolvements }}}
 
         </div>
     {{/content}}

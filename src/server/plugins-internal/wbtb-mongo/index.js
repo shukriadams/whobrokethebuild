@@ -381,9 +381,6 @@ module.exports = {
      * mongo can't page
      */
     async pageBuilds (jobId, index, pageSize){
-        // ensure pageSize is int, if string it will produce weird results
-        pageSize = parseInt(pageSize.toString())
-
         let items = await _mongo.find(constants.TABLENAME_BUILDS, 
             {
                 $and: [ 
@@ -395,11 +392,16 @@ module.exports = {
             }
         )
 
+        // calculate page count based on total nr of items returned
         let pages = Math.floor(items.length / pageSize)
         if (items.length % pageSize)
             pages ++
 
-        items = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), _normalizeBuild)
+        // take page
+        items = items.slice(index * pageSize, (index * pageSize) + pageSize)
+
+        items = _normalize(items, _normalizeBuild)
+
         return { items, pages} 
     },
 
@@ -502,7 +504,10 @@ module.exports = {
                         }
                     ]            
                 }
-            }
+            },
+            {
+                $sort: { 'started': 1 } // sort oldest first
+            },
 
         ), _normalizeBuild)
     },
@@ -619,6 +624,7 @@ module.exports = {
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, { }), _normalizeBuildInvolvement)
     },
 
+
     /** 
      * Gets build involvements for a given build and given revision
      */
@@ -631,11 +637,12 @@ module.exports = {
         }), _normalizeBuildInvolvement)
     },
 
+
     /**
      * Gets builds that a giver user has been mapped to
      */
-    async getBuildInvolvementByUserId (userId){
-        const buildInvolvements = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
+    async pageBuildInvolvementByUser (userId, index, pageSize){
+        let items = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
             {
                 "$lookup": {
                     "from": constants.TABLENAME_BUILDS,
@@ -657,11 +664,22 @@ module.exports = {
             }
         )
 
+        // calculate page count based on total nr of items returned
+        let pages = Math.floor(items.length / pageSize)
+        if (items.length % pageSize)
+            pages ++
+
         // flatten mongo join collection to single normalized build object
-        for (const buildInvolvement of buildInvolvements)
+        for (const buildInvolvement of items)
             buildInvolvement.__build = buildInvolvement.__build.length ? _normalizeBuild(buildInvolvement.__build[0]) : null
 
-        return _normalize(buildInvolvements, _normalizeBuildInvolvement)
+        // take page 
+        items = items.slice(index * pageSize, (index * pageSize) + pageSize)
+
+        // normalize
+        items = _normalize(items, _normalizeBuildInvolvement)
+
+        return { items, pages}
     },
 
     async getBuildInvolementsByBuild (buildId){
@@ -724,8 +742,6 @@ module.exports = {
     }, 
 
     async pageContactLogs (index, pageSize){
-        pageSize = parseInt(pageSize.toString())
-        
         const items = await _mongo.find(constants.TABLENAME_CONTACTLOGS, 
             {
 

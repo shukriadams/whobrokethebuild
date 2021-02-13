@@ -9,8 +9,6 @@
             </a>
         {{/if}}
 
-        {{{pager ../job.__baseUrl jobBuilds }}}
-
         <ul class="list job-buildsList">
             {{#if jobBuilds.items}}
                 {{#each jobBuilds.items}}
@@ -55,6 +53,8 @@
             {{/if}}
 
         </ul>
+
+        {{{pager baseUrl jobBuilds }}}
 
     {{/content}}
 {{/extend}}
