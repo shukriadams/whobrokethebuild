@@ -2,14 +2,19 @@ const pluginsManager = require(_$+'helpers/pluginsManager'),
     appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
     jobLogic = require(_$+'logic/job'),
     handlebars = require(_$+'helpers/handlebars'),
+    sessionHelper = require(_$+'helpers/session'), 
     errorHandler = require(_$+'helpers/errorHandler')
 
 module.exports = function(app){
 
     app.get('/settings/job/:id?', async function(req, res){
         try {
-            const 
-                view = await handlebars.getView('settings/job'),
+            
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+            const view = await handlebars.getView('settings/job'),
                 model = { },
                 data = await pluginsManager.getExclusive('dataProvider')
 
@@ -44,6 +49,10 @@ module.exports = function(app){
      */
     app.post('/settings/job', async function(req, res){
         try {
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
             let jobId = req.body.id
             if (req.body.id)
                  await jobLogic.update(req.body)

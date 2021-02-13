@@ -11,7 +11,7 @@ module.exports = function(app){
         try {
             await jobLogic.delete(req.params.id)
             res.json({})
-        }catch(ex){
+        } catch(ex) {
             errorHandler(res, ex)
         }
     })

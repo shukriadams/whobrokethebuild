@@ -1,5 +1,6 @@
 let appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
+    sessionHelper = require(_$+'helpers/session'), 
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars'),
     daemonManager = require(_$+'daemon/manager'),
@@ -9,6 +10,10 @@ let appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
 module.exports = function(app){
     app.get('/settings/system/daemon/stop', async (req, res)=>{
         try {
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
             daemonManager.stopAll()
             res.redirect('/settings/system')
         } catch (ex) {
@@ -18,6 +23,11 @@ module.exports = function(app){
 
     app.get('/settings/system/daemon/start', async (req, res)=>{
         try {
+
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+            
             daemonManager.startAll()
             res.redirect('/settings/system')
         } catch (ex) {
@@ -28,6 +38,11 @@ module.exports = function(app){
 
     app.delete('/settings/system/builds', async (req, res)=>{
         try {
+
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
             await dataHelper.deleteAllBuilds()
             res.end('builds cleared1')
         } catch (ex) {
@@ -38,6 +53,10 @@ module.exports = function(app){
 
     app.get('/settings/system', async function(req, res){
         try {
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
             const view = await handlebars.getView('settings/system'),
                 data = await pluginsManager.getExclusive('dataProvider'),
                 model = {

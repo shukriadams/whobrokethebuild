@@ -1,13 +1,19 @@
 const appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     ciServerLogic = require(_$+'logic/CIServer'),
+    sessionHelper = require(_$+'helpers/session'), 
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars')
 
 module.exports = app => {
-
     app.get('/settings/ciserver/:id?', async (req, res) =>{
         try {
+
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+
             const view = await handlebars.getView('settings/ciserver'),
                 model = { },
                 data = await pluginsManager.getExclusive('dataProvider')
@@ -70,6 +76,13 @@ module.exports = app => {
 
     app.delete('/settings/ciserver/:id', async (req, res) =>{
         try {
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+                        
+            await sessionHelper.ensureRole(req, 'admin')
+
             const id = req.params.id,
                 data = await pluginsManager.getExclusive('dataProvider')
 
@@ -85,6 +98,12 @@ module.exports = app => {
 
     app.post('/settings/ciserver', async function(req, res){
         try {
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+            await sessionHelper.ensureRole(req, 'admin')
+
             if (req.body.id)
                 await ciServerLogic.update(req.body)
             else    

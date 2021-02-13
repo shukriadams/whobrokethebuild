@@ -2,14 +2,18 @@ const appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     vcServerLogic = require(_$+'logic/VCServer'),
     errorHandler = require(_$+'helpers/errorHandler'),
+    sessionHelper = require(_$+'helpers/session'), 
     handlebars = require(_$+'helpers/handlebars')
 
 module.exports = function(app){
 
     app.get('/settings/vcserver/:id?', async (req, res)=>{
         try {
-            const 
-                view = await handlebars.getView('settings/vcserver'),
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+            const view = await handlebars.getView('settings/vcserver'),
                 model = { },
                 data = await pluginsManager.getExclusive('dataProvider')
 
@@ -29,6 +33,10 @@ module.exports = function(app){
 
     app.post('/settings/vcserver', async (req, res)=>{
         try {
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
             if (req.body.id)
                 await vcServerLogic.update(req.body)
             else    
