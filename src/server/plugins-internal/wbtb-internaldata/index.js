@@ -296,7 +296,7 @@ module.exports = {
     /**
      * Gets builds that a giver user has been mapped to
      */
-    getBuildInvolvementByUserId : async userId =>{
+    pageBuildInvolvementByUser : async userId =>{
         return null
     },
 

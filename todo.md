@@ -1,3 +1,4 @@
+- improve startup time
 - need "watcher" - alert on all build status changes, regardless of who was responsible for them
 - need function to assign a failing build to one or more people
 - ensure that build error change works, and that this is adequetyly warned for

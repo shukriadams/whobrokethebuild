@@ -14,7 +14,7 @@ module.exports = function(app){
                 }
 
             // gets builds user was involved in
-            model.buildInvolvements = await data.getBuildInvolvementByUserId(req.params.user)
+            model.buildInvolvements = await data.pageBuildInvolvementByUser(req.params.user)
 
             // expand related objects
             for (const buildInvolvement of model.buildInvolvements){

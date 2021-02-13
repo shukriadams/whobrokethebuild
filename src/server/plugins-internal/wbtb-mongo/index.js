@@ -381,10 +381,13 @@ module.exports = {
      * mongo can't page
      */
     async pageBuilds (jobId, index, pageSize){
+        // ensure pageSize is int, if string it will produce weird results
+        pageSize = parseInt(pageSize.toString())
+
         let items = await _mongo.find(constants.TABLENAME_BUILDS, 
             {
                 $and: [ 
-                    {'jobId' :{ $eq : new ObjectID(jobId) } }
+                    { jobId : { $eq : new ObjectID(jobId) } }
                 ]
             },
             {
@@ -721,6 +724,8 @@ module.exports = {
     }, 
 
     async pageContactLogs (index, pageSize){
+        pageSize = parseInt(pageSize.toString())
+        
         const items = await _mongo.find(constants.TABLENAME_CONTACTLOGS, 
             {
 
