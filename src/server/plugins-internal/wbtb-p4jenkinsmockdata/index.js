@@ -17,8 +17,8 @@ module.exports = {
         let { uniqueNamesGenerator } = require('unique-names-generator'),
             sample = require('lodash.sample'),
             timebelt = require('timebelt'),
-            jobsCount = 2,
-            buildsPerJob = 10,
+            jobsCount = 20,
+            buildsPerJob = 50,
             minCommitsPerBuild = 0,
             maxCommitsPerBuild = 3,
             maxLogLines = 1000,
@@ -29,10 +29,10 @@ module.exports = {
             vsServers = await data.getAllVCServers(),
             jsonOptions = { spaces : 4 },
             verbs = ['Call', 'Rage', 'Attack', 'Battle', 'War', 'Operation', 'Alliance', 'League', 'Quest'],
-            adverbs = ['of', 'in', 'with', 'against the', 'despite'],
-            adjectives = ['Modern', 'Crossover', 'Ultra', 'Perkele', 'Farm', 'Euro', 'Commando', 'Farming', 'Blood', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Cyber', 'Orcish', 'Elvish', 'Feudal', 'Alien', 'Social', 'Insta', 'Star Battle', 'Unknownplayer', 'Backops', 'Counter'],
-            nouns =[ 'Ninja', 'Zombie', 'Avenger', 'Justice', 'Assassins', 'Shooter', 'Sniper', 'Cop', 'Commando'],
-            nouns2 =[ 'Simulator', 'Craft', 'Raider', 'Duty', 'Warfare', 'Arena', '- Battle Royale', 'Remastered', '4KHD' ],
+            adverbs = ['of', 'in', 'with', 'against the', 'inspite of'],
+            adjectives = ['Modern', 'Crossover', 'Ultra', 'Perkele', 'Dashing', 'Awkward', 'Farming', 'Euro', 'Commando', 'Farming', 'Blood', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Cyber', 'Orcish', 'Elvish', 'Feudal', 'Alien', 'Social', 'Insta', 'Star Battle', 'Unknownplayer', 'Backops', 'Counter'],
+            nouns = [ 'Ninja', 'Zombie', 'Avenger', 'Justice', 'Assassins', 'Shooter', 'Sniper', 'Cop', 'Commando'],
+            nouns2 = [ 'Simulator', 'Craft', 'Raider', 'Duty', 'Warfare', 'Arena', '- Battle Royale', 'Remastered', '4KHD' ],
             // Pass every username to the generator.
             dictionaries = [verbs, adverbs, adjectives, nouns, nouns2],
             // loop, generate unique job names
@@ -45,7 +45,7 @@ module.exports = {
                 })
             )
         
-        __log.warn('Generating mock data for Jenkins, this can take a while ...')
+        __log.warn('Generating mock data for Jenkins and Perforce, this can take a while ...')
         
         // work out which users are bound to perforce, we'll create commits for those
         const perforceUserNames = []
@@ -148,12 +148,12 @@ module.exports = {
 
                     return {
                         _class : 'hudson.model.FreeStyleBuild',
-                        duration : 0,
+                        duration : Math.floor(Math.random() * 10000) + 100,
                         fullDisplayName : `${jobName} #${buildnumber}`,
                         id : buildnumber.toString(),
                         number : buildnumber,
                         result,
-                        builtOn : 'Agent1',
+                        builtOn : sample(['Agent1', 'Agent2', 'Agent3']),
                         timestamp : buildTime.getTime()
                     }
                 })   
