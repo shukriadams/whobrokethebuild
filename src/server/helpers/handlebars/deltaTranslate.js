@@ -10,19 +10,19 @@ module.exports = Handlebars => {
             }
 
             case constants.BUILDDELTA_FIX : {
-                return 'fixed the build'
+                return 'fixed build'
             }
 
             case constants.BUILDDELTA_CAUSEBREAK : {
-                return 'broke the build'
+                return 'broke build'
             }
 
             case constants.BUILDDELTA_CONTINUEBREAK : {
-                return 'build already broken'
+                return 'already broken'
             }
 
             case constants.BUILDDELTA_CHANGEBREAK : {
-                return 'made a broken build worse'
+                return 'changed break'
             }
 
             default : {

@@ -3,9 +3,11 @@
     padding: 0;
     margin: 0;
     height: 32px;
+    white-space:nowrap;
 }
 
 .horizontalMenu-item {
-    float: left;
+    
     padding: var(--universalPadding) var(--universalPadding) var(--universalPadding) 0;
+    display: inline-block; // prevent break/wrapping of menu when parent container is too small
 }

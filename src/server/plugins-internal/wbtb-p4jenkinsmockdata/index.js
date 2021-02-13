@@ -29,10 +29,10 @@ module.exports = {
             vsServers = await data.getAllVCServers(),
             jsonOptions = { spaces : 4 },
             verbs = ['Call', 'Rage', 'Attack', 'Battle', 'War', 'Operation', 'Alliance', 'League', 'Quest'],
-            adverbs = ['of', 'with', 'against', 'despite'],
-            adjectives = ['Modern', 'Crossover', 'Ultra', 'Commando', 'Farming', 'Blood', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Cyber', 'Orcish', 'Elvish', 'Feudal', 'Alien', 'Social', 'Insta', 'Star Battle', 'Unknownplayer', 'Backops', 'Counter'],
-            nouns =[ 'Ninja', 'Zombie', 'Avenger', 'Shooter', 'Sniper', 'Cop', 'Commando'],
-            nouns2 =[ 'Craft', 'Raider', 'Duty', 'Warfare', 'Arena', '- Battle Royale', 'Remastered', '4KHD' ],
+            adverbs = ['of', 'in', 'with', 'against the', 'despite'],
+            adjectives = ['Modern', 'Crossover', 'Ultra', 'Perkele', 'Farm', 'Euro', 'Commando', 'Farming', 'Blood', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Cyber', 'Orcish', 'Elvish', 'Feudal', 'Alien', 'Social', 'Insta', 'Star Battle', 'Unknownplayer', 'Backops', 'Counter'],
+            nouns =[ 'Ninja', 'Zombie', 'Avenger', 'Justice', 'Assassins', 'Shooter', 'Sniper', 'Cop', 'Commando'],
+            nouns2 =[ 'Simulator', 'Craft', 'Raider', 'Duty', 'Warfare', 'Arena', '- Battle Royale', 'Remastered', '4KHD' ],
             // Pass every username to the generator.
             dictionaries = [verbs, adverbs, adjectives, nouns, nouns2],
             // loop, generate unique job names
