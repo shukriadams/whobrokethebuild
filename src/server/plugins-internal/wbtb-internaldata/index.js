@@ -53,12 +53,11 @@ async function writeRecord(table, record){
  */
 module.exports = {
     
-    initialize : async function(){
+    async initialize(){
         
     },
-    
 
-    validateSettings: async () => {
+    async validateSettings(){
         return true
     },
 
@@ -66,46 +65,46 @@ module.exports = {
     /****************************************************
      * USERS
      ****************************************************/
-    getByPublicId : async (publicId, options)=>{
+    async getByPublicId(publicId, options){
         return await loadByInternalProperty(constants.TABLENAME_USERS, 'publicId', publicId,  options)
     },
 
-    getAllUsers : async () => {
+    async getAllUsers(){
         return []
     },
 
-    removeUser : async id => {
+    async removeUser(id){
 
     },
 
-    insertUser : async user =>{
+    async insertUser(user){
         return await writeRecord(constants.TABLENAME_USERS, user)
     },
     
-    updateUser : async user => {
+    async updateUser(user){
         return await writeRecord(constants.TABLENAME_USERS, user)
     },
 
-    getUser : async (id, options = {}) => {
+    async getUser(id, options = {}){
         return await loadById(constants.TABLENAME_USERS, id, options)
     },
 
-    getUserByExternalName : async (VCServerId, externalName) => {
+    async getUserByExternalName(VCServerId, externalName){
         return null
     },
 
     /****************************************************
      * SESSION
      ****************************************************/
-    insertSession : async session =>{
+    async insertSession(session){
         return await writeRecord(constants.TABLENAME_SESSIONS, session)
     },
 
-    getSession: async (id, options) =>{
+    async getSession(id, options){
         return await loadById(constants.TABLENAME_SESSIONS, id, options)
     },
 
-    removeSession : async id => {
+    async removeSession(id){
 
     },
 
@@ -113,25 +112,25 @@ module.exports = {
     /****************************************************
      * CIServer
      ****************************************************/
-    insertCIServer : async server => {
+    async insertCIServer(server){
         return { id : '' }
     },
     
-    getCIServer: async (id, options = {}) => {
+    async getCIServer(id, options = {}){
         if (options.expected)
             throw `Expected record id ${id} from table "${constants.TABLENAME_CISERVERS}" not found`
         return null
     },
     
-    getAllCIServers: async () => {
+    async getAllCIServers(){
         return []
     },
 
-    updateCIServer : async server => {
+    async updateCIServer(server){
         
     },
 
-    removeCIServer : async id => {
+    async removeCIServer(id){
         
     },
 
@@ -139,29 +138,29 @@ module.exports = {
     /****************************************************
      * JOBS
      ****************************************************/
-    insertJob : async job => {
+    async insertJob(job){
         return { id : '' }
     },
 
-    getJob : async (id, options = {}) => {
+    async getJob(id, options = {}){
         if (options.expected)
             throw `Expected record id ${id} from table "${constants.TABLENAME_JOBS}" not found`
         return null
     },
 
-    getAllJobs : async () => {
+    async getAllJobs(){
         return []
     },
 
-    getAllJobsByCIServer : async (ciserverId)=>{
+    async getAllJobsByCIServer(ciserverId){
         return []
     },
 
-    updateJob : async job => {
+    async updateJob(job){
         
     },
 
-    removeJob : async id => {
+    async removeJob(id){
         
     },
 
@@ -169,25 +168,25 @@ module.exports = {
     /****************************************************
      * VCServer
      ****************************************************/
-    insertVCServer : async server => {
+    async insertVCServer(server){
         return { id : '' }
     },
     
-    getAllVCServers: async () => {
+    async getAllVCServers(){
         return []
     },
     
-    getVCServer: async (id, options = {}) =>{
+    async getVCServer(id, options = {}){
         if (options.expected)
             throw `Expected record id ${id} from table "${constants.TABLENAME_VCSERVERS}" not found`
         return null
     },
 
-    updateVCServer : async server => {
+    async updateVCServer(server){
         
     },
 
-    removeVCServer : async id => {
+    async removeVCServer(id){
         
     },
 
@@ -195,21 +194,21 @@ module.exports = {
     /****************************************************
      * Build
      ****************************************************/
-    insertBuild : async build => {
+    async insertBuild(build){
         return { id : '' }
     },
 
-    getAllBuilds () {
+    getAllBuilds() {
         return []
     },
 
-    getBuild : async (id, options = {}) =>{
+    async getBuild(id, options = {}){
         if (options.expected)
             throw `Expected record id ${id} from table "${constants.TABLENAME_BUILDS}" not found`
         return null
     },
 
-    getLatestBuild: async jobId => {
+    async getLatestBuild(jobId){
         return null
     },
     
@@ -218,7 +217,7 @@ module.exports = {
      * Pages through builds. Note that this is inefficient as it pages in server memory instead of in mongo, but oh yeah,
      * mongo can't page
      */
-    pageBuilds : async()=>{
+    async pageBuilds(){
         return { items : [], pages : 0 } 
     },
 
@@ -227,17 +226,17 @@ module.exports = {
     /**
      * 
      */
-    getBuildByExternalId: async (jobId, build, options = {}) =>{
+    async getBuildByExternalId (jobId, build, options = {}){
         if (options.expected)
             throw `Expected record id ${id} from table "${constants.TABLENAME_BUILDS}" not found`
         return null
     },
 
-    updateBuild : async build => {
+    async updateBuild(build){
 
     },
 
-    removeBuild : async id => {
+    async removeBuild(id){
         
     },
 
@@ -248,7 +247,7 @@ module.exports = {
     /**
      * Gets finished builds with no delta, but also the last build with a delta to server as delta start
      */
-    getBuildsWithNoDelta: async()=>{
+    async getBuildsWithNoDelta(){
         return []
     },
 
@@ -262,18 +261,18 @@ module.exports = {
      * This works by finding the last known passing build in the job, and then takes the earliest _subsequent_ build which
      * failed.
     */
-    getCurrentlyBreakingBuild : async jobId =>{
+    async getCurrentlyBreakingBuild(jobId){
         return null
     },
 
      /****************************************************
      * Build Involvement
      ****************************************************/
-    getUnmappedBuildInvolvements : async()=> {
+    async getUnmappedBuildInvolvements(){
         return []
     },
 
-    insertBuildInvolvement : async record => {
+    async insertBuildInvolvement(record){
         return { id : '' }
     },
     
@@ -281,7 +280,7 @@ module.exports = {
 
     },
 
-    updateBuildInvolvement : async record => {
+    async updateBuildInvolvement(record){
         
     },
     
@@ -289,52 +288,51 @@ module.exports = {
         return null
     },
 
-    getBuildInvolvementByRevision : async (buildId, externalUsername)=>{
+    async getBuildInvolvementByRevision(buildId, externalUsername){
         return null
     },
 
     /**
      * Gets builds that a giver user has been mapped to
      */
-    pageBuildInvolvementByUser : async userId =>{
+    async pageBuildInvolvementByUser(userId){
         return null
     },
 
-    getBuildInvolementsByBuild: async (buildId)=>{
+    async getBuildInvolementsByBuild(buildId){
         return []
     },
 
-    getBuildInvolvementsWithoutRevisionObjects(){
+    async getBuildInvolvementsWithoutRevisionObjects(){
         return []
     },
 
     /****************************************************
      * Contact log
      ****************************************************/
-    insertContactLog : async contactLog => {
+    async insertContactLog(contactLog){
         return { id : '' }
     }, 
     
-    getContactLog : async (id, options = {}) => {
+    async getContactLog(id, options = {}){
         if (options.expected)
             throw `Expected record id ${id} from table "${constants.TABLENAME_CONTACTLOGS}" not found`
         return null
     },
 
-    getContactLogByContext : async (receiverContext, type, eventContext) => {
+    async getContactLogByContext(receiverContext, type, eventContext){
         return null
     }, 
 
-    pageContactLogs : async(index, pageSize)=>{
-        
+    async pageContactLogs(index, pageSize){
         return { items :[], pages : 0}
     },
 
-    updateContactLog : async contactLog => {
+    async updateContactLog(contactLog){
         
     },
 
-    clearContactLog : async beforeDate => {
+    async clearContactLog(beforeDate){
         
     },
 
@@ -342,23 +340,23 @@ module.exports = {
     /****************************************************
      * Plugin settings
      ****************************************************/
-    insertPluginSetting : async setting => {
+    async insertPluginSetting(setting){
         return { id : '' }
     }, 
 
-    updatePluginSetting : async setting => {
+    async updatePluginSetting(setting){
 
     }, 
 
-    getPluginSetting : async (plugin, name) => {
+    async getPluginSetting(plugin, name){
         return null
     }, 
 
-    getPluginSettings : async (plugin) => {
+    async getPluginSettings(plugin){
         return []
     }, 
 
-    removePluginSettings : async plugin => {
+    async removePluginSettings(plugin){
 
     },
 

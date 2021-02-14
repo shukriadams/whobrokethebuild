@@ -3,11 +3,11 @@ let Socketio = require('socket.io'),
 
 module.exports = {
 
-    initialize : function(express){
+    initialize(express){
         socket = Socketio.listen(express)
     },
 
-    get : function(){
+    get(){
         return socket;
     }
 }

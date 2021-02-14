@@ -9,7 +9,7 @@ let perforcehelper = require('madscience-perforcehelper'),
 
 module.exports = {
 
-    validateSettings: async () => {
+    async validateSettings(){
         return true
     },
 

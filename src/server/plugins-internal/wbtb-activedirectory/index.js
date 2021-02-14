@@ -12,7 +12,7 @@ module.exports = {
     /**
      * gets an array of user objects from remote active directory
      */
-    getAllRemoteUsers : async () => {
+    async getAllRemoteUsers(){
         const ActiveDirectory = settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
             data = await pluginsManager.getExclusive('dataProvider'),
             activeDirectory = new ActiveDirectory({
@@ -46,7 +46,7 @@ module.exports = {
     },
 
 
-    processLoginRequest : async (username, password) => {
+    async processLoginRequest(username, password){
         let ActiveDirectory = settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
             data = await pluginsManager.getExclusive('dataProvider'),
             activeDirectory = new ActiveDirectory({
@@ -75,7 +75,7 @@ module.exports = {
     },
     
 
-    validateSettings : async ()=>{
+    async validateSettings(){
         return new Promise((resolve, reject)=>{
             try{
                 if (!settings.activeDirectoryUrl)

@@ -9,7 +9,7 @@ const exec = require('madscience-node-exec'),
 
 module.exports = {
     
-    validateSettings: async () => {
+    async validateSettings (){
         // check if svn is installed locally, we need this for talking to remote server
         try {
             await exec.sh({ cmd : `svn help`})

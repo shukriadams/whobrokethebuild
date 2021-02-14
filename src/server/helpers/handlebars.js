@@ -20,7 +20,7 @@ Handlebars.registerHelper(layouts(Handlebars))
 
 module.exports = {
 
-    getView: async page => {
+    async getView(page){
 
         if (!pages || settings.forceReloadViews){
 

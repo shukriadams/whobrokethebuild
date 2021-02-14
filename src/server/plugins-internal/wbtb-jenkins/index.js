@@ -13,7 +13,7 @@ const pluginsHelper = require(_$+'helpers/pluginsManager'),
 module.exports = {
     
 
-    validateSettings: async () => {
+    async validateSettings(){
         return true
     },
 
@@ -45,7 +45,7 @@ module.exports = {
     /**
      * 
      */
-    downloadBuildLog : async (baseUrl, jobName, buildNumber)=>{
+    async downloadBuildLog(baseUrl, jobName, buildNumber){
 
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
@@ -65,7 +65,7 @@ module.exports = {
     /**
      * Gets a list of all jobs on remote server, list is an array of strings
      */
-    getJobs : async(baseUrl)=>{
+    async getJobs(baseUrl){
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
@@ -94,7 +94,7 @@ module.exports = {
     /**
      * Gets an array of commit ids involved in a build. If the build has no commits, it was triggered manually.
      */
-    getBuildCommits : async(baseUrl, jobName, buildNumber)=>{
+    async getBuildCommits(baseUrl, jobName, buildNumber){
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
