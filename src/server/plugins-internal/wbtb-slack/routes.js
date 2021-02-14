@@ -28,6 +28,7 @@ module.exports = app => {
                 }
 
             model.jobs = await data.getAllJobs()
+
             // collapse contactMethod to only this plugin's data
             for (let job of model.jobs)
                 job.__contactMethod = job.contactMethods[thisType]
@@ -90,14 +91,14 @@ module.exports = app => {
             
             const view = await handlebars.getView('wbtb-slack/views/user'),
                 data = await pluginsManager.getExclusive('dataProvider'),
-                user = await data.getUser(req.params.userId, {expected : true}),
+                user = await data.getUser(req.params.userId, { expected : true }),
                 model = {
                     wbtbSlack : { 
                         user
                     }
                 }
 
-            model.wbtbSlack.slackId = user.contactMethods[thisType] ? user.contactMethods[thisType].slackId : null
+            model.wbtbSlack.slackId = user.pluginSettings[thisType] ? user.pluginSettings[thisType].slackId : null
 
             await viewModelHelper.userSettings(model, req, req.params.userId)
 
@@ -120,9 +121,9 @@ module.exports = app => {
 
             const data = await pluginsManager.getExclusive('dataProvider'),
                 user = await data.getUser(req.params.userId, {expected : true}),
-                contactMethod = user.contactMethods[thisType] || {}
+                contactMethod = user.pluginSettings[thisType] || {}
 
-            user.contactMethods[thisType] = contactMethod
+            user.pluginSettings[thisType] = contactMethod
             contactMethod.slackId = req.body.slackId
             await data.updateUser(user)
 

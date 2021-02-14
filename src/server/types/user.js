@@ -7,7 +7,7 @@
  * @property {boolean} isAuthApproved if true, an admin has approved user for authentication
  * @property {Array<import("./avatar").Avatar>} avatars 
  * @property {Array<string>} roles Use these to flag user for rolls.
- * @property {import("./contactMethod").ContactMethod} contactMethods hashtable of ContactMethod objects
+ * @property {import("./contactMethod").ContactMethod} pluginSettings hashtable of ContactMethod objects
  * @property {Array<object>} externalIds Array of UserMapping objects
  * @property {string} authMethod Identifier for auth method.
  * @property {object} authData Auth object(?)
@@ -23,7 +23,7 @@ module.exports = class User {
         this.isAuthApproved = false
         this.avatars = []
         this.roles = []
-        this.contactMethods = {}
+        this.pluginSettings = {}
         this.externalIds = []
         this.authMethod = null
         this.authData = null

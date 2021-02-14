@@ -182,7 +182,7 @@ module.exports = {
                    }
             }
 
-        const targetSlackId = settings.slackOverrideUserId || user.contactMethods[thisType].slackId
+        const targetSlackId = settings.slackOverrideUserId || (user.pluginSettings[thisType] && user.pluginSettings[thisType].slackId)
         if (settings.slackOverrideUserId)
             __log.info(`slackOverrideUserId set, diverting post to meant for user slackid ${user.id} to override user id ${settings.slackOverrideUserId}`)
 

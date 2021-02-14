@@ -33,14 +33,17 @@ module.exports = class AlertBuildBreaker extends BaseDaemon {
                         continue
                     }
     
-                    for (const contactMethod in user.contactMethods){
-                        const contactPlugin = await pluginsManager.get(contactMethod)
-                        if (!contactPlugin){
-                            __log.warn(`WARNING - expected plugin ${contactPlugin.type} not found`)
+                    for (const pluginName in user.pluginSettings){
+                        const plugin = await pluginsManager.get(pluginName)
+                        if (!plugin){
+                            __log.warn(`WARNING - expected plugin ${pluginName} not found`)
                             continue
                         }
-                        
-                        await contactPlugin.alertUser(user, breakingBuild)
+
+                        if (plugin.__wbtb.category !== 'contactMethod')
+                            continue
+
+                        await plugin.alertUser(user, breakingBuild)
                     }
                 }
             } catch (ex) {
