@@ -1,4 +1,4 @@
-const appendCommonViewModel = require(_$+'helpers/appendCommonViewModel'),
+const viewModelHelper = require(_$+'helpers/viewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
     logHelper = require(_$+'helpers/log'),
@@ -30,7 +30,7 @@ module.exports = function(app){
                 }
 
             model.log = await logHelper.parseFromFile(build.logPath, job.logParser)
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
         } catch(ex) {
             errorHandler(res, ex)
@@ -74,7 +74,7 @@ module.exports = function(app){
                 model.isLogParsed = true
             }
 
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
 
         } catch(ex){

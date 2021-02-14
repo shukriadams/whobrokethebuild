@@ -1,4 +1,4 @@
-const appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
+const viewModelHelper = require(_$+'helpers/viewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     ciServerLogic = require(_$+'logic/CIServer'),
     sessionHelper = require(_$+'helpers/session'), 
@@ -66,7 +66,7 @@ module.exports = app => {
                 })
             }
 
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
 
         } catch(ex){

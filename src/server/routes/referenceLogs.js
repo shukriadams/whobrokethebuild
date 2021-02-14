@@ -1,5 +1,5 @@
 const errorHandler = require(_$+'helpers/errorHandler'),
-    appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
     faultHelper = require(_$+ 'helpers/fault'),
     handlebars = require(_$+ 'helpers/handlebars')
 
@@ -17,7 +17,7 @@ module.exports = function(app){
 
             model.referenceLogs = await referenceLogsHelper.list()
 
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
 
         } catch(ex){
@@ -75,7 +75,7 @@ module.exports = function(app){
 
             model.id = req.params.id
 
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
 
         } catch(ex){

@@ -1,5 +1,5 @@
 const settings = require(_$+ 'helpers/settings'),
-    appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
     fs = require('fs-extra'),
     fsUtils = require('madscience-fsUtils'),
     errorHandler = require(_$+'helpers/errorHandler'),
@@ -31,7 +31,7 @@ module.exports = function(app){
                 }
             }
             
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
 
         } catch(ex){

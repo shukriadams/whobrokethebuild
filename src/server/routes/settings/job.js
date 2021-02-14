@@ -1,5 +1,5 @@
 const pluginsManager = require(_$+'helpers/pluginsManager'),
-    appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
     jobLogic = require(_$+'logic/job'),
     handlebars = require(_$+'helpers/handlebars'),
     sessionHelper = require(_$+'helpers/session'), 
@@ -35,7 +35,7 @@ module.exports = function(app){
                     isPublic : true
                 }
 
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
 
         } catch(ex){

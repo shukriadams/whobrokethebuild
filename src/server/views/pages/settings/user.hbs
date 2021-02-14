@@ -1,10 +1,9 @@
-{{#extend "layout"}}
-    {{#content "body"}}
+{{#extend "layout_userSettings"}}
+    {{#content "settingsBody"}}
 
         <div class="userSettings">
-            <h1>{{user.name}} Settings</h1>
 
-            <h2>Contact methods</h2>
+            <h2>Plugins</h2>
             <ul class="list">
                 {{#if contactMethods}}
                     {{#each contactMethods}}
@@ -17,7 +16,7 @@
                 {{/if}}
             </ul>
 
-            <h2>Mapping</h2>
+            <h2>Source Control Mapping</h2>
             <p>
                 Add {{user.name}}'s user ID on version control systems
             </p>
@@ -27,9 +26,7 @@
                     {{#each user.userMappings}}
                         <li class="list-item list-item--textContent userSettings-vcServerBinding">
                             <div>
-                                <div>
-                                    {{vcServer.name}}
-                                </div>
+                                <h3>{{vcServer.name}}</h3>
                                 <input class="userSettings-vcServerBindingName" value="{{name}}" data-vcServerId="{{vcServer.id}}" type="text" />
                             </div>
                         </li>

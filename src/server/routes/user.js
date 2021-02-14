@@ -1,6 +1,6 @@
 const pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
-    appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){
@@ -27,7 +27,7 @@ module.exports = function(app){
                 buildInvolvement.__build.__job = await data.getJob(buildInvolvement.__build.jobId)
             }
 
-            await appendCommonViewModel(model, req, req.params.user)
+            await viewModelHelper.common(model, req, req.params.user)
             res.send(view(model))
 
         } catch(ex){

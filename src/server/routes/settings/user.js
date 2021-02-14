@@ -1,5 +1,5 @@
 const pluginsManager = require(_$+'helpers/pluginsManager'),
-    appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
     sessionHelper = require(_$+'helpers/session'), 
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars')
@@ -45,7 +45,7 @@ module.exports = function(app){
                 mapping.vcServer = vcServer
             }
 
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
 
         } catch(ex){

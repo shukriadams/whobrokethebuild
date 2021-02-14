@@ -1,4 +1,4 @@
-const appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
+const viewModelHelper = require(_$+'helpers/viewModel'),
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+ '/helpers/handlebars')
 
@@ -12,7 +12,7 @@ module.exports = function(app){
             const view = await handlebars.getView('login'),
                 model = {}
 
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
 
         } catch(ex){

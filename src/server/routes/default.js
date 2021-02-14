@@ -1,5 +1,5 @@
 const settings = require(_$+ 'helpers/settings'),
-    appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
     handlebars = require(_$+ 'helpers/handlebars'),
     errorHandler = require(_$+'helpers/errorHandler'),
     buildInvolvementLogic = require(_$+'logic/buildInvolvements'),
@@ -59,7 +59,7 @@ module.exports = function(express){
                     0
             })
 
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
 
         } catch(ex){

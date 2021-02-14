@@ -1,5 +1,5 @@
 const pluginsManager = require(_$+'helpers/pluginsManager'),
-    appendCommonViewModel = require(_$+ 'helpers/appendCommonViewModel'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
     errorHandler = require(_$+'helpers/errorHandler'),
     settings = require(_$+ 'helpers/settings'),
     handlebars = require(_$+'helpers/handlebars')
@@ -17,7 +17,7 @@ module.exports = function(app){
             for (const contactLog of model.contactLogs.items)
                 contactLog.__user = await data.getUser(contactLog.receiverContext)
 
-            await appendCommonViewModel(model, req)
+            await viewModelHelper.common(model, req)
             res.send(view(model))
 
         } catch(ex){
