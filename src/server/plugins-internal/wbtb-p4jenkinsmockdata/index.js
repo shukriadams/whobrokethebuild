@@ -17,11 +17,12 @@ module.exports = {
         let { uniqueNamesGenerator } = require('unique-names-generator'),
             sample = require('lodash.sample'),
             timebelt = require('timebelt'),
-            jobsCount = 20,
-            buildsPerJob = 50,
-            minCommitsPerBuild = 0,
-            maxCommitsPerBuild = 3,
-            maxLogLines = 1000,
+            settings = require(_$+'helpers/settings'),
+            jobsCount = settings.p4jenkinsmockdata_jobsCount || 10,
+            buildsPerJob = settings.p4jenkinsmockdata_buildsPerJob || 10,
+            minCommitsPerBuild = settings.p4jenkinsmockdata_minCommitsPerBuild || 0,
+            maxCommitsPerBuild = settings.p4jenkinsmockdata_maxCommitsPerBuild || 3,
+            maxLogLines = settings.p4jenkinsmockdata_maxLogLines || 1000,
             globalCommitCounter = 1,
             pluginsManager = require(_$+'helpers/pluginsManager'),
             data = await pluginsManager.getExclusive('dataProvider'),
@@ -29,10 +30,10 @@ module.exports = {
             vsServers = await data.getAllVCServers(),
             jsonOptions = { spaces : 4 },
             verbs = ['Call', 'Rage', 'Attack', 'Battle', 'War', 'Operation', 'Alliance', 'League', 'Quest'],
-            adverbs = ['of', 'in', 'with', 'against the', 'inspite of'],
-            adjectives = ['Modern', 'Crossover', 'Ultra', 'Perkele', 'Dashing', 'Awkward', 'Farming', 'Euro', 'Commando', 'Farming', 'Blood', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Cyber', 'Orcish', 'Elvish', 'Feudal', 'Alien', 'Social', 'Insta', 'Star Battle', 'Unknownplayer', 'Backops', 'Counter'],
-            nouns = [ 'Ninja', 'Zombie', 'Avenger', 'Justice', 'Assassins', 'Shooter', 'Sniper', 'Cop', 'Commando'],
-            nouns2 = [ 'Simulator', 'Craft', 'Raider', 'Duty', 'Warfare', 'Arena', '- Battle Royale', 'Remastered', '4KHD' ],
+            adverbs = ['of', 'on', 'in', 'with', 'against the', 'inspite of'],
+            adjectives = ['Modern', 'Crossover', 'Ultra', 'Perkele', 'Dashing', 'Awkward', 'Farming', 'Euro', 'Commando', 'Farming', 'Blood', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Cyber', 'Orcish', 'Elvish', 'Feudal', 'Alien', 'Insta', 'Unknownplayer', 'Backops', 'Counter'],
+            nouns = [ 'Ninja', 'Zombie', 'Avenger', 'Justice', 'Assassin', 'Shooter', 'Sniper', 'Cop', 'Commando', 'Star Battle'],
+            nouns2 = [ 'Simulator', 'Craft', 'Raider', 'Duty', 'Warfare', 'Arena', '- Battle Royale', '- Remastered', '- 4KHD', '- Mobile Edition'],
             // Pass every username to the generator.
             dictionaries = [verbs, adverbs, adjectives, nouns, nouns2],
             // loop, generate unique job names
@@ -45,7 +46,7 @@ module.exports = {
                 })
             )
         
-        __log.warn('Generating mock data for Jenkins and Perforce, this can take a while ...')
+        __log.warn('Generating mock data for Jenkins and Perforce ...')
         
         // work out which users are bound to perforce, we'll create commits for those
         const perforceUserNames = []
@@ -60,31 +61,13 @@ module.exports = {
         if (!perforceUserNames.length)
             perforceUserNames.push('some-user')
 
-        // write perforce data
-
-        const subtractHours = function(datetime, hours){
-            if (typeof datetime === 'number' || typeof datetime === 'string')
-                datetime = new Date(datetime)
-
-            return new Date( 
-                datetime.setHours(datetime.getHours() - hours)
-            )
-        }
-
-        const addHours = function(datetime, hours){
-            if (typeof datetime === 'number' || typeof datetime === 'string')
-                datetime = new Date(datetime)
-
-            return new Date( 
-                datetime.setHours(datetime.getHours() + hours)
-            )
-        }
 
         // generate endpoint for list of jobs
         await fs.outputJson(path.join(jenkinsMockRoot, 'jobs.json'), {
             _class : 'hudson.model.Hudson',
             jobs : jobNames.map(name => { return { _class : 'hudson.model.FreeStyleProject', name } })
         }, jsonOptions)
+
 
         // generate job files - commit (build) events, and logs per build
         for (let jobName of jobNames){
@@ -120,7 +103,7 @@ module.exports = {
                     const commitId = globalCommitCounter + j
 
                     // write perforce commit
-                    commitTime = subtractHours(commitTime, 1.1)
+                    commitTime = timebelt.subtractHours(commitTime, 1.1)
 
                     const commitText = `Change ${commitId} by ${sample(perforceUserNames)}@workspace on ${timebelt.toShortDate(commitTime)} ${timebelt.toShortTime(commitTime)}\n\n\tlorem changes\n\nAffected files ...\n\n\t... //mydepot/mystream/path/to/file.txt#2 edit`
 
@@ -128,10 +111,10 @@ module.exports = {
                 }
 
                 globalCommitCounter += commits
+           }
 
-            }
 
-            // write build list for job
+            // write job list - this contains all builds in job
             await fs.outputJson(path.join(jenkinsMockRoot, jobName, 'builds.json'), {
                 _class : 'hudson.model.FreeStyleProject',
                 allBuilds : [...Array(buildsPerJob - 1)].map((_ ,buildnumber) =>{
@@ -139,7 +122,7 @@ module.exports = {
                     buildnumber = buildsPerJob - buildnumber - 1
 
                     // count backwards an hour per build
-                    buildTime = subtractHours(buildTime, 1)
+                    buildTime = timebelt.subtractHours(buildTime, 1)
 
                     // build should either pass or fail, but last build has a chance to remaining unfinished
                     let result = sample(['FAILURE', 'SUCCESS']) 
@@ -158,6 +141,7 @@ module.exports = {
                     }
                 })   
             }, jsonOptions)
+
 
             __log.debug(`Wrote mock data for job ${jobName}`)
         }

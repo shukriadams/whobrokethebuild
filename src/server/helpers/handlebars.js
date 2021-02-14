@@ -8,6 +8,7 @@ let Handlebars = require('handlebars'),
     path = require('path'),
     glob = require('glob'),
     settings = require(_$+ 'helpers/settings'),
+    pluginsManager = require(_$+'helpers/pluginsManager'),
     layouts = require('handlebars-layouts'),
     helpers = fsUtils.getFilesAsModulePathsSync(_$+'helpers/handlebars')
 
@@ -60,7 +61,7 @@ module.exports = {
             }
 
             // plugin pages
-            root = path.join(_$+'plugins' + (settings.bindInternalPlugins ? '-internal':''))
+            root = pluginsManager.getPluginRootPath()
             pagePaths = glob.sync(`${root}/**/views/**/*.hbs`, { ignore : ['**/node_modules/**', '**/mock/**']})
             for (let pagePath of pagePaths){
                 let content = fs.readFileSync(pagePath, 'utf8'),
@@ -75,7 +76,6 @@ module.exports = {
             }
 
             // plugin partials
-            root = path.join(_$+'plugins' + (settings.bindInternalPlugins ? '-internal':''))
             pagePaths = glob.sync(`${root}/**/partials/**/*.hbs`, { ignore : ['**/node_modules/**', '**/mock/**']})
             for (let pagePath of pagePaths){
                 let content = fs.readFileSync(pagePath, 'utf8'),

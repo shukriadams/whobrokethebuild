@@ -1,25 +1,26 @@
 // add daemon workers here
-let daemonTypes = [
-        'daemon/workers/alertBuildBreaker',
-        'daemon/workers/alertBuildStatusChange',
-        'daemon/workers/buildDeltaCalculator',
-        'daemon/workers/buildImporter',
-        'daemon/workers/mapUsersToRevisions',
-        'daemon/workers/mapRevisions'
-    ],
-    isRunning = false,
+let isRunning = false,
     daemonInstances = {}
 
 module.exports = {
 
     startAll(){
-        const settings = require(_$+'helpers/settings')
+        let settings = require(_$+'helpers/settings'),
+            glob = require('glob'),
+            fsUtils = require('madscience-fsutils'),
+            pluginsManager = require(_$+'helpers/pluginsManager'),
+            pluginRoot = pluginsManager.getPluginRootPath(), 
+            // get internal daemons
+            daemonFiles = glob.sync(`${_$}daemon/workers/*.js`)
 
-        for (const typePath of daemonTypes){
+        daemonFiles = daemonFiles.concat(glob.sync(`${pluginRoot}/**/daemon.js`, { ignore : ['**/node_modules/**', '**/mock/**']}))
+        daemonFiles = daemonFiles.map(daemonFile => fsUtils.fullPathWithoutExtension (daemonFile))
+
+        for (const typePath of daemonFiles){
             if (daemonInstances[typePath])
                 continue
             
-            const Type = require(_$+typePath)
+            const Type = require(typePath)
             daemonInstances[typePath] = new Type(settings.daemonInterval)
         }
 

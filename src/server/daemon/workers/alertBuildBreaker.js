@@ -10,9 +10,6 @@ module.exports = class AlertBuildBreaker extends BaseDaemon {
     }
     
     async _work(){
-
-        __log.debug(`alertBuildBreaker daemon doing work ....`)
-
         const pluginsManager = require(_$+'helpers/pluginsManager'),
             data = await pluginsManager.getExclusive('dataProvider'),
             jobs = await data.getAllJobs()

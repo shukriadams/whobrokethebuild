@@ -10,9 +10,6 @@ module.exports = class MapRevisions extends BaseDaemon {
     }
     
     async _work(){
-
-        __log.debug(`mapRevisions daemon doing work ....`)
-
         // try to map map local users to users in vcs for a given build
         const pluginsManager = require(_$+'helpers/pluginsManager'),
             faultHelper = require(_$+ 'helpers/fault'),

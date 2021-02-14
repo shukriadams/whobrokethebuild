@@ -10,9 +10,6 @@ module.exports = class AlertBuildStatusChange extends BaseDaemon {
     }
     
     async _work(){
-
-        __log.debug(`alertBuildStatusChange daemon doing work ....`)
-
         const pluginsManager = require(_$+'helpers/pluginsManager'),
             constants = require(_$+'types/constants'),
             data = await pluginsManager.getExclusive('dataProvider'),

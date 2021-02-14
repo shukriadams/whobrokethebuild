@@ -73,6 +73,9 @@ module.exports = {
         return installedPlugins
     },
 
+    getPluginRootPath(){
+        return `${_$}plugins${(settings.bindInternalPlugins ? '-internal':'')}` 
+    },
 
     async _loadPlugins(){
         
@@ -193,7 +196,7 @@ module.exports = {
      * 
     */
     async _setupAllPlugins(pluginsConfig){
-        let errors = true
+        let errors = false
 
         for (const pluginName in pluginsConfig){
             let pluginConfig = pluginsConfig[pluginName],

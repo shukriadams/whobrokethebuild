@@ -10,9 +10,6 @@ module.exports = class MapUsersToRevisions extends BaseDaemon {
     }
     
     async _work(){
-
-        __log.debug(`mapUsersToRevisions daemon doing work ....`)
-
         // try to map map local users to users in vcs for a given build
         const pluginsManager = require(_$+'helpers/pluginsManager'),
             data = await pluginsManager.getExclusive('dataProvider'),

@@ -10,9 +10,6 @@ module.exports = class BuildDeltaCalculator extends BaseDaemon {
     }
     
     async _work(){
-
-        __log.debug(`buildDeltaCalculator daemon doing work ....`)
-
         let constants = require(_$+'types/constants'),
             pluginsManager = require(_$+'helpers/pluginsManager'),
             data = await pluginsManager.getExclusive('dataProvider'),
