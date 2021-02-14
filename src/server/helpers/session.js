@@ -38,7 +38,7 @@ module.exports = {
     /**
      * 
      */  
-    async ensureUserOrRole(req, role, userId){
+    async ensureUserOrRole(req, userId, role){
         const Exception = require(_$+'types/exception'),
             user = await this.getCurrentUser(req)
 

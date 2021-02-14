@@ -4,40 +4,55 @@
         <div class="userSettings">
             <h1>{{user.name}} Settings</h1>
 
-            <input class="userSettings-userId" value="{{user.id}}" type="hidden" /> 
-            <a class="button" data="function-delete-user">Delete user</a>
-
             <h2>Contact methods</h2>
             <ul class="list">
-                {{#each contactMethods}}
-                    <li class="list-item list-item--textContent">
-                        <a href="{{link}}">{{name}}</a>
-                    </li>
-                {{/each}}
+                {{#if contactMethods}}
+                    {{#each contactMethods}}
+                        <li class="list-item list-item--textContent">
+                            <a href="{{link}}">{{name}}</a>
+                        </li>
+                    {{/each}}
+                {{else}}
+                    None yet
+                {{/if}}
             </ul>
 
             <h2>Mapping</h2>
+            <p>
+                Add {{user.name}}'s user ID on version control systems
+            </p>
+
             <ul class="list">
-                {{#each user.userMappings}}
-                    <li class="list-item list-item--textContent userSettings-vcServerBinding">
-                        <div>
+                {{#if user.userMappings}}
+                    {{#each user.userMappings}}
+                        <li class="list-item list-item--textContent userSettings-vcServerBinding">
                             <div>
-                                {{vcServer.name}}
+                                <div>
+                                    {{vcServer.name}}
+                                </div>
+                                <input class="userSettings-vcServerBindingName" value="{{name}}" data-vcServerId="{{vcServer.id}}" type="text" />
                             </div>
-                            <input class="userSettings-vcServerBindingName" value="{{name}}" data-vcServerId="{{vcServer.id}}" type="text" />
-                        </div>
+                        </li>
+                    {{/each}}
+                    <button class="button userSetting-saveVCServerBindings">Update</button>
+                {{else}}
+                    <li class="list-item list-item--textContent">
+                        No mappings yet
                     </li>
-                {{/each}}
-                <button class="button userSetting-saveVCServerBindings">Update</button>
+                {{/if}}
             </ul>
 
             <div>
-                <select class="userSettings-vcServerAddUserServer">
-                    {{#each vcServers}}
-                        <option value="{{id}}">{{name}}</option>
-                    {{/each}}
-                </select>
-                <button class="button" data="vcServer-addUser">Add to server</button>
+                {{#if vcServers}}
+                    <select class="userSettings-vcServerAddUserServer">
+                        {{#each vcServers}}
+                            <option value="{{id}}">{{name}}</option>
+                        {{/each}}
+                    </select>
+                    <button class="button" data="vcServer-addUser">Add to server</button>
+                {{else}}
+                    No version control systems are set up yet.
+                {{/if}}
             </div>
 
         </div>

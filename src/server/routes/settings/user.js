@@ -5,11 +5,13 @@ const pluginsManager = require(_$+'helpers/pluginsManager'),
     handlebars = require(_$+'helpers/handlebars')
 
 module.exports = function(app){
+
+    
     app.get('/settings/user/:user', async function(req, res){
         try {
 
             //////////////////////////////////////////////////////////
-            await sessionHelper.ensureRole(req, 'admin')
+            await sessionHelper.ensureUserOrRole(req, req.params.user, 'admin')
             //////////////////////////////////////////////////////////
 
             const data = await pluginsManager.getExclusive('dataProvider'),
@@ -55,7 +57,7 @@ module.exports = function(app){
     app.post('/settings/user/updateVCServerMappings', async function(req, res){
         try {
             //////////////////////////////////////////////////////////
-            await sessionHelper.ensureRole(req, 'admin')
+            await sessionHelper.ensureUserOrRole(req, req.body.user, 'admin')
             //////////////////////////////////////////////////////////
 
             const data = await pluginsManager.getExclusive('dataProvider'),
@@ -84,7 +86,7 @@ module.exports = function(app){
     app.post('/settings/userSettings/addVCServerMapping', async function(req, res){
         try {
             //////////////////////////////////////////////////////////
-            await sessionHelper.ensureRole(req, 'admin')
+            await sessionHelper.ensureUserOrRole(req, req.body.user, 'admin')
             //////////////////////////////////////////////////////////
 
             const data = await pluginsManager.getExclusive('dataProvider'),

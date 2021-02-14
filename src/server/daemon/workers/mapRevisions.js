@@ -39,14 +39,15 @@ module.exports = class MapRevisions extends BaseDaemon {
                 // force placeholder revision object if lookup to vc fails to retrieve it
                 if (!buildInvolvement.revisionObject)
                     buildInvolvement.revisionObject = {
-                        revision : `${buildInvolvement.revision} lookup failed`,
+                        revision : buildInvolvement.revision,
                         user : buildInvolvement.externalUsername,
-                        description : '', 
+                        description : `${buildInvolvement.revision} lookup failed!`,
                         files : [] 
                     }
                 
                 const errorLines = await logHelper.parseErrorsFromFile(build.logPath, job.logParser)
                 faultHelper.processRevision(buildInvolvement.revisionObject, errorLines)
+                
                 await data.updateBuildInvolvement(buildInvolvement)
                 
                 __log.debug(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)

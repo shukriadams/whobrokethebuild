@@ -29,6 +29,7 @@ module.exports = class MapUsersToRevisions extends BaseDaemon {
                 if (user){
                     buildInvolvement.userId = user.id      
                     await data.updateBuildInvolvement(buildInvolvement)
+                    
                     __log.debug(`added user ${user.name} to build ${build.id}`)
                 }
             }
