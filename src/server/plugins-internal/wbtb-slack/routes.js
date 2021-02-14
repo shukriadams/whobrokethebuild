@@ -13,13 +13,13 @@ module.exports = app => {
     /**
      * Gets view of global slack settings
      */
-    app.get('/wbtb-slack/', async function(req, res){
+    app.get(`/${thisType}/`, async function(req, res){
         try {
             //////////////////////////////////////////////////////////
             await sessionHelper.ensureRole(req, 'admin')
             //////////////////////////////////////////////////////////
 
-            const view = await handlebars.getView('wbtb-slack/views/settings'),
+            const view = await handlebars.getView(`${thisType}/views/settings`),
                 data = await pluginsManager.getExclusive('dataProvider'),
                 model = {
                     wbtbSlack : {
@@ -48,7 +48,7 @@ module.exports = app => {
     /**
      * Updates 
      */
-    app.post('/wbtb-slack/settings', async function(req, res){
+    app.post(`/${thisType}/settings`, async function(req, res){
         try {
 
             //////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ module.exports = app => {
                 await data.updateJob(job)
             }
 
-            res.redirect('/wbtb-slack')
+            res.redirect(`/${thisType}`)
         } catch(ex){
             errorHandler(res, ex)
         }
@@ -82,14 +82,14 @@ module.exports = app => {
     /**
      * Gets view of slack settings for a specific user
      */    
-    app.get('/wbtb-slack/user/:userId', async function(req, res){
+    app.get(`/${thisType}/user/:userId`, async function(req, res){
         try {
 
             //////////////////////////////////////////////////////////
             await sessionHelper.ensureUserOrRole(req, req.params.userId, 'admin')
             //////////////////////////////////////////////////////////
             
-            const view = await handlebars.getView('wbtb-slack/views/user'),
+            const view = await handlebars.getView(`${thisType}/views/user`),
                 data = await pluginsManager.getExclusive('dataProvider'),
                 user = await data.getUser(req.params.userId, { expected : true }),
                 model = {
@@ -112,7 +112,7 @@ module.exports = app => {
     /**
      * 
      */
-    app.post('/wbtb-slack/user/:userId', async function(req, res){
+    app.post(`/${thisType}/user/:userId`, async function(req, res){
         try {
 
             //////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ module.exports = app => {
             contactMethod.slackId = req.body.slackId
             await data.updateUser(user)
 
-            res.redirect(`/wbtb-slack/user/${user.id}`)
+            res.redirect(`/${thisType}/user/${user.id}`)
         } catch(ex){
             errorHandler(res, ex)
         }
@@ -137,7 +137,7 @@ module.exports = app => {
     /**
      * 
      */
-    app.get('/wbtb-slack/test-alertUser/:userId/:buildId', async function(req, res){
+    app.get(`/${thisType}/test-alertUser/:userId/:buildId`, async function(req, res){
         try {
 
             //////////////////////////////////////////////////////////

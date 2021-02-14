@@ -134,6 +134,11 @@ module.exports = {
 
 
     /**
+     * @param {object} user  User to contact
+     * @param {object} build Build that broke
+     * @param {string} messageType type of message to sent
+     * @param {boolean} force if true, message will be sent even if it has been sent before
+     * 
      * Required by all "contact" plugins
      * Sends a message to user that that user was involved in build break
      * user : user object
@@ -141,12 +146,10 @@ module.exports = {
      * build : build object for failing build
      * force : force send the message, ignore if it has already been sent. for testing only
      */
-    async alertUser(user, build, force = false){
+    async alertUser(user, build, messageType = 'implicated', force = false){
         let data = await pluginsManager.getExclusive('dataProvider'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.slackAccessToken }),
-            job = await data.getJob(build.jobId, { expected: true }),
-            logHelper = require(_$+'helpers/log'),
             context = `build_fail_${build.id}`,
             buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
             usersInvolved = buildInvolvements.map(involvement => involvement.externalUsername)
@@ -166,22 +169,6 @@ module.exports = {
             return
         }
 
-        // there are multiple users involved, determine if the user being targetted was likely responsible for the break
-        let isImplicated = false
-        if (usersInvolved.length)
-            for (const buildInvolvement of buildInvolvements){
-                
-                // ensure that buildInvolvement has been mapped, if not, abort this send, we'll try later
-                if (!buildInvolvement.revisionObject)
-                    return
-
-                for (const file of buildInvolvement.revisionObject.files)
-                   if (file.faultChance > .5) {
-                        isImplicated = true
-                        break
-                   }
-            }
-
         const targetSlackId = settings.slackOverrideUserId || (user.pluginSettings[thisType] && user.pluginSettings[thisType].slackId)
         if (settings.slackOverrideUserId)
             __log.info(`slackOverrideUserId set, diverting post to meant for user slackid ${user.id} to override user id ${settings.slackOverrideUserId}`)
@@ -192,22 +179,13 @@ module.exports = {
                 message : `unable to create conversation channel for user ${user.id}`
             })
 
-        let buildLink = urljoin(settings.localUrl, `build/${build.id}`),
-            log = `\`\`\`${(await logHelper.parseErrorsFromFileToString(build.logPath, job.logParser))}\`\`\`\n`,
-            message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}`
-
-        if (usersInvolved.length > 1){
-            if (isImplicated)
-                message += `There were ${usersInvolved.length} people in this break, but it's likely your code broke it.\n`
-            else
-                message += `There were ${usersInvolved.length} people in this break, but don't worry, it looks like you're an innocent bystander.\n`
-        } else {
-            message += `You were the only person involved in this break.\n`
-        }
-
-        message += `More info : ${buildLink}`
+        const message = messageType === 'implicated' ? 
+            await this.buildImplicatedMessage(user, build) :
+            await this.buildInterestedMessage(user, build)
+        
         await slack.chat.postMessage({ token : settings.slackAccessToken, channel : conversation.channel.id, text : message })
 
+        // log that message has been sent, this will be used to prevent the same user from being informed of the same build error
         contactLog = new ContactLog()
         contactLog.receiverContext = user.id
         contactLog.type = thisType
@@ -216,8 +194,73 @@ module.exports = {
 
         await data.insertContactLog(contactLog)
         __log.info(`alert sent to slack user via personal channel ${conversation.channel.id}`)
+    },
 
+
+    /**
+     * @param user User object
+     * @param build Build object
+     */
+    async buildInterestedMessage(user, build){
+        let message = `Build ${build.name} is failing. More info can be found at ${urljoin(settings.localUrl, `build/${build.id}`)}`
+        return message
+    },
+
+
+    /**
+     * @param user User object
+     * @param build Build object
+     */
+    async buildImplicatedMessage(user, build){
+        let logHelper = require(_$+'helpers/log'),
+            data = await pluginsManager.getExclusive('dataProvider'),
+            job = await data.getJob(build.jobId, { expected: true }),
+            buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
+            usersInvolved = buildInvolvements.map(involvement => involvement.externalUsername),
+            isImplicated = false,
+            log = job.logParser ? 
+                await logHelper.parseErrorsFromFileToString(build.logPath, job.logParser) :
+                `No log parser set for ${job.name}`
+
+        // ensure log has content, if errors cannot be parsed, it will be blank
+        log = log || 'Could not parse error from build log'
+        // format for slack so log message is embeddded in quote block
+        log = `\`\`\`${log}\`\`\`\n`
+
+        // determine if the user being messaged is implicated in the build. This happens only if
+        // a file belonging to the user has been directly marked as being "at fault" 
+        for (const buildInvolvement of buildInvolvements){
+            //
+            if (!buildInvolvement.userId !== user.id)
+                continue
+
+            // ensure that buildInvolvement has been mapped, if not, abort this send, we'll try later
+            if (!buildInvolvement.revisionObject)
+                continue
+
+            for (const file of buildInvolvement.revisionObject.files)
+                if (file.isFault) {
+                    isImplicated = true
+                    break
+                }
+        }
+
+        // get unique users
+        usersInvolved = Array.from(new Set(usersInvolved)) 
+        let message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}`
+        if (usersInvolved.length > 1){
+            if (isImplicated)
+                message += `There were ${usersInvolved.length} people in this break, but it's likely your code broke it.\n`
+            else
+                message += `There were ${usersInvolved.length} people in this break, and your code was likely not the cause of the break.\n`
+        } else {
+            message += `You were the only person involved in this break.\n`
+        }
+        
+        message += `More info : ${urljoin(settings.localUrl, `build/${build.id}`)}`
+
+        return message
     }
-
+    
 
 }

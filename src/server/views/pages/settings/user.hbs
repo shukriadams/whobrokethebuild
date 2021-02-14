@@ -5,14 +5,14 @@
 
             <h2>Plugins</h2>
             <ul class="list">
-                {{#if contactMethods}}
-                    {{#each contactMethods}}
+                {{#if plugins}}
+                    {{#each plugins}}
                         <li class="list-item list-item--textContent">
                             <a href="{{link}}">{{name}}</a>
                         </li>
                     {{/each}}
                 {{else}}
-                    None yet
+                    No configurable plugins are installed yet
                 {{/if}}
             </ul>
 

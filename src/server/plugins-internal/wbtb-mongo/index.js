@@ -206,6 +206,18 @@ module.exports = {
         }), _normalizeUsers)
     },
 
+    /**
+     * Gets users with the given plugin name configured for them
+     */
+    async getUsersUsingPlugin(pluginName){
+        const pluginSettings = {}
+        pluginSettings[`pluginSettings.${pluginName}`] = { $ne : null }
+
+        return _normalize(await _mongo.find(constants.TABLENAME_USERS, {
+            $and: [ pluginSettings ]
+        }), _normalizeUsers)
+    },
+
     async getAllUsers () {
         return _normalize( await _mongo.find(constants.TABLENAME_USERS, { }), _normalizeUsers)
     },

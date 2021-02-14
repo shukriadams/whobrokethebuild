@@ -18,23 +18,20 @@ module.exports = function(app){
                 view = await handlebars.getView('settings/user'),
                 user = await data.getUser(req.params.user),
                 vcServers  = await data.getAllVCServers(),
-                contactMethods = await pluginsManager.getAllByCategory('contactMethod'),
+                plugins = await pluginsManager.getAllWithUserUI(),
                 model = {
                     vcServers,
-                    contactMethods : [],
+                    plugins : [],
                     user 
                 }
             
             // add links to contact methods that have UI's
-            for(const contactMethod of contactMethods){
-                if (!contactMethod.__wbtb.hasUI)
-                    continue
-
-                model.contactMethods.push({
-                    link : `/${contactMethod.__wbtb.id}/user/${user.id}`,
-                    name : contactMethod.__wbtb.name,
+            for(const plugin of plugins)
+                model.plugins.push({
+                    link : `/${plugin.__wbtb.id}/user/${user.id}`,
+                    name : plugin.__wbtb.name,
                 })
-            }
+            
 
             // add vcserver names
             for (const mapping of user.userMappings){

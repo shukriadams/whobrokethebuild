@@ -13,6 +13,7 @@ let settings = require(_$+'helpers/settings'),
     requiredCategories = ['dataProvider', 'authProvider'],
     pluginConfPath = path.join(settings.dataFolder, '.plugin.conf'),
     _pluginConf = {},
+    _allplugins = null,
     _plugins = {
         // hash table of installed plugins paths, mapped by id
         plugins : {},
@@ -212,7 +213,6 @@ module.exports = {
                 pluginInstallStatus = await fs.readJson(pluginInstallStatusPath)
 
             if (pluginConfig.source === 'git'){
-
                 // check if installed plugin version matches requested version
                 const alreadyInstalled = pluginInstallStatus.url === pluginConfig.url
                     && pluginInstallStatus.version === pluginConfig.version
@@ -463,7 +463,7 @@ module.exports = {
     get(name){
         const pluginPath = _plugins.plugins[name] ? _plugins.plugins[name].path : null
         if (!pluginPath)
-            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Mising plugin : ${name}` })
+            throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Missing plugin : ${name}` })
 
         const plugin = require(`${path.resolve(pluginPath)}/index`)
         plugin.__wbtb = _plugins.plugins[name]
@@ -488,17 +488,59 @@ module.exports = {
 
 
     /**
+     * Gets all plugins defined in a user's plugin settings, by plugin category
+     */
+    getUserPluginsByCategory(user, category){
+        const pluginsOut = [],
+            plugins = this.getAll()
+
+        for (const pluginName of user.pluginSettings){
+            const plugin = plugins.find(plugin => plugin.__wbtb.name === pluginName)
+            if (!plugin)
+                continue // plugin no longer exists or has been unbound, ignore
+            
+            if (plugin.__wbtb.category === category){
+                pluginsOut.push(plugin)
+                break
+            }
+        }
+
+        return pluginsOut
+    },
+
+
+    /**
+     * gets all active plugins with .hasUI in their metadata
+     */
+    getAllWithUI(){
+        return this.getAll().filter(plugin => plugin.__wbtb.hasUI)
+    },
+
+
+    /**
+     * gets all active plugins that end users can configure via UI
+    */
+    getAllWithUserUI(){
+        return this.getAll().filter(plugin => 
+            plugin.__wbtb.hasUserUI
+        )
+    },
+
+    /**
      * gets all active plugins
      */
     getAll(){
-        let plugins = []
-        for (let pluginPath in  _plugins.plugins){
-            const plugin = require(`${path.resolve(_plugins.plugins[pluginPath].path)}/index`)
-            plugin.__wbtb = _plugins.plugins[pluginPath]
-            plugins.push(plugin)
+
+        if (!_allplugins){
+            _allplugins = []
+            for (let pluginPath in  _plugins.plugins){
+                const plugin = require(`${path.resolve(_plugins.plugins[pluginPath].path)}/index`)
+                plugin.__wbtb = _plugins.plugins[pluginPath]
+                _allplugins.push(plugin)
+            }
         }
-        
-        return plugins
+
+        return _allplugins
     },
 
 
