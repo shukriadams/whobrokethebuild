@@ -6,6 +6,13 @@ const constants = require(_$+'types/constants'),
     ObjectID = require('mongodb').ObjectID,
     settings = require(_$+'helpers/settings'),
     CIServer = require(_$+'types/CIServer'),
+    VCServer = require(_$+'types/VCServer'),
+    Session = require(_$+'types/session'),
+    ContactLog = require(_$+'types/contactLog'),
+    BuildInvolvement = require(_$+'types/buildInvolvement'),
+    Job = require(_$+'types/job'),
+    Build = require(_$+'types/build'),
+    User = require(_$+'types/user'),
     _mongo = require('./mongo'),
     _normalize = (input, normalizer)=>{
         if (Array.isArray(input)){
@@ -27,7 +34,8 @@ const constants = require(_$+'types/constants'),
         items = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), normalizer)
         return { items, pages} 
     },    
-    _normalizeJob = job =>{
+    _normalizeJob = record =>{
+        const job = Object.assign(new Job(), record)
         job.id = job._id.toString()
         job.CIServerId = job.CIServerId.toString()
         job.VCServerId = job.VCServerId.toString()
@@ -45,7 +53,8 @@ const constants = require(_$+'types/constants'),
         job.VCServerId = new ObjectID(job.VCServerId)
         return job
     },
-    _normalizeBuild = build =>{
+    _normalizeBuild = record =>{
+        const build = Object.assign(new Build(), record)
         build.id = build._id.toString()
         build.jobId = build.jobId.toString()
         delete build._id
@@ -61,7 +70,8 @@ const constants = require(_$+'types/constants'),
         build.jobId = new ObjectID(build.jobId)
         return build
     },        
-    _normalizeBuildInvolvement = buildInvolvement =>{
+    _normalizeBuildInvolvement = record =>{
+        const buildInvolvement = Object.assign(new BuildInvolvement(), record)
         buildInvolvement.id = buildInvolvement._id.toString()
         buildInvolvement.buildId = buildInvolvement.buildId.toString()
         if (buildInvolvement.userId)
@@ -80,24 +90,25 @@ const constants = require(_$+'types/constants'),
             buildInvolvement.userId = new ObjectID(buildInvolvement.userId)
         return buildInvolvement
     },
-    _normalizeVCServer = server =>{
-        server.id = server._id.toString()
-        delete server._id
-        return server
+    _normalizeVCServer = record =>{
+        const vcServer = Object.assign(new VCServer(), record)
+        vcServer.id = vcServer._id.toString()
+        delete vcServer._id
+        return vcServer
     },
     _denormalizeVCServer = record =>{
-        const server = Object.assign({}, record)
-        if (server.id){
-            server._id = new ObjectID(server.id)
-            delete server.id
+        const vcServer = Object.assign({}, record)
+        if (vcServer.id){
+            vcServer._id = new ObjectID(vcServer.id)
+            delete vcServer.id
         }         
-        return server
+        return vcServer
     },     
     _normalizeCIServer = rawRecord =>{
-        const record = Object.assign( new CIServer(), rawRecord)
-        record.id = record._id.toString()
-        delete record._id
-        return record
+        const ciserver = Object.assign( new CIServer(), rawRecord)
+        ciserver.id = ciserver._id.toString()
+        delete ciserver._id
+        return ciserver
     },
     _denormalizeCIServer = record =>{
         const server = Object.assign({}, record)
@@ -107,7 +118,8 @@ const constants = require(_$+'types/constants'),
         }         
         return server
     },
-    _normalizeUsers = user =>{
+    _normalizeUsers = record =>{
+        const user = Object.assign( new User(), record)
         user.id = user._id.toString()
 
         for (let mapping of user.userMappings)
@@ -128,7 +140,8 @@ const constants = require(_$+'types/constants'),
 
         return user
     },    
-    _normalizeSession = session =>{
+    _normalizeSession = record =>{
+        const session = Object.assign( new Session(), record)
         session.id = session._id.toString()
         session.userId = session.userId.toString()
         delete session._id
@@ -143,7 +156,8 @@ const constants = require(_$+'types/constants'),
         session.userId = new ObjectID(session.userId)         
         return session
     },
-    _normalizeContactLog = contactLog =>{
+    _normalizeContactLog = record =>{
+        const contactLog = Object.assign( new ContactLog(), record)
         contactLog.id = contactLog._id.toString()
         delete contactLog._id
         return contactLog
