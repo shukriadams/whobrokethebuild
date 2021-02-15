@@ -40,6 +40,8 @@ module.exports = function(express){
 
                 if (job.__breakingBuild){
                     
+                    job.__brokenSince = job.__breakingBuild.ended
+
                     // extend
                     job.__breakingBuild.__buildInvolvements = buildInvolvementLogic.filterUniqueUser( await data.getBuildInvolementsByBuild(job.__breakingBuild.id))
 

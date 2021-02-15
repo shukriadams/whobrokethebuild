@@ -7,10 +7,13 @@
                 <div class="card-content">
                     <h1>Build #{{build.build}}</h1>
                     <p>
-                        {{ago build.started}}
+                        {{ago build.started}}{{#if build.ended}}, {{durationLong build.ended build.started}} to complete{{/if}}
                     </p>
                     <p>
                         Built on :  {{build.host}}
+                    </p>
+                    <p>
+                        Job : <a href="/job/{{build.jobId}}">{{job.name}}</a>
                     </p>
                     <p>
                         <a href="{{linkToBuild}}">View build on {{ciServer.name}}</a>
@@ -18,20 +21,16 @@
                     <p>
                         Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
                     </p>
+                    {{#if session.isAdmin}}
+                        <div>
+                            <h2>Admin</h2>
+                            <button class="button build-delete" data-id="{{build.id}}">Remove build</button>    
+                        </div>
+                    {{/if}}
                 </div>
-
             </li>
             
             <li class="list-item build-item">
-                <div>
-                    <p>
-                        Job : <a href="/job/{{build.jobId}}">{{job.name}}</a>
-                    </p>
-                    {{#if session.isAdmin}}
-                        <button class="button build-delete" data-id="{{build.id}}">Remove build</button>    
-                    {{/if}}
-                </div>
-
                 <h2>Changes in this build</h2>
                 <ul class="list">
                     {{#if buildInvolvements}}
