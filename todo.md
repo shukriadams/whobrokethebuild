@@ -17,6 +17,10 @@
 - do not parse error logs for builds that are not failing
 - change sort order of builds without delta to oldest first, this should speed up processing of concurrent builds
 - need several hundreds of records per build, across multiple builds, to test performance
+- need a way to tag changes or build errors based on the kind of files were changed in a build, or the kind of files which appeared in the error log. eg : cooking errors, blueprint errors, missing files.
+- need build stats : fails vs working %, average time a build stays broken for, nr of builds involving a tag / error type, etc
+- need even simpler job page that shows only delta - build working vs failing, and buils that changed delta.
+- need to mark builds for which specific revisions cannot be retrieved. We need to "soft" link these to a revision range. In the case of jenkins, there is no "changeSet" in the object root
 
 LATER
 - add caching
