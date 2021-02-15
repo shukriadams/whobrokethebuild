@@ -21,6 +21,7 @@
 - need build stats : fails vs working %, average time a build stays broken for, nr of builds involving a tag / error type, etc
 - need even simpler job page that shows only delta - build working vs failing, and buils that changed delta.
 - need to mark builds for which specific revisions cannot be retrieved. We need to "soft" link these to a revision range. In the case of jenkins, there is no "changeSet" in the object root
+- prevents multiple users from binding to the same vcs source name 
 
 LATER
 - add caching
