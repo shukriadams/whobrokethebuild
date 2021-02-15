@@ -39,7 +39,8 @@ module.exports = function(app){
 
     app.get('/build/:id', async (req, res)=>{
         try {
-            const data = await pluginsManager.getExclusive('dataProvider'),
+            const faultHelper = require(_$+'helpers/fault'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 build = await buildLogic.getById(req.params.id),
                 view = await handlebars.getView('build'),
                 job = await jobsLogic.getById(build.jobId),
@@ -58,6 +59,19 @@ module.exports = function(app){
 
             // REFACTOR THIS TO LOGIC LAYER
             model.buildInvolvements = await data.getBuildInvolementsByBuild(build.id)
+            
+            // parse and filter log if only certain lines should be shown
+            let logParser = model.job.logParser ? await pluginsManager.get(model.job.logParser) : null,
+                logErrors = null,
+                allowedTypes = ['error']
+
+
+            if (logParser){
+                const parsedLog = await logHelper.parseFromFile(build.logPath, model.job.logParser)
+                model.logParsedLines = parsedLog.lines ? parsedLog.lines.filter(line => allowedTypes.includes(line.type)) : []
+                model.isLogParsed = true
+                logErrors = await logHelper.parseErrorsFromFile(build.logPath, model.job.logParser)
+            }
 
             for (const buildInvolvement of model.buildInvolvements){
                 // get user object for revision, if mapped
@@ -65,18 +79,12 @@ module.exports = function(app){
                     buildInvolvement.__user = await data.getUser(buildInvolvement.userId)
 
                 buildInvolvement.__revision = await vcsPlugin.getRevision(buildInvolvement.revision, vcServer)
+                if (logErrors)
+                    faultHelper.processRevision(buildInvolvement.__revision, logErrors)
             }
 
 
-            // parse and filter log if only certain lines should be shown
-            const logParser = model.job.logParser ? await pluginsManager.get(model.job.logParser) : null,
-                allowedTypes = ['error']
 
-            if (logParser){
-                const parsedLog = await logHelper.parseFromFile(build.logPath, model.job.logParser)
-                model.logParsedLines = parsedLog.lines ? parsedLog.lines.filter(line => allowedTypes.includes(line.type)) : []
-                model.isLogParsed = true
-            }
 
             await viewModelHelper.layout(model, req)
             res.send(view(model))
