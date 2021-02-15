@@ -3,39 +3,32 @@
         <h1>{{job.name}}</h1>
 
         {{#if session.isAdmin}}
+            Admin : 
             <a href="/settings/job/{{job.id}}">
                 <i class="icon icon-gear"></i>
             </a>
         {{/if}}
 
-        <h2>Builds</h2>
-
-        {{{pager ../job.__baseUrl jobBuilds }}}
-
-        <ul class="list">
+        <ul class="list job-buildsList">
             {{#if jobBuilds.items}}
                 {{#each jobBuilds.items}}
-                    <li class="list-item">
+                    <li class="list-item card">
+                        <div class="card-status card-status--{{statusTranslate status}}"></div>
+                        <div class="card-content">
+                            <div>
+                                <a class="job-buildTitle" href="/build/{{id}}">
+                                    # {{build}}
+                                </a>
+                            </div>
+                            <div>
+                                Status : {{statusTranslate status}}, {{deltaTranslate delta}}
+                            </div>
+                            <div>
+                                {{ago started}} @ {{shortTime started}}
+                            </div>
+                        </div>    
 
-                        <div class="card">
-                            <div class="card-status card-status--{{statusTranslate status}}"></div>
-                            <div class="card-content">
-                                <div>
-                                    <a class="job-buildTitle" href="/build/{{id}}">
-                                        # {{build}}
-                                    </a>
-                                </div>
-                                <div>
-                                    Status : {{statusTranslate status}}, {{deltaTranslate delta}}
-                                </div>
-                                <div>
-                                    {{ago started}} @ {{shortTime started}}
-                                </div>
-                            </div>    
-                        </div>
-
-                        <h3>Revisions</h3>
-                        <ul>
+                        <ul class="card-content">
                             {{#each __revisions}}
                                 <li_>
                                     <div>
@@ -60,6 +53,8 @@
             {{/if}}
 
         </ul>
+
+        {{{pager baseUrl jobBuilds }}}
 
     {{/content}}
 {{/extend}}

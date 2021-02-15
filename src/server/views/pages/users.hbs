@@ -1,10 +1,20 @@
 {{#extend "layout"}}
     {{#content "body"}}
         <h1>Users</h1>
-        <ul>
+        <ul class="list">
             {{#each users}}
-                <li>
+                <li class="list-item list-item--textContent">
                     <a href="/user/{{id}}">{{name}}</a>
+                    <div>
+                        {{#each userMappings}}
+                            Mapped to :
+                            {{#if __error}}
+                                {{__error}}
+                            {{else}}
+                                {{__vcServerBinding.name}}
+                            {{/if}}
+                        {{/each}}
+                    </div>
                 </li>
             {{/each}}
         </ul>

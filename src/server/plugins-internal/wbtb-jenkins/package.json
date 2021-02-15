@@ -1,7 +1,10 @@
 {
     "name": "wbtb-jenkins",
     "version": "0.0.1",
-    "dependencies": {},
+    "dependencies": {
+        "fs-extra": "9.0.0",
+        "sanitize-filename": "1.6.3"
+    },
     "wbtb": {
         "category": "ciserver"
     }

@@ -2,7 +2,7 @@ module.exports = Handlebars => {
 
     Handlebars.registerHelper('renderPartialByName', function(partialName, context){
         if (!partialName || ! context)
-            return console.log('renderPartialByName received invalid partial name or context')
+            return __log.debug('renderPartialByName received invalid partial name or context')
     
         let fn,
             template = Handlebars.partials[partialName]

@@ -14,7 +14,7 @@ module.exports = {
     async insert(properties){
         const 
             data = await pluginsManager.getExclusive('dataProvider'),
-            ciserver = CIServer()
+            ciserver = new CIServer()
 
         ciserver.name = properties.name
         ciserver.type = properties.type

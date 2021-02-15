@@ -1,30 +1,33 @@
 const pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){
     app.get('/user/:user', async function(req, res){
         try {
-            const data = await pluginsManager.getExclusive('dataProvider'),
+            const settings = require(_$+'helpers/settings'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('user'),
-                user = await data.getUserById(req.params.user, { expected : true }),
+                user = await data.getUser(req.params.user, { expected : true }),
+                page = parseInt(req.query.page || 1) - 1, // pages are publicly 1-rooted, 0-rooted internally
                 model = {
                     user
                 }
 
             // gets builds user was involved in
-            model.buildInvolvements = await data.getBuildInvolvementByUserId(req.params.user)
+            model.buildInvolvements = await data.pageBuildInvolvementByUser(req.params.user, page, settings.standardPageSize)
+            model.baseUrl = `/user/${req.params.user}`
 
             // expand related objects
-            for (const buildInvolvement of model.buildInvolvements){
+            for (const buildInvolvement of model.buildInvolvements.items){
                 if (!buildInvolvement.__build)
                     continue
 
                 buildInvolvement.__build.__job = await data.getJob(buildInvolvement.__build.jobId)
             }
 
-            await commonModelHelper(model, req, req.params.user)
+            await viewModelHelper.layout(model, req, req.params.user)
             res.send(view(model))
 
         } catch(ex){

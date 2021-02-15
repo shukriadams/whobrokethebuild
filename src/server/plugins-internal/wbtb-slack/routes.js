@@ -1,56 +1,42 @@
 
-const 
-    handlebars = require(_$+'helpers/handlebars'),
+const handlebars = require(_$+'helpers/handlebars'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
-    PluginSetting = require(_$+'types/pluginSetting'),
-    ContactMethod = require(_$+'types/contactMethod'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
+    sessionHelper = require(_$+'helpers/session'), 
     thisType = 'wbtb-slack',
     slackLogic = require('./index'),
-    errorHandler = require(_$+'helpers/errorHandler'),
-    contactSetting = {
-        channels: [] // string array of slack channel ids to broadcast errors to
-    };
-
+    errorHandler = require(_$+'helpers/errorHandler')
 
 module.exports = app => {
 
-    app.get('/wbtb-slack/', async function(req, res){
+    
+    /**
+     * Gets view of global slack settings
+     */
+    app.get(`/${thisType}/`, async function(req, res){
         try {
-            const view = await handlebars.getView('wbtb-slack/views/settings'),
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+            const view = await handlebars.getView(`${thisType}/views/settings`),
                 data = await pluginsManager.getExclusive('dataProvider'),
-                token = await data.getPluginSetting(thisType, 'token'),
                 model = {
                     wbtbSlack : {
 
                     }
                 }
 
-            model.wbtbSlack.accessToken = token ? token.value : null
             model.jobs = await data.getAllJobs()
+
             // collapse contactMethod to only this plugin's data
             for (let job of model.jobs)
                 job.__contactMethod = job.contactMethods[thisType]
 
             model.channels = await slackLogic.getChannels()
             model.channels.unshift({ id : null, name : 'No channel'})
-            res.send(view(model))
-        } catch(ex){
-            errorHandler(res, ex)
-        }
-    })
-
-    app.get('/wbtb-slack/user/:userId', async function(req, res){
-        try {
-            const view = await handlebars.getView('wbtb-slack/views/user')
-                data = await pluginsManager.getExclusive('dataProvider'),
-                user = await data.getUser(req.params.userId, {expected : true}),
-                model = {
-                    wbtbSlack : { 
-                        user
-                    }
-                }
-
-            model.wbtbSlack.slackId = user.contactMethods[thisType] ? user.contactMethods[thisType].slackId : null
+            
+            await viewModelHelper.layout(model, req)
 
             res.send(view(model))
         } catch(ex){
@@ -58,23 +44,19 @@ module.exports = app => {
         }
     })
 
-    app.post('/wbtb-slack/settings', async function(req, res){
+
+    /**
+     * Updates 
+     */
+    app.post(`/${thisType}/settings`, async function(req, res){
         try {
+
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
             let data = await pluginsManager.getExclusive('dataProvider'),
-                token = await data.getPluginSetting(thisType, 'token'),
                 jobs = await data.getAllJobs()
-
-            // update or create the token field for this plugin in the generic plugin settings 
-            if (token) {
-                token.value = req.body.token
-                await data.updatePluginSetting(token)
-            } else {
-                token = PluginSetting()
-                token.plugin = thisType
-                token.name = 'token'
-                token.value = req.body.token
-                await data.insertPluginSetting(token)
-            }
             
             // save job-channel bindings
             for (const job of jobs){
@@ -90,24 +72,98 @@ module.exports = app => {
                 await data.updateJob(job)
             }
 
-            res.redirect('/wbtb-slack')
+            res.redirect(`/${thisType}`)
+        } catch(ex){
+            errorHandler(res, ex)
+        }
+    })
+
+
+    /**
+     * Gets view of slack settings for a specific user
+     */    
+    app.get(`/${thisType}/user/:userId`, async function(req, res){
+        try {
+
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureUserOrRole(req, req.params.userId, 'admin')
+            //////////////////////////////////////////////////////////
+            
+            const view = await handlebars.getView(`${thisType}/views/user`),
+                data = await pluginsManager.getExclusive('dataProvider'),
+                user = await data.getUser(req.params.userId, { expected : true }),
+                model = {
+                    wbtbSlack : { 
+                        user
+                    }
+                }
+
+            model.wbtbSlack.slackId = user.pluginSettings[thisType] ? user.pluginSettings[thisType].slackId : null
+
+            await viewModelHelper.layout_userSettings(model, req, req.params.userId)
+
+            res.send(view(model))
         } catch(ex){
             errorHandler(res, ex)
         }
     })
 
     
-    app.post('/wbtb-slack/user/:userId', async function(req, res){
+    /**
+     * 
+     */
+    app.post(`/${thisType}/user/:userId`, async function(req, res){
         try {
-            const data = await pluginsManager.getExclusive('dataProvider'),
-                user = await data.getUser(req.params.userId, {expected : true})
 
-            const contactMethod = user.contactMethods[thisType] || {}
-            user.contactMethods[thisType] = contactMethod
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureUserOrRole(req, req.params.userId, 'admin')
+            //////////////////////////////////////////////////////////
+
+            const data = await pluginsManager.getExclusive('dataProvider'),
+                user = await data.getUser(req.params.userId, {expected : true}),
+                contactMethod = user.pluginSettings[thisType] || {}
+
+            user.pluginSettings[thisType] = contactMethod
             contactMethod.slackId = req.body.slackId
             await data.updateUser(user)
 
-            res.redirect(`/wbtb-slack/user/${user.id}`)
+            res.redirect(`/${thisType}/user/${user.id}`)
+        } catch(ex){
+            errorHandler(res, ex)
+        }
+    })
+
+
+    /**
+     * 
+     */
+    app.get(`/${thisType}/test-alertUser/:userId/:buildId`, async function(req, res){
+        try {
+
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+            let slackPlugin = await pluginsManager.get('wbtb-slack'),   
+                data = await pluginsManager.getExclusive('dataProvider'),
+                user = null, 
+                build = null
+                
+            try {
+                user = await data.getUser(req.params.userId, { expected : true })
+            } catch(ex) {
+                res.send(`user not found`)
+            }
+
+            try {
+                build = await data.getBuild(req.params.buildId, { expected : true })
+            } catch(ex) {
+                res.send(`build not found`)
+            }
+
+            await slackPlugin.alertUser(user, build)
+
+            res.send('user has been contacted')
         } catch(ex){
             errorHandler(res, ex)
         }

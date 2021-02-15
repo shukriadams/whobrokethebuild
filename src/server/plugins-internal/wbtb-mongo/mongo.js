@@ -2,7 +2,7 @@ const settings = require(_$+'helpers/settings'),
     constants = require(_$+'types/constants'),
     MongoClient = require('mongodb').MongoClient,
     ObjectID = require('mongodb').ObjectID,
-
+    
     /** 
      * Gets a mongo collection, and db instance for closing.
      */
@@ -41,13 +41,20 @@ const settings = require(_$+'helpers/settings'),
 
                     const db = client.db(settings.mongoDBName)
 
-                    await db.collection(constants.TABLENAME_USERS).createIndex( { 'publicId': 1, 'authMethod' : 1 }, { unique: true, name : `${constants.TABLENAME_USERS}_unique` })
-                    await db.collection(constants.TABLENAME_CISERVERS).createIndex( { 'name': 1 }, { unique: true, name : `${constants.TABLENAME_CISERVERS}_unique` })
-                    await db.collection(constants.TABLENAME_BUILDS).createIndex( { 'jobId': 1, 'build' : 1  }, { unique: true, name : `${constants.TABLENAME_BUILDS}_unique` })
-                    await db.collection(constants.TABLENAME_JOBS).createIndex( { 'name': 1, 'CIServerId' : 1  }, { unique: true, name : `${constants.TABLENAME_JOBS}_unique` })
+                    // unique constraints
                     await db.collection(constants.TABLENAME_BUILDINVOLVEMENTS).createIndex( { 'buildId' : 1, 'revision' : 1 }, { unique: true, name : `${constants.TABLENAME_BUILDINVOLVEMENTS}_unique` })
-                    await db.collection(constants.TABLENAME_CONTACTLOGS).createIndex( { 'receiverContext' : 1, 'type' : 1, 'eventContext' : 1 }, { unique: true, name : `${constants.TABLENAME_CONTACTLOGS}_unique` })
-                    
+                    await db.collection(constants.TABLENAME_BUILDS).createIndex( { 'jobId': 1, 'build' : 1  }, { unique: true, name : `${constants.TABLENAME_BUILDS}_unique` })
+                    await db.collection(constants.TABLENAME_CISERVERS).createIndex( { 'name': 1 }, { unique: true, name : `${constants.TABLENAME_CISERVERS}_unique` })
+                    await db.collection(constants.TABLENAME_JOBS).createIndex( { 'name': 1, 'CIServerId' : 1  }, { unique: true, name : `${constants.TABLENAME_JOBS}_unique` })
+                    await db.collection(constants.TABLENAME_PLUGINSETTINGS).createIndex( { 'plugin' : 1, 'name' : 1 }, { unique: true, name : `${constants.TABLENAME_PLUGINSETTINGS}_unique` })
+                    await db.collection(constants.TABLENAME_USERS).createIndex( { 'publicId': 1, 'authMethod' : 1 }, { unique: true, name : `${constants.TABLENAME_USERS}_unique` })
+                    await db.collection(constants.TABLENAME_VCSERVERS).createIndex( { 'name': 1 }, { unique: true, name : `${constants.TABLENAME_VCSERVERS}_unique` })
+
+                    // lookup-optimized indexes
+                    await db.collection(constants.TABLENAME_BUILDINVOLVEMENTS).createIndex( {  userId : 1 }, { unique: false, name : `${constants.TABLENAME_BUILDINVOLVEMENTS}_performance` })
+                    await db.collection(constants.TABLENAME_BUILDS).createIndex( { jobId: 1, build : 1, status: 1, isLogParsed: 1, started: 1, delta : 1  }, { unique: false, name : `${constants.TABLENAME_BUILDS}_performance` })
+                    await db.collection(constants.TABLENAME_CONTACTLOGS).createIndex( { 'receiverContext' : 1, 'type' : 1, 'eventContext' : 1 }, { unique: false, name : `${constants.TABLENAME_CONTACTLOGS}_performance` })
+                    await db.collection(constants.TABLENAME_USERS).createIndex( { authMethod: 1, publicId: 1, 'userMappings.name' : 1, 'userMappings.VCServerId' : 1 }, { unique: false, name : `${constants.TABLENAME_USERS}_performance` })
 
                     client.close()
                     resolve()
@@ -121,19 +128,19 @@ const settings = require(_$+'helpers/settings'),
      */ 
     getById = async function(collectionName, id, options = {}){
         return new Promise(async (resolve, reject)=>{
-
-            // if an id is corrupt/ invalid we don't want objectId to throw a parse error
-            // and derail entire call - an invalid id should be treated as "not found"
-            // which is a null return
             try {
-                id = new ObjectID(id)
-            }catch(ex){
-                if (options.expected)
-                    return reject(`Expected record id ${id} from table ${collectionName} not found`)
-                resolve(null)
-            }
+                // if an id is corrupt/ invalid we don't want objectId to throw a parse error
+                // and derail entire call - an invalid id should be treated as "not found"
+                // which is a null return
+                try {
+                    id = new ObjectID(id)
+                }catch(ex){
+                    if (options.expected)
+                        return reject(`Expected record id ${id} from table ${collectionName} not found`)
 
-            try {
+                    resolve(null)
+                }
+
                 const mongo = await _getCollection(collectionName)
                 mongo.collection.findOne({ _id : id },(err, record)=>{
                     if (err)
@@ -228,7 +235,6 @@ const settings = require(_$+'helpers/settings'),
         return new Promise(async function(resolve, reject){
             try {
                 const mongo = await _getCollection(collectionName)
-
                 mongo.collection.deleteMany(query, function(err){
                     if (err)
                         return reject(err)
@@ -249,7 +255,6 @@ const settings = require(_$+'helpers/settings'),
     update = async function update(collectionName, record){
         return new Promise(async function(resolve, reject){
             try {
-                
                 const mongo = await _getCollection(collectionName)
                 mongo.collection.updateOne({ _id : record._id }, { $set: record }, {}, function(err){
                     if (err)

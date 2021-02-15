@@ -1,17 +1,19 @@
-const 
-    settings = require(_$+'helpers/settings'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+const viewModelHelper = require(_$+'helpers/viewModel'),
     errorHandler = require(_$+'helpers/errorHandler'),
+    sessionHelper = require(_$+'helpers/session'), 
     handlebars = require(_$+'helpers/handlebars')
 
 module.exports = function(app){
     app.get('/settings', async function(req, res){
         try {
-            let 
-                view = await handlebars.getView('settings/mySettings'),
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+                        
+            let view = await handlebars.getView('settings/mySettings'),
                 model = {}
 
-            await commonModelHelper(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

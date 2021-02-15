@@ -1,12 +1,11 @@
-const
-    pluginsManager = require(_$+'helpers/pluginsManager'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
     Session = require(_$+ 'types/session')
 
 module.exports = {
 
-    insert : async (userId, agent, ip) => {
+    async insert(userId, agent, ip){
         const data = await pluginsManager.getExclusive('dataProvider'),
-            session = Session()
+            session = new Session()
 
         session.userId = userId
         session.userAgent = agent
@@ -16,7 +15,12 @@ module.exports = {
         return await data.insertSession(session)
     },
 
-    getById : async id => {
+    async delele(id){
+        const data = await pluginsManager.getExclusive('dataProvider')
+        await data.removeSession(id)
+    },
+
+    async getById(id){
         const data = await pluginsManager.getExclusive('dataProvider')
         return await data.getSessionById(id)
     }

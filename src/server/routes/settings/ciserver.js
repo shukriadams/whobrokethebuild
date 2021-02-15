@@ -1,15 +1,19 @@
-const 
-    settings = require(_$+'helpers/settings'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+const viewModelHelper = require(_$+'helpers/viewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     ciServerLogic = require(_$+'logic/CIServer'),
+    sessionHelper = require(_$+'helpers/session'), 
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars')
 
 module.exports = app => {
-
     app.get('/settings/ciserver/:id?', async (req, res) =>{
         try {
+
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+
             const view = await handlebars.getView('settings/ciserver'),
                 model = { },
                 data = await pluginsManager.getExclusive('dataProvider')
@@ -20,9 +24,19 @@ module.exports = app => {
             if (req.params.id){
                 model.ciserver = await data.getCIServer(req.params.id)
 
-                const ciServerPlugin = await pluginsManager.get(model.ciserver.type)
-                    existingJobs = await data.getAllJobsByCIServer(req.params.id),
-                    availableJobs = await ciServerPlugin.getJobs(model.ciserver.url)
+                let ciServerPlugin = await pluginsManager.get(model.ciserver.type),
+                    url = await model.ciserver.getUrl(),
+                    availableJobs = [],
+                    existingJobs = []
+                
+                try 
+                {
+                    existingJobs = await data.getAllJobsByCIServer(req.params.id)
+                    availableJobs = await ciServerPlugin.getJobs(url)
+                }catch(ex){
+                    __log.error(ex)
+                    model.error = JSON.stringify(ex)
+                }
 
                 model.jobs = []
 
@@ -52,7 +66,7 @@ module.exports = app => {
                 })
             }
 
-            await commonModelHelper(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){
@@ -62,6 +76,13 @@ module.exports = app => {
 
     app.delete('/settings/ciserver/:id', async (req, res) =>{
         try {
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+                        
+            await sessionHelper.ensureRole(req, 'admin')
+
             const id = req.params.id,
                 data = await pluginsManager.getExclusive('dataProvider')
 
@@ -77,6 +98,12 @@ module.exports = app => {
 
     app.post('/settings/ciserver', async function(req, res){
         try {
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+            await sessionHelper.ensureRole(req, 'admin')
+
             if (req.body.id)
                 await ciServerLogic.update(req.body)
             else    

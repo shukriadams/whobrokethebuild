@@ -3,3 +3,9 @@
 .job-buildTitle {
     @include typography-title2;
 }
+
+.job-buildsList {
+    .card-content {
+        width: 50%;
+    }
+}

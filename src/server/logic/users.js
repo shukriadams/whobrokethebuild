@@ -1,5 +1,4 @@
-let 
-    pluginsManager = require(_$+'helpers/pluginsManager'),
+let pluginsManager = require(_$+'helpers/pluginsManager'),
     randomstring = require('randomstring'),
     constants = require('./../types/constants'),
     AuthMethod = require('./../types/authMethod'),
@@ -27,12 +26,14 @@ module.exports = {
     
     async initializeAdmin (){
         // enforce master password
-        const data = await pluginsManager.getExclusive('dataProvider'),
-            settings = require(_$+'helpers/settings')
-        
-        let user = await data.getByPublicId(constants.ADMINUSERNAME, 'AUTHPROVIDER_INTERNAL')
-        if (!user)
+        let data = await pluginsManager.getExclusive('dataProvider'),
+            settings = require(_$+'helpers/settings'),
+            user = await data.getByPublicId(constants.ADMINUSERNAME, 'AUTHPROVIDER_INTERNAL')
+
+        if (!user){
             user = await this.createInternal(constants.ADMINUSERNAME, settings.adminPassword)
+            __log.info(`internal admin user autocreated`)
+        }
 
         user.password = settings.adminPassword
         user.isAuthApproved = true
@@ -44,9 +45,9 @@ module.exports = {
     },
 
     async createInternal(name, password){
-        const data = await pluginsManager.getExclusive('dataProvider')
+        let data = await pluginsManager.getExclusive('dataProvider'),
+            user = new User()
 
-        let user = User()
         user.authData = AuthMethod(constants.AUTHPROVIDER_INTERNAL)
         user.authMethod = constants.AUTHPROVIDER_INTERNAL
         user.name = name
@@ -68,11 +69,16 @@ module.exports = {
         await data.removeUser(user)
     },
 
-    async reject (){
+
+    /**
+     * revokes user's ability to log in
+     */
+    async reject (user){
         const data = await pluginsManager.getExclusive('dataProvider')
         user.isAuthApproved = false
         await data.updateUser(user)
     },
+
 
     async getAll (){
         const data = await pluginsManager.getExclusive('dataProvider')

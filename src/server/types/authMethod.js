@@ -1,24 +1,20 @@
-const constants = require(_$+ 'types/constants');
-
-const AUTHPROVIDER_AD = {
-    username: null,                                     // string. ActiveDirectory username.
-    type : constants.AUTHPROVIDER_AD
-}
-
-const AUTHPROVIDER_GITHUB = {
-    githubId: null,                                         // string
-    type : constants.AUTHPAUTHPROVIDER_GITHUBROVIDER_AD //
-}
-
-const AUTHPROVIDER_INTERNAL = {
-    hash: null,                                         // STRING
-    salt: null,                                         // STRING
-    type : constants.AUTHPROVIDER_INTERNAL              // STRING
-}
-
-const AUTHPROVIDER_NONE = {
-    type : constants.AUTHPROVIDER_NONE
-}
+const constants = require(_$+ 'types/constants'),
+    AUTHPROVIDER_AD = {
+        username: null,                                     // string. ActiveDirectory username.
+        type : constants.AUTHPROVIDER_AD
+    },
+    AUTHPROVIDER_GITHUB = {
+        githubId: null,                                         // string
+        type : constants.AUTHPAUTHPROVIDER_GITHUBROVIDER_AD //
+    },
+    AUTHPROVIDER_INTERNAL = {
+        hash: null,                                         // STRING
+        salt: null,                                         // STRING
+        type : constants.AUTHPROVIDER_INTERNAL              // STRING
+    },
+    AUTHPROVIDER_NONE = {
+        type : constants.AUTHPROVIDER_NONE
+    }
 
 module.exports = function(type){
     switch(type){

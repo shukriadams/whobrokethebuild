@@ -27,11 +27,21 @@ module.exports = class {
                 {
                     groups: ["My Group","Our Admins"],
                     phone: "",
-                    name: "Bob McBobface",
+                    name: "Facey McFaceface",
                     mail: "",
-                    guid:"f184e39a-c6ff-44ba-b46b-5a53bc6cc6c3",
+                    guid:"f184e39a-c6ff-44ba-b46b-5a53bc6cc6c6",
                     dn : "CN=SupportMe,OU=Users,OU=mycompany,DC=mycompany,DC=local"
-                }            ]
+                },
+
+                {
+                    groups: ["My Group","Our Admins"],
+                    phone: "",
+                    name: "p4bob",
+                    mail: "p4@bob.bob",
+                    guid:"f184e39a-c6ff-44ba-b46b-5a53bc6cc6c1",
+                    dn : "CN=SupportMe,OU=Users,OU=mycompany,DC=mycompany,DC=local"
+                }            
+            ]
         }
     }
 }

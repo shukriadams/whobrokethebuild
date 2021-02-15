@@ -56,7 +56,7 @@
             Plugins
         </h2>
         <ul class="list">
-            {{#if vcservers}}
+            {{#if pluginLinks}}
                 {{#each pluginLinks}}
                     <li class="list-item list-item--textContent">
                         <a href="{{url}}">{{text}}</a>
@@ -78,6 +78,13 @@
             Daemon is currently stopped.
             <a class="button" href="/settings/system/daemon/start">Start</a>
         {{/if}}
+
+        <h2>DANGER ZONE</h2>
+        <div>
+            <a class="button settings-wipeAllBuilds" href="javascript:void(0)">Wipe all builds</a>
+            <label for="settings-wipeAllBuildsConfirm">I mean it!</label>
+            <input id="settings-wipeAllBuildsConfirm" type="checkbox" />
+        </div>
 
     {{/content}}
 {{/extend}}

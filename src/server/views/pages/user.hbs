@@ -6,15 +6,27 @@
                 <a href="/settings/user/{{user.id}}">Settings</a>
             {{/if}}
 
-            <h2>{{user.name}}'s recent builds</h2>
-            <ul>
-                {{#each buildInvolvements}}
-                    <li>
-                        {{__build.__job.name}}
-                        status : {{__build.status}}
-                    </li>
-                {{/each}}
+            <h2>{{user.name}}'s builds</h2>
+            <ul class="list">
+                {{#if buildInvolvements.items}}
+                    {{#each buildInvolvements.items}}
+                        <li class="list-item card">
+                            <div class="card-status card-status--{{statusTranslate __build.status}}"></div>
+
+                            <div class="card-content">
+                                <a href="/build/{{__build.id}}">{{__build.build}} - {{__build.__job.name}}</a>
+                                {{ago __build.started}}
+                            </div>
+                        </li>
+                    {{/each}}
+                {{else}}
+                    <p>
+                        {{user.name}} hasn't triggered any builds yet.
+                    </p>
+                {{/if}}
             </ul>
+
+            {{{pager baseUrl buildInvolvements }}}
 
         </div>
     {{/content}}

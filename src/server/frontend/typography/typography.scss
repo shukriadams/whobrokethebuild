@@ -1,9 +1,25 @@
+@import './../common/variables.scss';
+
 @mixin typography-title {
-    font-size: 48px;
+    font-size: 3vw;
     font-weight: bold;
+    @media #{$mediaQuery-aboveLarge}{
+        font-size: 48px;
+    }
 }
 
 @mixin typography-title2 {
-    font-size: 36px;
+    font-size: 2vw;
     font-weight: bold;
+    @media #{$mediaQuery-aboveLarge}{
+        font-size: 36px;
+    }    
+}
+
+@mixin typography-warning {
+    color: var(--color-royalPurple);
+}
+
+.typography-warning {
+    @include typography-warning;
 }

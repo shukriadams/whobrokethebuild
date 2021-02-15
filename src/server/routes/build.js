@@ -1,8 +1,10 @@
-const commonModelHelper = require(_$+ 'helpers/commonModels'),
+const viewModelHelper = require(_$+'helpers/viewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
+    logHelper = require(_$+'helpers/log'),
     buildLogic = require(_$+'logic/builds'),
     jobsLogic = require(_$+'logic/job'),
+    constants = require(_$+'types/constants'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){
@@ -20,12 +22,15 @@ module.exports = function(app){
         try {
             const view = await handlebars.getView('buildLog'),
                 data = await pluginsManager.getExclusive('dataProvider'),
+                logHelper = require(_$+'helpers/log'),
                 build = await data.getBuild(req.params.id, { expected : true }),
+                job = await jobsLogic.getById(build.jobId),
                 model = {
                     build
                 }
 
-            await commonModelHelper(model, req)
+            model.log = await logHelper.parseFromFile(build.logPath, job.logParser)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
         } catch(ex) {
             errorHandler(res, ex)
@@ -34,25 +39,54 @@ module.exports = function(app){
 
     app.get('/build/:id', async (req, res)=>{
         try {
-            const data = await pluginsManager.getExclusive('dataProvider'),
+            const faultHelper = require(_$+'helpers/fault'),
+                data = await pluginsManager.getExclusive('dataProvider'),
                 build = await buildLogic.getById(req.params.id),
                 view = await handlebars.getView('build'),
+                job = await jobsLogic.getById(build.jobId),
+                vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
+                ciServer = await data.getCIServer(job.CIServerId, { expected : true }),
+                ciServerPlugin = await pluginsManager.get(ciServer.type),
+                vcsPlugin = await pluginsManager.get(vcServer.vcs),
                 model = {
-                    build
+                    build,
+                    job,
+                    ciServer
                 }
 
-            build.__job = await jobsLogic.getById(build.jobId)
+            model.linkToBuild = ciServerPlugin.linkToBuild(ciServer, job, build)
+            build.__isFailing = build.status === constants.BUILDSTATUS_FAILED 
 
             // REFACTOR THIS TO LOGIC LAYER
-            build.__buildInvolvements = await data.getBuildInvolementsByBuild(build.id)
+            model.buildInvolvements = await data.getBuildInvolementsByBuild(build.id)
+            
+            // parse and filter log if only certain lines should be shown
+            let logParser = model.job.logParser ? await pluginsManager.get(model.job.logParser) : null,
+                logErrors = null,
+                allowedTypes = ['error']
 
-            for (const buildInvolvement of build.__buildInvolvements){
+
+            if (logParser){
+                const parsedLog = await logHelper.parseFromFile(build.logPath, model.job.logParser)
+                model.logParsedLines = parsedLog.lines ? parsedLog.lines.filter(line => allowedTypes.includes(line.type)) : []
+                model.isLogParsed = true
+                logErrors = await logHelper.parseErrorsFromFile(build.logPath, model.job.logParser)
+            }
+
+            for (const buildInvolvement of model.buildInvolvements){
                 // get user object for revision, if mapped
                 if (buildInvolvement.userId)
                     buildInvolvement.__user = await data.getUser(buildInvolvement.userId)
+
+                buildInvolvement.__revision = await vcsPlugin.getRevision(buildInvolvement.revision, vcServer)
+                if (logErrors)
+                    faultHelper.processRevision(buildInvolvement.__revision, logErrors)
             }
 
-            await commonModelHelper(model, req)
+
+
+
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

@@ -1,6 +1,6 @@
 const pluginsManager = require(_$+'helpers/pluginsManager'),
     settings = require(_$+ 'helpers/settings'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
     jobLogic = require(_$+'logic/job'),
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars')
@@ -11,7 +11,7 @@ module.exports = function(app){
         try {
             await jobLogic.delete(req.params.id)
             res.json({})
-        }catch(ex){
+        } catch(ex) {
             errorHandler(res, ex)
         }
     })
@@ -24,17 +24,16 @@ module.exports = function(app){
                 page = parseInt(req.query.page || 1) - 1 // pages are publicly 1-rooted, 0-rooted internally
             
             model.job = await data.getJob(req.params.id, { expected : true })
-            model.job.__baseUrl = `/job/${req.params.id}`
+            model.baseUrl = `/job/${req.params.id}`
 
             model.jobBuilds = await data.pageBuilds(req.params.id, page, settings.standardPageSize)
 
             // populate revision array (array of string ids) with revision objects from source control
             //
             for (let build of model.jobBuilds.items){
-                const
-                    revisions = [],
-                    job = await data.getJob(build.jobId, { expected : true}),
-                    vcServer = await data.getVCServer(job.VCServerId, { expected : true}),
+                const revisions = [],
+                    job = await data.getJob(build.jobId, { expected : true }),
+                    vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
                     vcsPlugin = await pluginsManager.get(vcServer.vcs)
 
                 for (let revision of build.revisions){
@@ -48,7 +47,7 @@ module.exports = function(app){
                 build.__revisions = revisions
             }
             
-            await commonModelHelper(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

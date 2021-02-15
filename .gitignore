@@ -20,7 +20,7 @@
 /docker/build.tar.gz
 /dev/gitlab
 /dev/jenkins
-src/_data
+src/data
 src-copy
 src/.cache-require-paths.json
 src/public/scripts/
@@ -29,6 +29,7 @@ dev/pgadmin
 build/plugins
 src/server/plugins-internal/postgres.json
 src/server/plugins-internal/*.json
+src/server/plugins-internal
 src/.plugin.conf
 src/.env
 src/HIDE.env
@@ -48,3 +49,5 @@ src/.envreference
 build/node/.stage.tar.gz
 src/plugins.local.json
 __testing
+build/base/.stage.tar.gz
+src/server/plugins-internal/**/mock

@@ -1,20 +1,14 @@
-:root {
-    --color-crusta: #FE752F;
-    --color-toxicHulk: #14ff14;
-    --color-cyan: #2cffe1;
-    --color-royalPurple: #7B40A5;
-    --color-redRibbon: #EB0A26;
-    --color-indigo: rgba(32,37,77,1);
-    --color-malibu: rgba(57,65,114,1);
-    --color-lynch: #666c90;
-    --color-alabaster: #f7f7f7;
-    --color-white: #fff;
-    --color-gray: #818181;
-    --color-mineshaft: #242424;
-    --color-black :#000;
-    --universalPadding: 32px;
-    --universalPaddingLesser: 8px;
-    --layout-maxWidth: 1400px;
-    --layout-headerHeight: 100px;
-    --layout-inputElementHeight: 36px;
-}
+
+
+/****************************************************************************************************
+Media query
+****************************************************************************************************/
+$mediaQuery-smallScreen: 768px !default;
+$mediaQuery-mediumScreen: 1280px !default;
+$mediaQuery-largeScreen: 1440px !default;
+$mediaQuery-belowSmall: "only screen and (max-width: #{$mediaQuery-smallScreen})" !default;
+$mediaQuery-aboveSmall: "only screen and (min-width: #{$mediaQuery-smallScreen})" !default;
+$mediaQuery-belowMedium: "only screen and (max-width: #{$mediaQuery-mediumScreen})" !default;
+$mediaQuery-aboveMedium: "only screen and (min-width: #{$mediaQuery-mediumScreen})" !default;
+$mediaQuery-belowLarge: "only screen and (max-width: #{$mediaQuery-largeScreen})" !default;
+$mediaQuery-aboveLarge: "only screen and (min-width: #{$mediaQuery-largeScreen})" !default;

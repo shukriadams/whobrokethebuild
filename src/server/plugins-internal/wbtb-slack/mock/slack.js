@@ -63,11 +63,10 @@ module.exports = class {
                         message : 'wbtb-slack:open - arg missing .text value. This send would fail on real slack'
                     })
     
-                console.log(`mock slack sending message to channel ${args.channel} :`)
+                __log.debug(`mock slack sending message to channel ${args.channel} :`)
                 const writeFolder = path.join(settings.dataFolder, 'slackMockMessages')
                 fs.ensureDirSync(writeFolder)
-                fs.outputJsonSync(path.join(writeFolder, `${new Date().getTime()}-slack-post.json`), args)
-                console.log(args.text)
+                fs.outputJsonSync(path.join(writeFolder, `${new Date().getTime()}-slack-post.json`), args, { spaces : 4 })
                 return 'message posted'
             }
         }

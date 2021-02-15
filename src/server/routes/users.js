@@ -1,6 +1,6 @@
 const pluginsManager = require(_$+'helpers/pluginsManager'),
     errorHandler = require(_$+'helpers/errorHandler'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){
@@ -11,7 +11,21 @@ module.exports = function(app){
                 view = await handlebars.getView('users'),
                 model = { users }
 
-            await commonModelHelper(model, req)
+            // map usermappings on vcservers
+            for (const user of users){
+                if (!user.userMappings)
+                    continue
+
+                for (let mapping of user.userMappings){
+                    const vcServer = await data.getVCServer(mapping.VCServerId)
+                    if (!vcServer)
+                        mapping.__error = `Mapped to invalid vcserver ${mapping.VCServerId}`
+                    
+                    mapping.__vcServerBinding = vcServer
+                }
+            }
+
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

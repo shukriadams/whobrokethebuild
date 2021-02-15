@@ -5,9 +5,15 @@
             <li class="list-item card">
                 <div class="card-status card-status--{{statusTranslate build.status}}"></div>
                 <div class="card-content">
-                    <h1>Build {{build.build}}</h1>
+                    <h1>Build #{{build.build}}</h1>
+                    <p>
+                        {{ago build.started}}
+                    </p>
                     <p>
                         Built on :  {{build.host}}
+                    </p>
+                    <p>
+                        <a href="{{linkToBuild}}">View build on {{ciServer.name}}</a>
                     </p>
                     <p>
                         Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
@@ -19,55 +25,63 @@
             <li class="list-item build-item">
                 <div>
                     <p>
-                        Job : <a href="/job/{{build.jobId}}">{{build.__job.name}}</a>
+                        Job : <a href="/job/{{build.jobId}}">{{job.name}}</a>
                     </p>
                     {{#if session.isAdmin}}
                         <button class="button build-delete" data-id="{{build.id}}">Remove build</button>    
                     {{/if}}
                 </div>
 
-                <h2>Revisions</h2>
+                <h2>Changes in this build</h2>
                 <ul class="list">
-                    {{#if build.__buildInvolvements}}
-                        {{#each build.__buildInvolvements}}
+                    {{#if buildInvolvements}}
+                        {{#each buildInvolvements}}
                             <li>
-                                <div>
-                                    {{>buildInvolvementUserLink this}}
-                                </div>
-                                {{__revision.description}}
+                                <h3>
+                                    {{>buildInvolvementUserLink this}} ({{revision}})
+                                </h3>
+                                <p>
+                                    {{__revision.description}}
+                                </p>
                                 <ul>
-                                    {{#each revisionObject.files}}
-                                        <li>
+                                    {{#each __revision.files}}
+                                        <li class="revision-file revision-file--{{#if isFault}}atFault{{/if}}">
                                             {{file}}
-                                            <div>
-                                                fault change :{{faultChance}}   
-                                            </div>
                                         </li>
                                     {{/each}}
                                 </ul>
-
                             </li>
                         {{/each}}
                     {{else}}
                         <li>
-                            That's odd - there are no revisions in this build?
+                            There are no revisions in this build
                         </li>
                     {{/if}}
                 </ul>
 
-                <h2>Log</h2>
-                <p>
-                    {{#if build.isLogParsed}}
-                        {{{preserveSpaces build.logParsed}}}
+                {{#eq build.status constants.BUILDSTATUS_FAILED}}
+                    <h2>Log</h2>
+                    {{#if isLogParsed}}
+                        <ul class="buildLog">
+                            {{#if logParsedLines}}
+                                {{#each logParsedLines}}
+                                    <li class="buildLog-item buildLog-item--{{type}}">
+                                        {{text}}
+                                    </li>
+                                {{/each}}
+                                <li>
+                                    <a href="/build/log/{{build.id}}">Full log</a>
+                                </li>
+                            {{else}}
+                                <li class="buildLog-item">
+                                    Log is empty
+                                </li>
+                            {{/if}}
+                        </ul>
                     {{else}}
-                        Log not parsed.
+                        Build log could not be parsed
                     {{/if}}
-                </p>
-
-                <div>
-                    <a href="/build/log/{{build.id}}">Full log</a>
-                </div>
-
+                {{/eq}}
             </li>
         </ul>
 

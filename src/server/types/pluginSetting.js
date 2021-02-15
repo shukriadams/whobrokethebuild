@@ -1,7 +1,15 @@
-module.exports = function(){
-    return Object.assign({}, {
-        plugin: null,   // STRING. Required. unique if of plugin this setting belongs to
-        name: null,     // STRING. Required. name of setting
-        value: null       // STRING. Value.
-    })
+/**
+ * @typedef {Object} PluginSetting
+ * @property {string} plugin Required. unique if of plugin this setting belongs to
+ * @property {string} name Required. name of setting
+ * @property {string} value
+ */
+module.exports = class PluginSetting {
+
+    constructor(){
+        this.plugin = null
+        this.name = null
+        this.value = null
+    }
+
 }

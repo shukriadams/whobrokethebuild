@@ -3,21 +3,27 @@
     
         <div>
             <form action="/wbtb-activedirectory/users" method="POST">
-                <ul>
+                <p>
+                    Check users to add them, uncheck to remove.
+                </p>
+                <ul class="list">
                     {{#each users}}
-                        <li>
-                            {{#if mail}}
-                                <input type="checkbox" name="cb_userImport_{{guid}}" id="cb_userImport_{{guid}}" {{#eq isImported "on"}}checked{{/eq}}  />
-                            {{else}}
-                                No email set - cannot import
-                            {{/if}}
+                        <li class="list-item list-item--textContent">
                             <label for="cb_userImport_{{guid}}">
                                 {{name}}
                             </label>
+
+                            {{#if mail}}
+                                <input type="checkbox" name="cb_userImport_{{guid}}" id="cb_userImport_{{guid}}" {{#eq isImported "on"}}checked{{/eq}}  />
+                            {{else}}
+                                <span class="typography-warning">No email set - user cannot be imported</span>
+                            {{/if}}
                         </li>
                     {{/each}}
                 </ul>
-                <button class="button" type="submit">Save</button>
+                <p>
+                    <button class="button" type="submit">Save</button>
+                </p>
             </form>
         </div>
 

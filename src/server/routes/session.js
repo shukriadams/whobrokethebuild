@@ -2,15 +2,20 @@ const settings = require(_$+ 'helpers/settings'),
     constants = require(_$+ 'types/constants'),
     errorHandler = require(_$+'helpers/errorHandler'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
+    sessionHelper = require(_$+'helpers/session'),
     sessionLogic = require(_$+'logic/session')
     
 module.exports = function(app){
 
     /**
-     * Logs user out (deletes session associated with current user)
+     * Logs user out (deletes session and deletes session associated with current user)
      */
     app.delete('/session', async function(req, res){
         try {
+            const session = await sessionHelper.getCurrentSession(req)
+            if (session)
+                await sessionLogic.delele(session.id)
+
             res.clearCookie(constants.COOKIE_AUTHKEY)
             res.json({
                 error : null

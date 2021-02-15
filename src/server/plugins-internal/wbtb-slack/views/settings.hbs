@@ -4,32 +4,19 @@
             <form action="/wbtb-slack/settings" method="POST">
                 <h1>Slack Settings</h1>
                 <div>
-                    Access token
-                    <input name="token" value="{{wbtbSlack.accessToken}}" placeholder="Slack access token" type="text" /> 
-                </div>
-                
-                <div>
-                    {{#if wbtbSlack.accessToken}}
-
-                        {{#if jobs}}
-                            {{#each jobs}}
-                                <div>{{name}}</div>
-                                <div>
-                                    <select name="select_{{id}}">
-                                        {{#each ../channels}}
-                                            <option value="{{id}}" {{#eq id ../__contactMethod.channelId}}selected{{/eq}}>{{name}}</option>
-                                        {{/each}}
-                                    </select>
-                                </div>
-                            {{/each}}
-                        {{else}}
-                            No Jobs set yet - create one to assign it's alerts to a Slack channel.
-                        {{/if}}
-
+                    {{#if jobs}}
+                        {{#each jobs}}
+                            <div>{{name}}</div>
+                            <div>
+                                <select name="select_{{id}}">
+                                    {{#each ../channels}}
+                                        <option value="{{id}}" {{#eq id ../__contactMethod.channelId}}selected{{/eq}}>{{name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                        {{/each}}
                     {{else}}
-                        <p>
-                            Slack access token hasn't been set yet - cannot list channels
-                        </p>
+                        No Jobs set yet - create one to assign it's alerts to a Slack channel.
                     {{/if}}
                 </div>                
 

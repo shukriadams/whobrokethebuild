@@ -1,0 +1,9 @@
+{
+    "name": "wbtb-internaldata",
+    "version": "0.0.1",
+    "desription": "Writes data down to the local filesystem so we can run WhoBrokeTheBuild without a database",
+    "dependencies": {},
+    "wbtb": {
+        "category": "dataProvider"
+    }
+}

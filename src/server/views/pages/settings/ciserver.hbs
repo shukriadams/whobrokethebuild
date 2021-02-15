@@ -36,6 +36,13 @@
 
             {{#unless isCreate}}
                 <h2>jobs</h2>
+
+                {{#if error}}
+                    <p class="typography-error">
+                        Error querying server : {{error}}
+                    </p>
+                {{/if}}
+
                 <ul class="list">
                     {{#each jobs}}
                         <li class="list-item">
@@ -56,6 +63,8 @@
                             {{#if __isImported}}
                                 <button class="button ciserver-deleteJob" data-id="{{id}}">Delete</button>
                             {{/if}}
+
+                            {{#unless logParser}}No log parser{{/unless}}
 
                         </li>
                     {{/each}}

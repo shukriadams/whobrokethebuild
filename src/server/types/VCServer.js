@@ -1,11 +1,23 @@
-module.exports = () =>{
-    return Object.assign( {}, {
-        name : null,        // STRING. Name of server, for display only
-        vcs: null,          // vcs plugin code for VCS that this job uses
-        username: null,     // STRING. username (optional) if CI server requires auth
-        password: null,     // STRING. Password (optional) if CI server requires auth
-        accessToken : null, // STRING. Normally used as alternative to username/password
-        isEnabled: true,
-        url : null,         // STRING, public URL of server
-    })
+/**
+ * @typedef {Object} VCServer
+ * @property {string} name Name of server, for display only
+ * @property {string} vcs plugin code for VCS that this job uses
+ * @property {string} username username (optional) if CI server requires auth
+ * @property {string} Password Password (optional) if CI server requires auth
+ * @property {string} accessToken Normally used as alternative to username/password
+ * @property {boolean} isEnabled 
+ * @property {string} url public URL of server
+ */
+module.exports = class VCServer {
+
+    constructor(){
+        this.name = null
+        this.vcs = null
+        this.username = null
+        this.password = null
+        this.accessToken = null
+        this.isEnabled = true
+        this.url = null
+    }
+    
 }

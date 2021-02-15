@@ -1,6 +1,27 @@
 @import "./../typography/typography";
 @import "./mixins";
 
+:root {
+    --color-crusta: #FE752F;
+    --color-toxicHulk: #14ff14;
+    --color-cyan: #2cffe1;
+    --color-royalPurple: #7B40A5;
+    --color-redRibbon: #EB0A26;
+    --color-indigo: rgba(32,37,77,1);
+    --color-malibu: rgba(57,65,114,1);
+    --color-lynch: #666c90;
+    --color-alabaster: #f7f7f7;
+    --color-white: #fff;
+    --color-gray: #818181;
+    --color-mineshaft: #242424;
+    --color-black :#000;
+    --universalPadding: 32px;
+    --universalPaddingLesser: 8px;
+    --layout-maxWidth: 1400px;
+    --layout-headerHeight: 100px;
+    --layout-inputElementHeight: 36px;
+}
+
 html, body {
     padding: 0;
     margin: 0;
@@ -28,6 +49,6 @@ h2 {
     @include typography-title2;
 }
 
-input, select {
+input[type=text], input[type=password], select {
     @include common-input;
 }

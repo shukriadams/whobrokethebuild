@@ -1,13 +1,25 @@
-module.exports = function(){
-    return Object.assign({}, {
-        buildId: null,                  // string, objectId of Build. always set
-        externalUsername: null,         // STRING. some user id from external system, such as SVN. always set
-        revision : null,                // STRING. the revision id the build involvement was based on.
-        revisionObject : null,          // Object. nullable. the revision object retgrieved from source control
-        userId : null,                  // STRING. objectId of User. can be null if user cannot be mapped
-        involvement: null,              // STRING, must be a constants.BUILDINVOLVEMENT_*. Always set.
-        ignoreFromBreakHistory: false,  // BOOL. should be used only to hide people if their changes are coincidentally involved.
-        blame: null,                    // STRING. must be a constants.BLAME_*. Always set.
-        comment: null                   // STRING
-    })
+/**
+ * @typedef {Object} BuildInvolment
+ * @property {string} buildId objectId of parent Build. always set
+ * @property {string} externalUsername some user id from external system, such as SVN. always set
+ * @property {string} revision the revision id the build involvement was based on.
+ * @property {import("./revision").Revision} revisionObject nullable. the revision object retrieved from source control
+ * @property {string} userId objectId of User. can be null if user cannot be mapped
+ * @property {string} involvement must be a constants.BUILDINVOLVEMENT_*. Always set.
+ * @property {boolean} ignoreFromBreakHistory should be used only to hide people if their changes are coincidentally involved.
+ * @property {string} blame must be a constants.BLAME_*. Always set.
+ * @property {string} comment 
+ */
+module.exports = class BuildInvolment{
+    constructor(){
+        this.buildId = null
+        this.externalUsername = null
+        this.revision = null
+        this.revisionObject = null
+        this.userId = null
+        this.involvement = null
+        this.ignoreFromBreakHistory = false
+        this.blame = null
+        this.comment = null                   
+    }
 }

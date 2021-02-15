@@ -22,6 +22,10 @@
     height: 128px;
 }
 
+.layout-content {
+    padding-bottom: var(--universalPadding);
+}
+
 .layout-scaffold {
     max-width: var(--layout-maxWidth);
     margin-left: auto;

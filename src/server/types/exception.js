@@ -1,5 +1,13 @@
-let constants = require(_$+'types/constants');
+/**
+ * @typedef {Object} Exception
+ * @property {string} code
+ * @property {Object} inner
+ * @property {string} message
+ * @property {string} public
+ * @property {boolean} forceLog
+ */
 
+const constants = require(_$+'types/constants')
 /**
  * Custom error, all throws in app should be of this type.
  * It has both public and private values, public is for exposing to users, private is for internal logging.
@@ -15,7 +23,8 @@ let constants = require(_$+'types/constants');
  *     forceLog : bool. If true, exception will always be written to logs when reaching API. Use this to log user-oriented errors that should not be happening.
  * }
  */
-function Exception(options = {}) {
+
+function exception(options = {}) {
 
     /*
         this.message = options.message || 'no message given';
@@ -31,13 +40,16 @@ function Exception(options = {}) {
     this.forceLog = options.forceLog === undefined ? false : options.forceLog
 
     if ("captureStackTrace" in Error)
-        Error.captureStackTrace(this, Exception)
+        // @ts-ignore
+        Error.captureStackTrace(this, exception)
     else
+        // @ts-ignore
         this.stack = (new Error()).stack
 }
 
-Exception.prototype = Object.create(Error.prototype)
-Exception.prototype.name = "Exception"
-Exception.prototype.constructor = Exception
 
-module.exports = Exception
+exception.prototype = Object.create(Error.prototype)
+exception.prototype.name = "exception"
+exception.prototype.constructor = exception
+
+module.exports = exception

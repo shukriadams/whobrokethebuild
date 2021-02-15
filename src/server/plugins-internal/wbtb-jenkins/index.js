@@ -1,19 +1,19 @@
-const
-    pluginsHelper = require(_$+'helpers/pluginsManager'),
-    encryption = require(_$+'helpers/encryption'),
+const pluginsHelper = require(_$+'helpers/pluginsManager'),
     constants = require(_$+'types/constants'),
     Build = require(_$+'types/build'),
+    fs = require('fs-extra'),
+    path = require('path'),
+    sanitize = require('sanitize-filename'),
     BuildInvolvment = require(_$+'types/buildInvolvement'),
     urljoin = require('urljoin'),
     settings = require(_$+ 'helpers/settings'),
-    logger = require('winston-wrapper').new(settings.logPath),
     httputils = require('madscience-httputils'),
     timebelt = require('timebelt')
 
 module.exports = {
     
 
-    validateSettings: async () => {
+    async validateSettings(){
         return true
     },
 
@@ -43,9 +43,22 @@ module.exports = {
 
 
     /**
+     * @param {object} ciServer
+     * @param {object} job
+     * @param {object} build
+     * 
+     * Required by interface for ciserver.
+     * Generates a link to the original ci server for a given build
+     */
+    linkToBuild(ciServer, job, build){
+        return urljoin(ciServer.url, 'job', encodeURIComponent(job.name), build.build)
+    },
+
+
+    /**
      * 
      */
-    downloadBuildLog : async (baseUrl, jobName, buildNumber)=>{
+    async downloadBuildLog(baseUrl, jobName, buildNumber){
 
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
@@ -56,7 +69,7 @@ module.exports = {
             let response = await httputils.downloadString(url)
             return response.body
         } catch(ex){
-            logger.error.error(ex)
+            __log.error(ex)
             return `log retrieval failed : ${ex}`
         }
     },
@@ -65,7 +78,7 @@ module.exports = {
     /**
      * Gets a list of all jobs on remote server, list is an array of strings
      */
-    getJobs : async(baseUrl)=>{
+    async getJobs(baseUrl){
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
@@ -85,7 +98,7 @@ module.exports = {
             return jobs
         } catch(ex){
             // return empty, write to log
-            logger.error.error(`failed to download/parse job list : ${ex}. Body was : ${body}`)
+            __log.error(`failed to download/parse job list : ${ex}. Body was : ${body}`)
             return []
         }
     },
@@ -94,7 +107,7 @@ module.exports = {
     /**
      * Gets an array of commit ids involved in a build. If the build has no commits, it was triggered manually.
      */
-    getBuildCommits : async(baseUrl, jobName, buildNumber)=>{
+    async getBuildCommits(baseUrl, jobName, buildNumber){
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
@@ -113,7 +126,7 @@ module.exports = {
 
             return items
         } catch(ex){
-            logger.error.error(`failed to download/parse commit list : ${ex}. Body was : ${body}`)
+            __log.error(`failed to download/parse commit list : ${ex}. Body was : ${body}`)
             return []
         }
     },
@@ -141,37 +154,45 @@ module.exports = {
      * build history for the given job
      */
     async importBuildsForJob(jobId){
-        const 
-            data = await pluginsHelper.getExclusive('dataProvider'),
+        let data = await pluginsHelper.getExclusive('dataProvider'),
             job = await data.getJob(jobId, { expected : true}),
             ciServer = await data.getCIServer(job.CIServerId, { expected : true}),
             vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
-            vcs = await pluginsHelper.get(vcServer.vcs)
+            vcs = await pluginsHelper.get(vcServer.vcs),
+            baseUrl = await ciServer.getUrl(),
+            json = null
+
+        if (!settings.buildLogsDump){
+            __log.error(`settings.buildLogsDump not set`)
+            return 
+        }
+
+        await fs.ensureDir(settings.buildLogsDump)
 
         // jobname must be url encoded
-        let baseUrl = ciServer.url
-        if (ciServer.username) 
-            baseUrl = ciServer.url.replace('://', `://${ciServer.username}:${await encryption.decrypt(ciServer.password)}@`) 
-
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
-        let url = urljoin(baseUrl, `job/${encodeURIComponent(job.name)}/api/json?pretty=true&tree=allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]`)
-        const response = await httputils.downloadString(url)
+        let url = urljoin(baseUrl, `job/${encodeURIComponent(job.name)}/api/json?pretty=true&tree=allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]`),
+            response = await httputils.downloadString(url)
         
         if (response.statusCode === 404){
-            logger.error.error(`Build job ${job.name} was not found on Jenkins server ${ciServer.name}.`)
+            __log.error(`Build job ${job.name} was not found on Jenkins server ${ciServer.name}.`)
             return
         }
 
-        let json = null
         try {
             json = JSON.parse(response.body)
         } catch(ex){
-            logger.error.error(`Failed to parse JSON from  job ${job.name}`, ex, response.body)
+            __log.error(`Failed to parse JSON from  job ${job.name}`, ex, response.body)
             return
         }
-        
+    
+        // limit the number of jobs back in time to import, if necessay.
+        let historyLimit = settings.historyLimit || job.historyLimit
+        if (!!historyLimit)
+            json.allBuilds = json.allBuilds.slice(0, historyLimit)
+            
         for (let remoteBuild of json.allBuilds){
             let localBuild = await data.getBuildByExternalId(jobId, remoteBuild.number)
             
@@ -185,20 +206,28 @@ module.exports = {
                 if (remoteBuild.duration)
                     localBuild.ended = timebelt.addMinutes(localBuild.started, remoteBuild.duration).getTime()
 
-                // fetch log if build is complete
-                if (!localBuild.log && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
-                    localBuild.log = await this.downloadBuildLog(baseUrl, job.name, localBuild.build)
-                    if (localBuild.log && localBuild.log.length > 10000)
-                        localBuild.log = localBuild.log.substring(0, 10000)
+                // fetch log if build is complete and log has not be previous fetched
+                if (!localBuild.logPath && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
+
+                    const pathFragment = `${sanitize(job.name)}-${localBuild.build}`,
+                        writePath = path.join(settings.buildLogsDump, pathFragment)
+                    
+                    try {
+                        const log = await this.downloadBuildLog(baseUrl, job.name, localBuild.build)
+                        await fs.writeFile(writePath, log)
+                        localBuild.logPath = pathFragment
+                        await data.updateBuild(localBuild)
+
+                    } catch (ex){
+                        __log.error(`unexpected error dumping reference log ${writePath}`, ex)
+                    }
                 }
 
-                // bad : this will constantly update records, even if not dirty
-                await data.updateBuild(localBuild)
                 continue
             }
             
             // insert build
-            localBuild = Build()
+            localBuild = new Build()
             localBuild.jobId = jobId
             localBuild.status = this.resultToStatus(remoteBuild.result)
             localBuild.build = remoteBuild.number
@@ -215,7 +244,7 @@ module.exports = {
                     if (buildInvolvment)
                         continue 
 
-                    buildInvolvment = BuildInvolvment()
+                    buildInvolvment = new BuildInvolvment()
                     buildInvolvment.externalUsername = revisionData.user
                     buildInvolvment.buildId = localBuild.id
                     buildInvolvment.revision = revision
@@ -224,12 +253,12 @@ module.exports = {
                 }
             }
             
-            logger.info.info(`Imported build ${job.name}:${remoteBuild.number}`)
+            __log.info(`Imported build ${job.name}:${remoteBuild.number}`)
         }
     },
 
     async verifyInstance (){
-        console.log(' not implemented yet')
+        __log.debug(' not implemented yet')
     }
 
 }

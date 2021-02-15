@@ -1,31 +1,37 @@
-const 
-    settings = require(_$+'helpers/settings'),
-    pluginsManager = require(_$+'helpers/pluginsManager'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
+    viewModelHelper = require(_$+'helpers/viewModel'),
+    sessionHelper = require(_$+'helpers/session'), 
     errorHandler = require(_$+'helpers/errorHandler'),
     handlebars = require(_$+'helpers/handlebars')
 
 module.exports = function(app){
+
+    
     app.get('/settings/user/:user', async function(req, res){
         try {
-            const 
-                data = await pluginsManager.getExclusive('dataProvider'),
+
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureUserOrRole(req, req.params.user, 'admin')
+            //////////////////////////////////////////////////////////
+
+            const data = await pluginsManager.getExclusive('dataProvider'),
                 view = await handlebars.getView('settings/user'),
-                user = await data.getUserById(req.params.user),
+                user = await data.getUser(req.params.user),
                 vcServers  = await data.getAllVCServers(),
-                contactMethods = await pluginsManager.getAllByCategory('contactMethod'),
+                plugins = await pluginsManager.getAllWithUserUI(),
                 model = {
                     vcServers,
-                    contactMethods : [],
+                    plugins : [],
                     user 
                 }
             
-            // build contact methods
-            for(const contactMethod of contactMethods)
-                model.contactMethods.push({
-                    link : `/${contactMethod.__wbtb.id}/user/${user.id}`,
-                    name : contactMethod.__wbtb.name,
+            // add links to contact methods that have UI's
+            for(const plugin of plugins)
+                model.plugins.push({
+                    link : `/${plugin.__wbtb.id}/user/${user.id}`,
+                    name : plugin.__wbtb.name,
                 })
+            
 
             // add vcserver names
             for (const mapping of user.userMappings){
@@ -36,7 +42,7 @@ module.exports = function(app){
                 mapping.vcServer = vcServer
             }
 
-            await commonModelHelper(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){
@@ -47,9 +53,12 @@ module.exports = function(app){
     
     app.post('/settings/user/updateVCServerMappings', async function(req, res){
         try {
-            const 
-                data = await pluginsManager.getExclusive('dataProvider'),
-                user = await data.getUserById(req.body.user)
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureUserOrRole(req, req.body.user, 'admin')
+            //////////////////////////////////////////////////////////
+
+            const data = await pluginsManager.getExclusive('dataProvider'),
+                user = await data.getUser(req.body.user)
 
             if (!user)
                 throw `user ${req.body.user} not found`
@@ -59,7 +68,7 @@ module.exports = function(app){
                 if (!mapping)
                     continue // mapping must always be created in add flow below
                 
-                mapping.name = item.name
+                mapping.name = item.name.trim()
             }
 
             await data.updateUser(user)
@@ -73,9 +82,12 @@ module.exports = function(app){
 
     app.post('/settings/userSettings/addVCServerMapping', async function(req, res){
         try {
-            const 
-                data = await pluginsManager.getExclusive('dataProvider'),
-                user = await data.getUserById(req.body.user)
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureUserOrRole(req, req.body.user, 'admin')
+            //////////////////////////////////////////////////////////
+
+            const data = await pluginsManager.getExclusive('dataProvider'),
+                user = await data.getUser(req.body.user)
 
             if(!user)
                 return res.json({

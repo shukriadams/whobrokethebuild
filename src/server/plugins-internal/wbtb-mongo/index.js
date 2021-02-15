@@ -2,11 +2,10 @@
  * This module hides our data layer's query logic, and thereby its type. Currently this is
  * build on mongo, but we can replace that with other providers in time.
  */
-const 
-    constants = require(`${_$}types/constants`),
+const constants = require(_$+'types/constants'),
     ObjectID = require('mongodb').ObjectID,
     settings = require(_$+'helpers/settings'),
-    logger = require('winston-wrapper').new(settings.logPath),
+    CIServer = require(_$+'types/CIServer'),
     _mongo = require('./mongo'),
     _normalize = (input, normalizer)=>{
         if (Array.isArray(input)){
@@ -25,7 +24,7 @@ const
         if (items.length % pageSize)
             pages ++
 
-        item = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), normalizer)
+        items = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), normalizer)
         return { items, pages} 
     },    
     _normalizeJob = job =>{
@@ -94,10 +93,11 @@ const
         }         
         return server
     },     
-    _normalizeCIServer = server =>{
-        server.id = server._id.toString()
-        delete server._id
-        return server
+    _normalizeCIServer = rawRecord =>{
+        const record = Object.assign( new CIServer(), rawRecord)
+        record.id = record._id.toString()
+        delete record._id
+        return record
     },
     _denormalizeCIServer = record =>{
         const server = Object.assign({}, record)
@@ -181,11 +181,12 @@ module.exports = {
 
     async validateSettings() {
         if (!settings.mongoConnectionString){
-            console.log(`mongo plugin requires "mongoConnectionString" with format "mongodb://USER:PASSWORD@IP:PORT"`)
+            __log.error(`mongo plugin requires "mongoConnectionString" with format "mongodb://USER:PASSWORD@IP:PORT"`)
             return false
         }
+        
         if (!settings.mongoDBName){
-            console.log(`mongo plugin requires "mongoDBName" with name of database to use`)
+            __log.error(`mongo plugin requires "mongoDBName" with name of database to use`)
             return false
         }
 
@@ -205,8 +206,16 @@ module.exports = {
         }), _normalizeUsers)
     },
 
-    async getUserById(id){
-        return _normalize(await _mongo.getById(constants.TABLENAME_USERS, id), _normalizeUsers)
+    /**
+     * Gets users with the given plugin name configured for them
+     */
+    async getUsersUsingPlugin(pluginName){
+        const pluginSettings = {}
+        pluginSettings[`pluginSettings.${pluginName}`] = { $ne : null }
+
+        return _normalize(await _mongo.find(constants.TABLENAME_USERS, {
+            $and: [ pluginSettings ]
+        }), _normalizeUsers)
     },
 
     async getAllUsers () {
@@ -251,6 +260,11 @@ module.exports = {
         return _normalize(await _mongo.getById(constants.TABLENAME_SESSIONS, id), _normalizeSession)
     },
 
+    async removeSession(id) {
+        await _mongo.remove(constants.TABLENAME_SESSIONS, { 
+            _id : new ObjectID(id) 
+        })
+    },
 
     /****************************************************
      * CIServer
@@ -285,6 +299,10 @@ module.exports = {
         return _normalize(await _mongo.insert(constants.TABLENAME_JOBS, _denormalizeJob(job)), _normalizeJob)
     },
 
+
+    /**
+     * @returns {Promise<import('../../types/job').Job>}
+     */
     async getJob(id, options) {
         return _normalize(await _mongo.getById(constants.TABLENAME_JOBS, id, options), _normalizeJob)
     },
@@ -378,7 +396,7 @@ module.exports = {
         let items = await _mongo.find(constants.TABLENAME_BUILDS, 
             {
                 $and: [ 
-                    {'jobId' :{ $eq : new ObjectID(jobId) } }
+                    { jobId : { $eq : new ObjectID(jobId) } }
                 ]
             },
             {
@@ -386,11 +404,16 @@ module.exports = {
             }
         )
 
+        // calculate page count based on total nr of items returned
         let pages = Math.floor(items.length / pageSize)
         if (items.length % pageSize)
             pages ++
 
-        items = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), _normalizeBuild)
+        // take page
+        items = items.slice(index * pageSize, (index * pageSize) + pageSize)
+
+        items = _normalize(items, _normalizeBuild)
+
         return { items, pages} 
     },
 
@@ -424,14 +447,21 @@ module.exports = {
         })
     },
 
+    async removeAllBuilds(){
+        // remove children
+        await _mongo.remove(constants.TABLENAME_BUILDINVOLVEMENTS)
+
+        // remove record
+        await _mongo.remove(constants.TABLENAME_BUILDS)
+    },
+
     /**
      * A build's log must already be fetched (ie, be not null) to qualify
      */
     async getBuildsWithUnparsedLogs(){
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [ 
-                { 'isLogParsed' :{ $eq : false } },
-                { 'log' :{ $ne : null } }
+                { 'logPath' :{ $eq : null } }
             ]
         }), _normalizeBuild)
     },
@@ -486,7 +516,10 @@ module.exports = {
                         }
                     ]            
                 }
-            }
+            },
+            {
+                $sort: { 'started': 1 } // sort oldest first
+            },
 
         ), _normalizeBuild)
     },
@@ -561,7 +594,7 @@ module.exports = {
             },
 
             {
-                // sort earliest first
+                // sort latest first
                 $sort: { 'started': 1 }
             },
 
@@ -603,6 +636,7 @@ module.exports = {
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, { }), _normalizeBuildInvolvement)
     },
 
+
     /** 
      * Gets build involvements for a given build and given revision
      */
@@ -615,11 +649,12 @@ module.exports = {
         }), _normalizeBuildInvolvement)
     },
 
+
     /**
      * Gets builds that a giver user has been mapped to
      */
-    async getBuildInvolvementByUserId (userId){
-        const buildInvolvements = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
+    async pageBuildInvolvementByUser (userId, index, pageSize){
+        let items = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
             {
                 "$lookup": {
                     "from": constants.TABLENAME_BUILDS,
@@ -634,14 +669,29 @@ module.exports = {
                         { "userId" :{ $eq : new ObjectID(userId) } }
                     ] 
                 }
+            },
+            {
+                // sort latest first
+                $sort: { 'started': -1 }
             }
         )
 
+        // calculate page count based on total nr of items returned
+        let pages = Math.floor(items.length / pageSize)
+        if (items.length % pageSize)
+            pages ++
+
         // flatten mongo join collection to single normalized build object
-        for (const buildInvolvement of buildInvolvements)
+        for (const buildInvolvement of items)
             buildInvolvement.__build = buildInvolvement.__build.length ? _normalizeBuild(buildInvolvement.__build[0]) : null
 
-        return _normalize(buildInvolvements, _normalizeBuildInvolvement)
+        // take page 
+        items = items.slice(index * pageSize, (index * pageSize) + pageSize)
+
+        // normalize
+        items = _normalize(items, _normalizeBuildInvolvement)
+
+        return { items, pages}
     },
 
     async getBuildInvolementsByBuild (buildId){
@@ -787,7 +837,7 @@ module.exports = {
             if (remove){
                 await this.removeJob(job.id)
                 jobs.splice(i, 1)
-                logger.info.info(`Cleaned out orphan job ${job.id}`)
+                __log.info(`Cleaned out orphan job ${job.id}`)
             }
         }
         
@@ -796,7 +846,7 @@ module.exports = {
             if (!jobs.find(job => job.id === build.jobId)){
                 await this.removeBuild(build.id)
                 builds.splice(i, 1)
-                logger.info.info(`Cleaned out orphan build ${build.id}`)
+                __log.info(`Cleaned out orphan build ${build.id}`)
             }
         }
 
@@ -805,7 +855,7 @@ module.exports = {
             if (!builds.find(build => build.id === buildInvolvement.buildId)){
                 await this.removeBuildInvolvement(buildInvolvement.id)
                 buildInvolvements.splice(i, 1)
-                logger.info.info(`Cleaned out orphan buildInvolvement ${buildInvolvement.id}`)
+                __log.info(`Cleaned out orphan buildInvolvement ${buildInvolvement.id}`)
             }
         }
     }

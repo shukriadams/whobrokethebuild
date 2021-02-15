@@ -1,17 +1,19 @@
-const 
-    settings = require(_$+'helpers/settings'),
-    commonModelHelper = require(_$+ 'helpers/commonModels'),
+const viewModelHelper = require(_$+'helpers/viewModel'),
     pluginsManager = require(_$+'helpers/pluginsManager'),
     vcServerLogic = require(_$+'logic/VCServer'),
     errorHandler = require(_$+'helpers/errorHandler'),
+    sessionHelper = require(_$+'helpers/session'), 
     handlebars = require(_$+'helpers/handlebars')
 
 module.exports = function(app){
 
     app.get('/settings/vcserver/:id?', async (req, res)=>{
         try {
-            const 
-                view = await handlebars.getView('settings/vcserver'),
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+            const view = await handlebars.getView('settings/vcserver'),
                 model = { },
                 data = await pluginsManager.getExclusive('dataProvider')
 
@@ -21,7 +23,7 @@ module.exports = function(app){
             if (req.params.id)
                 model.vcserver = await data.getVCServer(req.params.id, { expected : true })
 
-            await commonModelHelper(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){
@@ -31,6 +33,10 @@ module.exports = function(app){
 
     app.post('/settings/vcserver', async (req, res)=>{
         try {
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
             if (req.body.id)
                 await vcServerLogic.update(req.body)
             else    

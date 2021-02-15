@@ -1,18 +1,9 @@
 {{#extend "layout"}}
     {{#content "body"}}
         <div class="build">
-            <h1><a href="/build/{{build.id}}">Build {{build.build}}</a></h1>
-            
-            <div>
-                Job <a href="/job/{{build.jobId}}">{{job.name}}</a>
-            </div>
-
-            <div>
-                <h2>Log</h2>
-                {{{preserveSpaces build.log}}}
-            </div>
+            <h1><a href="/build/{{build.id}}">Build Log {{build.build}}</a></h1>
+            {{>parsedBuildLog log}}
        </div>
-
     {{/content}}
 {{/extend}}
 

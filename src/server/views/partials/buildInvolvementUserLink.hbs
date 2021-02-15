@@ -1,4 +1,7 @@
-{{! takes a buildInvolment object, renders a link to user profile, or just the user name directly from version log}}
+{{! 
+    takes a buildInvolment object, renders a link to user profile, or just the user name directly from version log
+}}
+
 {{#if __user}}
     <a href="/user/{{__user.id}}">{{__user.name}}</a>
 {{else}}

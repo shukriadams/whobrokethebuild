@@ -1,5 +1,9 @@
-let 
-    process = require('process'),
+/**
+ * Do not user __log in this file! Settings is the only file in the app that is loaded before the logger is available
+ */
+
+
+let process = require('process'),
     fs = require('fs-extra'),
     customEnv = require('custom-env'),
     constants = require(_$+ 'types/constants'),
@@ -10,44 +14,54 @@ let
         bundle: true,
         runDiagnosticOnStart : false,
         daemonInterval : '* * * * *',
-        systemDaemonInterval : '* * * * *',
         cookiesDays: 365,
-        standardPageSize: 10,
-        dataFolder : './_data',
-        logPath : './_data/logs',
+        standardPageSize: 25,
+        dataFolder : './data',
+        logPath : './data/logs',
+        // set to some writeable path if you want build logs from CI servers can be dumped to local text files for reference
+        // path will be created if it doesn't exist
+        buildLogsDump : './data/buildLogs',
+
+        // set to false to bypass tests on start, this will greatly speed up app start, at the expense of checks. 
+        checkPluginsOnStart: true,
+
+        // Number of builds back in time to import. Use this to throttle import when binding to existing jobs. global. Set per job to override
+        historyLimit : null, 
         externalPluginsFolder : './server/plugins',
-        
-        // if set, all channel-targetted slack messages will be sent to this channel
-        slackOverrideChannelId : null,
-
-        // if set, all user-targetted slack messages will be sent to this user
-        slackOverrideUserId : null,
-
+        logLevel : 'error', // set to 'info' for full spam
+        forceReloadViews : 'true',
         // set this to true to run npm install directly in plugins-internal folder. This is for dev only, 
         // and allows you to debug and step through the code in internal plugins. Do not do on this in a 
         // docker container, your modules will be destroyed when the container resets
         bindInternalPlugins : false,
-
         authType : constants.AUTHPROVIDER_INTERNAL,
         adminPassword: 'admin', // password for master user, auto enforced on start
         bundlemode : '', // ''|.min
-        mongoConnectionString : 'mongodb://root:example@127.0.0.1:27017',
-        mongoDBName : 'wbtb',
         localUrl : 'http://localhost:3000',
 
+        // PLUGIN SETTINGS : TODO - MOVE THESE TO PLUGIN
+
+        mongoConnectionString : 'mongodb://root:example@127.0.0.1:27017',
+        mongoDBName : 'wbtb',
+        
         activeDirectoryUrl : null,
         activeDirectoryBase : null,
         activeDirectoryUser : null,
         activeDirectoryPassword : null,
         activeDirectorySearch: null,
         
+        faultChanceThreshold: 50,
         postgresHost: null,
         postgresPort: null,
         postgresDatabase: null,
         postgresUser: null,
         postgresPassword: null,
         
-        forceReloadViews : 'true'
+        slackAccessToken : null,
+        // if set, all channel-targetted slack messages will be sent to this channel
+        slackOverrideChannelId : null,
+        // if set, all user-targetted slack messages will be sent to this user
+        slackOverrideUserId : null
     }
 
 
@@ -70,5 +84,9 @@ for (let property in settings){
     if (settings[property] === 'false')
         settings[property] = false
 }
+
+// fix things that are desperately broken
+// this must always be an int
+settings.standardPageSize = parseInt(settings.standardPageSize.toString())
 
 module.exports = settings

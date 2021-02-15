@@ -1,24 +1,24 @@
-const
-    pluginsManager = require(_$+'helpers/pluginsManager'),
+const pluginsManager = require(_$+'helpers/pluginsManager'),
     Job = require(_$+ 'types/job')
 
 module.exports = {
-    getById : async id => {
+
+    async getById(id){
         const data = await pluginsManager.getExclusive('dataProvider')
         return await data.getJob(id)
     },
 
-    getAll : async job => {
+    async getAll(job){
         const data = await pluginsManager.getExclusive('dataProvider')
         await data.getAllJobs(job);
     },
 
-    delete : async id => {
+    async delete(id){
         const data = await pluginsManager.getExclusive('dataProvider')
         await data.removeJob(id)
     },
 
-    update : async properties => {
+    async update (properties){
         const data = await pluginsManager.getExclusive('dataProvider'),
             job = await data.getJob(properties.id)
 
@@ -35,9 +35,9 @@ module.exports = {
         return await data.updateJob(job)
     },
 
-    insert : async  properties => {
+    async insert(properties){
         const data = await pluginsManager.getExclusive('dataProvider'),
-            job = Job()
+            job = new Job()
 
         job.name = properties.name
         job.tags = properties.tags

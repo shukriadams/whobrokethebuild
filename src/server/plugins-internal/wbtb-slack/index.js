@@ -13,7 +13,20 @@ module.exports = {
      * required by plugin interface
      */
     async validateSettings() {
+        if (!settings.slackAccessToken){
+            __log.error(`slack plugin requires "slackAccessToken" property on global settings`)
+            return false
+        }
+
         return true
+    },
+
+
+    /**
+     * Returns true of all plugins or this plugin is running in sandbox mode
+     */
+    isSandboxMode(){
+        return settings.sandboxMode || this.__wbtb.sandboxMode
     },
 
 
@@ -21,9 +34,8 @@ module.exports = {
      * Required by all "contact" plugins
      */
     async canTransmit(){
-        const 
-            data = await pluginsManager.getExclusive('dataProvider'),
-            token = await data.getPluginSetting('wbtb-slack', 'token')
+        const data = await pluginsManager.getExclusive('dataProvider'),
+            token = await data.getPluginSetting(thisType, 'token')
         
         if (!token || !token.value)
             throw new Exception({
@@ -37,8 +49,8 @@ module.exports = {
      */ 
     async getChannels(){
         const data = await pluginsManager.getExclusive('dataProvider'),
-            Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
-            tokenSetting = await data.getPluginSetting('wbtb-slack', 'token')
+            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
+            tokenSetting = await data.getPluginSetting(thisType, 'token')
 
         if (!tokenSetting)
             return []
@@ -58,16 +70,15 @@ module.exports = {
     
 
     /**
+     * Required by all "contact" plugins
      * slackContactMethod : contactMethod from job, written by this plugin 
      * job : job object 
      * delta : the change (constants.BUILDDELTA_*)
      */
-    async alertChannel(slackContactMethod, job, build, delta){
+    async alertGroup(slackContactMethod, job, build, delta){
         const data = await pluginsManager.getExclusive('dataProvider'),
-            token = await data.getPluginSetting('wbtb-slack', 'token'),
-            Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
-            slack = new Slack({ token : token.value }),
-            logger = require('winston-wrapper').new(settings.logPath),
+            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
+            slack = new Slack({ token : settings.slackAccessToken }),
             buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
             context = `build_${build.status}_${build.id}`
 
@@ -75,13 +86,13 @@ module.exports = {
             return
 
         // check if channel has already been informed about this build failure
-        let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
-        if (contactLog)
-            return
-
         // generate a string of user names involved in build if build broke
         let userString = '',
-            userUniqueCheck = []
+            userUniqueCheck = [],
+            contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
+
+        if (contactLog)
+            return
 
         if (build.status === constants.BUILDSTATUS_FAILED){
             for (const buildInvolvement of buildInvolvements){
@@ -107,97 +118,149 @@ module.exports = {
                 `Build ${job.name} is working again`
 
         if (settings.slackOverrideChannelId)
-            logger.info.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.slackOverrideChannelId}`)
+            __log.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.slackOverrideChannelId}`)
     
-        await slack.chat.postMessage({ token : token.value, channel : targetChannelId, text : message });
+        await slack.chat.postMessage({ token : settings.slackAccessToken, channel : targetChannelId, text : message });
 
-        contactLog = ContactLog()
+        contactLog = new ContactLog()
         contactLog.receiverContext = slackContactMethod.channelId
         contactLog.type = slackContactMethod.type
         contactLog.eventContext = context
         contactLog.created = new Date().getTime()
 
         await data.insertContactLog(contactLog)
+        __log.info(`alert sent to slack channel ${targetChannelId}`)
     },
 
 
     /**
+     * @param {object} user  User to contact
+     * @param {object} build Build that broke
+     * @param {string} messageType type of message to sent
+     * @param {boolean} force if true, message will be sent even if it has been sent before
+     * 
+     * Required by all "contact" plugins
      * Sends a message to user that that user was involved in build break
      * user : user object
      * slackContactMethod : contactMethod from user object
      * build : build object for failing build
+     * force : force send the message, ignore if it has already been sent. for testing only
      */
-    async alertBrokenBuild(user, build){
+    async alertUser(user, build, messageType = 'implicated', force = false){
         let data = await pluginsManager.getExclusive('dataProvider'),
-            token = await data.getPluginSetting('wbtb-slack', 'token'),
-            Slack = settings.sandboxMode ? require('./mock/slack') : require('slack'),
-            slack = new Slack({ token : token.value }),
-            job = await data.getJob(build.jobId),
-            logParser = job.logParser ? pluginsManager.get(job.logParser) : null,
+            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
+            slack = new Slack({ token : settings.slackAccessToken }),
             context = `build_fail_${build.id}`,
-            logger = require('winston-wrapper').new(settings.logPath),
             buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
             usersInvolved = buildInvolvements.map(involvement => involvement.externalUsername)
 
         // convert to unique users
         usersInvolved = Array.from(new Set(usersInvolved)) 
 
-        // check if user has already been informed about this build failure
-        let contactLog = await data.getContactLogByContext(user.id, thisType, context)
-        if (contactLog)
+        if (!build.logPath){
+            __log.warn(`Attepting to warn user on build that has no local log, build "${build.id}" to user "${user.id}"`)
             return
+        }
 
-        // there are multiple users involved, determine if the user being targetted was likely responsible for the break
-        let isImplicated = false
-        if (usersInvolved.length)
-            for (const buildInvolvement of buildInvolvements){
-                
-                // ensure that buildInvolvement has been mapped, if not, abort this send, we'll try later
-                if (!buildInvolvement.revisionObject)
-                    return
+        // check if user has already been informed about this build failure
+        let contactLog = force ? null : await data.getContactLogByContext(user.id, thisType, context)
+        if (contactLog){
+            __log.info(`Skipping sending to alert for build "${build.id}" to user "${user.id}", alert has already been sent`)
+            return
+        }
 
-                for (const file of buildInvolvement.revisionObject.files)
-                   if (file.faultChance > .5) {
-                        isImplicated = true
-                        break
-                   }
-            }
-
-        const targetSlackId = settings.slackOverrideUserId || user.contactMethods[thisType].slackId
+        const targetSlackId = settings.slackOverrideUserId || (user.pluginSettings[thisType] && user.pluginSettings[thisType].slackId)
         if (settings.slackOverrideUserId)
-            logger.info.info(`slackOverrideUserId set, diverting post to meant for user slackid ${user.contactMethods[thisType].slackId} to override user id ${settings.slackOverrideUserId}`)
+            __log.info(`slackOverrideUserId set, diverting post to meant for user slackid ${user.id} to override user id ${settings.slackOverrideUserId}`)
 
-        let conversation = await slack.conversations.open({ token : token.value, users : targetSlackId })
+        let conversation = await slack.conversations.open({ token : settings.slackAccessToken, users : targetSlackId })
         if (!conversation.channel)
             throw new Exception({
                 message : `unable to create conversation channel for user ${user.id}`
             })
 
-        let buildLink = urljoin(settings.localUrl, `build/${build.id}`),
-            log = logParser ? `\`\`\`${(await logParser.parseErrors(build.log))}\`\`\`\n` : '',
-            message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}`
+        const message = messageType === 'implicated' ? 
+            await this.buildImplicatedMessage(user, build) :
+            await this.buildInterestedMessage(user, build)
+        
+        await slack.chat.postMessage({ token : settings.slackAccessToken, channel : conversation.channel.id, text : message })
 
-        if (usersInvolved.length > 1){
-            if (isImplicated)
-                message += `There were ${usersInvolved.length} people in this break, but it's likely your code broke it.\n`
-            else
-                message += `There were ${usersInvolved.length} people in this break, but don't worry, it looks like you're an innocent bystander.\n`
-        } else {
-            message += `You were the only person involved in this break.\n`
-        }
-
-        message += `More info : ${buildLink}`
-        await slack.chat.postMessage({ token : token.value, channel : conversation.channel.id, text : message })
-
-        contactLog = ContactLog()
+        // log that message has been sent, this will be used to prevent the same user from being informed of the same build error
+        contactLog = new ContactLog()
         contactLog.receiverContext = user.id
         contactLog.type = thisType
         contactLog.eventContext = context
         contactLog.created = new Date().getTime()
 
         await data.insertContactLog(contactLog)
+        __log.info(`alert sent to slack user via personal channel ${conversation.channel.id}`)
+    },
+
+
+    /**
+     * @param user User object
+     * @param build Build object
+     */
+    async buildInterestedMessage(user, build){
+        let message = `Build ${build.name} is failing. More info can be found at ${urljoin(settings.localUrl, `build/${build.id}`)}`
+        return message
+    },
+
+
+    /**
+     * @param user User object
+     * @param build Build object
+     */
+    async buildImplicatedMessage(user, build){
+        let logHelper = require(_$+'helpers/log'),
+            data = await pluginsManager.getExclusive('dataProvider'),
+            job = await data.getJob(build.jobId, { expected: true }),
+            buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
+            usersInvolved = buildInvolvements.map(involvement => involvement.externalUsername),
+            isImplicated = false,
+            log = job.logParser ? 
+                await logHelper.parseErrorsFromFileToString(build.logPath, job.logParser) :
+                `No log parser set for ${job.name}`
+
+        // ensure log has content, if errors cannot be parsed, it will be blank
+        log = log || 'Could not parse error from build log'
+        // format for slack so log message is embeddded in quote block
+        log = `\`\`\`${log}\`\`\`\n`
+
+        // determine if the user being messaged is implicated in the build. This happens only if
+        // a file belonging to the user has been directly marked as being "at fault" 
+        for (const buildInvolvement of buildInvolvements){
+            //
+            if (!buildInvolvement.userId !== user.id)
+                continue
+
+            // ensure that buildInvolvement has been mapped, if not, abort this send, we'll try later
+            if (!buildInvolvement.revisionObject)
+                continue
+
+            for (const file of buildInvolvement.revisionObject.files)
+                if (file.isFault) {
+                    isImplicated = true
+                    break
+                }
+        }
+
+        // get unique users
+        usersInvolved = Array.from(new Set(usersInvolved)) 
+        let message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}`
+        if (usersInvolved.length > 1){
+            if (isImplicated)
+                message += `There were ${usersInvolved.length} people in this break, but it's likely your code broke it.\n`
+            else
+                message += `There were ${usersInvolved.length} people in this break, and your code was likely not the cause of the break.\n`
+        } else {
+            message += `You were the only person involved in this break.\n`
+        }
+        
+        message += `More info : ${urljoin(settings.localUrl, `build/${build.id}`)}`
+
+        return message
     }
-
-
+    
 
 }
