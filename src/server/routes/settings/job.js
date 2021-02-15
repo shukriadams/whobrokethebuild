@@ -35,7 +35,7 @@ module.exports = function(app){
                     isPublic : true
                 }
 
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

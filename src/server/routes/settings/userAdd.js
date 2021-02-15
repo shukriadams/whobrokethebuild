@@ -14,7 +14,7 @@ module.exports = function(app){
                 view = await handlebars.getView('settings/userAdd'),
                 model = { }
 
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

@@ -23,7 +23,7 @@ module.exports = function(app){
             if (req.params.id)
                 model.vcserver = await data.getVCServer(req.params.id, { expected : true })
 
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

@@ -47,7 +47,7 @@ module.exports = function(app){
                 build.__revisions = revisions
             }
             
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

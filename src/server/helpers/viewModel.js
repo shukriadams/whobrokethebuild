@@ -1,6 +1,7 @@
 const sessionHelper = require(_$+'helpers/session'),
     SessionViewModel = require(_$+'types/sessionViewModel'),
-    LayoutViewModel = require(_$+'types/layoutViewModel')
+    LayoutViewModel = require(_$+'types/layoutViewModel'),
+    constants = require(_$+'types/constants')
 
 /**
  * Attach data required by entire page stack (sub views)
@@ -10,7 +11,10 @@ const sessionHelper = require(_$+'helpers/session'),
  */
 module.exports = { 
 
-    async common (model, req, pageOwnerPublicId){
+    /**
+     * Adds objects to model for 
+     */
+    async layout (model, req, pageOwnerPublicId){
         const currentUser = await sessionHelper.getCurrentUser(req),
             canViewUserPage = currentUser && (currentUser.roles.includes('admin')
                 || currentUser.publicId === pageOwnerPublicId)
@@ -22,12 +26,14 @@ module.exports = {
         model.session.canViewUserPage = canViewUserPage
         model.session.name = currentUser ? currentUser.name : ''
 
+        model.constants = constants
+
         // view @ /partials/layout relies on this
         model.layout = new LayoutViewModel()
         model.layout.bundlemode = ''
     },
 
-    async userSettings(model, req, userId){
+    async layout_userSettings(model, req, userId){
         
         await sessionHelper.ensureUserOrRole(req, userId, 'admin')
 
@@ -36,7 +42,7 @@ module.exports = {
             user = await data.getUser(userId)
 
         model.user = user
-        await this.common(model, req, userId)
+        await this.layout(model, req, userId)
     }
 }
 

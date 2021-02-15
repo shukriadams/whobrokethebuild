@@ -17,7 +17,7 @@ module.exports = function(app){
             for (const contactLog of model.contactLogs.items)
                 contactLog.__user = await data.getUser(contactLog.receiverContext)
 
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

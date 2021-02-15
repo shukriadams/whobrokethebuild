@@ -30,7 +30,7 @@ module.exports = function(app){
                 }
 
             model.log = await logHelper.parseFromFile(build.logPath, job.logParser)
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
         } catch(ex) {
             errorHandler(res, ex)
@@ -74,7 +74,7 @@ module.exports = function(app){
                 model.isLogParsed = true
             }
 
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

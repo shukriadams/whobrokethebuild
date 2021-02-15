@@ -17,7 +17,7 @@ module.exports = function(app){
 
             model.referenceLogs = await referenceLogsHelper.list()
 
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){
@@ -75,7 +75,7 @@ module.exports = function(app){
 
             model.id = req.params.id
 
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

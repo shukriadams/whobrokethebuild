@@ -56,27 +56,29 @@
                     {{/if}}
                 </ul>
 
-                <h2>Log</h2>
-                {{#if isLogParsed}}
-                    <ul class="buildLog">
-                        {{#if logParsedLines}}
-                            {{#each logParsedLines}}
-                                <li class="buildLog-item buildLog-item--{{type}}">
-                                    {{text}}
+                {{#eq build.status constants.BUILDSTATUS_FAILED}}
+                    <h2>Log</h2>
+                    {{#if isLogParsed}}
+                        <ul class="buildLog">
+                            {{#if logParsedLines}}
+                                {{#each logParsedLines}}
+                                    <li class="buildLog-item buildLog-item--{{type}}">
+                                        {{text}}
+                                    </li>
+                                {{/each}}
+                                <li>
+                                    <a href="/build/log/{{build.id}}">Full log</a>
                                 </li>
-                            {{/each}}
-                            <li>
-                                <a href="/build/log/{{build.id}}">Full log</a>
-                            </li>
-                        {{else}}
-                            <li class="buildLog-item">
-                                Log is empty
-                            </li>
-                        {{/if}}
-                    </ul>
-                {{else}}
-                    Build log could not be parsed
-                {{/if}}
+                            {{else}}
+                                <li class="buildLog-item">
+                                    Log is empty
+                                </li>
+                            {{/if}}
+                        </ul>
+                    {{else}}
+                        Build log could not be parsed
+                    {{/if}}
+                {{/eq}}
             </li>
         </ul>
 

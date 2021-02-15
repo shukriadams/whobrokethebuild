@@ -12,7 +12,7 @@ module.exports = function(app){
             const view = await handlebars.getView('login'),
                 model = {}
 
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
             res.send(view(model))
 
         } catch(ex){

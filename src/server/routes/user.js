@@ -27,7 +27,7 @@ module.exports = function(app){
                 buildInvolvement.__build.__job = await data.getJob(buildInvolvement.__build.jobId)
             }
 
-            await viewModelHelper.common(model, req, req.params.user)
+            await viewModelHelper.layout(model, req, req.params.user)
             res.send(view(model))
 
         } catch(ex){

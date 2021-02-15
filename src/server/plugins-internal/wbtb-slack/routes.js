@@ -36,7 +36,7 @@ module.exports = app => {
             model.channels = await slackLogic.getChannels()
             model.channels.unshift({ id : null, name : 'No channel'})
             
-            await viewModelHelper.common(model, req)
+            await viewModelHelper.layout(model, req)
 
             res.send(view(model))
         } catch(ex){
@@ -100,7 +100,7 @@ module.exports = app => {
 
             model.wbtbSlack.slackId = user.pluginSettings[thisType] ? user.pluginSettings[thisType].slackId : null
 
-            await viewModelHelper.userSettings(model, req, req.params.userId)
+            await viewModelHelper.layout_userSettings(model, req, req.params.userId)
 
             res.send(view(model))
         } catch(ex){
