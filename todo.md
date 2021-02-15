@@ -17,6 +17,7 @@
 - do not parse error logs for builds that are not failing
 - change sort order of builds without delta to oldest first, this should speed up processing of concurrent builds
 - need several hundreds of records per build, across multiple builds, to test performance
+- need page for build agents showing history on that machine
 
 LATER
 - add caching
