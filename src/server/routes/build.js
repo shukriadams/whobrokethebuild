@@ -44,12 +44,16 @@ module.exports = function(app){
                 view = await handlebars.getView('build'),
                 job = await jobsLogic.getById(build.jobId),
                 vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
+                ciServer = await data.getCIServer(job.CIServerId, { expected : true }),
+                ciServerPlugin = await pluginsManager.get(ciServer.type),
                 vcsPlugin = await pluginsManager.get(vcServer.vcs),
                 model = {
                     build,
-                    job
+                    job,
+                    ciServer
                 }
 
+            model.linkToBuild = ciServerPlugin.linkToBuild(ciServer, job, build)
             build.__isFailing = build.status === constants.BUILDSTATUS_FAILED 
 
             // REFACTOR THIS TO LOGIC LAYER

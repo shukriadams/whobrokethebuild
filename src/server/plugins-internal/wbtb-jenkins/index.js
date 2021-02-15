@@ -43,6 +43,19 @@ module.exports = {
 
 
     /**
+     * @param {object} ciServer
+     * @param {object} job
+     * @param {object} build
+     * 
+     * Required by interface for ciserver.
+     * Generates a link to the original ci server for a given build
+     */
+    linkToBuild(ciServer, job, build){
+        return urljoin(ciServer.url, 'job', encodeURIComponent(job.name), build.build)
+    },
+
+
+    /**
      * 
      */
     async downloadBuildLog(baseUrl, jobName, buildNumber){

@@ -13,6 +13,9 @@
                         Built on :  {{build.host}}
                     </p>
                     <p>
+                        <a href="{{linkToBuild}}">View build on {{ciServer.name}}</a>
+                    </p>
+                    <p>
                         Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
                     </p>
                 </div>
