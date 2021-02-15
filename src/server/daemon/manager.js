@@ -7,7 +7,7 @@ module.exports = {
     startAll(){
         let settings = require(_$+'helpers/settings'),
             glob = require('glob'),
-            fsUtils = require('madscience-fsutils'),
+            fsUtils = require('madscience-fsUtils'),
             pluginsManager = require(_$+'helpers/pluginsManager'),
             pluginRoot = pluginsManager.getPluginRootPath(), 
             // get internal daemons
