@@ -400,8 +400,61 @@ module.exports = {
             }
         )).pop(), _normalizeBuild)
     },
-    
 
+    /**
+     * @param {object} build 
+     * Gets build after the given build
+     */
+    async getNextBuild(build) {
+        return _normalize((await _mongo.aggregate(constants.TABLENAME_BUILDS, 
+            {
+                $match : {
+                    $and: [ 
+                        { 'jobId' :{ $eq : new ObjectID(build.jobId) } },
+                        { 'started' :{ $gt : build.started } }
+                    ],
+                }
+            },
+
+            {
+                $sort: { 'started': 1}
+            },
+
+            {
+                $limit: 1
+            }
+        )).pop(), _normalizeBuild)
+    },
+
+
+    /**
+     * @param {object} build 
+     * Gets the previous build before a given build object.
+     */
+    async getPreviousBuild(build){
+        const previosBuild = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
+            {
+                $match : {
+                    $and: [ 
+                        { 'jobId' :{ $eq : new ObjectID(build.jobId) } },
+                        { 'started' :{ $lt : build.started } }
+                    ]
+                }
+            },
+        
+            {
+                // sort latest first
+                $sort: { 'started': -1}
+            },
+
+            {
+                $limit: 1
+            }
+        )).pop()
+
+        return previosBuild ? _normalize(previosBuild, _normalizeBuild) : null
+    },
+    
     /**
      * Pages through builds. Note that this is inefficient as it pages in server memory instead of in mongo, but oh yeah,
      * mongo can't page
@@ -484,35 +537,6 @@ module.exports = {
      * Gets finished builds with no delta
      */
     async getBuildsWithNoDelta(){
-        /*
-        let lastWithDelta = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
-            {
-                $match : {
-                    $and: [ 
-                        { 'delta' :{ $ne : null } },
-                    ]            
-                }
-            },
-
-            {
-                $sort: { 'started': -1 } // sort latest first
-            },
-
-            // group by parent build
-            {
-                $group: {
-                    "_id":{
-                        "build":"$build"
-                    },
-                    "build": {$first:"$$ROOT"}
-                }
-            },
-
-            {
-                $limit: 1
-            })
-        ).pop()
-            */
         // return all null deltas, and if exists, last with delta to server as starting history
         return _normalize(await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
@@ -539,32 +563,7 @@ module.exports = {
     },
 
 
-    /**
-     * Gets the previous build before a given build object.
-     */
-    async getPreviousBuild(build){
-        const previosBuild = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
-            {
-                $match : {
-                    $and: [ 
-                        { 'jobId' :{ $eq : new ObjectID(build.jobId) } },
-                        { 'started' :{ $lt : build.started } }
-                    ]
-                }
-            },
-        
-            {
-                // sort latest first
-                $sort: { 'started': -1}
-            },
 
-            {
-                $limit: 1
-            }
-        )).pop()
-
-        return previosBuild ? _normalize(previosBuild, _normalizeBuild) : null
-    },
 
     /**
      * Gets the build that broke a job. Returns null if the job is not broken or has never run.

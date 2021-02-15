@@ -16,10 +16,21 @@
                         Job : <a href="/job/{{build.jobId}}">{{job.name}}</a>
                     </p>
                     <p>
-                        <a href="{{linkToBuild}}">View build on {{ciServer.name}}</a>
+                        <a href="{{linkToBuild}}">View on {{ciServer.name}}</a>
                     </p>
                     <p>
                         Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
+                    </p>
+                    <p>
+                        {{#if previousBuild}}
+                            <a href="/build/{{previousBuild.id}}">Previous ({{durationLong build.started previousBuild.started}})</a>
+                        {{/if}}
+
+                        {{#if nextBuild}}
+                            <div>
+                                <a href="/build/{{nextBuild.id}}">Next ({{durationLong nextBuild.started build.started}})</a>
+                            </div>
+                        {{/if}}
                     </p>
                     {{#if session.isAdmin}}
                         <div>

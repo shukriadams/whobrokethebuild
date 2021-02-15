@@ -54,6 +54,8 @@ module.exports = function(app){
                     ciServer
                 }
 
+            model.nextBuild = await data.getNextBuild(build)
+            model.previousBuild = await data.getPreviousBuild(build)
             model.linkToBuild = ciServerPlugin.linkToBuild(ciServer, job, build)
             build.__isFailing = build.status === constants.BUILDSTATUS_FAILED 
 

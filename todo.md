@@ -18,7 +18,6 @@
 - change sort order of builds without delta to oldest first, this should speed up processing of concurrent builds
 - need several hundreds of records per build, across multiple builds, to test performance
 - need page for build agents showing history on that machine
-
 - need a way to tag changes or build errors based on the kind of files were changed in a build, or the kind of files which appeared in the error log. eg : cooking errors, blueprint errors, missing files.
 - need build stats : fails vs working %, average time a build stays broken for, nr of builds involving a tag / error type, etc
 - need even simpler job page that shows only delta - build working vs failing, and buils that changed delta.
