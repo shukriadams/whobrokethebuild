@@ -1,11 +1,10 @@
-let perforcehelper = require('madscience-perforcehelper'),
+const perforcehelper = require('madscience-perforcehelper'),
     settings = require(_$+'helpers/settings'),
     Revision = require(_$+'types/revision'),
     RevisionFile = require(_$+'types/revisionFile'),
     path = require('path'),
     fs = require('fs-extra'),
-    encryption = require(_$+'helpers/encryption'),
-    isBusy
+    encryption = require(_$+'helpers/encryption')
 
 module.exports = {
 

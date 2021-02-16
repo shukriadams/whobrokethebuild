@@ -50,7 +50,7 @@ module.exports = class MapRevisions extends BaseDaemon {
                 __log.debug(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
 
             } catch (ex){
-                __log.error(`Unexpected error in mapRevisions : buildInvolvement "${buildInvolvement.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : buildInvolvement "${buildInvolvement.id}"`, ex)
             }
         }
 

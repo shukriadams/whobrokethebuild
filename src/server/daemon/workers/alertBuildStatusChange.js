@@ -39,7 +39,7 @@ module.exports = class AlertBuildStatusChange extends BaseDaemon {
                     }
 
             } catch (ex){
-                __log.error(`Unexpected error in alertBuildStatusChange : job "${job.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : job "${job.id}"`, ex)
             }
         }                    
     }
