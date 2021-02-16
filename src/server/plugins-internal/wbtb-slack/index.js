@@ -26,7 +26,15 @@ module.exports = {
      * Returns true of all plugins or this plugin is running in sandbox mode
      */
     isSandboxMode(){
-        return settings.sandboxMode || this.__wbtb.sandboxMode
+        // individual plugin config always wins, if set
+        if (this.__wbtb.sandboxMode !== undefined)
+            return !!this.__wbtb.sandboxMode
+
+        // if global sandbox mode is explicitly on, allow through
+        if (settings.sandboxMode === true)
+            return true
+
+        return false
     },
 
 

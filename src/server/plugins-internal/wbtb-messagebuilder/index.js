@@ -14,7 +14,10 @@ module.exports = {
      * @param build Build object
      */
     async buildInterestedMessage(user, build){
-        let message = `Build ${build.name} is failing. More info can be found at ${urljoin(settings.localUrl, `build/${build.id}`)}`
+        const data = await pluginsManager.getExclusive('dataProvider'),
+            job = await data.getJob(build.jobId, { expected: true }),
+            message = `Hey ${user.name || user.publicId}, ${job.name} is failing - more info can be found at ${urljoin(settings.localUrl, `build/${build.id}`)}`
+
         return message
     },
 
@@ -33,7 +36,7 @@ module.exports = {
             isImplicated = false,
             log = job.logParser ? 
                 await logHelper.parseErrorsFromFileToString(build.logPath, job.logParser) :
-                `No log parser set for ${job.name}`
+                `No log parser select, asked your admin to set one up`
 
         // ensure log has content, if errors cannot be parsed, it will be blank
         log = log || 'Could not parse error from build log'
@@ -60,7 +63,7 @@ module.exports = {
 
         // get unique users
         usersInvolved = Array.from(new Set(usersInvolved)) 
-        let message = `You were involved in a build break for ${job.name}, ${build.build}\n${log}`
+        let message = `Hey ${user.name || user.publicId}, looks like you were involved in a build break for ${job.name}.\n${log}`
         if (usersInvolved.length > 1){
             if (isImplicated)
                 message += `There were ${usersInvolved.length} people in this break, but it's likely your code broke it.\n`
