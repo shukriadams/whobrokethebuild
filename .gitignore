@@ -29,7 +29,6 @@ dev/pgadmin
 build/plugins
 src/server/plugins-internal/postgres.json
 src/server/plugins-internal/*.json
-src/server/plugins-internal
 src/.plugin.conf
 src/.env
 src/HIDE.env
