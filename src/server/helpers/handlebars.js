@@ -23,7 +23,7 @@ module.exports = {
 
     async getView(page){
 
-        if (!pages || settings.forceReloadViews){
+        if (!pages || !settings.cacheHandlebarViews){
 
             pages = {}
             views = {}
