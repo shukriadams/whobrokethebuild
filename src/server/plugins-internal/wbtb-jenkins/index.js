@@ -210,7 +210,7 @@ module.exports = {
                 if (!localBuild.logPath && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
 
                     const foldername = sanitize(job.id),
-                        pathFragment = path.join(foldername, sanitize(localBuild.build)),
+                        pathFragment = path.join(foldername, sanitize(localBuild.build.toString())),
                         writePath = path.join(settings.buildLogsDump, pathFragment)
                     
                     try {
