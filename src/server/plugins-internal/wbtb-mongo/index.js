@@ -563,7 +563,45 @@ module.exports = {
     },
 
 
+    /**
+     * Gets builds that have completed (passed or failed), but which have no build involvements and therefore no revisions 
+     * associated with them.
+     */
+    async getResolvedBuildsWithNoInvolvements(){
+        return _normalize(await _mongo.aggregate(constants.TABLENAME_BUILDS, 
+            {
+                "$lookup": {
+                    "from": constants.TABLENAME_BUILDINVOLVEMENTS,
+                    "localField": "_id",
+                    "foreignField": "buildId",
+                    "as": "__buildInvolvements"
+                }
+            },
 
+            {
+                $match : {
+                    $and: [ 
+                        // no build involements must exist
+                        { '__buildInvolvements' : { $eq : [] }},
+                        
+                        { 'revisions' : { $eq : [] }},
+                        
+                        // for the purposes of this operation, we can assume logs would have been fetched too
+                        { 'logPath' : { $ne : null }},
+
+                        {
+                            // finished builds only - either passed or failed
+                            $or : [
+                                { 'status' :{ $eq : constants.BUILDSTATUS_FAILED } },
+                                { 'status' :{ $eq : constants.BUILDSTATUS_PASSED } }
+                            ]
+                        }
+                    ]            
+                }
+            }
+
+        ), _normalizeBuild)
+    },
 
     /**
      * Gets the build that broke a job. Returns null if the job is not broken or has never run.

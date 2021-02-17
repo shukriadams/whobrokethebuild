@@ -78,8 +78,7 @@ module.exports = {
             for (let jobBuildCounter = 1 ; jobBuildCounter < buildsPerJob ; jobBuildCounter ++) {
 
                 // generate nr of commits per commit event
-                const commits = Math.floor(Math.random() * maxCommitsPerBuild) + minCommitsPerBuild,
-                    logText = 'muh logs'
+                const commits = Math.floor(Math.random() * maxCommitsPerBuild) + minCommitsPerBuild
 
                 // write build file, this can contain 1 or more commits, but there is one per build
                 await fs.outputJson(path.join(jenkinsMockRoot, jobName, 'commits', jobBuildCounter.toString()), {
@@ -95,9 +94,6 @@ module.exports = {
                     }
                 }, jsonOptions)
 
-                // write jenkins build log
-                await fs.outputFile(path.join(jenkinsMockRoot, jobName, 'logs', jobBuildCounter.toString()), logText)
-
                 // write perforce commits - there can be multiple tied to a single build event
                 for(let j = 0; j < commits ; j ++){
                     const commitId = globalCommitCounter + j
@@ -109,8 +105,19 @@ module.exports = {
 
                     await fs.outputFile(path.join(perforceMockRoot, commitId.toString()), commitText)
                 }
-
+                
                 globalCommitCounter += commits
+
+                // finally, write log based on current revision, we can use this to test soft linking
+                const logText = 'some logs\n' +
+                    '#p4-changes........#\n'+
+                    `Change ${globalCommitCounter} on etc etc\n`+
+                    '/#p4-changes........#\n'+
+                    'more logs'
+
+                // write jenkins build log
+                await fs.outputFile(path.join(jenkinsMockRoot, jobName, 'logs', jobBuildCounter.toString()), logText)
+
            }
 
 
