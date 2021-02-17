@@ -82,8 +82,11 @@ let process = require('process'),
         // Number of builds back in time to import. Use this to throttle import when binding to existing jobs. global. Set per job to override
         historyLimit : null, 
 
-        // use this to prevent a daemon from running. comma-separated string. 
-        daemonBlacklist : null,
+        // comma-separated string. use this to prevent a daemon from running. 
+        daemonBlacklist : '',
+
+        // comma-separated string. plugin names / internal daemon files which are allowed to run daemons
+        daemonWhitelist : '',
 
         // set to false to bypass tests on start, this will greatly speed up app start, at the expense of checks. 
         checkPluginsOnStart: true,
