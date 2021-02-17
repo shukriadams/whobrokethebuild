@@ -29,11 +29,11 @@ module.exports = {
             users = await data.getAllUsers(),
             vsServers = await data.getAllVCServers(),
             jsonOptions = { spaces : 4 },
-            verbs = ['Call', 'Rage', 'Attack', 'Battle', 'War', 'Operation', 'Alliance', 'League', 'Quest'],
-            adverbs = ['of', 'on', 'in', 'with', 'against the', 'inspite of'],
-            adjectives = ['Modern', 'Crossover', 'Ultra', 'Perkele', 'Dashing', 'Awkward', 'Farming', 'Euro', 'Commando', 'Farming', 'Blood', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Cyber', 'Orcish', 'Elvish', 'Feudal', 'Alien', 'Insta', 'Unknownplayer', 'Backops', 'Counter'],
-            nouns = [ 'Ninja', 'Zombie', 'Avenger', 'Justice', 'Assassin', 'Shooter', 'Sniper', 'Cop', 'Commando', 'Star Battle'],
-            nouns2 = [ 'Simulator', 'Craft', 'Raider', 'Duty', 'Warfare', 'Arena', '- Battle Royale', '- Remastered', '- 4KHD', '- Mobile Edition'],
+            verbs = ['Call', 'Rage', 'Attack', 'Battle', 'War', 'Operation', 'Alliance', 'Creed', 'League', 'Quest'],
+            adverbs = ['of', 'of the', 'on', 'in', 'with', 'against the', 'inspite of'],
+            adjectives = ['Modern', 'Evil', 'Illegal', 'Crossover', 'Ultra', 'Dashing', 'Awkward', 'Farming', 'Euro', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Instagraph', 'Knownplayer', 'Blackups', 'Counter'],
+            nouns = [ 'Ninja', 'Zombie', 'Avenger', 'Alien', 'Duty', 'Justice', 'Assassin', 'Shooter', 'Sniper', 'Cop', 'Blood', 'Commando', 'Star Battle', 'Orcish', 'Cyber', 'Elvish', 'Medieval'],
+            nouns2 = [ 'Simulator', 'Craft', 'Raiders', 'Warfare', 'Arena', '- Battle Royale', '- Remastered', '- 4KHD', '- Mobile Edition'],
             // Pass every username to the generator.
             dictionaries = [verbs, adverbs, adjectives, nouns, nouns2],
             // loop, generate unique job names
