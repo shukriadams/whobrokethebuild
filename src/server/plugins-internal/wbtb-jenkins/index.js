@@ -209,10 +209,15 @@ module.exports = {
                 // fetch log if build is complete and log has not be previous fetched
                 if (!localBuild.logPath && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
 
-                    const pathFragment = `${sanitize(job.name)}-${localBuild.build}`,
+                    const foldername = sanitize(job.id),
+                        pathFragment = path.join(foldername, sanitize(localBuild.build)),
                         writePath = path.join(settings.buildLogsDump, pathFragment)
                     
                     try {
+                        await fs.ensureDir(path.join(settings.buildLogsDump, foldername))
+                        // write job name as a file in folder as a convenience
+                        await fs.writeFile(path.join(settings.buildLogsDump, foldername, sanitize(job.name)), '')
+
                         const log = await this.downloadBuildLog(baseUrl, job.name, localBuild.build)
                         await fs.writeFile(writePath, log)
                         localBuild.logPath = pathFragment
