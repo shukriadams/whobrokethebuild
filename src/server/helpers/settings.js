@@ -83,7 +83,7 @@ let process = require('process'),
         historyLimit : null, 
 
         // use this to prevent a daemon from running. comma-separated string. 
-        daemonBlackList : null,
+        daemonBlacklist : null,
 
         // set to false to bypass tests on start, this will greatly speed up app start, at the expense of checks. 
         checkPluginsOnStart: true,
