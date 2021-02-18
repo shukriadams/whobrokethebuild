@@ -15,7 +15,7 @@ module.exports = class MapRevisions extends BaseDaemon {
             faultHelper = require(_$+ 'helpers/fault'),
             data = await pluginsManager.getExclusive('dataProvider'),
             logHelper = require(_$+'helpers/log'),
-            buildsWithUnprocessedRevisionObjects = await data.getBuildInvolvementsWithoutRevisionObjects()
+            buildsWithUnprocessedRevisionObjects = await data.getBuildsWithoutRevisionObjects()
 
         __log.debug(`found ${buildsWithUnprocessedRevisionObjects.length} builds with unmapped revisions`)
 
@@ -30,9 +30,7 @@ module.exports = class MapRevisions extends BaseDaemon {
                 if (!build.logPath || !job.logParser)
                     continue
 
-                for (const buildId of build.involvements){
-                    const buildInvolvement = build.involvements[buildId]
-                        
+                for (const buildInvolvement of build.involvements){
                     buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
                     
                     // force placeholder revision object if lookup to vc fails to retrieve it

@@ -62,11 +62,10 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                 revisionsInThisBuild.push(knownRevisionInThisBuild)
 
                 if (revisionsBefore.length && previousBuild) {
-                    let buildInvolvements = await data.getBuildInvolementsByBuild(previousBuild.id),
-                        lastRevision = 0
+                    let lastRevision = 0
 
                     // find latest revision in previous build
-                    for (const b of buildInvolvements)
+                    for (const b of previousBuild.involvements)
                         if (parseInt(b.revision) > lastRevision)
                             lastRevision = parseInt(b.revision)
                     
@@ -88,7 +87,7 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                     const revisionData = await perforcePLugin.getRevision(revisionNr, vcServer)
                     if (revisionData){
                         let revisionId = revisionNr.toString()
-                        if (build.involvements[revisionId])
+                        if (build.involvements.find(r => r.revisionId === revisionId))
                             continue 
     
                         const buildInvolvment = new BuildInvolvment()
@@ -96,7 +95,7 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                         buildInvolvment.buildId = build.id
                         buildInvolvment.revision = revisionId
                         buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SUSPECTED_SOURCECHANGE
-                        build.involvements[revisionId] = buildInvolvment
+                        build.involvements.push(buildInvolvment)
                     }
                 }
 

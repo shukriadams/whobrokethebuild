@@ -44,8 +44,8 @@
             <li class="list-item build-item">
                 <h2>Changes in this build</h2>
                 <ul class="list">
-                    {{#if buildInvolvements}}
-                        {{#each buildInvolvements}}
+                    {{#if build.involvements}}
+                        {{#each build.involvements}}
                             <li>
                                 <h3>
                                     {{>buildInvolvementUserLink this}} ({{revision}})

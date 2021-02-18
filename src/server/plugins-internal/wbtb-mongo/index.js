@@ -650,20 +650,12 @@ module.exports = {
     /**
      * Gets builds that a giver user has been mapped to
      */
-    async pageBuildInvolvementByUser (userId, index, pageSize){
+    async pageBuildsByUser (userId, index, pageSize){
         let items = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
-            {
-                "$lookup": {
-                    "from": constants.TABLENAME_BUILDS,
-                    "localField": "buildId",
-                    "foreignField": "_id",
-                    "as": "__build"
-                }
-            },
             {
                 $match: { 
                     $and: [ 
-                        { "userId" :{ $eq : new ObjectID(userId) } }
+                        { "involvements.userId" :{ $eq : new ObjectID(userId) } }
                     ] 
                 }
             },
@@ -678,52 +670,32 @@ module.exports = {
         if (items.length % pageSize)
             pages ++
 
-        // flatten mongo join collection to single normalized build object
-        for (const buildInvolvement of items)
-            buildInvolvement.__build = buildInvolvement.__build.length ? _normalizeBuild(buildInvolvement.__build[0]) : null
-
         // take page 
         items = items.slice(index * pageSize, (index * pageSize) + pageSize)
 
         // normalize
-        items = _normalize(items, _normalizeBuildInvolvement)
+        items = _normalize(items, _normalizeBuild)
 
         return { items, pages}
     },
 
-    async getBuildInvolementsByBuild (buildId){
-        return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
-            $and: [
-                { 'buildId' :{ $eq : new ObjectID(buildId) } }
-            ]
-        }), _normalizeBuildInvolvement)
-    },
 
-    // rename to : getBuildInvolvementsWithoutRevisionObjects, return builds
-    async getBuildInvolvementsWithoutRevisionObjects(){
-        const buildInvolvements = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
-            {
-                "$lookup": {
-                    "from": constants.TABLENAME_BUILDS,
-                    "localField": "buildId",
-                    "foreignField": "_id",
-                    "as": "__build"
-                }
-            },
-            
+    async getBuildsWithoutRevisionObjects(){
+        const builds = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match: { 
                     $and: [ 
-                        { 'revisionObject' :{ $eq : null }},
-                        { '__build.logPath' :{ $ne : null }}
+                        { 'involvements.revisionObject' :{ $eq : null }},
+                        { 'logPath' :{ $ne : null }}
                     ] 
                 }
             }
         )
 
-        return _normalize(buildInvolvements, _normalizeBuildInvolvement)
+        return _normalize(builds, _normalizeBuild)
     },
 
+    
     /****************************************************
      * Contact log
      ****************************************************/

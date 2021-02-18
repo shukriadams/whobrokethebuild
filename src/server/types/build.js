@@ -9,7 +9,7 @@
  * @property {string} host Name of machine on which build was done
  * @property {string} status constants.BUILDSTATUS_*. Status of build from CI server
  * @property {string} delta constants.BUILDSTATUS_*. Status of build relative to other builds. WBTB assigns this.
- * @property {object} involvements Hash table of BuildInvolvement objects. Indexed by revision id from source control
+ * @property {Array<object>} involvements Array of BuildInvolvement objects. 
  * @property {boolean} ignoreFromBreakHistory if true, build does not count towards break history. Use this to ignore activity that we know didn't break anything
  * @property {string} comment admin comments
  * @property {string} logPath if not null, path to log file within local log store folder
@@ -32,7 +32,7 @@ module.exports = class Build{
         this.host = null
         this.status = constants.BUILDSTATUS_OTHER
         this.delta = null
-        this.involvements = {}
+        this.involvements = []
         this.ignoreFromBreakHistory = false
         this.comment = null
         this.logPath = null

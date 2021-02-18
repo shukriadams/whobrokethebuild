@@ -21,8 +21,7 @@ module.exports = class AlertBuildBreaker extends BaseDaemon {
                     continue
     
                 // inform offenders they've been caught red-handed
-                const buildInvolvements = await data.getBuildInvolementsByBuild(breakingBuild.id)
-                for (const buildInvolvement of buildInvolvements){
+                for (const buildInvolvement of breakingBuild.involements){
                     // no local user found for build, don't worry we'll get them next time
                     if (!buildInvolvement.userId)
                         continue

@@ -21,9 +21,8 @@ module.exports = class MapUsersToRevisions extends BaseDaemon {
             try {
                 const job = await data.getJob(build.jobId, { expected : true })
 
-                for(const buildId of build.involvements){
-                    const buildInvolvement = build.involvements[buildId],
-                        user = await data.getUserByExternalName(job.VCServerId, buildInvolvement.externalUsername)
+                for(const buildInvolvement of build.involvements){
+                    const user = await data.getUserByExternalName(job.VCServerId, buildInvolvement.externalUsername)
                     
                     if (user){
                         buildInvolvement.userId = user.id      

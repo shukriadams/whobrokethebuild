@@ -58,9 +58,6 @@ module.exports = function(app){
             model.previousBuild = await data.getPreviousBuild(build)
             model.linkToBuild = ciServerPlugin.linkToBuild(ciServer, job, build)
             build.__isFailing = build.status === constants.BUILDSTATUS_FAILED 
-
-            // REFACTOR THIS TO LOGIC LAYER
-            model.buildInvolvements = await data.getBuildInvolementsByBuild(build.id)
             
             // parse and filter log if only certain lines should be shown
             let logParser = model.job.logParser ? await pluginsManager.get(model.job.logParser) : null,
@@ -75,7 +72,7 @@ module.exports = function(app){
                 logErrors = await logHelper.parseErrorsFromFile(build.logPath, model.job.logParser)
             }
 
-            for (const buildInvolvement of model.buildInvolvements){
+            for (const buildInvolvement of model.build.involvements){
                 // get user object for revision, if mapped
                 if (buildInvolvement.userId)
                     buildInvolvement.__user = await data.getUser(buildInvolvement.userId)

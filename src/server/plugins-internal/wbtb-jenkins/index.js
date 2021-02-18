@@ -249,7 +249,7 @@ module.exports = {
                     buildInvolvment.buildId = localBuild.id
                     buildInvolvment.revision = revision
                     buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SOURCECHANGE
-                    localBuild.involvements[revision] = buildInvolvment
+                    localBuild.involvements.push(buildInvolvment)
                 }
             }
 

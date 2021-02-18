@@ -87,7 +87,6 @@ module.exports = {
         const data = await pluginsManager.getExclusive('dataProvider'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.slackAccessToken }),
-            buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
             context = `build_${build.status}_${build.id}`
 
         if (!this.__wbtb.enableMessaging){
@@ -109,7 +108,7 @@ module.exports = {
             return
 
         if (build.status === constants.BUILDSTATUS_FAILED){
-            for (const buildInvolvement of buildInvolvements){
+            for (const buildInvolvement of build.involvements){
                 const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null,
                     username = user ? user.name : buildInvolvement.externalUsername
 
@@ -166,8 +165,7 @@ module.exports = {
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.slackAccessToken }),
             context = `build_fail_${build.id}`,
-            buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
-            usersInvolved = buildInvolvements.map(involvement => involvement.externalUsername)
+            usersInvolved = build.involvements.map(involvement => involvement.externalUsername)
 
         // convert to unique users
         usersInvolved = Array.from(new Set(usersInvolved)) 

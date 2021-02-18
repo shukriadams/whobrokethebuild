@@ -31,8 +31,7 @@ module.exports = {
         let logHelper = require(_$+'helpers/log'),
             data = await pluginsManager.getExclusive('dataProvider'),
             job = await data.getJob(build.jobId, { expected: true }),
-            buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
-            usersInvolved = buildInvolvements.map(involvement => involvement.externalUsername),
+            usersInvolved = build.involvements.map(involvement => involvement.externalUsername),
             isImplicated = false,
             log = job.logParser ? 
                 await logHelper.parseErrorsFromFileToString(build.logPath, job.logParser) :
@@ -45,7 +44,7 @@ module.exports = {
 
         // determine if the user being messaged is implicated in the build. This happens only if
         // a file belonging to the user has been directly marked as being "at fault" 
-        for (const buildInvolvement of buildInvolvements){
+        for (const buildInvolvement of build.involvements){
             //
             if (!buildInvolvement.userId !== user.id)
                 continue

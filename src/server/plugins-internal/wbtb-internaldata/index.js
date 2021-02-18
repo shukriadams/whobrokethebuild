@@ -272,22 +272,6 @@ module.exports = {
         return []
     },
 
-
-    /**
-     * Gets builds that a giver user has been mapped to
-     */
-    async pageBuildInvolvementByUser(userId){
-        return null
-    },
-
-    async getBuildInvolementsByBuild(buildId){
-        return []
-    },
-
-    async getBuildInvolvementsWithoutRevisionObjects(){
-        return []
-    },
-
     /****************************************************
      * Contact log
      ****************************************************/
