@@ -271,15 +271,7 @@ module.exports = {
     async getUnmappedBuildInvolvements(){
         return []
     },
-    
-   
-    getAllBuildInvolvement(){
-        return null
-    },
 
-    async getBuildInvolvementByRevision(buildId, externalUsername){
-        return null
-    },
 
     /**
      * Gets builds that a giver user has been mapped to

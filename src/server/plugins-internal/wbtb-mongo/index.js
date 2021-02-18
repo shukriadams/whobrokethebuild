@@ -637,30 +637,13 @@ module.exports = {
      /****************************************************
      * Build Involvement
      ****************************************************/
+    // rename to getBuildsWithUnmappedInvolvements, return builds
     async getUnmappedBuildInvolvements (){
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [ 
                 { 'involvements.userId' :{ $eq : null } }
             ]
-        }), _normalizeBuildInvolvement)
-    },
-
-   
-    async getAllBuildInvolvement () {
-        return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, { }), _normalizeBuildInvolvement)
-    },
-
-
-    /** 
-     * Gets build involvements for a given build and given revision
-     */
-    async getBuildInvolvementByRevision (buildId, revision){
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDS, {
-            $and: [
-                { 'revision' :{ $eq : revision } },
-                { 'buildId' :{ $eq : new ObjectID(buildId) } }
-            ]
-        }), _normalizeBuildInvolvement)
+        }), _normalizeBuild)
     },
 
 
@@ -716,6 +699,7 @@ module.exports = {
         }), _normalizeBuildInvolvement)
     },
 
+    // rename to : getBuildInvolvementsWithoutRevisionObjects, return builds
     async getBuildInvolvementsWithoutRevisionObjects(){
         const buildInvolvements = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
@@ -829,8 +813,7 @@ module.exports = {
         const vcServers = await this.getAllVCServers(),
             ciServers = await this.getAllCIServers(),
             jobs = await this.getAllJobs(),
-            builds = await this.getAllBuilds(),
-            buildInvolvements = await this.getAllBuildInvolvement()
+            builds = await this.getAllBuilds()
         
         for (let i = 0; i < jobs.length ; i ++){
             let job = jobs[jobs.length - 1 - i],

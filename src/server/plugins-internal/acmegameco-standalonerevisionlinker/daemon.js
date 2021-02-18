@@ -87,18 +87,16 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                 for (const revisionNr of revisionsInThisBuild){
                     const revisionData = await perforcePLugin.getRevision(revisionNr, vcServer)
                     if (revisionData){
-                        let buildInvolvment = await data.getBuildInvolvementByRevision(build.id, revisionData.user)
-                        if (buildInvolvment)
+                        let revisionId = revisionNr.toString()
+                        if (build.involvements[revisionId])
                             continue 
     
-                        buildInvolvment = new BuildInvolvment()
+                        const buildInvolvment = new BuildInvolvment()
                         buildInvolvment.externalUsername = revisionData.user
                         buildInvolvment.buildId = build.id
-                        buildInvolvment.revision = revisionNr.toString()
+                        buildInvolvment.revision = revisionId
                         buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SUSPECTED_SOURCECHANGE
-                        buildInvolvment.comment = buildInvolvment.comment || ''
-                        buildInvolvment.comment += `\n Revision presence based on build log content`
-                        build.involvements[build.id] = buildInvolvment
+                        build.involvements[revisionId] = buildInvolvment
                     }
                 }
 
