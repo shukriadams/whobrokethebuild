@@ -28,6 +28,8 @@ let process = require('process'),
         // path will be created if it doesn't exist
         buildLogsDump : './data/buildLogs',
 
+        pluginsPath : './data/plugins',
+
         // cronmask for when daemons run. By default every minute. All daemons share the same interval, but 
         // do not block each other
         daemonInterval : '* * * * *',

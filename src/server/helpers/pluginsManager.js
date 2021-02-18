@@ -68,14 +68,16 @@ module.exports = {
             installedPlugins =  await fsUtils.getChildDirs('./server/plugins-internal')
             __log.info('Binding internal plugins enabled')
         } else {
-            installedPlugins = await fsUtils.getChildDirs('./server/plugins')
+            installedPlugins = await fsUtils.getChildDirs(settings.pluginsPath)
         }
  
         return installedPlugins
     },
 
     getPluginRootPath(){
-        return `${_$}plugins${(settings.bindInternalPlugins ? '-internal':'')}` 
+        return settings.bindInternalPlugins ? 
+            `${_$}plugins-internal`:
+            settings.pluginsPath
     },
 
     async _loadPlugins(){
@@ -99,7 +101,7 @@ module.exports = {
                 continue
             
             const sourceFolder = path.join('./server/plugins-internal', pluginName),
-                targetFolder = path.join('./server/plugins', pluginName)
+                targetFolder = path.join(settings.pluginsPath, pluginName)
             
             if (!await fs.pathExists(sourceFolder)){
                 __log.error(`internal plugin "${pluginName}" does not exist in internal plugin cache`)
@@ -201,7 +203,7 @@ module.exports = {
 
         for (const pluginName in pluginsConfig){
             let pluginConfig = pluginsConfig[pluginName],
-                pluginParentFolder = settings.bindInternalPlugins ? './server/plugins-internal' :  './server/plugins',
+                pluginParentFolder = settings.bindInternalPlugins ? './server/plugins-internal' : settings.pluginsPath,
                 pluginFolder = `${path.join(pluginParentFolder, pluginName)}`, 
                 // we write out own per-plugin JSON file in root of plugins folder, this contains metadata about the installation
                 pluginInstallStatus = {},
@@ -290,7 +292,7 @@ module.exports = {
      */
     async initializeAll(){
         // this is where plugins will normally be installed
-        let externalPluginsFolder = './server/plugins',
+        let externalPluginsFolder = settings.pluginsPath,
             // read the regular plugins list
             testAll = !!settings.checkPluginsOnStart,
             pluginsConfig = settings.plugins
