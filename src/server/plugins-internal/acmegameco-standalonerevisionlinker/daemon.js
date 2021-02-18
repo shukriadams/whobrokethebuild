@@ -35,9 +35,11 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                 }
 
                 // NOTE! query ensures that logPath is already defined, but we don't know if the file exists
-                const logPath = path.join(settings.buildLogsDump, build.jobId, build.build)
+                const logPath = path.join(settings.buildLogsDump, build.jobId, build.build.toString())
                 if (!await fs.exists(logPath)){
                     __log.error(`LOG MISSING - Job ${job.name}, build ${build.build} defines log ${build.id}, but the file does not exist`)
+                    build.processStatus = 'CANNOT_RESOLVE'
+                    await data.updateBuild(build)
                     continue
                 }
 
@@ -47,6 +49,8 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
 
                 if (!lookup){
                     __log.info(`Job ${job.name}, build ${build.build} log is missing "p4-changes" block, add this to build logs to enable revision range matching`)
+                    build.processStatus = 'CANNOT_RESOLVE'
+                    await data.updateBuild(build)
                     continue
                 }
 

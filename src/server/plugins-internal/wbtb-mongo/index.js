@@ -565,6 +565,7 @@ module.exports = {
                 $match : {
                     $and: [ 
                         { 'revisions' : { $eq : [] }},
+                        { 'processStatus' : { $eq : null }},
                         {
                             // finished builds only - either passed or failed
                             $or : [

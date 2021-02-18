@@ -35,7 +35,7 @@ module.exports = {
             path = require('path'),
             logParser = await pluginsManager.get(logParserType),
             rawLog = null,
-            logPath = path.join(build.jobId, build.build),
+            logPath = path.join(build.jobId, build.build.toString()),
             rawLogPath = path.join(settings.buildLogsDump, logPath)
 
         if (! await fs.exists(rawLogPath))
@@ -64,7 +64,7 @@ module.exports = {
             path = require('path'),
             logParser = await pluginsManager.get(logParserType),
             rawLog = null,
-            logPath = path.join(build.jobId, build.build),
+            logPath = path.join(build.jobId, build.build.toString()),
             rawLogPath = path.join(settings.buildLogsDump, logPath)
 
         if (! await fs.exists(rawLogPath)){

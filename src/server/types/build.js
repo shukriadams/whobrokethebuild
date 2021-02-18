@@ -12,7 +12,9 @@
  * @property {Array<object>} involvements Array of BuildInvolvement objects. 
  * @property {boolean} ignoreFromBreakHistory if true, build does not count towards break history. Use this to ignore activity that we know didn't break anything
  * @property {string} comment admin comments
+ * @property {string} processStatus Status of build for internal processing. Will be set to some value if it cannot be processed further, so we don't keep reprocessing it
  * @property {string} logPath if not null, path to log file within local log store folder
+ * 
  */
 
 const constants = require(_$+ 'types/constants')
@@ -35,6 +37,7 @@ module.exports = class Build{
         this.involvements = []
         this.ignoreFromBreakHistory = false
         this.comment = null
+        this.processStatus = null
         this.logPath = null
     }
 }
