@@ -96,7 +96,7 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                         buildInvolvment.externalUsername = revisionData.user
                         buildInvolvment.buildId = build.id
                         buildInvolvment.revision = revisionNr.toString()
-                        buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SOURCECHANGE
+                        buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SUSPECTED_SOURCECHANGE
                         buildInvolvment.comment = buildInvolvment.comment || ''
                         buildInvolvment.comment += `\n Revision presence based on build log content`
 

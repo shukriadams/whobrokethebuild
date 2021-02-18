@@ -768,7 +768,7 @@ module.exports = {
                 $match: { 
                     $and: [ 
                         { 'revisionObject' :{ $eq : null }},
-                        { '__build.log' :{ $ne : null }}
+                        { '__build.logPath' :{ $ne : null }}
                     ] 
                 }
             }
