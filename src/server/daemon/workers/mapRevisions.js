@@ -42,7 +42,7 @@ module.exports = class MapRevisions extends BaseDaemon {
                             files : [] 
                         }
                     
-                    const errorLines = await logHelper.parseErrorsFromFile(build.logPath, job.logParser)
+                    const errorLines = await logHelper.parseErrorsFromBuildLog(build, job.logParser)
                     faultHelper.processRevision(buildInvolvement.revisionObject, errorLines)
                     __log.debug(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
 

@@ -5,7 +5,7 @@ module.exports = {
 
     
     /**
-     * @param {string} logPath relative path of log file within local log dump
+     * @param {object} build build of which log should be read
      * @param {string} logParserType plugin name for log parser
      * @param {string} joint Join for error lines. Normally a unix line return
      * 
@@ -14,14 +14,14 @@ module.exports = {
      * 
      * Log file need not exist.
      */ 
-    async parseErrorsFromFileToString(logPath, logParserType, joint = '\n'){
-        const lines = await this.parseErrorsFromFile(logPath, logParserType)
+    async parseErrorsFromBuildLogToString(build, logParserType, joint = '\n'){
+        const lines = await this.parseErrorsFromBuildLog(build, logParserType)
         return lines.join(joint)
     },
 
 
     /**
-     * @param {string} logPath relative path of log file within local log dump
+     * @param {object} build build of which log should be read
      * @param {string} logParserType plugin name for log parser
      *
      * Returns array of strings, errors parsed from log path file
@@ -29,12 +29,13 @@ module.exports = {
      * 
      * Log file need not exist.
      */
-    async parseErrorsFromFile(logPath, logParserType){
+    async parseErrorsFromBuildLog(build, logParserType){
         let pluginsManager = require(_$+'helpers/pluginsManager'),
             settings = require(_$+ 'helpers/settings'),
             path = require('path'),
             logParser = await pluginsManager.get(logParserType),
             rawLog = null,
+            logPath = path.join(build.jobId, build.build),
             rawLogPath = path.join(settings.buildLogsDump, logPath)
 
         if (! await fs.exists(rawLogPath))
@@ -43,7 +44,7 @@ module.exports = {
         try {
             rawLog = await fs.readFile(rawLogPath, 'utf8')
         }catch(ex){
-            __log.error(`unexpected error parseErrorsFromFile, file "${logPath}"`, ex)
+            __log.error(`unexpected error parseErrorsFromBuildLog, file "${logPath}"`, ex)
             return
         }
 
@@ -52,17 +53,18 @@ module.exports = {
 
 
     /**
-     * @param {string} logPath relative path of log file within local log dump
+     * @param {object} build relative path of log file within local log dump
      * @param {string} logParserType plugin name for log parser
      * 
      * returns parsedLog object
      */
-    async parseFromFile(logPath, logParserType){
+    async parseFromBuild(build, logParserType){
         let pluginsManager = require(_$+'helpers/pluginsManager'),
             settings = require(_$+ 'helpers/settings'),
             path = require('path'),
             logParser = await pluginsManager.get(logParserType),
             rawLog = null,
+            logPath = path.join(build.jobId, build.build),
             rawLogPath = path.join(settings.buildLogsDump, logPath)
 
         if (! await fs.exists(rawLogPath)){
@@ -74,7 +76,7 @@ module.exports = {
         try {
             rawLog = await fs.readFile(rawLogPath, 'utf8')
         }catch(ex){
-            __log.error(`unexpected error parseErrorsFromFile, file "${logPath}"`, ex)
+            __log.error(`unexpected error parseFromFile, file "${logPath}"`, ex)
             return
         }
 

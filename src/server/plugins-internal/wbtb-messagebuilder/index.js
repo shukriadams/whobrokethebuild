@@ -34,7 +34,7 @@ module.exports = {
             usersInvolved = build.involvements.map(involvement => involvement.externalUsername),
             isImplicated = false,
             log = job.logParser ? 
-                await logHelper.parseErrorsFromFileToString(build.logPath, job.logParser) :
+                await logHelper.parseErrorsFromBuildLogToString(build, job.logParser) :
                 `No log parser select, asked your admin to set one up`
 
         // ensure log has content, if errors cannot be parsed, it will be blank
