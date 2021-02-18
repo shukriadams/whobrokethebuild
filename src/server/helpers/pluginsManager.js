@@ -303,7 +303,6 @@ module.exports = {
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
 
-
         // we always need an auth / users plugin, add fallback if none defined
         pluginsConfig['wbtb-internalusers'] = pluginsConfig['wbtb-internalusers']|| { source : 'internal' }
         __log.info(`Added fallback authProvider plugin wbtb-internalusers`)
@@ -361,8 +360,8 @@ module.exports = {
             }
 
             // merge local plugin config with .wbtb member of package.json - in this way, local config is available
-            // via .wbtb to code
-            packageJson.wbtb = Object.assign(pluginsConfig[pluginName], packageJson.wbtb)
+            // via .wbtb to code. Allow local config to override static config in package.json
+            packageJson.wbtb = Object.assign(packageJson.wbtb, pluginsConfig[pluginName])
 
             _plugins.byCategory[packageJson.wbtb.category] = _plugins.byCategory[packageJson.wbtb.category] || {}
             

@@ -19,7 +19,11 @@
                         No Jobs set yet - create one to assign it's alerts to a Slack channel.
                     {{/if}}
                 </div>                
-
+                <div>
+                    <input type="checkbox" name="cb_enableMessaging" id="cb_enableMessaging" {{#if enableMessaging}}checked{{/if}} />
+                    <label for="cb_enableMessaging">Enable messaging</label>
+                </div>
+                
                 <button class="button" type="submit">Update</button>
             </form>
         </div>

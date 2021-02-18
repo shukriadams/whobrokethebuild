@@ -79,17 +79,23 @@ module.exports = {
 
     /**
      * Required by all "contact" plugins
-     * slackContactMethod : contactMethod from job, written by this plugin 
-     * job : job object 
-     * delta : the change (constants.BUILDDELTA_*)
+     * @param {object} slackContactMethod contactMethod from job, written by this plugin 
+     * @param {object} job job object to alert for
+     * @param {object} build build object to alert for
      */
-    async alertGroup(slackContactMethod, job, build, delta){
+    async alertGroup(slackContactMethod, job, build){
         const data = await pluginsManager.getExclusive('dataProvider'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.slackAccessToken }),
             buildInvolvements = await data.getBuildInvolementsByBuild(build.id),
             context = `build_${build.status}_${build.id}`
 
+        if (!this.__wbtb.enableMessaging){
+            __log.debug(`Slack messaging disabled, blocked send`)
+            return
+        }
+
+        // allow alerts only on passing or failing builds
         if (build.status !== constants.BUILDSTATUS_FAILED && build.status !== constants.BUILDSTATUS_PASSED)
             return
 
@@ -165,6 +171,11 @@ module.exports = {
 
         // convert to unique users
         usersInvolved = Array.from(new Set(usersInvolved)) 
+
+        if (!this.__wbtb.enableMessaging){
+            __log.debug(`Slack messaging disabled, blocked send`)
+            return
+        }
 
         if (!build.logPath){
             __log.warn(`Attepting to warn user on build that has no local log, build "${build.id}" to user "${user.id}"`)

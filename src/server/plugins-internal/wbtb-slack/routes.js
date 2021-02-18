@@ -21,6 +21,7 @@ module.exports = app => {
 
             const view = await handlebars.getView(`${thisType}/views/settings`),
                 data = await pluginsManager.getExclusive('dataProvider'),
+                plugin = await pluginsManager.get(thisType),
                 model = {
                     wbtbSlack : {
 
@@ -28,6 +29,7 @@ module.exports = app => {
                 }
 
             model.jobs = await data.getAllJobs()
+            model.enableMessaging = plugin.__wbtb.enableMessaging
 
             // collapse contactMethod to only this plugin's data
             for (let job of model.jobs)

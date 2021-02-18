@@ -8,6 +8,9 @@
         "category": "contactMethod",
         "name": "Slack",
         "hasUI": true,
-        "hasUserUI": true
+        "hasUserUI": true,
+
+        "_comment" : "set to false allow plugin to load, but block all message sends. Useful for runtime throttling of messaging",
+        "enableMessaging" : true
     }
 }
