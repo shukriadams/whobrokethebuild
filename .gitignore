@@ -50,3 +50,4 @@ src/plugins.local.json
 __testing
 build/base/.stage.tar.gz
 src/server/plugins-internal/**/mock
+src/settings.yml

@@ -7,6 +7,7 @@ let process = require('process'),
     fs = require('fs-extra'),
     customEnv = require('custom-env'),
     constants = require(_$+ 'types/constants'),
+    yaml = require('js-yaml'),
     settings = {
 
         // port Express listens on
@@ -101,15 +102,28 @@ let process = require('process'),
 
     }
 
+// Load settings from YML file, merge with default settings
+if (fs.existsSync('./settings.yml')){
+    let userSettings = null
 
-// apply custom .env settings
+    try {
+        const settingsYML = fs.readFileSync('./settings.yml', 'utf8')
+        userSettings = yaml.safeLoad(settingsYML)
+    } catch (e) {
+        __log.error('Error reading settings.yml', e)
+    }    
+    
+    settings = Object.assign(settings, userSettings)
+}
+
+
+// if exists, load dev .env into ENV VARs
 if (fs.existsSync('./.env')){
     customEnv.env()
     console.log('.env loaded')
 }
 
-
-// capture settings from process.env
+// apply all ENV VARS over settings, this means that ENV VARs win over all other settings
 for (let property in settings){
 
     settings[property] = process.env[property] || settings[property]
@@ -122,7 +136,7 @@ for (let property in settings){
         settings[property] = false
 }
 
-// fix things that are desperately broken
+// apply type fixes etc where necessary now that all settings are loaded
 // this must always be an int
 settings.standardPageSize = parseInt(settings.standardPageSize.toString())
 

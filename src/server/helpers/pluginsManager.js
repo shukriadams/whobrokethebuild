@@ -292,24 +292,14 @@ module.exports = {
         // this is where plugins will normally be installed
         let externalPluginsFolder = './server/plugins',
             // read the regular plugins list
-            pluginsConfigPath = './plugins.json',
-            testAll = !!settings.checkPluginsOnStart
+            testAll = !!settings.checkPluginsOnStart,
+            pluginsConfig = settings.plugins
 
-        if (!await fs.exists(pluginsConfigPath)){
-            __log.error(`ERROR - Expected plugins definition file ${path.resolve(pluginsConfigPath)} was not found. Please create this file and restart.`)
-            return process.exit(1)
-        }
+        // settings for each plugin can start empty, ensure at least empty object for each
+        for (const plugin in pluginsConfig)
+            pluginsConfig[plugin] = pluginsConfig[plugin] || {}
 
-        let pluginsConfig = await fs.readJson(pluginsConfigPath)
-
-        // if a dev plugin list exists, load and merge that with the regular plugins list, let dev plugins override regular ones
-        if (await fs.pathExists('./plugins.local.json')){
-            const devPluginsConfig = await fs.readJson('./plugins.local.json')
-            pluginsConfig = Object.assign(pluginsConfig, devPluginsConfig)
-        }
-
-
-        // set plugin source to internal if no source defined
+        // set each plugin source to internal if no source defined
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
 
