@@ -299,6 +299,13 @@ module.exports = {
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin] = pluginsConfig[plugin] || {}
 
+        // load overrides
+        const overrideFilePath = path.join(settings.dataFolder, '.settings-override.json')
+        if (await fs.exists(overrideFilePath)){
+            const overrideSettings = await fs.readJson(overrideFilePath)
+            pluginsConfig = Object.assign(pluginsConfig, overrideSettings)
+        }
+
         // set each plugin source to internal if no source defined
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
@@ -417,7 +424,7 @@ module.exports = {
         // initialize plugin
         await this._initializeAllPlugins(allPlugins)
 
-        await fs.outputJson(pluginConfPath, _pluginConf, { spaces : 4})
+        await fs.outputJson(pluginConfPath, _pluginConf, { spaces : 4 })
     },
 
 
@@ -565,6 +572,41 @@ module.exports = {
                     throw `Plugin ${plugin.__wbtb.id} does not impliment member "${member}" expected for category "${plugin.__wbtb.category}"`
         }
     },
+
+
+    /**
+     * @param {string} pluginName Name of plugin to apply override on
+     * @param {string} setting Name of setting to apply
+     * @param {object} value Value to appy to setting
+     */
+    async overrideSetting(pluginName, setting, value){
+        // persist to file
+        let path = require('path'), 
+            settings = require(_$+'helpers/settings'),
+            overrideSettings = {},
+            overrideFilePath = path.join(settings.dataFolder, '.settings-override.json')
+
+        // apply to plugin
+        if (!_plugins.plugins[pluginName]){
+            __log.error(`Attempted to apply setting to unknown/unbound plugin "${pluginName}"`)
+            return
+        }
+
+        _plugins.plugins[pluginName][setting] = value
+
+        // persist to file
+        if (await fs.exists(overrideFilePath))
+            overrideSettings = await fs.readJson(overrideFilePath)
+
+        overrideSettings[pluginName] = overrideSettings[pluginName] || {}
+        overrideSettings[pluginName][setting] = value
+
+        await fs.writeJson(overrideFilePath, overrideSettings, { spaces : 4 })
+
+        // wipe cached
+        _allplugins = null
+    },
+
 
     async runDiagnostic(){
         

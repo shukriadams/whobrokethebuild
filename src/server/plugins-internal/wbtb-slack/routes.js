@@ -59,7 +59,9 @@ module.exports = app => {
 
             let data = await pluginsManager.getExclusive('dataProvider'),
                 jobs = await data.getAllJobs()
-            
+
+            await pluginsManager.overrideSetting(thisType, 'enableMessaging', req.body['cb_enableMessaging'] === 'on')
+
             // save job-channel bindings
             for (const job of jobs){
                 const bindToChannelId = req.body[`select_${job.id}`]
