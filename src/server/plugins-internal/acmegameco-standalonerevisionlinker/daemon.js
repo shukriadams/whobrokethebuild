@@ -82,7 +82,6 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                     build.revisions = revisionsInThisBuild
                     build.comment = build.comment || ''
                     build.comment += `\n ${revisionsInThisBuild.length} revisions were soft-matched in based on #${knownRevisionInThisBuild} appearing in build log`
-                    await data.updateBuild(build)
                 }
     
                 for (const revisionNr of revisionsInThisBuild){
@@ -99,10 +98,11 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                         buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SUSPECTED_SOURCECHANGE
                         buildInvolvment.comment = buildInvolvment.comment || ''
                         buildInvolvment.comment += `\n Revision presence based on build log content`
-
-                        await data.insertBuildInvolvement(buildInvolvment)
+                        build.involvements[build.id] = buildInvolvment
                     }
                 }
+
+                await data.updateBuild(build)
 
             } catch (ex){
                 __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)

@@ -322,6 +322,8 @@ module.exports = {
                 __log.info(`Plugin "${pluginName}" is marked as disabled`)
             }
 
+        if (!testAll)
+            __log.debug('-----------PLUGIN CHECKS DISABLED-----------')
 
         // validate plugin.json static config
         let errors = false

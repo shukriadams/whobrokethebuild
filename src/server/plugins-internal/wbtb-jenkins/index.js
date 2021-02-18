@@ -239,7 +239,6 @@ module.exports = {
             localBuild.host = remoteBuild.builtOn
             localBuild.revisions = await this.getBuildCommits(baseUrl, job.name, remoteBuild.number)
             localBuild.started = remoteBuild.timestamp
-            localBuild = await data.insertBuild(localBuild)
 
             // insert buildInvolvement
             for (let revision of localBuild.revisions){
@@ -254,10 +253,11 @@ module.exports = {
                     buildInvolvment.buildId = localBuild.id
                     buildInvolvment.revision = revision
                     buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SOURCECHANGE
-                    await data.insertBuildInvolvement(buildInvolvment)
+                    localBuild.involvements[localBuild.id] = buildInvolvment
                 }
             }
-            
+
+            localBuild = await data.insertBuild(localBuild)
             __log.info(`Imported build ${job.name}:${remoteBuild.number}`)
         }
     },

@@ -271,19 +271,8 @@ module.exports = {
     async getUnmappedBuildInvolvements(){
         return []
     },
-
-    async insertBuildInvolvement(record){
-        return { id : '' }
-    },
     
-    removeBuildInvolvement(){
-
-    },
-
-    async updateBuildInvolvement(record){
-        
-    },
-    
+   
     getAllBuildInvolvement(){
         return null
     },

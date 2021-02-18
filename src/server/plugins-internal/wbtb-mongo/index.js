@@ -503,11 +503,6 @@ module.exports = {
     },
 
     async removeBuild(id) {
-        // remove children
-        await _mongo.remove(constants.TABLENAME_BUILDINVOLVEMENTS, { 
-            buildId : new ObjectID(id) 
-        })
-
         // remove record
         await _mongo.remove(constants.TABLENAME_BUILDS, { 
             _id : new ObjectID(id) 
@@ -515,9 +510,6 @@ module.exports = {
     },
 
     async removeAllBuilds(){
-        // remove children
-        await _mongo.remove(constants.TABLENAME_BUILDINVOLVEMENTS)
-
         // remove record
         await _mongo.remove(constants.TABLENAME_BUILDS)
     },
@@ -570,30 +562,14 @@ module.exports = {
     async getResolvedBuildsWithNoInvolvements(){
         return _normalize(await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
-                "$lookup": {
-                    "from": constants.TABLENAME_BUILDINVOLVEMENTS,
-                    "localField": "_id",
-                    "foreignField": "buildId",
-                    "as": "__buildInvolvements"
-                }
-            },
-
-            {
                 $match : {
                     $and: [ 
-                        // no build involements must exist
-                        { '__buildInvolvements' : { $eq : [] }},
-                        
                         { 'revisions' : { $eq : [] }},
-                        
-                        // for the purposes of this operation, we can assume logs would have been fetched too
-                        { 'logPath' : { $ne : null }},
-
                         {
                             // finished builds only - either passed or failed
                             $or : [
-                                { 'status' :{ $eq : constants.BUILDSTATUS_FAILED } },
-                                { 'status' :{ $eq : constants.BUILDSTATUS_PASSED } }
+                                { 'status' : { $eq : constants.BUILDSTATUS_FAILED } },
+                                { 'status' : { $eq : constants.BUILDSTATUS_PASSED } }
                             ]
                         }
                     ]            
@@ -662,29 +638,16 @@ module.exports = {
      * Build Involvement
      ****************************************************/
     async getUnmappedBuildInvolvements (){
-        return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, {
+        return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [ 
-                { 'userId' :{ $eq : null } }
+                { 'involvements.userId' :{ $eq : null } }
             ]
         }), _normalizeBuildInvolvement)
     },
 
-    async insertBuildInvolvement(record) {
-        return _normalize(await _mongo.insert(constants.TABLENAME_BUILDINVOLVEMENTS, _denormalizeBuildInvolvement(record)), _normalizeBuildInvolvement)
-    },
-
-    async removeBuildInvolvement(id) {
-        await _mongo.remove(constants.TABLENAME_BUILDINVOLVEMENTS, { 
-            _id : new ObjectID(id) 
-        })
-    },
-
-    async updateBuildInvolvement(record) {
-        await _mongo.update(constants.TABLENAME_BUILDINVOLVEMENTS, _denormalizeBuildInvolvement(record))
-    },
-    
+   
     async getAllBuildInvolvement () {
-        return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, { }), _normalizeBuildInvolvement)
+        return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, { }), _normalizeBuildInvolvement)
     },
 
 
@@ -692,7 +655,7 @@ module.exports = {
      * Gets build involvements for a given build and given revision
      */
     async getBuildInvolvementByRevision (buildId, revision){
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDINVOLVEMENTS, {
+        return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDS, {
             $and: [
                 { 'revision' :{ $eq : revision } },
                 { 'buildId' :{ $eq : new ObjectID(buildId) } }
@@ -705,7 +668,7 @@ module.exports = {
      * Gets builds that a giver user has been mapped to
      */
     async pageBuildInvolvementByUser (userId, index, pageSize){
-        let items = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
+        let items = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 "$lookup": {
                     "from": constants.TABLENAME_BUILDS,
@@ -746,7 +709,7 @@ module.exports = {
     },
 
     async getBuildInvolementsByBuild (buildId){
-        return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, {
+        return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [
                 { 'buildId' :{ $eq : new ObjectID(buildId) } }
             ]
@@ -754,7 +717,7 @@ module.exports = {
     },
 
     async getBuildInvolvementsWithoutRevisionObjects(){
-        const buildInvolvements = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
+        const buildInvolvements = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 "$lookup": {
                     "from": constants.TABLENAME_BUILDS,
@@ -775,12 +738,6 @@ module.exports = {
         )
 
         return _normalize(buildInvolvements, _normalizeBuildInvolvement)
-
-        return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, {
-            $and: [
-                { 'revisionObject' :{ $eq : null} }
-            ]
-        }), _normalizeBuildInvolvement)
     },
 
     /****************************************************
@@ -892,6 +849,7 @@ module.exports = {
             }
         }
         
+        // remove all builds which have invalid jobids
         for (let i = 0 ; i < builds.length ; i ++){
             const build = builds[builds.length - 1 - i]
             if (!jobs.find(job => job.id === build.jobId)){
@@ -901,14 +859,6 @@ module.exports = {
             }
         }
 
-        for (let i = 0 ; i < buildInvolvements.length ; i ++){
-            const buildInvolvement = buildInvolvements[buildInvolvements.length - 1 - i]
-            if (!builds.find(build => build.id === buildInvolvement.buildId)){
-                await this.removeBuildInvolvement(buildInvolvement.id)
-                buildInvolvements.splice(i, 1)
-                __log.info(`Cleaned out orphan buildInvolvement ${buildInvolvement.id}`)
-            }
-        }
     }
 
 }
