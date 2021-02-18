@@ -9,7 +9,7 @@ const settings = require(_$+'helpers/settings'),
     _getCollection = async function(collectionName){
         return new Promise(function(resolve, reject){
             try {
-                MongoClient.connect(settings.mongoConnectionString, { poolSize : settings.poolSize, useUnifiedTopology: true }, function(err, client) {
+                MongoClient.connect(settings.mongoConnectionString, { poolSize : settings.mongoPoolSize, useUnifiedTopology: true }, function(err, client) {
                     if (err)
                         return reject(err)
 
@@ -35,7 +35,7 @@ const settings = require(_$+'helpers/settings'),
     initialize = async function(){
         return new Promise(async function(resolve, reject){
             try {
-                MongoClient.connect(settings.mongoConnectionString, { poolSize : settings.poolSize, useUnifiedTopology: true }, async function(err, client) {
+                MongoClient.connect(settings.mongoConnectionString, { poolSize : settings.mongoPoolSize, useUnifiedTopology: true }, async function(err, client) {
                     if (err)
                         return reject(err)
 

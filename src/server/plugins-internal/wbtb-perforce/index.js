@@ -1,11 +1,11 @@
-let perforcehelper = require('madscience-perforcehelper'),
+const perforcehelper = require('madscience-perforcehelper'),
     settings = require(_$+'helpers/settings'),
     Revision = require(_$+'types/revision'),
     RevisionFile = require(_$+'types/revisionFile'),
     path = require('path'),
     fs = require('fs-extra'),
-    encryption = require(_$+'helpers/encryption'),
-    isBusy
+    fsUtils = require('madscience-fsUtils'),
+    encryption = require(_$+'helpers/encryption')
 
 module.exports = {
 
@@ -30,6 +30,60 @@ module.exports = {
      */
     async parseRawRevision(rawRevisionText){
         return perforcehelper.parseDescribe(rawRevisionText, true)
+    },
+
+
+    /**
+     * @param {object} vcServer
+     * @param {number} revision
+     */
+    async getRevisionsBefore(vcServer, revision){
+        // ensure number
+        revision = parseInt(revision.toString())
+
+        let cachedPath = path.join(settings.dataFolder, 'wbtb-perforce', 'cache', 'revisions.json'),
+            allRevisions, 
+            fetch = false
+
+        if (await fs.exists(cachedPath)){
+            allRevisions = await fs.readJson(cachedPath)
+            if (!allRevisions.find(rev => rev.revision === revision))
+                fetch = true
+        } else
+            fetch = true
+
+        if (fetch){
+            const allChanges = []
+
+            if (settings.sandboxMode){
+                const mockRevisionsPath = path.join(__dirname, 'mock/revisions')
+
+                if (await fs.exists(mockRevisionsPath)){
+                    const revisionFiles = await fsUtils.readFilesInDir(mockRevisionsPath)
+                    for (let revisionFile of revisionFiles){
+                        const content = await fs.readFile(revisionFile, 'utf8')
+                        allChanges.push(perforcehelper.parseDescribe(content, false))
+                    }
+                } else {
+                    __log.warn('No mock data detected, please generate')
+                }
+
+            } else {
+                let password = await encryption.decrypt(vcServer.password),
+                    allChanges = await perforcehelper.getChanges(vcServer.username, password, vcServer.url)
+
+                allChanges = perforcehelper.parseChanges(allChanges)
+            }
+
+            allRevisions = {
+                date : new Date(),
+                revisions : allChanges
+            }
+
+            await fs.outputJson(cachedPath, allRevisions)
+        }
+
+        return allRevisions.filter(revision => revision.revision < revision)
     },
 
 

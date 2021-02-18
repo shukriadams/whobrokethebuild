@@ -29,11 +29,11 @@ module.exports = {
             users = await data.getAllUsers(),
             vsServers = await data.getAllVCServers(),
             jsonOptions = { spaces : 4 },
-            verbs = ['Call', 'Rage', 'Attack', 'Battle', 'War', 'Operation', 'Alliance', 'League', 'Quest'],
-            adverbs = ['of', 'on', 'in', 'with', 'against the', 'inspite of'],
-            adjectives = ['Modern', 'Crossover', 'Ultra', 'Perkele', 'Dashing', 'Awkward', 'Farming', 'Euro', 'Commando', 'Farming', 'Blood', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Cyber', 'Orcish', 'Elvish', 'Feudal', 'Alien', 'Insta', 'Unknownplayer', 'Backops', 'Counter'],
-            nouns = [ 'Ninja', 'Zombie', 'Avenger', 'Justice', 'Assassin', 'Shooter', 'Sniper', 'Cop', 'Commando', 'Star Battle'],
-            nouns2 = [ 'Simulator', 'Craft', 'Raider', 'Duty', 'Warfare', 'Arena', '- Battle Royale', '- Remastered', '- 4KHD', '- Mobile Edition'],
+            verbs = ['Call', 'Rage', 'Attack', 'Battle', 'War', 'Operation', 'Alliance', 'Creed', 'League', 'Quest'],
+            adverbs = ['of', 'of the', 'on', 'in', 'with', 'against the', 'inspite of'],
+            adjectives = ['Modern', 'Evil', 'Illegal', 'Crossover', 'Ultra', 'Dashing', 'Awkward', 'Farming', 'Euro', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Instagraph', 'Knownplayer', 'Blackups', 'Counter'],
+            nouns = [ 'Ninja', 'Zombie', 'Avenger', 'Alien', 'Duty', 'Justice', 'Assassin', 'Shooter', 'Sniper', 'Cop', 'Blood', 'Commando', 'Star Battle', 'Orcish', 'Cyber', 'Elvish', 'Medieval'],
+            nouns2 = [ 'Simulator', 'Craft', 'Raiders', 'Warfare', 'Arena', '- Battle Royale', '- Remastered', '- 4KHD', '- Mobile Edition'],
             // Pass every username to the generator.
             dictionaries = [verbs, adverbs, adjectives, nouns, nouns2],
             // loop, generate unique job names
@@ -78,8 +78,7 @@ module.exports = {
             for (let jobBuildCounter = 1 ; jobBuildCounter < buildsPerJob ; jobBuildCounter ++) {
 
                 // generate nr of commits per commit event
-                const commits = Math.floor(Math.random() * maxCommitsPerBuild) + minCommitsPerBuild,
-                    logText = 'muh logs'
+                const commits = Math.floor(Math.random() * maxCommitsPerBuild) + minCommitsPerBuild
 
                 // write build file, this can contain 1 or more commits, but there is one per build
                 await fs.outputJson(path.join(jenkinsMockRoot, jobName, 'commits', jobBuildCounter.toString()), {
@@ -95,9 +94,6 @@ module.exports = {
                     }
                 }, jsonOptions)
 
-                // write jenkins build log
-                await fs.outputFile(path.join(jenkinsMockRoot, jobName, 'logs', jobBuildCounter.toString()), logText)
-
                 // write perforce commits - there can be multiple tied to a single build event
                 for(let j = 0; j < commits ; j ++){
                     const commitId = globalCommitCounter + j
@@ -109,8 +105,19 @@ module.exports = {
 
                     await fs.outputFile(path.join(perforceMockRoot, commitId.toString()), commitText)
                 }
-
+                
                 globalCommitCounter += commits
+
+                // finally, write log based on current revision, we can use this to test soft linking
+                const logText = 'some logs\n' +
+                    '#p4-changes........#\n'+
+                    `Change ${globalCommitCounter} on etc etc\n`+
+                    '/#p4-changes........#\n'+
+                    'more logs'
+
+                // write jenkins build log
+                await fs.outputFile(path.join(jenkinsMockRoot, jobName, 'logs', jobBuildCounter.toString()), logText)
+
            }
 
 

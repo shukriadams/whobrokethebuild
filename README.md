@@ -1,5 +1,11 @@
 # Who broke the build?
 
+*Who Broke the Build* helps regular people interact with build data. It gathers build results, logs etc, and condenses them down into a format that is easy to read and follow. Complex build and infrastructure data is flattened into a few simple lists. Build logs are parsed so only relevant errors are displayed. Source code changes and the people who wrote those changes are parsed out.
+
+Additionally, *Who Broke The Build* lets you directly message people on your team if they broke the build, using tools like Slack. It sends simple and meaningful messages. It also alerts other people like team leads, and help you triage and communicate around specific build breaks.
+
+*Who Broke The Build* is written in Javascript in NodeJS. It uses a plugin system, and comes with integrates for common version control systems like Git, Perforce and SVN, as well as build servers like Jenkins and TeamCity. You can write your own plugins and integrate them easily using NPM, or Git.
+
 ## Start
 
 - Create a json file and `plugins.json`. Add some plugins to it. The following internal plugins are available f.ex

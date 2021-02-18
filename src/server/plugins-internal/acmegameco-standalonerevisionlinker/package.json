@@ -1,0 +1,11 @@
+{
+    "name": "acmegameco-standalonerevisionlinker",
+    "description": "links revisions from standalone build logs",
+    "version": "0.0.1",
+    "dependencies": {
+        "fs-extra": "9.0.0"
+    },
+    "wbtb": {
+        "category": "none"
+    }
+}

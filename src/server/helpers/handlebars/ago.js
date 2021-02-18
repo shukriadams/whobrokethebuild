@@ -1,5 +1,4 @@
-const 
-    ago = require('s-ago')
+const ago = require('s-ago')
 
 module.exports = Handlebars => {
 

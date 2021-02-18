@@ -69,7 +69,7 @@ module.exports = class BuildDeltaCalculator extends BaseDaemon {
                 await data.updateBuild(build)
 
             } catch(ex){
-                __log.error(`Unexpected error in buildDeltaCalculator : build "${build.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)
             }
         }
     }

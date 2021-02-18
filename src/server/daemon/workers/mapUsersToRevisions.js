@@ -29,9 +29,8 @@ module.exports = class MapUsersToRevisions extends BaseDaemon {
                     
                     __log.debug(`added user ${user.name} to build ${build.id}`)
                 }
-            }
-            catch(ex){
-                __log.error(`Unexpected error in mapUsersToRevisions : buildInvolvement "${buildInvolvement.id}"`, ex)
+            } catch(ex){
+                __log.error(`Unexpected error in ${this.constructor.name} : buildInvolvement "${buildInvolvement.id}"`, ex)
             }
         }
 

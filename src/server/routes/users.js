@@ -6,10 +6,19 @@ const pluginsManager = require(_$+'helpers/pluginsManager'),
 module.exports = function(app){
     app.get('/users', async function(req, res){
         try {
-            const data = await pluginsManager.getExclusive('dataProvider'),
+            let data = await pluginsManager.getExclusive('dataProvider'),
                 users = await data.getAllUsers(),
                 view = await handlebars.getView('users'),
-                model = { users }
+                model = { }
+
+            users = users.sort((a, b)=>{
+                const aName = a.name ? a.name.toLowerCase() : '',
+                    bName = b.name ? b.name.toLowerCase() : ''
+
+                return aName.toLowerCase() > bName.toLowerCase() ? 1 :
+                    bName.toLowerCase() > aName.toLowerCase() ? -1 :
+                    0
+            })
 
             // map usermappings on vcservers
             for (const user of users){
@@ -25,6 +34,7 @@ module.exports = function(app){
                 }
             }
 
+            model.users = users
             await viewModelHelper.layout(model, req)
             res.send(view(model))
 

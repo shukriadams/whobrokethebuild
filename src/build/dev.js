@@ -1,5 +1,4 @@
-let 
-    concatenateCss = require('./concatenate-css'),
+let concatenateCss = require('./concatenate-css'),
     concatenateJs = require('./concatenate-js'),
     fs = require('fs-extra'),
     chokidar = require('chokidar'),
@@ -11,8 +10,6 @@ let
     sass = require('node-sass'),
     _expressProcess = null,
     _triggerFile = null
-
-console.log(`Fast mode: ${isFast}`)
 
 /** 
  * Converts a Sass file map to its destination compiled css path in ./tmp folder

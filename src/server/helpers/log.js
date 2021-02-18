@@ -3,14 +3,31 @@ const fs = require('fs-extra'),
 
 module.exports = {
 
+    
+    /**
+     * @param {string} logPath relative path of log file within local log dump
+     * @param {string} logParserType plugin name for log parser
+     * @param {string} joint Join for error lines. Normally a unix line return
+     * 
+     * Attempts to read a log file at the given path and parse out only errors using the given parser. 
+     * Errors are returned as a string.
+     * 
+     * Log file need not exist.
+     */ 
     async parseErrorsFromFileToString(logPath, logParserType, joint = '\n'){
         const lines = await this.parseErrorsFromFile(logPath, logParserType)
         return lines.join(joint)
     },
 
+
     /**
+     * @param {string} logPath relative path of log file within local log dump
+     * @param {string} logParserType plugin name for log parser
+     *
      * Returns array of strings, errors parsed from log path file
      * Parsers errors from expected log file. Gracefully handles file not existing
+     * 
+     * Log file need not exist.
      */
     async parseErrorsFromFile(logPath, logParserType){
         let pluginsManager = require(_$+'helpers/pluginsManager'),
@@ -35,8 +52,11 @@ module.exports = {
 
 
     /**
+     * @param {string} logPath relative path of log file within local log dump
+     * @param {string} logParserType plugin name for log parser
+     * 
      * returns parsedLog object
-    */
+     */
     async parseFromFile(logPath, logParserType){
         let pluginsManager = require(_$+'helpers/pluginsManager'),
             settings = require(_$+ 'helpers/settings'),

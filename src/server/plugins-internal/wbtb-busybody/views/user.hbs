@@ -1,0 +1,15 @@
+{{#extend "layout_userSettings"}}
+    {{#content "settingsBody"}}
+        
+        <h2>Busybody</h2>
+
+        <form action="/wbtb-busybody/user/{{user.id}}" method="POST">
+            <input type="checkbox" name="alertOnAllBuildErrors" id="alertOnAllBuildErrors" {{#if wbtbBusybody.alertOnAllBuildErrors}}checked{{/if}} />
+            <label for="alertOnAllBuildErrors">Alert me on all build errors</label>
+            <button class="button" type="submit">Update</button>
+        </form>
+
+    {{/content}}
+{{/extend}}
+
+

@@ -32,7 +32,6 @@ module.exports = {
 
         if (!user){
             user = await this.createInternal(constants.ADMINUSERNAME, settings.adminPassword)
-            __log.info(`internal admin user autocreated`)
         }
 
         user.password = settings.adminPassword
@@ -42,6 +41,7 @@ module.exports = {
             user.roles.push(constants.ROLE_ADMIN)
 
         await this.update(user)
+        __log.info(`internal admin user autocreated`)
     },
 
     async createInternal(name, password){
@@ -54,8 +54,7 @@ module.exports = {
         user.password = password
         user.publicId = name
         user = _processPassword(user)
-        await data.insertUser(user)
-        return user
+        return await data.insertUser(user)
     },
 
     async update (user){

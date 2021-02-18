@@ -1,0 +1,12 @@
+{
+    "name": "wbtb-busybody",
+    "description": "get alerts when things happen to other people",
+    "version": "0.0.1",
+    "dependencies": {},
+    "wbtb": {
+        "category": "alerts",
+        "name": "BusyBody",
+        "hasUI": true,
+        "hasUserUI": true
+    }
+}
