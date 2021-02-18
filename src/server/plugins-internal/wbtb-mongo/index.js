@@ -637,8 +637,7 @@ module.exports = {
      /****************************************************
      * Build Involvement
      ****************************************************/
-    // rename to getBuildsWithUnmappedInvolvements, return builds
-    async getUnmappedBuildInvolvements (){
+    async getBuildsWithUnmappedInvolvements (){
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [ 
                 { 'involvements.userId' :{ $eq : null } }

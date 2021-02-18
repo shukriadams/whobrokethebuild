@@ -53,7 +53,6 @@ module.exports = Object.freeze({
     LOGINRESULT_OTHER : 'LOGINRESULT_OTHER',
 
     TABLENAME_BUILDS : 'Builds',
-    TABLENAME_BUILDINVOLVEMENTS : 'BuildInvolvements',
     TABLENAME_CONTACTLOGS : 'ContactLogs',
     TABLENAME_JOBS : 'Jobs',
     TABLENAME_PLUGINSETTINGS : 'PluginSettings',
