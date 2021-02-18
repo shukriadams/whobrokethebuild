@@ -35,9 +35,9 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                 }
 
                 // NOTE! query ensures that logPath is already defined, but we don't know if the file exists
-                const logPath = path.join(settings.buildLogsDump, build.logPath)
+                const logPath = path.join(settings.buildLogsDump, build.jobId, build.build)
                 if (!await fs.exists(logPath)){
-                    __log.error(`LOG MISSING - Job ${job.name}, build ${build.build} defines log ${build.logPath}, but the file does not exist`)
+                    __log.error(`LOG MISSING - Job ${job.name}, build ${build.build} defines log ${build.id}, but the file does not exist`)
                     continue
                 }
 
