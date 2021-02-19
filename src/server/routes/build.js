@@ -29,7 +29,7 @@ module.exports = function(app){
                     build
                 }
 
-            model.log = await logHelper.parseFromBuild(build.logPath, job.logParser)
+            model.log = await logHelper.parseFromBuild(build, job.logParser)
             await viewModelHelper.layout(model, req)
             res.send(view(model))
         } catch(ex) {
@@ -66,7 +66,7 @@ module.exports = function(app){
 
 
             if (logParser){
-                const parsedLog = await logHelper.parseFromBuild(build.logPath, model.job.logParser)
+                const parsedLog = await logHelper.parseFromBuild(build, model.job.logParser)
                 model.logParsedLines = parsedLog.lines ? parsedLog.lines.filter(line => allowedTypes.includes(line.type)) : []
                 model.isLogParsed = true
                 logErrors = await logHelper.parseErrorsFromBuildLog(build, model.job.logParser)

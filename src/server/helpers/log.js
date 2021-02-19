@@ -35,20 +35,29 @@ module.exports = {
             path = require('path'),
             logParser = await pluginsManager.get(logParserType),
             rawLog = null,
+            cachedLogFolder = path.join(settings.dataFolder, 'parsedLogCache', build.jobId),
+            cachedLogPath = path.join(cachedLogFolder, `${build.build}_errors`),
             logPath = path.join(build.jobId, build.build.toString()),
             rawLogPath = path.join(settings.buildLogsDump, logPath)
+
+        if (await fs.exists(cachedLogPath))
+            return fs.readFile(cachedLogPath, 'utf8')
 
         if (! await fs.exists(rawLogPath))
             return ['Log file does not exist']
 
+        await fs.ensureDir(cachedLogFolder)
+
         try {
             rawLog = await fs.readFile(rawLogPath, 'utf8')
-        }catch(ex){
+        } catch(ex) {
             __log.error(`unexpected error parseErrorsFromBuildLog, file "${logPath}"`, ex)
             return
         }
 
-        return logParser.parseErrors(rawLog)
+        const parsedLog = logParser.parseErrors(rawLog)
+        await fs.writeFile(cachedLogPath, parsedLog)
+        return parsedLog
     },
 
 
@@ -64,8 +73,13 @@ module.exports = {
             path = require('path'),
             logParser = await pluginsManager.get(logParserType),
             rawLog = null,
+            cachedLogFolder = path.join(settings.dataFolder, 'parsedLogCache', build.jobId),
+            cachedLogPath = path.join(cachedLogFolder, `${build.build}_all`),
             logPath = path.join(build.jobId, build.build.toString()),
             rawLogPath = path.join(settings.buildLogsDump, logPath)
+
+        if (await fs.exists(cachedLogPath))
+            return fs.readFile(cachedLogPath, 'utf8')
 
         if (! await fs.exists(rawLogPath)){
             const out = new ParsedBuildLog()
@@ -73,13 +87,17 @@ module.exports = {
             return out
         }
 
+        await fs.ensureDir(cachedLogFolder)
+
         try {
             rawLog = await fs.readFile(rawLogPath, 'utf8')
-        }catch(ex){
+        } catch(ex) {
             __log.error(`unexpected error parseFromFile, file "${logPath}"`, ex)
             return
         }
 
-        return logParser.parse(rawLog)
+        const parsedLog = logParser.parse(rawLog)
+        await fs.writeFile(cachedLogPath, parsedLog)
+        return parsedLog        
     }
 }

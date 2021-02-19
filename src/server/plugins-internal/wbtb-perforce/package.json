@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "dependencies": {
         "fs-extra": "9.0.0",
-        "madscience-perforcehelper": "https://github.com/shukriadams/madscience-perforcehelper.git#0.0.2"
+        "madscience-perforcehelper": "https://github.com/shukriadams/madscience-perforcehelper.git#0.0.3"
     },
     "wbtb": {
         "category": "vcs"

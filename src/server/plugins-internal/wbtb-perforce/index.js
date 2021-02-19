@@ -117,6 +117,10 @@ module.exports = {
         } else {
             rawDescribeText = await perforcehelper.getDescribe(vcServer.username, password, vcServer.url, revision )
         }
+        
+        // prevent massive commits from flooding system
+        if (rawDescribeText.length > 5000)
+            rawDescribeText = rawDescribeText.substring(0, 5000)
 
         const revisionParsed = perforcehelper.parseDescribe(rawDescribeText, false),
             revisionFinal = new Revision()
