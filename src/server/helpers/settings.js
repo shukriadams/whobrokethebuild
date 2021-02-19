@@ -44,12 +44,6 @@ let process = require('process'),
         // #######################################################################
         // pluging-specific settings. Todo : move these to plugins!
         // #######################################################################
-        activeDirectoryUrl : null,
-        activeDirectoryBase : null,
-        activeDirectoryUser : null,
-        activeDirectoryPassword : null,
-        activeDirectorySearch: null,
-        
         postgresHost: null,
         postgresPort: null,
         postgresDatabase: null,

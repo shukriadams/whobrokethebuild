@@ -4,7 +4,7 @@
 
 const pluginsManager = require(_$+'helpers/pluginsManager'),
     constants = require(_$+'types/constants'),
-    authMethod = 'wbtb-activedirectory',
+    thisType = 'wbtb-activedirectory',
     settings = require(_$+ 'helpers/settings')
 
 module.exports = {
@@ -16,22 +16,22 @@ module.exports = {
         const ActiveDirectory = settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
             data = await pluginsManager.getExclusive('dataProvider'),
             activeDirectory = new ActiveDirectory({
-                url: settings.activeDirectoryUrl,
-                base: settings.activeDirectoryBase
+                url: settings.plugins[thisType].url,
+                base: settings.plugins[thisType].base
             }),
-            loginAttempt = await activeDirectory.loginUser(settings.activeDirectoryUser, settings.activeDirectoryPassword)
+            loginAttempt = await activeDirectory.loginUser(settings.plugins[thisType].user, settings.plugins[thisType].password)
 
         if(!loginAttempt.success) 
             throw loginAttempt
 
         // omit search string to get all users back, else CN must be equal to exact user name
-        const userQuery = await activeDirectory.getAllUsers(settings.activeDirectoryUser, settings.activeDirectoryPassword, settings.activeDirectorySearch, true)
+        const userQuery = await activeDirectory.getAllUsers(settings.plugins[thisType].user, settings.plugins[thisType].password, settings.plugins[thisType].search || '', true)
         if(!userQuery.success) 
             throw userQuery
 
         // mark imported users with isImport flag
         for (let user of userQuery.users){
-            const queryUser = await data.getByPublicId(user.guid, authMethod)
+            const queryUser = await data.getByPublicId(user.guid, thisType)
             user.isImport = !!queryUser
         }
 
@@ -50,8 +50,8 @@ module.exports = {
         let ActiveDirectory = settings.sandboxMode ? require('./activeDirectoryMock') : require('node-ad-tools').ActiveDirectory,
             data = await pluginsManager.getExclusive('dataProvider'),
             activeDirectory = new ActiveDirectory({
-                url: settings.activeDirectoryUrl,
-                base: settings.activeDirectoryBase
+                url: settings.plugins[thisType].url,
+                base: settings.plugins[thisType].base
             }),
             userId = null,
             response = await activeDirectory.loginUser(username, password),
@@ -60,7 +60,7 @@ module.exports = {
                 constants.LOGINRESULT_INVALIDCREDENTIALS 
 
         if (response.success){
-            const user = await data.getByPublicId(username, authMethod)
+            const user = await data.getByPublicId(username, thisType)
 
             if (user)
                 userId = user.id
@@ -76,25 +76,26 @@ module.exports = {
     
 
     async validateSettings(){
-        return new Promise((resolve, reject)=>{
-            try{
-                if (!settings.activeDirectoryUrl)
-                    throw '"activeDirectoryUrl" value missing from settings'
+        if (!settings.plugins[thisType].url){
+            __log.error(`Plugin "${thisType}" requires setting "url" with format "ldap://HOST:PORT"`)
+            return false
+        }
 
-                if (!settings.activeDirectoryBase)
-                    throw '"activeDirectoryBase" value missing from settings'
+        if (!settings.plugins[thisType].base){
+            __log.error(`Plugin "${thisType}" requires setting "base" with format such as "dc=YOURDOMAIN,dc=local"`)
+            return false
+        }
 
-                if (!settings.activeDirectoryUser)
-                    throw '"activeDirectoryUser" value missing from settings'
+        if (!settings.plugins[thisType].user){
+            __log.error(`Plugin "${thisType}" requires setting "user" with read permission on domain. Username is normally formatted "user@yourdomain"`)
+            return false
+        }
 
-                if (!settings.activeDirectoryPassword)
-                    throw '"activeDirectoryPassword" value missing from settings'
+        if (!settings.plugins[thisType].password){
+            __log.error(`Plugin "${thisType}" requires setting "password" for AD user to read from domain`)
+            return false
+        }
 
-                resolve(true)
-    
-            }catch(ex){
-                reject(ex)
-            }
-        })
+        return true
     }
 }
