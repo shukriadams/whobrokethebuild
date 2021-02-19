@@ -64,8 +64,7 @@ stopwatch.start();
 
         await pluginsManager.validateSettings()
 
-        let 
-            root = path.join(__dirname, 'server'),
+        let root = path.join(__dirname, 'server'),
             routeFiles = [],
             data = await pluginsManager.getExclusive('dataProvider')
 
