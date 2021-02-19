@@ -110,7 +110,7 @@ if (fs.existsSync('./settings.yml')){
         const settingsYML = fs.readFileSync('./settings.yml', 'utf8')
         userSettings = yaml.safeLoad(settingsYML)
     } catch (e) {
-        __log.error('Error reading settings.yml', e)
+        console.error('Error reading settings.yml', e)
     }    
     
     settings = Object.assign(settings, userSettings)
