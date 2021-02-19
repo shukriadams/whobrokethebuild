@@ -13,6 +13,7 @@ const constants = require(_$+'types/constants'),
     Job = require(_$+'types/job'),
     Build = require(_$+'types/build'),
     User = require(_$+'types/user'),
+    thisType = 'wbtb-mongo',
     _mongo = require('./mongo'),
     _normalize = (input, normalizer)=>{
         if (Array.isArray(input)){
@@ -194,13 +195,13 @@ module.exports = {
 
 
     async validateSettings() {
-        if (!settings.mongoConnectionString){
-            __log.error(`mongo plugin requires "mongoConnectionString" with format "mongodb://USER:PASSWORD@IP:PORT"`)
+        if (!settings.plugins[thisType].connectionString){
+            __log.error(`Plugin "${thisType}" requires "connectionString" with format "mongodb://USER:PASSWORD@HOST:PORT"`)
             return false
         }
         
-        if (!settings.mongoDBName){
-            __log.error(`mongo plugin requires "mongoDBName" with name of database to use`)
+        if (!settings.plugins[thisType].db){
+            __log.error(`Plugin "${thisType}" requires "db" with name of database to use`)
             return false
         }
 

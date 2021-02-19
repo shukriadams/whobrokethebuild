@@ -1,6 +1,8 @@
 const settings = require(_$+'helpers/settings'),
     constants = require(_$+'types/constants'),
     MongoClient = require('mongodb').MongoClient,
+    thisType = 'wbtb-mongo',
+    poolSize = 10,
     ObjectID = require('mongodb').ObjectID,
     
     /** 
@@ -9,11 +11,11 @@ const settings = require(_$+'helpers/settings'),
     _getCollection = async function(collectionName){
         return new Promise(function(resolve, reject){
             try {
-                MongoClient.connect(settings.mongoConnectionString, { poolSize : settings.mongoPoolSize, useUnifiedTopology: true }, function(err, client) {
+                MongoClient.connect(settings.plugins[thisType].connectionString, { poolSize : settings.plugins[thisType].poolSize || poolSize, useUnifiedTopology: true }, function(err, client) {
                     if (err)
                         return reject(err)
 
-                    const db = client.db(settings.mongoDBName)
+                    const db = client.db(settings.plugins[thisType].db)
 
                     resolve({ 
                         close : ()=>{
@@ -35,11 +37,11 @@ const settings = require(_$+'helpers/settings'),
     initialize = async function(){
         return new Promise(async function(resolve, reject){
             try {
-                MongoClient.connect(settings.mongoConnectionString, { poolSize : settings.mongoPoolSize, useUnifiedTopology: true }, async function(err, client) {
+                MongoClient.connect(settings.plugins[thisType].connectionString, { poolSize : settings.plugins[thisType].poolSize || poolSize, useUnifiedTopology: true }, async function(err, client) {
                     if (err)
                         return reject(err)
 
-                    const db = client.db(settings.mongoDBName)
+                    const db = client.db(settings.plugins[thisType].db)
 
                     // unique constraints
                     await db.collection(constants.TABLENAME_BUILDS).createIndex( { 'jobId': 1, 'build' : 1  }, { unique: true, name : `${constants.TABLENAME_BUILDS}_unique` })

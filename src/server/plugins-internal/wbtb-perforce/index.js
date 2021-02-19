@@ -119,8 +119,8 @@ module.exports = {
         }
         
         // prevent massive commits from flooding system
-        if (rawDescribeText.length > 5000)
-            rawDescribeText = rawDescribeText.substring(0, 5000)
+        if (this.__wbtb.maxCommitSize && rawDescribeText.length > this.__wbtb.maxCommitSize)
+            rawDescribeText = rawDescribeText.substring(0, this.__wbtb.maxCommitSize)
 
         const revisionParsed = perforcehelper.parseDescribe(rawDescribeText, false),
             revisionFinal = new Revision()

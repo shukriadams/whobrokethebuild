@@ -44,10 +44,6 @@ let process = require('process'),
         // #######################################################################
         // pluging-specific settings. Todo : move these to plugins!
         // #######################################################################
-        mongoConnectionString : 'mongodb://root:example@127.0.0.1:27017',
-        mongoDBName : 'wbtb',
-        mongoPoolSize : 10,
-
         activeDirectoryUrl : null,
         activeDirectoryBase : null,
         activeDirectoryUser : null,
