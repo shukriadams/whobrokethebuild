@@ -15,7 +15,7 @@ module.exports = class MapUsersToRevisions extends BaseDaemon {
             data = await pluginsManager.getExclusive('dataProvider'),
             builds = await data.getBuildsWithUnmappedInvolvements()
 
-        __log.debug(`found ${builds.length} buildss with unmapped users`)
+        __log.debug(`found ${builds.length} builds with unmapped users`)
 
         for (const build of builds){
             try {

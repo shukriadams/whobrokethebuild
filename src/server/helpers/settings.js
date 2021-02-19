@@ -21,13 +21,11 @@ let process = require('process'),
         //  path for WBTB's own logs
         logPath : './data/logs',
 
-        // path plugins are written to. On docker systems, this should persist. Todo : move to data folder
-        externalPluginsFolder : './server/plugins',
-
         // set to some writeable path if you want build logs from CI servers can be dumped to local text files for reference
         // path will be created if it doesn't exist
         buildLogsDump : './data/buildLogs',
 
+        // path plugins are written to. On docker systems, this should persist. Todo : move to data folder
         pluginsPath : './data/plugins',
 
         // cronmask for when daemons run. By default every minute. All daemons share the same interval, but 
