@@ -13,7 +13,7 @@ module.exports = {
      * required by plugin interface
      */
     async validateSettings() {
-        if (!settings.plugins[thisType].sandboxMode && !settings.plugins[thisType].accessToken){
+        if (!!settings.sandboxMode && !!settings.plugins[thisType].sandboxMode && !settings.plugins[thisType].accessToken){
             __log.error(`Plugin "${thisType}" requires "accessToken" property. This is an official Slack API token string.`)
             return false
         }
