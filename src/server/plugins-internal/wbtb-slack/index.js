@@ -13,8 +13,8 @@ module.exports = {
      * required by plugin interface
      */
     async validateSettings() {
-        if (!settings.slackAccessToken){
-            __log.error(`slack plugin requires "slackAccessToken" property on global settings`)
+        if (!settings.plugins[thisType].sandboxMode && !settings.plugins[thisType].accessToken){
+            __log.error(`Plugin "${thisType}" requires "accessToken" property. This is an official Slack API token string.`)
             return false
         }
 
@@ -86,7 +86,7 @@ module.exports = {
     async alertGroup(slackContactMethod, job, build){
         const data = await pluginsManager.getExclusive('dataProvider'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
-            slack = new Slack({ token : settings.slackAccessToken }),
+            slack = new Slack({ token : settings.plugins[thisType].accessToken }),
             context = `build_${build.status}_${build.id}`
 
         if (!this.__wbtb.enableMessaging){
@@ -124,16 +124,16 @@ module.exports = {
             }
         }
 
-        const targetChannelId = settings.slackOverrideChannelId || slackContactMethod.channelId,
+        const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
             buildLink = urljoin(settings.localUrl, `build/${build.id}`),
             message = build.status === constants.BUILDSTATUS_FAILED ? 
                 `Build ${job.name} is broken.\n${userString}. \nMore info : ${buildLink}` : 
                 `Build ${job.name} is working again`
 
-        if (settings.slackOverrideChannelId)
-            __log.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.slackOverrideChannelId}`)
+        if (settings.plugins[thisType].overrideChannelId)
+            __log.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.plugins[thisType].overrideChannelId}`)
     
-        await slack.chat.postMessage({ token : settings.slackAccessToken, channel : targetChannelId, text : message });
+        await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, text : message });
 
         contactLog = new ContactLog()
         contactLog.receiverContext = slackContactMethod.channelId
@@ -163,7 +163,7 @@ module.exports = {
         let data = await pluginsManager.getExclusive('dataProvider'),
             messageBuilder = await pluginsManager.getExclusive('messagebuilder'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
-            slack = new Slack({ token : settings.slackAccessToken }),
+            slack = new Slack({ token : settings.plugins[thisType].accessToken }),
             context = `build_fail_${build.id}`,
             usersInvolved = build.involvements.map(involvement => involvement.externalUsername)
 
@@ -187,11 +187,11 @@ module.exports = {
             return
         }
 
-        const targetSlackId = settings.slackOverrideUserId || (user.pluginSettings[thisType] && user.pluginSettings[thisType].slackId)
-        if (settings.slackOverrideUserId)
-            __log.info(`slackOverrideUserId set, diverting post to meant for user slackid ${user.id} to override user id ${settings.slackOverrideUserId}`)
+        const targetSlackId = settings.plugins[thisType].overrideUserId || (user.pluginSettings[thisType] && user.pluginSettings[thisType].slackId)
+        if (settings.plugins[thisType].overrideUserId)
+            __log.info(`slackOverrideUserId set, diverting post to meant for user slackid ${user.id} to override user id ${settings.plugins[thisType].overrideUserId}`)
 
-        let conversation = await slack.conversations.open({ token : settings.slackAccessToken, users : targetSlackId })
+        let conversation = await slack.conversations.open({ token : settings.plugins[thisType].accessToken, users : targetSlackId })
         if (!conversation.channel)
             throw new Exception({
                 message : `unable to create conversation channel for user ${user.id}`
@@ -201,7 +201,7 @@ module.exports = {
             await messageBuilder.buildImplicatedMessage(user, build, '\`\`\`') :
             await messageBuilder.buildInterestedMessage(user, build)
         
-        await slack.chat.postMessage({ token : settings.slackAccessToken, channel : conversation.channel.id, text : message })
+        await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : conversation.channel.id, text : message })
 
         // log that message has been sent, this will be used to prevent the same user from being informed of the same build error
         contactLog = new ContactLog()

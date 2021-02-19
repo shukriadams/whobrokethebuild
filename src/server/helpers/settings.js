@@ -38,29 +38,17 @@ let process = require('process'),
         standardPageSize: 25,
         
         authType : constants.AUTHPROVIDER_INTERNAL,
-        adminPassword: 'admin', // password for master user, auto enforced on start
-        bundlemode : '', // ''|.min
 
-        // #######################################################################
-        // pluging-specific settings. Todo : move these to plugins!
-        // #######################################################################
-        postgresHost: null,
-        postgresPort: null,
-        postgresDatabase: null,
-        postgresUser: null,
-        postgresPassword: null,
-        
-        slackAccessToken : null,
-        // if set, all channel-targetted slack messages will be sent to this channel
-        slackOverrideChannelId : null,
-        // if set, all user-targetted slack messages will be sent to this user
-        slackOverrideUserId : null,
+        // password for master user, auto enforced on start
+        adminPassword: 'admin', 
 
 
         // #######################################################################
         // dev environment only
         // #######################################################################
         bundle: true,
+
+        bundlemode : '', // ''|.min
 
         // set to 'debug' for the full spam
         logLevel : 'error', 
