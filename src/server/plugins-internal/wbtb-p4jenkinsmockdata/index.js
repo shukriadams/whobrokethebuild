@@ -15,21 +15,27 @@ module.exports = {
             return
 
         let { uniqueNamesGenerator } = require('unique-names-generator'),
+            thisType = 'wbtb-p4jenkinsmockdata',
             sample = require('lodash.sample'),
             timebelt = require('timebelt'),
+            Chance = require('chance'),
             settings = require(_$+'helpers/settings'),
-            jobsCount = settings.p4jenkinsmockdata_jobsCount || 10,
-            buildsPerJob = settings.p4jenkinsmockdata_buildsPerJob || 10,
-            minCommitsPerBuild = settings.p4jenkinsmockdata_minCommitsPerBuild || 0,
-            maxCommitsPerBuild = settings.p4jenkinsmockdata_maxCommitsPerBuild || 3,
-            maxLogLines = settings.p4jenkinsmockdata_maxLogLines || 1000,
-            globalCommitCounter = 1,
             pluginsManager = require(_$+'helpers/pluginsManager'),
+            LoremIpsum = require('lorem-ipsum').LoremIpsum,
+            lorem = new LoremIpsum({ wordsPerSentence: { max: 20, min: 10 }}),
+            chance = new Chance(),
+            jobsCount = settings.plugins[thisType].jobsCount || 10,
+            buildsPerJob = settings.plugins[thisType].buildsPerJob || 10,
+            minCommitsPerBuild = settings.plugins[thisType].minCommitsPerBuild || 0,
+            maxCommitsPerBuild = settings.plugins[thisType].maxCommitsPerBuild || 3,
+            minLogLines = settings.plugins[thisType].minLogLines || 100,
+            maxLogLines = settings.plugins[thisType].maxLogLines || 10000,
+            globalCommitCounter = 1,
             data = await pluginsManager.getExclusive('dataProvider'),
             users = await data.getAllUsers(),
             vsServers = await data.getAllVCServers(),
             jsonOptions = { spaces : 4 },
-            verbs = ['Call of', 'Rage against the', 'Attack on', 'Battle of', 'The War for', 'Operation for', 'Alliance of', 'Creed of', 'League of', 'Quest for'],
+            verbs = ['Call of', 'Rage against the', 'Attack on', 'Battle of', 'The War for', 'Operation for', 'Alliance of', 'Creed of', 'League of','Quest of', 'Quest for'],
             adverbs = ['of', 'of the', 'on', 'in', 'with', 'against the', 'inspite of'],
             adjectives = ['The One', 'The Chosen', 'Modern', 'Perkele', 'Trump', 'Neo', 'Evil', 'Illegal', 'Crossover', 'Ultra', 'Dashing', 'Awkward', 'Farming', 'Euro', 'Legendary', 'Universal', 'Ancient', 'Demonic', 'Instagraph', 'Knownplayer', 'Blackups', 'Counter'],
             nouns = [ 'Ninja', 'Zombie', 'Avenger', 'Alien', 'Duty', 'Justice', 'Punk', 'Assassin', 'Shooter', 'Sniper', 'Cop', 'Blood', 'Commando', 'Star Battle', 'Orcish', 'Cyber', 'Elvish', 'Medieval'],
@@ -61,7 +67,6 @@ module.exports = {
         if (!perforceUserNames.length)
             perforceUserNames.push('some-user')
 
-
         // generate endpoint for list of jobs
         await fs.outputJson(path.join(jenkinsMockRoot, 'jobs.json'), {
             _class : 'hudson.model.Hudson',
@@ -78,14 +83,14 @@ module.exports = {
             for (let jobBuildCounter = 1 ; jobBuildCounter < buildsPerJob ; jobBuildCounter ++) {
 
                 // generate nr of commits per commit event
-                const commits = Math.floor(Math.random() * maxCommitsPerBuild) + minCommitsPerBuild
+                const commitCountInThisBuild = chance.integer({ min : minCommitsPerBuild, max: maxCommitsPerBuild }) 
 
                 // write build file, this can contain 1 or more commits, but there is one per build
                 await fs.outputJson(path.join(jenkinsMockRoot, jobName, 'commits', jobBuildCounter.toString()), {
                     _class : 'hudson.model.FreeStyleBuild',
                     changeSet : {
                         _class : 'hudson.scm.SubversionChangeLogSet',
-                        items : [...Array(commits)].map((_,commit)=>{
+                        items : [...Array(commitCountInThisBuild)].map((_,commit)=>{
                             return {
                                 _class : 'hudson.scm.SubversionChangeLogSet$LogEntry',
                                 commitId : (globalCommitCounter + commit).toString()
@@ -94,26 +99,60 @@ module.exports = {
                     }
                 }, jsonOptions)
 
+                function revisionToString(r){
+                    return `Change ${r.revision} by ${r.user}@${r.workspace} on ${timebelt.toShortDate(r.date)} ${timebelt.toShortTime(r.date)}\n\n\t${r.description}\n\nAffected files ...\n\n${r.files.map(file => `... ${file.file}#${file.version} ${file.change}\n`).join('')}`
+                }
+
+                let commitsInThisBuild = []
                 // write perforce commits - there can be multiple tied to a single build event
-                for(let j = 0; j < commits ; j ++){
+                for(let j = 0; j < commitCountInThisBuild ; j ++){
                     const commitId = globalCommitCounter + j
 
                     // write perforce commit
                     commitTime = timebelt.subtractHours(commitTime, 1.1)
+                    const commit = {
+                        revision : commitId,
+                        user : sample(perforceUserNames),
+                        workspace : 'workspace',
+                        date : commitTime,
+                        description : lorem.generateWords(chance.integer({min : 1, max: 20})),
+                        files : [...Array(chance.integer({min : 1, max: 5}))].map(()=>{
+                            return {
+                                file : `//${lorem.generateWords(chance.integer({min : 5, max: 10})).split(' ').join('/')}.${sample(['txt', 'cs', 'cpp', 'obj'])}`,
+                                version : chance.integer({min : 5, max: 10}),
+                                change : sample(['add', 'edit', 'delete']),
+                                differences : ['whatever']
+                            }
+                        })
+                    }
 
-                    const commitText = `Change ${commitId} by ${sample(perforceUserNames)}@workspace on ${timebelt.toShortDate(commitTime)} ${timebelt.toShortTime(commitTime)}\n\n\tlorem changes\n\nAffected files ...\n\n\t... //mydepot/mystream/path/to/file.txt#2 edit`
+                    commitsInThisBuild.push(commit)
 
-                    await fs.outputFile(path.join(perforceMockRoot, commitId.toString()), commitText)
+                    await fs.outputFile(path.join(perforceMockRoot, commitId.toString()), revisionToString(commit))
                 }
                 
-                globalCommitCounter += commits
+                globalCommitCounter += commitCountInThisBuild
 
                 // finally, write log based on current revision, we can use this to test soft linking
-                const logText = 'some logs\n' +
-                    '#p4-changes........#\n'+
-                    `Change ${globalCommitCounter} on etc etc\n`+
-                    '/#p4-changes........#\n'+
-                    'more logs'
+                let hasError = false,
+                    logLines = chance.integer({ min : minLogLines, max: maxLogLines}),
+                        logText = 'some logs\n' +
+                            '#p4-changes........#\n'+
+                            `Change ${globalCommitCounter} on etc etc\n`+
+                            '/#p4-changes........#\n'
+
+                for (let i = 0 ; i < logLines ; i ++){
+                    logText += `${lorem.generateWords()}\n` 
+
+                    if (!hasError && (chance.bool() || i === logLines - 1)){
+                        hasError = true
+                        let commitThatFailed = sample(commitsInThisBuild),
+                            fileInCommit = commitThatFailed ? sample(commitThatFailed.files) : null
+
+                        // use unreal error pattern : file-path : some-text error some-code : some-explanation
+                        logText += `${fileInCommit ? fileInCommit.file : ''} : ${lorem.generateWords(chance.integer({min : 3, max: 5}))} Error : 123 ${lorem.generateWords(chance.integer({min : 3, max: 5}))}\n`
+                    }
+                }
 
                 // write jenkins build log
                 await fs.outputFile(path.join(jenkinsMockRoot, jobName, 'logs', jobBuildCounter.toString()), logText)
