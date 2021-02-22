@@ -2,8 +2,16 @@
 // file-path : some-text error some-code : some-explanation
 // gmi : errors can be multiline
 // ignore case
+
+// [ ][A-Z]{1}[0-9]+[:] belows is the error/warning code that appears in all unreal logs. 
+// - leading space
+// - a single uppercase letter
+// - multiple digts
+// - trailing :
+
 const ParsedErrorLogItem = require(_$+'types/parsedBuildLogLine'),
-    errorRegex = /(.?)*:(.?)*(error)(.?)*:(.?)*/gmi
+    errorRegex = /(.?)*( error)(.?)*[ ][A-Z]{1}[0-9]+[:](.?)*/gmi,
+    warnRegex = /(.?)*( warning)(.?)*[ ][A-Z]{1}[0-9]+[:](.?)*/gmi
 
 module.exports = {
 
@@ -85,12 +93,14 @@ module.exports = {
         for (const line of fullErrorLog){
             let type = 'text'
 
-            if (line.match(/warning/i))
-                type = 'warning'
-
             if (line.match(errorRegex))
                 type = 'error'
+            else if (line.match(warnRegex))
+                type = 'warning'
                 
+            //if (line.includes('error'))
+                console.log(line)
+
             const lineItem = new ParsedErrorLogItem()
             lineItem.text = line
             lineItem.type = type
