@@ -30,34 +30,7 @@ module.exports = {
      * Log file need not exist.
      */
     async parseErrorsFromBuildLog(build, logParserType){
-        let pluginsManager = require(_$+'helpers/pluginsManager'),
-            settings = require(_$+ 'helpers/settings'),
-            path = require('path'),
-            logParser = await pluginsManager.get(logParserType),
-            rawLog = null,
-            cachedLogFolder = path.join(settings.dataFolder, 'parsedLogCache', build.jobId),
-            cachedLogPath = path.join(cachedLogFolder, `${build.build}_errors`),
-            logPath = path.join(build.jobId, build.build.toString()),
-            rawLogPath = path.join(settings.buildLogsDump, logPath)
-
-        if (await fs.exists(cachedLogPath))
-            return fs.readFile(cachedLogPath, 'utf8')
-
-        if (! await fs.exists(rawLogPath))
-            return ['Log file does not exist']
-
-        await fs.ensureDir(cachedLogFolder)
-
-        try {
-            rawLog = await fs.readFile(rawLogPath, 'utf8')
-        } catch(ex) {
-            __log.error(`unexpected error parseErrorsFromBuildLog, file "${logPath}"`, ex)
-            return
-        }
-
-        const parsedLog = logParser.parseErrors(rawLog)
-        await fs.writeFile(cachedLogPath, parsedLog)
-        return parsedLog
+        return this._parseLog(build, logParserType, 'parseErrors')
     },
 
 
@@ -68,12 +41,24 @@ module.exports = {
      * returns parsedLog object
      */
     async parseFromBuild(build, logParserType){
+        return this._parseLog(build, logParserType, 'parse')
+    },
+
+
+    /**
+     * @param {object} build relative path of log file within local log dump
+     * @param {string} logParserType plugin name for log parser
+     * @param {string} parseMethod Function on logParser to run -  parse|parseErrors
+     * 
+     * returns parsedLog object
+     */
+    async _parseLog(build, logParserType, parseFunction = 'parse'){
         let pluginsManager = require(_$+'helpers/pluginsManager'),
             settings = require(_$+ 'helpers/settings'),
             path = require('path'),
             logParser = await pluginsManager.get(logParserType),
             rawLog = null,
-            cachedLogFolder = path.join(settings.dataFolder, 'parsedLogCache', build.jobId),
+            cachedLogFolder = path.join(settings.dataFolder, 'parsedLogCache', `${build.jobId}_${parseFunction}`),
             cachedLogPath = path.join(cachedLogFolder, `${build.build}_all`),
             logPath = path.join(build.jobId, build.build.toString()),
             rawLogPath = path.join(settings.buildLogsDump, logPath)
@@ -96,8 +81,8 @@ module.exports = {
             return
         }
 
-        const parsedLog = logParser.parse(rawLog)
+        const parsedLog = logParser[parseFunction](rawLog)
         await fs.writeFile(cachedLogPath, parsedLog)
         return parsedLog        
-    }
+    }    
 }
