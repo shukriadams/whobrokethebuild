@@ -207,7 +207,7 @@ module.exports = {
                     localBuild.ended = timebelt.addMinutes(localBuild.started, remoteBuild.duration).getTime()
 
                 // fetch log if build is complete and log has not be previous fetched
-                if (!localBuild.logStatus === constants.BUILDLOGSTATUS_NOT_FETCHED && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
+                if (localBuild.logStatus === constants.BUILDLOGSTATUS_NOT_FETCHED && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
 
                     const foldername = sanitize(job.id),
                         pathFragment = path.join(foldername, sanitize(localBuild.build.toString())),

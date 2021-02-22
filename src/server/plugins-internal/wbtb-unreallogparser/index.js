@@ -97,9 +97,6 @@ module.exports = {
                 type = 'error'
             else if (line.match(warnRegex))
                 type = 'warning'
-                
-            //if (line.includes('error'))
-                console.log(line)
 
             const lineItem = new ParsedErrorLogItem()
             lineItem.text = line
