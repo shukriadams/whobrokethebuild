@@ -84,6 +84,12 @@ module.exports = {
                   
                 lineReader.on('line', line => {
                     onLine(line)
+                    lineReader.pause()
+
+                    // need to wrap this in setImmedaite
+                    setImmediate(()=>{
+                        lineReader.resume()
+                    })
                 })
 
                 lineReader.on('close', () =>{
@@ -134,13 +140,15 @@ module.exports = {
             return [{ text : 'Log file does not exist', type : 'error' }]
 
         await this.stepThroughFile(logPath, logLine =>{
-            // ignore empty lines, parser will return "empty" warnigs for these
-            if (!logLine.length)
-                return
+            setImmediate(()=>{
+               // ignore empty lines, parser will return "empty" warnigs for these
+               if (!logLine.length)
+                   return
 
-            const parsed = logParser.parse(logLine)
-            if (parsed.length)
-                parsedItems = parsedItems.concat(parsed)
+               const parsed = logParser.parse(logLine)
+               if (parsed.length)
+                   parsedItems = parsedItems.concat(parsed)
+            })
         })
 
         await fs.outputJson(cachedLogPath, parsedItems)

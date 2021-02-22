@@ -155,8 +155,8 @@ module.exports = {
      */
     async importBuildsForJob(jobId){
         let data = await pluginsHelper.getExclusive('dataProvider'),
-            job = await data.getJob(jobId, { expected : true}),
-            ciServer = await data.getCIServer(job.CIServerId, { expected : true}),
+            job = await data.getJob(jobId, { expected : true }),
+            ciServer = await data.getCIServer(job.CIServerId, { expected : true }),
             vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
             vcs = await pluginsHelper.get(vcServer.vcs),
             baseUrl = await ciServer.getUrl(),
