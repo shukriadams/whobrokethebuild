@@ -2,37 +2,6 @@ const fs = require('fs-extra')
 
 module.exports = {
 
-    
-    /**
-     * @param {object} build build of which log should be read
-     * @param {string} logParserType plugin name for log parser
-     * @param {string} joint Join for error lines. Normally a unix line return
-     * 
-     * Attempts to read a log file at the given path and parse out only errors using the given parser. 
-     * Errors are returned as a string.
-     * 
-     * Log file need not exist.
-     */ 
-    async parseErrorsFromBuildLogToString(build, logParserType, joint = '\n'){
-        let lines = await this.parseErrorsFromBuildLog(build, logParserType)
-        return lines.join(joint)
-    },
-
-
-    /**
-     * @param {object} build build of which log should be read
-     * @param {string} logParserType plugin name for log parser
-     *
-     * Returns array of strings, errors parsed from log path file
-     * Parsers errors from expected log file. Gracefully handles file not existing
-     * 
-     * Log file need not exist.
-     */
-    async parseErrorsFromBuildLog(build, logParserType){
-        const log = await this._parseBuildLog(build, logParserType)
-        return log.filter(r => r.type === 'error').map(r => r.text)
-    },
-
 
     /**
      * @param {object} build relative path of log file within local log dump
@@ -41,7 +10,7 @@ module.exports = {
      * returns parsedLog object
      */
     async parseFromBuild(build, logParserType){
-        return this._parseBuildLog(build, logParserType)
+        return await this._parseBuildLog(build, logParserType)
     },
 
 
@@ -83,13 +52,10 @@ module.exports = {
                 })
                   
                 lineReader.on('line', line => {
-                    onLine(line)
-                    lineReader.pause()
-
-                    // need to wrap this in setImmedaite
-                    setImmediate(()=>{
+                    onLine(line, ()=>{
                         lineReader.resume()
                     })
+                    lineReader.pause()
                 })
 
                 lineReader.on('close', () =>{
@@ -116,7 +82,7 @@ module.exports = {
             logPath = path.join(build.jobId, build.build.toString()),
             rawLogPath = path.join(settings.buildLogsDump, logPath)
 
-        return this.parseLog(rawLogPath, logParserType)
+        return await this.parseLog(rawLogPath, logParserType)
     },
     
 
@@ -126,7 +92,6 @@ module.exports = {
      * @returns {Promise<Array<object>>} array of log line objects { text : string, type: string error|warning }
      */
     async parseLog(logPath, logParserType){
-        __log.debug(`starting log parse ${logPath}`)
 
         let pluginsManager = require(_$+'helpers/pluginsManager'),
             logParser = await pluginsManager.get(logParserType),
@@ -139,7 +104,8 @@ module.exports = {
         if (!await fs.pathExists(logPath))
             return [{ text : 'Log file does not exist', type : 'error' }]
 
-        await this.stepThroughFile(logPath, logLine =>{
+        __log.debug(`log parse start : ${logPath}`)
+        await this.stepThroughFile(logPath, (logLine, next) =>{
             setImmediate(()=>{
                // ignore empty lines, parser will return "empty" warnigs for these
                if (!logLine.length)
@@ -148,12 +114,13 @@ module.exports = {
                const parsed = logParser.parse(logLine)
                if (parsed.length)
                    parsedItems = parsedItems.concat(parsed)
+                
+                next()
             })
         })
+        __log.debug(`log parse end : ${logPath}`)
 
         await fs.outputJson(cachedLogPath, parsedItems)
-
-        __log.debug(`ending log parse ${logPath}`)
 
         return parsedItems
     }
