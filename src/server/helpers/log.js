@@ -58,8 +58,8 @@ module.exports = {
             path = require('path'),
             logParser = await pluginsManager.get(logParserType),
             rawLog = null,
-            cachedLogFolder = path.join(settings.dataFolder, 'parsedLogCache', `${build.jobId}_${parseFunction}`),
-            cachedLogPath = path.join(cachedLogFolder, `${build.build}_all`),
+            cachedLogFolder = path.join(settings.dataFolder, 'parsedLogCache', build.jobId),
+            cachedLogPath = path.join(cachedLogFolder, `${build.build}_${parseFunction}`),
             logPath = path.join(build.jobId, build.build.toString()),
             rawLogPath = path.join(settings.buildLogsDump, logPath)
 
