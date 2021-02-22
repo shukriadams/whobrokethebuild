@@ -9,8 +9,7 @@
 // - multiple digts
 // - trailing :
 
-const ParsedErrorLogItem = require(_$+'types/parsedBuildLogLine'),
-    errorRegex = /(.?)*( error)(.?)*[ ][A-Z]{1}[0-9]+[:](.?)*/gmi,
+const errorRegex = /(.?)*( error)(.?)*[ ][A-Z]{1}[0-9]+[:](.?)*/gmi,
     warnRegex = /(.?)*( warning)(.?)*[ ][A-Z]{1}[0-9]+[:](.?)*/gmi
 
 module.exports = {
@@ -48,16 +47,16 @@ module.exports = {
             return []
 
         // remove known noise line with "error" in it
-        errors = errors.filter(function(item){
+        errors = errors.filter(item => {
             if (!item.includes('Running UnrealHeaderTool'))
                 return item
         })
 
         // get distinct items in list
         const distinct = {}
-        for (let error of errors)
-        if (!distinct[error.toLowerCase()])
-            distinct[error.toLowerCase()] = error
+        for (const error of errors)
+            if (!distinct[error.toLowerCase()])
+                distinct[error.toLowerCase()] = error
 
         errors = []
         for (const key in distinct)
@@ -98,9 +97,10 @@ module.exports = {
             else if (line.match(warnRegex))
                 type = 'warning'
 
-            const lineItem = new ParsedErrorLogItem()
-            lineItem.text = line
-            lineItem.type = type
+            const lineItem = {
+                text : line,
+                type : type
+            }
 
             // text types are flooding, if you want the full log, read the raw text
             if (lineItem.type !== `text`)

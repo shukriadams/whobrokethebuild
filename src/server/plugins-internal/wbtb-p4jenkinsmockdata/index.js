@@ -150,7 +150,7 @@ module.exports = {
                             fileInCommit = commitThatFailed ? sample(commitThatFailed.files) : null
 
                         // use unreal error pattern : file-path : some-text error some-code : some-explanation
-                        logText += `${fileInCommit ? fileInCommit.file : ''} : ${lorem.generateWords(chance.integer({min : 3, max: 5}))} Error : 123 ${lorem.generateWords(chance.integer({min : 3, max: 5}))}\n`
+                        logText += `${fileInCommit ? fileInCommit.file : ''} : ${lorem.generateWords(chance.integer({min : 3, max: 5}))} Error : C1234: ${lorem.generateWords(chance.integer({min : 3, max: 5}))}\n`
                     }
                 }
 

@@ -1,4 +1,5 @@
-const fs = require('fs-extra')
+const fs = require('fs-extra'),
+    { Worker } = require('worker_threads')
 
 module.exports = {
 
@@ -51,10 +52,12 @@ module.exports = {
                     input: require('fs').createReadStream(path)
                 })
                   
-                lineReader.on('line', line => {
+                lineReader.on('line', (line) => {
+                    // send line to callback, along with callback of our own to resume next line
                     onLine(line, ()=>{
                         lineReader.resume()
                     })
+
                     lineReader.pause()
                 })
 
@@ -85,7 +88,30 @@ module.exports = {
         return await this.parseLog(rawLogPath, logParserType)
     },
     
+    
+    async _parseLogBackground(logPath, logParserRequirePath){
+        return new Promise((resolve, reject)=>{
+            try {
+                const worker = new Worker(_$+'workers/buildLogProcess.js', {
+                    workerData : {
+                        logPath, logParserRequirePath
+                    }
+                })
+                worker.on('message', resolve)
+                worker.on('error', reject)
+                worker.on('exit', (code) => {
+                    if (code !== 0)
+                        reject(`Worker stopped with exit code ${code}`)
+                    resolve()
+                })            
+            } catch (ex){
+                reject(ex)
+            }
 
+        })
+    },
+
+    
     /**
      * @param {object} build relative path of log file within local log dump
      * @param {string} logParserType plugin name for log parser
@@ -93,32 +119,17 @@ module.exports = {
      */
     async parseLog(logPath, logParserType){
 
-        let pluginsManager = require(_$+'helpers/pluginsManager'),
-            logParser = await pluginsManager.get(logParserType),
-            cachedLogPath = `${logPath}.cache`,
-            parsedItems = []
+        const cachedLogPath = `${logPath}.cache`
 
         if (await fs.pathExists(cachedLogPath))
             return fs.readJson(cachedLogPath)
 
         if (!await fs.pathExists(logPath))
             return [{ text : 'Log file does not exist', type : 'error' }]
-
-        __log.debug(`log parse start : ${logPath}`)
-        await this.stepThroughFile(logPath, (logLine, next) =>{
-            setImmediate(()=>{
-               // ignore empty lines, parser will return "empty" warnigs for these
-               if (!logLine.length)
-                   return
-
-               const parsed = logParser.parse(logLine)
-               if (parsed.length)
-                   parsedItems = parsedItems.concat(parsed)
-                
-                next()
-            })
-        })
-        __log.debug(`log parse end : ${logPath}`)
+            
+        const pluginsManager = require(_$+'helpers/pluginsManager'),
+            logParser = await pluginsManager.get(logParserType),
+            parsedItems = await this._parseLogBackground(logPath, logParser.__wbtb.requirePath )
 
         await fs.outputJson(cachedLogPath, parsedItems)
 

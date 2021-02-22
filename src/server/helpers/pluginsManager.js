@@ -451,8 +451,12 @@ module.exports = {
         if (plugins.length > 1)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Multiple plugins found for category : ${category}, getExclusive() failed.` })
 
-        const plugin = require(`${path.resolve(_plugins.byCategory[category][plugins[0]].path)}/index`)
+        const requirePath = `${path.resolve(_plugins.byCategory[category][plugins[0]].path)}/index`,
+            plugin = require(requirePath)
+
         plugin.__wbtb = _plugins.byCategory[category][plugins[0]]
+        plugin.__wbtb.requirePath = requirePath
+
         return plugin
     },
 
@@ -465,8 +469,11 @@ module.exports = {
         if (!pluginPath)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Missing plugin : ${name}` })
 
-        const plugin = require(`${path.resolve(pluginPath)}/index`)
+        const requirePath = `${path.resolve(pluginPath)}/index`,
+            plugin = require(requirePath)
+
         plugin.__wbtb = _plugins.plugins[name]
+        plugin.__wbtb.requirePath = requirePath
         return plugin
     },
 
@@ -478,8 +485,11 @@ module.exports = {
 
         const plugins = []
         for (let pluginName in pluginsForCategory){
-            const plugin = require(`${path.resolve(pluginsForCategory[pluginName].path)}/index`)
+            const requirePath = `${path.resolve(pluginsForCategory[pluginName].path)}/index`,
+                plugin = require(requirePath)
+
             plugin.__wbtb = pluginsForCategory[pluginName]
+            plugin.__wbtb.requirePath = requirePath
             plugins.push(plugin)
         }
         
@@ -534,8 +544,11 @@ module.exports = {
         if (!_allplugins){
             _allplugins = []
             for (let pluginPath in  _plugins.plugins){
-                const plugin = require(`${path.resolve(_plugins.plugins[pluginPath].path)}/index`)
+                const requirePath = `${path.resolve(_plugins.plugins[pluginPath].path)}/index`,
+                    plugin = require(requirePath)
+
                 plugin.__wbtb = _plugins.plugins[pluginPath]
+                plugin.__wbtb.requirePath = requirePath
                 _allplugins.push(plugin)
             }
         }

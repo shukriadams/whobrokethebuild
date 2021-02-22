@@ -18,7 +18,7 @@
     "concat": "1.0.3",
     "clean-css": "4.2.1",
     "chokidar": "2.1.5",
-    "node-sass": "4.11.0",
+    "node-sass": "4.12.0",
     "minimist": "1.2.5",
     "cross-spawn": "6.0.5",
     "webfonts-generator": "0.4.0",
