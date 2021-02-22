@@ -6,7 +6,7 @@ module.exports = {
      * buildErrors: array of strings, each string is an error line from build log.
      * 
      * @param {import('../types/revision').Revision} revision
-     * @param {Array<string>} buildErrors
+     * @param {Array<import('../types/parsedBuildLogLine').ParsedBuildLogLine>} buildErrors
      */    
     processRevision(revision, buildErrors){
         const fsUtils = require('madscience-fsUtils')
@@ -21,7 +21,7 @@ module.exports = {
 
             for (const errorLine of buildErrors)
                 for (const fileNameFragment of fileNameFragments){
-                    if (!errorLine.match(new RegExp(`/${fileNameFragment}`, 'i')))
+                    if (!errorLine.text.match(new RegExp(`/${fileNameFragment}`, 'i')))
                         break
 
                     file.faultChance ++                    

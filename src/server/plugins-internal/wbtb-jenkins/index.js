@@ -196,7 +196,7 @@ module.exports = {
         for (let remoteBuild of json.allBuilds){
             let localBuild = await data.getBuildByExternalId(jobId, remoteBuild.number)
             
-            // updated build
+            // build exists in db, update it 
             if (localBuild){
 
                 // force update status
@@ -207,7 +207,7 @@ module.exports = {
                     localBuild.ended = timebelt.addMinutes(localBuild.started, remoteBuild.duration).getTime()
 
                 // fetch log if build is complete and log has not be previous fetched
-                if (!localBuild.logPath && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
+                if (!localBuild.logStatus === constants.BUILDLOGSTATUS_NOT_FETCHED && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
 
                     const foldername = sanitize(job.id),
                         pathFragment = path.join(foldername, sanitize(localBuild.build.toString())),
@@ -220,7 +220,7 @@ module.exports = {
 
                         const log = await this.downloadBuildLog(baseUrl, job.name, localBuild.build)
                         await fs.writeFile(writePath, log)
-                        localBuild.logPath = pathFragment
+                        localBuild.logStatus = constants.BUILDLOGSTATUS_UNPROCESSED
                         await data.updateBuild(localBuild)
 
                     } catch (ex){
@@ -231,7 +231,8 @@ module.exports = {
                 continue
             }
             
-            // insert build
+
+            // build does not exist in db - create record
             localBuild = new Build()
             localBuild.jobId = jobId
             localBuild.status = this.resultToStatus(remoteBuild.result)
@@ -240,7 +241,8 @@ module.exports = {
             localBuild.revisions = await this.getBuildCommits(baseUrl, job.name, remoteBuild.number)
             localBuild.started = remoteBuild.timestamp
 
-            // insert buildInvolvement
+            // Add buildInvolvements if we can read these from CI system. This will normally be in cases where a version control event triggers a build.
+            // This will not occur on builds which run on fixed timers, for those builds other ways of determining involved revisions are required.
             for (let revision of localBuild.revisions){
                 const revisionData = await vcs.getRevision(revision, vcServer)
                 if (revisionData){

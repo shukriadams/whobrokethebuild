@@ -1,5 +1,4 @@
 const fs = require('fs-extra')
-const { getBuildsWithoutRevisionObjects } = require('../plugins-internal/wbtb-mongo')
 
 module.exports = {
 
@@ -68,6 +67,10 @@ module.exports = {
         })        
     },
 
+    
+    /**
+     * Walks through a  file one line at a time
+     */
     async stepThroughFile(path, onLine){
         const fs = require('fs-extra')
         if (!fs.pathExists(path))
@@ -93,6 +96,7 @@ module.exports = {
         })
     },
 
+
     /**
      * @param {object} build relative path of log file within local log dump
      * @param {string} logParserType plugin name for log parser
@@ -101,14 +105,12 @@ module.exports = {
      * @returns {Promise<Array<object>>} array of log line objects { text : string, type: string error|warning|text }
      */
     async _parseBuildLog(build, logParserType){
-        let settings = require(_$+ 'helpers/settings'),
+        const settings = require(_$+ 'helpers/settings'),
             path = require('path'),
             logPath = path.join(build.jobId, build.build.toString()),
             rawLogPath = path.join(settings.buildLogsDump, logPath)
 
-        const parsedItems = this.parseLog(rawLogPath, logParserType)
-
-        return parsedItems        
+        return this.parseLog(rawLogPath, logParserType)
     },
     
 
@@ -119,6 +121,7 @@ module.exports = {
      */
     async parseLog(logPath, logParserType){
         __log.debug(`starting log parse ${logPath}`)
+
         let pluginsManager = require(_$+'helpers/pluginsManager'),
             logParser = await pluginsManager.get(logParserType),
             cachedLogPath = `${logPath}.cache`,
@@ -143,6 +146,7 @@ module.exports = {
         await fs.outputJson(cachedLogPath, parsedItems)
 
         __log.debug(`ending log parse ${logPath}`)
+
         return parsedItems
     }
 }

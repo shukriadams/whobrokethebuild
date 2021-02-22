@@ -526,6 +526,16 @@ module.exports = {
         }), _normalizeBuild)
     },
 
+
+    async getBuildsWithUnprocessedLogs(){
+        return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
+            $and: [ 
+                { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_UNPROCESSED } }
+            ]
+        }), _normalizeBuild)
+    },
+    
+
     /**
      * Gets finished builds with no delta
      */
@@ -681,12 +691,17 @@ module.exports = {
     },
 
 
+    /**
+     * Gets an array of builds which have already had their logs processed and are now ready to have their revision data fetched and mapped against 
+     * their build results to determine which if any of those revisions were involved in a build break
+     */
     async getBuildsWithoutRevisionObjects(){
         const builds = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match: { 
                     $and: [ 
                         { 'involvements.revisionObject' :{ $eq : null }},
+                        { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_PROCESSED }},
                         { 'logPath' :{ $ne : null }}
                     ] 
                 }

@@ -1,3 +1,5 @@
+const { rm } = require('fs-extra')
+
 const urljoin = require('urljoin'),
     settings = require(_$+'helpers/settings'),
     pluginsManager = require(_$+'helpers/pluginsManager')
@@ -28,14 +30,16 @@ module.exports = {
      * @return {Promise<string>} 
      */
     async buildImplicatedMessage(user, build, quoteblock = ''){
-        let logHelper = require(_$+'helpers/log'),
-            data = await pluginsManager.getExclusive('dataProvider'),
+        let data = await pluginsManager.getExclusive('dataProvider'),
             job = await data.getJob(build.jobId, { expected: true }),
             usersInvolved = build.involvements.map(involvement => involvement.externalUsername),
             isImplicated = false,
-            log = job.logParser ? 
-                await logHelper.parseErrorsFromBuildLogToString(build, job.logParser) :
-                `No log parser select, asked your admin to set one up`
+            log = build.logData ? 
+                build.logData
+                    .filter(r => r.type === 'error')
+                    .map(r => r.text)
+                    .join('\n') :
+                `No log data available`
 
         // ensure log has content, if errors cannot be parsed, it will be blank
         log = log || 'Could not parse error from build log'
