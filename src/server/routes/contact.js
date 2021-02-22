@@ -35,7 +35,7 @@ module.exports = app =>{
                 return res.end(`Userid ${req.params.userId} is not valid`)
 
             const logPath = path.join(settings.buildLogsDump, req.params.refLogPath)
-            if (!await fs.exists(logPath))
+            if (!await fs.pathExists(logPath))
                 return res.end(`count not find reference log ${req.params.refLogPath}`)
 
             const slack = pluginsManager.get('wbtb-slack')

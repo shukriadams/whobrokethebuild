@@ -244,7 +244,7 @@ module.exports = {
                 __log.info(`Plugin "${pluginName}" git cloned from ${pluginConfig.url}`)
             }
 
-            if (!await fs.exists(pluginFolder)){
+            if (!await fs.pathExists(pluginFolder)){
                 __log.error(`Plugin "${pluginName}" does not exist`)
                 errors = true
                 packageHasErrors = true
@@ -253,7 +253,7 @@ module.exports = {
 
             // ensure plugin has package manifest
             const packageManifestPath = path.join(pluginFolder, 'package.json')
-            if (!packageHasErrors && !await fs.exists(packageManifestPath)){
+            if (!packageHasErrors && !await fs.pathExists(packageManifestPath)){
                 __log.error(`Plugin "${pluginName}" does not not have a package.json file`)
                 errors = true
                 packageHasErrors = true
@@ -303,7 +303,7 @@ module.exports = {
 
         // load overrides
         const overrideFilePath = path.join(settings.dataFolder, '.settings-override.json')
-        if (await fs.exists(overrideFilePath)){
+        if (await fs.pathExists(overrideFilePath)){
             const overrideSettings = await fs.readJson(overrideFilePath)
             pluginsConfig = Object.assign(pluginsConfig, overrideSettings)
         }
@@ -599,7 +599,7 @@ module.exports = {
         _plugins.plugins[pluginName][setting] = value
 
         // persist to file
-        if (await fs.exists(overrideFilePath))
+        if (await fs.pathExists(overrideFilePath))
             overrideSettings = await fs.readJson(overrideFilePath)
 
         overrideSettings[pluginName] = overrideSettings[pluginName] || {}

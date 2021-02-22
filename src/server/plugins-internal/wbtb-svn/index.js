@@ -56,7 +56,7 @@ module.exports = {
         if (settings.sandboxMode){
             let mockRevisionFile = path.join(__dirname, `/mock/revisions/${revision}`)
             // if the revision we're looking for isn't mocked, fall back to generic
-            if (!await fs.exists(mockRevisionFile))
+            if (!await fs.pathExists(mockRevisionFile))
                 mockRevisionFile = path.join(__dirname, `/mock/revisions/generic`)
 
             rawRevisionText = await fs.readFile(mockRevisionFile, 'utf8')

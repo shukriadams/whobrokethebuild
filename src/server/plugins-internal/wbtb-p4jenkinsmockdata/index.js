@@ -11,7 +11,7 @@ module.exports = {
             jenkinsMockRoot = path.join(__dirname, '..', 'wbtb-jenkins', 'mock', 'jobs'),
             perforceMockRoot = path.join(__dirname, '..', 'wbtb-perforce', 'mock', 'revisions')
 
-        if (await fs.exists(jenkinsMockRoot))
+        if (await fs.pathExists(jenkinsMockRoot))
             return
 
         let { uniqueNamesGenerator } = require('unique-names-generator'),

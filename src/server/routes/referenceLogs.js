@@ -32,7 +32,11 @@ module.exports = function(app){
     app.get('/referenceLogs/:id', async function(req, res){
         try {
             const referenceLogsHelper = require(_$+ 'helpers/referenceLogs'),
+                logHelper = require(_$+'helpers/log'),
+                settings = require(_$+'helpers/settings'),
+                path = require('path'),
                 pluginsManager = require(_$+'helpers/pluginsManager'),
+                logPath = path.join(settings.buildLogsDump, req.params.id),
                 view = await handlebars.getView('referenceLog'),
                 model = { }
 
@@ -49,27 +53,20 @@ module.exports = function(app){
                 : model.VCSTypes.length ? model.VCSTypes[0] :
                 null
 
-            model.referenceLog = await referenceLogsHelper.load(req.params.id)
-
             if (model.activeLogParser){
                 const logParser = pluginsManager.get(model.activeLogParser)
-                model.parsedLog = logParser.parse(model.referenceLog.log)
-                model.parsedLog.lines = model.parsedLog.lines.filter(line => ['error'].includes(line.type) )
-                
-                model.parsedErrors = logParser.parseErrors(model.referenceLog.log)
+                model.parsedLog = await logParser.parseLog(logPath, model.activeLogParser)
             }
 
             // if both vcs and parser are set, we can try to calculate fault chance
-            if (!model.referenceLog.error){
-                if (model.activeVCSType && model.activeLogParser){
-                    const vcs = pluginsManager.get(model.activeVCSType)
-    
-                    for (let i = 0 ; i < model.referenceLog.revisions.length ; i ++){
-                        // convert revision from string to object
-                        model.referenceLog.revisions[i] = await vcs.parseRawRevision(model.referenceLog.revisions[i])
-    
-                        faultHelper.processRevision(model.referenceLog.revisions[i], model.parsedErrors)
-                    }
+            if (model.parsedLog && model.activeVCSType && model.activeLogParser){
+                const vcs = pluginsManager.get(model.activeVCSType)
+
+                for (let i = 0 ; i < model.referenceLog.revisions.length ; i ++){
+                    // convert revision from string to object
+                    model.referenceLog.revisions[i] = await vcs.parseRawRevision(model.referenceLog.revisions[i])
+
+                    faultHelper.processRevision(model.referenceLog.revisions[i], model.parsedErrors)
                 }
             }
 

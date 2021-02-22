@@ -2,8 +2,7 @@
 // file-path : some-text error some-code : some-explanation
 // gmi : errors can be multiline
 // ignore case
-const ParsedErrorLog = require(_$+'types/parsedBuildLog'),
-    ParsedErrorLogItem = require(_$+'types/parsedBuildLogLine'),
+const ParsedErrorLogItem = require(_$+'types/parsedBuildLogLine'),
     errorRegex = /(.?)*:(.?)*(error)(.?)*:(.?)*/gmi
 
 module.exports = {
@@ -18,7 +17,15 @@ module.exports = {
 
 
     /**
-     * Parses error lines out of build log. Returns array of strings
+     * Returns array of lines objects for errors only
+     * 
+     * {
+     *      lines : [{
+     *          text: STRING.line text
+     *          type: STRING. error|warning|text
+     *      }]
+     * }     * 
+     * 
      */
     parseErrors(raw){
         if (!raw) 
@@ -46,17 +53,16 @@ module.exports = {
 
         errors = []
         for (const key in distinct)
-            errors.push(distinct[key])
+            errors.push({type: 'error', text : distinct[key]})
 
         return errors
     },
 
 
     /**
-     * Returns entire log as an array of lines objects. Lines are marked for errors or warnings.
+     * Returns array of lines objects. Lines are marked for errors or warnings.
      * 
      * {
-     *      error : STRING. if not null, error for why log coudln't be parsed
      *      lines : [{
      *          text: STRING.line text
      *          type: STRING. error|warning|text
@@ -64,19 +70,17 @@ module.exports = {
      * }
      */
     parse(raw){
-        let result = new ParsedErrorLog()
-
-        if (!raw) {
-            result.error = 'input is empty'
-            return result
-        }
+        if (!raw) 
+            return [{ text : 'Log parse error : input is empty', type : 'error' }]
+        
 
         // force unix paths on log, this helps reduce noise when getting distinct lines
         // convert windows to unix line endings
-        let fullErrorLog = raw
-            .replace(/\\/g,'/')
-            .replace(/\r\n/g,'\n')
-            .split('\n')
+        let result = [],
+            fullErrorLog = raw
+                .replace(/\\/g,'/')
+                .replace(/\r\n/g,'\n')
+                .split('\n')
 
         for (const line of fullErrorLog){
             let type = 'text'
@@ -90,7 +94,10 @@ module.exports = {
             const lineItem = new ParsedErrorLogItem()
             lineItem.text = line
             lineItem.type = type
-            result.lines.push(lineItem)
+
+            // text types are flooding, if you want the full log, read the raw text
+            if (line.type !== `text`)
+                result.push(lineItem)
         }
 
         return result
