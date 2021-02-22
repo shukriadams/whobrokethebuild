@@ -7,7 +7,7 @@ module.exports = {
      *      logs : array of string to log paths
      * }    
      */
-    async list(){
+    async list(index = 0){
         const settings = require(_$+'helpers/settings'),
             fs = require('fs-extra'),
             fsUtils = require('madscience-fsUtils')
@@ -17,10 +17,15 @@ module.exports = {
 
         if (!await fs.pathExists(settings.buildLogsDump))
             return { error : `log dump folder "${settings.buildLogsDump}" does not exist` }
+        
+        let items = await fsUtils.readFilesUnderDir(settings.buildLogsDump),
+            pages = Math.floor(items.length / settings.standardPageSize)
 
-        return {
-            logs :  await fsUtils.getChildDirs(settings.buildLogsDump, false)
-        }
+        if (items.length % settings.standardPageSize)
+            pages ++
+
+        items = items.slice(index * settings.standardPageSize, (index * settings.standardPageSize) + settings.standardPageSize)
+        return { items, pages }
     },
 
 

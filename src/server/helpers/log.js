@@ -131,6 +131,10 @@ module.exports = {
             return [{ text : 'Log file does not exist', type : 'error' }]
 
         await this.stepThroughFile(logPath, logLine =>{
+            // ignore empty lines, parser will return "empty" warnigs for these
+            if (!logLine.length)
+                return
+
             const parsed = logParser.parse(logLine)
             if (parsed.length)
                 parsedItems = parsedItems.concat(parsed)

@@ -96,7 +96,7 @@ module.exports = {
             lineItem.type = type
 
             // text types are flooding, if you want the full log, read the raw text
-            if (line.type !== `text`)
+            if (lineItem.type !== `text`)
                 result.push(lineItem)
         }
 

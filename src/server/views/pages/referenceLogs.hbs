@@ -7,12 +7,15 @@
                 {{referenceLogs.error}}
             {{else}}
                 <ul class="">
-                    {{#each referenceLogs.logs}}
+                    {{#each referenceLogs.items}}
                         <li class="list-item list-item--textContent">
                             <a href="/referenceLogs/{{this}}">{{this}}</a>
                         </li>
                     {{/each}}
                 </ul>
+
+                {{{pager baseUrl referenceLogs }}}
+
             {{/if}}
 
         </div>
