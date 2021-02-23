@@ -76,7 +76,10 @@ let process = require('process'),
         sandboxMode : false,
 
         // disable view caching to reload all views per page view
-        cacheHandlebarViews : true
+        cacheHandlebarViews : true,
+
+        // default plugins stub - plugin data will be attached to this
+        plugins: { }
 
     }
 
