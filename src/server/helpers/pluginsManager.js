@@ -77,7 +77,7 @@ module.exports = {
     getPluginRootPath(){
         return settings.bindInternalPlugins ? 
             `${_$}plugins-internal`:
-            settings.pluginsPath
+            path.resolve(settings.pluginsPath)
     },
 
     async _loadPlugins(){
