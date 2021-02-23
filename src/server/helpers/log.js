@@ -3,6 +3,7 @@ const fs = require('fs-extra'),
 
 module.exports = {
 
+    
     /**
      * Reads a raw log for the given build. This can be extremely system-taxing, use with care.
      * 
@@ -74,7 +75,7 @@ module.exports = {
 
                 worker.on('message', async function(parsedItems){
                     await fs.outputJson(cachedLogPath, parsedItems)
-                    __log.debug(`Log parse ended for ${logPath}, took ${Math.floor(new Date().getTime() - processStart.getTime() / (1000 * 60))} minutes. `)
+                    __log.debug(`Log parse ended for ${logPath}, took ${Math.floor((new Date().getTime() - processStart.getTime()) / (1000 * 60))} minutes. `)
                     resolve(parsedItems)
                 })
 

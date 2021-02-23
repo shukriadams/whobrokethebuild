@@ -139,7 +139,7 @@ module.exports = {
                         logText = 'some logs\n' +
                             '#p4-changes........#\n'+
                             `Change ${globalCommitCounter} on etc etc\n`+
-                            '/#p4-changes........#\n'
+                            '#/p4-changes........#\n'
 
                 for (let i = 0 ; i < logLines ; i ++){
                     logText += `${lorem.generateWords()}\n` 

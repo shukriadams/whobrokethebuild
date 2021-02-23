@@ -7,7 +7,7 @@
                 <div class="card-content">
                     <h1>Build #{{build.build}}</h1>
                     <p>
-                        {{ago build.started}}{{#if build.ended}}, {{durationLong build.ended build.started}} to complete{{/if}}
+                        Ran {{ago build.started}}{{#if build.ended}}, took {{durationLong build.ended build.started}} to complete{{/if}}
                     </p>
                     <p>
                         Built on :  {{build.host}}
@@ -48,11 +48,17 @@
                         {{#each build.involvements}}
                             <li>
                                 <h3>
-                                    {{>buildInvolvementUserLink this}} ({{revision}})
+                                    {{>buildInvolvementUserLink this}} ({{revision}}) 
                                 </h3>
-                                <p>
+                                <div>
+                                    <b>
+                                        {{buildInvolvementTranslate involvement}}
+                                    </b>
+
+                                </div>
+                                <i>
                                     {{__revision.description}}
-                                </p>
+                                </i>
                                 <ul>
                                     {{#each __revision.files}}
                                         <li class="revision-file revision-file--{{#if isFault}}atFault{{/if}}">

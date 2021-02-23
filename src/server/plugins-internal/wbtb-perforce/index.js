@@ -47,7 +47,7 @@ module.exports = {
 
         if (await fs.pathExists(cachedPath)){
             allRevisions = await fs.readJson(cachedPath)
-            if (!allRevisions.find(rev => rev.revision === revision))
+            if (!allRevisions.revisions.find(rev => rev.revision === revision))
                 fetch = true
         } else
             fetch = true
@@ -83,7 +83,7 @@ module.exports = {
             await fs.outputJson(cachedPath, allRevisions)
         }
 
-        return allRevisions.filter(revision => revision.revision < revision)
+        return allRevisions.revisions.filter(revision => revision.revision < revision)
     },
 
 

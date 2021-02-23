@@ -44,7 +44,7 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                 }
 
                 const log = await fs.readFile(logPath, 'utf8'),
-                    regex = new RegExp('\#p4-changes........\#\n(.*)\n\#/p4-changes........\#'),
+                    regex = new RegExp('\#p4-changes........\#\n(.*)\n\#/p4-changes........\#', 'is'),
                     lookup = log.match(regex)
 
                 if (!lookup){
@@ -60,7 +60,7 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                     continue
 
                 let knownRevisionInThisBuild = revnrLookup.pop(),
-                    revisionsBefore = await perforcePLugin.getRevisionsBefore(knownRevisionInThisBuild),
+                    revisionsBefore = await perforcePLugin.getRevisionsBefore(vcServer, knownRevisionInThisBuild),
                     revisionsInThisBuild = []
 
                 revisionsInThisBuild.push(knownRevisionInThisBuild)
@@ -77,7 +77,7 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                     // BEFORE this build's known revision. This should give us all revisions that are in this one.
                     if (lastRevision)
                         for (const revisionData of revisionsBefore)
-                            if (revisionData.revision > lastRevision && revisionData.revision < knownRevisionInThisBuild)
+                            if (parseInt(revisionData.revision) > lastRevision && parseInt(revisionData.revision) < knownRevisionInThisBuild)
                                 revisionsInThisBuild.push(revisionData.revision)
                 }
 
