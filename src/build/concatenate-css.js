@@ -5,7 +5,7 @@ module.exports = async function conc(){
         try {
             console.log('concatenating CSS')
             
-            await concat('./.tmp/css/*.css', './public/css/style.css')
+            await concat('./.tmp/css/**/*.css', './public/css/style.css')
             resolve()
 
         } catch(ex) {
