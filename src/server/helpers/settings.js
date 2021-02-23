@@ -42,6 +42,8 @@ let process = require('process'),
         // password for master user, auto enforced on start
         adminPassword: 'admin', 
 
+        // maximum size in bytes for raw logs.
+        maxReadableRawLogSize : 30000000,
 
         // #######################################################################
         // dev environment only

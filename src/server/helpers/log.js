@@ -3,6 +3,26 @@ const fs = require('fs-extra'),
 
 module.exports = {
 
+    /**
+     * Reads a raw log for the given build. This can be extremely system-taxing, use with care.
+     * 
+     * @param {import('../types/build').Build} build Build to load log for.
+     */
+    async readRawLogForBuild(build){
+        const settings = require(_$+ 'helpers/settings'),
+            path = require('path'),
+            logPath = path.join(build.jobId, build.build.toString()),
+            rawLogPath = path.join(settings.buildLogsDump, logPath)
+
+        if (!await fs.exists(rawLogPath))
+            return 'Log for this build does not exist.'
+
+        if (fs.statSync(rawLogPath).size > settings.maxReadableRawLogSize)
+            return `File is too large to read`
+
+        return await fs.readFile(rawLogPath, 'utf8')
+    },
+
 
     /**
      * @param {object} build relative path of log file within local log dump

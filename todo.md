@@ -1,3 +1,5 @@
+- all API and log calls from CI should be cached locally
+- time for log parse needs to be more use-friendly
 - need "watcher" - alert on all build status changes, regardless of who was responsible for them
 - need function to assign a failing build to one or more people
 - ensure that build error change works, and that this is adequetyly warned for

@@ -23,13 +23,11 @@ module.exports = function(app){
                 data = await pluginsManager.getExclusive('dataProvider'),
                 logHelper = require(_$+'helpers/log'),
                 build = await data.getBuild(req.params.id, { expected : true }),
-                job = await jobsLogic.getById(build.jobId),
                 model = {
                     build
                 }
 
-            // this should load full log
-            model.log = await logHelper.parseFromBuild(build, job.logParser)
+            model.log = await logHelper.readRawLogForBuild(build)
             await viewModelHelper.layout(model, req)
             res.send(view(model))
         } catch(ex) {
