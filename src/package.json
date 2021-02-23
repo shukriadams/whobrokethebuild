@@ -23,7 +23,7 @@
     "cross-spawn": "6.0.5",
     "webfonts-generator": "0.4.0",
     "madscience-node-assert": "https://github.com/shukriadams/node-assert.git#0.0.2",
-    "node-sass-runner": "https://github.com/shukriadams/node-sass-runner.git#0.0.1"
+    "node-sass-runner": "https://github.com/shukriadams/node-sass-runner.git#0.0.5"
   },
   "dependencies": {
     "@types/node": "14.14.25",
