@@ -2,9 +2,15 @@
 // file-path : some-text error some-code : some-explanation
 // gmi : errors can be multiline
 // ignore case
-const ParsedErrorLog = require(_$+'types/parsedBuildLog'),
-    ParsedErrorLogItem = require(_$+'types/parsedBuildLogLine'),
-    errorRegex = /(.?)*:(.?)*(error)(.?)*:(.?)*/gmi
+
+// [ ][A-Z]{1}[0-9]+[:] belows is the error/warning code that appears in all unreal logs. 
+// - leading space
+// - a single uppercase letter
+// - multiple digts
+// - trailing :
+
+const errorRegex = /(.?)*( error)(.?)*[ ][A-Z]{1}[0-9]+[:](.?)*/gmi,
+    warnRegex = /(.?)*( warning)(.?)*[ ][A-Z]{1}[0-9]+[:](.?)*/gmi
 
 module.exports = {
 
@@ -18,7 +24,15 @@ module.exports = {
 
 
     /**
-     * Parses error lines out of build log. Returns array of strings
+     * Returns array of lines objects for errors only
+     * 
+     * {
+     *      lines : [{
+     *          text: STRING.line text
+     *          type: STRING. error|warning|text
+     *      }]
+     * }     * 
+     * 
      */
     parseErrors(raw){
         if (!raw) 
@@ -33,30 +47,29 @@ module.exports = {
             return []
 
         // remove known noise line with "error" in it
-        errors = errors.filter(function(item){
+        errors = errors.filter(item => {
             if (!item.includes('Running UnrealHeaderTool'))
                 return item
         })
 
         // get distinct items in list
         const distinct = {}
-        for (let error of errors)
-        if (!distinct[error.toLowerCase()])
-            distinct[error.toLowerCase()] = error
+        for (const error of errors)
+            if (!distinct[error.toLowerCase()])
+                distinct[error.toLowerCase()] = error
 
         errors = []
         for (const key in distinct)
-            errors.push(distinct[key])
+            errors.push({type: 'error', text : distinct[key]})
 
         return errors
     },
 
 
     /**
-     * Returns entire log as an array of lines objects. Lines are marked for errors or warnings.
+     * Returns array of lines objects. Lines are marked for errors or warnings.
      * 
      * {
-     *      error : STRING. if not null, error for why log coudln't be parsed
      *      lines : [{
      *          text: STRING.line text
      *          type: STRING. error|warning|text
@@ -64,33 +77,34 @@ module.exports = {
      * }
      */
     parse(raw){
-        let result = new ParsedErrorLog()
-
-        if (!raw) {
-            result.error = 'input is empty'
-            return result
-        }
+        if (!raw) 
+            return [{ text : 'Log parse error : input is empty', type : 'error' }]
+        
 
         // force unix paths on log, this helps reduce noise when getting distinct lines
         // convert windows to unix line endings
-        let fullErrorLog = raw
-            .replace(/\\/g,'/')
-            .replace(/\r\n/g,'\n')
-            .split('\n')
+        let result = [],
+            fullErrorLog = raw
+                .replace(/\\/g,'/')
+                .replace(/\r\n/g,'\n')
+                .split('\n')
 
         for (const line of fullErrorLog){
             let type = 'text'
 
-            if (line.match(/warning/i))
-                type = 'warning'
-
             if (line.match(errorRegex))
                 type = 'error'
-                
-            const lineItem = new ParsedErrorLogItem()
-            lineItem.text = line
-            lineItem.type = type
-            result.lines.push(lineItem)
+            else if (line.match(warnRegex))
+                type = 'warning'
+
+            const lineItem = {
+                text : line,
+                type : type
+            }
+
+            // text types are flooding, if you want the full log, read the raw text
+            if (lineItem.type !== `text`)
+                result.push(lineItem)
         }
 
         return result

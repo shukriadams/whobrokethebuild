@@ -1,6 +1,5 @@
 /**
  * @typedef {Object} BuildInvolment
- * @property {string} buildId objectId of parent Build. always set
  * @property {string} externalUsername some user id from external system, such as SVN. always set
  * @property {string} revision the revision id the build involvement was based on.
  * @property {import("./revision").Revision} revisionObject nullable. the revision object retrieved from source control
@@ -12,7 +11,6 @@
  */
 module.exports = class BuildInvolment{
     constructor(){
-        this.buildId = null
         this.externalUsername = null
         this.revision = null
         this.revisionObject = null

@@ -35,9 +35,11 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                 }
 
                 // NOTE! query ensures that logPath is already defined, but we don't know if the file exists
-                const logPath = path.join(settings.buildLogsDump, build.logPath)
-                if (!await fs.exists(logPath)){
-                    __log.error(`LOG MISSING - Job ${job.name}, build ${build.build} defines log ${build.logPath}, but the file does not exist`)
+                const logPath = path.join(settings.buildLogsDump, build.jobId, build.build.toString())
+                if (!await fs.pathExists(logPath)){
+                    __log.error(`LOG MISSING - Job ${job.name}, build ${build.build} defines log ${build.id}, but the file does not exist`)
+                    build.processStatus = 'CANNOT_RESOLVE'
+                    await data.updateBuild(build)
                     continue
                 }
 
@@ -47,6 +49,8 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
 
                 if (!lookup){
                     __log.info(`Job ${job.name}, build ${build.build} log is missing "p4-changes" block, add this to build logs to enable revision range matching`)
+                    build.processStatus = 'CANNOT_RESOLVE'
+                    await data.updateBuild(build)
                     continue
                 }
 
@@ -62,11 +66,10 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                 revisionsInThisBuild.push(knownRevisionInThisBuild)
 
                 if (revisionsBefore.length && previousBuild) {
-                    let buildInvolvements = await data.getBuildInvolementsByBuild(previousBuild.id),
-                        lastRevision = 0
+                    let lastRevision = 0
 
                     // find latest revision in previous build
-                    for (const b of buildInvolvements)
+                    for (const b of previousBuild.involvements)
                         if (parseInt(b.revision) > lastRevision)
                             lastRevision = parseInt(b.revision)
                     
@@ -82,27 +85,25 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                     build.revisions = revisionsInThisBuild
                     build.comment = build.comment || ''
                     build.comment += `\n ${revisionsInThisBuild.length} revisions were soft-matched in based on #${knownRevisionInThisBuild} appearing in build log`
-                    await data.updateBuild(build)
                 }
     
                 for (const revisionNr of revisionsInThisBuild){
                     const revisionData = await perforcePLugin.getRevision(revisionNr, vcServer)
                     if (revisionData){
-                        let buildInvolvment = await data.getBuildInvolvementByRevision(build.id, revisionData.user)
-                        if (buildInvolvment)
+                        let revisionId = revisionNr.toString()
+                        if (build.involvements.find(r => r.revisionId === revisionId))
                             continue 
     
-                        buildInvolvment = new BuildInvolvment()
+                        const buildInvolvment = new BuildInvolvment()
                         buildInvolvment.externalUsername = revisionData.user
                         buildInvolvment.buildId = build.id
-                        buildInvolvment.revision = revisionNr.toString()
-                        buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SOURCECHANGE
-                        buildInvolvment.comment = buildInvolvment.comment || ''
-                        buildInvolvment.comment += `\n Revision presence based on build log content`
-
-                        await data.insertBuildInvolvement(buildInvolvment)
+                        buildInvolvment.revision = revisionId
+                        buildInvolvment.involvement = constants.BUILDINVOLVEMENT_SUSPECTED_SOURCECHANGE
+                        build.involvements.push(buildInvolvment)
                     }
                 }
+
+                await data.updateBuild(build)
 
             } catch (ex){
                 __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)

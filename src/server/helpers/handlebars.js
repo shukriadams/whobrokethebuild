@@ -48,8 +48,8 @@ module.exports = {
             // core pages
             root = path.join(_$+'views/pages')
             let pagePaths = await fsUtils.readFilesUnderDir(root)
-            for (let pagePath of pagePaths){
-                let content = fs.readFileSync(pagePath, 'utf8'),
+            for (const pagePath of pagePaths){
+                const content = fs.readFileSync(pagePath, 'utf8'),
                     name = pagePath.replace(root, '').match(/\/(.*).hbs/).pop();
                 
                 if (pages[name]){
@@ -63,8 +63,8 @@ module.exports = {
             // plugin pages
             root = pluginsManager.getPluginRootPath()
             pagePaths = glob.sync(`${root}/**/views/**/*.hbs`, { ignore : ['**/node_modules/**', '**/mock/**']})
-            for (let pagePath of pagePaths){
-                let content = fs.readFileSync(pagePath, 'utf8'),
+            for (const pagePath of pagePaths){
+                const content = fs.readFileSync(pagePath, 'utf8'),
                     name = pagePath.replace(root, '').match(/\/(.*).hbs/).pop()
 
                 if (pages[name]){
@@ -77,8 +77,8 @@ module.exports = {
 
             // plugin partials
             pagePaths = glob.sync(`${root}/**/partials/**/*.hbs`, { ignore : ['**/node_modules/**', '**/mock/**']})
-            for (let pagePath of pagePaths){
-                let content = fs.readFileSync(pagePath, 'utf8'),
+            for (const pagePath of pagePaths){
+                const content = fs.readFileSync(pagePath, 'utf8'),
                     name = pagePath.replace(root, '').match(/\/(.*).hbs/).pop()
 
                 if (views[name]){

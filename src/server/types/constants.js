@@ -17,8 +17,18 @@ module.exports = Object.freeze({
     BUILDSTATUS_OTHER : 'BUILDSTATUS_OTHER',
     
     BUILDINVOLVEMENT_SOURCECHANGE : 'BUILDINVOLVEMENT_SOURCECHANGE',
+    BUILDINVOLVEMENT_SUSPECTED_SOURCECHANGE : 'BUILDINVOLVEMENT_SUSPECTED_SOURCECHANGE',
     BUILDINVOLVEMENT_ASSISTING : 'BUILDINVOLVEMENT_ASSISTING',
     
+    // default state
+    BUILDLOGSTATUS_NOT_FETCHED : 'BUILDLOGSTATUS_NOT_FETCHED',
+    // log has been fetched and is awaiting processing
+    BUILDLOGSTATUS_UNPROCESSED : 'BUILDLOGSTATUS_UNPROCESSED',
+    // log has been successfully processed
+    BUILDLOGSTATUS_PROCESSED : 'BUILDLOGSTATUS_PROCESSED',
+    // log has processed done, but failed
+    BUILDLOGSTATUS_PROCESSED_FAILED : 'BUILDLOGSTATUS_PROCESSED_FAILED',
+
     // everyone is a suspect in the eyes of the law in the event of a build break!
     BLAME_SUSPECT : 'BLAME_SUSPECT',
     // it was them what done it
@@ -52,7 +62,6 @@ module.exports = Object.freeze({
     LOGINRESULT_OTHER : 'LOGINRESULT_OTHER',
 
     TABLENAME_BUILDS : 'Builds',
-    TABLENAME_BUILDINVOLVEMENTS : 'BuildInvolvements',
     TABLENAME_CONTACTLOGS : 'ContactLogs',
     TABLENAME_JOBS : 'Jobs',
     TABLENAME_PLUGINSETTINGS : 'PluginSettings',

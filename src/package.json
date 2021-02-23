@@ -5,6 +5,7 @@
   "repository": "https://github.com/shukriadams/whobrokethebuild",
   "scripts": {
     "start": "node index",
+    "profile": "node --inspect=0.0.0.0:3001 index",
     "build": "npm run client && npm run assets",
     "assets": "node ./build/build-all-assets",
     "client": "sh ./build/bundle.sh",
@@ -17,7 +18,7 @@
     "concat": "1.0.3",
     "clean-css": "4.2.1",
     "chokidar": "2.1.5",
-    "node-sass": "4.11.0",
+    "node-sass": "4.12.0",
     "minimist": "1.2.5",
     "cross-spawn": "6.0.5",
     "webfonts-generator": "0.4.0",
@@ -37,6 +38,7 @@
     "node-cache": "4.1.1",
     "node-ad-tools": "1.2.1",
     "fs-extra": "9.0.0",
+    "js-yaml": "3.13.1",
     "express": "4.16.3",
     "body-parser": "1.18.3",
     "cookie-parser": "1.4.4",
@@ -52,7 +54,7 @@
     "winston-wrapper": "https://github.com/shukriadams/winston-wrapper.git#0.1.0",
     "madscience-httputils": "https://github.com/shukriadams/node-httpUtils.git#0.0.4",
     "madscience-node-exec": "https://github.com/shukriadams/node-exec.git#0.0.6",
-    "madscience-fsUtils": "https://github.com/shukriadams/node-fsUtils.git#0.0.5",
+    "madscience-fsUtils": "https://github.com/shukriadams/node-fsUtils.git#0.0.9",
     "pguid": "https://github.com/shukriadams/pguid.git#0.0.1",
     "handlebars-layouts": "3.1.4"
   },

@@ -4,8 +4,7 @@ global._$ = `${__dirname}/server/`
 // load first to speed up app loads
 require('cache-require-paths')
 
-const 
-    Stopwatch = require('statman-stopwatch'),
+const Stopwatch = require('statman-stopwatch'),
     stopwatch = new Stopwatch()
 
 stopwatch.start();
@@ -16,7 +15,7 @@ stopwatch.start();
         fs = require('fs-extra')
 
     // bind log first, this will be globally referenced
-   global.__log = require('winston-wrapper').new(settings.logPath, settings.logLevel).log
+    global.__log = require('winston-wrapper').new(settings.logPath, settings.logLevel).log
 
     // need to do this before we start requiring other componens, as these will often need to write to log folder at start
     await fs.ensureDir(settings.dataFolder)
@@ -27,6 +26,7 @@ stopwatch.start();
         cookieParser = require('cookie-parser'),
         path = require('path'),
         glob = require('glob'),
+        http = require('http'),
         useragent = require('express-useragent'),
         fsUtils = require('madscience-fsUtils'),
         Express = require('express'),
@@ -36,8 +36,7 @@ stopwatch.start();
         exec = require('madscience-node-exec'),
         diagnosticsHelper = require(_$+'helpers/diagnostics'),
         userLogic = require(_$+ 'logic/users'),
-        pluginsManager = require(_$+'helpers/pluginsManager'),
-        http = require('http')
+        pluginsManager = require(_$+'helpers/pluginsManager')
 
     try {
         // allow user to run start cmd
@@ -64,8 +63,7 @@ stopwatch.start();
 
         await pluginsManager.validateSettings()
 
-        let 
-            root = path.join(__dirname, 'server'),
+        let root = path.join(__dirname, 'server'),
             routeFiles = [],
             data = await pluginsManager.getExclusive('dataProvider')
 

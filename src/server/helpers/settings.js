@@ -7,6 +7,7 @@ let process = require('process'),
     fs = require('fs-extra'),
     customEnv = require('custom-env'),
     constants = require(_$+ 'types/constants'),
+    yaml = require('js-yaml'),
     settings = {
 
         // port Express listens on
@@ -20,12 +21,12 @@ let process = require('process'),
         //  path for WBTB's own logs
         logPath : './data/logs',
 
-        // path plugins are written to. On docker systems, this should persist. Todo : move to data folder
-        externalPluginsFolder : './server/plugins',
-
         // set to some writeable path if you want build logs from CI servers can be dumped to local text files for reference
         // path will be created if it doesn't exist
         buildLogsDump : './data/buildLogs',
+
+        // path plugins are written to. On docker systems, this should persist. Todo : move to data folder
+        pluginsPath : './data/plugins',
 
         // cronmask for when daemons run. By default every minute. All daemons share the same interval, but 
         // do not block each other
@@ -37,39 +38,17 @@ let process = require('process'),
         standardPageSize: 25,
         
         authType : constants.AUTHPROVIDER_INTERNAL,
-        adminPassword: 'admin', // password for master user, auto enforced on start
-        bundlemode : '', // ''|.min
 
-        // #######################################################################
-        // pluging-specific settings. Todo : move these to plugins!
-        // #######################################################################
-        mongoConnectionString : 'mongodb://root:example@127.0.0.1:27017',
-        mongoDBName : 'wbtb',
-        mongoPoolSize : 10,
-
-        activeDirectoryUrl : null,
-        activeDirectoryBase : null,
-        activeDirectoryUser : null,
-        activeDirectoryPassword : null,
-        activeDirectorySearch: null,
-        
-        postgresHost: null,
-        postgresPort: null,
-        postgresDatabase: null,
-        postgresUser: null,
-        postgresPassword: null,
-        
-        slackAccessToken : null,
-        // if set, all channel-targetted slack messages will be sent to this channel
-        slackOverrideChannelId : null,
-        // if set, all user-targetted slack messages will be sent to this user
-        slackOverrideUserId : null,
+        // password for master user, auto enforced on start
+        adminPassword: 'admin', 
 
 
         // #######################################################################
         // dev environment only
         // #######################################################################
         bundle: true,
+
+        bundlemode : '', // ''|.min
 
         // set to 'debug' for the full spam
         logLevel : 'error', 
@@ -101,15 +80,28 @@ let process = require('process'),
 
     }
 
+// Load settings from YML file, merge with default settings
+if (fs.existsSync('./settings.yml')){
+    let userSettings = null
 
-// apply custom .env settings
+    try {
+        const settingsYML = fs.readFileSync('./settings.yml', 'utf8')
+        userSettings = yaml.safeLoad(settingsYML)
+    } catch (e) {
+        console.error('Error reading settings.yml', e)
+    }    
+    
+    settings = Object.assign(settings, userSettings)
+}
+
+
+// if exists, load dev .env into ENV VARs
 if (fs.existsSync('./.env')){
     customEnv.env()
     console.log('.env loaded')
 }
 
-
-// capture settings from process.env
+// apply all ENV VARS over settings, this means that ENV VARs win over all other settings
 for (let property in settings){
 
     settings[property] = process.env[property] || settings[property]
@@ -122,7 +114,7 @@ for (let property in settings){
         settings[property] = false
 }
 
-// fix things that are desperately broken
+// apply type fixes etc where necessary now that all settings are loaded
 // this must always be an int
 settings.standardPageSize = parseInt(settings.standardPageSize.toString())
 

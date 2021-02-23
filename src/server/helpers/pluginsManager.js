@@ -68,14 +68,16 @@ module.exports = {
             installedPlugins =  await fsUtils.getChildDirs('./server/plugins-internal')
             __log.info('Binding internal plugins enabled')
         } else {
-            installedPlugins = await fsUtils.getChildDirs('./server/plugins')
+            installedPlugins = await fsUtils.getChildDirs(settings.pluginsPath)
         }
  
         return installedPlugins
     },
 
     getPluginRootPath(){
-        return `${_$}plugins${(settings.bindInternalPlugins ? '-internal':'')}` 
+        return settings.bindInternalPlugins ? 
+            `${_$}plugins-internal`:
+            settings.pluginsPath
     },
 
     async _loadPlugins(){
@@ -99,7 +101,7 @@ module.exports = {
                 continue
             
             const sourceFolder = path.join('./server/plugins-internal', pluginName),
-                targetFolder = path.join('./server/plugins', pluginName)
+                targetFolder = path.join(settings.pluginsPath, pluginName)
             
             if (!await fs.pathExists(sourceFolder)){
                 __log.error(`internal plugin "${pluginName}" does not exist in internal plugin cache`)
@@ -201,7 +203,7 @@ module.exports = {
 
         for (const pluginName in pluginsConfig){
             let pluginConfig = pluginsConfig[pluginName],
-                pluginParentFolder = settings.bindInternalPlugins ? './server/plugins-internal' :  './server/plugins',
+                pluginParentFolder = settings.bindInternalPlugins ? './server/plugins-internal' : settings.pluginsPath,
                 pluginFolder = `${path.join(pluginParentFolder, pluginName)}`, 
                 // we write out own per-plugin JSON file in root of plugins folder, this contains metadata about the installation
                 pluginInstallStatus = {},
@@ -242,7 +244,7 @@ module.exports = {
                 __log.info(`Plugin "${pluginName}" git cloned from ${pluginConfig.url}`)
             }
 
-            if (!await fs.exists(pluginFolder)){
+            if (!await fs.pathExists(pluginFolder)){
                 __log.error(`Plugin "${pluginName}" does not exist`)
                 errors = true
                 packageHasErrors = true
@@ -251,7 +253,7 @@ module.exports = {
 
             // ensure plugin has package manifest
             const packageManifestPath = path.join(pluginFolder, 'package.json')
-            if (!packageHasErrors && !await fs.exists(packageManifestPath)){
+            if (!packageHasErrors && !await fs.pathExists(packageManifestPath)){
                 __log.error(`Plugin "${pluginName}" does not not have a package.json file`)
                 errors = true
                 packageHasErrors = true
@@ -290,29 +292,25 @@ module.exports = {
      */
     async initializeAll(){
         // this is where plugins will normally be installed
-        let externalPluginsFolder = './server/plugins',
+        let externalPluginsFolder = settings.pluginsPath,
             // read the regular plugins list
-            pluginsConfigPath = './plugins.json',
-            testAll = !!settings.checkPluginsOnStart
+            testAll = !!settings.checkPluginsOnStart,
+            pluginsConfig = settings.plugins
 
-        if (!await fs.exists(pluginsConfigPath)){
-            __log.error(`ERROR - Expected plugins definition file ${path.resolve(pluginsConfigPath)} was not found. Please create this file and restart.`)
-            return process.exit(1)
+        // settings for each plugin can start empty, ensure at least empty object for each
+        for (const plugin in pluginsConfig)
+            pluginsConfig[plugin] = pluginsConfig[plugin] || {}
+
+        // load overrides
+        const overrideFilePath = path.join(settings.dataFolder, '.settings-override.json')
+        if (await fs.pathExists(overrideFilePath)){
+            const overrideSettings = await fs.readJson(overrideFilePath)
+            pluginsConfig = Object.assign(pluginsConfig, overrideSettings)
         }
 
-        let pluginsConfig = await fs.readJson(pluginsConfigPath)
-
-        // if a dev plugin list exists, load and merge that with the regular plugins list, let dev plugins override regular ones
-        if (await fs.pathExists('./plugins.local.json')){
-            const devPluginsConfig = await fs.readJson('./plugins.local.json')
-            pluginsConfig = Object.assign(pluginsConfig, devPluginsConfig)
-        }
-
-
-        // set plugin source to internal if no source defined
+        // set each plugin source to internal if no source defined
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
-
 
         // we always need an auth / users plugin, add fallback if none defined
         pluginsConfig['wbtb-internalusers'] = pluginsConfig['wbtb-internalusers']|| { source : 'internal' }
@@ -326,6 +324,8 @@ module.exports = {
                 __log.info(`Plugin "${pluginName}" is marked as disabled`)
             }
 
+        if (!testAll)
+            __log.debug('-----------PLUGIN CHECKS DISABLED-----------')
 
         // validate plugin.json static config
         let errors = false
@@ -371,8 +371,8 @@ module.exports = {
             }
 
             // merge local plugin config with .wbtb member of package.json - in this way, local config is available
-            // via .wbtb to code
-            packageJson.wbtb = Object.assign(pluginsConfig[pluginName], packageJson.wbtb)
+            // via .wbtb to code. Allow local config to override static config in package.json
+            packageJson.wbtb = Object.assign(packageJson.wbtb, pluginsConfig[pluginName])
 
             _plugins.byCategory[packageJson.wbtb.category] = _plugins.byCategory[packageJson.wbtb.category] || {}
             
@@ -428,7 +428,7 @@ module.exports = {
         // initialize plugin
         await this._initializeAllPlugins(allPlugins)
 
-        await fs.outputJson(pluginConfPath, _pluginConf, { spaces : 4})
+        await fs.outputJson(pluginConfPath, _pluginConf, { spaces : 4 })
     },
 
 
@@ -451,8 +451,12 @@ module.exports = {
         if (plugins.length > 1)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Multiple plugins found for category : ${category}, getExclusive() failed.` })
 
-        const plugin = require(`${path.resolve(_plugins.byCategory[category][plugins[0]].path)}/index`)
+        const requirePath = `${path.resolve(_plugins.byCategory[category][plugins[0]].path)}/index`,
+            plugin = require(requirePath)
+
         plugin.__wbtb = _plugins.byCategory[category][plugins[0]]
+        plugin.__wbtb.requirePath = requirePath
+
         return plugin
     },
 
@@ -465,8 +469,11 @@ module.exports = {
         if (!pluginPath)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Missing plugin : ${name}` })
 
-        const plugin = require(`${path.resolve(pluginPath)}/index`)
+        const requirePath = `${path.resolve(pluginPath)}/index`,
+            plugin = require(requirePath)
+
         plugin.__wbtb = _plugins.plugins[name]
+        plugin.__wbtb.requirePath = requirePath
         return plugin
     },
 
@@ -478,8 +485,11 @@ module.exports = {
 
         const plugins = []
         for (let pluginName in pluginsForCategory){
-            const plugin = require(`${path.resolve(pluginsForCategory[pluginName].path)}/index`)
+            const requirePath = `${path.resolve(pluginsForCategory[pluginName].path)}/index`,
+                plugin = require(requirePath)
+
             plugin.__wbtb = pluginsForCategory[pluginName]
+            plugin.__wbtb.requirePath = requirePath
             plugins.push(plugin)
         }
         
@@ -534,8 +544,11 @@ module.exports = {
         if (!_allplugins){
             _allplugins = []
             for (let pluginPath in  _plugins.plugins){
-                const plugin = require(`${path.resolve(_plugins.plugins[pluginPath].path)}/index`)
+                const requirePath = `${path.resolve(_plugins.plugins[pluginPath].path)}/index`,
+                    plugin = require(requirePath)
+
                 plugin.__wbtb = _plugins.plugins[pluginPath]
+                plugin.__wbtb.requirePath = requirePath
                 _allplugins.push(plugin)
             }
         }
@@ -576,6 +589,41 @@ module.exports = {
                     throw `Plugin ${plugin.__wbtb.id} does not impliment member "${member}" expected for category "${plugin.__wbtb.category}"`
         }
     },
+
+
+    /**
+     * @param {string} pluginName Name of plugin to apply override on
+     * @param {string} setting Name of setting to apply
+     * @param {object} value Value to appy to setting
+     */
+    async overrideSetting(pluginName, setting, value){
+        // persist to file
+        let path = require('path'), 
+            settings = require(_$+'helpers/settings'),
+            overrideSettings = {},
+            overrideFilePath = path.join(settings.dataFolder, '.settings-override.json')
+
+        // apply to plugin
+        if (!_plugins.plugins[pluginName]){
+            __log.error(`Attempted to apply setting to unknown/unbound plugin "${pluginName}"`)
+            return
+        }
+
+        _plugins.plugins[pluginName][setting] = value
+
+        // persist to file
+        if (await fs.pathExists(overrideFilePath))
+            overrideSettings = await fs.readJson(overrideFilePath)
+
+        overrideSettings[pluginName] = overrideSettings[pluginName] || {}
+        overrideSettings[pluginName][setting] = value
+
+        await fs.writeJson(overrideFilePath, overrideSettings, { spaces : 4 })
+
+        // wipe cached
+        _allplugins = null
+    },
+
 
     async runDiagnostic(){
         

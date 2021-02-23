@@ -44,8 +44,8 @@
             <li class="list-item build-item">
                 <h2>Changes in this build</h2>
                 <ul class="list">
-                    {{#if buildInvolvements}}
-                        {{#each buildInvolvements}}
+                    {{#if build.involvements}}
+                        {{#each build.involvements}}
                             <li>
                                 <h3>
                                     {{>buildInvolvementUserLink this}} ({{revision}})
@@ -71,26 +71,22 @@
 
                 {{#eq build.status constants.BUILDSTATUS_FAILED}}
                     <h2>Log</h2>
-                    {{#if isLogParsed}}
-                        <ul class="buildLog">
-                            {{#if logParsedLines}}
-                                {{#each logParsedLines}}
-                                    <li class="buildLog-item buildLog-item--{{type}}">
-                                        {{text}}
-                                    </li>
-                                {{/each}}
-                                <li>
-                                    <a href="/build/log/{{build.id}}">Full log</a>
+                    <ul class="buildLog">
+                        {{#if build.logData}}
+                            {{#each build.logData}}
+                                <li class="buildLog-item buildLog-item--{{type}}">
+                                    {{text}}
                                 </li>
-                            {{else}}
-                                <li class="buildLog-item">
-                                    Log is empty
-                                </li>
-                            {{/if}}
-                        </ul>
-                    {{else}}
-                        Build log could not be parsed
-                    {{/if}}
+                            {{/each}}
+                            <li>
+                                <a href="/build/log/{{build.id}}">Full log</a>
+                            </li>
+                        {{else}}
+                            <li class="buildLog-item">
+                                Log is empty
+                            </li>
+                        {{/if}}
+                    </ul>
                 {{/eq}}
             </li>
         </ul>

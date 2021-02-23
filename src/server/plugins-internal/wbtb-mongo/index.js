@@ -13,6 +13,7 @@ const constants = require(_$+'types/constants'),
     Job = require(_$+'types/job'),
     Build = require(_$+'types/build'),
     User = require(_$+'types/user'),
+    thisType = 'wbtb-mongo',
     _mongo = require('./mongo'),
     _normalize = (input, normalizer)=>{
         if (Array.isArray(input)){
@@ -194,13 +195,13 @@ module.exports = {
 
 
     async validateSettings() {
-        if (!settings.mongoConnectionString){
-            __log.error(`mongo plugin requires "mongoConnectionString" with format "mongodb://USER:PASSWORD@IP:PORT"`)
+        if (!settings.plugins[thisType].connectionString){
+            __log.error(`Plugin "${thisType}" requires "connectionString" with format "mongodb://USER:PASSWORD@HOST:PORT"`)
             return false
         }
         
-        if (!settings.mongoDBName){
-            __log.error(`mongo plugin requires "mongoDBName" with name of database to use`)
+        if (!settings.plugins[thisType].db){
+            __log.error(`Plugin "${thisType}" requires "db" with name of database to use`)
             return false
         }
 
@@ -503,11 +504,6 @@ module.exports = {
     },
 
     async removeBuild(id) {
-        // remove children
-        await _mongo.remove(constants.TABLENAME_BUILDINVOLVEMENTS, { 
-            buildId : new ObjectID(id) 
-        })
-
         // remove record
         await _mongo.remove(constants.TABLENAME_BUILDS, { 
             _id : new ObjectID(id) 
@@ -515,9 +511,6 @@ module.exports = {
     },
 
     async removeAllBuilds(){
-        // remove children
-        await _mongo.remove(constants.TABLENAME_BUILDINVOLVEMENTS)
-
         // remove record
         await _mongo.remove(constants.TABLENAME_BUILDS)
     },
@@ -532,6 +525,16 @@ module.exports = {
             ]
         }), _normalizeBuild)
     },
+
+
+    async getBuildsWithUnprocessedLogs(){
+        return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
+            $and: [ 
+                { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_UNPROCESSED } }
+            ]
+        }), _normalizeBuild)
+    },
+    
 
     /**
      * Gets finished builds with no delta
@@ -570,30 +573,15 @@ module.exports = {
     async getResolvedBuildsWithNoInvolvements(){
         return _normalize(await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
-                "$lookup": {
-                    "from": constants.TABLENAME_BUILDINVOLVEMENTS,
-                    "localField": "_id",
-                    "foreignField": "buildId",
-                    "as": "__buildInvolvements"
-                }
-            },
-
-            {
                 $match : {
                     $and: [ 
-                        // no build involements must exist
-                        { '__buildInvolvements' : { $eq : [] }},
-                        
                         { 'revisions' : { $eq : [] }},
-                        
-                        // for the purposes of this operation, we can assume logs would have been fetched too
-                        { 'logPath' : { $ne : null }},
-
+                        { 'processStatus' : { $eq : null }},
                         {
                             // finished builds only - either passed or failed
                             $or : [
-                                { 'status' :{ $eq : constants.BUILDSTATUS_FAILED } },
-                                { 'status' :{ $eq : constants.BUILDSTATUS_PASSED } }
+                                { 'status' : { $eq : constants.BUILDSTATUS_FAILED } },
+                                { 'status' : { $eq : constants.BUILDSTATUS_PASSED } }
                             ]
                         }
                     ]            
@@ -661,63 +649,24 @@ module.exports = {
      /****************************************************
      * Build Involvement
      ****************************************************/
-    async getUnmappedBuildInvolvements (){
-        return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, {
+    async getBuildsWithUnmappedInvolvements (){
+        return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [ 
-                { 'userId' :{ $eq : null } }
+                { 'involvements.userId' :{ $eq : null } }
             ]
-        }), _normalizeBuildInvolvement)
-    },
-
-    async insertBuildInvolvement(record) {
-        return _normalize(await _mongo.insert(constants.TABLENAME_BUILDINVOLVEMENTS, _denormalizeBuildInvolvement(record)), _normalizeBuildInvolvement)
-    },
-
-    async removeBuildInvolvement(id) {
-        await _mongo.remove(constants.TABLENAME_BUILDINVOLVEMENTS, { 
-            _id : new ObjectID(id) 
-        })
-    },
-
-    async updateBuildInvolvement(record) {
-        await _mongo.update(constants.TABLENAME_BUILDINVOLVEMENTS, _denormalizeBuildInvolvement(record))
-    },
-    
-    async getAllBuildInvolvement () {
-        return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, { }), _normalizeBuildInvolvement)
-    },
-
-
-    /** 
-     * Gets build involvements for a given build and given revision
-     */
-    async getBuildInvolvementByRevision (buildId, revision){
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDINVOLVEMENTS, {
-            $and: [
-                { 'revision' :{ $eq : revision } },
-                { 'buildId' :{ $eq : new ObjectID(buildId) } }
-            ]
-        }), _normalizeBuildInvolvement)
+        }), _normalizeBuild)
     },
 
 
     /**
      * Gets builds that a giver user has been mapped to
      */
-    async pageBuildInvolvementByUser (userId, index, pageSize){
-        let items = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
-            {
-                "$lookup": {
-                    "from": constants.TABLENAME_BUILDS,
-                    "localField": "buildId",
-                    "foreignField": "_id",
-                    "as": "__build"
-                }
-            },
+    async pageBuildsByUser (userId, index, pageSize){
+        let items = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match: { 
                     $and: [ 
-                        { "userId" :{ $eq : new ObjectID(userId) } }
+                        { "involvements.userId" :{ $eq : new ObjectID(userId) } }
                     ] 
                 }
             },
@@ -732,57 +681,37 @@ module.exports = {
         if (items.length % pageSize)
             pages ++
 
-        // flatten mongo join collection to single normalized build object
-        for (const buildInvolvement of items)
-            buildInvolvement.__build = buildInvolvement.__build.length ? _normalizeBuild(buildInvolvement.__build[0]) : null
-
         // take page 
         items = items.slice(index * pageSize, (index * pageSize) + pageSize)
 
         // normalize
-        items = _normalize(items, _normalizeBuildInvolvement)
+        items = _normalize(items, _normalizeBuild)
 
         return { items, pages}
     },
 
-    async getBuildInvolementsByBuild (buildId){
-        return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, {
-            $and: [
-                { 'buildId' :{ $eq : new ObjectID(buildId) } }
-            ]
-        }), _normalizeBuildInvolvement)
-    },
 
-    async getBuildInvolvementsWithoutRevisionObjects(){
-        const buildInvolvements = await _mongo.aggregate(constants.TABLENAME_BUILDINVOLVEMENTS, 
-            {
-                "$lookup": {
-                    "from": constants.TABLENAME_BUILDS,
-                    "localField": "buildId",
-                    "foreignField": "_id",
-                    "as": "__build"
-                }
-            },
-            
+    /**
+     * Gets an array of builds which have already had their logs processed and are now ready to have their revision data fetched and mapped against 
+     * their build results to determine which if any of those revisions were involved in a build break
+     */
+    async getBuildsWithoutRevisionObjects(){
+        const builds = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match: { 
                     $and: [ 
-                        { 'revisionObject' :{ $eq : null }},
-                        { '__build.log' :{ $ne : null }}
+                        { 'involvements.revisionObject' :{ $eq : null }},
+                        { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_PROCESSED }},
+                        { 'logPath' :{ $ne : null }}
                     ] 
                 }
             }
         )
 
-        return _normalize(buildInvolvements, _normalizeBuildInvolvement)
-
-        return _normalize(await _mongo.find(constants.TABLENAME_BUILDINVOLVEMENTS, {
-            $and: [
-                { 'revisionObject' :{ $eq : null} }
-            ]
-        }), _normalizeBuildInvolvement)
+        return _normalize(builds, _normalizeBuild)
     },
 
+    
     /****************************************************
      * Contact log
      ****************************************************/
@@ -872,8 +801,7 @@ module.exports = {
         const vcServers = await this.getAllVCServers(),
             ciServers = await this.getAllCIServers(),
             jobs = await this.getAllJobs(),
-            builds = await this.getAllBuilds(),
-            buildInvolvements = await this.getAllBuildInvolvement()
+            builds = await this.getAllBuilds()
         
         for (let i = 0; i < jobs.length ; i ++){
             let job = jobs[jobs.length - 1 - i],
@@ -892,6 +820,7 @@ module.exports = {
             }
         }
         
+        // remove all builds which have invalid jobids
         for (let i = 0 ; i < builds.length ; i ++){
             const build = builds[builds.length - 1 - i]
             if (!jobs.find(job => job.id === build.jobId)){
@@ -901,14 +830,6 @@ module.exports = {
             }
         }
 
-        for (let i = 0 ; i < buildInvolvements.length ; i ++){
-            const buildInvolvement = buildInvolvements[buildInvolvements.length - 1 - i]
-            if (!builds.find(build => build.id === buildInvolvement.buildId)){
-                await this.removeBuildInvolvement(buildInvolvement.id)
-                buildInvolvements.splice(i, 1)
-                __log.info(`Cleaned out orphan buildInvolvement ${buildInvolvement.id}`)
-            }
-        }
     }
 
 }

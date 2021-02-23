@@ -11,6 +11,7 @@
 /src/public/scripts/app.js
 /src/yarn-error.log
 /src/out
+/profiles
 /src/server/plugins
 !/src/server/plugins/placeholder.txt
 /src/server/plugins-internal/**/node_modules
@@ -50,3 +51,4 @@ src/plugins.local.json
 __testing
 build/base/.stage.tar.gz
 src/server/plugins-internal/**/mock
+src/settings.yml

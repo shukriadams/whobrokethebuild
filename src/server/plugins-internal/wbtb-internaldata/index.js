@@ -9,7 +9,7 @@ async function loadById(table, id, options = {}){
     let recordPath = path.join(settings.dataFolder, 'internaldata', table, `${id}.json`),
         data
 
-    if (await fs.exists(recordPath))
+    if (await fs.pathExists(recordPath))
         data = await fs.readJson(recordPath)
 
     if (!data && options.expected)
@@ -22,7 +22,7 @@ async function loadByInternalProperty(table, field, value, options){
     let data = null,
         dataFolder = path.join(settings.dataFolder, 'internaldata', table)
     
-    if (await fs.exists(dataFolder)){
+    if (await fs.pathExists(dataFolder)){
         let records = await fsUtils.readFilesInDir(dataFolder)
         for (const recordPath of records){
             const record = await fs.readJson(recordPath)
@@ -263,48 +263,6 @@ module.exports = {
     */
     async getCurrentlyBreakingBuild(jobId){
         return null
-    },
-
-     /****************************************************
-     * Build Involvement
-     ****************************************************/
-    async getUnmappedBuildInvolvements(){
-        return []
-    },
-
-    async insertBuildInvolvement(record){
-        return { id : '' }
-    },
-    
-    removeBuildInvolvement(){
-
-    },
-
-    async updateBuildInvolvement(record){
-        
-    },
-    
-    getAllBuildInvolvement(){
-        return null
-    },
-
-    async getBuildInvolvementByRevision(buildId, externalUsername){
-        return null
-    },
-
-    /**
-     * Gets builds that a giver user has been mapped to
-     */
-    async pageBuildInvolvementByUser(userId){
-        return null
-    },
-
-    async getBuildInvolementsByBuild(buildId){
-        return []
-    },
-
-    async getBuildInvolvementsWithoutRevisionObjects(){
-        return []
     },
 
     /****************************************************

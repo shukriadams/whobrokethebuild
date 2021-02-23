@@ -43,7 +43,7 @@ module.exports = function(express){
                     job.__brokenSince = job.__breakingBuild.ended
 
                     // extend
-                    job.__breakingBuild.__buildInvolvements = buildInvolvementLogic.filterUniqueUser( await data.getBuildInvolementsByBuild(job.__breakingBuild.id))
+                    job.__breakingBuild.__buildInvolvements = buildInvolvementLogic.filterUniqueUser( job.__breakingBuild.involvements )
 
                     for (const buildInvolvement of job.__breakingBuild.__buildInvolvements)
                         if (buildInvolvement.userId)

@@ -45,7 +45,7 @@ module.exports = {
             allRevisions, 
             fetch = false
 
-        if (await fs.exists(cachedPath)){
+        if (await fs.pathExists(cachedPath)){
             allRevisions = await fs.readJson(cachedPath)
             if (!allRevisions.find(rev => rev.revision === revision))
                 fetch = true
@@ -58,7 +58,7 @@ module.exports = {
             if (settings.sandboxMode){
                 const mockRevisionsPath = path.join(__dirname, 'mock/revisions')
 
-                if (await fs.exists(mockRevisionsPath)){
+                if (await fs.pathExists(mockRevisionsPath)){
                     const revisionFiles = await fsUtils.readFilesInDir(mockRevisionsPath)
                     for (let revisionFile of revisionFiles){
                         const content = await fs.readFile(revisionFile, 'utf8')
@@ -104,19 +104,23 @@ module.exports = {
 
         // lookup cache
         await fs.ensureDir(cachedPath)
-        if (await fs.exists(itemPath))
+        if (await fs.pathExists(itemPath))
             return await fs.readJson(itemPath)
         
         if (settings.sandboxMode){
             let mockRevisionFile = path.join(__dirname, `/mock/revisions/${revision}`)
             // if the revision we're looking for isn't mocked, fall back to generic
-            if (await fs.exists(mockRevisionFile))
+            if (await fs.pathExists(mockRevisionFile))
                 rawDescribeText = await fs.readFile(mockRevisionFile, 'utf8')
             else
                 rawDescribeText = `Change 0000 by p4bob@wors-space on 2021/01/25 14:38:07\n\n\tDid some things to change some stuff.\n\nAffected files ...\n\n\t... //mydepot/mystream/path/to/file.txt#2 edit\n\nDifferences ...\n\n==== //mydepot/mystream/path/to/file.txt#2 (text) ====\n\n65c65,68\n<       henlo thar\n---\n>       this is way more serious\n>       please don't use meme text, thanks\n`
         } else {
             rawDescribeText = await perforcehelper.getDescribe(vcServer.username, password, vcServer.url, revision )
         }
+        
+        // prevent massive commits from flooding system
+        if (this.__wbtb.maxCommitSize && rawDescribeText.length > this.__wbtb.maxCommitSize)
+            rawDescribeText = rawDescribeText.substring(0, this.__wbtb.maxCommitSize)
 
         const revisionParsed = perforcehelper.parseDescribe(rawDescribeText, false),
             revisionFinal = new Revision()

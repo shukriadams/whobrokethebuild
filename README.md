@@ -8,17 +8,28 @@ Additionally, *Who Broke The Build* lets you directly message people on your tea
 
 ## Start
 
-- Create a json file and `plugins.json`. Add some plugins to it. The following internal plugins are available f.ex
+- set your current dir to the src folder of this project
 
-        {
-            "wbtb-mongo" : { "source" : "internal" },
-            "wbtb-internalusers" : { "source" : "internal" },
-            "wbtb-activedirectory" : { "source" : "internal" },
-            "wbtb-jenkins" : { "source" : "internal" }
-        }
+        cd /src
 
-- Create a folder `plugins`, Chown 1000 it.
-- start container
+- Create a `settings.yml` file. Add a `plugins` node to it, then define the plugins you want to use - the following internal plugins are available f.ex
+
+        plugins:
+            wbtb-activedirectory:
+            wbtb-internalusers:
+            wbtb-mongo:
+            wbtb-jenkins:
+
+    A plugin has the following standard options
+
+        plugins:
+            plugin-name:
+                enabled: trues|false
+                source: 'internal'|git:<git url>|npm:<npm name>
+
+    `plugin-name` must exactly match the name of the plugin in that plugin's `package.json` file. 
+
+- Start app with `npm start` or `node index`
 
 
 ## Setup

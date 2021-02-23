@@ -13,24 +13,25 @@ module.exports = class MapUsersToRevisions extends BaseDaemon {
         // try to map map local users to users in vcs for a given build
         const pluginsManager = require(_$+'helpers/pluginsManager'),
             data = await pluginsManager.getExclusive('dataProvider'),
-            buildInvolvements = await data.getUnmappedBuildInvolvements()
+            builds = await data.getBuildsWithUnmappedInvolvements()
 
-        __log.debug(`found ${buildInvolvements.length} buildInvolvements with unmapped users`)
+        __log.debug(`found ${builds.length} builds with unmapped users`)
 
-        for (const buildInvolvement of buildInvolvements){
+        for (const build of builds){
             try {
-                const build = await data.getBuild(buildInvolvement.buildId, { expected : true }),
-                    job = await data.getJob(build.jobId, { expected : true }),
-                    user = await data.getUserByExternalName(job.VCServerId, buildInvolvement.externalUsername)
+                const job = await data.getJob(build.jobId, { expected : true })
+
+                for(const buildInvolvement of build.involvements){
+                    const user = await data.getUserByExternalName(job.VCServerId, buildInvolvement.externalUsername)
                     
-                if (user){
-                    buildInvolvement.userId = user.id      
-                    await data.updateBuildInvolvement(buildInvolvement)
-                    
-                    __log.debug(`added user ${user.name} to build ${build.id}`)
+                    if (user){
+                        buildInvolvement.userId = user.id      
+                        await data.updateBuild(build)
+                        __log.debug(`added user ${user.name} to build ${build.id}`)
+                    }
                 }
             } catch(ex){
-                __log.error(`Unexpected error in ${this.constructor.name} : buildInvolvement "${buildInvolvement.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)
             }
         }
 

@@ -14,15 +14,13 @@ module.exports = class MapRevisions extends BaseDaemon {
         const pluginsManager = require(_$+'helpers/pluginsManager'),
             faultHelper = require(_$+ 'helpers/fault'),
             data = await pluginsManager.getExclusive('dataProvider'),
-            logHelper = require(_$+'helpers/log'),
-            unprocessedBuildInvolvements = await data.getBuildInvolvementsWithoutRevisionObjects()
+            buildsWithUnprocessedRevisionObjects = await data.getBuildsWithoutRevisionObjects()
 
-        __log.debug(`found ${unprocessedBuildInvolvements.length} buildInvolvements with unmapped revisions`)
+        __log.debug(`found ${buildsWithUnprocessedRevisionObjects.length} builds with unmapped revisions`)
 
-        for (const buildInvolvement of unprocessedBuildInvolvements){
+        for (const build of buildsWithUnprocessedRevisionObjects){
             try {
-                const build = await data.getBuild(buildInvolvement.buildId, { expected : true }),
-                    job = await data.getJob(build.jobId, { expected : true }),
+                const job = await data.getJob(build.jobId, { expected : true }),
                     vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
                     vcPlugin = await pluginsManager.get(vcServer.vcs, { expected : true })
 
@@ -30,27 +28,30 @@ module.exports = class MapRevisions extends BaseDaemon {
                 // ignore jobs that don't have log parsers defined
                 if (!build.logPath || !job.logParser)
                     continue
+
+
+                for (const buildInvolvement of build.involvements){
+                    buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
                     
-                buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
-                
-                // force placeholder revision object if lookup to vc fails to retrieve it
-                if (!buildInvolvement.revisionObject)
-                    buildInvolvement.revisionObject = {
-                        revision : buildInvolvement.revision,
-                        user : buildInvolvement.externalUsername,
-                        description : `${buildInvolvement.revision} lookup failed!`,
-                        files : [] 
-                    }
-                
-                const errorLines = await logHelper.parseErrorsFromFile(build.logPath, job.logParser)
-                faultHelper.processRevision(buildInvolvement.revisionObject, errorLines)
-                
-                await data.updateBuildInvolvement(buildInvolvement)
-                
-                __log.debug(`Mapped revision ${buildInvolvement.revision} in buildInvolvement ${buildInvolvement.id}`)
+                    // force placeholder revision object if lookup to vc fails to retrieve it
+                    if (!buildInvolvement.revisionObject)
+                        buildInvolvement.revisionObject = {
+                            revision : buildInvolvement.revision,
+                            user : buildInvolvement.externalUsername,
+                            description : `${buildInvolvement.revision} lookup failed!`,
+                            files : [] 
+                        }
+                    
+                    // write fault data into the the revision object
+                    faultHelper.processRevision(buildInvolvement.revisionObject, build.logData)
+
+                    __log.debug(`Mapped revision ${buildInvolvement.revision} in build ${build.id}`)
+                }
+
+                await data.updateBuild(build)
 
             } catch (ex){
-                __log.error(`Unexpected error in ${this.constructor.name} : buildInvolvement "${buildInvolvement.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)
             }
         }
 
