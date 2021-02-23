@@ -6,8 +6,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install bash -y \
     && apt-get install git -y \
-    && apt-get install nodejs -y \
-    && apt-get install npm -y \
+    && apt-get install curl -y \
+    && apt-get install python3-minimal -y \
+    && curl -s -O https://deb.nodesource.com/node_12.x/pool/main/n/nodejs/nodejs_12.20.2-deb-1nodesource1_amd64.deb \
+    && dpkg -i nodejs_12.20.2-deb-1nodesource1_amd64.deb \
+    && rm nodejs_12.20.2-deb-1nodesource1_amd64.deb \
     && mkdir -p /usr/app \
     && adduser -u 1000 app \
     && chmod 700 -R /usr/app \

@@ -28,16 +28,16 @@ if [ $CI -eq 1 ]; then
 else
     echo "Copying a bunch of stuff, this will likely take a while ...."
 
-    rsync -v -r --exclude=node_modules --exclude=.* ./../src .clone 
+    rsync -v -r --exclude=node_modules --exclude=data --exclude=.* ./../src .clone 
 fi
 
 # build step 1: build frontend CSS/JS, and leaves it behind in .clone/src/dist folder. This build will yarn install dev modules, which we
 # want to delete
-docker run -v $(pwd)/.clone:/tmp/build shukriadams/node10build:0.0.3 sh -c "cd /tmp/build/src/build && sh ./build.sh --clean --version" 
+docker run -v $(pwd)/.clone:/tmp/build shukriadams/node12build:0.0.1 sh -c "cd /tmp/build/src/build && sh ./build.sh --clean --version" 
 sudo rm -rf .clone/src/node_modules
 
 # build step 2: run a second container install, this one yarn installs "production" modules only
-docker run -v $(pwd)/.clone:/tmp/build shukriadams/node10build:0.0.3 sh -c "cd /tmp/build/src && yarn --no-bin-links --ignore-engines --production" 
+docker run -v $(pwd)/.clone:/tmp/build shukriadams/node12build:0.0.1 sh -c "cd /tmp/build/src && yarn --no-bin-links --ignore-engines --production" 
 
 # combine artifacts from steps 1 and 2 and zip them
 rm -rf .stage 
