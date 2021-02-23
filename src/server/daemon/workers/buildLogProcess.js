@@ -31,6 +31,8 @@ module.exports = class BuildLogProcess extends BaseDaemon {
                 build.logData = await logHelper.parseFromBuild(build, job.logParser)
                 build.logStatus = constants.BUILDLOGSTATUS_UNPROCESSED
                 await data.updateBuild(build)
+                
+
             } catch(ex){
                 __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)
             }
