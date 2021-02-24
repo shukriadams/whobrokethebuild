@@ -5,8 +5,8 @@
  * @property {string} incidentId ObjectID of build (including self) which caused break event, if build is in a cluster of breaks. null by default
  * @property {Array<string>} revisions VCS revision or hash code at head when build was triggered. Can be empty.
  * @property {string} triggerType constants.BUILDTRIGGER_*. STRING, NOT ALWAYS PRESENT. event that triggered build
- * @property {number} started Ticks, when build started
- * @property {number} ended Ticks, when build ended. null if build is ongoing or hanging.
+ * @property {number} started DateTime Ticks, when build started
+ * @property {number} ended DateTime Ticks, when build ended. null if build is ongoing or hanging.
  * @property {string} host Name of machine on which build was done
  * @property {string} status constants.BUILDSTATUS_*. Status of build from CI server
  * @property {string} logStatus constants.BUILDLOGSTATUS_*. Status of build log 

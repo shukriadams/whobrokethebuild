@@ -3,10 +3,11 @@
     "version": "0.0.1",
     "dependencies": {
         "fs-extra": "9.0.0",
+        "timebelt": "https://github.com/shukriadams/timebelt.git#0.1.9",
         "sanitize-filename": "1.6.3"
     },
     "wbtb": {
         "category": "ciserver",
-        "cacheAPICalls" : false
+        "cacheAPICalls": false
     }
 }

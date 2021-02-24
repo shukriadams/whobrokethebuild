@@ -177,7 +177,7 @@ module.exports = {
 
                     return {
                         _class : 'hudson.model.FreeStyleBuild',
-                        duration : Math.floor(Math.random() * 10000) + 100,
+                        duration : Math.floor(Math.random() * 1000000) + 100000,
                         fullDisplayName : `${jobName} #${buildnumber}`,
                         id : buildnumber.toString(),
                         number : buildnumber,
