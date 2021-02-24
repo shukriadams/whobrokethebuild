@@ -697,8 +697,7 @@ module.exports = {
                 $match: { 
                     $and: [ 
                         { 'involvements.revisionObject' :{ $eq : null }},
-                        { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_PROCESSED }},
-                        { 'logPath' :{ $ne : null }}
+                        { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_PROCESSED }}
                     ] 
                 }
             }

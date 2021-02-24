@@ -29,7 +29,7 @@ module.exports = class BuildLogProcess extends BaseDaemon {
                     continue
 
                 build.logData = await logHelper.parseFromBuild(build, job.logParser)
-                build.logStatus = constants.BUILDLOGSTATUS_UNPROCESSED
+                build.logStatus = constants.BUILDLOGSTATUS_PROCESSED
                 await data.updateBuild(build)
                 
 
