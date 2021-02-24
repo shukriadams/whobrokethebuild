@@ -1,4 +1,5 @@
 - need soft failure handler for lookups, egs, if looking up a specific revision fails 20 times, handle that revision as being confirmed invalid.
+- need daemon that autocleans orphans
 - need a system for wiping and rebuilding delta on a build after a given build if that build was reset
 - time for log parse needs to be more use-friendly
 - need "watcher" - alert on all build status changes, regardless of who was responsible for them

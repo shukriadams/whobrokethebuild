@@ -3,33 +3,40 @@
         <h1>Job</h1>
         <div class="jobSettings">
             <input class="jobSettings-id" value="{{job.id}}" type="hidden" />
-            <input class="jobSettings-name" placeholder="Name" value="{{job.name}}" type="text" />
-            <input class="jobSettings-tags" placeholder="Tags" value="{{job.tags}}" type="text" />
-            
-            <input class="jobSettings-isPublic" id="jobSettings-isPublic" type="checkbox" {{#if job.isPublic}}checked{{/if}}>
-            <label for="jobSettings-isPublic">Public</label>
-
-            <select class="jobSettings-ciServerId">
-                {{#each ciServers}}
-                    <option value="{{this.id}}" {{markSelected ../job.CIServerId this.id}}>{{this.name}}</option>
-                {{/each}}
-            </select>            
-
-            <select class="jobSettings-vcServerId">
-                {{#each vcServers}}
-                    <option value="{{this.id}}" {{markSelected ../job.VCServerId this}}>{{this.name}}</option>
-                {{/each}}
-            </select>
-
-            <select class="jobSettings-logParser">
-                {{#each logParsers}}
-                    <option value="{{this}}" {{markSelected ../job.logParser this}}>{{this}}</option>
-                {{/each}}
-            </select>
-
-            <button class="button jobSettings-post">Save</button> 
+            <div>
+                <input class="jobSettings-name" placeholder="Name" value="{{job.name}}" type="text" />
+            </div>
+            <div>
+                <input class="jobSettings-tags" placeholder="Tags" value="{{job.tags}}" type="text" />
+            </div>
+            <div>
+                <input class="jobSettings-isPublic" id="jobSettings-isPublic" type="checkbox" {{#if job.isPublic}}checked{{/if}}>
+                <label for="jobSettings-isPublic">Public</label>
+            </div>
+            <div>
+                <select class="jobSettings-ciServerId">
+                    {{#each ciServers}}
+                        <option value="{{this.id}}" {{markSelected ../job.CIServerId this.id}}>{{this.name}}</option>
+                    {{/each}}
+                </select>            
+            </div>
+            <div>
+                <select class="jobSettings-vcServerId">
+                    {{#each vcServers}}
+                        <option value="{{this.id}}" {{markSelected ../job.VCServerId this}}>{{this.name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div>
+                <select class="jobSettings-logParser">
+                    {{#each logParsers}}
+                        <option value="{{this}}" {{markSelected ../job.logParser this}}>{{this}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div>
+                <button class="button jobSettings-post">Save</button> 
+            </div>
         </div>
     {{/content}}
 {{/extend}}
-
-
