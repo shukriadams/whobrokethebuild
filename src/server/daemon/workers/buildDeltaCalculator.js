@@ -27,7 +27,7 @@ module.exports = class BuildDeltaCalculator extends BaseDaemon {
 
                     // previous build is still in progress, no delta on it yet, cannot calculate delta yet, so wait
                     if (!previousBuild.delta){
-                        __log.debug(`build ${build.build} can't get delta because previous build ${previousBuild.build} has not delta yet`)
+                        __log.debug(`build ${build.build} can't get delta because previous build ${previousBuild.build} has no delta yet`)
                         continue
                     }
     
