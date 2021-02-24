@@ -175,8 +175,8 @@ module.exports = {
             return
         }
 
-        if (!build.logPath){
-            __log.warn(`Attepting to warn user on build that has no local log, build "${build.id}" to user "${user.id}"`)
+        if (build.logStatus === constants.BUILDLOGSTATUS_NOT_FETCHED || build.logStatus === constants.BUILDLOGSTATUS_UNPROCESSED){
+            __log.warn(`Attepting to warn user on unprocessed log, build "${build.build}" to user "${user.name}"`)
             return
         }
 

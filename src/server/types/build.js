@@ -16,7 +16,6 @@
  * @property {string} comment admin comments
  * @property {string} processStatus Status of build for internal processing. Will be set to some value if it cannot be processed further, so we don't keep reprocessing it
  * @property {Array<import("./parsedBuildLogLine").ParsedBuildLogLine>} logItems Parsed log. Null if not processed.
- * @property {string} logPath REFACTOR OUT if not null, path to log file within local log store folder
  * 
  */
 
@@ -44,6 +43,5 @@ module.exports = class Build{
         this.comment = null
         this.processStatus = null
         this.logItems = null
-        this.logPath = null
     }
 }

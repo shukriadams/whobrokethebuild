@@ -26,7 +26,7 @@ module.exports = class MapRevisions extends BaseDaemon {
 
                 // ignore builds that have not yet had their logs fetched
                 // ignore jobs that don't have log parsers defined
-                if (!build.logPath || !job.logParser)
+                if (!job.logParser)
                     continue
 
 
