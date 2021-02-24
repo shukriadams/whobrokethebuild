@@ -75,7 +75,7 @@ const constants = require(_$+'types/constants'),
         build.jobId = new ObjectID(build.jobId)
         for (let buildInvolvement of build.involvements)
             if (buildInvolvement.userId)
-                buildInvolvement.userId = new Object(buildInvolvement.userId)
+                buildInvolvement.userId = new ObjectID(buildInvolvement.userId)
 
         return build
     },
