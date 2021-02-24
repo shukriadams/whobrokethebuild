@@ -2,6 +2,7 @@
  * @typedef {Object} Build
  * @property {string} jobId ObjectID string, parent job's id
  * @property {string} build Unique build id from CI server this build originates from
+ * @property {string} incidentId ObjectID of build (including self) which caused break event, if build is in a cluster of breaks. null by default
  * @property {Array<string>} revisions VCS revision or hash code at head when build was triggered. Can be empty.
  * @property {string} triggerType constants.BUILDTRIGGER_*. STRING, NOT ALWAYS PRESENT. event that triggered build
  * @property {number} started Ticks, when build started
@@ -29,6 +30,7 @@ module.exports = class Build{
     constructor(){
         this.jobId = null
         this.build = null
+        this.incidentId = null
         this.revisions = []
         this.triggerType = constants.BUILDTRIGGER_OTHER
         this.started = null

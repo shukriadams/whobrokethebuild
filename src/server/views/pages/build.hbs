@@ -20,6 +20,9 @@
                     </p>
                     <p>
                         Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
+                        {{#if responsibleBreakingBuild}}
+                            <a href="/build/{{responsibleBreakingBuild.id}}">Broken by {{responsibleBreakingBuild.build}}</a>
+                        {{/if}}
                     </p>
                     <p>
                         {{#if previousBuild}}

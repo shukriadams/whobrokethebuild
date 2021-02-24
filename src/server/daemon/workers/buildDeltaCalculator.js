@@ -43,8 +43,11 @@ module.exports = class BuildDeltaCalculator extends BaseDaemon {
                     if (build.status === constants.BUILDSTATUS_FAILED && (
                         previousBuild.delta === constants.BUILDDELTA_PASS 
                         || previousBuild.delta === constants.BUILDDELTA_FIX))
-                        build.delta = constants.BUILDDELTA_CAUSEBREAK
-    
+                        {
+                            build.delta = constants.BUILDDELTA_CAUSEBREAK
+                            build.incidentId = build.id
+                        }
+
                     // build is broken but was already broken, continue the break, not my fault
                     if (build.status === constants.BUILDSTATUS_FAILED && (
                         previousBuild.delta === constants.BUILDDELTA_CAUSEBREAK 
@@ -60,10 +63,16 @@ module.exports = class BuildDeltaCalculator extends BaseDaemon {
                         || previousBuild.delta === constants.BUILDDELTA_CONTINUEBREAK 
                         || previousBuild.delta === constants.BUILDDELTA_CHANGEBREAK ))
                             build.delta = constants.BUILDDELTA_FIX
-    
+
+                    // transfer incident from predecessor if broken
+                    if ((build.delta === constants.BUILDDELTA_CONTINUEBREAK || build.delta === constants.BUILDDELTA_CHANGEBREAK) && previousBuild.incidentId)
+                        build.incidentId = previousBuild.incidentId
+
                 } else {
                     // there is no previous build so no delta, this build's delta will be its own status
                     build.delta = build.status === constants.BUILDSTATUS_PASSED ? constants.BUILDDELTA_PASS : constants.BUILDDELTA_CAUSEBREAK
+                    if (build.delta === constants.BUILDDELTA_CAUSEBREAK)
+                        build.incidentId = build.id
                 }
     
                 await data.updateBuild(build)

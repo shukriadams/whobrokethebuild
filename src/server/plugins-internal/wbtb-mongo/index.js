@@ -57,6 +57,9 @@ const constants = require(_$+'types/constants'),
         const build = Object.assign(new Build(), record)
         build.id = build._id.toString()
         build.jobId = build.jobId.toString()
+        if (build.incidentId)
+            build.incidentId = build.incidentId.toString()
+
         delete build._id
 
         for (let buildInvolvement of build.involvements)
@@ -73,6 +76,9 @@ const constants = require(_$+'types/constants'),
         }
 
         build.jobId = new ObjectID(build.jobId)
+        if (build.incidentId)
+            build.incidentId = new ObjectID(build.incidentId)
+
         for (let buildInvolvement of build.involvements)
             if (buildInvolvement.userId)
                 buildInvolvement.userId = new ObjectID(buildInvolvement.userId)
@@ -474,35 +480,6 @@ module.exports = {
     },
 
 
-
-    /**
-     * 
-     */
-    async getBuildByExternalId (jobId, build){
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDS, {
-            $and: [ 
-                { 'jobId' :{ $eq : new ObjectID(jobId) } },
-                { 'build' :{ $eq : build } }
-            ]
-        }), _normalizeBuild)
-    },
-
-    async updateBuild(build) {
-        await _mongo.update(constants.TABLENAME_BUILDS, _denormalizeBuild(build))
-    },
-
-    async removeBuild(id) {
-        // remove record
-        await _mongo.remove(constants.TABLENAME_BUILDS, { 
-            _id : new ObjectID(id) 
-        })
-    },
-
-    async removeAllBuilds(){
-        // remove record
-        await _mongo.remove(constants.TABLENAME_BUILDS)
-    },
-
     /**
      * A build's log must already be fetched (ie, be not null) to qualify
      */
@@ -579,6 +556,7 @@ module.exports = {
         ), _normalizeBuild)
     },
 
+
     /**
      * Gets the build that broke a job. Returns null if the job is not broken or has never run.
      * 
@@ -631,6 +609,35 @@ module.exports = {
         )
 
         return _normalize(breakingBuild.length ? breakingBuild[0] : null, _normalizeBuild)
+    },
+
+
+    /**
+     * 
+     */
+    async getBuildByExternalId (jobId, build){
+        return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDS, {
+            $and: [ 
+                { 'jobId' :{ $eq : new ObjectID(jobId) } },
+                { 'build' :{ $eq : build } }
+            ]
+        }), _normalizeBuild)
+    },
+
+    async updateBuild(build) {
+        await _mongo.update(constants.TABLENAME_BUILDS, _denormalizeBuild(build))
+    },
+
+    async removeBuild(id) {
+        // remove record
+        await _mongo.remove(constants.TABLENAME_BUILDS, { 
+            _id : new ObjectID(id) 
+        })
+    },
+
+    async removeAllBuilds(){
+        // remove record
+        await _mongo.remove(constants.TABLENAME_BUILDS)
     },
 
 

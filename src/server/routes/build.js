@@ -55,7 +55,10 @@ module.exports = function(app){
             model.previousBuild = await data.getPreviousBuild(build)
             model.linkToBuild = ciServerPlugin.linkToBuild(ciServer, job, build)
             build.__isFailing = build.status === constants.BUILDSTATUS_FAILED 
-            
+
+            if (build.incidentId && build.incidentId !== build.id)
+                model.responsibleBreakingBuild = await buildLogic.getById(build.incidentId)
+
             // parse and filter log if only certain lines should be shown
             for (const buildInvolvement of model.build.involvements){
                 // get user object for revision, if mapped
