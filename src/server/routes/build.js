@@ -54,6 +54,7 @@ module.exports = function(app){
             model.previousBuild = await data.getPreviousBuild(build)
             model.linkToBuild = ciServerPlugin.linkToBuild(ciServer, job, build)
             build.__isFailing = build.status === constants.BUILDSTATUS_FAILED 
+            model.buildBreakers = []
 
             if (build.incidentId && build.incidentId !== build.id)
                 model.responsibleBreakingBuild = await buildLogic.getById(build.incidentId)
@@ -64,8 +65,11 @@ module.exports = function(app){
                 if (buildInvolvement.userId)
                     buildInvolvement.__user = await data.getUser(buildInvolvement.userId)
 
-                if (buildInvolvement.revisionObject)
-                   buildInvolvement.__isFault = buildInvolvement.revisionObject ? !!buildInvolvement.revisionObject.files.find(r => !!r.isFault) : false
+                if (buildInvolvement.revisionObject){
+                    buildInvolvement.__isFault = buildInvolvement.revisionObject ? !!buildInvolvement.revisionObject.files.find(r => !!r.isFault) : false
+                    if (buildInvolvement.__isFault && buildInvolvement.__user)
+                        model.buildBreakers.push(buildInvolvement.__user)
+                }
             }
 
             await viewModelHelper.layout(model, req)

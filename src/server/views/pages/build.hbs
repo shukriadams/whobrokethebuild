@@ -19,9 +19,18 @@
                         <a href="{{linkToBuild}}">View on {{ciServer.name}}</a>
                     </p>
                     <p>
-                        Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
+                        Status : {{statusAndDeltaTranslate build.status build.delta}}
                         {{#if responsibleBreakingBuild}}
-                            <a href="/build/{{responsibleBreakingBuild.id}}">Broken by {{responsibleBreakingBuild.build}}</a>
+                            <a href="/build/{{responsibleBreakingBuild.id}}">{{responsibleBreakingBuild.build}}</a>
+                        {{/if}}
+
+                        {{#if buildBreakers}}
+                            <div>
+                                Broken by :
+                                {{#each buildBreakers}}
+                                    <a href="/user/{{id}}">{{name}}</a>
+                                {{/each}}
+                            </div>
                         {{/if}}
                     </p>
                     <p>
