@@ -25,5 +25,6 @@
     display: inline-block;
     margin-right: var(--universalPadding);
     padding-bottom: var(--universalPaddingLesser);
-    padding-top: var(--universalPaddingLesser);    
+    padding-top: var(--universalPaddingLesser);
+    word-break: break-all;
 }
