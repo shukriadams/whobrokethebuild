@@ -12,7 +12,13 @@
                                 <a class="jobs-title" href="/job/{{id}}">{{name}}</a>
 
                                 {{#if __latestBuild}}
-                                    last build was <a href="/build/{{__latestBuild.id}}">{{__latestBuild.build}}</a>{{#if __latestBuild.ended}} ({{ago __latestBuild.ended}}){{/if}}.
+                                    last build was <a href="/build/{{__latestBuild.id}}">{{__latestBuild.build}}</a>
+                                    
+                                    {{#if __latestBuild.ended}} 
+                                        ({{ago __latestBuild.ended}})
+                                    {{else}}
+                                        ,started {{ago __latestBuild.started}}
+                                    {{/if}}
 
                                     {{#if __breakingBuild}}
                                         {{#if __breakingBuild.__buildInvolvements}}
