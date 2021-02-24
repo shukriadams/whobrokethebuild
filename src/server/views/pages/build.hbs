@@ -46,10 +46,10 @@
             
             <li class="list-item build-item">
                 <h2>Changes in this build</h2>
-                <ul class="list">
+                <ul class="list revisionList">
                     {{#if build.involvements}}
                         {{#each build.involvements}}
-                            <li>
+                            <li class="revisionList-item revisionList-item--{{#if __isFault}}hasFault{{/if}}">
                                 <h3>
                                     {{>buildInvolvementUserLink this}} ({{revision}}) 
                                 </h3>
@@ -57,13 +57,13 @@
                                     <b>
                                         {{buildInvolvementTranslate involvement}}
                                     </b>
-
                                 </div>
                                 <i>
-                                    {{__revision.description}}
+                                    {{revisionObject.description}}
                                 </i>
                                 <ul>
-                                    {{#each __revision.files}}
+                                    <h4>Files</h4>
+                                    {{#each revisionObject.files}}
                                         <li class="revision-file revision-file--{{#if isFault}}atFault{{/if}}">
                                             {{file}}
                                         </li>

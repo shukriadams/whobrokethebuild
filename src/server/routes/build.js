@@ -44,7 +44,6 @@ module.exports = function(app){
                 vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
                 ciServer = await data.getCIServer(job.CIServerId, { expected : true }),
                 ciServerPlugin = await pluginsManager.get(ciServer.type),
-                vcsPlugin = await pluginsManager.get(vcServer.vcs),
                 model = {
                     build,
                     job,
@@ -65,7 +64,8 @@ module.exports = function(app){
                 if (buildInvolvement.userId)
                     buildInvolvement.__user = await data.getUser(buildInvolvement.userId)
 
-                buildInvolvement.__revision = await vcsPlugin.getRevision(buildInvolvement.revision, vcServer)
+                if (buildInvolvement.revisionObject)
+                   buildInvolvement.__isFault = buildInvolvement.revisionObject ? !!buildInvolvement.revisionObject.files.find(r => !!r.isFault) : false
             }
 
             await viewModelHelper.layout(model, req)
