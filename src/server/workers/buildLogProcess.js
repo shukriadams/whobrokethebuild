@@ -14,12 +14,11 @@
         setImmediate(()=>{
 
             // ignore empty lines, parser will return "empty" warnings for these, which are unnecessary
-            if (!logLine.length)
-                return
-                
-            const parsed = logParser.parse(logLine)
-            if (parsed.length)
-                parsedItems = parsedItems.concat(parsed)
+            if (logLine.length){
+                const parsed = logParser.parse(logLine)
+                if (parsed.length)
+                    parsedItems = parsedItems.concat(parsed)
+            }
             
             next()
         })
