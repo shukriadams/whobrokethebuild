@@ -21,7 +21,7 @@ module.exports = class BusyBodyDaemon extends BaseDaemon {
 
         for (let job of jobs){
             try {
-                const breakingBuild = await data.getCurrentlyBreakingBuild(job.id) 
+                const breakingBuild = await data.getBuildThatBrokeJob(job.id) 
                 // job is currently not broken, ignore
                 if (!breakingBuild)
                     continue

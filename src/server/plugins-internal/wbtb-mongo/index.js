@@ -556,14 +556,14 @@ module.exports = {
         ), _normalizeBuild)
     },
 
-
+    
     /**
      * Gets the build that broke a job. Returns null if the job is not broken or has never run.
      * 
      * This works by finding the last known passing build in the job, and then takes the earliest _subsequent_ build which
      * failed.
     */
-   async getCurrentlyBreakingBuild (jobId){
+   async getBuildThatBrokeJob(jobId){
         const lastWorkingBuild = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match : {

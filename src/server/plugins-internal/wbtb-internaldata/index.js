@@ -261,7 +261,7 @@ module.exports = {
      * This works by finding the last known passing build in the job, and then takes the earliest _subsequent_ build which
      * failed.
     */
-    async getCurrentlyBreakingBuild(jobId){
+    async getBuildThatBrokeJob(jobId){
         return null
     },
 
