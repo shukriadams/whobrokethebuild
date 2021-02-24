@@ -45,7 +45,8 @@ module.exports = {
         job.VCServerId = properties.VCServerId
         job.vcs = properties.vcs
         job.isPublic = properties.isPublic
-
+        job.logParser = properties.logParser
+        
         return await data.insertJob(job)
     }
 }
