@@ -59,6 +59,11 @@ const constants = require(_$+'types/constants'),
         build.id = build._id.toString()
         build.jobId = build.jobId.toString()
         delete build._id
+
+        for (let buildInvolvement of build.involvements)
+            if (buildInvolvement.userId)
+                buildInvolvement.userId = buildInvolvement.userId.toString()
+
         return build
     }, 
     _denormalizeBuild = record =>{
@@ -69,27 +74,11 @@ const constants = require(_$+'types/constants'),
         }
 
         build.jobId = new ObjectID(build.jobId)
+        for (let buildInvolvement of build.involvements)
+            if (buildInvolvement.userId)
+                buildInvolvement.userId = new Object(buildInvolvement.userId)
+
         return build
-    },        
-    _normalizeBuildInvolvement = record =>{
-        const buildInvolvement = Object.assign(new BuildInvolvement(), record)
-        buildInvolvement.id = buildInvolvement._id.toString()
-        buildInvolvement.buildId = buildInvolvement.buildId.toString()
-        if (buildInvolvement.userId)
-            buildInvolvement.userId = buildInvolvement.userId.toString()
-        delete buildInvolvement._id
-        return buildInvolvement
-    },
-    _denormalizeBuildInvolvement = record =>{
-        const buildInvolvement = Object.assign({}, record)
-        if (buildInvolvement.id){
-            buildInvolvement._id = new ObjectID(buildInvolvement.id)
-            delete buildInvolvement.id
-        }        
-        buildInvolvement.buildId = new ObjectID(buildInvolvement.buildId)
-        if (buildInvolvement.userId)
-            buildInvolvement.userId = new ObjectID(buildInvolvement.userId)
-        return buildInvolvement
     },
     _normalizeVCServer = record =>{
         const vcServer = Object.assign(new VCServer(), record)
@@ -659,14 +648,15 @@ module.exports = {
 
 
     /**
+     * @param {string} userId Id of User object, in string form
      * Gets builds that a giver user has been mapped to
      */
     async pageBuildsByUser (userId, index, pageSize){
         let items = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
-                $match: { 
-                    $and: [ 
-                        { "involvements.userId" :{ $eq : new ObjectID(userId) } }
+                $match: {
+                    $and : [
+                        { "involvements.userId" :{ $eq : new ObjectID(userId)  } }
                     ] 
                 }
             },
