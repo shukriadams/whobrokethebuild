@@ -70,14 +70,18 @@
                                 <i>
                                     {{revisionObject.description}}
                                 </i>
-                                <ul>
-                                    <h4>Files</h4>
-                                    {{#each revisionObject.files}}
-                                        <li class="revision-file revision-file--{{#if isFault}}atFault{{/if}}">
-                                            {{file}}
-                                        </li>
-                                    {{/each}}
-                                </ul>
+                                {{#if revisionObject.files}}
+                                    <ul>
+                                        <h4>Files</h4>
+                                        {{#each revisionObject.files}}
+                                            <li class="revision-file revision-file--{{#if isFault}}atFault{{/if}}">
+                                                {{file}}
+                                            </li>
+                                        {{/each}}
+                                    </ul>
+                                {{else}}
+                                    Revision data still being processed, check back later.
+                                {{/if}}
                             </li>
                         {{/each}}
                     {{else}}
