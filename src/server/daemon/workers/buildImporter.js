@@ -24,7 +24,7 @@ module.exports = class BuildImporter extends BaseDaemon {
 
                 await ciServerPlugin.importBuildsForJob(job)
             } catch (ex){
-                __log.error(`Unexpected error in ${this.constructor.name} : job "${job.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : job "${job.name}"`, ex)
             }
         }
     }

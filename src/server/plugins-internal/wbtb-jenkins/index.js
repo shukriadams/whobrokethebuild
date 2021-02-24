@@ -70,7 +70,7 @@ module.exports = {
             cachePath = path.join(settings.dataFolder, thisType, 'callCache', sanitize(job.name), `${buildNumber}.log`),
             url =  urljoin(baseUrl, 'job', encodeURIComponent(job.name), buildNumber, 'consoleText')
 
-        if (isApiCaching && await fs.exists(cachePath))
+        if (isApiCaching && await fs.pathExists(cachePath))
             return await fs.readFile(cachePath, `utf8`)
 
         try {
@@ -140,7 +140,7 @@ module.exports = {
             url = urljoin(baseUrl, 'job', encodeURIComponent(job.name), buildNumber,'api/json?pretty=true&tree=changeSet[items[commitId]]'),
             body = ''        
 
-        if (isApiCaching && await fs.exists(cachePath))
+        if (isApiCaching && await fs.pathExists(cachePath))
             return await fs.readJson(cachePath)
 
 
@@ -228,7 +228,7 @@ module.exports = {
             await fs.ensureDir(cachePath)
             for (let remoteBuild of json.allBuilds){
                 const filePath = path.join(cachePath, `build_${remoteBuild.number}.json`)
-                if (!await fs.exists(filePath))
+                if (!await fs.pathExists(filePath))
                     await fs.outputJson(filePath, remoteBuild)
             }
         }
@@ -289,7 +289,7 @@ module.exports = {
             // Add buildInvolvements if we can read these from CI system. This will normally be in cases where a version control event triggers a build.
             // This will not occur on builds which run on fixed timers, for those builds other ways of determining involved revisions are required.
             for (let revision of localBuild.revisions){
-                const revisionData = await vcs.getRevision(revision, vcServer)
+                let revisionData = await vcs.getRevision(revision, vcServer)
                 if (revisionData){
                     const buildInvolvment = new BuildInvolvment()
                     buildInvolvment.externalUsername = revisionData.user
