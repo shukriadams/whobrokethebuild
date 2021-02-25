@@ -1,6 +1,7 @@
 let settings = require(_$+'helpers/settings'),
     path = require('path'),
     fs = require('fs-extra'),
+    merge = require('lodash.merge'),
     urljoin = require('urljoin'),
     Exception = require(_$+ 'types/exception'),
     process = require('process'),
@@ -301,13 +302,6 @@ module.exports = {
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin] = pluginsConfig[plugin] || {}
 
-        // load overrides
-        const overrideFilePath = path.join(settings.dataFolder, '.settings-override.json')
-        if (await fs.pathExists(overrideFilePath)){
-            const overrideSettings = await fs.readJson(overrideFilePath)
-            pluginsConfig = Object.assign(pluginsConfig, overrideSettings)
-        }
-
         // set each plugin source to internal if no source defined
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
@@ -372,7 +366,7 @@ module.exports = {
 
             // merge local plugin config with .wbtb member of package.json - in this way, local config is available
             // via .wbtb to code. Allow local config to override static config in package.json
-            packageJson.wbtb = Object.assign(packageJson.wbtb, pluginsConfig[pluginName])
+            packageJson.wbtb = merge(packageJson.wbtb, pluginsConfig[pluginName])
 
             _plugins.byCategory[packageJson.wbtb.category] = _plugins.byCategory[packageJson.wbtb.category] || {}
             

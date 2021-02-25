@@ -27,12 +27,14 @@ const constants = require(_$+'types/constants'),
         }
     },
     _arrayToNormalizedPage = (items, index, pageSize, normalizer)=>{
-        let pages = Math.floor(items.length / pageSize)
+        let pages = Math.floor(items.length / pageSize),
+            totalItems = items.length
+
         if (items.length % pageSize)
             pages ++
 
         items = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), normalizer)
-        return { items, pages} 
+        return { items, index, pages, totalItems} 
     },    
     _normalizeJob = record =>{
         const job = Object.assign(new Job(), record)
@@ -467,7 +469,9 @@ module.exports = {
         )
 
         // calculate page count based on total nr of items returned
-        let pages = Math.floor(items.length / pageSize)
+        let pages = Math.floor(items.length / pageSize),
+            totalItems = items.length
+
         if (items.length % pageSize)
             pages ++
 
@@ -476,7 +480,7 @@ module.exports = {
 
         items = _normalize(items, _normalizeBuild)
 
-        return { items, pages} 
+        return { items, index, pages, totalItems} 
     },
 
 
@@ -673,7 +677,9 @@ module.exports = {
         )
 
         // calculate page count based on total nr of items returned
-        let pages = Math.floor(items.length / pageSize)
+        let pages = Math.floor(items.length / pageSize),
+            totalItems = items.length
+
         if (items.length % pageSize)
             pages ++
 
@@ -683,7 +689,7 @@ module.exports = {
         // normalize
         items = _normalize(items, _normalizeBuild)
 
-        return { items, pages}
+        return { items, index, pages, totalItems }
     },
 
 
@@ -753,41 +759,6 @@ module.exports = {
         })
     },
 
-    /****************************************************
-     * Plugin settings
-     ****************************************************/
-    async insertPluginSetting (setting) {
-        return _normalize(await _mongo.insert(constants.TABLENAME_PLUGINSETTINGS, _denormalizePluginSetting(setting)), _normalizePluginSetting)
-    }, 
-
-    async updatePluginSetting (setting) {
-        await _mongo.update(constants.TABLENAME_PLUGINSETTINGS, _denormalizePluginSetting(setting))
-    }, 
-
-    async getPluginSetting (plugin, name) {
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_PLUGINSETTINGS, {
-            $and: [
-                { 'plugin' :{ $eq : plugin } },
-                { 'name' :{ $eq : name } }
-            ]
-        }), _normalizePluginSetting)
-    }, 
-
-    async getPluginSettings (plugin) {
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_PLUGINSETTINGS, {
-            $and: [
-                { 'plugin' :{ $eq : plugin } }
-            ]
-        }), _normalizePluginSetting)
-    }, 
-
-    async removePluginSettings (plugin) {
-        await _mongo.remove(constants.TABLENAME_PLUGINSETTINGS, { 
-            $and: [
-                { 'plugin' :{ $eq : plugin } }
-            ]
-        })
-    },
 
     /****************************************************
      * Utility

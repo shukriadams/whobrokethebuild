@@ -1,11 +1,49 @@
 module.exports = Handlebars => {
-
+    /**
+     * @params {PageableData} pageObject
+     */
     Handlebars.registerHelper('pager', function(baseUrl, pageObject){
-        let html = '<ul class="pager">'
+        let settings = require(_$+'helpers/settings'),
+            html = '<ul class="pager">',
+            currentGroup = Math.floor(pageObject.index / settings.pagesPerGroup)
+
+            let totalPages = Math.floor(pageObject.totalItems / settings.standardPageSize)
+            if (pageObject.totalItems % settings.standardPageSize > 0)
+                totalPages ++
+
+            // not enough data to page, return empty bar
+            if (totalPages < 2) 
+                return
+
+            let totalGroups = Math.floor(pageObject.totalItems / (settings.standardPageSize * settings.pagesPerGroup))
+            if (pageObject.totalItems % (settings.standardPageSize * settings.pagesPerGroup) > 0)
+                totalGroups ++
+
+            let actualPagesInGroup = settings.pagesPerGroup
+            if (currentGroup === totalGroups - 1 && totalPages % settings.pagesPerGroup > 0)
+                actualPagesInGroup = totalPages % settings.pagesPerGroup;
+
         
-        if (pageObject.pages > 1)
-            for (let i = 0 ; i < pageObject.pages ; i ++)
-                html += `<li class="pager-item"><a class="pager-link" href="${baseUrl}?page=${i+1}">${i +1}</a></li>`
+        if (currentGroup > 0){
+            const back = ((currentGroup * settings.pagesPerGroup) - 1)
+            html += `<li class="pager-item"><a class="pager-link" href="${baseUrl}?page=${back + 1}">prev</a></li>`
+        }
+
+        for (let i = 0 ; i < actualPagesInGroup ; i ++){
+            let pageIndex = (currentGroup * settings.pagesPerGroup) + i
+
+            html += `<li class="pager-item">`
+            if (pageObject.index === pageIndex)
+               html += `<span class="pager-link pager-link--active">${(pageIndex + 1)}<span>`
+            else
+                html += `<a class="pager-link" href="${baseUrl}?page=${pageIndex + 1}">${pageIndex + 1}</a>`
+            html += `</li>`
+        }
+
+        if (currentGroup < totalGroups - 1){
+            const forward = (currentGroup + 1) * settings.pagesPerGroup
+            html += `<li class="pager-item"><a class="pager-link" href="${baseUrl}?page=${forward + 1}">next</a></li>`
+        }
 
         html += '</ul>'
 
