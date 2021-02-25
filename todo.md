@@ -1,6 +1,8 @@
+- improved paging : break pages into groups, show active page
 - need soft failure handler for lookups, egs, if looking up a specific revision fails 20 times, handle that revision as being confirmed invalid.
 - need daemon that autocleans orphans
 - need a system for wiping and rebuilding delta on a build after a given build if that build was reset
+- need a system for wiping and reprocessing logs, and then fault calculation from logs
 - time for log parse needs to be more use-friendly
 - need "watcher" - alert on all build status changes, regardless of who was responsible for them
 - need function to assign a failing build to one or more people

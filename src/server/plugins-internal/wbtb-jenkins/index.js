@@ -67,7 +67,7 @@ module.exports = {
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
         const isApiCaching = this.__wbtb.cacheAPICalls === true,
-            cachePath = path.join(settings.dataFolder, thisType, 'callCache', sanitize(job.name), `${buildNumber}.log`),
+            cachePath = path.join(settings.dataFolder, thisType, 'cache', sanitize(job.name), `${buildNumber}.log`),
             url =  urljoin(baseUrl, 'job', encodeURIComponent(job.name), buildNumber, 'consoleText')
 
         if (isApiCaching && await fs.pathExists(cachePath))
@@ -96,7 +96,7 @@ module.exports = {
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
         let isApiCaching = this.__wbtb.cacheAPICalls === true,
-            cachePath = path.join(settings.dataFolder, thisType, 'callCache', 'jobs'),
+            cachePath = path.join(settings.dataFolder, thisType, 'cache', 'jobs'),
             url = urljoin(baseUrl, 'api/json?pretty=true&tree=jobs[name]'),
             body = ''        
 
@@ -136,7 +136,7 @@ module.exports = {
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
         let isApiCaching = this.__wbtb.cacheAPICalls === true,
-            cachePath = path.join(settings.dataFolder, thisType, 'callCache', sanitize(job.name), `commits_${buildNumber}.json`),
+            cachePath = path.join(settings.dataFolder, thisType, 'cache', sanitize(job.name), `commits_${buildNumber}.json`),
             url = urljoin(baseUrl, 'job', encodeURIComponent(job.name), buildNumber,'api/json?pretty=true&tree=changeSet[items[commitId]]'),
             body = ''        
 
@@ -195,7 +195,7 @@ module.exports = {
             vcs = await pluginsHelper.get(vcServer.vcs),
             baseUrl = await ciServer.getUrl(),
             isApiCaching = this.__wbtb.cacheAPICalls === true,
-            cachePath = path.join(settings.dataFolder, thisType, 'callCache', sanitize(job.name)),
+            cachePath = path.join(settings.dataFolder, thisType, 'cache', sanitize(job.name)),
             json = null
 
         if (!settings.buildLogsDump){
