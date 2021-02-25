@@ -66,12 +66,12 @@ module.exports = {
 
         // get unique users
         usersInvolved = Array.from(new Set(usersInvolved)) 
-        let message = `Hey ${user.name || user.publicId}, looks like you were involved in a build break for ${job.name}.\n${log}`
+        let message = `Hey ${user.name || user.publicId}, looks like you were involved in a build break for ${job.name} #${build.build}.\n${log}`
         if (usersInvolved.length > 1){
             if (isImplicated)
-                message += `There were ${usersInvolved.length} people in this break, but it's likely your code broke it.\n`
+                message += `There were ${usersInvolved.length} people in this break, and it's likely your code broke it.\n`
             else
-                message += `There were ${usersInvolved.length} people in this break, and your code was likely not the cause of the break.\n`
+                message += `There were ${usersInvolved.length} people in this break. Your code was probably not the cause of the break.\n`
         } else {
             message += `You were the only person involved in this break.\n`
         }

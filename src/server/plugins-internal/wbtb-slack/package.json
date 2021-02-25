@@ -10,6 +10,7 @@
         "hasUI": true,
         "hasUserUI": true,
         "_comment": "set to false allow plugin to load, but block all message sends. Useful for runtime throttling of messaging",
-        "enableMessaging": true
+        "enableMessaging": true,
+        "alertAllInvolvedOnBuildBreak" : true
     }
 }
