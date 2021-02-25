@@ -187,9 +187,16 @@ module.exports = {
             return
         }
 
-        const targetSlackId = settings.plugins[thisType].overrideUserId || (user.pluginSettings[thisType] && user.pluginSettings[thisType].slackId)
-        if (settings.plugins[thisType].overrideUserId)
+        let targetSlackId = user.pluginSettings[thisType] ? user.pluginSettings[thisType].slackId : null
+        if (!force && settings.plugins[thisType].overrideUserId){
+            targetSlackId = settings.plugins[thisType].overrideUserId
             __log.info(`slackOverrideUserId set, diverting post to meant for user slackid ${user.id} to override user id ${settings.plugins[thisType].overrideUserId}`)
+        }
+            
+        if (!targetSlackId){
+            __log.warn(`No slack token set for user "${user.id}:${user.name}". Cannot alert on build failure for "${build.id}:${build.build}".`)
+            return
+        }
 
         let conversation = await slack.conversations.open({ token : settings.plugins[thisType].accessToken, users : targetSlackId })
         if (!conversation.channel)
