@@ -87,10 +87,20 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                     build.comment += `\n ${revisionsInThisBuild.length} revisions were soft-matched in based on #${knownRevisionInThisBuild} appearing in build log`
                 }
     
-                for (const revisionNr of revisionsInThisBuild){
-                    const revisionData = await perforcePLugin.getRevision(revisionNr, vcServer)
+                for (const revision of revisionsInThisBuild){
+                    let revisionData
+
+                    try {
+                        revisionData = await perforcePLugin.getRevision(revision, vcServer)
+                    } catch (ex){
+                        if (ex.includes('invalid revision'))
+                            __log.warn(`Revision ${revision} not found on server ${vcServer.name}:${vcServer.url}, skipping`)
+                        else
+                            throw ex
+                    }
+
                     if (revisionData){
-                        let revisionId = revisionNr.toString()
+                        let revisionId = revision.toString()
                         if (build.involvements.find(r => r.revisionId === revisionId))
                             continue 
     

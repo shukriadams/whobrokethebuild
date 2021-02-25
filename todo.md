@@ -1,4 +1,3 @@
-- improved paging : break pages into groups, show active page
 - need soft failure handler for lookups, egs, if looking up a specific revision fails 20 times, handle that revision as being confirmed invalid.
 - need daemon that autocleans orphans
 - need a system for wiping and rebuilding delta on a build after a given build if that build was reset
@@ -37,3 +36,4 @@ LATER
 DONE
 - add link back to original CISysem to build pages
 - all API and log calls from CI should be cached locally
+- improved paging : break pages into groups, show active page

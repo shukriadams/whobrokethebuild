@@ -115,7 +115,14 @@ module.exports = {
             else
                 rawDescribeText = `Change 0000 by p4bob@wors-space on 2021/01/25 14:38:07\n\n\tDid some things to change some stuff.\n\nAffected files ...\n\n\t... //mydepot/mystream/path/to/file.txt#2 edit\n\nDifferences ...\n\n==== //mydepot/mystream/path/to/file.txt#2 (text) ====\n\n65c65,68\n<       henlo thar\n---\n>       this is way more serious\n>       please don't use meme text, thanks\n`
         } else {
-            rawDescribeText = await perforcehelper.getDescribe(vcServer.username, password, vcServer.url, revision )
+            try {
+                rawDescribeText = await perforcehelper.getDescribe(vcServer.username, password, vcServer.url, revision)
+            } catch (ex) {
+                if (ex.includes('no such changelist')){
+                    throw `invalid revision`
+                } else
+                    throw ex
+            }
         }
         
         // prevent massive commits from flooding system

@@ -174,7 +174,16 @@ module.exports = {
 
         const users = []
         for (let revision of revisions){
-            const revisionData = await vcs.getRevision(revision, vcServer)
+            let revisionData 
+            try {
+                revisionData = await vcs.getRevision(revision, vcServer)
+            } catch (ex){
+                if (ex.includes('invalid revision'))
+                    __log.warn(`Revision ${revision} not found on server ${vcServer.name}:${vcServer.url}, skipping`)
+                else  
+                    throw ex
+            }
+
             if (revisionData)
                 users.push (revisionData.user)
         }
@@ -289,7 +298,16 @@ module.exports = {
             // Add buildInvolvements if we can read these from CI system. This will normally be in cases where a version control event triggers a build.
             // This will not occur on builds which run on fixed timers, for those builds other ways of determining involved revisions are required.
             for (let revision of localBuild.revisions){
-                let revisionData = await vcs.getRevision(revision, vcServer)
+                let revisionData
+                try {
+                    revisionData = await vcs.getRevision(revision, vcServer)
+                } catch (ex){
+                    if (ex.includes('invalid revision'))
+                        __log.warn(`Revision ${revision} not found on server ${vcServer.name}:${vcServer.url}, skipping`)
+                    else  
+                        throw ex
+                }
+
                 if (revisionData){
                     const buildInvolvment = new BuildInvolvment()
                     buildInvolvment.externalUsername = revisionData.user

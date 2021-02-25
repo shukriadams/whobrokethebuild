@@ -31,7 +31,17 @@ module.exports = class MapRevisions extends BaseDaemon {
 
 
                 for (const buildInvolvement of build.involvements){
-                    buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
+                    try {
+                        buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
+                    } catch (ex){
+                        if (ex.includes('invalid revision'))
+                            buildInvolvement.revisionObject = {
+                                revision : buildInvolvement.revision,
+                                user : buildInvolvement.externalUsername,
+                                description : `invalid revision - cannot be found`,
+                                files : [] 
+                            }
+                    }
                     
                     // force placeholder revision object if lookup to vc fails to retrieve it
                     if (!buildInvolvement.revisionObject)
