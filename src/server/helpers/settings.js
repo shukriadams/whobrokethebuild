@@ -37,6 +37,8 @@ let process = require('process'),
 
         standardPageSize: 25,
         
+        pagesPerGroup : 20,
+
         authType : constants.AUTHPROVIDER_INTERNAL,
 
         // password for master user, auto enforced on start

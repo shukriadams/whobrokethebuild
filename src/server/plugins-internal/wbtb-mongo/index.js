@@ -27,12 +27,14 @@ const constants = require(_$+'types/constants'),
         }
     },
     _arrayToNormalizedPage = (items, index, pageSize, normalizer)=>{
-        let pages = Math.floor(items.length / pageSize)
+        let pages = Math.floor(items.length / pageSize),
+            totalItems = items.length
+
         if (items.length % pageSize)
             pages ++
 
         items = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), normalizer)
-        return { items, pages} 
+        return { items, index, pages, totalItems} 
     },    
     _normalizeJob = record =>{
         const job = Object.assign(new Job(), record)
@@ -467,7 +469,9 @@ module.exports = {
         )
 
         // calculate page count based on total nr of items returned
-        let pages = Math.floor(items.length / pageSize)
+        let pages = Math.floor(items.length / pageSize),
+            totalItems = items.length
+
         if (items.length % pageSize)
             pages ++
 
@@ -476,7 +480,7 @@ module.exports = {
 
         items = _normalize(items, _normalizeBuild)
 
-        return { items, pages} 
+        return { items, index, pages, totalItems} 
     },
 
 
@@ -673,7 +677,9 @@ module.exports = {
         )
 
         // calculate page count based on total nr of items returned
-        let pages = Math.floor(items.length / pageSize)
+        let pages = Math.floor(items.length / pageSize),
+            totalItems = items.length
+
         if (items.length % pageSize)
             pages ++
 
@@ -683,7 +689,7 @@ module.exports = {
         // normalize
         items = _normalize(items, _normalizeBuild)
 
-        return { items, pages}
+        return { items, index, pages, totalItems }
     },
 
 
