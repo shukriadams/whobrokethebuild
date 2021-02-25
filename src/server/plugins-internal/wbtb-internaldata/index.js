@@ -294,30 +294,6 @@ module.exports = {
         
     },
 
-    
-    /****************************************************
-     * Plugin settings
-     ****************************************************/
-    async insertPluginSetting(setting){
-        return { id : '' }
-    }, 
-
-    async updatePluginSetting(setting){
-
-    }, 
-
-    async getPluginSetting(plugin, name){
-        return null
-    }, 
-
-    async getPluginSettings(plugin){
-        return []
-    }, 
-
-    async removePluginSettings(plugin){
-
-    },
-
         
     /****************************************************
      * Utility

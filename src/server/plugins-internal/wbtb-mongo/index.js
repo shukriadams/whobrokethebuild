@@ -753,41 +753,6 @@ module.exports = {
         })
     },
 
-    /****************************************************
-     * Plugin settings
-     ****************************************************/
-    async insertPluginSetting (setting) {
-        return _normalize(await _mongo.insert(constants.TABLENAME_PLUGINSETTINGS, _denormalizePluginSetting(setting)), _normalizePluginSetting)
-    }, 
-
-    async updatePluginSetting (setting) {
-        await _mongo.update(constants.TABLENAME_PLUGINSETTINGS, _denormalizePluginSetting(setting))
-    }, 
-
-    async getPluginSetting (plugin, name) {
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_PLUGINSETTINGS, {
-            $and: [
-                { 'plugin' :{ $eq : plugin } },
-                { 'name' :{ $eq : name } }
-            ]
-        }), _normalizePluginSetting)
-    }, 
-
-    async getPluginSettings (plugin) {
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_PLUGINSETTINGS, {
-            $and: [
-                { 'plugin' :{ $eq : plugin } }
-            ]
-        }), _normalizePluginSetting)
-    }, 
-
-    async removePluginSettings (plugin) {
-        await _mongo.remove(constants.TABLENAME_PLUGINSETTINGS, { 
-            $and: [
-                { 'plugin' :{ $eq : plugin } }
-            ]
-        })
-    },
 
     /****************************************************
      * Utility

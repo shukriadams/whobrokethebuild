@@ -42,13 +42,7 @@ module.exports = {
      * Required by all "contact" plugins
      */
     async canTransmit(){
-        const data = await pluginsManager.getExclusive('dataProvider'),
-            token = await data.getPluginSetting(thisType, 'token')
-        
-        if (!token || !token.value)
-            throw new Exception({
-                message : `wbtb-slack requires a "token" setting to function`
-            })
+        return !!settings.plugins[thisType].accessToken
     },
 
 
@@ -56,34 +50,49 @@ module.exports = {
      * Gets an array of all available channels in slack. Returns an empty array if slack has not been configured yet.
      */ 
     async getChannels(){
-        const data = await pluginsManager.getExclusive('dataProvider'),
-            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
-            tokenSetting = await data.getPluginSetting(thisType, 'token')
+        const Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
+            token = settings.plugins[thisType].accessToken
 
-        if (!tokenSetting)
+        if (!token){
+            __log.warn('Cannot list slack channels, no token defined')
             return []
+        }
 
-        const slack = new Slack({ token : tokenSetting.value }),
-            slackQuery = await slack.channels.list({ token : tokenSetting.value }),
+        let slack = new Slack({ token }),
+            slackQuery = await slack.conversations.list({ token, limit: 9999, types : 'public_channel,private_channel,mpim,im' }),
             channels = []
 
         for (let channel of slackQuery.channels)
-            channels.push({
-                id : channel.id,
-                name : channel.name
-            })
+            if (channel.name)
+                channels.push({
+                    id : channel.id,
+                    name : channel.name
+                })
+
+        channels = channels.sort((a, b)=>{
+            a = a && a.name ? a.name.toLowerCase() : ''
+            b = b && b.name ? b.name.toLowerCase() : ''
+            return a > b ? 1 :
+                b > a ? -1 :
+                0
+        })
 
         return channels
     },
     
 
     /**
+     * Sends an alert to a channel defined in slackContactMethod that the job is broken at the given build.
+     * This does not check if the job is actually broken, it assumes that the client code calling this has
+     * determined that.
+     * 
      * Required by all "contact" plugins
+     * 
      * @param {object} slackContactMethod contactMethod from job, written by this plugin 
      * @param {object} job job object to alert for
      * @param {object} build build object to alert for
      */
-    async alertGroup(slackContactMethod, job, build){
+    async alertGroup(slackContactMethod, job, build, force = false){
         const data = await pluginsManager.getExclusive('dataProvider'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.plugins[thisType].accessToken }),
@@ -104,7 +113,7 @@ module.exports = {
             userUniqueCheck = [],
             contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
 
-        if (contactLog)
+        if (!force && contactLog)
             return
 
         if (build.status === constants.BUILDSTATUS_FAILED){
