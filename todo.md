@@ -1,4 +1,5 @@
 - need daemon that autocleans orphans
+- rename "hasUI" to "hadAdminUI" vs "hasUserUI"
 - need a system for wiping and rebuilding delta on a build after a given build if that build was reset
 - need a system for wiping and reprocessing logs, and then fault calculation from logs
 - time for log parse needs to be more use-friendly

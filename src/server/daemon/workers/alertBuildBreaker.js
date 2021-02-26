@@ -55,7 +55,7 @@ module.exports = class AlertBuildBreaker extends BaseDaemon {
                             continue
 
                         // inform offender they've been caught red-handed
-                        await plugin.alertUser(user, breakingBuild)
+                        await plugin.alertUser(user, breakingBuild, buildInvolvement.revision.toString())
                     }
                 }
             } catch (ex) {

@@ -33,7 +33,7 @@ module.exports = class BusyBodyDaemon extends BaseDaemon {
                         __log.warn(`User ${busybody.name} has requested to be alerted on all build errors, but has no contact method`)
 
                     for (const contactPlugin of contactPlugins)
-                        await contactPlugin.alertUser(busybody, breakingBuild, 'interested')
+                        await contactPlugin.alertUser(busybody, breakingBuild, null, 'interested')
                 }
             } catch (ex) {
                 __log.error(`Unexpected error in ${this.constructor.name} : job "${job.id}"`, ex)

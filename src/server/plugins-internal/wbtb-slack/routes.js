@@ -165,7 +165,7 @@ module.exports = app => {
                 res.send(`build not found`)
             }
 
-            await slackPlugin.alertUser(user, build, 'implicated', true)
+            await slackPlugin.alertUser(user, build, null, 'implicated', true)
 
             res.send('user has been contacted')
         } catch(ex){

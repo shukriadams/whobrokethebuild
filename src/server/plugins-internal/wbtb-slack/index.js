@@ -158,6 +158,8 @@ module.exports = {
     /**
      * @param {object} user  User to contact
      * @param {object} build Build that broke
+     * @param {string} context calling can supply its own context, else make one up from build. On system with multiple CI jobs on a single code base
+     *                         there can be multiple job failures for a single revision, so it is best to use revision id as the context
      * @param {string} messageType type of message to sent
      * @param {boolean} force if true, message will be sent even if it has been sent before
      * 
@@ -168,13 +170,16 @@ module.exports = {
      * build : build object for failing build
      * force : force send the message, ignore if it has already been sent. for testing only
      */
-    async alertUser(user, build, messageType = 'implicated', force = false){
+    async alertUser(user, build, context = null, messageType = 'implicated', force = false){
         let data = await pluginsManager.getExclusive('dataProvider'),
             messageBuilder = await pluginsManager.getExclusive('messagebuilder'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.plugins[thisType].accessToken }),
-            context = `build_fail_${build.id}`,
             usersInvolved = build.involvements.map(involvement => involvement.externalUsername)
+            
+        // if no context given, we force context to build id, that is, a user cannot be alerted for a build event more than once
+        if (!context)
+            context = build.id
 
         // convert to unique users
         usersInvolved = Array.from(new Set(usersInvolved)) 
@@ -192,7 +197,7 @@ module.exports = {
         // check if user has already been informed about this build failure
         let contactLog = force ? null : await data.getContactLogByContext(user.id, thisType, context)
         if (contactLog){
-            __log.info(`Skipping sending to alert for build "${build.id}" to user "${user.id}", alert has already been sent`)
+            __log.debug(`Skipping sending to alert for build "${build.id}" to user "${user.id}", alert has already been sent`)
             return
         }
 
