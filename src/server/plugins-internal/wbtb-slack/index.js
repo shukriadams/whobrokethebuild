@@ -196,10 +196,8 @@ module.exports = {
 
         // check if user has already been informed about this build failure
         let contactLog = force ? null : await data.getContactLogByContext(user.id, thisType, context)
-        if (contactLog){
-            __log.debug(`Skipping sending to alert for build "${build.id}" to user "${user.id}", alert has already been sent`)
+        if (contactLog)
             return
-        }
 
         let targetSlackId = user.pluginSettings[thisType] ? user.pluginSettings[thisType].slackId : null
         if (!force && settings.plugins[thisType].overrideUserId){

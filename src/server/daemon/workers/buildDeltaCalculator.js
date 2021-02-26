@@ -15,7 +15,8 @@ module.exports = class BuildDeltaCalculator extends BaseDaemon {
             data = await pluginsManager.getExclusive('dataProvider'),
             builds = await data.getBuildsWithNoDelta()
 
-        __log.debug(`found ${builds.length} builds without delta`)
+        if (builds.length)
+            __log.debug(`found ${builds.length} builds without delta`)
 
         // set build deltas - this is a per-build flag showing its relationship to its preceding build. In this way we can query any
         // given build and get its delta without also having to query its predecessor.
@@ -78,7 +79,7 @@ module.exports = class BuildDeltaCalculator extends BaseDaemon {
                 await data.updateBuild(build)
 
             } catch(ex){
-                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}:${build.name}"`, ex)
             }
         }
     }

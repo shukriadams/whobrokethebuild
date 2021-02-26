@@ -15,7 +15,8 @@ module.exports = class MapUsersToRevisions extends BaseDaemon {
             data = await pluginsManager.getExclusive('dataProvider'),
             builds = await data.getBuildsWithUnmappedInvolvements()
 
-        __log.debug(`found ${builds.length} builds with unmapped users`)
+        if (builds.length)
+            __log.debug(`found ${builds.length} builds with unmapped users`)
 
         for (const build of builds){
             try {
@@ -27,11 +28,11 @@ module.exports = class MapUsersToRevisions extends BaseDaemon {
                     if (user){
                         buildInvolvement.userId = user.id      
                         await data.updateBuild(build)
-                        __log.debug(`added user ${user.name} to build ${build.id}`)
+                        __log.debug(`added user ${user.name} to build ${build.id}:${build.build}`)
                     }
                 }
             } catch(ex){
-                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}:${build.build}"`, ex)
             }
         }
 

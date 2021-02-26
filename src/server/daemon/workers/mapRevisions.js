@@ -16,7 +16,8 @@ module.exports = class MapRevisions extends BaseDaemon {
             data = await pluginsManager.getExclusive('dataProvider'),
             buildsWithUnprocessedRevisionObjects = await data.getBuildsWithoutRevisionObjects()
 
-        __log.debug(`found ${buildsWithUnprocessedRevisionObjects.length} builds with unmapped revisions`)
+        if (buildsWithUnprocessedRevisionObjects.length)
+            __log.debug(`found ${buildsWithUnprocessedRevisionObjects.length} builds with unmapped revisions`)
 
         for (const build of buildsWithUnprocessedRevisionObjects){
             try {
@@ -55,13 +56,13 @@ module.exports = class MapRevisions extends BaseDaemon {
                     // write fault data into the the revision object
                     faultHelper.processRevision(buildInvolvement.revisionObject, build.logData)
 
-                    __log.debug(`Mapped revision ${buildInvolvement.revision} in build ${build.id}`)
+                    __log.debug(`Mapped revision ${buildInvolvement.revision} in build "${build.id}:${build.build}"`)
                 }
 
                 await data.updateBuild(build)
 
             } catch (ex){
-                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}:${build.build}"`, ex)
             }
         }
 
