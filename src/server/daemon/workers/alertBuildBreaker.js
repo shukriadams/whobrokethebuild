@@ -36,8 +36,16 @@ module.exports = class AlertBuildBreaker extends BaseDaemon {
                     // prints came back negative, don't worry we'll get them next time
                     if (!buildInvolvement.userId)
                         continue
+
+                    // lab is still working on case data.
+                    if (!buildInvolvement.revisionObject)
+                        continue
                     
-                    // solid lead, but our snitch gave us a bogus address
+                    // user was at the scene, but no prints link them to the crime
+                    if (buildInvolvement.revisionObject && !buildInvolvement.revisionObject.files.find(file => file.isFault === true))
+                        continue
+
+                    // solid lead, but our snitch gave us a bogus address, use not found
                     const user = await data.getUser(buildInvolvement.userId)
                     if (!user){
                         __log.warn(`WARNING - expected user ${buildInvolvement.userId} in buildInvolvement ${buildInvolvement.id} not found`)
@@ -59,7 +67,7 @@ module.exports = class AlertBuildBreaker extends BaseDaemon {
                     }
                 }
             } catch (ex) {
-                __log.error(`Unexpected error in ${this.constructor.name} : job "${job.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : job "${job.id}:${job.name}"`, ex)
             }
 
         }
