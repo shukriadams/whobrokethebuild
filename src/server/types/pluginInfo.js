@@ -1,7 +1,8 @@
 /**
  * @typedef {Object} PluginLink
  * @property {string} url 
- * @property {boolean} hasUI
+ * @property {boolean} hasAdminUI
+ * @property {boolean} hasUserUI 
  * @property {string} text Display text
 
  */
@@ -9,7 +10,8 @@
 module.exports = class PluginLink {
     constructor(){
         this.url = null
-        this.hasUI = false
+        this.hasAdminUI = false
+        this.hasUserUI = false
         this.text = null
     }
 }

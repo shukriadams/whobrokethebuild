@@ -25,8 +25,16 @@ module.exports = function(app){
             
             model.job = await data.getJob(req.params.id, { expected : true })
             model.baseUrl = `/job/${req.params.id}`
-
             model.jobBuilds = await data.pageBuilds(req.params.id, page, settings.standardPageSize)
+            for (const build of model.jobBuilds.items)
+                build.involvements = build.involvements.sort((a,b)=>{
+                    const arev = a.revision.toString(),
+                        brev = b.revision.toString()
+
+                    return arev > brev ? -1 :
+                        brev > arev ? 1 :
+                        0
+                })
 
             await viewModelHelper.layout(model, req)
             res.send(view(model))

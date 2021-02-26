@@ -46,6 +46,21 @@ module.exports = class {
             }
         }
 
+        this.conversations = {
+            list : () => {
+                return {
+                    channels : [{
+                        id : '123',
+                        name : 'my channel'
+                    },
+                    {
+                        id : '213',
+                        name : 'our alerts channel'
+                    }]
+                }
+            }
+        }
+
         this.chat = {
             postMessage(args){
                 if (!args.token)

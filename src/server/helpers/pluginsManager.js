@@ -125,16 +125,19 @@ module.exports = {
             if (!description)
                 throw `a plugin __wbtb is not set`
            
-            if (description.hasUI && !description.name)
+            // todo : refactor this check out, fallback to plugin id if name not set
+            if ((description.hasUserUI || description.hasAdminUI) && !description.name)
                 throw `plugin ${description.id} has a ui but no name` 
 
             _pluginConf[description.id] ={ 
                 url : `/${urljoin(description.id)}/`,
-                hasUI : description.hasUI === true,
+                hasUserUI : description.hasUserUI,
+                hasAdminUI : description.hasAdminUI,
                 text : description.name
             }
         }
     },
+
 
     async _initializeAllPlugins(allPlugins){
         for (const plugin of allPlugins){
@@ -147,6 +150,7 @@ module.exports = {
             }
         }
     },
+
 
     /**
      * Validates the contents of pluginconfig. Logs errors out. Shuts app down if validation fails.
@@ -514,14 +518,6 @@ module.exports = {
 
 
     /**
-     * gets all active plugins with .hasUI in their metadata
-     */
-    getAllWithUI(){
-        return this.getAll().filter(plugin => plugin.__wbtb.hasUI)
-    },
-
-
-    /**
      * gets all active plugins that end users can configure via UI
     */
     getAllWithUserUI(){
@@ -529,6 +525,9 @@ module.exports = {
             plugin.__wbtb.hasUserUI
         )
     },
+
+
+
 
     /**
      * gets all active plugins
