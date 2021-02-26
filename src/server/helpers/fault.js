@@ -21,10 +21,17 @@ module.exports = {
 
             for (const errorLine of buildErrors)
                 for (const fileNameFragment of fileNameFragments){
-                    if (!errorLine.text.match(new RegExp(`/${fileNameFragment}`, 'i')))
-                        break
+                    try {
+                        // need to try/catch this, some filename fragments can lead to invalid regexes.
+                        // todo : find a better way to match these, this is kinda janky / error prone just on invalid regex errors
+                        if (!errorLine.text.match(new RegExp(`/${fileNameFragment}`, 'i')))
+                            break                    
+                        file.faultChance ++                    
 
-                    file.faultChance ++                    
+                    } catch (ex){
+                        __log.error(`Error trying to match fault to fileNameFragment "${fileNameFragment}"`, ex)
+                    }
+
                 }
         }
 
