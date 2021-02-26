@@ -28,25 +28,6 @@ module.exports = function(app){
 
             model.jobBuilds = await data.pageBuilds(req.params.id, page, settings.standardPageSize)
 
-            // populate revision array (array of string ids) with revision objects from source control
-            //
-            for (let build of model.jobBuilds.items){
-                const revisions = [],
-                    job = await data.getJob(build.jobId, { expected : true }),
-                    vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
-                    vcsPlugin = await pluginsManager.get(vcServer.vcs)
-
-                for (let revision of build.revisions){
-                    const revisionData = await vcsPlugin.getRevision(revision, vcServer)
-                    revisions.push(revisionData)
-
-                    // try to map user to revision
-                    revisionData.__user = await data.getUserByExternalName(job.VCServerId, revisionData.user)
-                }
-
-                build.__revisions = revisions
-            }
-            
             await viewModelHelper.layout(model, req)
             res.send(view(model))
 

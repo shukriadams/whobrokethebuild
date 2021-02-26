@@ -29,14 +29,14 @@
                         </div>    
 
                         <ul class="card-content">
-                            {{#each __revisions}}
+                            {{#each involvements}}
                                 <li_>
                                     <div>
                                         {{revision}} -                                         by 
-                                        {{#if __user}}
-                                            <a href="/user/{{__user.id}}">{{__user.name}}</a>
+                                        {{#if userId}}
+                                            <a href="/user/{{userId}}">{{externalUsername}}</a>
                                         {{else}}
-                                            {{user}}
+                                            {{externalUsername}}
                                         {{/if}}
 
                                         {{gistOf description 100 "..."}} 
