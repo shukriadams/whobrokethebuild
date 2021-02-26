@@ -6,6 +6,9 @@ if (logoutButton)
     }, false)
 
 async function endSession(){
+    if (!confirm('Are you sure you want to logout?'))
+        return
+        
     await fetchDo({ url : 'session', method: 'DELETE' })
     window.location = window.location
 }
