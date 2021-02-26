@@ -100,7 +100,7 @@ module.exports = {
                 }, jsonOptions)
 
                 function revisionToString(r){
-                    return `Change ${r.revision} by ${r.user}@${r.workspace} on ${timebelt.toShortDate(r.date)} ${timebelt.toShortTime(r.date)}\n\n\t${r.description}\n\nAffected files ...\n\n${r.files.map(file => `... ${file.file}#${file.version} ${file.change}\n`).join('')}`
+                    return `Change ${r.revision} by ${r.user}@${r.workspace} on ${timebelt.toShortDate(r.date)} ${timebelt.toShortTime(r.date)}\n\n\t${r.description}\n\nAffected files ...\n\n${r.files.map(file => `... ${file.file}#${file.version} ${file.change}\n`).join('')}\n\nDifferences ...\n\n`
                 }
 
                 let commitsInThisBuild = []
