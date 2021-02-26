@@ -63,6 +63,7 @@ module.exports = {
                 }
 
                 __log.debug(`Log parse start for ${logPath}`)
+                
                 const processStart = new Date(),
                     pluginsManager = require(_$+'helpers/pluginsManager'),
                     logParser = await pluginsManager.get(logParserType),
@@ -81,7 +82,8 @@ module.exports = {
 
                 worker.on('error', reject)
                 worker.on('exit', code => {
-                    reject(`Worker exited with returnning expected result, exit code ${code}`)
+                    if (code !== 0)
+                        reject(`Worker "${worker.constructor.name}" exited unexpectedly with code ${code}`)
                 })
 
             }catch(ex){
