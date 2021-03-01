@@ -116,33 +116,44 @@ module.exports = {
         if (!force && contactLog)
             return
 
-        if (build.status === constants.BUILDSTATUS_FAILED){
-            for (const buildInvolvement of build.involvements){
-                const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null,
-                    username = user ? user.name : buildInvolvement.externalUsername
+        for (const buildInvolvement of build.involvements){
+            const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null,
+                username = user ? user.name : buildInvolvement.externalUsername
 
-                if (userUniqueCheck.indexOf(username) === -1){
-                    userUniqueCheck.push(username)
-                    userString += `${username}, `
-                }
+            if (userUniqueCheck.indexOf(username) === -1){
+                userUniqueCheck.push(username)
+                userString += `${username}, `
             }
+        }
 
-            if (userString.length){
-                userString = userString.substring(0, userString.length - 2) // clip off trailing ', '
-                userString = `People involved : ${userString}`
-            }
+        if (userString.length){
+            userString = userString.substring(0, userString.length - 2) // clip off trailing ', '
+            userString = `People involved : ${userString}`
         }
 
         const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
             buildLink = urljoin(settings.localUrl, `build/${build.id}`),
-            message = build.status === constants.BUILDSTATUS_FAILED ? 
-                `Build ${job.name} is broken.\n${userString}. \nMore info : ${buildLink}` : 
-                `Build ${job.name} is working again`
+            title = build.status === constants.BUILDSTATUS_FAILED ? 
+                `${job.name} is broken.` : 
+                `${job.name} is working again.`
 
         if (settings.plugins[thisType].overrideChannelId)
             __log.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.plugins[thisType].overrideChannelId}`)
-    
-        await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, text : message });
+        
+        const color = build.status === constants.BUILDSTATUS_FAILED ? '#D92424' : '#007a5a',
+            status = build.status === constants.BUILDSTATUS_FAILED ? 'failing' : 'passing',
+            attachments = [
+            {
+                fallback : `Build #${build.build} is ${status}`,
+                color,
+                title: `Build #${build.build}`,
+                text : `${userString}`,
+                title_link: buildLink,
+                ts: build.ended
+            }
+        ]
+
+        await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, text: title, attachments });
 
         contactLog = new ContactLog()
         contactLog.receiverContext = slackContactMethod.channelId

@@ -194,7 +194,7 @@ module.exports = app => {
 
             await slackPlugin.alertGroup(slackContactMethod, job, build, true)
 
-            res.send('user has been contacted')
+            res.send('group has been contacted')
         } catch(ex){
             errorHandler(res, ex)
         }
