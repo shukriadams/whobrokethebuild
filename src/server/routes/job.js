@@ -25,28 +25,17 @@ module.exports = function(app){
             
             model.job = await data.getJob(req.params.id, { expected : true })
             model.baseUrl = `/job/${req.params.id}`
-
             model.jobBuilds = await data.pageBuilds(req.params.id, page, settings.standardPageSize)
+            for (const build of model.jobBuilds.items)
+                build.involvements = build.involvements.sort((a,b)=>{
+                    const arev = a.revision.toString(),
+                        brev = b.revision.toString()
 
-            // populate revision array (array of string ids) with revision objects from source control
-            //
-            for (let build of model.jobBuilds.items){
-                const revisions = [],
-                    job = await data.getJob(build.jobId, { expected : true }),
-                    vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
-                    vcsPlugin = await pluginsManager.get(vcServer.vcs)
+                    return arev > brev ? -1 :
+                        brev > arev ? 1 :
+                        0
+                })
 
-                for (let revision of build.revisions){
-                    const revisionData = await vcsPlugin.getRevision(revision, vcServer)
-                    revisions.push(revisionData)
-
-                    // try to map user to revision
-                    revisionData.__user = await data.getUserByExternalName(job.VCServerId, revisionData.user)
-                }
-
-                build.__revisions = revisions
-            }
-            
             await viewModelHelper.layout(model, req)
             res.send(view(model))
 

@@ -42,13 +42,7 @@ module.exports = {
      * Required by all "contact" plugins
      */
     async canTransmit(){
-        const data = await pluginsManager.getExclusive('dataProvider'),
-            token = await data.getPluginSetting(thisType, 'token')
-        
-        if (!token || !token.value)
-            throw new Exception({
-                message : `wbtb-slack requires a "token" setting to function`
-            })
+        return !!settings.plugins[thisType].accessToken
     },
 
 
@@ -56,34 +50,49 @@ module.exports = {
      * Gets an array of all available channels in slack. Returns an empty array if slack has not been configured yet.
      */ 
     async getChannels(){
-        const data = await pluginsManager.getExclusive('dataProvider'),
-            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
-            tokenSetting = await data.getPluginSetting(thisType, 'token')
+        const Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
+            token = settings.plugins[thisType].accessToken
 
-        if (!tokenSetting)
+        if (!token){
+            __log.warn('Cannot list slack channels, no token defined')
             return []
+        }
 
-        const slack = new Slack({ token : tokenSetting.value }),
-            slackQuery = await slack.channels.list({ token : tokenSetting.value }),
+        let slack = new Slack({ token }),
+            slackQuery = await slack.conversations.list({ token, limit: 9999, types : 'public_channel,private_channel,mpim,im' }),
             channels = []
 
         for (let channel of slackQuery.channels)
-            channels.push({
-                id : channel.id,
-                name : channel.name
-            })
+            if (channel.name)
+                channels.push({
+                    id : channel.id,
+                    name : channel.name
+                })
+
+        channels = channels.sort((a, b)=>{
+            a = a && a.name ? a.name.toLowerCase() : ''
+            b = b && b.name ? b.name.toLowerCase() : ''
+            return a > b ? 1 :
+                b > a ? -1 :
+                0
+        })
 
         return channels
     },
     
 
     /**
+     * Sends an alert to a channel defined in slackContactMethod that the job is broken at the given build.
+     * This does not check if the job is actually broken, it assumes that the client code calling this has
+     * determined that.
+     * 
      * Required by all "contact" plugins
+     * 
      * @param {object} slackContactMethod contactMethod from job, written by this plugin 
      * @param {object} job job object to alert for
      * @param {object} build build object to alert for
      */
-    async alertGroup(slackContactMethod, job, build){
+    async alertGroup(slackContactMethod, job, build, force = false){
         const data = await pluginsManager.getExclusive('dataProvider'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.plugins[thisType].accessToken }),
@@ -104,36 +113,47 @@ module.exports = {
             userUniqueCheck = [],
             contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
 
-        if (contactLog)
+        if (!force && contactLog)
             return
 
-        if (build.status === constants.BUILDSTATUS_FAILED){
-            for (const buildInvolvement of build.involvements){
-                const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null,
-                    username = user ? user.name : buildInvolvement.externalUsername
+        for (const buildInvolvement of build.involvements){
+            const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null,
+                username = user ? user.name : buildInvolvement.externalUsername
 
-                if (userUniqueCheck.indexOf(username) === -1){
-                    userUniqueCheck.push(username)
-                    userString += `${username}, `
-                }
+            if (userUniqueCheck.indexOf(username) === -1){
+                userUniqueCheck.push(username)
+                userString += `${username}, `
             }
+        }
 
-            if (userString.length){
-                userString = userString.substring(0, userString.length - 2) // clip off trailing ', '
-                userString = `People involved : ${userString}`
-            }
+        if (userString.length){
+            userString = userString.substring(0, userString.length - 2) // clip off trailing ', '
+            userString = `People involved : ${userString}`
         }
 
         const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
             buildLink = urljoin(settings.localUrl, `build/${build.id}`),
-            message = build.status === constants.BUILDSTATUS_FAILED ? 
-                `Build ${job.name} is broken.\n${userString}. \nMore info : ${buildLink}` : 
-                `Build ${job.name} is working again`
+            title = build.status === constants.BUILDSTATUS_FAILED ? 
+                `${job.name} is broken.` : 
+                `${job.name} is working again.`
 
         if (settings.plugins[thisType].overrideChannelId)
             __log.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.plugins[thisType].overrideChannelId}`)
-    
-        await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, text : message });
+        
+        const color = build.status === constants.BUILDSTATUS_FAILED ? '#D92424' : '#007a5a',
+            status = build.status === constants.BUILDSTATUS_FAILED ? 'failing' : 'passing',
+            attachments = [
+            {
+                fallback : `Build #${build.build} is ${status}`,
+                color,
+                title: `Build #${build.build}`,
+                text : `${userString}`,
+                title_link: buildLink,
+                ts: build.ended
+            }
+        ]
+
+        await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, text: title, attachments });
 
         contactLog = new ContactLog()
         contactLog.receiverContext = slackContactMethod.channelId
@@ -149,6 +169,8 @@ module.exports = {
     /**
      * @param {object} user  User to contact
      * @param {object} build Build that broke
+     * @param {string} context calling can supply its own context, else make one up from build. On system with multiple CI jobs on a single code base
+     *                         there can be multiple job failures for a single revision, so it is best to use revision id as the context
      * @param {string} messageType type of message to sent
      * @param {boolean} force if true, message will be sent even if it has been sent before
      * 
@@ -159,13 +181,16 @@ module.exports = {
      * build : build object for failing build
      * force : force send the message, ignore if it has already been sent. for testing only
      */
-    async alertUser(user, build, messageType = 'implicated', force = false){
+    async alertUser(user, build, context = null, messageType = 'implicated', force = false){
         let data = await pluginsManager.getExclusive('dataProvider'),
             messageBuilder = await pluginsManager.getExclusive('messagebuilder'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.plugins[thisType].accessToken }),
-            context = `build_fail_${build.id}`,
             usersInvolved = build.involvements.map(involvement => involvement.externalUsername)
+            
+        // if no context given, we force context to build id, that is, a user cannot be alerted for a build event more than once
+        if (!context)
+            context = build.id
 
         // convert to unique users
         usersInvolved = Array.from(new Set(usersInvolved)) 
@@ -175,21 +200,26 @@ module.exports = {
             return
         }
 
-        if (!build.logPath){
-            __log.warn(`Attepting to warn user on build that has no local log, build "${build.id}" to user "${user.id}"`)
+        if (build.logStatus === constants.BUILDLOGSTATUS_NOT_FETCHED || build.logStatus === constants.BUILDLOGSTATUS_UNPROCESSED){
+            __log.warn(`Attepting to warn user on unprocessed log, build "${build.build}" to user "${user.name}"`)
             return
         }
 
         // check if user has already been informed about this build failure
         let contactLog = force ? null : await data.getContactLogByContext(user.id, thisType, context)
-        if (contactLog){
-            __log.info(`Skipping sending to alert for build "${build.id}" to user "${user.id}", alert has already been sent`)
+        if (contactLog)
+            return
+
+        let targetSlackId = user.pluginSettings[thisType] ? user.pluginSettings[thisType].slackId : null
+        if (!force && settings.plugins[thisType].overrideUserId){
+            targetSlackId = settings.plugins[thisType].overrideUserId
+            __log.info(`slackOverrideUserId set, diverting post to meant for user slackid ${user.id} to override user id ${settings.plugins[thisType].overrideUserId}`)
+        }
+            
+        if (!targetSlackId){
+            __log.warn(`No slack token set for user "${user.id}:${user.name}". Cannot alert on build failure for "${build.id}:${build.build}".`)
             return
         }
-
-        const targetSlackId = settings.plugins[thisType].overrideUserId || (user.pluginSettings[thisType] && user.pluginSettings[thisType].slackId)
-        if (settings.plugins[thisType].overrideUserId)
-            __log.info(`slackOverrideUserId set, diverting post to meant for user slackid ${user.id} to override user id ${settings.plugins[thisType].overrideUserId}`)
 
         let conversation = await slack.conversations.open({ token : settings.plugins[thisType].accessToken, users : targetSlackId })
         if (!conversation.channel)

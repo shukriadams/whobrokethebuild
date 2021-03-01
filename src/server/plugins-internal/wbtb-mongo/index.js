@@ -9,7 +9,6 @@ const constants = require(_$+'types/constants'),
     VCServer = require(_$+'types/VCServer'),
     Session = require(_$+'types/session'),
     ContactLog = require(_$+'types/contactLog'),
-    BuildInvolvement = require(_$+'types/buildInvolvement'),
     Job = require(_$+'types/job'),
     Build = require(_$+'types/build'),
     User = require(_$+'types/user'),
@@ -28,12 +27,14 @@ const constants = require(_$+'types/constants'),
         }
     },
     _arrayToNormalizedPage = (items, index, pageSize, normalizer)=>{
-        let pages = Math.floor(items.length / pageSize)
+        let pages = Math.floor(items.length / pageSize),
+            totalItems = items.length
+
         if (items.length % pageSize)
             pages ++
 
         items = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), normalizer)
-        return { items, pages} 
+        return { items, index, pages, totalItems} 
     },    
     _normalizeJob = record =>{
         const job = Object.assign(new Job(), record)
@@ -58,7 +59,15 @@ const constants = require(_$+'types/constants'),
         const build = Object.assign(new Build(), record)
         build.id = build._id.toString()
         build.jobId = build.jobId.toString()
+        if (build.incidentId)
+            build.incidentId = build.incidentId.toString()
+
         delete build._id
+
+        for (let buildInvolvement of build.involvements)
+            if (buildInvolvement.userId)
+                buildInvolvement.userId = buildInvolvement.userId.toString()
+
         return build
     }, 
     _denormalizeBuild = record =>{
@@ -69,27 +78,14 @@ const constants = require(_$+'types/constants'),
         }
 
         build.jobId = new ObjectID(build.jobId)
+        if (build.incidentId)
+            build.incidentId = new ObjectID(build.incidentId)
+
+        for (let buildInvolvement of build.involvements)
+            if (buildInvolvement.userId)
+                buildInvolvement.userId = new ObjectID(buildInvolvement.userId)
+
         return build
-    },        
-    _normalizeBuildInvolvement = record =>{
-        const buildInvolvement = Object.assign(new BuildInvolvement(), record)
-        buildInvolvement.id = buildInvolvement._id.toString()
-        buildInvolvement.buildId = buildInvolvement.buildId.toString()
-        if (buildInvolvement.userId)
-            buildInvolvement.userId = buildInvolvement.userId.toString()
-        delete buildInvolvement._id
-        return buildInvolvement
-    },
-    _denormalizeBuildInvolvement = record =>{
-        const buildInvolvement = Object.assign({}, record)
-        if (buildInvolvement.id){
-            buildInvolvement._id = new ObjectID(buildInvolvement.id)
-            delete buildInvolvement.id
-        }        
-        buildInvolvement.buildId = new ObjectID(buildInvolvement.buildId)
-        if (buildInvolvement.userId)
-            buildInvolvement.userId = new ObjectID(buildInvolvement.userId)
-        return buildInvolvement
     },
     _normalizeVCServer = record =>{
         const vcServer = Object.assign(new VCServer(), record)
@@ -473,7 +469,9 @@ module.exports = {
         )
 
         // calculate page count based on total nr of items returned
-        let pages = Math.floor(items.length / pageSize)
+        let pages = Math.floor(items.length / pageSize),
+            totalItems = items.length
+
         if (items.length % pageSize)
             pages ++
 
@@ -482,38 +480,9 @@ module.exports = {
 
         items = _normalize(items, _normalizeBuild)
 
-        return { items, pages} 
+        return { items, index, pages, totalItems} 
     },
 
-
-
-    /**
-     * 
-     */
-    async getBuildByExternalId (jobId, build){
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDS, {
-            $and: [ 
-                { 'jobId' :{ $eq : new ObjectID(jobId) } },
-                { 'build' :{ $eq : build } }
-            ]
-        }), _normalizeBuild)
-    },
-
-    async updateBuild(build) {
-        await _mongo.update(constants.TABLENAME_BUILDS, _denormalizeBuild(build))
-    },
-
-    async removeBuild(id) {
-        // remove record
-        await _mongo.remove(constants.TABLENAME_BUILDS, { 
-            _id : new ObjectID(id) 
-        })
-    },
-
-    async removeAllBuilds(){
-        // remove record
-        await _mongo.remove(constants.TABLENAME_BUILDS)
-    },
 
     /**
      * A build's log must already be fetched (ie, be not null) to qualify
@@ -591,13 +560,14 @@ module.exports = {
         ), _normalizeBuild)
     },
 
+    
     /**
      * Gets the build that broke a job. Returns null if the job is not broken or has never run.
      * 
      * This works by finding the last known passing build in the job, and then takes the earliest _subsequent_ build which
      * failed.
     */
-   async getCurrentlyBreakingBuild (jobId){
+   async getBuildThatBrokeJob(jobId){
         const lastWorkingBuild = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match : {
@@ -646,6 +616,35 @@ module.exports = {
     },
 
 
+    /**
+     * 
+     */
+    async getBuildByExternalId (jobId, build){
+        return _normalize(await _mongo.findFirst(constants.TABLENAME_BUILDS, {
+            $and: [ 
+                { 'jobId' :{ $eq : new ObjectID(jobId) } },
+                { 'build' :{ $eq : build } }
+            ]
+        }), _normalizeBuild)
+    },
+
+    async updateBuild(build) {
+        await _mongo.update(constants.TABLENAME_BUILDS, _denormalizeBuild(build))
+    },
+
+    async removeBuild(id) {
+        // remove record
+        await _mongo.remove(constants.TABLENAME_BUILDS, { 
+            _id : new ObjectID(id) 
+        })
+    },
+
+    async removeAllBuilds(){
+        // remove record
+        await _mongo.remove(constants.TABLENAME_BUILDS)
+    },
+
+
      /****************************************************
      * Build Involvement
      ****************************************************/
@@ -659,14 +658,15 @@ module.exports = {
 
 
     /**
+     * @param {string} userId Id of User object, in string form
      * Gets builds that a giver user has been mapped to
      */
     async pageBuildsByUser (userId, index, pageSize){
         let items = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
-                $match: { 
-                    $and: [ 
-                        { "involvements.userId" :{ $eq : new ObjectID(userId) } }
+                $match: {
+                    $and : [
+                        { "involvements.userId" :{ $eq : new ObjectID(userId)  } }
                     ] 
                 }
             },
@@ -677,7 +677,9 @@ module.exports = {
         )
 
         // calculate page count based on total nr of items returned
-        let pages = Math.floor(items.length / pageSize)
+        let pages = Math.floor(items.length / pageSize),
+            totalItems = items.length
+
         if (items.length % pageSize)
             pages ++
 
@@ -687,7 +689,7 @@ module.exports = {
         // normalize
         items = _normalize(items, _normalizeBuild)
 
-        return { items, pages}
+        return { items, index, pages, totalItems }
     },
 
 
@@ -701,8 +703,7 @@ module.exports = {
                 $match: { 
                     $and: [ 
                         { 'involvements.revisionObject' :{ $eq : null }},
-                        { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_PROCESSED }},
-                        { 'logPath' :{ $ne : null }}
+                        { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_PROCESSED }}
                     ] 
                 }
             }
@@ -758,41 +759,6 @@ module.exports = {
         })
     },
 
-    /****************************************************
-     * Plugin settings
-     ****************************************************/
-    async insertPluginSetting (setting) {
-        return _normalize(await _mongo.insert(constants.TABLENAME_PLUGINSETTINGS, _denormalizePluginSetting(setting)), _normalizePluginSetting)
-    }, 
-
-    async updatePluginSetting (setting) {
-        await _mongo.update(constants.TABLENAME_PLUGINSETTINGS, _denormalizePluginSetting(setting))
-    }, 
-
-    async getPluginSetting (plugin, name) {
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_PLUGINSETTINGS, {
-            $and: [
-                { 'plugin' :{ $eq : plugin } },
-                { 'name' :{ $eq : name } }
-            ]
-        }), _normalizePluginSetting)
-    }, 
-
-    async getPluginSettings (plugin) {
-        return _normalize(await _mongo.findFirst(constants.TABLENAME_PLUGINSETTINGS, {
-            $and: [
-                { 'plugin' :{ $eq : plugin } }
-            ]
-        }), _normalizePluginSetting)
-    }, 
-
-    async removePluginSettings (plugin) {
-        await _mongo.remove(constants.TABLENAME_PLUGINSETTINGS, { 
-            $and: [
-                { 'plugin' :{ $eq : plugin } }
-            ]
-        })
-    },
 
     /****************************************************
      * Utility

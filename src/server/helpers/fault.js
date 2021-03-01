@@ -19,12 +19,23 @@ module.exports = {
                 .reverse() // we reverse to ensure that filename goes in first, and fails first if not present
                 .filter(f => !!f.length) //remove empty entries
 
-            for (const errorLine of buildErrors)
+            for (const logLine of buildErrors)
                 for (const fileNameFragment of fileNameFragments){
-                    if (!errorLine.text.match(new RegExp(`/${fileNameFragment}`, 'i')))
-                        break
+                    try {
+                        // ignore warnings etc
+                        if (logLine.type !== 'error')
+                            continue
 
-                    file.faultChance ++                    
+                        // need to try/catch this, some filename fragments can lead to invalid regexes.
+                        // todo : find a better way to match these, this is kinda janky / error prone just on invalid regex errors
+                        if (!logLine.text.match(new RegExp(`/${fileNameFragment}`, 'i')))
+                            break                    
+                        file.faultChance ++                    
+
+                    } catch (ex){
+                        __log.error(`Error trying to match fault to fileNameFragment "${fileNameFragment}"`, ex)
+                    }
+
                 }
         }
 

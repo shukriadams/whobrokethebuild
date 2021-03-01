@@ -7,7 +7,7 @@
                 <div class="card-content">
                     <h1>Build #{{build.build}}</h1>
                     <p>
-                        {{ago build.started}}{{#if build.ended}}, {{durationLong build.ended build.started}} to complete{{/if}}
+                        Ran {{ago build.started}}{{#if build.ended}}, took {{durationLong build.ended build.started}} to complete{{/if}}
                     </p>
                     <p>
                         Built on :  {{build.host}}
@@ -19,7 +19,19 @@
                         <a href="{{linkToBuild}}">View on {{ciServer.name}}</a>
                     </p>
                     <p>
-                        Status : {{statusTranslate build.status}}{{#if build.delta}}, {{deltaTranslate build.delta}}{{/if}}
+                        Status : {{statusAndDeltaTranslate build.status build.delta}}
+                        {{#if responsibleBreakingBuild}}
+                            <a href="/build/{{responsibleBreakingBuild.id}}">{{responsibleBreakingBuild.build}}</a>
+                        {{/if}}
+
+                        {{#if buildBreakers}}
+                            <div>
+                                Broken by :
+                                {{#each buildBreakers}}
+                                    <a href="/user/{{id}}">{{name}}</a>
+                                {{/each}}
+                            </div>
+                        {{/if}}
                     </p>
                     <p>
                         {{#if previousBuild}}
@@ -43,23 +55,33 @@
             
             <li class="list-item build-item">
                 <h2>Changes in this build</h2>
-                <ul class="list">
+                <ul class="list revisionList">
                     {{#if build.involvements}}
                         {{#each build.involvements}}
-                            <li>
+                            <li class="revisionList-item revisionList-item--{{#if __isFault}}hasFault{{/if}}">
                                 <h3>
-                                    {{>buildInvolvementUserLink this}} ({{revision}})
+                                    {{>buildInvolvementUserLink this}} ({{revision}}) 
                                 </h3>
-                                <p>
-                                    {{__revision.description}}
-                                </p>
-                                <ul>
-                                    {{#each __revision.files}}
-                                        <li class="revision-file revision-file--{{#if isFault}}atFault{{/if}}">
-                                            {{file}}
-                                        </li>
-                                    {{/each}}
-                                </ul>
+                                <div>
+                                    <b>
+                                        {{buildInvolvementTranslate involvement}}
+                                    </b>
+                                </div>
+                                <i>
+                                    {{revisionObject.description}}
+                                </i>
+                                {{#if revisionObject.files}}
+                                    <ul>
+                                        <h4>Files</h4>
+                                        {{#each revisionObject.files}}
+                                            <li class="revision-file revision-file--{{#if isFault}}atFault{{/if}}">
+                                                {{file}}
+                                            </li>
+                                        {{/each}}
+                                    </ul>
+                                {{else}}
+                                    Revision data still being processed, check back later.
+                                {{/if}}
                             </li>
                         {{/each}}
                     {{else}}
@@ -83,7 +105,7 @@
                             </li>
                         {{else}}
                             <li class="buildLog-item">
-                                Log is empty
+                                Log is empty or has not been processed yet
                             </li>
                         {{/if}}
                     </ul>

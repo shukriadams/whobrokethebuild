@@ -16,11 +16,11 @@ module.exports = function(app){
                 }
 
             // gets builds user was involved in
-            model.builds = await data.pageBuildsByUser(req.params.user, page, settings.standardPageSize)
+            model.builds = await data.pageBuildsByUser(user.id, page, settings.standardPageSize)
             model.baseUrl = `/user/${req.params.user}`
 
             // expand related objects
-            for (const build of model.builds)
+            for (const build of model.builds.items)
                 build.__job = await data.getJob(build.jobId)
 
             await viewModelHelper.layout(model, req, req.params.user)

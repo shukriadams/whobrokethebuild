@@ -27,8 +27,10 @@ module.exports = function(app){
     app.get('/jenkins/mock/job/:jobname/:buildnumber/consoleText', async function(req, res){
         try {
             const logPath = path.join(__dirname, 'mock', 'jobs', req.params.jobname, 'logs', req.params.buildnumber)
-            if (!await fs.pathExists(logPath))
-                throw `Expected mock log not found @ ${logPath}`
+            if (!await fs.pathExists(logPath)){
+                res.status(404)
+                return res.send('invalid job or build')    
+            }
 
             return res.send(await fs.readFile(logPath, 'utf8'))
 
@@ -45,8 +47,10 @@ module.exports = function(app){
         try {
             if (req.query.pretty === 'true' && req.query.tree === 'changeSet[items[commitId]]'){
                 const commitsPath = path.join(__dirname, 'mock', 'jobs', req.params.jobname, 'commits', req.params.buildnumber)
-                if (!await fs.pathExists(commitsPath))
-                    throw `Expected commits mock json not found @ ${commitsPath}`
+                if (!await fs.pathExists(commitsPath)){
+                    res.status(404)
+                    return res.send('invalid job or build')    
+                }
 
                 res.send(await fs.readFile(commitsPath, 'utf8') )
             }
@@ -66,8 +70,10 @@ module.exports = function(app){
         try {
              if (req.query.pretty === 'true' && req.query.tree === 'allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]'){
                 const filepath = path.join(__dirname, 'mock', 'jobs', req.params.jobname, 'builds.json' )
-                if (! await fs.pathExists(filepath))
-                    throw `Expected mock file ${filepath} not found`
+                if (! await fs.pathExists(filepath)) { 
+                    res.status(404)
+                    return res.send('invalid job or build')    
+                }
 
                 res.send(await fs.readFile(filepath, 'utf8'))
             }

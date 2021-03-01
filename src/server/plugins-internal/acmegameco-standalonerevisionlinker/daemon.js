@@ -44,7 +44,7 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                 }
 
                 const log = await fs.readFile(logPath, 'utf8'),
-                    regex = new RegExp('\#p4-changes........\#\n(.*)\n\#/p4-changes........\#'),
+                    regex = new RegExp('\#p4-changes........\#\n(.*)\n\#/p4-changes........\#', 'is'),
                     lookup = log.match(regex)
 
                 if (!lookup){
@@ -60,7 +60,7 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                     continue
 
                 let knownRevisionInThisBuild = revnrLookup.pop(),
-                    revisionsBefore = await perforcePLugin.getRevisionsBefore(knownRevisionInThisBuild),
+                    revisionsBefore = await perforcePLugin.getRevisionsBefore(vcServer, knownRevisionInThisBuild),
                     revisionsInThisBuild = []
 
                 revisionsInThisBuild.push(knownRevisionInThisBuild)
@@ -77,7 +77,7 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                     // BEFORE this build's known revision. This should give us all revisions that are in this one.
                     if (lastRevision)
                         for (const revisionData of revisionsBefore)
-                            if (revisionData.revision > lastRevision && revisionData.revision < knownRevisionInThisBuild)
+                            if (parseInt(revisionData.revision) > lastRevision && parseInt(revisionData.revision) < knownRevisionInThisBuild)
                                 revisionsInThisBuild.push(revisionData.revision)
                 }
 
@@ -87,10 +87,20 @@ module.exports = class StandaloneRevisionLinker extends BaseDaemon {
                     build.comment += `\n ${revisionsInThisBuild.length} revisions were soft-matched in based on #${knownRevisionInThisBuild} appearing in build log`
                 }
     
-                for (const revisionNr of revisionsInThisBuild){
-                    const revisionData = await perforcePLugin.getRevision(revisionNr, vcServer)
+                for (const revision of revisionsInThisBuild){
+                    let revisionData
+
+                    try {
+                        revisionData = await perforcePLugin.getRevision(revision, vcServer)
+                    } catch (ex){
+                        if (ex.includes('invalid revision'))
+                            __log.warn(`Revision ${revision} not found on server ${vcServer.name}:${vcServer.url}, skipping`)
+                        else
+                            throw ex
+                    }
+
                     if (revisionData){
-                        let revisionId = revisionNr.toString()
+                        let revisionId = revision.toString()
                         if (build.involvements.find(r => r.revisionId === revisionId))
                             continue 
     

@@ -8,7 +8,8 @@ const pluginsHelper = require(_$+'helpers/pluginsManager'),
     urljoin = require('urljoin'),
     settings = require(_$+ 'helpers/settings'),
     httputils = require('madscience-httputils'),
-    timebelt = require('timebelt')
+    timebelt = require('timebelt'),
+    thisType = 'wbtb-jenkins'
 
 module.exports = {
     
@@ -56,17 +57,29 @@ module.exports = {
 
 
     /**
-     * 
+     * @param {string} baseUrl
+     * @param {import('../../types/job').Job} job
+     * @param {object} buildNumber string or int
      */
-    async downloadBuildLog(baseUrl, jobName, buildNumber){
+    async downloadBuildLog(baseUrl, job, buildNumber){
 
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
-        const url =  urljoin(baseUrl, 'job', encodeURIComponent(jobName), buildNumber, 'consoleText')
+        const isApiCaching = this.__wbtb.cacheAPICalls === true,
+            cachePath = path.join(settings.dataFolder, thisType, 'cache', sanitize(job.name), `${buildNumber}.log`),
+            url =  urljoin(baseUrl, 'job', encodeURIComponent(job.name), buildNumber, 'consoleText')
+
+        if (isApiCaching && await fs.pathExists(cachePath))
+            return await fs.readFile(cachePath, `utf8`)
 
         try {
             let response = await httputils.downloadString(url)
+            if (isApiCaching){
+                await fs.ensureDir(path.dirname(cachePath))
+                await fs.outputFile(cachePath, response.body)
+            }
+
             return response.body
         } catch(ex){
             __log.error(ex)
@@ -76,13 +89,15 @@ module.exports = {
 
 
     /**
-     * Gets a list of all jobs on remote server, list is an array of strings
+     * Gets a list of all jobs on remote server, list is an array of strings.
      */
     async getJobs(baseUrl){
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
-        let url = urljoin(baseUrl, 'api/json?pretty=true&tree=jobs[name]'),
+        let isApiCaching = this.__wbtb.cacheAPICalls === true,
+            cachePath = path.join(settings.dataFolder, thisType, 'cache', 'jobs'),
+            url = urljoin(baseUrl, 'api/json?pretty=true&tree=jobs[name]'),
             body = ''        
 
         try {
@@ -95,6 +110,12 @@ module.exports = {
                 jobs.push(job.name)
             }
 
+            if (isApiCaching){
+                await fs.ensureDir(path.dirname(cachePath))
+                for (const job of jobs)
+                    await fs.outputFile(path.join(cachePath, `${sanitize(job)}.name`), job)
+            }
+
             return jobs
         } catch(ex){
             // return empty, write to log
@@ -105,14 +126,23 @@ module.exports = {
 
 
     /**
+     * @params {string} baseUrl
+     * @params {Job} job
+     * @parms {object} buildnumber int or string. Ugh.
      * Gets an array of commit ids involved in a build. If the build has no commits, it was triggered manually.
      */
-    async getBuildCommits(baseUrl, jobName, buildNumber){
+    async getBuildCommits(baseUrl, job, buildNumber){
         if (settings.sandboxMode)
             baseUrl = urljoin(settings.localUrl, `/jenkins/mock`)
 
-        let url = urljoin(baseUrl, 'job', encodeURIComponent(jobName), buildNumber,'api/json?pretty=true&tree=changeSet[items[commitId]]'),
+        let isApiCaching = this.__wbtb.cacheAPICalls === true,
+            cachePath = path.join(settings.dataFolder, thisType, 'cache', sanitize(job.name), `commits_${buildNumber}.json`),
+            url = urljoin(baseUrl, 'job', encodeURIComponent(job.name), buildNumber,'api/json?pretty=true&tree=changeSet[items[commitId]]'),
             body = ''        
+
+        if (isApiCaching && await fs.pathExists(cachePath))
+            return await fs.readJson(cachePath)
+
 
         try {
             body = (await httputils.downloadString(url)).body
@@ -124,6 +154,11 @@ module.exports = {
                     items.push(item.commitId)
             }
 
+            if (isApiCaching){
+                await fs.ensureDir(path.dirname(cachePath))
+                await fs.writeJson(cachePath, items)
+            }
+
             return items
         } catch(ex){
             __log.error(`failed to download/parse commit list : ${ex}. Body was : ${body}`)
@@ -133,14 +168,22 @@ module.exports = {
     
     async mapUsers(job, revisions){
         
-        const 
-            data = await pluginsHelper.getExclusive('dataProvider'),
+        const data = await pluginsHelper.getExclusive('dataProvider'),
             vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
             vcs = await pluginsHelper.get(vcServer.vcs)
 
         const users = []
         for (let revision of revisions){
-            const revisionData = await vcs.getRevision(revision, vcServer)
+            let revisionData 
+            try {
+                revisionData = await vcs.getRevision(revision, vcServer)
+            } catch (ex){
+                if (ex.includes('invalid revision'))
+                    __log.warn(`Revision ${revision} not found on server ${vcServer.name}:${vcServer.url}, skipping`)
+                else  
+                    throw ex
+            }
+
             if (revisionData)
                 users.push (revisionData.user)
         }
@@ -150,16 +193,18 @@ module.exports = {
     },
 
     /**
+     * @param {import('../../types/job').Job} job
      * Gets a list of all builds run on a given job. This method should be run to update WBTB with
      * build history for the given job
      */
-    async importBuildsForJob(jobId){
+    async importBuildsForJob(job){
         let data = await pluginsHelper.getExclusive('dataProvider'),
-            job = await data.getJob(jobId, { expected : true }),
             ciServer = await data.getCIServer(job.CIServerId, { expected : true }),
             vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
             vcs = await pluginsHelper.get(vcServer.vcs),
             baseUrl = await ciServer.getUrl(),
+            isApiCaching = this.__wbtb.cacheAPICalls === true,
+            cachePath = path.join(settings.dataFolder, thisType, 'cache', sanitize(job.name)),
             json = null
 
         if (!settings.buildLogsDump){
@@ -187,14 +232,23 @@ module.exports = {
             __log.error(`Failed to parse JSON from  job ${job.name}`, ex, response.body)
             return
         }
-    
+
+        if (isApiCaching){
+            await fs.ensureDir(cachePath)
+            for (let remoteBuild of json.allBuilds){
+                const filePath = path.join(cachePath, `build_${remoteBuild.number}.json`)
+                if (!await fs.pathExists(filePath))
+                    await fs.outputJson(filePath, remoteBuild)
+            }
+        }
+
         // limit the number of jobs back in time to import, if necessay.
         let historyLimit = settings.historyLimit || job.historyLimit
         if (!!historyLimit)
             json.allBuilds = json.allBuilds.slice(0, historyLimit)
             
         for (let remoteBuild of json.allBuilds){
-            let localBuild = await data.getBuildByExternalId(jobId, remoteBuild.number)
+            let localBuild = await data.getBuildByExternalId(job.id, remoteBuild.number)
             
             // build exists in db, update it 
             if (localBuild){
@@ -204,7 +258,7 @@ module.exports = {
 
                 // build end is start + duration in minutes
                 if (remoteBuild.duration)
-                    localBuild.ended = timebelt.addMinutes(localBuild.started, remoteBuild.duration).getTime()
+                    localBuild.ended = timebelt.addMilliseconds(localBuild.started, remoteBuild.duration).getTime()
 
                 // fetch log if build is complete and log has not be previous fetched
                 if (localBuild.logStatus === constants.BUILDLOGSTATUS_NOT_FETCHED && (localBuild.status === constants.BUILDSTATUS_FAILED || localBuild.status === constants.BUILDSTATUS_PASSED)){
@@ -218,7 +272,7 @@ module.exports = {
                         // write job name as a file in folder as a convenience
                         await fs.writeFile(path.join(settings.buildLogsDump, foldername, sanitize(job.name)), '')
 
-                        const log = await this.downloadBuildLog(baseUrl, job.name, localBuild.build)
+                        const log = await this.downloadBuildLog(baseUrl, job, localBuild.build)
                         await fs.writeFile(writePath, log)
                         localBuild.logStatus = constants.BUILDLOGSTATUS_UNPROCESSED
                         await data.updateBuild(localBuild)
@@ -234,17 +288,26 @@ module.exports = {
 
             // build does not exist in db - create record
             localBuild = new Build()
-            localBuild.jobId = jobId
+            localBuild.jobId = job.id
             localBuild.status = this.resultToStatus(remoteBuild.result)
             localBuild.build = remoteBuild.number
             localBuild.host = remoteBuild.builtOn
-            localBuild.revisions = await this.getBuildCommits(baseUrl, job.name, remoteBuild.number)
+            localBuild.revisions = await this.getBuildCommits(baseUrl, job, remoteBuild.number)
             localBuild.started = remoteBuild.timestamp
 
             // Add buildInvolvements if we can read these from CI system. This will normally be in cases where a version control event triggers a build.
             // This will not occur on builds which run on fixed timers, for those builds other ways of determining involved revisions are required.
             for (let revision of localBuild.revisions){
-                const revisionData = await vcs.getRevision(revision, vcServer)
+                let revisionData
+                try {
+                    revisionData = await vcs.getRevision(revision, vcServer)
+                } catch (ex){
+                    if (ex.includes('invalid revision'))
+                        __log.warn(`Revision ${revision} not found on server ${vcServer.name}:${vcServer.url}, skipping`)
+                    else  
+                        throw ex
+                }
+
                 if (revisionData){
                     const buildInvolvment = new BuildInvolvment()
                     buildInvolvment.externalUsername = revisionData.user

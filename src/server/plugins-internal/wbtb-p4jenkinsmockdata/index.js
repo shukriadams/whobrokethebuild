@@ -100,7 +100,7 @@ module.exports = {
                 }, jsonOptions)
 
                 function revisionToString(r){
-                    return `Change ${r.revision} by ${r.user}@${r.workspace} on ${timebelt.toShortDate(r.date)} ${timebelt.toShortTime(r.date)}\n\n\t${r.description}\n\nAffected files ...\n\n${r.files.map(file => `... ${file.file}#${file.version} ${file.change}\n`).join('')}`
+                    return `Change ${r.revision} by ${r.user}@${r.workspace} on ${timebelt.toShortDate(r.date)} ${timebelt.toShortTime(r.date)}\n\n\t${r.description}\n\nAffected files ...\n\n${r.files.map(file => `... ${file.file}#${file.version} ${file.change}\n`).join('')}\n\nDifferences ...\n\n`
                 }
 
                 let commitsInThisBuild = []
@@ -139,7 +139,7 @@ module.exports = {
                         logText = 'some logs\n' +
                             '#p4-changes........#\n'+
                             `Change ${globalCommitCounter} on etc etc\n`+
-                            '/#p4-changes........#\n'
+                            '#/p4-changes........#\n'
 
                 for (let i = 0 ; i < logLines ; i ++){
                     logText += `${lorem.generateWords()}\n` 
@@ -177,7 +177,7 @@ module.exports = {
 
                     return {
                         _class : 'hudson.model.FreeStyleBuild',
-                        duration : Math.floor(Math.random() * 10000) + 100,
+                        duration : Math.floor(Math.random() * 1000000) + 100000,
                         fullDisplayName : `${jobName} #${buildnumber}`,
                         id : buildnumber.toString(),
                         number : buildnumber,

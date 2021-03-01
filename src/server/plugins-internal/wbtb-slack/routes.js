@@ -165,9 +165,36 @@ module.exports = app => {
                 res.send(`build not found`)
             }
 
-            await slackPlugin.alertUser(user, build)
+            await slackPlugin.alertUser(user, build, null, 'implicated', true)
 
             res.send('user has been contacted')
+        } catch(ex){
+            errorHandler(res, ex)
+        }
+    })
+
+    /**
+     * 
+     */
+    app.get(`/${thisType}/test-alertGroupOnBuild/:buildId`, async function(req, res){
+        try {
+
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+            let slackPlugin = await pluginsManager.get('wbtb-slack'),   
+                data = await pluginsManager.getExclusive('dataProvider'),
+                build = await data.getBuild(req.params.buildId, { expected : true }),
+                job = await data.getJob(build.jobId, { expected : true }),
+                slackContactMethod = job.contactMethods[thisType]
+               
+            if (!slackContactMethod)
+                return res.send('Job does not have a contact method set for slack')
+
+            await slackPlugin.alertGroup(slackContactMethod, job, build, true)
+
+            res.send('group has been contacted')
         } catch(ex){
             errorHandler(res, ex)
         }

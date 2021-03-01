@@ -132,18 +132,9 @@ node --inspect-brk=0.0.0.0:3001 tests/run-all.js tests/server/logic/user
 - A plugin _must_ have an index.js file in its root, which module.exports an object with the following base structure
 
         {
-            // validates that a given plugin has all the settings it requires to function properly. Must return if passed
+            // validates that a given plugin has all the settings it requires to function properly. Must return true if passed
             // else plugin will be treated as non-functioning
             validateSettings()
-
-            // returns string global name of plugin, this must be the same as the name defined in the plugin's package.json
-            getDescription(){
-                return {
-                    id : string, global unique name of plugin, must be the same as defined in plugins's package.json
-                    name : string, user-friednly name of plugin. will be used for 
-                    uiroute : string of ui route. if not defined, none will be used. route will always be appended to id 
-                }
-            }
         }
 
 - Plugin categories : ciserver|dataProvider

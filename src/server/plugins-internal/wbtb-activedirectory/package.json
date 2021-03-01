@@ -8,6 +8,6 @@
     "wbtb": {
         "category": "authProvider",
         "name": "Active Directory",
-        "hasUI": true
+        "hasAdminUI": true
     }
 }

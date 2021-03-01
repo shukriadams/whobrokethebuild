@@ -19,19 +19,24 @@ module.exports = {
         daemonFiles = daemonFiles.concat(glob.sync(`${pluginRoot}/**/daemon.js`, { ignore : ['**/node_modules/**', '**/mock/**']}))
         daemonFiles = daemonFiles.map(daemonFile => fsUtils.fullPathWithoutExtension (daemonFile))
 
-        const blackList = settings.daemonBlacklist.split(',').filter(b => !!b.length),
-            pluginWhitelist = settings.daemonWhitelist.split(',').filter(b => !!b.length)
+        const blackList = settings.daemonBlacklist ? settings.daemonBlacklist.split(',').filter(b => !!b.length) : [],
+            pluginWhitelist = settings.daemonWhitelist ? settings.daemonWhitelist.split(',').filter(b => !!b.length) : []
 
         for (const typePath of daemonFiles){
             if (daemonInstances[typePath])
                 continue
-            
+
+            let skip = false
             for (const blacklisted of blackList)
                 if (typePath.endsWith(blacklisted)){
                     __log.info(`Skipping blacklisted daemon "${typePath}" based on mask "${blacklisted}"`)
-                    continue
+                    skip = true
+                    break
                 }
             
+            if (skip)
+                continue
+
             if (pluginWhitelist.length){
                 // warning : assumes daemon.js is in root of plugin folder
                 let include = true

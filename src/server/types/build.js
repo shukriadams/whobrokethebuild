@@ -2,10 +2,11 @@
  * @typedef {Object} Build
  * @property {string} jobId ObjectID string, parent job's id
  * @property {string} build Unique build id from CI server this build originates from
+ * @property {string} incidentId ObjectID of build (including self) which caused break event, if build is in a cluster of breaks. null by default
  * @property {Array<string>} revisions VCS revision or hash code at head when build was triggered. Can be empty.
  * @property {string} triggerType constants.BUILDTRIGGER_*. STRING, NOT ALWAYS PRESENT. event that triggered build
- * @property {number} started Ticks, when build started
- * @property {number} ended Ticks, when build ended. null if build is ongoing or hanging.
+ * @property {number} started DateTime Ticks, when build started
+ * @property {number} ended DateTime Ticks, when build ended. null if build is ongoing or hanging.
  * @property {string} host Name of machine on which build was done
  * @property {string} status constants.BUILDSTATUS_*. Status of build from CI server
  * @property {string} logStatus constants.BUILDLOGSTATUS_*. Status of build log 
@@ -15,7 +16,6 @@
  * @property {string} comment admin comments
  * @property {string} processStatus Status of build for internal processing. Will be set to some value if it cannot be processed further, so we don't keep reprocessing it
  * @property {Array<import("./parsedBuildLogLine").ParsedBuildLogLine>} logItems Parsed log. Null if not processed.
- * @property {string} logPath REFACTOR OUT if not null, path to log file within local log store folder
  * 
  */
 
@@ -29,6 +29,7 @@ module.exports = class Build{
     constructor(){
         this.jobId = null
         this.build = null
+        this.incidentId = null
         this.revisions = []
         this.triggerType = constants.BUILDTRIGGER_OTHER
         this.started = null
@@ -42,6 +43,5 @@ module.exports = class Build{
         this.comment = null
         this.processStatus = null
         this.logItems = null
-        this.logPath = null
     }
 }

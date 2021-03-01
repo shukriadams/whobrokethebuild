@@ -22,9 +22,9 @@ module.exports = class {
             this._busy = true
 
             try {
-                __log.debug(`${this.constructor.name} daemon doing work ....`)
-                await this._work()
 
+                await this._work()
+                
             } catch (ex) {
 
                 __log.error(ex)

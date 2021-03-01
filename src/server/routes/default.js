@@ -36,7 +36,7 @@ module.exports = function(express){
             // add latest and breaking build to job
             for (let job of model.jobs){
                 // extend 
-                job.__breakingBuild = await data.getCurrentlyBreakingBuild(job.id)
+                job.__breakingBuild = await data.getBuildThatBrokeJob(job.id)
 
                 if (job.__breakingBuild){
                     

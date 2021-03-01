@@ -23,13 +23,11 @@ module.exports = function(app){
                 data = await pluginsManager.getExclusive('dataProvider'),
                 logHelper = require(_$+'helpers/log'),
                 build = await data.getBuild(req.params.id, { expected : true }),
-                job = await jobsLogic.getById(build.jobId),
                 model = {
                     build
                 }
 
-            // this should load full log
-            model.log = await logHelper.parseFromBuild(build, job.logParser)
+            model.log = await logHelper.readRawLogForBuild(build)
             await viewModelHelper.layout(model, req)
             res.send(view(model))
         } catch(ex) {
@@ -46,7 +44,6 @@ module.exports = function(app){
                 vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
                 ciServer = await data.getCIServer(job.CIServerId, { expected : true }),
                 ciServerPlugin = await pluginsManager.get(ciServer.type),
-                vcsPlugin = await pluginsManager.get(vcServer.vcs),
                 model = {
                     build,
                     job,
@@ -57,14 +54,22 @@ module.exports = function(app){
             model.previousBuild = await data.getPreviousBuild(build)
             model.linkToBuild = ciServerPlugin.linkToBuild(ciServer, job, build)
             build.__isFailing = build.status === constants.BUILDSTATUS_FAILED 
-            
+            model.buildBreakers = []
+
+            if (build.incidentId && build.incidentId !== build.id)
+                model.responsibleBreakingBuild = await buildLogic.getById(build.incidentId)
+
             // parse and filter log if only certain lines should be shown
             for (const buildInvolvement of model.build.involvements){
                 // get user object for revision, if mapped
                 if (buildInvolvement.userId)
                     buildInvolvement.__user = await data.getUser(buildInvolvement.userId)
 
-                buildInvolvement.__revision = await vcsPlugin.getRevision(buildInvolvement.revision, vcServer)
+                if (buildInvolvement.revisionObject){
+                    buildInvolvement.__isFault = buildInvolvement.revisionObject ? !!buildInvolvement.revisionObject.files.find(r => !!r.isFault) : false
+                    if (buildInvolvement.__isFault && buildInvolvement.__user)
+                        model.buildBreakers.push(buildInvolvement.__user)
+                }
             }
 
             await viewModelHelper.layout(model, req)

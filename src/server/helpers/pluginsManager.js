@@ -1,6 +1,7 @@
 let settings = require(_$+'helpers/settings'),
     path = require('path'),
     fs = require('fs-extra'),
+    merge = require('lodash.merge'),
     urljoin = require('urljoin'),
     Exception = require(_$+ 'types/exception'),
     process = require('process'),
@@ -77,7 +78,7 @@ module.exports = {
     getPluginRootPath(){
         return settings.bindInternalPlugins ? 
             `${_$}plugins-internal`:
-            settings.pluginsPath
+            path.resolve(settings.pluginsPath)
     },
 
     async _loadPlugins(){
@@ -124,16 +125,19 @@ module.exports = {
             if (!description)
                 throw `a plugin __wbtb is not set`
            
-            if (description.hasUI && !description.name)
+            // todo : refactor this check out, fallback to plugin id if name not set
+            if ((description.hasUserUI || description.hasAdminUI) && !description.name)
                 throw `plugin ${description.id} has a ui but no name` 
 
             _pluginConf[description.id] ={ 
                 url : `/${urljoin(description.id)}/`,
-                hasUI : description.hasUI === true,
+                hasUserUI : description.hasUserUI,
+                hasAdminUI : description.hasAdminUI,
                 text : description.name
             }
         }
     },
+
 
     async _initializeAllPlugins(allPlugins){
         for (const plugin of allPlugins){
@@ -146,6 +150,7 @@ module.exports = {
             }
         }
     },
+
 
     /**
      * Validates the contents of pluginconfig. Logs errors out. Shuts app down if validation fails.
@@ -301,13 +306,6 @@ module.exports = {
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin] = pluginsConfig[plugin] || {}
 
-        // load overrides
-        const overrideFilePath = path.join(settings.dataFolder, '.settings-override.json')
-        if (await fs.pathExists(overrideFilePath)){
-            const overrideSettings = await fs.readJson(overrideFilePath)
-            pluginsConfig = Object.assign(pluginsConfig, overrideSettings)
-        }
-
         // set each plugin source to internal if no source defined
         for (const plugin in pluginsConfig)
             pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
@@ -372,7 +370,7 @@ module.exports = {
 
             // merge local plugin config with .wbtb member of package.json - in this way, local config is available
             // via .wbtb to code. Allow local config to override static config in package.json
-            packageJson.wbtb = Object.assign(packageJson.wbtb, pluginsConfig[pluginName])
+            packageJson.wbtb = merge(packageJson.wbtb, pluginsConfig[pluginName])
 
             _plugins.byCategory[packageJson.wbtb.category] = _plugins.byCategory[packageJson.wbtb.category] || {}
             
@@ -520,14 +518,6 @@ module.exports = {
 
 
     /**
-     * gets all active plugins with .hasUI in their metadata
-     */
-    getAllWithUI(){
-        return this.getAll().filter(plugin => plugin.__wbtb.hasUI)
-    },
-
-
-    /**
      * gets all active plugins that end users can configure via UI
     */
     getAllWithUserUI(){
@@ -535,6 +525,9 @@ module.exports = {
             plugin.__wbtb.hasUserUI
         )
     },
+
+
+
 
     /**
      * gets all active plugins

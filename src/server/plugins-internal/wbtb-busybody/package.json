@@ -6,7 +6,6 @@
     "wbtb": {
         "category": "alerts",
         "name": "BusyBody",
-        "hasUI": true,
         "hasUserUI": true
     }
 }

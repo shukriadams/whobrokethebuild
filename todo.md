@@ -1,3 +1,8 @@
+- need daemon that autocleans orphans
+- rename "hasUI" to "hadAdminUI" vs "hasUserUI"
+- need a system for wiping and rebuilding delta on a build after a given build if that build was reset
+- need a system for wiping and reprocessing logs, and then fault calculation from logs
+- time for log parse needs to be more use-friendly
 - need "watcher" - alert on all build status changes, regardless of who was responsible for them
 - need function to assign a failing build to one or more people
 - ensure that build error change works, and that this is adequetyly warned for
@@ -23,6 +28,7 @@
 - need even simpler job page that shows only delta - build working vs failing, and buils that changed delta.
 - need to mark builds for which specific revisions cannot be retrieved. We need to "soft" link these to a revision range. In the case of jenkins, there is no "changeSet" in the object root
 - prevents multiple users from binding to the same vcs source name 
+- refactor out all revision.toString() and force string on create
 
 LATER
 - add caching
@@ -30,3 +36,5 @@ LATER
 
 DONE
 - add link back to original CISysem to build pages
+- all API and log calls from CI should be cached locally
+- improved paging : break pages into groups, show active page

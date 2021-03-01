@@ -74,7 +74,7 @@ stopwatch.start();
         if (settings.bindInternalPlugins)
             routeFiles = routeFiles.concat(glob.sync(`${root}/plugins-internal/*/routes.js`, { ignore : ['**/node_modules/**']}))
         else
-            routeFiles = routeFiles.concat(glob.sync(`${root}/plugins/*/routes.js`, { ignore : ['**/node_modules/**']}))
+            routeFiles = routeFiles.concat(glob.sync(`${pluginsManager.getPluginRootPath()}/**/routes.js`, { ignore : ['**/mock/**', '**/node_modules/**']}))
 
         await data.initialize()
         await userLogic.initializeAdmin()
@@ -102,14 +102,13 @@ stopwatch.start();
         
         for (let routeFile of routeFiles){
 
-            routeFile = routeFile.replace(root,'')
             const match = routeFile.match(/(.*).js/)
             if (!match)
                 continue
 
             const name = match.pop()
     
-            let routes = require(`./server/${name}`)
+            let routes = require(name)
             if (name === 'default'){
                 defaultRoute = routes
                 continue

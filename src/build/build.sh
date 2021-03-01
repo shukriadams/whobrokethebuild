@@ -7,6 +7,7 @@
 # --setup : forces yarn aka npm install. Use if running on build server, omit to run locally without overhead of yarn install
 # --version : writes current git tag to version file which is exposed in UI. Use if running on build server, omit if running locally.
 # 
+set -e
 
 # capture switches
 CLEAN=0

@@ -2,9 +2,9 @@ const constants = require(_$+'types/constants')
 
 module.exports = Handlebars => {
 
-    Handlebars.registerHelper('deltaTranslate', function(status){
+    Handlebars.registerHelper('deltaTranslate', function(delta){
 
-        switch(status){
+        switch(delta){
             case constants.BUILDDELTA_PASS : {
                 return ''
             }

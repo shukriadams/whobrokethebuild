@@ -37,11 +37,15 @@ let process = require('process'),
 
         standardPageSize: 25,
         
+        pagesPerGroup : 20,
+
         authType : constants.AUTHPROVIDER_INTERNAL,
 
         // password for master user, auto enforced on start
         adminPassword: 'admin', 
 
+        // maximum size in bytes for raw logs.
+        maxReadableRawLogSize : 30000000,
 
         // #######################################################################
         // dev environment only
@@ -76,7 +80,10 @@ let process = require('process'),
         sandboxMode : false,
 
         // disable view caching to reload all views per page view
-        cacheHandlebarViews : true
+        cacheHandlebarViews : true,
+
+        // default plugins stub - plugin data will be attached to this
+        plugins: { }
 
     }
 

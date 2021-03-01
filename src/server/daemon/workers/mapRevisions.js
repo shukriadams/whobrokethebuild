@@ -16,7 +16,8 @@ module.exports = class MapRevisions extends BaseDaemon {
             data = await pluginsManager.getExclusive('dataProvider'),
             buildsWithUnprocessedRevisionObjects = await data.getBuildsWithoutRevisionObjects()
 
-        __log.debug(`found ${buildsWithUnprocessedRevisionObjects.length} builds with unmapped revisions`)
+        if (buildsWithUnprocessedRevisionObjects.length)
+            __log.debug(`found ${buildsWithUnprocessedRevisionObjects.length} builds with unmapped revisions`)
 
         for (const build of buildsWithUnprocessedRevisionObjects){
             try {
@@ -26,12 +27,22 @@ module.exports = class MapRevisions extends BaseDaemon {
 
                 // ignore builds that have not yet had their logs fetched
                 // ignore jobs that don't have log parsers defined
-                if (!build.logPath || !job.logParser)
+                if (!job.logParser)
                     continue
 
 
                 for (const buildInvolvement of build.involvements){
-                    buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
+                    try {
+                        buildInvolvement.revisionObject = await vcPlugin.getRevision(buildInvolvement.revision, vcServer)  
+                    } catch (ex){
+                        if (ex.includes('invalid revision'))
+                            buildInvolvement.revisionObject = {
+                                revision : buildInvolvement.revision,
+                                user : buildInvolvement.externalUsername,
+                                description : `invalid revision - cannot be found`,
+                                files : [] 
+                            }
+                    }
                     
                     // force placeholder revision object if lookup to vc fails to retrieve it
                     if (!buildInvolvement.revisionObject)
@@ -45,13 +56,13 @@ module.exports = class MapRevisions extends BaseDaemon {
                     // write fault data into the the revision object
                     faultHelper.processRevision(buildInvolvement.revisionObject, build.logData)
 
-                    __log.debug(`Mapped revision ${buildInvolvement.revision} in build ${build.id}`)
+                    __log.debug(`Mapped revision ${buildInvolvement.revision} in build "${build.id}:${build.build}"`)
                 }
 
                 await data.updateBuild(build)
 
             } catch (ex){
-                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}:${build.build}"`, ex)
             }
         }
 

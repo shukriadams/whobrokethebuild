@@ -21,7 +21,7 @@ module.exports = class BusyBodyDaemon extends BaseDaemon {
 
         for (let job of jobs){
             try {
-                const breakingBuild = await data.getCurrentlyBreakingBuild(job.id) 
+                const breakingBuild = await data.getBuildThatBrokeJob(job.id) 
                 // job is currently not broken, ignore
                 if (!breakingBuild)
                     continue
@@ -33,7 +33,7 @@ module.exports = class BusyBodyDaemon extends BaseDaemon {
                         __log.warn(`User ${busybody.name} has requested to be alerted on all build errors, but has no contact method`)
 
                     for (const contactPlugin of contactPlugins)
-                        await contactPlugin.alertUser(busybody, breakingBuild, 'interested')
+                        await contactPlugin.alertUser(busybody, breakingBuild, null, 'interested')
                 }
             } catch (ex) {
                 __log.error(`Unexpected error in ${this.constructor.name} : job "${job.id}"`, ex)

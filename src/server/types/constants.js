@@ -20,6 +20,17 @@ module.exports = Object.freeze({
     BUILDINVOLVEMENT_SUSPECTED_SOURCECHANGE : 'BUILDINVOLVEMENT_SUSPECTED_SOURCECHANGE',
     BUILDINVOLVEMENT_ASSISTING : 'BUILDINVOLVEMENT_ASSISTING',
     
+    // previous build passed, this build passed
+    BUILDDELTA_PASS : 'BUILDDELTA_PASS',
+    // previous build broke, this build passed
+    BUILDDELTA_FIX : 'BUILDDELTA_RESTORE',
+    // previous build passed, this build broke
+    BUILDDELTA_CAUSEBREAK : 'BUILDDELTA_CAUSEBREAK',
+    // previus build broke, this build broke with same error
+    BUILDDELTA_CONTINUEBREAK : 'BUILDDELTA_CONTINUEBREAK',
+    // previous build broke, this build broke with different error. Experimental.
+    BUILDDELTA_CHANGEBREAK : 'BUILDDELTA_CHANGEBREAK',
+
     // default state
     BUILDLOGSTATUS_NOT_FETCHED : 'BUILDLOGSTATUS_NOT_FETCHED',
     // log has been fetched and is awaiting processing
@@ -70,16 +81,7 @@ module.exports = Object.freeze({
     TABLENAME_CISERVERS : 'CIServers',
     TABLENAME_VCSERVERS : 'VCServers',
 
-    // previous build passed, this build passed
-    BUILDDELTA_PASS : 'BUILDDELTA_PASS',
-    // previous build broke, this build passed
-    BUILDDELTA_FIX : 'BUILDDELTA_RESTORE',
-    // previous build passed, this build broke
-    BUILDDELTA_CAUSEBREAK : 'BUILDDELTA_CAUSEBREAK',
-    // previus build broke, this build broke with same error
-    BUILDDELTA_CONTINUEBREAK : 'BUILDDELTA_CONTINUEBREAK',
-    // previous build broke, this build broke with different error. Experimental.
-    BUILDDELTA_CHANGEBREAK : 'BUILDDELTA_CHANGEBREAK',
+
 
     VCSTYPE_GIT : 'VCSTYPE_GIT',
     VCSTYPE_PERFORCE : 'VCSTYPE_PERFORCE',

@@ -20,7 +20,8 @@ module.exports = class BuildLogProcess extends BaseDaemon {
             logHelper = require(_$+'helpers/log'),
             builds = await data.getBuildsWithUnprocessedLogs()
 
-        __log.debug(`found ${builds.length} builds with unprocessed logs`)
+        if (builds.length)
+            __log.debug(`found ${builds.length} builds with unprocessed logs`)
 
         for (const build of builds){
             try {
@@ -29,12 +30,12 @@ module.exports = class BuildLogProcess extends BaseDaemon {
                     continue
 
                 build.logData = await logHelper.parseFromBuild(build, job.logParser)
-                build.logStatus = constants.BUILDLOGSTATUS_UNPROCESSED
+                build.logStatus = constants.BUILDLOGSTATUS_PROCESSED
                 await data.updateBuild(build)
                 
 
             } catch(ex){
-                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}"`, ex)
+                __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}:${build.build}"`, ex)
             }
         }
 
