@@ -45,6 +45,32 @@ module.exports = {
                 file.isFault = file.faultChance >= maxFaultScore
                 return file
             })
+    },
+
+    /**
+     * Gets a list of usernames who confirmed broke the given build. Usernames are either the User object .name, or the string
+     * name from version control for a given commit that is known to be at fault.
+     * 
+     * @param {import('../types/build').Build} build A build 
+     * @returns {Promise<Array<string>>} 
+     */
+    async getUsersWhoBrokeBuild(build){
+        const usernames = [],
+            pluginsManager = require(_$+'helpers/pluginsManager'),
+            data = await pluginsManager.getExclusive('dataProvider')
+
+        for (const buildInvolvement of build.involvements){
+            const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null,
+                username = user ? user.name : buildInvolvement.externalUsername
+
+            if (!buildInvolvement.revisionObject || !buildInvolvement.revisionObject.files.find(file => file.isFault === true))
+                continue
+
+            if (usernames.includes(username))
+                usernames.push(username)
+        }
+
+        return usernames
     }
 
 }

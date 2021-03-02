@@ -22,7 +22,8 @@ module.exports = class BuildDeltaCalculator extends BaseDaemon {
         // given build and get its delta without also having to query its predecessor.
         for (const build of builds){
             try {
-                const previousBuild = await data.getPreviousBuild(build)
+                let previousBuild = await data.getPreviousBuild(build),
+                    updateJob = false
 
                 if (previousBuild) {
 
@@ -47,6 +48,7 @@ module.exports = class BuildDeltaCalculator extends BaseDaemon {
                         {
                             build.delta = constants.BUILDDELTA_CAUSEBREAK
                             build.incidentId = build.id
+                            updateJob = true
                         }
 
                     // build is broken but was already broken, continue the break, not my fault
@@ -72,11 +74,18 @@ module.exports = class BuildDeltaCalculator extends BaseDaemon {
                 } else {
                     // there is no previous build so no delta, this build's delta will be its own status
                     build.delta = build.status === constants.BUILDSTATUS_PASSED ? constants.BUILDDELTA_PASS : constants.BUILDDELTA_CAUSEBREAK
-                    if (build.delta === constants.BUILDDELTA_CAUSEBREAK)
+                    if (build.delta === constants.BUILDDELTA_CAUSEBREAK){
                         build.incidentId = build.id
+                        updateJob = true
+                    }
                 }
     
                 await data.updateBuild(build)
+                if (updateJob){
+                    let job = await data.getJob(build.jobId, { expected : true })
+                    job.lastBreakIncidentId = build.incidentId
+                    await data.updateJob(job)
+                }
 
             } catch(ex){
                 __log.error(`Unexpected error in ${this.constructor.name} : build "${build.id}:${build.name}"`, ex)

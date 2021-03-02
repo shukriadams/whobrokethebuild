@@ -90,68 +90,46 @@ module.exports = {
      * 
      * @param {object} slackContactMethod contactMethod from job, written by this plugin 
      * @param {object} job job object to alert for
-     * @param {object} build build object to alert for
+     * @param {object} breakingBuild build that broke job. Null if build is working
      */
-    async alertGroup(slackContactMethod, job, build, force = false){
+    async alertGroup(slackContactMethod, job, breakingBuild, force = false){
         const data = await pluginsManager.getExclusive('dataProvider'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.plugins[thisType].accessToken }),
-            context = `build_${build.status}_${build.id}`
+            faultHelper = require(_$+'helpers/fault'),
+            context = `slack_group_alert_${job.id}_${(job.lastBreakIncidentId || '')}_${breakingBuild ? 'fail':'pass'}`
 
         if (!this.__wbtb.enableMessaging){
             __log.debug(`Slack messaging disabled, blocked send`)
             return
         }
 
-        // allow alerts only on passing or failing builds
-        if (build.status !== constants.BUILDSTATUS_FAILED && build.status !== constants.BUILDSTATUS_PASSED)
-            return
+        if (settings.plugins[thisType].overrideChannelId)
+            __log.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.plugins[thisType].overrideChannelId}`)
 
         // check if channel has already been informed about this build failure
         // generate a string of user names involved in build if build broke
-        let userString = '',
-            userUniqueCheck = [],
-            contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
-
+        let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
         if (!force && contactLog)
             return
 
-        for (const buildInvolvement of build.involvements){
-            const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null,
-                username = user ? user.name : buildInvolvement.externalUsername
-
-            if (userUniqueCheck.indexOf(username) === -1){
-                userUniqueCheck.push(username)
-                userString += `${username}, `
-            }
-        }
-
-        if (userString.length){
-            userString = userString.substring(0, userString.length - 2) // clip off trailing ', '
-            userString = `People involved : ${userString}`
-        }
-
-        const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
-            buildLink = urljoin(settings.localUrl, `build/${build.id}`),
-            title = build.status === constants.BUILDSTATUS_FAILED ? 
-                `${job.name} is broken.` : 
-                `${job.name} is working again.`
-
-        if (settings.plugins[thisType].overrideChannelId)
-            __log.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.plugins[thisType].overrideChannelId}`)
-        
-        const color = build.status === constants.BUILDSTATUS_FAILED ? '#D92424' : '#007a5a',
-            status = build.status === constants.BUILDSTATUS_FAILED ? 'failing' : 'passing',
+        const usersThatBrokeBuild = breakingBuild ? await faultHelper.getUsersWhoBrokeBuild(breakingBuild) : [],
+            targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
+            title_link = breakingBuild ? urljoin(settings.localUrl, `build/${breakingBuild.id}`) : urljoin(settings.localUrl, `job/${job.id}`),
+            color = breakingBuild ? '#D92424' : '#007a5a',
+            text = usersThatBrokeBuild.length ? `People involved : ${usersThatBrokeBuild.join(',')}` : '',
+            title = breakingBuild ? 
+                `${job.name} broke @ build #${breakingBuild.build}.` : 
+                `${job.name} is working again.`,
             attachments = [
-            {
-                fallback : `Build #${build.build} is ${status}`,
-                color,
-                title: `Build #${build.build}`,
-                text : `${userString}`,
-                title_link: buildLink,
-                ts: build.ended
-            }
-        ]
+                {
+                    fallback : title,
+                    color,
+                    title,
+                    title_link,
+                    text 
+                }
+            ]
 
         await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, text: title, attachments });
 

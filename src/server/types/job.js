@@ -10,7 +10,8 @@
  * @property {boolean} isPassing true if build is passing.
  * @property {number} historyLimit Number of builds back in time to import. Use this to throttle import when binding to existing jobs
  * @property {string} changeContext if build fails or passes, context of that build. used for messaging and status change updates
- * @property {object} contactMethods
+ * @property {object} contactMethods object hash of plugins to send alerts on job status change
+ * @property {string} lastBreakIncidentId Optional. incidentId of last build to break job.
  */
 module.exports = class Job {
 
@@ -26,6 +27,7 @@ module.exports = class Job {
         this.historyLimit = null
         this.changeContext = null
         this.contactMethods = {}
+        this.lastBreakIncidentId = null
     }
     
 }
