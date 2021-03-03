@@ -47,9 +47,12 @@ module.exports = {
             })
     },
 
+    
     /**
      * Gets a list of usernames who confirmed broke the given build. Usernames are either the User object .name, or the string
      * name from version control for a given commit that is known to be at fault.
+     * 
+     * Throws 'revisions not mapped yet' if the build passed in has not had its revisions mapped
      * 
      * @param {import('../types/build').Build} build A build 
      * @returns {Promise<Array<string>>} 
@@ -62,11 +65,14 @@ module.exports = {
         for (const buildInvolvement of build.involvements){
             const user = buildInvolvement.userId ? await data.getUser(buildInvolvement.userId) : null,
                 username = user ? user.name : buildInvolvement.externalUsername
+            
+            if (!buildInvolvement.revisionObject)
+                throw `revisions not mapped yet`
 
-            if (!buildInvolvement.revisionObject || !buildInvolvement.revisionObject.files.find(file => file.isFault === true))
+            if (!buildInvolvement.revisionObject.files.find(file => file.isFault === true))
                 continue
 
-            if (usernames.includes(username))
+            if (!usernames.includes(username))
                 usernames.push(username)
         }
 

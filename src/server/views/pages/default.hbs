@@ -34,6 +34,7 @@
                                             {{#neq __breakingBuild.id __latestBuild.id}}
                                                 @ <a href="/build/{{__breakingBuild.id}}">{{__breakingBuild.build}}</a> {{#if __breakingBuild.ended}}({{ago __breakingBuild.ended}}){{/if}}
                                             {{/neq}}
+                                            .
                                         {{/if}}
                                     {{/if}}
 

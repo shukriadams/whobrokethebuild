@@ -109,12 +109,21 @@ module.exports = {
 
         // check if channel has already been informed about this build failure
         // generate a string of user names involved in build if build broke
-        let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
+        let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context),
+            usersThatBrokeBuild
         if (!force && contactLog)
             return
 
-        const usersThatBrokeBuild = breakingBuild ? await faultHelper.getUsersWhoBrokeBuild(breakingBuild) : [],
-            targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
+        try {
+            usersThatBrokeBuild = breakingBuild ? await faultHelper.getUsersWhoBrokeBuild(breakingBuild) : []
+        } catch (ex){
+            if (ex === 'revisions not mapped yet')
+                return
+                
+            throw ex
+        }
+
+        const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
             title_link = breakingBuild ? urljoin(settings.localUrl, `build/${breakingBuild.id}`) : urljoin(settings.localUrl, `job/${job.id}`),
             color = breakingBuild ? '#D92424' : '#007a5a',
             text = usersThatBrokeBuild.length ? `People involved : ${usersThatBrokeBuild.join(',')}` : '',

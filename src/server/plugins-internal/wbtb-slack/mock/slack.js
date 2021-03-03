@@ -77,7 +77,7 @@ module.exports = class {
                     })
     
                 __log.debug(`mock slack sending message to channel ${args.channel} :`)
-                const writeFolder = path.join(settings.dataFolder, 'slackMockMessages')
+                const writeFolder = path.join(settings.dataFolder, 'wbtb-slack', 'mockMessages')
                 fs.ensureDirSync(writeFolder)
                 fs.outputJsonSync(path.join(writeFolder, `${new Date().getTime()}-slack-post.json`), args, { spaces : 4 })
                 return 'message posted'

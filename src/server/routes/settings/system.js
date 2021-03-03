@@ -69,7 +69,7 @@ module.exports = function(app){
                 
             model.pluginLinks = Object.assign({}, pluginConf)
             for(const plugin in model.pluginLinks)
-                if (!model.pluginLinks[plugin].hasUI)
+                if (!model.pluginLinks[plugin].hasAdminUI)
                     delete model.pluginLinks[plugin]
 
             model.ciservers = await data.getAllCIServers()
