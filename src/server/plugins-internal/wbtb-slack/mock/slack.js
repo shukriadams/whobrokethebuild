@@ -28,10 +28,8 @@ module.exports = class {
                         id : 'some-channel'
                     }
                 }
-            }
-        }
-        
-        this.channels = {
+            },
+
             list : () => {
                 return {
                     channels : [{
@@ -45,8 +43,8 @@ module.exports = class {
                 }
             }
         }
-
-        this.conversations = {
+        
+        this.channels = {
             list : () => {
                 return {
                     channels : [{
