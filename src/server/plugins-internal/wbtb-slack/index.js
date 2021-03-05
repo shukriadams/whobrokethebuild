@@ -99,6 +99,15 @@ module.exports = {
             faultHelper = require(_$+'helpers/fault'),
             context = `slack_group_alert_${job.id}_${(job.lastBreakIncidentId || '')}_${breakingBuild ? 'fail':'pass'}`
 
+        // Do this as early as possible in method, we will be spamming this method
+        // check if channel has already been informed about this build failure
+        // generate a string of user names involved in build if build broke
+        let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context),
+            usersThatBrokeBuild
+
+        if (!force && contactLog)
+            return
+
         if (!this.__wbtb.enableMessaging){
             __log.debug(`Slack messaging disabled, blocked send`)
             return
@@ -106,13 +115,6 @@ module.exports = {
 
         if (settings.plugins[thisType].overrideChannelId)
             __log.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.plugins[thisType].overrideChannelId}`)
-
-        // check if channel has already been informed about this build failure
-        // generate a string of user names involved in build if build broke
-        let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context),
-            usersThatBrokeBuild
-        if (!force && contactLog)
-            return
 
         try {
             usersThatBrokeBuild = breakingBuild ? await faultHelper.getUsersWhoBrokeBuild(breakingBuild) : []
@@ -179,6 +181,12 @@ module.exports = {
         if (!context)
             context = build.id
 
+        // check if user has already been informed about this build failure. Do this as early as possible, as most times this method runs
+        // we will be retrying an alert that has already been sent
+        let contactLog = force ? null : await data.getContactLogByContext(user.id, thisType, context)
+        if (contactLog)
+            return
+
         // convert to unique users
         usersInvolved = Array.from(new Set(usersInvolved)) 
 
@@ -191,11 +199,6 @@ module.exports = {
             __log.warn(`Attepting to warn user on unprocessed log, build "${build.build}" to user "${user.name}"`)
             return
         }
-
-        // check if user has already been informed about this build failure
-        let contactLog = force ? null : await data.getContactLogByContext(user.id, thisType, context)
-        if (contactLog)
-            return
 
         let targetSlackId = user.pluginSettings[thisType] ? user.pluginSettings[thisType].slackId : null
         if (!force && settings.plugins[thisType].overrideUserId){

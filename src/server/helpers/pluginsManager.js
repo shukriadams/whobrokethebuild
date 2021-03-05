@@ -502,8 +502,8 @@ module.exports = {
         const pluginsOut = [],
             plugins = this.getAll()
 
-        for (const pluginName of user.pluginSettings){
-            const plugin = plugins.find(plugin => plugin.__wbtb.name === pluginName)
+        for (const pluginName in user.pluginSettings){
+            const plugin = plugins.find(plugin => plugin.__wbtb.id === pluginName)
             if (!plugin)
                 continue // plugin no longer exists or has been unbound, ignore
             
