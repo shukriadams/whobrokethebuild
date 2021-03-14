@@ -7,24 +7,22 @@
             {{/if}}
 
             <h2>{{user.name}}'s builds</h2>
-            <ul class="list">
+            <x-list>
                 {{#if builds.items}}
                     {{#each builds.items}}
-                        <li class="list-item card">
-                            <div class="card-status card-status--{{statusTranslate status}}"></div>
-
-                            <div class="card-content">
+                        <x-list-row class="{{statusTranslate status}}">
+                            <x-list-cell>
                                 <a href="/build/{{id}}">{{build}} - {{__job.name}}</a>
                                 {{ago started}}
-                            </div>
-                        </li>
+                            </x-list-cell>
+                        </x-list-row>
                     {{/each}}
                 {{else}}
                     <p>
                         {{user.name}} hasn't triggered any builds yet.
                     </p>
                 {{/if}}
-            </ul>
+            </x-list>
 
             {{{pager baseUrl builds }}}
 

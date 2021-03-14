@@ -9,12 +9,12 @@
             </a>
         {{/if}}
 
-        <ul class="list job-buildsList">
+        <x-list>
             {{#if jobBuilds.items}}
                 {{#each jobBuilds.items}}
-                    <li class="list-item card">
-                        <div class="card-status card-status--{{statusTranslate status}}"></div>
-                        <div class="card-content">
+                    <x-list-row class="job-buildItem job-buildItem--{{statusTranslate status}}">
+                        <x-list-cell>
+                            <div class="card-status card-status--{{statusTranslate status}}"></div>
                             <div>
                                 <a class="job-buildTitle" href="/build/{{id}}">
                                     # {{build}}
@@ -26,9 +26,9 @@
                             <div>
                                 {{ago started}} @ {{shortTime started}}
                             </div>
-                        </div>    
+                        </x-list-cell>    
 
-                        <ul class="card-content">
+                        <x-list-cell>
                             {{#each involvements}}
                                 <li_>
                                     <div>
@@ -44,15 +44,15 @@
                                     </div>
                                 </li_>
                             {{/each}}
-                        </ul>
-                    </li>
+                        </x-list-cell>
+                    </x-list-row>
                 {{/each}}
 
             {{else}}
                 This job hasn't built yet
             {{/if}}
 
-        </ul>
+        </x-list>
 
         {{{pager baseUrl jobBuilds }}}
 

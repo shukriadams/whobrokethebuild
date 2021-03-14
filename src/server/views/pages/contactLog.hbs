@@ -1,20 +1,20 @@
 {{#extend "layout"}}
     {{#content "body"}}
         <h1>Notifications</h1>
-        <ul>
+        <x-list>
             {{#if contactLogs.items}}
                 {{#each contactLogs.items}}
-                    <li class="struc-row struc-row--padded">
-                        <div class="struc-cell">
+                    <x-list-row>
+                        <x-list-cell>
                             <a href="/user/{{__user.id}}">{{__user.name}}</a>
-                        </div>
-                        <div class="struc-cell">
+                        </x-list-cell>
+                        <x-list-cell>
                             {{eventContext}}
-                        </div>
-                        <div class="struc-cell">
+                        </x-list-cell>
+                        <x-list-cell>
                             {{ago created}}
-                        </div>
-                    </li>
+                        </x-list-cell>
+                    </x-list-row>
                 {{/each}}
 
                 {{{pager "/contactLog" contactLogs }}}
@@ -25,7 +25,7 @@
                 </p>
             {{/if}}
 
-        </ul>
+        </x-list>
     {{/content}}
 {{/extend}}
 

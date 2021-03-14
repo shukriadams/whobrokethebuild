@@ -1,59 +1,59 @@
 {{#extend "layout"}}
     {{#content "body"}}
-        <ul class="list build">
-
-            <li class="list-item card">
+        <x-card>
+            <x-card-pad>
                 <div class="card-status card-status--{{statusTranslate build.status}}"></div>
-                <div class="card-content">
-                    <h1>Build #{{build.build}}</h1>
-                    <p>
-                        Ran {{ago build.started}}{{#if build.ended}}, took {{durationLong build.ended build.started}} to complete{{/if}}
-                    </p>
-                    <p>
-                        Built on :  {{build.host}}
-                    </p>
-                    <p>
-                        Job : <a href="/job/{{build.jobId}}">{{job.name}}</a>
-                    </p>
-                    <p>
-                        <a href="{{linkToBuild}}">View on {{ciServer.name}}</a>
-                    </p>
-                    <p>
-                        Status : {{statusAndDeltaTranslate build.status build.delta}}
-                        {{#if responsibleBreakingBuild}}
-                            <a href="/build/{{responsibleBreakingBuild.id}}">{{responsibleBreakingBuild.build}}</a>
-                        {{/if}}
+                <h1>Build #{{build.build}}</h1>
+                <p>
+                    Ran {{ago build.started}}{{#if build.ended}}, took {{durationLong build.ended build.started}} to complete{{/if}}
+                </p>
+                <p>
+                    Built on :  {{build.host}}
+                </p>
+                <p>
+                    Job : <a href="/job/{{build.jobId}}">{{job.name}}</a>
+                </p>
+                <p>
+                    <a href="{{linkToBuild}}">View on {{ciServer.name}}</a>
+                </p>
+                <p>
+                    Status : {{statusAndDeltaTranslate build.status build.delta}}
+                    {{#if responsibleBreakingBuild}}
+                        <a href="/build/{{responsibleBreakingBuild.id}}">{{responsibleBreakingBuild.build}}</a>
+                    {{/if}}
 
-                        {{#if buildBreakers}}
-                            <div>
-                                Broken by :
-                                {{#each buildBreakers}}
-                                    <a href="/user/{{id}}">{{name}}</a>
-                                {{/each}}
-                            </div>
-                        {{/if}}
-                    </p>
-                    <p>
-                        {{#if previousBuild}}
-                            <a href="/build/{{previousBuild.id}}">Previous ({{durationLong build.started previousBuild.started}})</a>
-                        {{/if}}
-
-                        {{#if nextBuild}}
-                            <div>
-                                <a href="/build/{{nextBuild.id}}">Next ({{durationLong nextBuild.started build.started}})</a>
-                            </div>
-                        {{/if}}
-                    </p>
-                    {{#if session.isAdmin}}
+                    {{#if buildBreakers}}
                         <div>
-                            <h2>Admin</h2>
-                            <button class="button build-delete" data-id="{{build.id}}">Remove build</button>    
+                            Broken by :
+                            {{#each buildBreakers}}
+                                <a href="/user/{{id}}">{{name}}</a>
+                            {{/each}}
                         </div>
                     {{/if}}
-                </div>
-            </li>
-            
-            <li class="list-item build-item">
+                </p>
+                <p>
+                    {{#if previousBuild}}
+                        <a href="/build/{{previousBuild.id}}">Previous ({{durationLong build.started previousBuild.started}})</a>
+                    {{/if}}
+
+                    {{#if nextBuild}}
+                        <div>
+                            <a href="/build/{{nextBuild.id}}">Next ({{durationLong nextBuild.started build.started}})</a>
+                        </div>
+                    {{/if}}
+                </p>
+                {{#if session.isAdmin}}
+                    <div>
+                        <h2>Admin</h2>
+                        <button class="button danger" data-id="{{build.id}}">Remove build</button>    
+                    </div>
+                {{/if}}
+
+            </x-card-pad>
+        </x-card>
+        
+        <x-card>
+            <x-card-pad>
                 <h2>Changes in this build</h2>
                 <ul class="list revisionList">
                     {{#if build.involvements}}
@@ -110,8 +110,8 @@
                         {{/if}}
                     </ul>
                 {{/eq}}
-            </li>
-        </ul>
+            </x-card-pad>
+        </x-card>
 
     {{/content}}
 {{/extend}}

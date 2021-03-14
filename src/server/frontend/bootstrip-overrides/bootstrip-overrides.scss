@@ -1,0 +1,26 @@
+x-fixedWidthHeader-logoContainer {
+    width: var(--layout-sideMenu-width);
+}
+
+x-fixedWidthHeader {
+    height: var(--layout-header-height);
+}
+
+x-card {
+    border: none;
+    
+    &.passing {
+        background-color: var(--color-genoa);
+        color: var(--color-white);
+    }
+
+    &.broken {
+        background-color: var(--color-crownOfThorns);
+        color: var(--color-white);
+    }
+
+    &.building {
+        background-color: var(--color-corn);
+        color: var(--color-white);
+    }
+}

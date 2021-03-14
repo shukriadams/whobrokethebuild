@@ -3,8 +3,10 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-        <link rel="stylesheet" href="/css/style{{layout.bundlemode}}.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrip.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrip-theme-default.css" type="text/css">
         <link rel="stylesheet" href="/css/icons/iconfont.css" type="text/css">
+        <link rel="stylesheet" href="/css/style{{layout.bundlemode}}.css" type="text/css">
         <link rel='shortcut icon' type='image/x-icon' href='/images/favicon.png'/>
         <meta http-equiv="content-type" name="description" content="">
         <meta http-equiv="content-type" name="keywords" content="">
@@ -12,50 +14,117 @@
         {{{block "basehead"}}}
     </head>
     <body>
-        <div class="layout-page">
+        <header>
+            <x-fixedWidthHeader class="sticky">
+                <x-fixedWidthHeader-logoContainer>
+                    <a href="/">
+                        <x-fixedWidthHeader-logo>
+                            <a class="header-title" href="/">WBTB?</a>
+                        </x-fixedWidthHeader-logo>
+                    </a>
+                </x-fixedWidthHeader-logoContainer>
 
-            <header class="layout-header header">
-                <div class="layout-scaffold">
-                    <ul class="header-items">
-                        <li>
-                            <a class="header-title" href="/">Who Broke the build?</a>
-                        </li>
-                        
+                <x-fixedWidthHeader-content>
+                    {{#if session.isLoggedIn}}
+                        <x-fixedWidthHeader-contentItem>
+                            Hi there <a class="header-username" href="/settings">{{session.name}}</a>
+                        </x-fixedWidthHeader-contentItem>
+                    {{/if}}
+                    <x-fixedWidthHeader-contentItem>
+
                         {{#if session.isLoggedIn}}
-                            <li>
-                                Hi there <a class="header-username" href="/settings">{{session.name}}</a>
-                            </li>
+                            <a class="header-logout" href="javascript:void(0)" title="Logout">
+                                <i class="icon icon-logout"></i>
+                            </a>
+                        {{else}}
+                            <a class="header-login" href="/login" title="Login">
+                                <i class="icon icon-login"></i>
+                            </a>
                         {{/if}}
+                    </x-fixedWidthHeader-contentItem>
 
-                        <li>
-                            {{#if session.isLoggedIn}}
-                                <a class="header-logout" href="javascript:void(0)" title="Logout">
-                                    <i class="icon icon-logout"></i>
-                                </a>
-                            {{else}}
-                                <a class="header-login" href="/login" title="Login">
-                                    <i class="icon icon-login"></i>
-                                </a>
-                            {{/if}}
-                        </li>
+                </x-fixedWidthHeader-content>    
+            </x-fixedWidthHeader>
+        </header>
 
-                    </ul>
-                </div>
-            </header>
+        <aside>
+            <ul class="sideMenu">
+                <li class="sideMenu-header">
+                    section
+                </li>
+                <li class="sideMenu-item active">
+                    <a class="sideMenu-anchor" href="#">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-logout"></i>
+                        </span>
+                        logout
+                    </a>
+                </li>
 
-            <main class="layout-main">
-                {{>menu}}
-                <div class="layout-content">
-                    {{{block "body"}}}
-                </div>
-            </main>
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/users" title="Users">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-users"></i> 
+                        </span>
+                        Users
+                    </a> 
+                </li>
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/contactLog" title="Contact log">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-log"></i> 
+                        </span>
+                        Contact log
+                    </a> 
+                </li>
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/referenceLogs" title="Reference logs">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-log"></i> 
+                        </span>
+                        Ref logs
+                    </a> 
+                </li>        
+                {{#if session.isAdmin}}
+                    <li class="sideMenu-item">
+                        <a class="sideMenu-anchor" href="/settings" title="Profile">
+                            <span class="sideMenu-iconWrapper">
+                                <i class="icon icon-user"></i> 
+                            </span>
+                            Profile
+                        </a> 
+                    </li>
+                    <li class="sideMenu-item">
+                        <a class="sideMenu-anchor" href="/settings/system" title="System">
+                            <span class="sideMenu-iconWrapper">
+                                <i class="icon icon-gear"></i> 
+                            </span>
+                            System
+                        </a>
+                    </li>
+                    <li class="sideMenu-item">
+                        <a class="sideMenu-anchor" href="/log" title="Log">
+                            <span class="sideMenu-iconWrapper">
+                                <i class="icon icon-log"></i> 
+                            </span>
+                            Log
+                        </a> 
+                    </li>
+                {{/if}}
 
+            </ul>
+        </aside>
+
+        <main>
+            {{{block "body"}}}
             <footer>
                 <div class="layout-scaffold">
                 </div>
             </footer>
+        </main>
 
-        </div>
+
+
         <script src="/scripts/scripts.js"></script>
     </body>
 </html>

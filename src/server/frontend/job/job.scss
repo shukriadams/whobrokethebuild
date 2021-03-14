@@ -9,3 +9,10 @@
         width: 50%;
     }
 }
+
+.job-buildItem{
+    &.job-buildItem--broken {
+        background-color: var(--color-charm);
+        color: var(--color-white);
+    }
+}

@@ -1,56 +1,52 @@
 {{#extend "layout"}}
     {{#content "body"}}
-        <div>
-            {{#if jobs}}
-                <ul class="list jobs">
-                    {{#each jobs}}
-                        <li class="card list-item {{#if __breakingBuild}}list-item--error{{/if}}">
-
-                            <div class="card-status card-status--{{statusTranslate __latestBuild.status}}"></div>
-
-                            <div class="card-content">
+        {{#if jobs}}
+            <x-columns class="four">
+                {{#each jobs}}
+                    <x-card class="{{#if __breakingBuild}}BREAKING!!{{/if}} {{statusTranslate __latestBuild.status}}">
+                        <x-card-pad>
+                            <h5 class="bold">
                                 <a class="jobs-title" href="/job/{{id}}">{{name}}</a>
+                            </h5>
 
-                                {{#if __latestBuild}}
-                                    last build was <a href="/build/{{__latestBuild.id}}">{{__latestBuild.build}}</a>
-                                    
-                                    {{#if __latestBuild.ended}} 
-                                        ({{ago __latestBuild.ended}})
-                                    {{else}}
-                                        ,started {{ago __latestBuild.started}}
-                                    {{/if}}
-
-                                    {{#if __breakingBuild}}
-                                        {{#if __breakingBuild.__buildInvolvements}}
-                                            Broken by  
-                                            {{#each __breakingBuild.__buildInvolvements}}
-                                                {{#if __user}}
-                                                    <a href="/user/{{__user.id}}">{{__user.name}}</a>
-                                                {{else}}
-                                                    {{externalUsername}}
-                                                {{/if}}
-                                            {{/each}}
-
-                                            {{#neq __breakingBuild.id __latestBuild.id}}
-                                                @ <a href="/build/{{__breakingBuild.id}}">{{__breakingBuild.build}}</a> {{#if __breakingBuild.ended}}({{ago __breakingBuild.ended}}){{/if}}
-                                            {{/neq}}
-                                            .
-                                        {{/if}}
-                                    {{/if}}
-
+                            {{#if __latestBuild}}
+                                last build was <a href="/build/{{__latestBuild.id}}">{{__latestBuild.build}}</a>
+                                
+                                {{#if __latestBuild.ended}} 
+                                    ({{ago __latestBuild.ended}})
                                 {{else}}
-                                    hasn't run yet
-                                {{/if}}       
-                            </div>
+                                    ,started {{ago __latestBuild.started}}
+                                {{/if}}
 
-                        </li>
-                    {{/each}}
-                </ul>
-            {{else}}
-                <p>
-                    There are currently no builds to show
-                </p>
-            {{/if}}
-        </div>
+                                {{#if __breakingBuild}}
+                                    {{#if __breakingBuild.__buildInvolvements}}
+                                        Broken by  
+                                        {{#each __breakingBuild.__buildInvolvements}}
+                                            {{#if __user}}
+                                                <a href="/user/{{__user.id}}">{{__user.name}}</a>
+                                            {{else}}
+                                                {{externalUsername}}
+                                            {{/if}}
+                                        {{/each}}
+
+                                        {{#neq __breakingBuild.id __latestBuild.id}}
+                                            @ <a href="/build/{{__breakingBuild.id}}">{{__breakingBuild.build}}</a> {{#if __breakingBuild.ended}}({{ago __breakingBuild.ended}}){{/if}}
+                                        {{/neq}}
+                                        .
+                                    {{/if}}
+                                {{/if}}
+
+                            {{else}}
+                                hasn't run yet
+                            {{/if}}       
+                        </x-card-pad>
+                    </x-card>
+                {{/each}}
+            </X-columns>
+        {{else}}
+            <p>
+                There are currently no builds to show
+            </p>
+        {{/if}}
     {{/content}}
 {{/extend}}
