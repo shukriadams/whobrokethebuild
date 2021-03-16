@@ -3,8 +3,10 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&family=Righteous&family=Roboto:wght@300;500;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="/css/bootstrip.css" type="text/css">
         <link rel="stylesheet" href="/css/bootstrip-theme-default.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrip-theme-darkmoon.css" type="text/css">
         <link rel="stylesheet" href="/css/icons/iconfont.css" type="text/css">
         <link rel="stylesheet" href="/css/style{{layout.bundlemode}}.css" type="text/css">
         <link rel='shortcut icon' type='image/x-icon' href='/images/favicon.png'/>
@@ -15,51 +17,44 @@
     </head>
     <body>
         <header>
-            <x-fixedWidthHeader class="sticky">
-                <x-fixedWidthHeader-logoContainer>
+            <x-header class="--sticky">
+                <x-header-logoContainer>
                     <a href="/">
-                        <x-fixedWidthHeader-logo>
-                            <a class="header-title" href="/">WBTB?</a>
-                        </x-fixedWidthHeader-logo>
+                        <x-header-logo>
+                            <a class="header-title" href="/">WBTB?
+                                <i class="icon icon-fingerprint"></i>
+                            </a>
+                        </x-header-logo>
                     </a>
-                </x-fixedWidthHeader-logoContainer>
+                </x-header-logoContainer>
 
-                <x-fixedWidthHeader-content>
-                    {{#if session.isLoggedIn}}
-                        <x-fixedWidthHeader-contentItem>
-                            Hi there <a class="header-username" href="/settings">{{session.name}}</a>
-                        </x-fixedWidthHeader-contentItem>
-                    {{/if}}
-                    <x-fixedWidthHeader-contentItem>
+                <x-header-content>
 
-                        {{#if session.isLoggedIn}}
-                            <a class="header-logout" href="javascript:void(0)" title="Logout">
-                                <i class="icon icon-logout"></i>
-                            </a>
-                        {{else}}
-                            <a class="header-login" href="/login" title="Login">
-                                <i class="icon icon-login"></i>
-                            </a>
-                        {{/if}}
-                    </x-fixedWidthHeader-contentItem>
-
-                </x-fixedWidthHeader-content>    
-            </x-fixedWidthHeader>
+                </x-header-content>    
+            </x-header>
         </header>
 
         <aside>
             <ul class="sideMenu">
-                <li class="sideMenu-header">
-                    section
-                </li>
-                <li class="sideMenu-item active">
-                    <a class="sideMenu-anchor" href="#">
-                        <span class="sideMenu-iconWrapper">
-                            <i class="icon icon-logout"></i>
-                        </span>
-                        logout
-                    </a>
-                </li>
+                {{#if session.isLoggedIn}}
+                    <li class="sideMenu-header">
+                        Hi there <a class="header-username" href="/settings">{{session.name}}</a>
+                    </li>
+                    <li class="sideMenu-item active">
+                        <a href="javascript:void(0)" data-function-logout class="sideMenu-anchor" title="Logout">
+                            <span class="sideMenu-iconWrapper">
+                                <i class="icon icon-logout"></i>
+                            </span>
+                            logout
+                        </a>
+                    </li>
+                {{else}}
+                    <li>
+                        <a class="header-login" data-function-login href="/login" title="Login">
+                            <i class="icon icon-login"></i>
+                        </a>
+                    </li>
+                {{/if}}
 
                 <li class="sideMenu-item">
                     <a class="sideMenu-anchor" href="/users" title="Users">
@@ -69,6 +64,7 @@
                         Users
                     </a> 
                 </li>
+
                 <li class="sideMenu-item">
                     <a class="sideMenu-anchor" href="/contactLog" title="Contact log">
                         <span class="sideMenu-iconWrapper">

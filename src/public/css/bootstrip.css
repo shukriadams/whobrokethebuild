@@ -1,5 +1,5 @@
-/* tag: 0.0.6
-     hash: 04c2930
+/* tag: 0.0.9
+     hash: 527d6db
  *//* line 6, modules/base/alerts/alerts.scss */
 .alert {
   position: relative;
@@ -38,7 +38,7 @@ body {
   vertical-align: middle;
   cursor: pointer;
   user-select: none; }
-/* line 23, modules/base/card/card.scss */
+/* line 29, modules/base/card/card.scss */
 .card {
   position: relative;
   display: flex;
@@ -48,17 +48,23 @@ body {
   background-clip: border-box;
   overflow: hidden; }
   /* line 10, modules/base/card/card.scss */
-  .card.right {
+  .card.--right {
     text-align: right; }
   /* line 14, modules/base/card/card.scss */
-  .card.center {
+  .card.--center {
     text-align: center; }
 
-/* line 27, modules/base/card/card.scss */
+/* line 33, modules/base/card/card.scss */
+.card-stroke {
+  position: absolute;
+  display: block;
+  height: 100%; }
+
+/* line 37, modules/base/card/card.scss */
 .card-pad {
   flex: 1 1 auto; }
 
-/* line 31, modules/base/card/card.scss */
+/* line 41, modules/base/card/card.scss */
 x-card {
   position: relative;
   display: flex;
@@ -68,13 +74,19 @@ x-card {
   background-clip: border-box;
   overflow: hidden; }
   /* line 10, modules/base/card/card.scss */
-  x-card.right {
+  x-card.--right {
     text-align: right; }
   /* line 14, modules/base/card/card.scss */
-  x-card.center {
+  x-card.--center {
     text-align: center; }
 
-/* line 35, modules/base/card/card.scss */
+/* line 45, modules/base/card/card.scss */
+x-card-stroke {
+  position: absolute;
+  display: block;
+  height: 100%; }
+
+/* line 49, modules/base/card/card.scss */
 x-card-pad {
   flex: 1 1 auto; }
 /* line 24, modules/base/circleGraph/circleGraph.scss */
@@ -127,7 +139,7 @@ x-circleGraph-value {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  max-width: var(--layout-clampWidth); }
+  max-width: var(--bootstrip-layout-clampWidth); }
 
 /* line 14, modules/base/clamp/clamp.scss */
 x-clamp {
@@ -135,79 +147,79 @@ x-clamp {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  max-width: var(--layout-clampWidth); }
+  max-width: var(--bootstrip-layout-clampWidth); }
 /* line 1, modules/base/code/code.scss */
-code {
+.code {
   display: block;
   white-space: pre-wrap; }
 /* line 44, modules/base/columns/column.scss */
 .columns {
   display: grid;
-  column-gap: var(--layout-gutter);
-  row-gap: var(--layout-gutter);
-  margin-bottom: var(--layout-gutter); }
+  column-gap: var(--bootstrip-layout-gutter);
+  row-gap: var(--bootstrip-layout-gutter);
+  margin-bottom: var(--bootstrip-layout-gutter); }
   /* line 10, modules/base/columns/column.scss */
   .columns > * {
     display: grid; }
   /* line 15, modules/base/columns/column.scss */
-  .columns.two {
+  .columns.--two {
     grid-template-columns: 1fr 1fr; }
     @media only screen and (max-width: 768px) {
       /* line 15, modules/base/columns/column.scss */
-      .columns.two {
+      .columns.--two {
         grid-template-columns: 1fr; } }
   /* line 23, modules/base/columns/column.scss */
-  .columns.three {
+  .columns.--three {
     grid-template-columns: 1fr 1fr 1fr; }
     @media only screen and (max-width: 1280px) {
       /* line 23, modules/base/columns/column.scss */
-      .columns.three {
+      .columns.--three {
         grid-template-columns: 1fr; } }
   /* line 31, modules/base/columns/column.scss */
-  .columns.four {
+  .columns.--four {
     grid-template-columns: 1fr 1fr 1fr 1fr; }
     @media only screen and (max-width: 1280px) {
       /* line 31, modules/base/columns/column.scss */
-      .columns.four {
+      .columns.--four {
         grid-template-columns: 1fr 1fr; } }
     @media only screen and (max-width: 768px) {
       /* line 31, modules/base/columns/column.scss */
-      .columns.four {
+      .columns.--four {
         grid-template-columns: 1fr; } }
 
 /* line 48, modules/base/columns/column.scss */
 x-columns {
   display: grid;
-  column-gap: var(--layout-gutter);
-  row-gap: var(--layout-gutter);
-  margin-bottom: var(--layout-gutter); }
+  column-gap: var(--bootstrip-layout-gutter);
+  row-gap: var(--bootstrip-layout-gutter);
+  margin-bottom: var(--bootstrip-layout-gutter); }
   /* line 10, modules/base/columns/column.scss */
   x-columns > * {
     display: grid; }
   /* line 15, modules/base/columns/column.scss */
-  x-columns.two {
+  x-columns.--two {
     grid-template-columns: 1fr 1fr; }
     @media only screen and (max-width: 768px) {
       /* line 15, modules/base/columns/column.scss */
-      x-columns.two {
+      x-columns.--two {
         grid-template-columns: 1fr; } }
   /* line 23, modules/base/columns/column.scss */
-  x-columns.three {
+  x-columns.--three {
     grid-template-columns: 1fr 1fr 1fr; }
     @media only screen and (max-width: 1280px) {
       /* line 23, modules/base/columns/column.scss */
-      x-columns.three {
+      x-columns.--three {
         grid-template-columns: 1fr; } }
   /* line 31, modules/base/columns/column.scss */
-  x-columns.four {
+  x-columns.--four {
     grid-template-columns: 1fr 1fr 1fr 1fr; }
     @media only screen and (max-width: 1280px) {
       /* line 31, modules/base/columns/column.scss */
-      x-columns.four {
+      x-columns.--four {
         grid-template-columns: 1fr 1fr; } }
     @media only screen and (max-width: 768px) {
       /* line 31, modules/base/columns/column.scss */
-      x-columns.four {
+      x-columns.--four {
         grid-template-columns: 1fr; } }
 /* line 8, modules/base/content/content.scss */
 .content {
@@ -219,115 +231,6 @@ x-content {
 /* line 1, modules/base/figure/figure.scss */
 figure {
   margin: 0; }
-/* line 63, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-.fixedWidthHeader {
-  flex-wrap: nowrap;
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between; }
-  /* line 11, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-  .fixedWidthHeader a {
-    text-decoration: none;
-    color: inherit; }
-  /* line 16, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-  .fixedWidthHeader.sticky {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1; }
-
-/* line 67, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-.fixedWidthHeader-logoContainer {
-  background-color: var(--color-oxfordblue);
-  color: var(--color-white);
-  width: 15.63rem;
-  position: static;
-  z-index: 5;
-  display: -ms-flexbox;
-  display: flex;
-  align-items: center;
-  width: 8rem;
-  flex: 0 0 auto;
-  padding: 0.5rem 1rem;
-  height: 4rem; }
-
-/* line 71, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-.fixedWidthHeader-content {
-  background-color: var(--color-paleSky);
-  padding: 0.5rem 1rem;
-  position: static;
-  z-index: 5;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  flex-basis: 0;
-  flex-grow: 1;
-  max-width: 100%;
-  height: 4rem;
-  display: flex;
-  align-items: center; }
-
-/* line 75, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-.fixedWidthHeader-contentItem {
-  margin-left: 3rem;
-  position: relative; }
-
-/* line 79, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-x-fixedWidthHeader {
-  flex-wrap: nowrap;
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between; }
-  /* line 11, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-  x-fixedWidthHeader a {
-    text-decoration: none;
-    color: inherit; }
-  /* line 16, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-  x-fixedWidthHeader.sticky {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1; }
-
-/* line 83, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-x-fixedWidthHeader-logoContainer {
-  background-color: var(--color-oxfordblue);
-  color: var(--color-white);
-  width: 15.63rem;
-  position: static;
-  z-index: 5;
-  display: -ms-flexbox;
-  display: flex;
-  align-items: center;
-  width: 8rem;
-  flex: 0 0 auto;
-  padding: 0.5rem 1rem;
-  height: 4rem; }
-
-/* line 87, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-x-fixedWidthHeader-content {
-  background-color: var(--color-paleSky);
-  padding: 0.5rem 1rem;
-  position: static;
-  z-index: 5;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  flex-basis: 0;
-  flex-grow: 1;
-  max-width: 100%;
-  height: 4rem;
-  display: flex;
-  align-items: center; }
-
-/* line 91, modules/base/fixedWidthHeader/fixedWidthHeader.scss */
-x-fixedWidthHeader-contentItem {
-  margin-left: 3rem;
-  position: relative; }
 /* line 23, modules/base/form/forms.scss */
 label {
   display: inline-block; }
@@ -444,52 +347,163 @@ select {
 /* line 81, modules/base/form/forms.scss */
 x-radiolist {
   display: block; }
+/* line 60, modules/base/header/header.scss */
+.header {
+  flex-wrap: nowrap;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between; }
+  /* line 11, modules/base/header/header.scss */
+  .header a {
+    text-decoration: none;
+    color: inherit; }
+  /* line 16, modules/base/header/header.scss */
+  .header.--sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1; }
+  /* line 25, modules/base/header/header.scss */
+  .header x-clamp, .header .clamp {
+    display: flex; }
+
+/* line 64, modules/base/header/header.scss */
+.header-logoContainer {
+  width: 15.63rem;
+  position: static;
+  z-index: 5;
+  display: -ms-flexbox;
+  display: flex;
+  align-items: center;
+  width: 8rem;
+  flex: 0 0 auto;
+  padding: 0.5rem 1rem;
+  height: 4rem; }
+
+/* line 68, modules/base/header/header.scss */
+.header-content {
+  position: static;
+  z-index: 5;
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+  display: flex;
+  align-items: center; }
+
+/* line 72, modules/base/header/header.scss */
+.header-contentItem {
+  margin-left: 3rem;
+  position: relative; }
+
+/* line 76, modules/base/header/header.scss */
+x-header {
+  flex-wrap: nowrap;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between; }
+  /* line 11, modules/base/header/header.scss */
+  x-header a {
+    text-decoration: none;
+    color: inherit; }
+  /* line 16, modules/base/header/header.scss */
+  x-header.--sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1; }
+  /* line 25, modules/base/header/header.scss */
+  x-header x-clamp, x-header .clamp {
+    display: flex; }
+
+/* line 80, modules/base/header/header.scss */
+x-header-logoContainer {
+  width: 15.63rem;
+  position: static;
+  z-index: 5;
+  display: -ms-flexbox;
+  display: flex;
+  align-items: center;
+  width: 8rem;
+  flex: 0 0 auto;
+  padding: 0.5rem 1rem;
+  height: 4rem; }
+
+/* line 84, modules/base/header/header.scss */
+x-header-content {
+  position: static;
+  z-index: 5;
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+  display: flex;
+  align-items: center; }
+
+/* line 88, modules/base/header/header.scss */
+x-header-contentItem {
+  margin-left: 3rem;
+  position: relative; }
 /* line 2, modules/base/icon.scss */
 .icon {
   line-height: unset; }
-/* line 18, modules/base/iconStrip/iconStrip.scss */
+/* line 24, modules/base/iconStrip/iconStrip.scss */
 .iconStrip {
   display: grid; }
 
-/* line 22, modules/base/iconStrip/iconStrip.scss */
+/* line 28, modules/base/iconStrip/iconStrip.scss */
 .iconStrip-text {
   display: block; }
 
-/* line 26, modules/base/iconStrip/iconStrip.scss */
+/* line 32, modules/base/iconStrip/iconStrip.scss */
 .iconStrip-item {
   text-align: center; }
   /* line 8, modules/base/iconStrip/iconStrip.scss */
   .iconStrip-item a {
     display: block;
-    object-fit: cover; }
+    object-fit: cover;
+    height: 100%; }
+  /* line 14, modules/base/iconStrip/iconStrip.scss */
+  .iconStrip-item.--active {
+    cursor: default;
+    pointer-events: none; }
 
-/* line 30, modules/base/iconStrip/iconStrip.scss */
+/* line 36, modules/base/iconStrip/iconStrip.scss */
 x-iconStrip {
   display: grid; }
 
-/* line 34, modules/base/iconStrip/iconStrip.scss */
+/* line 40, modules/base/iconStrip/iconStrip.scss */
 x-iconStrip-text {
   display: block; }
 
-/* line 38, modules/base/iconStrip/iconStrip.scss */
+/* line 44, modules/base/iconStrip/iconStrip.scss */
 x-iconStrip-item {
   text-align: center; }
   /* line 8, modules/base/iconStrip/iconStrip.scss */
   x-iconStrip-item a {
     display: block;
-    object-fit: cover; }
+    object-fit: cover;
+    height: 100%; }
+  /* line 14, modules/base/iconStrip/iconStrip.scss */
+  x-iconStrip-item.--active {
+    cursor: default;
+    pointer-events: none; }
 /* line 1, modules/base/image/image.scss */
 .image {
   max-width: 100%;
   height: auto; }
   /* line 5, modules/base/image/image.scss */
-  .image.full {
+  .image.--full {
     width: 100%; }
   /* line 9, modules/base/image/image.scss */
-  .image.rounded {
+  .image.--rounded {
     user-select: none;
     text-anchor: middle; }
-/* line 23, modules/base/card/card.scss */
+/* line 29, modules/base/card/card.scss */
 .card {
   position: relative;
   display: flex;
@@ -499,17 +513,23 @@ x-iconStrip-item {
   background-clip: border-box;
   overflow: hidden; }
   /* line 10, modules/base/card/card.scss */
-  .card.right {
+  .card.--right {
     text-align: right; }
   /* line 14, modules/base/card/card.scss */
-  .card.center {
+  .card.--center {
     text-align: center; }
 
-/* line 27, modules/base/card/card.scss */
+/* line 33, modules/base/card/card.scss */
+.card-stroke {
+  position: absolute;
+  display: block;
+  height: 100%; }
+
+/* line 37, modules/base/card/card.scss */
 .card-pad {
   flex: 1 1 auto; }
 
-/* line 31, modules/base/card/card.scss */
+/* line 41, modules/base/card/card.scss */
 x-card {
   position: relative;
   display: flex;
@@ -519,17 +539,23 @@ x-card {
   background-clip: border-box;
   overflow: hidden; }
   /* line 10, modules/base/card/card.scss */
-  x-card.right {
+  x-card.--right {
     text-align: right; }
   /* line 14, modules/base/card/card.scss */
-  x-card.center {
+  x-card.--center {
     text-align: center; }
 
-/* line 35, modules/base/card/card.scss */
+/* line 45, modules/base/card/card.scss */
+x-card-stroke {
+  position: absolute;
+  display: block;
+  height: 100%; }
+
+/* line 49, modules/base/card/card.scss */
 x-card-pad {
   flex: 1 1 auto; }
 
-/* line 27, modules/base/list/list.scss */
+/* line 26, modules/base/list/list.scss */
 .list {
   position: relative;
   display: flex;
@@ -543,27 +569,26 @@ x-card-pad {
   list-style: none;
   padding-left: 0; }
   /* line 10, modules/base/card/card.scss */
-  .list.right {
+  .list.--right {
     text-align: right; }
   /* line 14, modules/base/card/card.scss */
-  .list.center {
+  .list.--center {
     text-align: center; }
 
-/* line 31, modules/base/list/list.scss */
+/* line 30, modules/base/list/list.scss */
 .list-row {
   display: flex;
   flex-wrap: nowrap;
   align-items: center; }
 
-/* line 35, modules/base/list/list.scss */
+/* line 34, modules/base/list/list.scss */
 .list-cell {
   flex-basis: 0;
   flex-grow: 1;
-  white-space: nowrap;
   max-width: 100%;
   position: relative; }
 
-/* line 39, modules/base/list/list.scss */
+/* line 38, modules/base/list/list.scss */
 x-list {
   position: relative;
   display: flex;
@@ -577,23 +602,22 @@ x-list {
   list-style: none;
   padding-left: 0; }
   /* line 10, modules/base/card/card.scss */
-  x-list.right {
+  x-list.--right {
     text-align: right; }
   /* line 14, modules/base/card/card.scss */
-  x-list.center {
+  x-list.--center {
     text-align: center; }
 
-/* line 43, modules/base/list/list.scss */
+/* line 42, modules/base/list/list.scss */
 x-list-row {
   display: flex;
   flex-wrap: nowrap;
   align-items: center; }
 
-/* line 47, modules/base/list/list.scss */
+/* line 46, modules/base/list/list.scss */
 x-list-cell {
   flex-basis: 0;
   flex-grow: 1;
-  white-space: nowrap;
   max-width: 100%;
   position: relative; }
 /* line 17, modules/base/pager/pager.scss */
@@ -608,11 +632,11 @@ x-list-cell {
   display: block;
   text-decoration: none; }
   /* line 12, modules/base/pager/pager.scss */
-  .pager-anchor.active {
+  .pager-anchor.--active {
     z-index: 3; }
 /* line 7, modules/base/section/section.scss */
 section {
-  padding: var(--layout-gutter);
+  padding: var(--bootstrip-layout-gutter);
   display: block; }
 /*
 Side menu is meant to be implemented as <ul> or <ol> element, so has only a class export
@@ -659,7 +683,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
     border-width: 0; }
 /* line 21, modules/base/typography/typography.scss */
 .header1, h1 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   margin-top: 0;
   margin-bottom: .5rem;
   font-weight: 500;
@@ -669,7 +693,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 27, modules/base/typography/typography.scss */
 .header2, h2 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   margin-top: 0;
   margin-bottom: .5rem;
   font-weight: 500;
@@ -679,7 +703,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 33, modules/base/typography/typography.scss */
 .header3, h3 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   margin-top: 0;
   margin-bottom: .5rem;
   font-weight: 500;
@@ -689,7 +713,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 39, modules/base/typography/typography.scss */
 .header4, h4 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   margin-top: 0;
   margin-bottom: .5rem;
   font-weight: 500;
@@ -698,7 +722,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 44, modules/base/typography/typography.scss */
 .header5, h5 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   margin-top: 0;
   margin-bottom: .5rem;
   font-weight: 500;
@@ -707,7 +731,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 49, modules/base/typography/typography.scss */
 .header6, h6 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   margin-top: 0;
   margin-bottom: .5rem;
   font-weight: 500;
@@ -716,7 +740,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 54, modules/base/typography/typography.scss */
 .display1 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   font-weight: 300;
   line-height: 1.2;
   margin-bottom: 1rem;
@@ -728,7 +752,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 60, modules/base/typography/typography.scss */
 .display2 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   font-weight: 300;
   line-height: 1.2;
   margin-bottom: 1rem;
@@ -740,7 +764,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 66, modules/base/typography/typography.scss */
 .display3 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   font-weight: 300;
   line-height: 1.2;
   margin-bottom: 1rem;
@@ -752,7 +776,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 72, modules/base/typography/typography.scss */
 .display4 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   font-weight: 300;
   line-height: 1.2;
   margin-bottom: 1rem;
@@ -763,7 +787,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 77, modules/base/typography/typography.scss */
 .display5 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   font-weight: 300;
   line-height: 1.2;
   margin-bottom: 1rem;
@@ -774,7 +798,7 @@ Side menu is meant to be implemented as <ul> or <ol> element, so has only a clas
 
 /* line 82, modules/base/typography/typography.scss */
 .display6 {
-  font-family: var(--font-headerFace);
+  font-family: var(--bootstrip-font-headerFace);
   font-weight: 300;
   line-height: 1.2;
   margin-bottom: 1rem;

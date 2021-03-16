@@ -9,17 +9,22 @@
             </a>
         {{/if}}
 
-        <x-list>
+        <x-list class="--dense jobsList">
             {{#if jobBuilds.items}}
                 {{#each jobBuilds.items}}
-                    <x-list-row class="job-buildItem job-buildItem--{{statusTranslate status}}">
-                        <x-list-cell>
-                            <div class="card-status card-status--{{statusTranslate status}}"></div>
+                    <x-list-row class="job-buildItem">
+                        <a class="job-buildTitle" href="/build/{{id}}">
+                            <div class="jobsList-statusFlag jobsList-statusFlag--{{statusTranslate status}}"></div>
+                        </a>
+                        <x-list-cell class="jobsList-buildTitle">
                             <div>
                                 <a class="job-buildTitle" href="/build/{{id}}">
-                                    # {{build}}
+                                    {{build}}
                                 </a>
                             </div>
+                        </x-list-cell>
+                        <x-list-cell class="jobsList-status">
+                            <div class="card-status card-status--{{statusTranslate status}}"></div>
                             <div>
                                 Status : {{statusTranslate status}}, {{deltaTranslate delta}}
                             </div>
@@ -31,17 +36,14 @@
                         <x-list-cell>
                             {{#each involvements}}
                                 <li_>
-                                    <div>
-                                        {{revision}} -                                         by 
-                                        {{#if userId}}
-                                            <a href="/user/{{userId}}">{{externalUsername}}</a>
-                                        {{else}}
-                                            {{externalUsername}}
-                                        {{/if}}
-
-                                        {{gistOf description 100 "..."}} 
-
-                                    </div>
+                                    {{#gt @index 0}},{{/gt}}
+                                    {{revision}} -                                         by 
+                                    {{#if userId}}
+                                        <a href="/user/{{userId}}">{{externalUsername}}</a>
+                                    {{else}}
+                                        {{externalUsername}}
+                                    {{/if}}
+                                    {{gistOf description 20 "..."}} 
                                 </li_>
                             {{/each}}
                         </x-list-cell>

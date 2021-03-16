@@ -8,10 +8,13 @@ webfontsGenerator({
         files: [
             'svgs/add.svg',
             'svgs/delete.svg',
+            'svgs/eye.svg',
+            'svgs/fingerprint.svg',
             'svgs/gear.svg',
             'svgs/logout.svg',
             'svgs/login.svg',
             'svgs/log.svg',
+            'svgs/radar.svg',
             'svgs/users.svg',
             'svgs/user.svg'
         ],

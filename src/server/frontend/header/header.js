@@ -1,4 +1,4 @@
-const logoutButton = document.querySelector('.header-logout')
+const logoutButton = document.querySelector('[data-function-logout]')
 
 if (logoutButton)
     logoutButton.addEventListener('click', async ()=>{

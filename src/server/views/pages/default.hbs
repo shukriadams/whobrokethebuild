@@ -1,9 +1,10 @@
 {{#extend "layout"}}
     {{#content "body"}}
         {{#if jobs}}
-            <x-columns class="four">
+            <x-columns class="--four">
                 {{#each jobs}}
-                    <x-card class="{{#if __breakingBuild}}BREAKING!!{{/if}} {{statusTranslate __latestBuild.status}}">
+                    <x-card class="--stroke {{statusTranslate __latestBuild.status}}">
+                        <x-card-stroke class="--{{statusTranslate __latestBuild.status}}"></x-card-stroke>
                         <x-card-pad>
                             <h5 class="bold">
                                 <a class="jobs-title" href="/job/{{id}}">{{name}}</a>

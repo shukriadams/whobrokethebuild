@@ -1,0 +1,85 @@
+/* tag: 0.0.9
+     hash: 527d6db
+ *//* line 1, modules/themes/darkmoon/base.scss */
+:root {
+  --bootstrip-color-codeGray: #0c0c0c;
+  --bootstrip-color-shark: #272B30;
+  --bootstrip-color-outerSpace: #32383e;
+  --bootstrip-color-abbey: #464a4d;
+  --bootstrip-color-silveChalice: #aaaaaa; }
+
+/* line 10, modules/themes/darkmoon/base.scss */
+body {
+  color: var(--bootstrip-color-silveChalice);
+  background-color: var(--bootstrip-color-shark); }
+/* line 6, modules/themes/darkmoon/card.scss */
+.card {
+  background-color: var(--bootstrip-color-outerSpace);
+  border: 1px solid var(--bootstrip-color-black); }
+
+/* line 10, modules/themes/darkmoon/card.scss */
+x-card {
+  background-color: var(--bootstrip-color-outerSpace);
+  border: 1px solid var(--bootstrip-color-black); }
+/* line 15, modules/themes/darkmoon/list.scss */
+.list {
+  background-color: var(--bootstrip-color-outerSpace);
+  border: 1px solid var(--bootstrip-color-codeGray); }
+
+/* line 19, modules/themes/darkmoon/list.scss */
+x-list {
+  background-color: var(--bootstrip-color-outerSpace);
+  border: 1px solid var(--bootstrip-color-codeGray); }
+
+/* line 23, modules/themes/darkmoon/list.scss */
+.list-row {
+  border-top: none; }
+  /* line 10, modules/themes/darkmoon/list.scss */
+  .list-row:not(:first-of-type) {
+    border-top: 1px solid var(--bootstrip-color-codeGray); }
+
+/* line 27, modules/themes/darkmoon/list.scss */
+x-list-row {
+  border-top: none; }
+  /* line 10, modules/themes/darkmoon/list.scss */
+  x-list-row:not(:first-of-type) {
+    border-top: 1px solid var(--bootstrip-color-codeGray); }
+/* line 17, modules/themes/darkmoon/pager.scss */
+.pager-anchor {
+  color: var(--bootstrip-color-white);
+  background-color: var(--bootstrip-color-abbey);
+  border: 1px solid var(--bootstrip-color-black); }
+  /* line 6, modules/themes/darkmoon/pager.scss */
+  .pager-anchor:hover {
+    background-color: var(--bootstrip-color-shark);
+    border-color: var(--bootstrip-color-black); }
+  /* line 11, modules/themes/darkmoon/pager.scss */
+  .pager-anchor.--active {
+    background-color: var(--bootstrip-color-shark);
+    border-color: var(--bootstrip-color-black); }
+/* line 35, modules/themes/darkmoon/table.scss */
+.table {
+  border-color: var(--bootstrip-color-black);
+  color: var(--bootstrip-color-white); }
+  /* line 6, modules/themes/darkmoon/table.scss */
+  .table.--striped > tbody > tr:nth-of-type(odd) {
+    color: var(--bootstrip-color-white);
+    background-color: var(--bootstrip-color-abbey); }
+  /* line 12, modules/themes/darkmoon/table.scss */
+  .table > :not(:last-child) > :last-child > * {
+    border-bottom-color: var(--bootstrip-color-black); }
+  /* line 16, modules/themes/darkmoon/table.scss */
+  .table > :not(caption) > * > * {
+    border-bottom-color: var(--bootstrip-color-black); }
+
+/* line 22, modules/themes/darkmoon/table.scss */
+.table-row.--success {
+  color: var(--bootstrip-color-abbey); }
+
+/* line 26, modules/themes/darkmoon/table.scss */
+.table-row.--warning {
+  color: var(--bootstrip-color-abbey); }
+
+/* line 30, modules/themes/darkmoon/table.scss */
+.table-row.--danger {
+  color: var(--bootstrip-color-abbey); }

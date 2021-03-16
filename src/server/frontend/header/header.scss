@@ -10,12 +10,6 @@
     background-color: var(--color-crusta);
 }
 
-.header-title{
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--color-white);
-}
-
 .header-username {
     @include header-link;
     text-decoration: underline;

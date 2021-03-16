@@ -22,7 +22,7 @@
     --universalPaddingLesser: 8px;
     --layout-maxWidth: 1400px;
     --layout-inputElementHeight: 36px;
-    --layout-sideMenu-width: 200px;
+    --layout-sideMenu-width: 154px;
     --layout-header-height: 4rem;
 }
 
@@ -32,6 +32,7 @@ html, body {
 }
 
 body {
+    //background-color: var(--bootstrip-color-athensGray);
     display: flex;
     flex-flow: column;
     margin: 0;
@@ -41,8 +42,12 @@ body {
     height: 100vh;
 }
 
+a {
+    color: var(--color-crusta);
+}
+
 aside {
-    background-color: var(--color-mirage);
+    background-color: var(--bootstrip-color-mirage);
     max-height: 100vh;
     min-height: 100vh;
     position: fixed;
@@ -58,8 +63,7 @@ header {
 
 main {
     margin-left: var(--layout-sideMenu-width);
-    background-color: var(--color-athensGray);
-    padding: var(--layout-gutter);
+    padding: var(--bootstrip-layout-gutter);
     height: 100%;
     overflow-y: auto;
 }

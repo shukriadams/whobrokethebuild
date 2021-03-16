@@ -1,26 +1,57 @@
-x-fixedWidthHeader-logoContainer {
-    width: var(--layout-sideMenu-width);
+:root {
+    // override existing value
+    --bootstrip-layout-gutter: 24px;
 }
 
-x-fixedWidthHeader {
+h1 {
+    margin-top: 1.5rem;
+}
+
+h2 {
+    margin-top: 1rem;
+}
+
+h3 {
+    margin-top: .5rem;
+}
+
+h4 {
+    margin-top: .5rem;
+}
+
+h5 {
+    margin-top: .5rem;
+}
+
+x-header {
     height: var(--layout-header-height);
+}
+
+x-header-logoContainer {
+    width: var(--layout-sideMenu-width);
 }
 
 x-card {
     border: none;
-    
-    &.passing {
-        background-color: var(--color-genoa);
-        color: var(--color-white);
+}
+
+.header-title {
+    font-size: 24px;
+}
+
+x-card-stroke {
+    &.--passing {
+        background-color: var(--bootstrip-color-genoa);
+        color: var(--bootstrip-color-white);
     }
 
-    &.broken {
-        background-color: var(--color-crownOfThorns);
-        color: var(--color-white);
+    &.--broken {
+        background-color: var(--bootstrip-color-crownOfThorns);
+        color: var(--bootstrip-color-white);
     }
 
-    &.building {
-        background-color: var(--color-corn);
-        color: var(--color-white);
+    &.--building {
+        background-color: var(--bootstrip-color-corn);
+        color: var(--bootstrip-color-white);
     }
 }

@@ -1,9 +1,9 @@
 @font-face {
 	font-family: "iconfont";
-	src: url("/css/icons/iconfont.eot?9b0895eeebbb4a5e09e0417f4c2a4ed4?#iefix") format("embedded-opentype"),
-url("/css/icons/iconfont.woff2?9b0895eeebbb4a5e09e0417f4c2a4ed4") format("woff2"),
-url("/css/icons/iconfont.woff?9b0895eeebbb4a5e09e0417f4c2a4ed4") format("woff"),
-url("/css/icons/iconfont.ttf?9b0895eeebbb4a5e09e0417f4c2a4ed4") format("truetype");
+	src: url("/css/icons/iconfont.eot?9cf5562734772f89f5818cc726496e3f?#iefix") format("embedded-opentype"),
+url("/css/icons/iconfont.woff2?9cf5562734772f89f5818cc726496e3f") format("woff2"),
+url("/css/icons/iconfont.woff?9cf5562734772f89f5818cc726496e3f") format("woff"),
+url("/css/icons/iconfont.ttf?9cf5562734772f89f5818cc726496e3f") format("truetype");
 }
 
 .icon {
@@ -20,21 +20,33 @@ url("/css/icons/iconfont.ttf?9b0895eeebbb4a5e09e0417f4c2a4ed4") format("truetype
 .icon-add:before {
 	content: "\f101";
 }
-.icon-gear:before {
+.icon-delete:before {
 	content: "\f102";
 }
-.icon-logout:before {
+.icon-eye:before {
 	content: "\f103";
 }
-.icon-login:before {
+.icon-fingerprint:before {
 	content: "\f104";
 }
-.icon-log:before {
+.icon-gear:before {
 	content: "\f105";
 }
-.icon-users:before {
+.icon-logout:before {
 	content: "\f106";
 }
-.icon-user:before {
+.icon-login:before {
 	content: "\f107";
+}
+.icon-log:before {
+	content: "\f108";
+}
+.icon-radar:before {
+	content: "\f109";
+}
+.icon-users:before {
+	content: "\f10a";
+}
+.icon-user:before {
+	content: "\f10b";
 }

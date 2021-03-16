@@ -1,165 +1,161 @@
-/* tag: 0.0.6
-     hash: 04c2930
- *//* line 38, modules/themes/default/alert.scss */
+/* tag: 0.0.9
+     hash: 527d6db
+ *//* line 35, modules/themes/default/alert.scss */
 .alert {
   padding: 1rem 1rem;
   margin-bottom: 1rem;
   border: 1px solid transparent;
-  border-radius: var(--layout-radius); }
-  /* line 7, modules/themes/default/alert.scss */
-  .alert.primary {
-    color: var(--color-congressBlue);
-    background-color: var(--color-onahau);
-    border-color: var(--color-frenchPass); }
-  /* line 13, modules/themes/default/alert.scss */
-  .alert.success {
-    color: var(--color-jewel);
-    background-color: var(--color-edgewater);
-    border-color: var(--color-edgewaterDark); }
-  /* line 19, modules/themes/default/alert.scss */
-  .alert.danger {
-    color: var(--color-crownOfThorns);
-    background-color: var(--color-cherub);
-    border-color: var(--color-azalea); }
-  /* line 25, modules/themes/default/alert.scss */
-  .alert.warning {
-    color: var(--color-antiqueBronze);
-    background-color: var(--color-barleyWhite);
-    border-color: var(--color-butterMilk); }
-  /* line 31, modules/themes/default/alert.scss */
-  .alert.dark {
-    color: var(--color-woodsmoke);
-    background-color: var(--color-iron);
-    border-color: var(--color-silverSand); }
+  border-radius: var(--bootstrip-layout-radius);
+  color: var(--bootstrip-color-congressBlue);
+  background-color: var(--bootstrip-color-frenchPass);
+  border-color: var(--bootstrip-color-frenchPass); }
+  /* line 10, modules/themes/default/alert.scss */
+  .alert.--success {
+    color: var(--bootstrip-color-jewel);
+    background-color: var(--bootstrip-color-edgewater);
+    border-color: var(--bootstrip-color-edgewaterDark); }
+  /* line 16, modules/themes/default/alert.scss */
+  .alert.--danger {
+    color: var(--bootstrip-color-crownOfThorns);
+    background-color: var(--bootstrip-color-cherub);
+    border-color: var(--bootstrip-color-azalea); }
+  /* line 22, modules/themes/default/alert.scss */
+  .alert.--warning {
+    color: var(--bootstrip-color-antiqueBronze);
+    background-color: var(--bootstrip-color-barleyWhite);
+    border-color: var(--bootstrip-color-butterMilk); }
+  /* line 28, modules/themes/default/alert.scss */
+  .alert.--dark {
+    color: var(--bootstrip-color-woodsmoke);
+    background-color: var(--bootstrip-color-iron);
+    border-color: var(--bootstrip-color-silverSand); }
 
-/* line 42, modules/themes/default/alert.scss */
+/* line 39, modules/themes/default/alert.scss */
 x-alert {
   padding: 1rem 1rem;
   margin-bottom: 1rem;
   border: 1px solid transparent;
-  border-radius: var(--layout-radius); }
-  /* line 7, modules/themes/default/alert.scss */
-  x-alert.primary {
-    color: var(--color-congressBlue);
-    background-color: var(--color-onahau);
-    border-color: var(--color-frenchPass); }
-  /* line 13, modules/themes/default/alert.scss */
-  x-alert.success {
-    color: var(--color-jewel);
-    background-color: var(--color-edgewater);
-    border-color: var(--color-edgewaterDark); }
-  /* line 19, modules/themes/default/alert.scss */
-  x-alert.danger {
-    color: var(--color-crownOfThorns);
-    background-color: var(--color-cherub);
-    border-color: var(--color-azalea); }
-  /* line 25, modules/themes/default/alert.scss */
-  x-alert.warning {
-    color: var(--color-antiqueBronze);
-    background-color: var(--color-barleyWhite);
-    border-color: var(--color-butterMilk); }
-  /* line 31, modules/themes/default/alert.scss */
-  x-alert.dark {
-    color: var(--color-woodsmoke);
-    background-color: var(--color-iron);
-    border-color: var(--color-silverSand); }
+  border-radius: var(--bootstrip-layout-radius);
+  color: var(--bootstrip-color-congressBlue);
+  background-color: var(--bootstrip-color-frenchPass);
+  border-color: var(--bootstrip-color-frenchPass); }
+  /* line 10, modules/themes/default/alert.scss */
+  x-alert.--success {
+    color: var(--bootstrip-color-jewel);
+    background-color: var(--bootstrip-color-edgewater);
+    border-color: var(--bootstrip-color-edgewaterDark); }
+  /* line 16, modules/themes/default/alert.scss */
+  x-alert.--danger {
+    color: var(--bootstrip-color-crownOfThorns);
+    background-color: var(--bootstrip-color-cherub);
+    border-color: var(--bootstrip-color-azalea); }
+  /* line 22, modules/themes/default/alert.scss */
+  x-alert.--warning {
+    color: var(--bootstrip-color-antiqueBronze);
+    background-color: var(--bootstrip-color-barleyWhite);
+    border-color: var(--bootstrip-color-butterMilk); }
+  /* line 28, modules/themes/default/alert.scss */
+  x-alert.--dark {
+    color: var(--bootstrip-color-woodsmoke);
+    background-color: var(--bootstrip-color-iron);
+    border-color: var(--bootstrip-color-silverSand); }
 /* line 28, modules/themes/default/badge.scss */
 x-badge {
-  background-color: var(--color-blueRibbon);
-  color: var(--color-white);
+  background-color: var(--bootstrip-color-blueRibbon);
+  color: var(--bootstrip-color-white);
   padding: .35em .65em;
   font-size: .75em;
   font-weight: 700;
   line-height: 1;
   border-radius: 50rem; }
   /* line 10, modules/themes/default/badge.scss */
-  x-badge.success {
-    background-color: var(--color-genoa); }
+  x-badge.--success {
+    background-color: var(--bootstrip-color-genoa); }
   /* line 14, modules/themes/default/badge.scss */
-  x-badge.danger {
-    background-color: var(--color-punch); }
+  x-badge.--danger {
+    background-color: var(--bootstrip-color-punch); }
   /* line 18, modules/themes/default/badge.scss */
-  x-badge.warning {
-    color: var(--color-black);
-    background-color: var(--color-amber); }
+  x-badge.--warning {
+    color: var(--bootstrip-color-black);
+    background-color: var(--bootstrip-color-amber); }
   /* line 23, modules/themes/default/badge.scss */
-  x-badge.dark {
-    background-color: var(--color-woodsmoke); }
+  x-badge.--dark {
+    background-color: var(--bootstrip-color-woodsmoke); }
 
 /* line 32, modules/themes/default/badge.scss */
 .badge {
-  background-color: var(--color-blueRibbon);
-  color: var(--color-white);
+  background-color: var(--bootstrip-color-blueRibbon);
+  color: var(--bootstrip-color-white);
   padding: .35em .65em;
   font-size: .75em;
   font-weight: 700;
   line-height: 1;
   border-radius: 50rem; }
   /* line 10, modules/themes/default/badge.scss */
-  .badge.success {
-    background-color: var(--color-genoa); }
+  .badge.--success {
+    background-color: var(--bootstrip-color-genoa); }
   /* line 14, modules/themes/default/badge.scss */
-  .badge.danger {
-    background-color: var(--color-punch); }
+  .badge.--danger {
+    background-color: var(--bootstrip-color-punch); }
   /* line 18, modules/themes/default/badge.scss */
-  .badge.warning {
-    color: var(--color-black);
-    background-color: var(--color-amber); }
+  .badge.--warning {
+    color: var(--bootstrip-color-black);
+    background-color: var(--bootstrip-color-amber); }
   /* line 23, modules/themes/default/badge.scss */
-  .badge.dark {
-    background-color: var(--color-woodsmoke); }
+  .badge.--dark {
+    background-color: var(--bootstrip-color-woodsmoke); }
 /* line 1, modules/themes/default/base.scss */
 :root {
-  --layout-clampWidth: 1000px;
-  --layout-radius: .25rem;
-  --layout-lineheight: 1.5;
-  --layout-gutter: 16px;
-  --font-undersize: .875em;
-  --font-headerFace: 'Roboto', sans-serif;
-  --font-bodyFace: 'Open Sans', sans-serif;
-  --font-logoFace: 'Righteous', sans-serif;
-  --transition-standard: color .15s ease-in-out,background-color .15s ease-in-out, border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-  --color-white: #fff;
-  --color-barleyWhite: #fff3cd;
-  --color-butterMilk: #ffecb5;
-  --color-blueRibbon: #0d6efd;
-  --color-congressBlue: #084298;
-  --color-mirage: #1A1C28;
-  --color-mirageDark: #151830;
-  --color-oxfordblue: #373f50;
-  --color-onahau: #cfe2ff;
-  --color-edgewater: #d1e7dd;
-  --color-edgewaterDark: #badbcc;
-  --color-frenchPass: #b6d4fe;
-  --color-mediumPurple: #8572E3;
-  --color-cherub: #f8d7da;
-  --color-azalea: #f5c2c7;
-  --color-amber: #ffc107;
-  --color-corn: #E9AF01;
-  --color-jewel: #0f5132;
-  --color-genoa: #198754;
-  --color-crownOfThorns: #842029;
-  --color-punch: #dc3545;
-  --color-antiqueBronze: #664d03;
-  --color-iron: #d3d3d4;
-  --color-ghost: #CDCED8;
-  --color-silverSand: #bcbebf;
-  --color-athensGray: #e9ecef;
-  --color-manatee: #8B8E9E;
-  --color-paleSky: #6c757d;
-  --color-gunPowder: #484B60;
-  --color-woodsmoke: #141619;
-  --color-black: #000;
-  --color-blackRGB: 0,0,0; }
+  --bootstrip-layout-clampWidth: 1000px;
+  --bootstrip-layout-radius: .25rem;
+  --bootstrip-layout-lineheight: 1.5;
+  --bootstrip-layout-gutter: 16px;
+  --bootstrip-card-strokeWidth: 10px;
+  --bootstrip-font-undersize: .875em;
+  --bootstrip-font-headerFace: 'Roboto', sans-serif;
+  --bootstrip-font-bodyFace: 'Open Sans', sans-serif;
+  --bootstrip-font-logoFace: 'Righteous', sans-serif;
+  --bootstrip-transition-standard: color .15s ease-in-out,background-color .15s ease-in-out, border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  --bootstrip-color-blueRibbon: #0d6efd;
+  --bootstrip-color-congressBlue: #084298;
+  --bootstrip-color-edgewater: #d1e7dd;
+  --bootstrip-color-edgewaterDark: #badbcc;
+  --bootstrip-color-frenchPass: #b6d4fe;
+  --bootstrip-color-mediumPurple: #8572E3;
+  --bootstrip-color-barleyWhite: #fff3cd;
+  --bootstrip-color-butterMilk: #ffecb5;
+  --bootstrip-color-cherub: #f8d7da;
+  --bootstrip-color-azalea: #f5c2c7;
+  --bootstrip-color-amber: #ffc107;
+  --bootstrip-color-corn: #E9AF01;
+  --bootstrip-color-jewel: #0f5132;
+  --bootstrip-color-genoa: #198754;
+  --bootstrip-color-crownOfThorns: #842029;
+  --bootstrip-color-punch: #dc3545;
+  --bootstrip-color-antiqueBronze: #664d03;
+  --bootstrip-color-white: #fff;
+  --bootstrip-color-iron: #d3d3d4;
+  --bootstrip-color-ghost: #CDCED8;
+  --bootstrip-color-silverSand: #bcbebf;
+  --bootstrip-color-athensGray: #e9ecef;
+  --bootstrip-color-manatee: #8B8E9E;
+  --bootstrip-color-paleSky: #6c757d;
+  --bootstrip-color-oxfordblue: #373f50;
+  --bootstrip-color-gunPowder: #484B60;
+  --bootstrip-color-woodsmoke: #141619;
+  --bootstrip-color-mirage: #1A1C28;
+  --bootstrip-color-mirageDark: #151830;
+  --bootstrip-color-black: #000;
+  --bootstrip-color-blackRGB: 0,0,0; }
 
-/* line 47, modules/themes/default/base.scss */
+/* line 45, modules/themes/default/base.scss */
 body {
-  font-family: var(--font-bodyFace);
+  font-family: var(--bootstrip-font-bodyFace);
   font-size: 1rem;
   font-weight: 400;
-  line-height: var(--layout-lineheight);
-  color: var(--color-gunPowder);
-  background-color: var(--color-white);
+  line-height: var(--bootstrip-layout-lineheight);
+  color: var(--bootstrip-color-gunPowder);
+  background-color: var(--bootstrip-color-white);
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent; }
 /* line 69, modules/themes/default/button.scss */
@@ -170,129 +166,166 @@ body {
   border: 1px solid transparent;
   padding: .375rem .75rem;
   font-size: 1rem;
-  border-radius: var(--layout-radius);
-  transition: var(--transition-standard);
-  color: var(--color-white);
-  background-color: var(--color-blueRibbon);
-  border-color: var(--color-blueRibbon); }
+  border-radius: var(--bootstrip-layout-radius);
+  transition: var(--bootstrip-transition-standard);
+  color: var(--bootstrip-color-white);
+  background-color: var(--bootstrip-color-blueRibbon);
+  border-color: var(--bootstrip-color-blueRibbon); }
   /* line 21, modules/themes/default/mixins.scss */
   .button:focus {
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(var(--color-blackRGB), 0.15); }
+    box-shadow: 0 0 0 0.25rem rgba(var(--bootstrip-color-blackRGB), 0.15); }
   /* line 17, modules/themes/default/button.scss */
   .button:hover {
-    background-color: var(--color-congressBlue);
-    border-color: var(--color-congressBlue); }
+    background-color: var(--bootstrip-color-congressBlue);
+    border-color: var(--bootstrip-color-congressBlue); }
   /* line 22, modules/themes/default/button.scss */
-  .button.success {
-    color: var(--color-white);
-    background-color: var(--color-genoa);
-    border-color: var(--color-genoa); }
+  .button.--success {
+    color: var(--bootstrip-color-white);
+    background-color: var(--bootstrip-color-genoa);
+    border-color: var(--bootstrip-color-genoa); }
     /* line 27, modules/themes/default/button.scss */
-    .button.success:hover {
-      background-color: var(--color-jewel);
-      border-color: var(--color-jewel); }
+    .button.--success:hover {
+      background-color: var(--bootstrip-color-jewel);
+      border-color: var(--bootstrip-color-jewel); }
   /* line 33, modules/themes/default/button.scss */
-  .button.danger {
-    color: var(--color-white);
-    background-color: var(--color-punch);
-    border-color: var(--color-punch); }
+  .button.--danger {
+    color: var(--bootstrip-color-white);
+    background-color: var(--bootstrip-color-punch);
+    border-color: var(--bootstrip-color-punch); }
     /* line 38, modules/themes/default/button.scss */
-    .button.danger:hover {
-      background-color: var(--color-crownOfThorns);
-      border-color: var(--color-crownOfThorns); }
+    .button.--danger:hover {
+      background-color: var(--bootstrip-color-crownOfThorns);
+      border-color: var(--bootstrip-color-crownOfThorns); }
   /* line 44, modules/themes/default/button.scss */
-  .button.warning {
-    color: var(--color-black);
-    background-color: var(--color-amber);
-    border-color: var(--color-amber); }
+  .button.--warning {
+    color: var(--bootstrip-color-black);
+    background-color: var(--bootstrip-color-amber);
+    border-color: var(--bootstrip-color-amber); }
     /* line 49, modules/themes/default/button.scss */
-    .button.warning:hover {
-      background-color: var(--color-corn);
-      border-color: var(--color-corn); }
+    .button.--warning:hover {
+      background-color: var(--bootstrip-color-corn);
+      border-color: var(--bootstrip-color-corn); }
   /* line 55, modules/themes/default/button.scss */
-  .button.dark {
-    background-color: var(--color-woodsmoke);
-    border-color: var(--color-woodsmoke); }
+  .button.--dark {
+    background-color: var(--bootstrip-color-woodsmoke);
+    border-color: var(--bootstrip-color-woodsmoke); }
     /* line 59, modules/themes/default/button.scss */
-    .button.dark:hover {
-      background-color: var(--color-gunPowder);
-      border-color: var(--color-woodsmoke); }
+    .button.--dark:hover {
+      background-color: var(--bootstrip-color-gunPowder);
+      border-color: var(--bootstrip-color-woodsmoke); }
   /* line 7, modules/themes/default/mixins.scss */
   .button:disabled, .button[disabled] {
-    background-color: var(--color-athensGray);
-    border-color: var(--color-athensGray);
-    color: var(--color-paleSky); }
+    background-color: var(--bootstrip-color-athensGray);
+    border-color: var(--bootstrip-color-athensGray);
+    color: var(--bootstrip-color-paleSky); }
     /* line 12, modules/themes/default/mixins.scss */
     .button:disabled:hover, .button[disabled]:hover {
-      background-color: var(--color-athensGray);
-      border-color: var(--color-athensGray);
-      color: var(--color-paleSky); }
-/* line 27, modules/themes/default/card.scss */
+      background-color: var(--bootstrip-color-athensGray);
+      border-color: var(--bootstrip-color-athensGray);
+      color: var(--bootstrip-color-paleSky); }
+/* line 52, modules/themes/default/card.scss */
 .card {
-  background-color: var(--color-white);
-  border: 1px solid rgba(var(--color-blackRGB), 0.125);
-  border-radius: var(--layout-radius); }
+  background-color: var(--bootstrip-color-white);
+  border: 1px solid rgba(var(--bootstrip-color-blackRGB), 0.125);
+  border-radius: var(--bootstrip-layout-radius); }
 
-/* line 31, modules/themes/default/card.scss */
+/* line 56, modules/themes/default/card.scss */
 .card-header {
   padding: 1.5rem 1.5rem;
   border-radius: 0.125rem 0.125rem 0 0;
   margin-bottom: 0;
   background-color: transparent;
-  border-bottom: 0 solid var(--color-silverSand); }
+  border-bottom: 0 solid var(--bootstrip-color-silverSand); }
 
-/* line 35, modules/themes/default/card.scss */
+/* line 60, modules/themes/default/card.scss */
+.card-stroke {
+  width: var(--bootstrip-card-strokeWidth);
+  background-color: var(--bootstrip-color-blueRibbon); }
+  /* line 31, modules/themes/default/card.scss */
+  .card-stroke.--success {
+    background-color: var(--bootstrip-color-genoa); }
+  /* line 35, modules/themes/default/card.scss */
+  .card-stroke.--danger {
+    background-color: var(--bootstrip-color-punch); }
+  /* line 39, modules/themes/default/card.scss */
+  .card-stroke.--warning {
+    background-color: var(--bootstrip-color-amber); }
+
+/* line 64, modules/themes/default/card.scss */
 .card-pad {
   padding: 0 1rem; }
-  /* line 10, modules/themes/default/card.scss */
+  /* line 12, modules/themes/default/card.scss */
+  x-card.--stroke .card-pad,
+  .card.--stroke .card-pad {
+    margin-left: var(--bootstrip-card-strokeWidth); }
+  /* line 17, modules/themes/default/card.scss */
   .card-pad:first-of-type {
     padding-top: 1rem; }
-  /* line 14, modules/themes/default/card.scss */
+  /* line 21, modules/themes/default/card.scss */
   .card-pad:last-of-type {
     padding-bottom: 1rem; }
 
-/* line 39, modules/themes/default/card.scss */
+/* line 68, modules/themes/default/card.scss */
 x-card {
-  background-color: var(--color-white);
-  border: 1px solid rgba(var(--color-blackRGB), 0.125);
-  border-radius: var(--layout-radius); }
+  background-color: var(--bootstrip-color-white);
+  border: 1px solid rgba(var(--bootstrip-color-blackRGB), 0.125);
+  border-radius: var(--bootstrip-layout-radius); }
 
-/* line 43, modules/themes/default/card.scss */
+/* line 72, modules/themes/default/card.scss */
 x-card-header {
   padding: 1.5rem 1.5rem;
   border-radius: 0.125rem 0.125rem 0 0;
   margin-bottom: 0;
   background-color: transparent;
-  border-bottom: 0 solid var(--color-silverSand); }
+  border-bottom: 0 solid var(--bootstrip-color-silverSand); }
 
-/* line 47, modules/themes/default/card.scss */
+/* line 76, modules/themes/default/card.scss */
+x-card-stroke {
+  width: var(--bootstrip-card-strokeWidth);
+  background-color: var(--bootstrip-color-blueRibbon); }
+  /* line 31, modules/themes/default/card.scss */
+  x-card-stroke.--success {
+    background-color: var(--bootstrip-color-genoa); }
+  /* line 35, modules/themes/default/card.scss */
+  x-card-stroke.--danger {
+    background-color: var(--bootstrip-color-punch); }
+  /* line 39, modules/themes/default/card.scss */
+  x-card-stroke.--warning {
+    background-color: var(--bootstrip-color-amber); }
+
+/* line 80, modules/themes/default/card.scss */
 x-card-pad {
   padding: 0 1rem; }
-  /* line 10, modules/themes/default/card.scss */
+  /* line 12, modules/themes/default/card.scss */
+  x-card.--stroke x-card-pad,
+  .card.--stroke x-card-pad {
+    margin-left: var(--bootstrip-card-strokeWidth); }
+  /* line 17, modules/themes/default/card.scss */
   x-card-pad:first-of-type {
     padding-top: 1rem; }
-  /* line 14, modules/themes/default/card.scss */
+  /* line 21, modules/themes/default/card.scss */
   x-card-pad:last-of-type {
     padding-bottom: 1rem; }
 /* line 8, modules/themes/default/code.scss */
-code {
+.code {
+  border-radius: var(--bootstrip-layout-radius);
   margin: 16px 0;
   padding: 16px;
-  color: var(--color-ghost);
-  background-color: var(--color-gunPowder); }
+  color: var(--bootstrip-color-ghost);
+  background-color: var(--bootstrip-color-oxfordblue); }
 
-/* line 15, modules/themes/default/code.scss */
+/* line 16, modules/themes/default/code.scss */
 .codeInline {
-  color: var(--color-ghost);
-  background-color: var(--color-gunPowder);
+  color: var(--bootstrip-color-ghost);
+  background-color: var(--bootstrip-color-oxfordblue);
   padding: 0 4px;
   border-radius: 2px; }
 
-/* line 19, modules/themes/default/code.scss */
+/* line 20, modules/themes/default/code.scss */
 x-codeInline {
-  color: var(--color-ghost);
-  background-color: var(--color-gunPowder);
+  color: var(--bootstrip-color-ghost);
+  background-color: var(--bootstrip-color-oxfordblue);
   padding: 0 4px;
   border-radius: 2px; }
 /* line 5, modules/themes/default/content.scss */
@@ -304,37 +337,14 @@ x-content {
   margin-bottom: 1rem; }
 /* line 1, modules/themes/default/figure.scss */
 figcaption {
-  font-size: var(--font-undersize);
-  color: var(--color-paleSky); }
-/* line 14, modules/themes/default/fixedWidthHeader.scss */
-.fixedWidthHeader-logo {
-  font-size: 22px; }
-
-/* line 18, modules/themes/default/fixedWidthHeader.scss */
-.fixedWidthHeader-logoContainer {
-  font-family: var(--font-logoFace);
-  width: 11rem; }
-  /* line 5, modules/themes/default/fixedWidthHeader.scss */
-  .fixedWidthHeader-logoContainer i {
-    font-size: 34px; }
-
-/* line 22, modules/themes/default/fixedWidthHeader.scss */
-x-fixedWidthHeader-logo {
-  font-size: 22px; }
-
-/* line 26, modules/themes/default/fixedWidthHeader.scss */
-x-fixedWidthHeader-logoContainer {
-  font-family: var(--font-logoFace);
-  width: 11rem; }
-  /* line 5, modules/themes/default/fixedWidthHeader.scss */
-  x-fixedWidthHeader-logoContainer i {
-    font-size: 34px; }
+  font-size: var(--bootstrip-font-undersize);
+  color: var(--bootstrip-color-paleSky); }
 /* line 16, modules/themes/default/forms.scss */
 label {
   margin-bottom: .5rem; }
   /* line 19, modules/themes/default/forms.scss */
   label[disabled] {
-    color: var(--color-silverSand); }
+    color: var(--bootstrip-color-silverSand); }
 
 /* line 25, modules/themes/default/forms.scss */
 input[type=password] {
@@ -342,26 +352,26 @@ input[type=password] {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--color-woodsmoke);
-  background-color: var(--color-white);
+  color: var(--bootstrip-color-woodsmoke);
+  background-color: var(--bootstrip-color-white);
   background-clip: padding-box;
-  border: 1px solid var(--color-silverSand);
-  border-radius: var(--layout-radius);
+  border: 1px solid var(--bootstrip-color-silverSand);
+  border-radius: var(--bootstrip-layout-radius);
   transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
   /* line 21, modules/themes/default/mixins.scss */
   input[type=password]:focus {
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(var(--color-blackRGB), 0.15); }
+    box-shadow: 0 0 0 0.25rem rgba(var(--bootstrip-color-blackRGB), 0.15); }
   /* line 7, modules/themes/default/mixins.scss */
   input[type=password]:disabled, input[type=password][disabled] {
-    background-color: var(--color-athensGray);
-    border-color: var(--color-athensGray);
-    color: var(--color-paleSky); }
+    background-color: var(--bootstrip-color-athensGray);
+    border-color: var(--bootstrip-color-athensGray);
+    color: var(--bootstrip-color-paleSky); }
     /* line 12, modules/themes/default/mixins.scss */
     input[type=password]:disabled:hover, input[type=password][disabled]:hover {
-      background-color: var(--color-athensGray);
-      border-color: var(--color-athensGray);
-      color: var(--color-paleSky); }
+      background-color: var(--bootstrip-color-athensGray);
+      border-color: var(--bootstrip-color-athensGray);
+      color: var(--bootstrip-color-paleSky); }
 
 /* line 31, modules/themes/default/forms.scss */
 input[type=email] {
@@ -369,26 +379,26 @@ input[type=email] {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--color-woodsmoke);
-  background-color: var(--color-white);
+  color: var(--bootstrip-color-woodsmoke);
+  background-color: var(--bootstrip-color-white);
   background-clip: padding-box;
-  border: 1px solid var(--color-silverSand);
-  border-radius: var(--layout-radius);
+  border: 1px solid var(--bootstrip-color-silverSand);
+  border-radius: var(--bootstrip-layout-radius);
   transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
   /* line 21, modules/themes/default/mixins.scss */
   input[type=email]:focus {
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(var(--color-blackRGB), 0.15); }
+    box-shadow: 0 0 0 0.25rem rgba(var(--bootstrip-color-blackRGB), 0.15); }
   /* line 7, modules/themes/default/mixins.scss */
   input[type=email]:disabled, input[type=email][disabled] {
-    background-color: var(--color-athensGray);
-    border-color: var(--color-athensGray);
-    color: var(--color-paleSky); }
+    background-color: var(--bootstrip-color-athensGray);
+    border-color: var(--bootstrip-color-athensGray);
+    color: var(--bootstrip-color-paleSky); }
     /* line 12, modules/themes/default/mixins.scss */
     input[type=email]:disabled:hover, input[type=email][disabled]:hover {
-      background-color: var(--color-athensGray);
-      border-color: var(--color-athensGray);
-      color: var(--color-paleSky); }
+      background-color: var(--bootstrip-color-athensGray);
+      border-color: var(--bootstrip-color-athensGray);
+      color: var(--bootstrip-color-paleSky); }
 
 /* line 37, modules/themes/default/forms.scss */
 input[type=file] {
@@ -396,26 +406,26 @@ input[type=file] {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--color-woodsmoke);
-  background-color: var(--color-white);
+  color: var(--bootstrip-color-woodsmoke);
+  background-color: var(--bootstrip-color-white);
   background-clip: padding-box;
-  border: 1px solid var(--color-silverSand);
-  border-radius: var(--layout-radius);
+  border: 1px solid var(--bootstrip-color-silverSand);
+  border-radius: var(--bootstrip-layout-radius);
   transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
   /* line 21, modules/themes/default/mixins.scss */
   input[type=file]:focus {
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(var(--color-blackRGB), 0.15); }
+    box-shadow: 0 0 0 0.25rem rgba(var(--bootstrip-color-blackRGB), 0.15); }
   /* line 7, modules/themes/default/mixins.scss */
   input[type=file]:disabled, input[type=file][disabled] {
-    background-color: var(--color-athensGray);
-    border-color: var(--color-athensGray);
-    color: var(--color-paleSky); }
+    background-color: var(--bootstrip-color-athensGray);
+    border-color: var(--bootstrip-color-athensGray);
+    color: var(--bootstrip-color-paleSky); }
     /* line 12, modules/themes/default/mixins.scss */
     input[type=file]:disabled:hover, input[type=file][disabled]:hover {
-      background-color: var(--color-athensGray);
-      border-color: var(--color-athensGray);
-      color: var(--color-paleSky); }
+      background-color: var(--bootstrip-color-athensGray);
+      border-color: var(--bootstrip-color-athensGray);
+      color: var(--bootstrip-color-paleSky); }
 
 /* line 43, modules/themes/default/forms.scss */
 input[list] {
@@ -423,26 +433,26 @@ input[list] {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--color-woodsmoke);
-  background-color: var(--color-white);
+  color: var(--bootstrip-color-woodsmoke);
+  background-color: var(--bootstrip-color-white);
   background-clip: padding-box;
-  border: 1px solid var(--color-silverSand);
-  border-radius: var(--layout-radius);
+  border: 1px solid var(--bootstrip-color-silverSand);
+  border-radius: var(--bootstrip-layout-radius);
   transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
   /* line 21, modules/themes/default/mixins.scss */
   input[list]:focus {
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(var(--color-blackRGB), 0.15); }
+    box-shadow: 0 0 0 0.25rem rgba(var(--bootstrip-color-blackRGB), 0.15); }
   /* line 7, modules/themes/default/mixins.scss */
   input[list]:disabled, input[list][disabled] {
-    background-color: var(--color-athensGray);
-    border-color: var(--color-athensGray);
-    color: var(--color-paleSky); }
+    background-color: var(--bootstrip-color-athensGray);
+    border-color: var(--bootstrip-color-athensGray);
+    color: var(--bootstrip-color-paleSky); }
     /* line 12, modules/themes/default/mixins.scss */
     input[list]:disabled:hover, input[list][disabled]:hover {
-      background-color: var(--color-athensGray);
-      border-color: var(--color-athensGray);
-      color: var(--color-paleSky); }
+      background-color: var(--bootstrip-color-athensGray);
+      border-color: var(--bootstrip-color-athensGray);
+      color: var(--bootstrip-color-paleSky); }
 
 /* line 49, modules/themes/default/forms.scss */
 input[type=text] {
@@ -450,26 +460,26 @@ input[type=text] {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--color-woodsmoke);
-  background-color: var(--color-white);
+  color: var(--bootstrip-color-woodsmoke);
+  background-color: var(--bootstrip-color-white);
   background-clip: padding-box;
-  border: 1px solid var(--color-silverSand);
-  border-radius: var(--layout-radius);
+  border: 1px solid var(--bootstrip-color-silverSand);
+  border-radius: var(--bootstrip-layout-radius);
   transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
   /* line 21, modules/themes/default/mixins.scss */
   input[type=text]:focus {
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(var(--color-blackRGB), 0.15); }
+    box-shadow: 0 0 0 0.25rem rgba(var(--bootstrip-color-blackRGB), 0.15); }
   /* line 7, modules/themes/default/mixins.scss */
   input[type=text]:disabled, input[type=text][disabled] {
-    background-color: var(--color-athensGray);
-    border-color: var(--color-athensGray);
-    color: var(--color-paleSky); }
+    background-color: var(--bootstrip-color-athensGray);
+    border-color: var(--bootstrip-color-athensGray);
+    color: var(--bootstrip-color-paleSky); }
     /* line 12, modules/themes/default/mixins.scss */
     input[type=text]:disabled:hover, input[type=text][disabled]:hover {
-      background-color: var(--color-athensGray);
-      border-color: var(--color-athensGray);
-      color: var(--color-paleSky); }
+      background-color: var(--bootstrip-color-athensGray);
+      border-color: var(--bootstrip-color-athensGray);
+      color: var(--bootstrip-color-paleSky); }
 
 /* line 55, modules/themes/default/forms.scss */
 textarea {
@@ -477,54 +487,54 @@ textarea {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--color-woodsmoke);
-  background-color: var(--color-white);
+  color: var(--bootstrip-color-woodsmoke);
+  background-color: var(--bootstrip-color-white);
   background-clip: padding-box;
-  border: 1px solid var(--color-silverSand);
-  border-radius: var(--layout-radius);
+  border: 1px solid var(--bootstrip-color-silverSand);
+  border-radius: var(--bootstrip-layout-radius);
   transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
   /* line 21, modules/themes/default/mixins.scss */
   textarea:focus {
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(var(--color-blackRGB), 0.15); }
+    box-shadow: 0 0 0 0.25rem rgba(var(--bootstrip-color-blackRGB), 0.15); }
   /* line 7, modules/themes/default/mixins.scss */
   textarea:disabled, textarea[disabled] {
-    background-color: var(--color-athensGray);
-    border-color: var(--color-athensGray);
-    color: var(--color-paleSky); }
+    background-color: var(--bootstrip-color-athensGray);
+    border-color: var(--bootstrip-color-athensGray);
+    color: var(--bootstrip-color-paleSky); }
     /* line 12, modules/themes/default/mixins.scss */
     textarea:disabled:hover, textarea[disabled]:hover {
-      background-color: var(--color-athensGray);
-      border-color: var(--color-athensGray);
-      color: var(--color-paleSky); }
+      background-color: var(--bootstrip-color-athensGray);
+      border-color: var(--bootstrip-color-athensGray);
+      color: var(--bootstrip-color-paleSky); }
 
 /* line 61, modules/themes/default/forms.scss */
 input[type=checkbox] {
   width: 1em;
   height: 1em;
-  border-radius: var(--layout-radius);
-  border: 1px solid rgba(var(--color-blackRGB), 0.25);
-  background-color: var(--color-white);
+  border-radius: var(--bootstrip-layout-radius);
+  border: 1px solid rgba(var(--bootstrip-color-blackRGB), 0.25);
+  background-color: var(--bootstrip-color-white);
   margin-top: .25em; }
   /* line 21, modules/themes/default/mixins.scss */
   input[type=checkbox]:focus {
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(var(--color-blackRGB), 0.15); }
+    box-shadow: 0 0 0 0.25rem rgba(var(--bootstrip-color-blackRGB), 0.15); }
   /* line 7, modules/themes/default/mixins.scss */
   input[type=checkbox]:disabled, input[type=checkbox][disabled] {
-    background-color: var(--color-athensGray);
-    border-color: var(--color-athensGray);
-    color: var(--color-paleSky); }
+    background-color: var(--bootstrip-color-athensGray);
+    border-color: var(--bootstrip-color-athensGray);
+    color: var(--bootstrip-color-paleSky); }
     /* line 12, modules/themes/default/mixins.scss */
     input[type=checkbox]:disabled:hover, input[type=checkbox][disabled]:hover {
-      background-color: var(--color-athensGray);
-      border-color: var(--color-athensGray);
-      color: var(--color-paleSky); }
+      background-color: var(--bootstrip-color-athensGray);
+      border-color: var(--bootstrip-color-athensGray);
+      color: var(--bootstrip-color-paleSky); }
   /* line 71, modules/themes/default/forms.scss */
   input[type=checkbox]:checked {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
-    background-color: var(--color-blueRibbon);
-    border-color: var(--color-blueRibbon); }
+    background-color: var(--bootstrip-color-blueRibbon);
+    border-color: var(--bootstrip-color-blueRibbon); }
 
 /* line 78, modules/themes/default/forms.scss */
 select {
@@ -533,28 +543,28 @@ select {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--color-woodsmoke);
-  background-color: var(--color-white);
+  color: var(--bootstrip-color-woodsmoke);
+  background-color: var(--bootstrip-color-white);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right .75rem center;
   background-size: 16px 12px;
-  border: 1px solid var(--color-silverSand);
-  border-radius: var(--layout-radius); }
+  border: 1px solid var(--bootstrip-color-silverSand);
+  border-radius: var(--bootstrip-layout-radius); }
   /* line 21, modules/themes/default/mixins.scss */
   select:focus {
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(var(--color-blackRGB), 0.15); }
+    box-shadow: 0 0 0 0.25rem rgba(var(--bootstrip-color-blackRGB), 0.15); }
   /* line 7, modules/themes/default/mixins.scss */
   select:disabled, select[disabled] {
-    background-color: var(--color-athensGray);
-    border-color: var(--color-athensGray);
-    color: var(--color-paleSky); }
+    background-color: var(--bootstrip-color-athensGray);
+    border-color: var(--bootstrip-color-athensGray);
+    color: var(--bootstrip-color-paleSky); }
     /* line 12, modules/themes/default/mixins.scss */
     select:disabled:hover, select[disabled]:hover {
-      background-color: var(--color-athensGray);
-      border-color: var(--color-athensGray);
-      color: var(--color-paleSky); }
+      background-color: var(--bootstrip-color-athensGray);
+      border-color: var(--bootstrip-color-athensGray);
+      color: var(--bootstrip-color-paleSky); }
   /* line 95, modules/themes/default/forms.scss */
   select[multiple] {
     padding-right: .75rem;
@@ -562,15 +572,15 @@ select {
 
 /* line 113, modules/themes/default/forms.scss */
 .tip {
-  font-size: var(--font-undersize);
-  color: var(--color-paleSky);
+  font-size: var(--bootstrip-font-undersize);
+  color: var(--bootstrip-color-paleSky);
   display: block;
   margin-top: .25rem; }
 
 /* line 117, modules/themes/default/forms.scss */
 x-tip {
-  font-size: var(--font-undersize);
-  color: var(--color-paleSky);
+  font-size: var(--bootstrip-font-undersize);
+  color: var(--bootstrip-color-paleSky);
   display: block;
   margin-top: .25rem; }
 
@@ -585,9 +595,66 @@ x-radiolist {
   min-height: 1.5rem;
   padding-left: 1.5em;
   margin-bottom: .125rem; }
+/* line 33, modules/themes/default/header.scss */
+.header {
+  background-color: var(--bootstrip-color-oxfordblue); }
+
+/* line 37, modules/themes/default/header.scss */
+.header-content {
+  background-color: var(--bootstrip-color-paleSky);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding: 0.5rem 1rem;
+  height: 4rem; }
+  /* line 22, modules/themes/default/header.scss */
+  x-header.--clamped .header-content,
+  .header.--clamped .header-content {
+    background-color: transparent; }
+
+/* line 41, modules/themes/default/header.scss */
+.header-logo {
+  font-size: 22px; }
+
+/* line 45, modules/themes/default/header.scss */
+.header-logoContainer {
+  color: var(--bootstrip-color-white);
+  font-family: var(--bootstrip-font-logoFace);
+  width: 11rem; }
+  /* line 10, modules/themes/default/header.scss */
+  .header-logoContainer i {
+    font-size: 34px; }
+
+/* line 49, modules/themes/default/header.scss */
+x-header {
+  background-color: var(--bootstrip-color-oxfordblue); }
+
+/* line 53, modules/themes/default/header.scss */
+x-header-content {
+  background-color: var(--bootstrip-color-paleSky);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding: 0.5rem 1rem;
+  height: 4rem; }
+  /* line 22, modules/themes/default/header.scss */
+  x-header.--clamped x-header-content,
+  .header.--clamped x-header-content {
+    background-color: transparent; }
+
+/* line 57, modules/themes/default/header.scss */
+x-header-logo {
+  font-size: 22px; }
+
+/* line 61, modules/themes/default/header.scss */
+x-header-logoContainer {
+  color: var(--bootstrip-color-white);
+  font-family: var(--bootstrip-font-logoFace);
+  width: 11rem; }
+  /* line 10, modules/themes/default/header.scss */
+  x-header-logoContainer i {
+    font-size: 34px; }
 /* line 39, modules/themes/default/iconStrip.scss */
 .iconStrip {
-  background-color: var(--color-ghost);
+  background-color: var(--bootstrip-color-ghost);
   column-gap: 4px;
   font-size: 24px;
   grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
@@ -597,32 +664,32 @@ x-radiolist {
 /* line 43, modules/themes/default/iconStrip.scss */
 .iconStrip-text {
   font-size: 12px;
-  color: var(--color-manatee); }
+  color: var(--bootstrip-color-manatee); }
 
 /* line 47, modules/themes/default/iconStrip.scss */
 .iconStrip-item {
-  border-radius: var(--layout-radius);
-  background-color: var(--color-white);
-  transition: var(--transition-standard);
-  color: var(--color-genoa);
-  height: 72px;
-  padding-top: 8px; }
-  /* line 18, modules/themes/default/iconStrip.scss */
+  border-radius: var(--bootstrip-layout-radius);
+  background-color: var(--bootstrip-color-white);
+  transition: var(--bootstrip-transition-standard);
+  color: var(--bootstrip-color-genoa);
+  height: 72px; }
+  /* line 17, modules/themes/default/iconStrip.scss */
   .iconStrip-item a {
+    padding-top: 8px;
     color: inherit; }
   /* line 22, modules/themes/default/iconStrip.scss */
-  .iconStrip-item:hover, .iconStrip-item.active {
-    background-color: var(--color-genoa);
-    color: var(--color-white); }
+  .iconStrip-item:hover, .iconStrip-item.--active {
+    background-color: var(--bootstrip-color-genoa);
+    color: var(--bootstrip-color-white); }
     /* line 27, modules/themes/default/iconStrip.scss */
     .iconStrip-item:hover x-iconStrip-text,
-    .iconStrip-item:hover .iconStrip-text, .iconStrip-item.active x-iconStrip-text,
-    .iconStrip-item.active .iconStrip-text {
-      color: var(--color-white); }
+    .iconStrip-item:hover .iconStrip-text, .iconStrip-item.--active x-iconStrip-text,
+    .iconStrip-item.--active .iconStrip-text {
+      color: var(--bootstrip-color-white); }
 
 /* line 51, modules/themes/default/iconStrip.scss */
 x-iconStrip {
-  background-color: var(--color-ghost);
+  background-color: var(--bootstrip-color-ghost);
   column-gap: 4px;
   font-size: 24px;
   grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
@@ -632,246 +699,308 @@ x-iconStrip {
 /* line 55, modules/themes/default/iconStrip.scss */
 x-iconStrip-text {
   font-size: 12px;
-  color: var(--color-manatee); }
+  color: var(--bootstrip-color-manatee); }
 
 /* line 59, modules/themes/default/iconStrip.scss */
 x-iconStrip-item {
-  border-radius: var(--layout-radius);
-  background-color: var(--color-white);
-  transition: var(--transition-standard);
-  color: var(--color-genoa);
-  height: 72px;
-  padding-top: 8px; }
-  /* line 18, modules/themes/default/iconStrip.scss */
+  border-radius: var(--bootstrip-layout-radius);
+  background-color: var(--bootstrip-color-white);
+  transition: var(--bootstrip-transition-standard);
+  color: var(--bootstrip-color-genoa);
+  height: 72px; }
+  /* line 17, modules/themes/default/iconStrip.scss */
   x-iconStrip-item a {
+    padding-top: 8px;
     color: inherit; }
   /* line 22, modules/themes/default/iconStrip.scss */
-  x-iconStrip-item:hover, x-iconStrip-item.active {
-    background-color: var(--color-genoa);
-    color: var(--color-white); }
+  x-iconStrip-item:hover, x-iconStrip-item.--active {
+    background-color: var(--bootstrip-color-genoa);
+    color: var(--bootstrip-color-white); }
     /* line 27, modules/themes/default/iconStrip.scss */
     x-iconStrip-item:hover x-iconStrip-text,
-    x-iconStrip-item:hover .iconStrip-text, x-iconStrip-item.active x-iconStrip-text,
-    x-iconStrip-item.active .iconStrip-text {
-      color: var(--color-white); }
+    x-iconStrip-item:hover .iconStrip-text, x-iconStrip-item.--active x-iconStrip-text,
+    x-iconStrip-item.--active .iconStrip-text {
+      color: var(--bootstrip-color-white); }
 /* line 2, modules/themes/default/image.scss */
-.image.rounded {
-  border-radius: var(--layout-radius);
+.image.--rounded {
+  border-radius: var(--bootstrip-layout-radius);
   font-size: 1.125rem; }
-/* line 27, modules/themes/default/card.scss */
+/* line 52, modules/themes/default/card.scss */
 .card {
-  background-color: var(--color-white);
-  border: 1px solid rgba(var(--color-blackRGB), 0.125);
-  border-radius: var(--layout-radius); }
+  background-color: var(--bootstrip-color-white);
+  border: 1px solid rgba(var(--bootstrip-color-blackRGB), 0.125);
+  border-radius: var(--bootstrip-layout-radius); }
 
-/* line 31, modules/themes/default/card.scss */
+/* line 56, modules/themes/default/card.scss */
 .card-header {
   padding: 1.5rem 1.5rem;
   border-radius: 0.125rem 0.125rem 0 0;
   margin-bottom: 0;
   background-color: transparent;
-  border-bottom: 0 solid var(--color-silverSand); }
+  border-bottom: 0 solid var(--bootstrip-color-silverSand); }
 
-/* line 35, modules/themes/default/card.scss */
+/* line 60, modules/themes/default/card.scss */
+.card-stroke {
+  width: var(--bootstrip-card-strokeWidth);
+  background-color: var(--bootstrip-color-blueRibbon); }
+  /* line 31, modules/themes/default/card.scss */
+  .card-stroke.--success {
+    background-color: var(--bootstrip-color-genoa); }
+  /* line 35, modules/themes/default/card.scss */
+  .card-stroke.--danger {
+    background-color: var(--bootstrip-color-punch); }
+  /* line 39, modules/themes/default/card.scss */
+  .card-stroke.--warning {
+    background-color: var(--bootstrip-color-amber); }
+
+/* line 64, modules/themes/default/card.scss */
 .card-pad {
   padding: 0 1rem; }
-  /* line 10, modules/themes/default/card.scss */
+  /* line 12, modules/themes/default/card.scss */
+  x-card.--stroke .card-pad,
+  .card.--stroke .card-pad {
+    margin-left: var(--bootstrip-card-strokeWidth); }
+  /* line 17, modules/themes/default/card.scss */
   .card-pad:first-of-type {
     padding-top: 1rem; }
-  /* line 14, modules/themes/default/card.scss */
+  /* line 21, modules/themes/default/card.scss */
   .card-pad:last-of-type {
     padding-bottom: 1rem; }
 
-/* line 39, modules/themes/default/card.scss */
+/* line 68, modules/themes/default/card.scss */
 x-card {
-  background-color: var(--color-white);
-  border: 1px solid rgba(var(--color-blackRGB), 0.125);
-  border-radius: var(--layout-radius); }
+  background-color: var(--bootstrip-color-white);
+  border: 1px solid rgba(var(--bootstrip-color-blackRGB), 0.125);
+  border-radius: var(--bootstrip-layout-radius); }
 
-/* line 43, modules/themes/default/card.scss */
+/* line 72, modules/themes/default/card.scss */
 x-card-header {
   padding: 1.5rem 1.5rem;
   border-radius: 0.125rem 0.125rem 0 0;
   margin-bottom: 0;
   background-color: transparent;
-  border-bottom: 0 solid var(--color-silverSand); }
+  border-bottom: 0 solid var(--bootstrip-color-silverSand); }
 
-/* line 47, modules/themes/default/card.scss */
+/* line 76, modules/themes/default/card.scss */
+x-card-stroke {
+  width: var(--bootstrip-card-strokeWidth);
+  background-color: var(--bootstrip-color-blueRibbon); }
+  /* line 31, modules/themes/default/card.scss */
+  x-card-stroke.--success {
+    background-color: var(--bootstrip-color-genoa); }
+  /* line 35, modules/themes/default/card.scss */
+  x-card-stroke.--danger {
+    background-color: var(--bootstrip-color-punch); }
+  /* line 39, modules/themes/default/card.scss */
+  x-card-stroke.--warning {
+    background-color: var(--bootstrip-color-amber); }
+
+/* line 80, modules/themes/default/card.scss */
 x-card-pad {
   padding: 0 1rem; }
-  /* line 10, modules/themes/default/card.scss */
+  /* line 12, modules/themes/default/card.scss */
+  x-card.--stroke x-card-pad,
+  .card.--stroke x-card-pad {
+    margin-left: var(--bootstrip-card-strokeWidth); }
+  /* line 17, modules/themes/default/card.scss */
   x-card-pad:first-of-type {
     padding-top: 1rem; }
-  /* line 14, modules/themes/default/card.scss */
+  /* line 21, modules/themes/default/card.scss */
   x-card-pad:last-of-type {
     padding-bottom: 1rem; }
 
-/* line 63, modules/themes/default/list.scss */
+/* line 79, modules/themes/default/list.scss */
 .list {
-  background-color: var(--color-white);
-  border: 1px solid rgba(var(--color-blackRGB), 0.125);
-  border-radius: var(--layout-radius);
+  background-color: var(--bootstrip-color-white);
+  border: 1px solid rgba(var(--bootstrip-color-blackRGB), 0.125);
+  border-radius: var(--bootstrip-layout-radius);
   margin-bottom: 1.5rem; }
 
-/* line 67, modules/themes/default/list.scss */
+/* line 83, modules/themes/default/list.scss */
 .list-header {
   padding: 1.5rem 1.5rem;
   border-radius: 0.125rem 0.125rem 0 0;
   margin-bottom: 0;
   background-color: transparent;
-  border-bottom: 0 solid var(--color-silverSand);
+  border-bottom: 0 solid var(--bootstrip-color-silverSand);
   padding-left: 2.5rem;
   padding-right: 2.5rem; }
   /* line 14, modules/themes/default/list.scss */
+  .list.--dense .list-header,
+  x-list.--dense .list-header {
+    padding-left: 1.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem; }
+  /* line 21, modules/themes/default/list.scss */
   .list-header h1,
   .list-header .header1 {
     margin-bottom: 0; }
-  /* line 19, modules/themes/default/list.scss */
+  /* line 26, modules/themes/default/list.scss */
   .list-header h2,
   .list-header .header2 {
     margin-bottom: 0; }
-  /* line 24, modules/themes/default/list.scss */
+  /* line 31, modules/themes/default/list.scss */
   .list-header h3,
   .list-header .header3 {
     margin-bottom: 0; }
-  /* line 29, modules/themes/default/list.scss */
+  /* line 36, modules/themes/default/list.scss */
   .list-header h4,
   .list-header .header4 {
     margin-bottom: 0; }
-  /* line 34, modules/themes/default/list.scss */
+  /* line 41, modules/themes/default/list.scss */
   .list-header h5,
   .list-header .header5 {
     margin-bottom: 0; }
-  /* line 39, modules/themes/default/list.scss */
+  /* line 46, modules/themes/default/list.scss */
   .list-header h6,
   .list-header .header6 {
     margin-bottom: 0; }
 
-/* line 71, modules/themes/default/list.scss */
+/* line 87, modules/themes/default/list.scss */
 .list-row {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   padding-bottom: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #eeeef1; }
+  border-top: 1px solid var(--bootstrip-color-athensGray); }
+  /* line 59, modules/themes/default/list.scss */
+  .list.--dense .list-row,
+  x-list.--dense .list-row {
+    padding-left: .5rem;
+    padding-right: .5rem;
+    padding-bottom: .25rem;
+    padding-top: .25rem; }
 
-/* line 75, modules/themes/default/list.scss */
+/* line 91, modules/themes/default/list.scss */
 .list-cell {
   padding-right: 1rem;
   padding-right: 15px;
   padding-left: 15px; }
-  /* line 58, modules/themes/default/list.scss */
-  .list-cell.header {
+  /* line 74, modules/themes/default/list.scss */
+  .list-cell.--header {
     font-size: 0.75rem;
     letter-spacing: 0.3px; }
 
-/* line 79, modules/themes/default/list.scss */
+/* line 95, modules/themes/default/list.scss */
 x-list {
-  background-color: var(--color-white);
-  border: 1px solid rgba(var(--color-blackRGB), 0.125);
-  border-radius: var(--layout-radius);
+  background-color: var(--bootstrip-color-white);
+  border: 1px solid rgba(var(--bootstrip-color-blackRGB), 0.125);
+  border-radius: var(--bootstrip-layout-radius);
   margin-bottom: 1.5rem; }
 
-/* line 83, modules/themes/default/list.scss */
+/* line 99, modules/themes/default/list.scss */
 x-list-header {
   padding: 1.5rem 1.5rem;
   border-radius: 0.125rem 0.125rem 0 0;
   margin-bottom: 0;
   background-color: transparent;
-  border-bottom: 0 solid var(--color-silverSand);
+  border-bottom: 0 solid var(--bootstrip-color-silverSand);
   padding-left: 2.5rem;
   padding-right: 2.5rem; }
   /* line 14, modules/themes/default/list.scss */
+  .list.--dense x-list-header,
+  x-list.--dense x-list-header {
+    padding-left: 1.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem; }
+  /* line 21, modules/themes/default/list.scss */
   x-list-header h1,
   x-list-header .header1 {
     margin-bottom: 0; }
-  /* line 19, modules/themes/default/list.scss */
+  /* line 26, modules/themes/default/list.scss */
   x-list-header h2,
   x-list-header .header2 {
     margin-bottom: 0; }
-  /* line 24, modules/themes/default/list.scss */
+  /* line 31, modules/themes/default/list.scss */
   x-list-header h3,
   x-list-header .header3 {
     margin-bottom: 0; }
-  /* line 29, modules/themes/default/list.scss */
+  /* line 36, modules/themes/default/list.scss */
   x-list-header h4,
   x-list-header .header4 {
     margin-bottom: 0; }
-  /* line 34, modules/themes/default/list.scss */
+  /* line 41, modules/themes/default/list.scss */
   x-list-header h5,
   x-list-header .header5 {
     margin-bottom: 0; }
-  /* line 39, modules/themes/default/list.scss */
+  /* line 46, modules/themes/default/list.scss */
   x-list-header h6,
   x-list-header .header6 {
     margin-bottom: 0; }
 
-/* line 87, modules/themes/default/list.scss */
+/* line 103, modules/themes/default/list.scss */
 x-list-row {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   padding-bottom: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #eeeef1; }
+  border-top: 1px solid var(--bootstrip-color-athensGray); }
+  /* line 59, modules/themes/default/list.scss */
+  .list.--dense x-list-row,
+  x-list.--dense x-list-row {
+    padding-left: .5rem;
+    padding-right: .5rem;
+    padding-bottom: .25rem;
+    padding-top: .25rem; }
 
-/* line 91, modules/themes/default/list.scss */
+/* line 107, modules/themes/default/list.scss */
 x-list-cell {
   padding-right: 1rem;
   padding-right: 15px;
   padding-left: 15px; }
-  /* line 58, modules/themes/default/list.scss */
-  x-list-cell.header {
+  /* line 74, modules/themes/default/list.scss */
+  x-list-cell.--header {
     font-size: 0.75rem;
     letter-spacing: 0.3px; }
 /* line 21, modules/themes/default/pager.scss */
 .pager-anchor {
-  color: var(--color-blueRibbon);
+  color: var(--bootstrip-color-blueRibbon);
   padding: .375rem .75rem;
-  background-color: var(--color-white);
+  background-color: var(--bootstrip-color-white);
   border: 1px solid #dee2e6;
-  transition: var(--transition-standard); }
+  transition: var(--bootstrip-transition-standard); }
   /* line 8, modules/themes/default/pager.scss */
   .pager-anchor:hover {
     z-index: 2;
-    background-color: var(--color-athensGray);
-    border-color: var(--color-athensGray); }
+    background-color: var(--bootstrip-color-athensGray);
+    border-color: var(--bootstrip-color-athensGray); }
   /* line 14, modules/themes/default/pager.scss */
-  .pager-anchor.active {
-    color: var(--color-white);
-    background-color: var(--color-blueRibbon);
-    border-color: var(--color-blueRibbon); }
+  .pager-anchor.--active {
+    color: var(--bootstrip-color-white);
+    background-color: var(--bootstrip-color-blueRibbon);
+    border-color: var(--bootstrip-color-blueRibbon); }
 /* line 47, modules/themes/default/sideMenu.scss */
 .sideMenu {
   padding-bottom: 2rem;
-  background-color: var(--color-mirage); }
+  background-color: var(--bootstrip-color-mirage); }
 
 /* line 51, modules/themes/default/sideMenu.scss */
 .sideMenu-item {
   font-size: 1rem;
-  transition: var(--transition-standard); }
+  transition: var(--bootstrip-transition-standard); }
   /* line 12, modules/themes/default/sideMenu.scss */
   .sideMenu-item:hover {
-    background-color: var(--color-mirageDark); }
+    background-color: var(--bootstrip-color-mirageDark); }
   /* line 16, modules/themes/default/sideMenu.scss */
-  .sideMenu-item.active {
-    background-color: var(--color-mirageDark); }
+  .sideMenu-item.--active {
+    background-color: var(--bootstrip-color-mirageDark); }
     /* line 19, modules/themes/default/sideMenu.scss */
-    .sideMenu-item.active .sideMenu-link {
-      color: var(--color-mediumPurple); }
+    .sideMenu-item.--active .sideMenu-link {
+      color: var(--bootstrip-color-mediumPurple); }
     /* line 22, modules/themes/default/sideMenu.scss */
-    .sideMenu-item.active .sideMenu-iconWrapper {
-      color: var(--color-mediumPurple); }
+    .sideMenu-item.--active .sideMenu-iconWrapper {
+      color: var(--bootstrip-color-mediumPurple); }
 
 /* line 55, modules/themes/default/sideMenu.scss */
 .sideMenu-anchor {
-  color: var(--color-ghost);
+  color: var(--bootstrip-color-ghost);
   padding: 0.75rem 1.25rem; }
 
 /* line 59, modules/themes/default/sideMenu.scss */
 .sideMenu-header {
   font-size: 0.75rem;
   letter-spacing: 0.3px;
-  color: var(--color-manatee);
+  color: var(--bootstrip-color-manatee);
   padding: 1.5rem 1.25rem 0.5rem;
   margin-bottom: 0; }
 
@@ -879,68 +1008,53 @@ x-list-cell {
 .sideMenu-iconWrapper {
   margin-right: 1rem;
   font-size: 1.2rem;
-  color: var(--color-manatee);
+  color: var(--bootstrip-color-manatee);
   width: 1rem; }
-/* line 48, modules/themes/default/table.scss */
+/* line 49, modules/themes/default/table.scss */
 .table {
   --bs-table-bg: transparent;
-  --bs-table-striped-color: var(--color-gunPowder);
+  --bs-table-striped-color: var(--bootstrip-color-gunPowder);
   --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
-  --bs-table-active-color: var(--color-gunPowder);
+  --bs-table-active-color: var(--bootstrip-color-gunPowder);
   --bs-table-active-bg: rgba(0, 0, 0, 0.1);
-  --bs-table-hover-color: var(--color-gunPowder);
+  --bs-table-hover-color: var(--bootstrip-color-gunPowder);
   --bs-table-hover-bg: rgba(0, 0, 0, 0.075);
-  line-height: var(--layout-lineheight);
-  border-color: var(--color-silverSand);
-  color: var(--color-gunPowder); }
+  line-height: var(--bootstrip-layout-lineheight);
+  border-color: var(--bootstrip-color-silverSand);
+  color: var(--bootstrip-color-gunPowder); }
   /* line 15, modules/themes/default/table.scss */
   .table > :not(:last-child) > :last-child > * {
-    border-bottom-color: var(--color-gunPowder); }
+    border-bottom-color: var(--bootstrip-color-gunPowder); }
   /* line 19, modules/themes/default/table.scss */
   .table > :not(caption) > * > * {
-    border-bottom-color: var(--color-silverSand);
+    border-bottom-color: var(--bootstrip-color-silverSand);
     padding: .5rem .5rem;
     background-color: var(--bs-table-bg);
     border-bottom-width: 1px;
     box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg); }
-  /* line 28, modules/themes/default/table.scss */
-  .table.striped > tbody > tr:nth-of-type(odd) {
+  /* line 29, modules/themes/default/table.scss */
+  .table.--striped > tbody > tr:nth-of-type(odd) {
     --bs-table-accent-bg: var(--bs-table-striped-bg);
     color: var(--bs-table-striped-color); }
 
-/* line 52, modules/themes/default/table.scss */
-.table-row {
-  --bs-table-bg: transparent;
-  --bs-table-striped-color: var(--color-gunPowder);
-  --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
-  --bs-table-active-color: var(--color-gunPowder);
-  --bs-table-active-bg: rgba(0, 0, 0, 0.1);
-  --bs-table-hover-color: var(--color-gunPowder);
-  --bs-table-hover-bg: rgba(0, 0, 0, 0.075);
-  line-height: var(--layout-lineheight);
-  border-color: var(--color-silverSand);
-  color: var(--color-gunPowder); }
-  /* line 15, modules/themes/default/table.scss */
-  .table-row > :not(:last-child) > :last-child > * {
-    border-bottom-color: var(--color-gunPowder); }
-  /* line 19, modules/themes/default/table.scss */
-  .table-row > :not(caption) > * > * {
-    border-bottom-color: var(--color-silverSand);
-    padding: .5rem .5rem;
-    background-color: var(--bs-table-bg);
-    border-bottom-width: 1px;
-    box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg); }
-  /* line 28, modules/themes/default/table.scss */
-  .table-row.striped > tbody > tr:nth-of-type(odd) {
-    --bs-table-accent-bg: var(--bs-table-striped-bg);
-    color: var(--bs-table-striped-color); }
-/* line 3, modules/themes/default/typography.scss */
+/* line 36, modules/themes/default/table.scss */
+.table-row.--success {
+  background-color: var(--bootstrip-color-edgewater); }
+
+/* line 40, modules/themes/default/table.scss */
+.table-row.--warning {
+  background-color: var(--bootstrip-color-barleyWhite); }
+
+/* line 44, modules/themes/default/table.scss */
+.table-row.--danger {
+  background-color: var(--bootstrip-color-cherub); }
+/* line 1, modules/themes/default/typography.scss */
 a {
-  color: var(--color-blueRibbon);
+  color: var(--bootstrip-color-blueRibbon);
   text-decoration: none; }
 /* line 3, modules/themes/default/util.scss */
 .borderedRight {
-  border-right: 1px solid var(--color-iron); }
+  border-right: 1px solid var(--bootstrip-color-iron); }
 
 /* line 7, modules/themes/default/util.scss */
 .bold {
@@ -953,5 +1067,5 @@ a {
 
 /* line 16, modules/themes/default/util.scss */
 .quiet {
-  font-size: var(--font-undersize);
-  color: var(--color-paleSky); }
+  font-size: var(--bootstrip-font-undersize);
+  color: var(--bootstrip-color-paleSky); }
