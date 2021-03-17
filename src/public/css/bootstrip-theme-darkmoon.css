@@ -1,14 +1,15 @@
 /* tag: 0.0.9
-     hash: 527d6db
+     hash: 513172c
  *//* line 1, modules/themes/darkmoon/base.scss */
 :root {
   --bootstrip-color-codeGray: #0c0c0c;
   --bootstrip-color-shark: #272B30;
   --bootstrip-color-outerSpace: #32383e;
+  --bootstrip-color-outerSpaceDark: #2b3138;
   --bootstrip-color-abbey: #464a4d;
   --bootstrip-color-silveChalice: #aaaaaa; }
 
-/* line 10, modules/themes/darkmoon/base.scss */
+/* line 11, modules/themes/darkmoon/base.scss */
 body {
   color: var(--bootstrip-color-silveChalice);
   background-color: var(--bootstrip-color-shark); }
@@ -21,29 +22,37 @@ body {
 x-card {
   background-color: var(--bootstrip-color-outerSpace);
   border: 1px solid var(--bootstrip-color-black); }
-/* line 15, modules/themes/darkmoon/list.scss */
+/* line 22, modules/themes/darkmoon/list.scss */
 .list {
   background-color: var(--bootstrip-color-outerSpace);
   border: 1px solid var(--bootstrip-color-codeGray); }
 
-/* line 19, modules/themes/darkmoon/list.scss */
+/* line 26, modules/themes/darkmoon/list.scss */
 x-list {
   background-color: var(--bootstrip-color-outerSpace);
   border: 1px solid var(--bootstrip-color-codeGray); }
 
-/* line 23, modules/themes/darkmoon/list.scss */
+/* line 30, modules/themes/darkmoon/list.scss */
 .list-row {
   border-top: none; }
   /* line 10, modules/themes/darkmoon/list.scss */
   .list-row:not(:first-of-type) {
     border-top: 1px solid var(--bootstrip-color-codeGray); }
+  /* line 16, modules/themes/darkmoon/list.scss */
+  .list.--striped .list-row:nth-of-type(odd),
+  x-list.--striped .list-row:nth-of-type(odd) {
+    background-color: var(--bootstrip-color-outerSpaceDark); }
 
-/* line 27, modules/themes/darkmoon/list.scss */
+/* line 34, modules/themes/darkmoon/list.scss */
 x-list-row {
   border-top: none; }
   /* line 10, modules/themes/darkmoon/list.scss */
   x-list-row:not(:first-of-type) {
     border-top: 1px solid var(--bootstrip-color-codeGray); }
+  /* line 16, modules/themes/darkmoon/list.scss */
+  .list.--striped x-list-row:nth-of-type(odd),
+  x-list.--striped x-list-row:nth-of-type(odd) {
+    background-color: var(--bootstrip-color-outerSpaceDark); }
 /* line 17, modules/themes/darkmoon/pager.scss */
 .pager-anchor {
   color: var(--bootstrip-color-white);

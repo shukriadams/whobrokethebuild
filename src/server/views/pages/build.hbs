@@ -3,8 +3,8 @@
         
         <h1>Build #{{build.build}}</h1>
         <x-columns class="--two">
-            <x-card class="--stroke">
-                <x-card-stroke class="--{{statusTranslate __latestBuild.status}}"></x-card-stroke>
+            <x-card class="--stroke --top">
+                <x-card-stroke class="--{{statusTranslate build.status}}"></x-card-stroke>
                 <x-card-pad>
                     Status : {{statusAndDeltaTranslate build.status build.delta}}
                     {{#if responsibleBreakingBuild}}
@@ -21,7 +21,7 @@
                     {{/if}}
                 </x-card-pad>
                 <x-card-pad>
-                    Ran {{ago build.started}}{{#if build.ended}}, took {{durationLong build.ended build.started}} to complete{{/if}}
+                    Job : <a href="/job/{{build.jobId}}">{{job.name}}</a>
                 </x-card-pad>
                 <x-card-pad>
                     Built on :  {{build.host}}
@@ -30,23 +30,28 @@
                     <a href="{{linkToBuild}}">View on {{ciServer.name}}</a>
                 </x-card-pad>
             </x-card>
-            <x-card>
+            <x-card class="--top">
                 <x-card-pad>
-                    Job : <a href="/job/{{build.jobId}}">{{job.name}}</a>
+                    <h6>Timeline</h6>
+                    Ran on {{shortDateAndTime build.started}} ({{ago build.started}}{{#if build.ended}} )
+                    <div>
+                        
+                    </div>
+                    <div>
+                        Took {{durationLong build.ended build.started}} to complete{{/if}}
+                    </div>
                 </x-card-pad>
                 <x-card-pad>
-
-                    <p>
-                        {{#if previousBuild}}
-                            <a href="/build/{{previousBuild.id}}">Previous ({{durationLong build.started previousBuild.started}})</a>
-                        {{/if}}
-
-                        {{#if nextBuild}}
-                            <div>
-                                <a href="/build/{{nextBuild.id}}">Next ({{durationLong nextBuild.started build.started}})</a>
-                            </div>
-                        {{/if}}
-                    </p>
+                    {{#if previousBuild}}
+                        Previous build : <a href="/build/{{previousBuild.id}}"> ({{durationLong build.started previousBuild.started}})</a>
+                    {{/if}}
+                </x-card-pad>
+                <x-card-pad>
+                    {{#if nextBuild}}
+                        Next  build : <a href="/build/{{nextBuild.id}}"> ({{durationLong nextBuild.started build.started}})</a>
+                    {{/if}}
+                </x-card-pad>
+                <x-card-pad>
                     {{#if session.isAdmin}}
                         <div>
                             <h2>Admin</h2>
@@ -58,60 +63,48 @@
         </x-columns>
 
         
-        <x-card>
-            <x-card-pad>
-                <h2>Changes in this build</h2>
-                <ul class="list revisionList">
-                    {{#if build.involvements}}
-                        {{#each build.involvements}}
-                            <li class="revisionList-item revisionList-item--{{#if __isFault}}hasFault{{/if}}">
-                                <h3>
-                                    {{>buildInvolvementUserLink this}} ({{revision}}) 
-                                </h3>
+        <h2>Changes</h2>
+            <x-list class="build-changes">
+                {{#if build.involvements}}
+                    {{#each build.involvements}}
+                        <x-list-row>
+                            <x-list-cell>
                                 <div>
-                                    <b>
-                                        {{buildInvolvementTranslate involvement}}
-                                    </b>
+                                    #{{revision}} - <span class="bold">{{revisionObject.description}}</span> 
                                 </div>
-                                <i>
-                                    {{revisionObject.description}}
-                                </i>
+                                <div class="quiet" >
+                                    {{buildInvolvementTranslate involvement}} by {{>buildInvolvementUserLink this}} 
+                                </div>
                                 {{#if revisionObject.files}}
-                                    <h4>Files</h4>
-                                    <pre class="pre">
-                                        {{#each revisionObject.files}}
-                                            <div class="revision-file revision-file--{{#if isFault}}atFault{{/if}}">
-                                                {{file}}
-                                            </div>
-                                        {{/each}}
-                                    </pre>
+{{!note, outer element is div so each file is on new line, and inner element is span so background color is behind text only}}                                
+<pre class="code">{{#each revisionObject.files}}<div><span class="build-revisionFile build-revisionFile--{{#if isFault}}atFault{{/if}}">{{file}}</span></div>{{/each}}</pre>
                                 {{else}}
                                     Revision data still being processed, check back later.
                                 {{/if}}
-                            </li>
-                        {{/each}}
-                    {{else}}
-                        <li>
-                            There are no revisions in this build
-                        </li>
-                    {{/if}}
-                </ul>
+                            </x-list-cell>
+                        </x-list-row>
+                    {{/each}}
+                {{else}}
+                        There are no revisions in this build
+                {{/if}}
+            </x-list>
 
                 {{#eq build.status constants.BUILDSTATUS_FAILED}}
+ 
                     <h2>Log</h2>
-                    <pre class="code">
-                        {{#if build.logData}}
-                            {{#each build.logData}}
-                                {{text}}
-                            {{/each}}
-                                <a href="/build/log/{{build.id}}">Full log</a>
-                        {{else}}
-                                Log is empty or has not been processed yet
-                        {{/if}}
-                    </pre>
+<pre class="code">
+{{#if build.logData}}{{#each build.logData}}{{text}}{{/each}}
+{{else}}
+Log is empty or has not been processed yet
+{{/if}}
+</pre>
+
+{{#if build.logData}}
+    <a href="/build/log/{{build.id}}">Full log</a>
+{{/if}}
+
                 {{/eq}}
-            </x-card-pad>
-        </x-card>
+
 
     {{/content}}
 {{/extend}}

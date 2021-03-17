@@ -1,3 +1,9 @@
-.build-item {
-    padding: 16px 42px;
+.build-changes {
+    border: none; // remove the default border on bootstrip list
+}
+
+.build-revisionFile {
+    &.build-revisionFile--atFault {
+        background-color: var(--bootstrip-color-crownOfThorns);
+    }
 }

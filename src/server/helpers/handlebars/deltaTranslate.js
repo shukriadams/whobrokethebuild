@@ -6,27 +6,27 @@ module.exports = Handlebars => {
 
         switch(delta){
             case constants.BUILDDELTA_PASS : {
-                return ''
+                return 'Passing'
             }
 
             case constants.BUILDDELTA_FIX : {
-                return 'fixed build'
+                return 'Fixed build'
             }
 
             case constants.BUILDDELTA_CAUSEBREAK : {
-                return 'broke build'
+                return 'Broke build'
             }
 
             case constants.BUILDDELTA_CONTINUEBREAK : {
-                return 'already broken'
+                return 'Already broken'
             }
 
             case constants.BUILDDELTA_CHANGEBREAK : {
-                return 'changed break'
+                return 'Changed break'
             }
 
             default : {
-                return 'unknown'
+                return `Unknown delta ${delta}`
             }
         }
 

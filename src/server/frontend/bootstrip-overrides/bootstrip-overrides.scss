@@ -39,6 +39,10 @@ x-card {
     font-size: 24px;
 }
 
+x-list {
+    border: none;
+}
+
 x-card-stroke {
     &.--passing {
         background-color: var(--bootstrip-color-genoa);

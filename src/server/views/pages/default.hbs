@@ -6,9 +6,9 @@
                     <x-card class="--stroke {{statusTranslate __latestBuild.status}}">
                         <x-card-stroke class="--{{statusTranslate __latestBuild.status}}"></x-card-stroke>
                         <x-card-pad>
-                            <h5 class="bold">
+                            <h4 class="bold">
                                 <a class="jobs-title" href="/job/{{id}}">{{name}}</a>
-                            </h5>
+                            </h4>
 
                             {{#if __latestBuild}}
                                 last build was <a href="/build/{{__latestBuild.id}}">{{__latestBuild.build}}</a>
@@ -19,22 +19,25 @@
                                     ,started {{ago __latestBuild.started}}
                                 {{/if}}
 
+                                {{! broken message}}
                                 {{#if __breakingBuild}}
-                                    {{#if __breakingBuild.__buildInvolvements}}
-                                        Broken by  
-                                        {{#each __breakingBuild.__buildInvolvements}}
-                                            {{#if __user}}
-                                                <a href="/user/{{__user.id}}">{{__user.name}}</a>
-                                            {{else}}
-                                                {{externalUsername}}
+                                    <div>
+                                        Broken  
+                                        {{#neq __breakingBuild.id __latestBuild.id}}
+                                             @ <a href="/build/{{__breakingBuild.id}}">{{__breakingBuild.build}}</a> {{#if __breakingBuild.ended}}({{ago __breakingBuild.ended}}){{/if}}
+                                        {{/neq}}
+
+                                        {{#each __breakingBuild.involvements}}
+                                            {{#if this.__isFault}}
+                                                by
+                                                {{#if __user}}
+                                                    <a href="/user/{{__user.id}}">{{__user.name}}</a>
+                                                {{else}}
+                                                    {{externalUsername}}
+                                                {{/if}}
                                             {{/if}}
                                         {{/each}}
-
-                                        {{#neq __breakingBuild.id __latestBuild.id}}
-                                            @ <a href="/build/{{__breakingBuild.id}}">{{__breakingBuild.build}}</a> {{#if __breakingBuild.ended}}({{ago __breakingBuild.ended}}){{/if}}
-                                        {{/neq}}
-                                        .
-                                    {{/if}}
+                                    </div>
                                 {{/if}}
 
                             {{else}}
