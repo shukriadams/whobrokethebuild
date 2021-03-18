@@ -1,21 +1,8 @@
-.pager {
-    padding: 0 0 8px 0;
-}
-
-.pager-item {
-    display: inline-block;
-    margin: 4px 2px;
-    position: relative;
-}
-
-
-.pager-link {
+.pager-anchor {
     background-color:var(--color-crusta);
     color: white;
-    display: block;
-    padding: 10px 14px;
 }
 
-.pager-link.pager-link--active {
+.pager-anchor.--active {
     background-color: var(--color-mineshaft);
 }

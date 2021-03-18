@@ -648,6 +648,7 @@ x-list-cell {
 .pager {
   display: flex;
   padding-left: 0;
+  flex-wrap: wrap;
   list-style: none; }
 
 /* line 21, modules/base/pager/pager.scss */

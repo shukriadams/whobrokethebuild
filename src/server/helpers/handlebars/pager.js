@@ -26,23 +26,23 @@ module.exports = Handlebars => {
         
         if (currentGroup > 0){
             const back = ((currentGroup * settings.pagesPerGroup) - 1)
-            html += `<li class="pager-item"><a class="pager-link" href="${baseUrl}?page=${back + 1}">prev</a></li>`
+            html += `<li><a class="pager-anchor" href="${baseUrl}?page=${back + 1}">&laquo;</a></li>`
         }
 
         for (let i = 0 ; i < actualPagesInGroup ; i ++){
             let pageIndex = (currentGroup * settings.pagesPerGroup) + i
 
-            html += `<li class="pager-item">`
+            html += `<li>`
             if (pageObject.index === pageIndex)
-               html += `<span class="pager-link pager-link--active">${(pageIndex + 1)}<span>`
+               html += `<span class="pager-anchor --active">${(pageIndex + 1)}<span>`
             else
-                html += `<a class="pager-link" href="${baseUrl}?page=${pageIndex + 1}">${pageIndex + 1}</a>`
+                html += `<a class="pager-anchor" href="${baseUrl}?page=${pageIndex + 1}">${pageIndex + 1}</a>`
             html += `</li>`
         }
 
         if (currentGroup < totalGroups - 1){
             const forward = (currentGroup + 1) * settings.pagesPerGroup
-            html += `<li class="pager-item"><a class="pager-link" href="${baseUrl}?page=${forward + 1}">next</a></li>`
+            html += `<li><a class="pager-anchor" href="${baseUrl}?page=${forward + 1}">&raquo;</a></li>`
         }
 
         html += '</ul>'

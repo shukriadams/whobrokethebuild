@@ -34,7 +34,7 @@ const constants = require(_$+'types/constants'),
             pages ++
 
         items = _normalize(items.slice(index * pageSize, (index * pageSize) + pageSize), normalizer)
-        return { items, index, pages, totalItems} 
+        return { items, pages, index, totalItems} 
     },    
     _normalizeJob = record =>{
         const job = Object.assign(new Job(), record)

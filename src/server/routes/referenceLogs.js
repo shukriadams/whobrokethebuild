@@ -7,16 +7,16 @@ module.exports = function(app){
 
 
     /**
-     * 
+     * loads a page of reference log names
      */
     app.get('/referenceLogs', async function(req, res){
         try {
             const referenceLogsHelper = require(_$+ 'helpers/referenceLogs'),
-                pageIndex = parseInt (req.query.page || '0'),
+                page = parseInt(req.query.page || 1) - 1, // pages are publicly 1-rooted, 0-rooted internally
                 view = await handlebars.getView('referenceLogs'),
                 model = { }
 
-            model.referenceLogs = await referenceLogsHelper.list(pageIndex)
+            model.referenceLogs = await referenceLogsHelper.page(page)
             model.referenceLogs.items = model.referenceLogs.items.map(r => encodeURIComponent(r))
             model.baseUrl = `/referenceLogs`
             await viewModelHelper.layout(model, req)
@@ -29,7 +29,7 @@ module.exports = function(app){
 
 
     /**
-     * 
+     * get a specific reference log
      */
     app.get('/referenceLogs/:path', async function(req, res){
         try {

@@ -6,13 +6,13 @@
             {{#if referenceLogs.error}}
                 {{referenceLogs.error}}
             {{else}}
-                <ul class="">
+                <x-list class="--dense">
                     {{#each referenceLogs.items}}
-                        <li class="list-item list-item--textContent">
+                        <x-list-row>
                             <a href="/referenceLogs/{{this}}">{{this}}</a>
-                        </li>
+                        </x-list-row>
                     {{/each}}
-                </ul>
+                </x-list>
 
                 {{{pager baseUrl referenceLogs }}}
 
