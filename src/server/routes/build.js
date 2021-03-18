@@ -41,7 +41,6 @@ module.exports = function(app){
                 build = await buildLogic.getById(req.params.id),
                 view = await handlebars.getView('build'),
                 job = await jobsLogic.getById(build.jobId),
-                vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
                 ciServer = await data.getCIServer(job.CIServerId, { expected : true }),
                 ciServerPlugin = await pluginsManager.get(ciServer.type),
                 model = {

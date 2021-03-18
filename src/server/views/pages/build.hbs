@@ -32,7 +32,7 @@
             </x-card>
             <x-card class="--top">
                 <x-card-pad>
-                    <h6>Timeline</h6>
+                    <h5>Timeline</h5>
                     Ran on {{shortDateAndTime build.started}} ({{ago build.started}}{{#if build.ended}} )
                     <div>
                         
@@ -85,24 +85,22 @@
                         </x-list-row>
                     {{/each}}
                 {{else}}
+                    <x-list-row>
                         There are no revisions in this build
+                    </x-list-row>
                 {{/if}}
             </x-list>
 
                 {{#eq build.status constants.BUILDSTATUS_FAILED}}
  
                     <h2>Log</h2>
-<pre class="code">
-{{#if build.logData}}{{#each build.logData}}{{text}}{{/each}}
-{{else}}
-Log is empty or has not been processed yet
-{{/if}}
-</pre>
 
 {{#if build.logData}}
-    <a href="/build/log/{{build.id}}">Full log</a>
+<pre class="code">{{#each build.logData}}<div>{{text}}</div>{{/each}}</pre>
+                    <a href="/build/log/{{build.id}}">Full log</a>
+{{else}}
+                    Log is empty or has not been processed yet
 {{/if}}
-
                 {{/eq}}
 
 
