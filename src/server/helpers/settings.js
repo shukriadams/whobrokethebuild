@@ -28,6 +28,9 @@ let process = require('process'),
         // path plugins are written to. On docker systems, this should persist. Todo : move to data folder
         pluginsPath : './data/plugins',
 
+        // folder static images are served from
+        staticImagesFolder : './data/images',
+
         // cronmask for when daemons run. By default every minute. All daemons share the same interval, but 
         // do not block each other
         daemonInterval : '* * * * *',
@@ -46,6 +49,11 @@ let process = require('process'),
 
         // maximum size in bytes for raw logs.
         maxReadableRawLogSize : 30000000,
+
+        // file system path to default image for all all jobs.Must be relative to this.staticImagesFolder  
+        // Can be overridden per job. Note : if this value remains null, no job images will be displayed, 
+        // even if override image is set for all job.s
+        defaultJobAvatar : null,
 
         // #######################################################################
         // dev environment only
