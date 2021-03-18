@@ -1,7 +1,7 @@
 {{#extend "layout"}}
     {{#content "body"}}
         <h1>Notifications</h1>
-        <x-list>
+        <x-list class="--dense">
             {{#if contactLogs.items}}
                 {{#each contactLogs.items}}
                     <x-list-row>

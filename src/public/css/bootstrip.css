@@ -571,7 +571,7 @@ x-card-stroke {
 x-card-pad {
   flex: 1 1 auto; }
 
-/* line 26, modules/base/list/list.scss */
+/* line 35, modules/base/list/list.scss */
 .list {
   position: relative;
   display: flex;
@@ -594,21 +594,26 @@ x-card-pad {
   .list.--top x-card-pad,
   .list.--top .card-pad {
     flex: unset; }
+  /* line 12, modules/base/list/list.scss */
+  .list.--freewidth x-list-cell,
+  .list.--freewidth .list-cell {
+    flex-basis: unset;
+    flex-grow: unset; }
 
-/* line 30, modules/base/list/list.scss */
+/* line 39, modules/base/list/list.scss */
 .list-row {
   display: flex;
   flex-wrap: nowrap;
   align-items: center; }
 
-/* line 34, modules/base/list/list.scss */
+/* line 43, modules/base/list/list.scss */
 .list-cell {
   flex-basis: 0;
   flex-grow: 1;
   max-width: 100%;
   position: relative; }
 
-/* line 38, modules/base/list/list.scss */
+/* line 47, modules/base/list/list.scss */
 x-list {
   position: relative;
   display: flex;
@@ -631,32 +636,37 @@ x-list {
   x-list.--top x-card-pad,
   x-list.--top .card-pad {
     flex: unset; }
+  /* line 12, modules/base/list/list.scss */
+  x-list.--freewidth x-list-cell,
+  x-list.--freewidth .list-cell {
+    flex-basis: unset;
+    flex-grow: unset; }
 
-/* line 42, modules/base/list/list.scss */
+/* line 51, modules/base/list/list.scss */
 x-list-row {
   display: flex;
   flex-wrap: nowrap;
   align-items: center; }
 
-/* line 46, modules/base/list/list.scss */
+/* line 55, modules/base/list/list.scss */
 x-list-cell {
   flex-basis: 0;
   flex-grow: 1;
   max-width: 100%;
   position: relative; }
-/* line 17, modules/base/pager/pager.scss */
+/* line 18, modules/base/pager/pager.scss */
 .pager {
   display: flex;
   padding-left: 0;
-  flex-wrap: wrap;
-  list-style: none; }
+  list-style: none;
+  flex-wrap: wrap; }
 
-/* line 21, modules/base/pager/pager.scss */
+/* line 22, modules/base/pager/pager.scss */
 .pager-anchor {
   position: relative;
   display: block;
   text-decoration: none; }
-  /* line 12, modules/base/pager/pager.scss */
+  /* line 13, modules/base/pager/pager.scss */
   .pager-anchor.--active {
     z-index: 3; }
 /* line 7, modules/base/section/section.scss */

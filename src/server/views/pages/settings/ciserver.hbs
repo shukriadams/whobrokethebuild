@@ -30,7 +30,7 @@
             <div>
                 <button class="button ciserver-post">{{#if isCreate}}Add{{else}}Update{{/if}}</button> 
                 {{#unless isCreate}}
-                    <button class="button ciserver-delete">Delete</button> 
+                    <button class="button --danger ciserver-delete">Delete</button> 
                 {{/unless}}
             </div>
 
@@ -43,32 +43,35 @@
                     </p>
                 {{/if}}
 
-                <ul class="list">
+                <x-list class="--dense --freewidth">
                     {{#each jobs}}
-                        <li class="list-item list-item--textContent">
-                            <div>
-                                {{name}}
-                            </div>
+                        <x-list-row>
+                            <x-list-cell class="ciServer-jobsCellFunctions">
+                                {{#if __isImported}}
+                                    <a class="button" href="/settings/job/{{id}}">Edit</a>
+                                {{else}}
+                                    <a class="button" href="/settings/job?name={{__nameUrlFriendly}}">Add</a>
+                                {{/if}}
 
-                            {{#if __noLongerAvailable}}
-                                NO LONGER AVAILABLE
-                            {{/if}}
-
-                            {{#if __isImported}}
-                                <a href="/settings/job/{{id}}">Edit</a>
-                            {{else}}
-                                <a class="button" href="/settings/job?name={{__nameUrlFriendly}}">Add</a>
-                            {{/if}}
+                                {{#if __isImported}}
+                                    <button class="button --danger ciserver-deleteJob" data-id="{{id}}">Delete</button>
+                                {{/if}}
+                            </x-list-cell>
                             
-                            {{#if __isImported}}
-                                <button class="button ciserver-deleteJob" data-id="{{id}}">Delete</button>
-                            {{/if}}
-
-                            {{#unless logParser}}No log parser{{/unless}}
-
-                        </li>
+                            <x-list-cell>
+                                {{name}}
+                                <div class="quiet">
+                                    {{#if __noLongerAvailable}}
+                                        <x-badge class="--danger">NO LONGER AVAILABLE</x-badge>
+                                    {{/if}}
+                                    {{#unless logParser}}
+                                        <x-badge class="--warning">No log parser</x-badge>
+                                    {{/unless}}
+                                </div>
+                            </x-list-cell>
+                        </x-list-row>
                     {{/each}}
-                </ul>
+                </x-list>
             {{/unless}}
         </div>
             

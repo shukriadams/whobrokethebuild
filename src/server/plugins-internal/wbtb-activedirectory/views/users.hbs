@@ -6,9 +6,9 @@
                 <p>
                     Check users to add them, uncheck to remove.
                 </p>
-                <ul class="list">
+                <x-list class="--dense">
                     {{#each users}}
-                        <li class="list-item list-item--textContent">
+                        <x-list-row>
                             <label for="cb_userImport_{{guid}}">
                                 {{name}}
                             </label>
@@ -18,9 +18,9 @@
                             {{else}}
                                 <span class="typography-warning">No email set - user cannot be imported</span>
                             {{/if}}
-                        </li>
+                        </x-list-row>
                     {{/each}}
-                </ul>
+                </x-list>
                 <p>
                     <button class="button" type="submit">Save</button>
                 </p>

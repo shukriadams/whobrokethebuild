@@ -5,16 +5,22 @@
                 <h1>Slack Settings</h1>
                 <div>
                     {{#if jobs}}
-                        {{#each jobs}}
-                            <div>{{name}}</div>
-                            <div>
-                                <select name="select_{{id}}">
-                                    {{#each ../channels}}
-                                        <option value="{{id}}" {{#eq id ../__contactMethod.channelId}}selected{{/eq}}>{{name}}</option>
-                                    {{/each}}
-                                </select>
-                            </div>
-                        {{/each}}
+                        <x-list>
+                            {{#each jobs}}
+                                <x-list-row>
+                                    <x-list-cell>
+                                        <div>{{name}}</div>
+                                        <div>
+                                            <select name="select_{{id}}">
+                                                {{#each ../channels}}
+                                                    <option value="{{id}}" {{#eq id ../__contactMethod.channelId}}selected{{/eq}}>{{name}}</option>
+                                                {{/each}}
+                                            </select>
+                                        </div>
+                                    </x-list-cell>
+                                </x-list-row>
+                            {{/each}}
+                        </x-list>
                     {{else}}
                         No Jobs set yet - create one to assign it's alerts to a Slack channel.
                     {{/if}}
