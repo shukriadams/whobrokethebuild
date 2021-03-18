@@ -2,7 +2,7 @@ const settings = require(_$+ 'helpers/settings'),
     viewModelHelper = require(_$+'helpers/viewModel'),
     handlebars = require(_$+ 'helpers/handlebars'),
     errorHandler = require(_$+'helpers/errorHandler'),
-    buildInvolvementLogic = require(_$+'logic/buildInvolvements'),
+    jobsLogic = require(_$+'logic/job'),
     pluginsManager = require(_$+'helpers/pluginsManager')
 
 module.exports = function(express){
@@ -31,7 +31,7 @@ module.exports = function(express){
                     }
                 }
             
-            model.jobs = await data.getAllJobs()
+            model.jobs = await jobsLogic.getAllJobs()
                 
             // add latest and breaking build to job
             for (let job of model.jobs){

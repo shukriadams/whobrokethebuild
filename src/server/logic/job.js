@@ -1,5 +1,7 @@
 const pluginsManager = require(_$+'helpers/pluginsManager'),
-    Job = require(_$+ 'types/job')
+    Avatar = require(_$+'types/Avatar'),
+    settings = require(_$+'helpers/settings'),
+    Job = require(_$+'types/job')
 
 module.exports = {
 
@@ -8,9 +10,18 @@ module.exports = {
         return await data.getJob(id)
     },
 
-    async getAll(job){
-        const data = await pluginsManager.getExclusive('dataProvider')
-        await data.getAllJobs(job);
+    async getAllJobs(){
+        const data = await pluginsManager.getExclusive('dataProvider'),
+            jobs = await data.getAllJobs()
+
+        if (settings.defaultJobAvatar)
+            for (const job of jobs)    
+                if (!job.avatar){
+                    job.avatar = new Avatar()
+                    job.avatar.path = settings.defaultJobAvatar
+                }
+
+        return jobs
     },
 
     async delete(id){

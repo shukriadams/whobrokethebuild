@@ -5,10 +5,16 @@
                 {{#each jobs}}
                     <x-card class="--stroke {{statusTranslate __latestBuild.status}}">
                         <x-card-stroke class="--{{statusTranslate __latestBuild.status}}"></x-card-stroke>
+                        
+                        {{#if avatar}}
+                            <img class="image" src=/image/{{avatar.path}} />
+                        {{/if}}
+
                         <x-card-pad>
                             <h4 class="bold">
                                 <a class="jobs-title" href="/job/{{id}}">{{name}}</a>
                             </h4>
+
 
                             {{#if __latestBuild}}
                                 last build was <a href="/build/{{__latestBuild.id}}">{{__latestBuild.build}}</a>
