@@ -4,7 +4,7 @@ const viewModelHelper = require(_$+'helpers/viewModel'),
     buildLogic = require(_$+'logic/builds'),
     jobLogic = require(_$+'logic/job'),
     constants = require(_$+'types/constants'),
-    handlebars = require(_$+ 'helpers/handlebars')
+    handlebars = require(_$+'helpers/handlebars')
 
 module.exports = function(app){
     
@@ -12,7 +12,7 @@ module.exports = function(app){
         try {
             await buildLogic.remove(req.params.id)
             res.json({})
-        }catch(ex){
+        } catch(ex) {
             errorHandler(res, ex)
         }
     })
@@ -40,7 +40,7 @@ module.exports = function(app){
             const data = await pluginsManager.getExclusive('dataProvider'),
                 build = await buildLogic.getById(req.params.id),
                 view = await handlebars.getView('build'),
-                job = await jobLogic.getById(build.jobId),
+                job = await jobLogic.getJob(build.jobId),
                 ciServer = await data.getCIServer(job.CIServerId, { expected : true }),
                 ciServerPlugin = await pluginsManager.get(ciServer.type),
                 model = {

@@ -1,5 +1,5 @@
 /* tag: 0.0.9
-     hash: 513172c
+     hash: 5214432
  *//* line 6, modules/base/alerts/alerts.scss */
 .alert {
   position: relative;
@@ -236,6 +236,25 @@ x-columns {
 /* line 13, modules/base/content/content.scss */
 x-content {
   display: block; }
+/* line 11, modules/base/cover/cover.scss */
+x-cover {
+  display: block;
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover; }
+
+/* line 15, modules/base/cover/cover.scss */
+.cover {
+  display: block;
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover; }
 /* line 1, modules/base/figure/figure.scss */
 figure {
   margin: 0; }

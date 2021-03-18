@@ -1,5 +1,5 @@
 /* tag: 0.0.9
-     hash: 513172c
+     hash: 5214432
  *//* line 35, modules/themes/default/alert.scss */
 .alert {
   padding: 1rem 1rem;
@@ -335,6 +335,19 @@ x-codeInline {
 /* line 9, modules/themes/default/content.scss */
 x-content {
   margin-bottom: 1rem; }
+/* line 8, modules/themes/default/cover.scss */
+x-cover {
+  height: 200px; }
+  /* line 3, modules/themes/default/cover.scss */
+  x-cover.--rounded {
+    border-radius: var(--bootstrip-layout-radius); }
+
+/* line 12, modules/themes/default/cover.scss */
+.cover {
+  height: 200px; }
+  /* line 3, modules/themes/default/cover.scss */
+  .cover.--rounded {
+    border-radius: var(--bootstrip-layout-radius); }
 /* line 1, modules/themes/default/figure.scss */
 figcaption {
   font-size: var(--bootstrip-font-undersize);

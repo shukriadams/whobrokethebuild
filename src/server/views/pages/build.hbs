@@ -1,6 +1,8 @@
 {{#extend "layout"}}
     {{#content "body"}}
-        
+
+        {{>jobBanner job=job}}
+
         <h1>Build #{{build.build}}</h1>
         <x-columns class="--two">
             <x-card class="--stroke --top">

@@ -5,21 +5,32 @@ const pluginsManager = require(_$+'helpers/pluginsManager'),
 
 module.exports = {
 
-    async getById(id){
-        const data = await pluginsManager.getExclusive('dataProvider')
-        return await data.getJob(id)
+    applyDefaultAvatar(job){
+        if (!settings.defaultJobAvatar)
+            return job
+
+        if (!job.avatar){
+            job.avatar = new Avatar()
+            job.avatar.path = settings.defaultJobAvatar
+        }
+
+        return job
+    },
+
+    async getJob(id, options){
+        let data = await pluginsManager.getExclusive('dataProvider'),
+            job = await data.getJob(id, options)
+
+        job = this.applyDefaultAvatar(job)
+        
+        return job
     },
 
     async getAllJobs(){
-        const data = await pluginsManager.getExclusive('dataProvider'),
+        let data = await pluginsManager.getExclusive('dataProvider'),
             jobs = await data.getAllJobs()
 
-        if (settings.defaultJobAvatar)
-            for (const job of jobs)    
-                if (!job.avatar){
-                    job.avatar = new Avatar()
-                    job.avatar.path = settings.defaultJobAvatar
-                }
+        jobs = jobs.map(job => this.applyDefaultAvatar(job) )
 
         return jobs
     },

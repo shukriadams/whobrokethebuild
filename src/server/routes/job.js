@@ -23,7 +23,7 @@ module.exports = function(app){
                 data = await pluginsManager.getExclusive('dataProvider'),
                 page = parseInt(req.query.page || 1) - 1 // pages are publicly 1-rooted, 0-rooted internally
             
-            model.job = await data.getJob(req.params.id, { expected : true })
+            model.job = await jobLogic.getJob(req.params.id, { expected : true })
             model.baseUrl = `/job/${req.params.id}`
             model.jobBuilds = await data.pageBuilds(req.params.id, page, settings.standardPageSize)
             for (const build of model.jobBuilds.items)

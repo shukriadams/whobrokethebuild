@@ -1,12 +1,12 @@
 {{#extend "layout"}}
     {{#content "body"}}
-        <h1>{{job.name}}</h1>
+    
+        {{>jobBanner job=job}}
 
         {{#if session.isAdmin}}
-            Admin : 
-            <a href="/settings/job/{{job.id}}">
-                <i class="icon icon-gear"></i>
-            </a>
+            <x-content>
+                Admin : <a href="/settings/job/{{job.id}}"><i class="icon icon-gear"></i></a>
+            </x-content>
         {{/if}}
 
         <x-list class="--dense jobsList">

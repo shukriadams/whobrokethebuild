@@ -1,0 +1,10 @@
+<x-content>
+    {{#if job.avatar}}
+        <x-cover class="--rounded jobBanner-cover" style="background-image: url(/image/{{job.avatar.path}})">
+            <div class="jobBanner-coverMask"></div>
+            <h1 class="jobBanner-coverTitle">{{job.name}}</h1>
+        </x-cover>
+    {{else}}
+        <h1>{{job.name}}</h1>
+    {{/if}}
+</x-content>
