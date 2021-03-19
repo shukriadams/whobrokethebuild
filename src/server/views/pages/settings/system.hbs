@@ -19,10 +19,10 @@
                     </x-list-row>
                 {{/each}}
             {{else}}
-                <li class="list-item list-item--textContent">
+                <x-list-row>
                     No build (continous integrations) servers have been added yet. These servers includes the likes of Jenkins,
                     Team City, etc. They coordinate your builds.
-                </li>
+                </x-list-row>
             {{/if}}
         </x-list>
         

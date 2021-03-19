@@ -54,9 +54,11 @@
                 {{/each}}
             </X-columns>
         {{else}}
-            <p>
-                There are currently no builds to show
-            </p>
+            <x-card>
+                <x-card-pad>
+                    There are currently no builds to show.
+                </x-card-pad>
+            </x-card>
         {{/if}}
     {{/content}}
 {{/extend}}
