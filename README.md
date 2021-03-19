@@ -31,6 +31,14 @@ Additionally, *Who Broke The Build* lets you directly message people on your tea
 
 - Start app with `npm start` or `node index`
 
+## OnStart Logic
+
+If you need WBTB to set up your host system, place a script called `onStart.sh` in the project root, this will be executed when WBTB starts. This is particularly useful when running in Docker and you need to ensure that host state has been set. We use it to force Perforce trust for example.
+
+Note that errors from this script will caused WBTB to exit, but apps like P4 are known for "chatter" on stderr. To get around this you can squelch errors in onStart.sh by routing output to dev null
+
+    <your command> 2>/dev/null
+
 
 ## Setup
 

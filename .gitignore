@@ -52,3 +52,4 @@ __testing
 build/base/.stage.tar.gz
 src/server/plugins-internal/**/mock
 src/settings.yml
+src/onStart.sh

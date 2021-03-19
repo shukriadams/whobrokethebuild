@@ -17,6 +17,14 @@ sudo npm install concat-cli -g
 # reguired by webfonts-generator package
 sudo apt-get install build-essential -y
 
+# perforce
+curl -sL https://cdist2.perforce.com/perforce/r20.1/bin.linux26x86_64/p4 --output /tmp/p4 
+sudo cp /tmp/p4 /usr/local/bin/ 
+sudo chmod +x /usr/local/bin/p4 
+# Note : if accessing an ssl-protected p4 instance, you will have to trust it in this dev env with
+# p4 trust -i ssl:yourserver:1666
+# p4 trust -f -y
+
 # 
 sudo apt-get install subversion -y
 

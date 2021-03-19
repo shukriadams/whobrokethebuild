@@ -48,7 +48,8 @@ stopwatch.start();
                 console.log(`onstart finished with result`, result)
             } catch(ex){
                 console.log(`onstart failed with`, ex)
-                process.exit(1)
+                if (!settings.ignoreOnStartErrors)
+                    process.exit(1)
             }
         }
 
