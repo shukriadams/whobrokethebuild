@@ -5,28 +5,7 @@
     color: var(--color-white);
 }
 
-.header {
-    height: var(--layout-headerHeight);
-    background-color: var(--color-crusta);
-}
-
 .header-username {
     @include header-link;
     text-decoration: underline;
-}
-
-.header-login {
-    @include header-link;
-}
-
-.header-logout {
-    @include header-link;
-}
-
-.header-join {
-    @include header-link;
-}
-
-.header-items li {
-    padding-bottom: var(--universalPadding);
 }
