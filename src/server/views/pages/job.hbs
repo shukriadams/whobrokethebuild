@@ -26,7 +26,7 @@
                         <x-list-cell class="jobsList-status">
                             <div class="card-status card-status--{{statusTranslate status}}"></div>
                             <div>
-                                {{deltaTranslate delta}}
+                                {{deltaTranslate delta status}}
                             </div>
                             <div>
                                 {{ago started}} @ {{shortTime started}}
@@ -37,7 +37,7 @@
                             {{#each involvements}}
                                 <li_>
                                     {{#gt @index 0}},{{/gt}}
-                                    {{revision}} -                                         by 
+                                    {{revision}} - by 
                                     {{#if userId}}
                                         <a href="/user/{{userId}}">{{externalUsername}}</a>
                                     {{else}}
@@ -51,7 +51,9 @@
                 {{/each}}
 
             {{else}}
-                This job hasn't built yet
+                <x-list-row>
+                    This job hasn't built yet
+                </x-list-row>
             {{/if}}
 
         </x-list>
