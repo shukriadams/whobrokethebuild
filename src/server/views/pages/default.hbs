@@ -7,7 +7,9 @@
                         <x-card-stroke class="--{{statusTranslate __latestBuild.status}}"></x-card-stroke>
                         
                         {{#if avatar}}
-                            <x-cover class="jobs-image" style="background-image: url(/image/{{avatar.path}})"></x-cover>
+                            <a class="jobs-title" href="/job/{{id}}">
+                                <x-cover class="jobs-image" style="background-image: url(/image/{{avatar.path}})"></x-cover>
+                            </a>
                         {{/if}}
 
                         <x-card-pad>
