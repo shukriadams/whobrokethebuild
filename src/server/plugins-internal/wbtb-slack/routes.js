@@ -221,7 +221,7 @@ module.exports = app => {
                 if (!slackContactMethod)
                     return res.send('Job does not have a contact method set for slack')
     
-                await slackPlugin.deleteGroupAlert(slackContactMethod, job, build, true)
+                await slackPlugin.deleteGroupAlert(slackContactMethod, job, build.id, true)
     
                 res.send('alert withdrawn')
             } catch(ex){

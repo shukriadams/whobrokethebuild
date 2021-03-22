@@ -60,6 +60,32 @@ module.exports = class {
         }
 
         this.chat = {
+            delete(args){
+                if (!args.token)
+                    throw new Exception({
+                        message : 'wbtb-slack:open - arg missing .token value. This send would fail on real slack'
+                    })
+    
+                if (!args.channel)
+                    throw new Exception({
+                        message : 'wbtb-slack:open - arg missing .channel value. This send would fail on real slack'
+                    })
+
+                if (!args.ts)
+                    throw new Exception({
+                        message : 'wbtb-slack:open - arg missing .ts value. This send would fail on real slack'
+                    })                    
+
+                if (args.as_user !== true)
+                    throw new Exception({
+                        message : 'wbtb-slack:open - arg missing .as_user value of true. This send would fail on real slack'
+                    })                    
+
+                __log.debug(`mock slack deleting message in channel ${args.channel} :`)
+                return 'message deleted'
+                    
+            },
+
             postMessage(args){
                 if (!args.token)
                     throw new Exception({
@@ -80,7 +106,7 @@ module.exports = class {
                 const writeFolder = path.join(settings.dataFolder, 'wbtb-slack', 'mockMessages')
                 fs.ensureDirSync(writeFolder)
                 fs.outputJsonSync(path.join(writeFolder, `${new Date().getTime()}-slack-post.json`), args, { spaces : 4 })
-                return 'message posted'
+                return { ts : new Date().getTime() } // fake a ts value
             }
         }
     

@@ -2,8 +2,8 @@
     {{#content "body"}}
 
         {{>jobBanner job=job}}
-
         <h1>Build #{{build.build}}</h1>
+        <div data-isBuild />
         <x-columns class="--two">
             <x-card class="--stroke --top">
                 <x-card-stroke class="--{{statusTranslate build.status}}"></x-card-stroke>
@@ -56,9 +56,20 @@
                 <x-card-pad>
                     {{#if session.isAdmin}}
                         <div>
-                            <h2>Admin</h2>
-                            <button class="button --danger" data-id="{{build.id}}">Remove build</button>    
+                            <h5>Admin</h5>
+                            <button class="button --danger" data-deleteBuild="{{build.id}}">Remove build</button>    
+                            <p class="quiet">
+                                Delete this build to reset its data. The build will be automatically reimported if
+                                the CI system it was originally imported from is still being tracked, and the build
+                                still exists there.
+                            </p>
                         </div>
+                        {{#if canAlertBeUndone}}
+                            <button class="button --warning" data-undoAlerts="{{build.id}}">Delete alerts</button>    
+                            <p class="quiet">
+                                Public alerts have already been sent out for this build. You can delete them here.
+                            </p>
+                        {{/if}}
                     {{/if}}
                 </x-card-pad>
             </x-card>

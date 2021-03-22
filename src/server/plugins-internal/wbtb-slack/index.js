@@ -79,27 +79,42 @@ module.exports = {
 
         return channels
     },
-    
+
+    areGroupAlertsDeletable(){
+        return true
+    },
+
+    async groupAlertSent(slackContactMethod, job, incidentId){
+        const data = await pluginsManager.getExclusive('dataProvider'),
+            context = `${thisType}_group_alert_${job.id}_${incidentId}`,
+            contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
+
+        return contactLog != null && contactLog.data.withdrawn !== true
+    },
+
 
     /**
-     * 
+     * @param {object} slackContactMethod
+     * @param {import('../../types/job').Job} job
+     * @param {string} buildId Id of the build to withdraw message for
+     * @returns {string} 
      */
-    async deleteGroupAlert(slackContactMethod, job, build){
+    async deleteGroupAlert(slackContactMethod, job, buildId){
         const data = await pluginsManager.getExclusive('dataProvider'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.plugins[thisType].accessToken }),
-            context = `${thisType}_group_alert_${job.id}_${(build.id || '')}`
+            context = `${thisType}_group_alert_${job.id}_${(buildId)}`
 
         let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
         if (!contactLog){
-            console.warn(`could not find contactLog record for alert on build ${build.build}:${build.id}`)
-            return
+            console.warn(`could not find contactLog record for alert on build ${buildId}`)
+            return 'alert not found'
         }
 
         const ts = contactLog.data.ts
         if (!ts){
-            console.warn(`contactLog record for alert on build ${build.build}:${build.id} does not have a data.ts value, delete not possible`)
-            return
+            console.warn(`contactLog record for alert on build ${buildId} does not have a data.ts value, delete not possible`)
+            return 'untraceable alert'
         }
 
         const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId
@@ -107,6 +122,7 @@ module.exports = {
         await slack.chat.delete({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, ts, as_user : true });
         contactLog.data.withdrawn = true
         await data.updateContactLog(contactLog)
+        return 'alert deleted'
     },
 
 

@@ -8,9 +8,28 @@ const viewModelHelper = require(_$+'helpers/viewModel'),
 
 module.exports = function(app){
     
-    app.delete('/build/:id', async function(req, res){
+    app.delete('/build/object/:id', async function(req, res){
         try {
             await buildLogic.remove(req.params.id)
+            res.json({})
+        } catch(ex) {
+            errorHandler(res, ex)
+        }
+    })
+
+    app.delete('/build/alerts/:id', async function(req, res){
+        try {
+            const build = await buildLogic.getById(req.params.id),
+                job = await jobLogic.getJob(build.jobId, { expected : true })
+
+            for (const contactMethodName in job.contactMethods){
+                const contactPlugin = await pluginsManager.get(contactMethodName)
+                if (!contactPlugin)
+                    continue
+
+                await contactPlugin.deleteGroupAlert(job.contactMethods[contactMethodName], job, build.id)
+            }
+            
             res.json({})
         } catch(ex) {
             errorHandler(res, ex)
@@ -54,6 +73,21 @@ module.exports = function(app){
             model.linkToBuild = ciServerPlugin.linkToBuild(ciServer, job, build)
             build.__isFailing = build.status === constants.BUILDSTATUS_FAILED 
             model.buildBreakers = []
+            model.canAlertBeUndone = false
+
+            // determine if any contact plugins have sent a group alert for this which can be rolled back
+            if (build.delta === constants.BUILDDELTA_CAUSEBREAK )
+                for (const contactMethodName in job.contactMethods){
+                    const contactPlugin = await pluginsManager.get(contactMethodName)
+                    if (!contactPlugin)
+                        continue
+
+                    if (contactPlugin.areGroupAlertsDeletable() && await contactPlugin.groupAlertSent(job.contactMethods[contactMethodName], job, build.id) === true){
+                        model.canAlertBeUndone = true
+                        break
+                    }
+                }
+
 
             if (build.incidentId && build.incidentId !== build.id)
                 model.responsibleBreakingBuild = await buildLogic.getById(build.incidentId)
