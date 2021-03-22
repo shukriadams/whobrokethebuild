@@ -173,6 +173,7 @@ module.exports = app => {
         }
     })
 
+
     /**
      * 
      */
@@ -192,13 +193,41 @@ module.exports = app => {
             if (!slackContactMethod)
                 return res.send('Job does not have a contact method set for slack')
 
-            await slackPlugin.alertGroup(slackContactMethod, job, build, true)
+            await slackPlugin.alertGroup(slackContactMethod, job, build.id, true)
 
             res.send('group has been contacted')
         } catch(ex){
             errorHandler(res, ex)
         }
     })
+
+
+    /**
+     * 
+     */
+         app.get(`/${thisType}/test-removeGroupAlertForBuild/:buildId`, async function(req, res){
+            try {
+    
+                //////////////////////////////////////////////////////////
+                await sessionHelper.ensureRole(req, 'admin')
+                //////////////////////////////////////////////////////////
+    
+                let slackPlugin = await pluginsManager.get('wbtb-slack'),   
+                    data = await pluginsManager.getExclusive('dataProvider'),
+                    build = await data.getBuild(req.params.buildId, { expected : true }),
+                    job = await data.getJob(build.jobId, { expected : true }),
+                    slackContactMethod = job.contactMethods[thisType]
+                   
+                if (!slackContactMethod)
+                    return res.send('Job does not have a contact method set for slack')
+    
+                await slackPlugin.deleteGroupAlert(slackContactMethod, job, build, true)
+    
+                res.send('alert withdrawn')
+            } catch(ex){
+                errorHandler(res, ex)
+            }
+        })
 
 }
 

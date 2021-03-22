@@ -30,9 +30,12 @@ module.exports = class AlertBuildStatusChange extends BaseDaemon {
                         continue
                     
                     // send alert to channel / public forum etc
-                    await plugin.alertGroup(job.contactMethods[jobContactMethodKey], job, breakingBuild)
+                    if (breakingBuild)
+                        await plugin.alertGroup(job.contactMethods[jobContactMethodKey], job, breakingBuild.id)
+                    else {
+                        // withdraw alert!
+                    }
                 }
-
 
             } catch (ex){
                 __log.error(`Unexpected error in ${this.constructor.name} : job "${job.id}:${job.name}"`, ex)

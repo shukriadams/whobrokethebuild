@@ -53,7 +53,7 @@ const settings = require(_$+'helpers/settings'),
 
                     // lookup-optimized indexes
                     await db.collection(constants.TABLENAME_BUILDS).createIndex( { jobId: 1, build : 1, status: 1, isLogParsed: 1, started: 1, delta : 1  }, { unique: false, name : `${constants.TABLENAME_BUILDS}_performance` })
-                    await db.collection(constants.TABLENAME_CONTACTLOGS).createIndex( { 'receiverContext' : 1, 'type' : 1, 'eventContext' : 1 }, { unique: false, name : `${constants.TABLENAME_CONTACTLOGS}_performance` })
+                    await db.collection(constants.TABLENAME_CONTACTLOGS).createIndex( { 'receiverContext' : 1, 'type' : 1, 'eventContext' : 1 }, { unique: true, name : `${constants.TABLENAME_CONTACTLOGS}_performance` })
                     await db.collection(constants.TABLENAME_USERS).createIndex( { authMethod: 1, publicId: 1, 'userMappings.name' : 1, 'userMappings.VCServerId' : 1 }, { unique: false, name : `${constants.TABLENAME_USERS}_performance` })
 
                     client.close()

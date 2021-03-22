@@ -724,6 +724,12 @@ module.exports = {
         return _normalize(await _mongo.getById(constants.TABLENAME_CONTACTLOGS, id), _normalizeContactLog)
     },
 
+    async removeContactLog (id) {
+        await _mongo.remove(constants.TABLENAME_CONTACTLOGS, { 
+            _id : new ObjectID(id) 
+        })
+    },
+
     async getContactLogByContext (receiverContext, type, eventContext) {
         return _normalize(await _mongo.findFirst(constants.TABLENAME_CONTACTLOGS, {
             $and: [

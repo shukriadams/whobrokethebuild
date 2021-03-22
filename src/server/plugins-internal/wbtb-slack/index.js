@@ -82,6 +82,35 @@ module.exports = {
     
 
     /**
+     * 
+     */
+    async deleteGroupAlert(slackContactMethod, job, build){
+        const data = await pluginsManager.getExclusive('dataProvider'),
+            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
+            slack = new Slack({ token : settings.plugins[thisType].accessToken }),
+            context = `${thisType}_group_alert_${job.id}_${(build.id || '')}`
+
+        let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
+        if (!contactLog){
+            console.warn(`could not find contactLog record for alert on build ${build.build}:${build.id}`)
+            return
+        }
+
+        const ts = contactLog.data.ts
+        if (!ts){
+            console.warn(`contactLog record for alert on build ${build.build}:${build.id} does not have a data.ts value, delete not possible`)
+            return
+        }
+
+        const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId
+
+        await slack.chat.delete({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, ts, as_user : true });
+        contactLog.data.withdrawn = true
+        await data.updateContactLog(contactLog)
+    },
+
+
+    /**
      * Sends an alert to a channel defined in slackContactMethod that the job is broken at the given build.
      * This does not check if the job is actually broken, it assumes that the client code calling this has
      * determined that.
@@ -90,14 +119,14 @@ module.exports = {
      * 
      * @param {object} slackContactMethod contactMethod from job, written by this plugin 
      * @param {object} job job object to alert for
-     * @param {object} breakingBuild build that broke job. Null if build is working
+     * @param {object} breakingBuild build that broke job
      */
-    async alertGroup(slackContactMethod, job, breakingBuild, force = false){
+    async alertGroup(slackContactMethod, job, incidentId, force = false){
         const data = await pluginsManager.getExclusive('dataProvider'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.plugins[thisType].accessToken }),
             faultHelper = require(_$+'helpers/fault'),
-            context = `slack_group_alert_${job.id}_${(job.lastBreakIncidentId || '')}_${breakingBuild ? 'fail':'pass'}`
+            context = `${thisType}_group_alert_${job.id}_${(incidentId)}`
 
         // Do this as early as possible in method, we will be spamming this method
         // check if channel has already been informed about this build failure
@@ -108,6 +137,10 @@ module.exports = {
         if (!force && contactLog)
             return
 
+        // if we're forcing and contact log exists, we need to remove the previous log, duplicates are not allowed in db
+        if (contactLog)
+            await data.removeContactLog(contactLog.id)
+
         if (!this.__wbtb.enableMessaging){
             __log.debug(`Slack messaging disabled, blocked send`)
             return
@@ -116,8 +149,10 @@ module.exports = {
         if (settings.plugins[thisType].overrideChannelId)
             __log.info(`slackOverrideChannelId set, diverting post meant for channel ${slackContactMethod.channelId} to ${settings.plugins[thisType].overrideChannelId}`)
 
+        let breakingBuild = await data.getBuild(incidentId, { expected : true })
+
         try {
-            usersThatBrokeBuild = breakingBuild ? await faultHelper.getUsersWhoBrokeBuild(breakingBuild) : []
+            usersThatBrokeBuild = await faultHelper.getUsersWhoBrokeBuild(breakingBuild)
         } catch (ex){
             if (ex === 'revisions not mapped yet')
                 return
@@ -126,12 +161,10 @@ module.exports = {
         }
 
         const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
-            title_link = breakingBuild ? urljoin(settings.localUrl, `build/${breakingBuild.id}`) : urljoin(settings.localUrl, `job/${job.id}`),
-            color = breakingBuild ? '#D92424' : '#007a5a',
+            title_link = urljoin(settings.localUrl, `build/${breakingBuild.id}`),
+            color = '#D92424', //'#007a5a',
             text = usersThatBrokeBuild.length ? `People involved : ${usersThatBrokeBuild.join(',')}` : '',
-            title = breakingBuild ? 
-                `${job.name} broke @ build #${breakingBuild.build}.` : 
-                `${job.name} is working again.`,
+            title = `${job.name} broke @ build #${breakingBuild.build}.`, 
             attachments = [
                 {
                     fallback : title,
@@ -142,13 +175,16 @@ module.exports = {
                 }
             ]
 
-        await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, text: title, attachments });
+        let result = await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, text: title, attachments });
 
         contactLog = new ContactLog()
         contactLog.receiverContext = slackContactMethod.channelId
         contactLog.type = slackContactMethod.type
         contactLog.eventContext = context
         contactLog.created = new Date().getTime()
+        contactLog.data = {
+            ts : result.ts
+        }
 
         await data.insertContactLog(contactLog)
         __log.info(`alert sent to slack channel ${targetChannelId}`)
