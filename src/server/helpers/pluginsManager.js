@@ -24,8 +24,13 @@ let settings = require(_$+'helpers/settings'),
     _pluginStructure = {
         contactMethod : [
             'canTransmit',
-            'alertGroup',
-            'alertUser'
+            'areGroupAlertsDeletable',
+            'groupAlertSent',
+            'deleteGroupAlert',
+            'alertGroupBuildBreaking',
+            'alertGroupBuildPassing',
+            'alertUser',
+
         ],
         vcs : [
             'getRevisionPartialName',
