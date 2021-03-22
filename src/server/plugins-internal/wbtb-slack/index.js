@@ -137,7 +137,7 @@ module.exports = {
      * @param {object} job job object to alert for
      * @param {object} breakingBuild build that broke job
      */
-    async alertGroup(slackContactMethod, job, incidentId, force = false){
+    async alertGroupBuildBreaking(slackContactMethod, job, incidentId, force = false){
         const data = await pluginsManager.getExclusive('dataProvider'),
             Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
             slack = new Slack({ token : settings.plugins[thisType].accessToken }),
@@ -191,7 +191,12 @@ module.exports = {
                 }
             ]
 
-        let result = await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, text: title, attachments });
+        let result = await slack.chat.postMessage({ 
+            token : settings.plugins[thisType].accessToken, 
+            channel : targetChannelId, 
+            text: title, 
+            attachments 
+        })
 
         contactLog = new ContactLog()
         contactLog.receiverContext = slackContactMethod.channelId
@@ -205,7 +210,48 @@ module.exports = {
         await data.insertContactLog(contactLog)
         __log.info(`alert sent to slack channel ${targetChannelId}`)
     },
+    
 
+    async alertGroupBuildPassing(slackContactMethod, job, incidentId){
+        const data = await pluginsManager.getExclusive('dataProvider'),
+            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
+            slack = new Slack({ token : settings.plugins[thisType].accessToken }),
+            context = `${thisType}_group_alert_${job.id}_${(incidentId)}`
+
+        let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
+        if (!contactLog){
+            console.warn(`could not find contactLog record for alert on build ${incidentId}`)
+            return 'alert not found'
+        }
+
+        const ts = contactLog.data.ts
+        if (!ts){
+            console.warn(`contactLog record for alert on build ${incidentId} does not have a data.ts value, delete not possible`)
+            return 'untraceable alert'
+        }
+        
+        const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
+            title = `${job.name} is passing again`,
+            title_link = urljoin(settings.localUrl, `job/${job.id}`),
+            attachments = [
+                {
+                    fallback : title,
+                    color : '#007a5a',
+                    title,
+                    title_link
+                }
+            ]
+
+        await slack.chat.update({ 
+            token : settings.plugins[thisType].accessToken, 
+            channel : targetChannelId, 
+            ts, 
+            text : title,
+            attachments,
+            as_user : true 
+        })
+    },
+    
 
     /**
      * @param {object} user  User to contact

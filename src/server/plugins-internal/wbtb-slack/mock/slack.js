@@ -86,6 +86,31 @@ module.exports = class {
                     
             },
 
+            update(args){
+                if (!args.token)
+                    throw new Exception({
+                        message : 'wbtb-slack:open - arg missing .token value. This send would fail on real slack'
+                    })
+    
+                if (!args.channel)
+                    throw new Exception({
+                        message : 'wbtb-slack:open - arg missing .channel value. This send would fail on real slack'
+                    })
+
+                if (!args.ts)
+                    throw new Exception({
+                        message : 'wbtb-slack:open - arg missing .ts value. This send would fail on real slack'
+                    })                    
+
+                if (args.as_user !== true)
+                    throw new Exception({
+                        message : 'wbtb-slack:open - arg missing .as_user value of true. This send would fail on real slack'
+                    })                    
+
+                __log.debug(`mock slack upating message in channel ${args.channel} :`)
+                return 'message updated'
+            },
+
             postMessage(args){
                 if (!args.token)
                     throw new Exception({

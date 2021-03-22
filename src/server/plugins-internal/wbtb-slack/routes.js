@@ -193,7 +193,7 @@ module.exports = app => {
             if (!slackContactMethod)
                 return res.send('Job does not have a contact method set for slack')
 
-            await slackPlugin.alertGroup(slackContactMethod, job, build.id, true)
+            await slackPlugin.alertGroupBuildBreaking(slackContactMethod, job, build.id, true)
 
             res.send('group has been contacted')
         } catch(ex){
