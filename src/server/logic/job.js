@@ -1,5 +1,5 @@
 const pluginsManager = require(_$+'helpers/pluginsManager'),
-    Avatar = require(_$+'types/Avatar'),
+    Avatar = require(_$+'types/avatar'),
     settings = require(_$+'helpers/settings'),
     Job = require(_$+'types/job')
 
