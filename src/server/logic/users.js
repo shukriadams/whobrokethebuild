@@ -57,6 +57,16 @@ module.exports = {
         return await data.insertUser(user)
     },
 
+    async getById (id, options){
+        const data = await pluginsManager.getExclusive('dataProvider')
+        return await data.getUser(id, options)
+    },
+
+    async getByExternalName(name, options){
+        const data = await pluginsManager.getExclusive('dataProvider')
+        return await data.getUserByExternalName(name, options)
+    },
+
     async update (user){
         const data = await pluginsManager.getExclusive('dataProvider')
         user = _processPassword(user)

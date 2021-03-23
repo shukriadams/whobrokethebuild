@@ -18,7 +18,9 @@ module.exports = function(app){
 
     app.get('/job/:id?', async function(req, res){
         try {
-            const view = await handlebars.getView('job'),
+            const userLogic = require(_$+'logic/users'),
+                view = await handlebars.getView('job'),
+                faultHelper = require(_$+'helpers/fault'),
                 model = { },
                 data = await pluginsManager.getExclusive('dataProvider'),
                 page = parseInt(req.query.page || 1) - 1 // pages are publicly 1-rooted, 0-rooted internally
@@ -26,6 +28,23 @@ module.exports = function(app){
             model.job = await jobLogic.getJob(req.params.id, { expected : true })
             model.baseUrl = `/job/${req.params.id}`
             model.jobBuilds = await data.pageBuilds(req.params.id, page, settings.standardPageSize)
+            model.brokenByUsers = []
+            model.brokenSince = null
+            model.buildThatBrokeJob = await data.getBuildThatBrokeJob(model.job.id)
+
+            if (model.buildThatBrokeJob){
+                let brokenBy = []
+
+                model.brokenSince = model.buildThatBrokeJob.ended
+                brokenBy = await faultHelper.getUsersWhoBrokeBuild(model.buildThatBrokeJob)
+    
+                for (const userId of brokenBy){
+                    const user = await userLogic.getByExternalName(model.job.VCServerId, userId)
+                    if (user)
+                        model.brokenByUsers.push(user)
+                }
+            }
+
             for (const build of model.jobBuilds.items)
                 build.involvements = build.involvements.sort((a,b)=>{
                     const arev = a.revision.toString(),

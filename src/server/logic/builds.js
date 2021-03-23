@@ -6,7 +6,7 @@ module.exports = {
     /**
      * Gets a build for display purposes, throws exception if not found.
      */
-    async getById(id){
+    async getBuild(id){
         const data = await pluginsManager.getExclusive('dataProvider'),
             build = await data.getBuild(id, { expected : true })
             

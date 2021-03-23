@@ -1,9 +1,13 @@
+let _nodeCache
+
 module.exports = {
     
 
     _initialize(){
-        const NodeCache = require('node-cache')
-        return new NodeCache({ stdTTL: 100, checkperiod: 120 })
+        if (!_nodeCache){
+            const NodeCache = require('node-cache')
+            _nodeCache = new NodeCache({ stdTTL: 100, checkperiod: 120 })
+        }
     },
 
 
@@ -13,11 +17,8 @@ module.exports = {
      * @returns {Promise}
      */
     async flush(){
-        const nodeCache = this._initialize()
-        if (!nodeCache)
-            return
-
-        nodeCache.flushAll()
+        this._initialize()
+        _nodeCache.flushAll()
     },
 
 
@@ -27,16 +28,13 @@ module.exports = {
      * @returns {Promise}
      */
     async get (key) {
-        const Exception = require(_$+'types/exception'),
-            nodeCache = this._initialize()
+        const Exception = require(_$+'types/exception')
+        this._initialize()
 
         return new Promise((resolve, reject) => {
 
             try {
-                if (!nodeCache)
-                    return resolve(null)
-
-                nodeCache.get( key, ( err, object )=>{
+                _nodeCache.get( key, ( err, object )=>{
                     if (err)
                         return reject(new Exception({ inner : err }))
 
@@ -48,7 +46,6 @@ module.exports = {
             } catch(ex) {
                 reject(ex)
             }
-
         })
     },
 
@@ -59,16 +56,12 @@ module.exports = {
      * @returns {Promise}
      */
     async add (key, object){
-        const Exception = require(_$+'types/exception'),
-            nodeCache = this._initialize()
+        const Exception = require(_$+'types/exception')
+        this._initialize()
 
         return new Promise((resolve, reject) => {
             try {
-                
-                if (!nodeCache)
-                    return resolve()
-
-                nodeCache.set( key, object, (err)=>{
+                _nodeCache.set( key, object, (err)=>{
                     if (err)
                         return reject(new Exception({ inner : err }))
 
@@ -78,7 +71,6 @@ module.exports = {
             } catch (ex) {
                 reject(ex)
             }
-
         })
     },
 
@@ -88,16 +80,12 @@ module.exports = {
      * @returns {Promise}
      */
     async remove(key){
-        const Exception = require(_$+'types/exception'),
-            nodeCache = this._initialize()
+        const Exception = require(_$+'types/exception')
+        this._initialize()
 
         return new Promise((resolve, reject) => {
-
             try {
-                if (!nodeCache)
-                    return resolve()
-
-                nodeCache.del( key, (err)=>{
+                _nodeCache.del( key, (err)=>{
                     if (err)
                         return reject(new Exception({ inner : err }))
 

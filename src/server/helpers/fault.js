@@ -67,7 +67,7 @@ module.exports = {
                 username = user ? user.name : buildInvolvement.externalUsername
             
             if (!buildInvolvement.revisionObject)
-                throw `revisions not mapped yet`
+                continue
 
             if (!buildInvolvement.revisionObject.files.find(file => file.isFault === true))
                 continue

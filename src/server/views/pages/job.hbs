@@ -9,6 +9,15 @@
             </x-content>
         {{/if}}
 
+        <x-content>
+            {{#if buildThatBrokeJob}}
+                <x-badge class="--danger">Broke</x-badge> {{ago buildThatBrokeJob.ended}} by 
+                {{#each brokenByUsers}}
+                    <a href="/user/{{this.id}}">{{this.name}}</a>
+                {{/each}} @ build <a href="/build/{{buildThatBrokeJob.id}}">{{buildThatBrokeJob.build}}</a>
+            {{/if}}
+        </x-content>
+
         <x-list class="--dense jobsList">
             {{#if jobBuilds.items}}
                 {{#each jobBuilds.items}}

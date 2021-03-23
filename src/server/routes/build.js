@@ -19,7 +19,7 @@ module.exports = function(app){
 
     app.delete('/build/alerts/:id', async function(req, res){
         try {
-            const build = await buildLogic.getById(req.params.id),
+            const build = await buildLogic.getBuild(req.params.id),
                 job = await jobLogic.getJob(build.jobId, { expected : true })
 
             for (const contactMethodName in job.contactMethods){
@@ -57,7 +57,7 @@ module.exports = function(app){
     app.get('/build/:id', async (req, res)=>{
         try {
             const data = await pluginsManager.getExclusive('dataProvider'),
-                build = await buildLogic.getById(req.params.id),
+                build = await buildLogic.getBuild(req.params.id),
                 view = await handlebars.getView('build'),
                 job = await jobLogic.getJob(build.jobId),
                 ciServer = await data.getCIServer(job.CIServerId, { expected : true }),
@@ -90,7 +90,7 @@ module.exports = function(app){
 
 
             if (build.incidentId && build.incidentId !== build.id)
-                model.responsibleBreakingBuild = await buildLogic.getById(build.incidentId)
+                model.responsibleBreakingBuild = await buildLogic.getBuild(build.incidentId)
 
             // parse and filter log if only certain lines should be shown
             for (const buildInvolvement of model.build.involvements){
