@@ -32,10 +32,8 @@ module.exports = class AlertBuildStatusChange extends BaseDaemon {
                     // send alert to channel / public forum etc
                     if (breakingBuild)
                         await plugin.alertGroupBuildBreaking(job.contactMethods[jobContactMethodKey], job, breakingBuild.id)
-                    else {
+                    else 
                         await plugin.alertGroupBuildPassing(job.contactMethods[jobContactMethodKey], job, job.lastBreakIncidentId)
-                        // withdraw alert!
-                    }
                 }
 
             } catch (ex){

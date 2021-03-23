@@ -208,7 +208,7 @@ module.exports = {
         }
 
         await data.insertContactLog(contactLog)
-        __log.info(`alert sent to slack channel ${targetChannelId}`)
+        __log.info(`fail alert sent to slack channel ${targetChannelId} for buildId ${incidentId}, result : `, result)
     },
     
 
@@ -242,7 +242,7 @@ module.exports = {
                 }
             ]
 
-        await slack.chat.update({ 
+        const result = await slack.chat.update({ 
             token : settings.plugins[thisType].accessToken, 
             channel : targetChannelId, 
             ts, 
@@ -250,6 +250,8 @@ module.exports = {
             attachments,
             as_user : true 
         })
+
+        __log.info(`passing alert updated to slack channel ${targetChannelId} for buildId ${incidentId}, result :`, result)
     },
     
 
@@ -319,7 +321,7 @@ module.exports = {
             await messageBuilder.buildImplicatedMessage(user, build, '\`\`\`') :
             await messageBuilder.buildInterestedMessage(user, build)
         
-        await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : conversation.channel.id, text : message })
+        const result = await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : conversation.channel.id, text : message })
 
         // log that message has been sent, this will be used to prevent the same user from being informed of the same build error
         contactLog = new ContactLog()
@@ -329,7 +331,7 @@ module.exports = {
         contactLog.created = new Date().getTime()
 
         await data.insertContactLog(contactLog)
-        __log.info(`alert sent to slack user via personal channel ${conversation.channel.id}`)
+        __log.info(`alert sent to slack user via personal channel ${conversation.channel.id}, result : `, result)
     },
 
 

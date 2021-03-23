@@ -9,7 +9,13 @@
                             <a href="/user/{{__user.id}}">{{__user.name}}</a>
                         </x-list-cell>
                         <x-list-cell>
+                            {{receiverContext}}
+                        </x-list-cell>
+                        <x-list-cell>
                             {{eventContext}}
+                        </x-list-cell>
+                        <x-list-cell>
+                            {{toString data}}
                         </x-list-cell>
                         <x-list-cell>
                             {{ago created}}
