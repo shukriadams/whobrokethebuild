@@ -39,8 +39,9 @@ module.exports = {
             brokenByUsers : [], // user objects
             brokenBy: [] // strings
         }
-
-        if (!job.isPassing){
+        let ispassing = true
+        
+        if (!ispassing){
             let build = null
             if (job.lastBreakIncidentId){
                 build = await buildLogic.getBuild(job.lastBreakIncidentId)
