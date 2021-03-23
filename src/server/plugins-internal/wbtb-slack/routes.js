@@ -177,7 +177,7 @@ module.exports = app => {
     /**
      * 
      */
-    app.get(`/${thisType}/test-alertGroupOnBuild/:buildId`, async function(req, res){
+    app.get(`/${thisType}/test-alertGroupOnBreak/:buildId`, async function(req, res){
         try {
 
             //////////////////////////////////////////////////////////
@@ -202,6 +202,34 @@ module.exports = app => {
     })
 
 
+    /**
+     * 
+     */
+    app.get(`/${thisType}/test-alertGroupOnPass/:buildId`, async function(req, res){
+        try {
+
+            //////////////////////////////////////////////////////////
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+            let slackPlugin = await pluginsManager.get('wbtb-slack'),   
+                data = await pluginsManager.getExclusive('dataProvider'),
+                build = await data.getBuild(req.params.buildId, { expected : true }),
+                job = await data.getJob(build.jobId, { expected : true }),
+                slackContactMethod = job.contactMethods[thisType]
+               
+            if (!slackContactMethod)
+                return res.send('Job does not have a contact method set for slack')
+
+            await slackPlugin.alertGroupBuildPassing(slackContactMethod, job, build.id, true)
+
+            res.send('group has been contacted')
+        } catch(ex){
+            errorHandler(res, ex)
+        }
+    })
+
+    
     /**
      * 
      */
