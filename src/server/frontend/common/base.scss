@@ -3,6 +3,7 @@
 
 :root {
     --color-crusta: #FE752F;
+    --color-coral: #FE894D;
     --color-toxicHulk: #14ff14;
     --color-cyan: #2cffe1;
     --color-confetti:#E4E65C;
@@ -44,6 +45,10 @@ body {
 
 a {
     color: var(--color-crusta);
+    &:hover{
+        color: var(--color-coral);
+        transition: var(--bootstrip-transition-standard);
+    }
 }
 
 aside {
