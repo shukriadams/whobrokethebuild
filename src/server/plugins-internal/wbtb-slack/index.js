@@ -224,12 +224,15 @@ module.exports = {
             return 'alert not found'
         }
 
-        const ts = contactLog.data.ts
-        if (!ts){
+        if (!contactLog.data.ts){
             console.warn(`contactLog record for alert on build ${incidentId} does not have a data.ts value, delete not possible`)
             return 'untraceable alert'
         }
-        
+
+        // alert has already been updated, exit silently
+        if (contactLog.data.updated)
+            return
+
         const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
             title = `${job.name} is passing again`,
             title_link = urljoin(settings.localUrl, `job/${job.id}`),
@@ -245,11 +248,14 @@ module.exports = {
         const result = await slack.chat.update({ 
             token : settings.plugins[thisType].accessToken, 
             channel : targetChannelId, 
-            ts, 
+            ts : contactLog.data.ts, 
             text : title,
             attachments,
             as_user : true 
         })
+
+        contactLog.data.updated = true
+        await data.updateContactLog(contactLog)
 
         __log.info(`passing alert updated to slack channel ${targetChannelId} for buildId ${incidentId}, result :`, result)
     },
