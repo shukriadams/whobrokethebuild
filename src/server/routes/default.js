@@ -56,8 +56,8 @@ module.exports = function(express){
 
             // sort jobs with breaking first
             model.jobs.sort((a, b)=> {
-                return a.__breakingBuild && !b.__breakingBuild ? -1 :
-                    !a.__breakingBuild && b.__breakingBuild ? 1 :
+                return !!a.__breakingBuild && !b.__breakingBuild ? -1 :
+                    !a.__breakingBuild && !!b.__breakingBuild ? 1 :
                     0
             })
 

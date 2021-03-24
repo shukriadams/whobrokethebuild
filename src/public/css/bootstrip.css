@@ -159,7 +159,9 @@ x-clamp {
 /* line 1, modules/base/code/code.scss */
 .code {
   display: block;
-  white-space: pre-wrap; }
+  white-space: pre-wrap; 
+  word-break: break-all;
+  }
 /* line 44, modules/base/columns/column.scss */
 .columns {
   display: grid;

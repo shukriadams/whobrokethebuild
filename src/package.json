@@ -10,6 +10,7 @@
     "assets": "node ./build/build-all-assets",
     "client": "sh ./build/bundle.sh",
     "test": "node ./tests/run-all",
+    "icons" : "cd build && node icons",
     "dev": "node ./build/dev.js"
   },
   "devDependencies": {
