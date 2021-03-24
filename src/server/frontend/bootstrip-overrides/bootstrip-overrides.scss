@@ -33,17 +33,17 @@ x-header-logoContainer {
 
 x-card {
     border: none;
-}
 
-.header-title {
-    font-size: 24px;
-}
-
-x-list {
-    border: none;
+    x-cover {
+        transition: transform .1s ease-out;
+        &:hover{
+            transform: scale(1.02);
+        }
+    }
 }
 
 x-card-stroke {
+    z-index: 1; // so floats above card image
     &.--passing {
         background-color: var(--bootstrip-color-genoa);
         color: var(--bootstrip-color-white);
@@ -59,3 +59,12 @@ x-card-stroke {
         color: var(--bootstrip-color-white);
     }
 }
+
+.header-title {
+    font-size: 24px;
+}
+
+x-list {
+    border: none;
+}
+
