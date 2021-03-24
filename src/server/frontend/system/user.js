@@ -1,14 +1,15 @@
 if (document.querySelector('.userSettings')){
-    const addUserButton = document.querySelector('[data=vcServer-addUser]'),
+    const addUserButton = document.querySelector('[data-vcServer-addUser]'),
         saveBindingsButton = document.querySelector('.userSetting-saveVCServerBindings')
 
     addUserButton.addEventListener('click', async ()=>{
         await addUser()
     }, false)
 
-    saveBindingsButton.addEventListener('click', async ()=>{
-        await saveBindings()
-    }, false)
+    if (saveBindingsButton)
+        saveBindingsButton.addEventListener('click', async ()=>{
+            await saveBindings()
+        }, false)
 
     async function saveBindings(){
 

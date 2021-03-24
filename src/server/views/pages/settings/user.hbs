@@ -1,6 +1,7 @@
 {{#extend "layout_userSettings"}}
     {{#content "settingsBody"}}
-
+        <input class="userSettings-userId" type="hidden" value="{{user.id}}" />
+        
         <div class="userSettings">
 
             <h2>Plugins</h2>
@@ -46,7 +47,7 @@
                             <option value="{{id}}">{{name}}</option>
                         {{/each}}
                     </select>
-                    <button class="button" data="vcServer-addUser">Add to server</button>
+                    <button class="button" data-vcServer-addUser>Add to server</button>
                 {{else}}
                     No version control systems are set up yet.
                 {{/if}}
