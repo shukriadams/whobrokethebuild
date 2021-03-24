@@ -7,6 +7,7 @@ const constants = require(_$+'types/constants'),
     settings = require(_$+'helpers/settings'),
     CIServer = require(_$+'types/CIServer'),
     VCServer = require(_$+'types/VCServer'),
+    JobStats = require(_$+'types/jobStats'),
     Session = require(_$+'types/session'),
     ContactLog = require(_$+'types/contactLog'),
     Job = require(_$+'types/job'),
@@ -338,6 +339,65 @@ module.exports = {
         })
     },
 
+    async getJobStats(jobId){
+        const jobStats = new JobStats()
+        jobStats.totalBreaks = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
+            {
+                $match : {
+                    $and: [ 
+                        { 'jobId' : { $eq : new ObjectID(jobId) } },
+                        { 'status' : { $eq : constants.BUILDSTATUS_FAILED } }
+                    ],
+                },
+            },
+            {
+                $count: 'breaks'
+            }
+        ))[0].breaks
+
+        jobStats.incidents = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
+            {
+                $match : {
+                    $and: [ 
+                        { 'jobId' : { $eq : new ObjectID(jobId) } },
+                        { 'delta' : { $eq : constants.BUILDDELTA_CAUSEBREAK } }
+                    ],
+                },
+            },
+            {
+                $count: 'incidents'
+            }
+        ))[0].incidents
+
+        jobStats.totalRuns = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
+            {
+                $match : {
+                    $and: [ 
+                        { 'jobId' : { $eq : new ObjectID(jobId) } },
+                    ],
+                },
+            },
+            {
+                $count: 'runs'
+            }
+        ))[0].runs
+
+        
+
+        /*
+        this.totalBreaks = 0
+        this.totalRuns = 0
+        this.daysActive = 0
+        this.runsPerDay = 0
+        this.breaksPerDay = 0
+        this.daysSinceLastBreak = 0
+        this.breakRatio = 0 
+        this.breaksThisWeek = 0
+        this.breaksThisMonth = 0
+        */
+
+        return jobStats
+    },
 
     /****************************************************
      * VCServer

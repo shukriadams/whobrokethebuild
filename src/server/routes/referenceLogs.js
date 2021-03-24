@@ -1,6 +1,5 @@
 const errorHandler = require(_$+'helpers/errorHandler'),
     viewModelHelper = require(_$+'helpers/viewModel'),
-    faultHelper = require(_$+ 'helpers/fault'),
     handlebars = require(_$+ 'helpers/handlebars')
 
 module.exports = function(app){

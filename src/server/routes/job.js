@@ -21,6 +21,7 @@ module.exports = function(app){
             const userLogic = require(_$+'logic/users'),
                 view = await handlebars.getView('job'),
                 faultHelper = require(_$+'helpers/fault'),
+                jobStats = require(_$+'helpers/jobStats'),
                 model = { },
                 data = await pluginsManager.getExclusive('dataProvider'),
                 page = parseInt(req.query.page || 1) - 1 // pages are publicly 1-rooted, 0-rooted internally
@@ -31,7 +32,8 @@ module.exports = function(app){
             model.brokenByUsers = []
             model.brokenSince = null
             model.buildThatBrokeJob = await data.getBuildThatBrokeJob(model.job.id)
-
+            model.stats = await jobStats.get(req.params.id)
+            
             if (model.buildThatBrokeJob){
                 let brokenBy = []
 
