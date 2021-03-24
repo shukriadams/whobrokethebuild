@@ -10,11 +10,15 @@
 // - trailing :
 
 const errorRegex = /(.?)*( error)(.?)*[ ][A-Z]{1}[0-9]+[:](.?)*/gmi,
-    warnRegex = /(.?)*( warning)(.?)*[ ][A-Z]{1}[0-9]+[:](.?)*/gmi
+    warnRegex = /(.?)*( warning)(.?)*[ ][A-Z]{1}[0-9]+[:](.?)*/gmi,
+    find = (text, regex) =>{
+        const lookup = text.match(regex)
+        return lookup ? lookup.pop() : null
+    }
 
 module.exports = {
 
-
+    
     /**
      * 
      */
@@ -63,6 +67,35 @@ module.exports = {
             errors.push({type: 'error', text : distinct[key]})
 
         return errors
+    },
+
+
+    /**
+     * Parses an error/warning line from a log, tries to find file, line number and code. Always
+     * returns an object, but with null properties of any of these values are not found.
+     * 
+     * @param {*} line 
+     * @returns Object with line, lineNumber and error/warning code
+     */
+    parseLine(line){
+        if (!line)
+            return null
+        
+        let file = find(line, /^(.*?)\(.*\): /),
+            lineNumber = find(line, /.*\((.*?)\): /),
+            code = find(line, /(error|warning) C([\d]+): /)
+
+        if (lineNumber)
+            lineNumber = parseInt(lineNumber)
+
+        if (code)
+            code = `C${code}`
+
+        return {
+            file,
+            lineNumber,
+            code
+        }
     },
 
 

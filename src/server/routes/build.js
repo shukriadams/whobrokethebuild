@@ -36,6 +36,26 @@ module.exports = function(app){
         }
     })
 
+    app.get('/build/blame/:id', async (req, res)=>{
+        try {
+
+            //////////////////////////////////////////////////////////
+            const sessionHelper = require(_$+'helpers/session')
+            await sessionHelper.ensureRole(req, 'admin')
+            //////////////////////////////////////////////////////////
+
+            const data = await pluginsManager.getExclusive('dataProvider'),
+                perforceHelper = await pluginsManager.get('wbtb-perforce'),
+                build = await data.getBuild(req.params.id, { expected : true })
+
+            await perforceHelper.appendBlame(build)
+
+            res.send('done')
+        } catch(ex) {
+            errorHandler(res, ex)
+        }
+    })
+
     app.get('/build/log/:id', async (req, res)=>{
         try {
             const view = await handlebars.getView('buildLog'),

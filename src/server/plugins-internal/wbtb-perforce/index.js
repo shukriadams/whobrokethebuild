@@ -88,6 +88,51 @@ module.exports = {
 
 
     /**
+     * 
+     * @param {object} logDataArray 
+     * @param {string} logParserType 
+     * @returns 
+     */
+    async appendBlame(build){
+        const pluginsManager = require(_$+'helpers/pluginsManager'),
+            data = await pluginsManager.getExclusive('dataProvider'),
+            job = await data.getJob(build.jobId, { expected : true }),
+            vcServer = await data.getVCServer(job.VCServerId, { expected : true }),
+            logParser = await pluginsManager.get(job.logParser),
+            password = await encryption.decrypt(vcServer.password),
+            // convert revisions to int, sort highest first
+            buildRevisions = build.revisions.map(rev => parseInt(rev)).sort().reverse(),
+            // take latest
+            revisionAtBuild = buildRevisions.length ? buildRevisions[0] : null
+
+        if (!revisionAtBuild) {
+            __log.debug(`No revisions set for build ${build.build}, blame not possible, this should not happen`)
+            return
+        }
+
+        for (const logItem of build.logData){
+            if (logItem.type !== 'error')
+                continue
+            
+            const parsedLine = logParser.parseLine(logItem.text)
+            if (!parsedLine.file)
+                continue
+
+            parsedLine.file = parsedLine.file.replace(/\\/, '/') // convert windows slashes to unix
+            parsedLine.file = parsedLine.file.replace(/^(.*?)\/Game\//, '')
+            const rawAnnotate = await perforcehelper.getAnnotate(vcServer.username, password, vcServer.url, `//.../main/.../${parsedLine.file}`, `@${revisionAtBuild}`)
+            if (!rawAnnotate)
+                continue
+            
+            const parsedAnnotate = perforcehelper.parseAnnotate(rawAnnotate)
+            const blame = parsedAnnotate.lines.find(line => line.number === parsedLine.lineNumber)
+            if (blame)
+                console.log(blame)
+        }
+    },
+
+
+    /**
      * Required by interface.
      * Does p4 describe on a revision and returns an object with revision info
      * revision : string, revision id
