@@ -33,13 +33,6 @@ x-header-logoContainer {
 
 x-card {
     border: none;
-
-    x-cover {
-        transition: transform .1s ease-out;
-        &:hover{
-            transform: scale(1.02);
-        }
-    }
 }
 
 x-card-stroke {

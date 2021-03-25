@@ -235,7 +235,7 @@ module.exports = {
 
         const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId,
             title = `${job.name} is passing again`,
-            title_link = urljoin(settings.localUrl, `job/${job.id}`),
+            title_link = urljoin(settings.localUrl, `build/${incidentId}`),
             attachments = [
                 {
                     fallback : title,
