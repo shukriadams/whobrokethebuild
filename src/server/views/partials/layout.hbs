@@ -40,14 +40,6 @@
                     <li class="sideMenu-header">
                         Hi there <a class="header-username" href="/settings">{{session.name}}</a>
                     </li>
-                    <li class="sideMenu-item active">
-                        <a href="javascript:void(0)" data-function-logout class="sideMenu-anchor" title="Logout">
-                            <span class="sideMenu-iconWrapper">
-                                <i class="icon icon-logout"></i>
-                            </span>
-                            logout
-                        </a>
-                    </li>
                 {{else}}
                     <li class="sideMenu-item">
                         <a class="sideMenu-anchor" data-function-login href="/login" title="Login">
@@ -96,14 +88,6 @@
                 </li>        
                 {{#if session.isAdmin}}
                     <li class="sideMenu-item">
-                        <a class="sideMenu-anchor" href="/settings" title="Profile">
-                            <span class="sideMenu-iconWrapper">
-                                <i class="icon icon-user"></i> 
-                            </span>
-                            Profile
-                        </a> 
-                    </li>
-                    <li class="sideMenu-item">
                         <a class="sideMenu-anchor" href="/settings/system" title="System">
                             <span class="sideMenu-iconWrapper">
                                 <i class="icon icon-gear"></i> 
@@ -121,6 +105,16 @@
                     </li>
                 {{/if}}
 
+                {{#if session.isLoggedIn}}
+                    <li class="sideMenu-item active">
+                        <a href="javascript:void(0)" data-function-logout class="sideMenu-anchor" title="Logout">
+                            <span class="sideMenu-iconWrapper">
+                                <i class="icon icon-logout"></i>
+                            </span>
+                            Logout
+                        </a>
+                    </li>
+                {{/if}}
             </ul>
         </aside>
 
