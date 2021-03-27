@@ -5,10 +5,6 @@ const BaseDaemon = require(_$+'daemon/base')
  */
 module.exports = class AlertBuildBreaker extends BaseDaemon {
 
-    constructor(...args){
-        super(...args)
-    }
-    
     async _work(){
         const constants = require(_$+'types/constants'),
             pluginsManager = require(_$+'helpers/pluginsManager'),
@@ -45,7 +41,7 @@ module.exports = class AlertBuildBreaker extends BaseDaemon {
                     if (buildInvolvement.revisionObject && !buildInvolvement.revisionObject.files.find(file => file.isFault === true))
                         continue
 
-                    // solid lead, but our snitch gave us a bogus address, use not found
+                    // solid lead, but our snitch gave us a bogus address, user not found
                     const user = await data.getUser(buildInvolvement.userId)
                     if (!user){
                         __log.warn(`WARNING - expected user ${buildInvolvement.userId} in buildInvolvement ${buildInvolvement.id} not found`)

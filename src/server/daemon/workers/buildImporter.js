@@ -5,10 +5,6 @@ const BaseDaemon = require(_$+'daemon/base')
  */
 module.exports = class BuildImporter extends BaseDaemon {
 
-    constructor(...args){
-        super(...args)
-    }
-    
     async _work(){
         const pluginsManager = require(_$+'helpers/pluginsManager'),
             data = await pluginsManager.getExclusive('dataProvider'),

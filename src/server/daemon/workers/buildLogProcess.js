@@ -1,5 +1,3 @@
-const { buildLogsDump } = require("../../helpers/settings")
-
 const BaseDaemon = require(_$+'daemon/base')
 
 /**
@@ -7,10 +5,6 @@ const BaseDaemon = require(_$+'daemon/base')
  */
 module.exports = class BuildLogProcess extends BaseDaemon {
 
-    constructor(...args){
-        super(...args)
-    }
-    
     async _work(){
 
         // try to map map local users to users in vcs for a given build

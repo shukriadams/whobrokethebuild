@@ -4,11 +4,7 @@ const BaseDaemon = require(_$+'daemon/base')
  * @extends {BaseDaemon}
  */
 module.exports = class BuildDeltaCalculator extends BaseDaemon {
-
-    constructor(...args){
-        super(...args)
-    }
-    
+   
     async _work(){
         let constants = require(_$+'types/constants'),
             pluginsManager = require(_$+'helpers/pluginsManager'),

@@ -5,10 +5,6 @@ const BaseDaemon = require(_$+'daemon/base')
  */
 module.exports = class MapUsersToRevisions extends BaseDaemon {
 
-    constructor(...args){
-        super(...args)
-    }
-    
     async _work(){
         // try to map map local users to users in vcs for a given build
         const pluginsManager = require(_$+'helpers/pluginsManager'),
