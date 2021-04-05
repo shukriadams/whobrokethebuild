@@ -1,3 +1,9 @@
+/**
+ * Starts the WBTB server.
+ * 
+ * The server in this case is several subsystems which must be initialized. These subsystems are:
+ * - 
+ */
 // set shortcut global for easier module imports relative to server root directory
 global._$ = `${__dirname}/server/`
 
@@ -24,17 +30,14 @@ stopwatch.start();
     const colors = require('colors/safe'),
         bodyParser = require('body-parser'),
         cookieParser = require('cookie-parser'),
-        path = require('path'),
-        glob = require('glob'),
         http = require('http'),
         useragent = require('express-useragent'),
-        fsUtils = require('madscience-fsUtils'),
         Express = require('express'),
-        app = Express(),
         daemonManager = require(_$+'daemon/manager'),
         encryption = require(_$+'helpers/encryption'),
         exec = require('madscience-node-exec'),
         diagnosticsHelper = require(_$+'helpers/diagnostics'),
+        routeHelper = require(_$+'helpers/routes')
         userLogic = require(_$+ 'logic/users'),
         pluginsManager = require(_$+'helpers/pluginsManager')
 
@@ -64,19 +67,9 @@ stopwatch.start();
 
         await pluginsManager.validateSettings()
 
-        let root = path.join(__dirname, 'server'),
-            routeFiles = [],
-            data = await pluginsManager.getExclusive('dataProvider')
 
-        // load core routes
-        routeFiles = routeFiles.concat(await fsUtils.readFilesUnderDir(path.join(root, 'routes')))
 
-        // find all plugins, then routes folder under those
-        if (settings.bindInternalPlugins)
-            routeFiles = routeFiles.concat(glob.sync(`${root}/plugins-internal/*/routes.js`, { ignore : ['**/node_modules/**']}))
-        else
-            routeFiles = routeFiles.concat(glob.sync(`${pluginsManager.getPluginRootPath()}/**/routes.js`, { ignore : ['**/mock/**', '**/node_modules/**']}))
-
+        const data = await pluginsManager.getExclusive('dataProvider')
         await data.initialize()
         await userLogic.initializeAdmin()
         
@@ -84,6 +77,7 @@ stopwatch.start();
         await encryption.testKey()
 
         // middleware must be loaded before routes
+        const app = Express()
         app.use(bodyParser.urlencoded({ extended: false }))
         app.use(bodyParser.json())
         app.use(cookieParser())
@@ -94,34 +88,9 @@ stopwatch.start();
         // static folders must be defined before routes or routes will override them
         app.use(Express.static('./client')) // for dev only, not available on builds
         app.use(Express.static('./public'))
-        
-        // load routes from all files in /routes folder. These files must return a function that
-        // accepts app as arg. Note that route file with name 'default' is reserved and always bound
-        // last, this should contain the route that catches all unbound route names and forces them
-        // to our Single Page App root page.
-        let defaultRoute
-        
-        for (let routeFile of routeFiles){
 
-            const match = routeFile.match(/(.*).js/)
-            if (!match)
-                continue
 
-            const name = match.pop()
-    
-            let routes = require(name)
-            if (name === 'default'){
-                defaultRoute = routes
-                continue
-            }
-    
-            routes(app)
-        }
-    
-        // finally, load default route. This must be bound last because its pattern works
-        // as a catchall for anything that isn't caught by a more specific fixed pattern.
-        if (defaultRoute)
-            defaultRoute(app)
+        await routeHelper.init(app)
 
         const server = http.createServer(app)
         server.listen(settings.port)
