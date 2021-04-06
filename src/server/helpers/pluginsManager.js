@@ -15,12 +15,9 @@ let settings = require(_$+'helpers/settings'),
     pluginConfPath = path.join(settings.dataFolder, '.plugin.conf'),
     _pluginConf = {},
     _allplugins = null,
-    _plugins = {
-        // hash table of installed plugins paths, mapped by id
-        plugins : {},
-        // hash table of installed plugins (full data), mapped by id.
-        byCategory : {}
-    },
+    // hash table of installed plugins (full data), mapped by id.
+    _categories = {},
+    _plugins = { },
     _pluginStructure = {
         contactMethod : [
             'canTransmit',
@@ -29,8 +26,7 @@ let settings = require(_$+'helpers/settings'),
             'deleteGroupAlert',
             'alertGroupBuildBreaking',
             'alertGroupBuildPassing',
-            'alertUser',
-
+            'alertUser'
         ],
         vcs : [
             'getRevisionPartialName',
@@ -353,22 +349,22 @@ module.exports = {
             // via .wbtb to code. Allow local config to override static config in package.json
             packageJson.wbtb = merge(packageJson.wbtb, pluginsConfig[pluginName])
 
-            _plugins.byCategory[packageJson.wbtb.category] = _plugins.byCategory[packageJson.wbtb.category] || {}
+            _categories[packageJson.wbtb.category] = _categories[packageJson.wbtb.category] || {}
             
             // default structure for plugin definition data is taken straight package.json as the "wbtb" section. This means
-            _plugins.byCategory[packageJson.wbtb.category][pluginName] = packageJson.wbtb 
+            _categories[packageJson.wbtb.category][pluginName] = packageJson.wbtb 
             
             // add other stuff to definition - path f.ex is calculated at load time.
-            _plugins.byCategory[packageJson.wbtb.category][pluginName].path = pluginFolderPath 
+            _categories[packageJson.wbtb.category][pluginName].path = pluginFolderPath 
 
             // wbtb uses package's name as its "id" value, id is a code used for data linking, name is used to display to humans
-            _plugins.byCategory[packageJson.wbtb.category][pluginName].id = packageJson.name
+            _categories[packageJson.wbtb.category][pluginName].id = packageJson.name
 
             // ensure name, fall back to package name if none is set
-            _plugins.byCategory[packageJson.wbtb.category][pluginName].name = _plugins.byCategory[packageJson.wbtb.category][pluginName].name || packageJson.name 
+            _categories[packageJson.wbtb.category][pluginName].name = _categories[packageJson.wbtb.category][pluginName].name || packageJson.name 
 
             // keep a copy of the plugin definition in a second hash table by plugin name, this if lookup if we don't know a plugin's category
-            _plugins.plugins[pluginName] = _plugins.byCategory[packageJson.wbtb.category][pluginName]
+            _plugins[pluginName] = _categories[packageJson.wbtb.category][pluginName]
 
             __log.info(`Plugin "${pluginName}" loaded`)
         }
@@ -376,7 +372,7 @@ module.exports = {
 
         // fail if required plugins missing
         for (const requiredCategory of requiredCategories)
-            if (!_plugins.byCategory[requiredCategory]){
+            if (!_categories[requiredCategory]){
                 errors = true
                 __log.error(`Required plugin category "${requiredCategory}" not found`)
             }
@@ -384,10 +380,10 @@ module.exports = {
 
         // fail if a plugin category that can exist only once is overbooked
         for (const exclusiveCategory of exclusiveCategories){
-            if (!_plugins.byCategory[exclusiveCategory])
+            if (!_categories[exclusiveCategory])
                 continue
             
-            const keys = Object.keys(_plugins.byCategory[exclusiveCategory])
+            const keys = Object.keys(_categories[exclusiveCategory])
             if (keys.length > 1){
                 errors = true
                 __log.error(`Only 1 plugin of category "${exclusiveCategory}" is allowed`)
@@ -423,17 +419,17 @@ module.exports = {
      * Gets a single plugin by category, if more than one is registered for that category throws error
      */
     getExclusive(category){
-        if (! _plugins.byCategory[category])
+        if (!_categories[category])
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `No plugin for category : ${category}, getExclusive() failed.` })
 
-        const plugins = Object.keys( _plugins.byCategory[category])
+        const plugins = Object.keys(_categories[category])
         if (plugins.length > 1)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Multiple plugins found for category : ${category}, getExclusive() failed.` })
 
-        const requirePath = `${path.resolve(_plugins.byCategory[category][plugins[0]].path)}/index`,
+        const requirePath = `${path.resolve(_categories[category][plugins[0]].path)}/index`,
             plugin = require(requirePath)
 
-        plugin.__wbtb = _plugins.byCategory[category][plugins[0]]
+        plugin.__wbtb = _categories[category][plugins[0]]
         plugin.__wbtb.requirePath = requirePath
 
         return plugin
@@ -444,21 +440,21 @@ module.exports = {
      * 
     */
     get(name){
-        const pluginPath = _plugins.plugins[name] ? _plugins.plugins[name].path : null
+        const pluginPath = _plugins[name] ? _plugins[name].path : null
         if (!pluginPath)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Missing plugin : ${name}` })
 
         const requirePath = `${path.resolve(pluginPath)}/index`,
             plugin = require(requirePath)
 
-        plugin.__wbtb = _plugins.plugins[name]
+        plugin.__wbtb = _plugins[name]
         plugin.__wbtb.requirePath = requirePath
         return plugin
     },
 
 
     getAllByCategory(category, failOnNoMathes = true){
-        const pluginsForCategory = _plugins.byCategory[category]
+        const pluginsForCategory = _categories[category]
         if (!pluginsForCategory && failOnNoMathes)
             throw new Exception({ code : constants.ERROR_MISSINGPLUGIN, message : `Category : ${category}` })
 
@@ -517,11 +513,11 @@ module.exports = {
 
         if (!_allplugins){
             _allplugins = []
-            for (let pluginPath in  _plugins.plugins){
-                const requirePath = `${path.resolve(_plugins.plugins[pluginPath].path)}/index`,
+            for (let pluginPath in _plugins){
+                const requirePath = `${path.resolve(_plugins[pluginPath].path)}/index`,
                     plugin = require(requirePath)
 
-                plugin.__wbtb = _plugins.plugins[pluginPath]
+                plugin.__wbtb = _plugins[pluginPath]
                 plugin.__wbtb.requirePath = requirePath
                 _allplugins.push(plugin)
             }
@@ -579,12 +575,12 @@ module.exports = {
             overrideFilePath = path.join(settings.dataFolder, '.settings-override.json')
 
         // apply to plugin
-        if (!_plugins.plugins[pluginName]){
+        if (!_plugins[pluginName]){
             __log.error(`Attempted to apply setting to unknown/unbound plugin "${pluginName}"`)
             return
         }
 
-        _plugins.plugins[pluginName][setting] = value
+        _plugins[pluginName][setting] = value
 
         // persist to file
         if (await fs.pathExists(overrideFilePath))
