@@ -317,13 +317,17 @@ module.exports = {
         if (settings.checkPluginsOnStart)
             await this._setupAllPlugins(pluginsConfig)
 
+        let overrideFilePath = path.join(settings.dataFolder, '.settings-override.json'),
+            overrideSettings = {}
 
+        if (await fs.pathExists(overrideFilePath))
+            overrideSettings = await fs.readJson(overrideFilePath)
 
         // bind all discovered plugins
         const installedPluginFolders = await this._getPluginsFolders()
         for (let pluginFolderPath of installedPluginFolders){
             const pluginName = path.basename(pluginFolderPath),
-                pluginPackageJsonPath = path.join(pluginFolderPath,  'package.json'),
+                pluginPackageJsonPath = path.join(pluginFolderPath, 'package.json'),
                 pluginConfig = pluginsConfig[pluginName]
 
             // plugin folder exists locally, but is not defined in pluginsConfig, ignore it
@@ -348,6 +352,10 @@ module.exports = {
             // merge local plugin config with .wbtb member of package.json - in this way, local config is available
             // via .wbtb to code. Allow local config to override static config in package.json
             packageJson.wbtb = merge(packageJson.wbtb, pluginsConfig[pluginName])
+            
+            // merge user-generated overrides
+            if (overrideSettings[pluginName])
+                packageJson.wbtb = merge(packageJson.wbtb, overrideSettings[pluginName])
 
             _categories[packageJson.wbtb.category] = _categories[packageJson.wbtb.category] || {}
             
