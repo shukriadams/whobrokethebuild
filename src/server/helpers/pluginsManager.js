@@ -54,14 +54,6 @@ async function copyDirectory(source, target){
     }
 }
 
-function containsCategory(pluginsConfig, category){
-    for (const plugin in pluginsConfig)
-        if (pluginsConfig[plugin].category === category)
-            return true
-            
-    return false
-}
-
 module.exports = {
 
     /**
@@ -300,7 +292,7 @@ module.exports = {
      * Ensures that all plugins are installed and up-to-date (git clone + npm install on all plugins). For a plugin to be 
      * installed it must be flagged as active
      */
-    async initializeAll(){
+    async initialize(){
         // this is where plugins will normally be installed
         let externalPluginsFolder = settings.pluginsPath,
             // read the regular plugins list
@@ -620,10 +612,6 @@ module.exports = {
 
         // wipe cached
         _allplugins = null
-    },
-
-
-    async runDiagnostic(){
-        
     }
+
 }   

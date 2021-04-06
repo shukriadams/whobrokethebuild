@@ -1,12 +1,10 @@
-const { pathExists } = require('fs-extra')
-
 // add daemon workers here
 let isRunning = false,
     daemonInstances = {}
 
 module.exports = {
 
-    startAll(){
+    initialize(){
         let settings = require(_$+'helpers/settings'),
             glob = require('glob'),
             path = require('path'),

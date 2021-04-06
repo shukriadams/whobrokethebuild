@@ -7,7 +7,7 @@ module.exports = {
      * 
      * @param {object} expressApplication Express application
      */
-    async init (expressApplication){
+    async initialize (expressApplication){
 
         let path = require('path'),
             glob = require('glob'),

@@ -13,13 +13,6 @@ module.exports = {
             ciservers = await data.getAllCIServers(),
             jobs = await data.getAllJobs()
         
-        // verify plugin config
-        let plugins = pluginsManager.getAll()
-        __log.info(`${plugins.length} active plugins found`)
-
-        for (let plugin of plugins)
-            await plugin.validateSettings()
-        
 
         // verify ciserver urls
         for(let ciserver of ciservers){

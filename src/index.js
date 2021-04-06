@@ -42,7 +42,9 @@ stopwatch.start();
         pluginsManager = require(_$+'helpers/pluginsManager')
 
     try {
-        // allow user to run start cmd
+
+
+        // run start cmd
         if (await fs.exists('./onStart.sh')){
             console.log('onstart command executing')
             const cmd = await fs.readFile('./onStart.sh')
@@ -57,13 +59,11 @@ stopwatch.start();
         }
 
         // ensure that all required plugins are installed and up-to-date
-        await pluginsManager.initializeAll()
+        await pluginsManager.initialize()
 
-        // run plugibn diagnostics mode
-        if (settings.runDiagnosticOnStart){
-            await pluginsManager.runDiagnostic()
+        // run plugin diagnostics mode
+        if (settings.runDiagnosticOnStart)
             await diagnosticsHelper.run()
-        }
 
         await pluginsManager.validateSettings()
 
@@ -73,7 +73,7 @@ stopwatch.start();
         await data.initialize()
         await userLogic.initializeAdmin()
         
-        daemonManager.startAll()
+        daemonManager.initialize()
         await encryption.testKey()
 
         // middleware must be loaded before routes
@@ -90,7 +90,7 @@ stopwatch.start();
         app.use(Express.static('./public'))
 
 
-        await routeHelper.init(app)
+        await routeHelper.initialize(app)
 
         const server = http.createServer(app)
         server.listen(settings.port)
