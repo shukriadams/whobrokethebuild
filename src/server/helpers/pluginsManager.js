@@ -39,27 +39,12 @@ let settings = require(_$+'helpers/settings'),
         ]
     }
 
-// own dir copy function, fs-extra corrupts files on vagrant/windows    
-async function copyDirectory(source, target){
-    const path = require('path'), 
-        sourceFiles = await fsUtils.readFilesUnderDir(source)
-
-    for (let sourceFile of sourceFiles){
-        sourceFile = sourceFile.replace(source, '')
-        const sourceFileFull = path.join(source, sourceFile),
-            targetPath = path.join(target, sourceFile)
-
-        await fs.ensureDir(path.dirname(targetPath))
-        fs.createReadStream(sourceFileFull).pipe(fs.createWriteStream(targetPath))
-    }
-}
-
 module.exports = {
 
     /**
      * gets folders of all plugins on system, AFTER plugin folders have been scaffolded up
      */
-    async getPluginsFolders(){
+    async _getPluginsFolders(){
         let installedPlugins
 
         if (settings.bindInternalPlugins){
@@ -72,14 +57,15 @@ module.exports = {
         return installedPlugins
     },
 
+    /**
+     * Gets absolute path on system that plugins are placed in.
+     * 
+     * @returns {string} 
+     */
     getPluginRootPath(){
         return settings.bindInternalPlugins ? 
             `${_$}plugins-internal`:
             path.resolve(settings.pluginsPath)
-    },
-
-    async _loadPlugins(){
-        
     },
 
 
@@ -107,7 +93,7 @@ module.exports = {
                 continue
             }
 
-            await copyDirectory(sourceFolder, targetFolder)
+            await fsUtils.copyDirectory(sourceFolder, targetFolder)
         }
 
         if (errors){
@@ -338,7 +324,7 @@ module.exports = {
             await this._setupAllPlugins(pluginsConfig)
 
 
-        const installedPluginFolders = await this.getPluginsFolders()
+        const installedPluginFolders = await this._getPluginsFolders()
 
         // bind all discovered plugins
         for (let pluginFolderPath of installedPluginFolders){
