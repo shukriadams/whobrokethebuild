@@ -41,6 +41,7 @@ let settings = require(_$+'helpers/settings'),
 
 module.exports = {
 
+
     /**
      * gets folders of all plugins on system, AFTER plugin folders have been scaffolded up
      */
@@ -56,6 +57,7 @@ module.exports = {
  
         return installedPlugins
     },
+
 
     /**
      * Gets absolute path on system that plugins are placed in.
@@ -102,6 +104,7 @@ module.exports = {
         }
     },
 
+
     async _generateRouteIndexData(allPlugins){
         for (const plugin of allPlugins){
             const description = plugin.__wbtb
@@ -123,15 +126,13 @@ module.exports = {
 
 
     async _initializeAllPlugins(allPlugins){
-        for (const plugin of allPlugins){
-            if (plugin.initialize && typeof plugin.initialize === 'function'){
+        for (const plugin of allPlugins)
+            if (plugin.initialize && typeof plugin.initialize === 'function')
                 try {
                     await plugin.initialize()
                 } catch (ex){
                     __log.error(`Error trying to initialize plugin ${plugin.__wbtb} : `, ex)
                 }
-            }
-        }
     },
 
 
@@ -279,11 +280,7 @@ module.exports = {
      * installed it must be flagged as active
      */
     async initialize(){
-        // this is where plugins will normally be installed
-        let externalPluginsFolder = settings.pluginsPath,
-            // read the regular plugins list
-            testAll = !!settings.checkPluginsOnStart,
-            pluginsConfig = settings.plugins
+        const pluginsConfig = settings.plugins
 
         // settings for each plugin can start empty, ensure at least empty object for each
         for (const plugin in pluginsConfig)
@@ -294,9 +291,10 @@ module.exports = {
             pluginsConfig[plugin].source = pluginsConfig[plugin].source || 'internal'
 
         // we always need an auth / users plugin, add fallback if none defined
-        pluginsConfig['wbtb-internalusers'] = pluginsConfig['wbtb-internalusers']|| { source : 'internal' }
-        __log.info(`Added fallback authProvider plugin wbtb-internalusers`)
-
+        if (!pluginsConfig['wbtb-internalusers']){
+            __log.info(`Added fallback authProvider plugin wbtb-internalusers`)
+            pluginsConfig['wbtb-internalusers'] = { source : 'internal' }
+        }
 
         // strip out all plugin config if explicitly disabled 
         for (const pluginName in pluginsConfig)
@@ -305,28 +303,28 @@ module.exports = {
                 __log.info(`Plugin "${pluginName}" is marked as disabled`)
             }
 
-        if (!testAll)
+        if (!settings.checkPluginsOnStart)
             __log.debug('-----------PLUGIN CHECKS DISABLED-----------')
 
         // validate plugin.json static config
         let errors = false
-        if (testAll)
+        if (settings.checkPluginsOnStart)
             await this._ensurePluginsValid(pluginsConfig)
 
-        await fs.ensureDir(externalPluginsFolder)
+        await fs.ensureDir(settings.pluginsPath)
 
         // copy internal plugins
-        if (testAll)
+        if (settings.checkPluginsOnStart)
             await this._copyInternalPlugins(pluginsConfig)
 
         // install all external plugins, npm install on all plugins
-        if (testAll)
+        if (settings.checkPluginsOnStart)
             await this._setupAllPlugins(pluginsConfig)
 
 
-        const installedPluginFolders = await this._getPluginsFolders()
 
         // bind all discovered plugins
+        const installedPluginFolders = await this._getPluginsFolders()
         for (let pluginFolderPath of installedPluginFolders){
             const pluginName = path.basename(pluginFolderPath),
                 pluginPackageJsonPath = path.join(pluginFolderPath,  'package.json'),
@@ -568,6 +566,7 @@ module.exports = {
 
 
     /**
+     * 
      * @param {string} pluginName Name of plugin to apply override on
      * @param {string} setting Name of setting to apply
      * @param {object} value Value to appy to setting
