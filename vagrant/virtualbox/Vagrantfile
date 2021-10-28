@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.synced_folder "./../..", "/vagrant"
+  config.vm.provider :virtualbox do |v|
+     v.customize ["modifyvm", :id, "--memory", 2048, "--natdnshostresolver1", "on"]
+     v.name = "whobrokethebuild"
+  end
+
+  config.vm.provision :shell, path: "./../provision.sh"
+  config.vm.network "forwarded_port", guest: 3000, host: 3000
+  config.vm.network "forwarded_port", guest: 3001, host: 3001
+  config.vm.network "forwarded_port", guest: 3003, host: 3003
+  # test instance in container
+  config.vm.network "forwarded_port", guest: 4000, host: 4000
+  # for mongo admin
+  config.vm.network "forwarded_port", guest: 3002, host: 3002
+  config.vm.network "forwarded_port", guest: 27017, host: 27018
+  # for postgres admin
+  config.vm.network "forwarded_port", guest: 3111, host: 3111
+  # postgres
+  config.vm.network "forwarded_port", guest: 5432, host: 5433
+  # for jenkins
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
+  # for gitlab
+  config.vm.network "forwarded_port", guest: 8081, host: 8081
+
+end

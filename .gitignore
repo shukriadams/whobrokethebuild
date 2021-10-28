@@ -1,4 +1,6 @@
-/vagrant/.vagrant
+/vagrant/virtualbox/.vagrant
+/vagrant/hyperv/.vagrant
+/vagrant/virtio/.vagrant
 /src/node_modules
 /vagrant/ubuntu-xenial-16.04-cloudimg-console.log
 /src/client/lib

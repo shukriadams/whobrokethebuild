@@ -1,5 +1,3 @@
-const { rm } = require('fs-extra')
-
 const urljoin = require('urljoin'),
     settings = require(_$+'helpers/settings'),
     pluginsManager = require(_$+'helpers/pluginsManager')
