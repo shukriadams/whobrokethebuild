@@ -34,20 +34,30 @@ module.exports = {
         // to our Single Page App root page.
         let defaultRoute
         for (let routeFile of routeFiles){
+            
+            routeFile = path.resolve(routeFile)
 
             const match = routeFile.match(/(.*).js/)
             if (!match)
                 continue
 
-            const name = match.pop()
-    
-            let routes = require(path.join(cwd, name))
+            // remove js extension
+            let name = match.pop(),
+                route = null
+
+            try {
+                route = require(name)
+            } catch (ex){
+                // rethrow with more context
+                throw `Failed to require load route file ${name}. Path invalid or file is not a CommonJS module. ${ex}`
+            }
+
             if (name === 'default'){
-                defaultRoute = routes
+                defaultRoute = route
                 continue
             }
     
-            routes(expressApplication)
+            route(expressApplication)
         }
     
         // finally, load default route. This must be bound last because its pattern works

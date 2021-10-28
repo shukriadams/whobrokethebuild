@@ -5,7 +5,8 @@
   "repository": "https://github.com/shukriadams/whobrokethebuild",
   "scripts": {
     "start": "node index",
-    "profile": "node --inspect=0.0.0.0:3001 index",
+    "debug": "node --inspect=0.0.0.0:3001 index",
+    "break": "node --inspect-brk=0.0.0.0:3001 index",
     "build": "npm run client && npm run assets",
     "assets": "node ./build/build-all-assets",
     "client": "sh ./build/bundle.sh",
