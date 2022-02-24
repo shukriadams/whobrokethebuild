@@ -65,6 +65,33 @@ You will probably want to run with dev plugins and sandboxing all services - cre
 
 `enableDevPlugins` will load plugins from the `/server/plugins-internal` folder, which makes debugging and stepping through code possible.
 
+## Config
+
+WBTB requires config to start, this must be created locally or passed in if running in a container. Typical config looks like
+
+    bindInternalPlugins: true
+    logLevel: debug
+    plugins:
+        wbtb-activedirectory:
+            url: ldap://your-server:IP
+            base: "dc=yourdomain,dc=local"
+            user: username
+            password: password
+        wbtb-busybody:
+        wbtb-internalusers:
+        wbtb-mongo:
+            connectionString: "mongodb://username:password@mongo.server.com:27017"
+            db: wbtb
+        wbtb-jenkins:
+            cacheAPICalls: true
+        wbtb-svn:
+        wbtb-p4jenkinsmockdata:
+        wbtb-messagebuilder:
+        wbtb-perforce:
+            maxCommitSize: 5000
+        wbtb-unreallogparser:
+        acmegameco-standalonerevisionlinker:
+
 ## To run with live-reload and debug
 
 Standard debug
