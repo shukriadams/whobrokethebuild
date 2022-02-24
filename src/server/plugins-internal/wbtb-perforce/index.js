@@ -42,11 +42,19 @@ module.exports = {
         revision = parseInt(revision.toString())
 
         let cachedPath = path.join(settings.dataFolder, 'wbtb-perforce', 'cache', 'revisions.json'),
-            allRevisions, 
+            allRevisions = {
+                revisions : []
+            }, 
             fetch = false
 
         if (await fs.pathExists(cachedPath)){
-            allRevisions = await fs.readJson(cachedPath)
+            
+            try {
+                allRevisions = await fs.readJson(cachedPath)
+            } catch (ex){
+                __log.warn(`Failed to load ${cachedPath}`, ex)
+            }
+
             if (!allRevisions.revisions.find(rev => rev.revision === revision))
                 fetch = true
         } else
