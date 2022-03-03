@@ -3,6 +3,7 @@
  * build on mongo, but we can replace that with other providers in time.
  */
 const constants = require(_$+'types/constants'),
+    timebelt = require('timebelt'),
     ObjectID = require('mongodb').ObjectID,
     settings = require(_$+'helpers/settings'),
     CIServer = require(_$+'types/CIServer'),
@@ -340,20 +341,22 @@ module.exports = {
     },
 
     async getJobStats(jobId){
-        const jobStats = new JobStats()
-        jobStats.totalBreaks = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
-            {
-                $match : {
-                    $and: [ 
-                        { 'jobId' : { $eq : new ObjectID(jobId) } },
-                        { 'status' : { $eq : constants.BUILDSTATUS_FAILED } }
-                    ],
+        const jobStats = new JobStats(),
+            breaks = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
+                {
+                    $match : {
+                        $and: [ 
+                            { 'jobId' : { $eq : new ObjectID(jobId) } },
+                            { 'status' : { $eq : constants.BUILDSTATUS_FAILED } }
+                        ],
+                    },
                 },
-            },
-            {
-                $count: 'breaks'
-            }
-        ))[0].breaks
+                {
+                    $count: 'breaks'
+                }
+            )
+
+        jobStats.totalBreaks = breaks && breaks.length && breaks[0] ? breaks[0].breaks : 0
 
         jobStats.incidents = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
@@ -550,7 +553,8 @@ module.exports = {
     async getBuildsWithUnparsedLogs(){
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [ 
-                { 'logPath' :{ $eq : null } }
+                { 'logPath' :{ $eq : null } },
+                { 'started' :{ $gt : timebelt.addDays(settings.buildProcessCutoff) } }
             ]
         }), _normalizeBuild)
     },
@@ -559,7 +563,8 @@ module.exports = {
     async getBuildsWithUnprocessedLogs(){
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [ 
-                { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_UNPROCESSED } }
+                { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_UNPROCESSED } },
+                { 'started' :{ $gt : timebelt.addDays(settings.buildProcessCutoff) } }
             ]
         }), _normalizeBuild)
     },
@@ -576,6 +581,8 @@ module.exports = {
                     $and: [ 
                         // builds with no delta or last with delta
                         { 'delta' :{ $eq : null } },
+
+                        { 'started' :{ $gt : timebelt.addDays(settings.buildProcessCutoff) } },
 
                         // finished builds only - either passed or failed
                         {
@@ -606,6 +613,7 @@ module.exports = {
                     $and: [ 
                         { 'revisions' : { $eq : [] }},
                         { 'processStatus' : { $eq : null }},
+                        { 'started' :{ $gt : timebelt.addDays(settings.buildProcessCutoff) } },
                         {
                             // finished builds only - either passed or failed
                             $or : [
@@ -711,7 +719,8 @@ module.exports = {
     async getBuildsWithUnmappedInvolvements (){
         return _normalize(await _mongo.find(constants.TABLENAME_BUILDS, {
             $and: [ 
-                { 'involvements.userId' :{ $eq : null } }
+                { 'involvements.userId' :{ $eq : null } },
+                { 'started' :{ $gt : timebelt.addDays(settings.buildProcessCutoff) } }
             ]
         }), _normalizeBuild)
     },
@@ -763,7 +772,8 @@ module.exports = {
                 $match: { 
                     $and: [ 
                         { 'involvements.revisionObject' :{ $eq : null }},
-                        { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_PROCESSED }}
+                        { 'logStatus' :{ $eq : constants.BUILDLOGSTATUS_PROCESSED }},
+                        { 'started' :{ $gt : timebelt.addDays(settings.buildProcessCutoff) } }
                     ] 
                 }
             }

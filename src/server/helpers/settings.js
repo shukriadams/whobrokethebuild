@@ -35,6 +35,9 @@ let process = require('process'),
         // do not block each other
         daemonInterval : '* * * * *',
 
+        // number of days back in time try to fetch logs for builds, Builds older than this well be abandoned
+        buildProcessCutoff : 90,
+
         // days cookies persist
         cookiesDays: 365,
 
