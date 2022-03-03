@@ -2,7 +2,7 @@
     "name": "wbtb-mongo",
     "version": "0.0.1",
     "dependencies": {
-        "mongodb": "3.5.7"
+        "mongodb": "3.7.3"
     },
     "wbtb": {
         "category": "dataProvider"
