@@ -107,7 +107,7 @@ module.exports = {
 
         let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
         if (!contactLog){
-            console.warn(`could not find contactLog record for alert on build ${buildId}`)
+            console.warn(`deleteGroupAlert:could not find contactLog record for alert on build ${buildId}`)
             return 'alert not found'
         }
 
@@ -220,7 +220,7 @@ module.exports = {
 
         let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
         if (!contactLog){
-            console.warn(`could not find contactLog record for alert on build ${incidentId}`)
+            console.warn(`alertGroupBuildPassing:could not find contactLog record for alert on build ${incidentId}`)
             return 'alert not found'
         }
 
@@ -298,11 +298,6 @@ module.exports = {
 
         if (!this.__wbtb.enableMessaging){
             __log.debug(`Slack messaging disabled, blocked send`)
-            return
-        }
-
-        if (build.logStatus === constants.BUILDLOGSTATUS_NOT_FETCHED || build.logStatus === constants.BUILDLOGSTATUS_UNPROCESSED){
-            __log.warn(`Attepting to warn user on unprocessed log, build "${build.build}" to user "${user.name}"`)
             return
         }
 
