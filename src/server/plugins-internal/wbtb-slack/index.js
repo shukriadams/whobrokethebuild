@@ -50,7 +50,7 @@ module.exports = {
      * Gets an array of all available channels in slack. Returns an empty array if slack has not been configured yet.
      */ 
     async getChannels(){
-        const Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
+        const Slack = this.isSandboxMode() ? require('./mock/slack') : require('@slack/bolt').App,
             token = settings.plugins[thisType].accessToken
 
         if (!token){
@@ -58,8 +58,11 @@ module.exports = {
             return []
         }
 
-        let slack = new Slack({ token }),
-            slackQuery = await slack.conversations.list({ token, limit: 9999, types : 'public_channel,private_channel,mpim,im' }),
+        let slack = new Slack({ 
+                token : settings.plugins[thisType].accessToken, 
+                signingSecret: settings.plugins[thisType].secret
+            }),
+            slackQuery = await slack.client.conversations.list({ token, limit: 9999 }),
             channels = []
 
         for (let channel of slackQuery.channels)
@@ -101,8 +104,11 @@ module.exports = {
      */
     async deleteGroupAlert(slackContactMethod, job, buildId){
         const data = await pluginsManager.getExclusive('dataProvider'),
-            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
-            slack = new Slack({ token : settings.plugins[thisType].accessToken }),
+            Slack = this.isSandboxMode() ? require('./mock/slack') : require('@slack/bolt').App,
+            slack = new Slack({ 
+                token : settings.plugins[thisType].accessToken, 
+                signingSecret: settings.plugins[thisType].secret
+            }),
             context = `${thisType}_group_alert_${job.id}_${(buildId)}`
 
         let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
@@ -119,7 +125,7 @@ module.exports = {
 
         const targetChannelId = settings.plugins[thisType].overrideChannelId || slackContactMethod.channelId
 
-        await slack.chat.delete({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, ts, as_user : true });
+        await slack.client.chat.delete({ token : settings.plugins[thisType].accessToken, channel : targetChannelId, ts, as_user : true });
         contactLog.data.withdrawn = true
         await data.updateContactLog(contactLog)
         return 'alert deleted'
@@ -139,8 +145,11 @@ module.exports = {
      */
     async alertGroupBuildBreaking(slackContactMethod, job, incidentId, force = false){
         const data = await pluginsManager.getExclusive('dataProvider'),
-            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
-            slack = new Slack({ token : settings.plugins[thisType].accessToken }),
+            Slack = this.isSandboxMode() ? require('./mock/slack') : require('@slack/bolt').App,
+            slack = new Slack({ 
+                token : settings.plugins[thisType].accessToken, 
+                signingSecret: settings.plugins[thisType].secret
+            }),
             faultHelper = require(_$+'helpers/fault'),
             context = `${thisType}_group_alert_${job.id}_${(incidentId)}`
 
@@ -191,7 +200,7 @@ module.exports = {
                 }
             ]
 
-        let result = await slack.chat.postMessage({ 
+        let result = await slack.client.chat.postMessage({ 
             token : settings.plugins[thisType].accessToken, 
             channel : targetChannelId, 
             text: title, 
@@ -214,8 +223,11 @@ module.exports = {
 
     async alertGroupBuildPassing(slackContactMethod, job, incidentId){
         const data = await pluginsManager.getExclusive('dataProvider'),
-            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
-            slack = new Slack({ token : settings.plugins[thisType].accessToken }),
+            Slack = this.isSandboxMode() ? require('./mock/slack') : require('@slack/bolt').App,
+            slack = new Slack({ 
+                token : settings.plugins[thisType].accessToken, 
+                signingSecret: settings.plugins[thisType].secret
+            }),
             context = `${thisType}_group_alert_${job.id}_${(incidentId)}`
 
         let contactLog = await data.getContactLogByContext(slackContactMethod.channelId, slackContactMethod.type, context)
@@ -245,7 +257,7 @@ module.exports = {
                 }
             ]
 
-        const result = await slack.chat.update({ 
+        const result = await slack.client.chat.update({ 
             token : settings.plugins[thisType].accessToken, 
             channel : targetChannelId, 
             ts : contactLog.data.ts, 
@@ -279,8 +291,11 @@ module.exports = {
     async alertUser(user, build, context = null, messageType = 'implicated', force = false){
         let data = await pluginsManager.getExclusive('dataProvider'),
             messageBuilder = await pluginsManager.getExclusive('messagebuilder'),
-            Slack = this.isSandboxMode() ? require('./mock/slack') : require('slack'),
-            slack = new Slack({ token : settings.plugins[thisType].accessToken }),
+            Slack = this.isSandboxMode() ? require('./mock/slack') : require('@slack/bolt').App,
+            slack = new Slack({ 
+                token : settings.plugins[thisType].accessToken, 
+                signingSecret: settings.plugins[thisType].secret
+            }),
             usersInvolved = build.involvements.map(involvement => involvement.externalUsername)
             
         // if no context given, we force context to build id, that is, a user cannot be alerted for a build event more than once
@@ -312,7 +327,7 @@ module.exports = {
             return
         }
 
-        let conversation = await slack.conversations.open({ token : settings.plugins[thisType].accessToken, users : targetSlackId })
+        let conversation = await slack.client.conversations.open({ token : settings.plugins[thisType].accessToken, users : targetSlackId })
         if (!conversation.channel)
             throw new Exception({
                 message : `unable to create conversation channel for user ${user.id}`
@@ -322,7 +337,11 @@ module.exports = {
             await messageBuilder.buildImplicatedMessage(user, build, '\`\`\`') :
             await messageBuilder.buildInterestedMessage(user, build)
         
-        const result = await slack.chat.postMessage({ token : settings.plugins[thisType].accessToken, channel : conversation.channel.id, text : message })
+        const result = await slack.client.chat.postMessage({ 
+            token : settings.plugins[thisType].accessToken, 
+            channel : conversation.channel.id, 
+            text : message 
+        })
 
         // log that message has been sent, this will be used to prevent the same user from being informed of the same build error
         contactLog = new ContactLog()

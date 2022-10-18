@@ -2,7 +2,7 @@
     "name": "wbtb-slack",
     "version": "0.0.1",
     "dependencies": {
-        "slack": "11.0.2"
+        "@slack/bolt": "3.12.1"
     },
     "wbtb": {
         "category": "contactMethod",
