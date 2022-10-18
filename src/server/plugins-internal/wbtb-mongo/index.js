@@ -358,7 +358,7 @@ module.exports = {
 
         jobStats.totalBreaks = breaks && breaks.length && breaks[0] ? breaks[0].breaks : 0
 
-        jobStats.incidents = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
+        let incidentlookup = await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
                 $match : {
                     $and: [ 
@@ -370,7 +370,10 @@ module.exports = {
             {
                 $count: 'incidents'
             }
-        ))[0].incidents
+        )
+
+        if (incidentlookup.length)
+            jobStats.incidents = incidentlookup[0].incidents
 
         jobStats.totalRuns = (await _mongo.aggregate(constants.TABLENAME_BUILDS, 
             {
