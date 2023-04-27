@@ -1,0 +1,14 @@
+
+
+/****************************************************************************************************
+Media query
+****************************************************************************************************/
+$mediaQuery-smallScreen: 768px !default;
+$mediaQuery-mediumScreen: 1280px !default;
+$mediaQuery-largeScreen: 1440px !default;
+$mediaQuery-belowSmall: "only screen and (max-width: #{$mediaQuery-smallScreen})" !default;
+$mediaQuery-aboveSmall: "only screen and (min-width: #{$mediaQuery-smallScreen})" !default;
+$mediaQuery-belowMedium: "only screen and (max-width: #{$mediaQuery-mediumScreen})" !default;
+$mediaQuery-aboveMedium: "only screen and (min-width: #{$mediaQuery-mediumScreen})" !default;
+$mediaQuery-belowLarge: "only screen and (max-width: #{$mediaQuery-largeScreen})" !default;
+$mediaQuery-aboveLarge: "only screen and (min-width: #{$mediaQuery-largeScreen})" !default;

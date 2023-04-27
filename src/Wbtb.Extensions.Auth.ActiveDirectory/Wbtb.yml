@@ -1,0 +1,7 @@
+﻿Key: Wbtb.Auth.ActiveDirectory
+Runtime: dotnet
+Main: Wbtb.Extensions.Auth.ActiveDirectory.dll
+Interface: Wbtb.Core.Common.IAuthenticationPlugin
+Version: 0.0.1
+Assembly: Wbtb.Extensions.Auth.ActiveDirectory
+Concrete: Wbtb.Extensions.Auth.ActiveDirectory.ActiveDirectory

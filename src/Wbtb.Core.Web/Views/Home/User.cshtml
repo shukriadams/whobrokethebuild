@@ -1,0 +1,38 @@
+﻿@using Wbtb.Core.Web; 
+@model UserPageModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<x-list class="--dense">
+    @if(Model.User != null)
+    {
+        <div>
+            @Model.User.Name
+        </div>
+    }
+
+    @if(Model.RecentPassing.Any())
+    { 
+        <h2>Recent Passing Builds</h2>
+        @foreach(ViewBuildInvolvement buildInvolvement in Model.RecentPassing)
+        { 
+            <div>
+                @ViewHelpers.BuildLink(buildInvolvement.Build)
+            </div>
+        }
+    }
+
+    @if (Model.RecentBreaking.Any())
+    { 
+        <h2>Recent Failing Builds</h2>
+        @foreach(ViewBuildInvolvement buildInvolvement in Model.RecentBreaking)
+        { 
+            <div>
+                @ViewHelpers.BuildLink(buildInvolvement.Build)
+            </div>
+        }
+    }
+
+</x-list>

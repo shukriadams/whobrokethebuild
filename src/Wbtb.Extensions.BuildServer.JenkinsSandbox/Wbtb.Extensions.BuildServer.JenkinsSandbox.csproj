@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="JSON\allbuilds.json" />
+    <None Remove="JSON\builds\Project_Buzzkill\builds.json" />
+    <None Remove="JSON\builds\Project_Buzzkill\build_2_revisions.json" />
+    <None Remove="JSON\builds\Project_Buzzkill\logs\1.txt" />
+    <None Remove="JSON\builds\Project_Buzzkill\logs\2.txt" />
+    <None Remove="JSON\builds\Project_Buzzkill\logs\26.txt" />
+    <None Remove="JSON\builds\Project_Ironbird\build_20_revisions.json" />
+    <None Remove="JSON\builds\Project_Ironbird\logs\22.txt" />
+    <None Remove="JSON\builds\Project_Ironbird\logs\24.txt" />
+    <None Remove="JSON\builds\Project_Ironbird\logs\25.txt" />
+    <None Remove="JSON\builds\Project_Skunkwords\builds.json" />
+    <None Remove="JSON\builds\Project_Skunkwords\build_40_revisions.json" />
+    <None Remove="JSON\builds\Project_Tardy\builds.json" />
+    <None Remove="JSON\jobs.json" />
+    <None Remove="JSON\revisionsInBuild.json" />
+    <None Remove="Wbtb.yml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="JSON\builds\Project_Buzzkill\builds.json" />
+    <EmbeddedResource Include="JSON\builds\Project_Buzzkill\build_2_revisions.json" />
+    <EmbeddedResource Include="JSON\builds\Project_Buzzkill\logs\26.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Buzzkill\logs\2.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Buzzkill\logs\1.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Ironbird\builds.json" />
+    <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\22.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\24.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\25.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Ironbird\build_20_revisions.json" />
+    <EmbeddedResource Include="JSON\builds\Project_Skunkwords\builds.json" />
+    <EmbeddedResource Include="JSON\builds\Project_Skunkwords\build_40_revisions.json" />
+    <EmbeddedResource Include="JSON\builds\Project_Tardy\builds.json" />
+    <EmbeddedResource Include="JSON\jobs.json" />
+    <EmbeddedResource Include="JSON\builds\Project_Buzzkill\build_1_revisions.json" />
+    <EmbeddedResource Include="Wbtb.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Wbtb.Core.Common\Wbtb.Core.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+</Project>

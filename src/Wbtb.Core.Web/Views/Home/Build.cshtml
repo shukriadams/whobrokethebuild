@@ -1,0 +1,321 @@
+﻿@using Wbtb.Core.Common;
+@using Wbtb.Core.Web; 
+@using Humanizer;
+@model BuildPageModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@await Html.PartialAsync("JobBanner", Model.Build.Job)
+
+<h1>Build #@Model.Build.Identifier</h1>
+<div data-isBuild />
+<x-columns class="--two">
+    <x-card class="--stroke --top">
+        <x-card-stroke class="--@ViewHelpers.BuildStatusToCSSClass(Model.Build)"></x-card-stroke>
+        <x-card-pad>
+            Status : @ViewHelpers.TranslateBuildStatus(Model.Build)
+            @if(Model.IncidentCausalBuild != null)
+            {
+                <text>
+                    Broken by <a href="/build/@Model.IncidentCausalBuild.Id">@Model.IncidentCausalBuild.Identifier</a>
+                </text>
+            }
+
+            @if (Model.BuildBreakers.Any())
+            {
+                <div>
+                    Broken by :
+                    @foreach(User user in Model.BuildBreakers)
+                    { 
+                        <a href="/user/@user.Id">@user.Name</a>
+                    }
+                </div>
+            }
+
+        </x-card-pad>
+        <x-card-pad>
+            Job : <a href="/job/@Model.Build.Job.Id">@Model.Build.Job.Name</a>
+        </x-card-pad>
+        <x-card-pad>
+            Built on : @ViewHelpers.BuildHostLink(Model.Build)
+        </x-card-pad>
+        <x-card-pad>
+            @if (!string.IsNullOrEmpty(Model.LinkToBuildSystem))
+            { 
+                <a href="@Model.LinkToBuildSystem">View on @Model.BuildSystemName</a>
+            }
+        </x-card-pad>
+
+        @if(Model.Build.IncidentBuild != null)
+        { 
+            <x-card-pad>
+                @if (Model.Build.Id == Model.Build.IncidentBuildId)
+                {
+                    <text>
+                        Build broke here.
+                    </text>
+                } 
+                else 
+                { 
+                    <text>
+                        Break caused by @ViewHelpers.BuildLink(Model.Build.IncidentBuild)
+                    </text>
+                }
+            </x-card-pad>
+        }
+
+        @if (Model.IsAdmin) 
+        { 
+            <x-card-pad>
+                <a href="/builddelete/@Model.Build.Id">Delete build</a>
+                <div>
+                    <a href="/buildsoftreset/@Model.Build.Id">Reset (soft)</a>
+                </div>
+
+            </x-card-pad>
+
+        }
+
+    </x-card>
+    <x-card class="--top">
+        <x-card-pad>
+            <h5>Timeline</h5>
+            <div>
+                Ran on @Model.Build.StartedUtc.ToLocalTime().ToISOShort() (@Model.Build.StartedUtc.Humanize())
+            </div>
+            @if (Model.Build.EndedUtc.HasValue)
+            {
+                <div>
+                    Took @ViewHelpers.Duration(Model.Build) to complete
+                </div>
+            }
+        </x-card-pad>
+        <x-card-pad>
+            @if (Model.PreviousBuild != null)
+            {
+                <text>
+                    Previous build : <a href="/build/@Model.PreviousBuild.Id">@Model.PreviousBuild.Identifier </a> <span class="quiet">(@ViewHelpers.Duration(Model.Build.StartedUtc, Model.PreviousBuild.StartedUtc) before)</span>
+                </text>
+            }
+        </x-card-pad>
+        <x-card-pad>
+            @if (Model.NextBuild != null)
+            {
+                <text>
+                    Next  build : <a href="/build/@Model.NextBuild.Id">@Model.NextBuild.Identifier </a> <span class="quiet">(@ViewHelpers.Duration(Model.NextBuild.StartedUtc, Model.Build.StartedUtc) later)</span>
+                </text>
+            }
+        </x-card-pad>
+        <x-card-pad>
+            @if(Model.Common.IsAdmin)
+            {
+                <div>
+                    <h5>Admin</h5>
+                    <button class="button --danger" data-deleteBuild="@Model.Build.Id">Remove build</button>    
+                    <p class="quiet">
+                        Delete this build to reset its data. The build will be automatically reimported if
+                        the CI system it was originally imported from is still being tracked, and the build
+                        still exists there.
+                    </p>
+                </div>
+                @if(Model.IsAlertRetractable)
+                {
+                    <button class="button --warning" data-undoAlerts="@Model.Build.Id">Delete alerts</button>    
+                    <p class="quiet">
+                        Public alerts have already been sent out for this build. You can delete them here.
+                    </p>
+                }
+            }
+        </x-card-pad>
+    </x-card>
+</x-columns>
+
+@if(Model.BuildFlags.Any())
+{
+    <h2>Process issues</h2>
+    <p>
+        There were issues processing this build.
+    </p>
+    <x-list>
+        @foreach(BuildFlag buildFlag in Model.BuildFlags)
+        { 
+            <x-list-row>
+                <x-list-cell>
+                    @buildFlag.CreatedUtc.ToLocalTime().ToISOShort()
+                </x-list-cell>
+                <x-list-cell>
+                    @buildFlag.Flag
+                </x-list-cell>
+                <x-list-cell>
+                    @buildFlag.Description
+                </x-list-cell>
+                <x-list-cell>
+                    @(buildFlag.Ignored ? "Is reset": "")
+                </x-list-cell>
+                @if (Model.IsAdmin && !buildFlag.Ignored)
+                { 
+                    <x-list-cell>
+                        <a href="/buildflag/reset/@Model.Build.Id/@buildFlag.Flag">Reset</a>
+                    </x-list-cell>
+                }
+            </x-list-row>
+        }
+    </x-list>
+}
+        
+<h2>Changes</h2>
+<x-list class="build-changes">
+
+    @if (Model.BuildInvolvements.Any())
+    {
+        @foreach(ViewBuildInvolvement involvement in this.Model.BuildInvolvements)
+        { 
+            <x-list-row>
+                <x-list-cell>
+                    <div>
+                        #@involvement.RevisionCode 
+                        @if (involvement.Revision != null)
+                        { 
+                            <text>
+                                - <span class="bold">@involvement.Revision.Description</span> 
+                            </text>
+                        }
+
+                        @ViewHelpers.BuildInvolvementUserLink(involvement)
+
+                        @if (Model.Build.Status == BuildStatus.Failed) 
+                        {
+                            <text>
+                                Did they break this build? 
+                                @ViewHelpers.TranslateBuildInvolvement(involvement)
+                            </text>
+                        }
+                    </div>
+
+                    @if (involvement.Revision == null)
+                    {
+                        <text>
+                        </text>
+                    }
+                    else 
+                    {   
+<pre class="code">
+@if (involvement.Revision.Files.Any())
+{ 
+                            
+
+    @foreach(string file in involvement.Revision.Files)
+    { 
+        <div><span class="build-revisionFile build-revisionFile--">@file</span></div>
+    }
+
+
+} else { 
+    <text>
+        No file changes found
+    </text>
+}
+</pre>
+                    }
+                </x-list-cell>
+            </x-list-row>
+
+        }
+    }
+    else
+    { 
+        <text>
+            No code change information available for this build.
+        </text>
+    }
+
+
+    @if (!Model.BuildInvolvements.Any())
+    {
+        <x-list-row>
+            @if (Model.RevisionsLinkedFromLog)
+            {
+                <text>
+                    No revisions in build. Has import run yet? 
+                </text>
+            } 
+            else 
+            { 
+                <text>
+                    CI server reports no revisions in this build. Build was likely not triggered by a source change.
+                </text>
+            }
+
+            </x-list-row>
+    }
+
+</x-list>
+
+
+@if(Model.buildProcessors.Count() > 0)
+{ 
+    <h2>Build Processors</h2>
+    <div>
+        @foreach(BuildProcessor buildProcessor in Model.buildProcessors)
+        { 
+            <div>
+                @buildProcessor.ProcessorKey - @buildProcessor.Status <a href="/buildProcessorLog/@buildProcessor.Id">Log</a>
+            </div>
+        }
+    </div>
+}
+
+<h2>Log</h2>
+@if (Model.Build.LogPath == null)
+{ 
+    <div>
+        Build log has not yet been retrieved.
+    </div>
+} else 
+{
+    <div>
+        <a href="/build/log/@Model.Build.Id">View full build log</a>
+    </div>
+}
+
+
+
+@if (!Model.Build.Job.LogParserPlugins.Any())
+{ 
+    <div>
+        Log parsing is not enabled for this job
+    </div>
+} 
+else
+{
+
+    @if (Model.BuildParseResults.Any())
+    {
+        @foreach(BuildLogParseResult parseResult in Model.BuildParseResults)
+        {
+            @if(string.IsNullOrEmpty(parseResult.ParsedContent))
+            {
+                <div>
+                    @parseResult.LogParserPlugin found no results
+                </div>
+            } 
+            else 
+            { 
+            <pre class="code">
+                <h3>Parser: @parseResult.LogParserPlugin</h3>
+                <text>
+@ViewHelpers.String(parseResult.ParsedContent)
+                </text>
+            </pre>
+            }
+        } 
+    }
+    else
+    {
+        <text>
+            No log parse results 
+        </text>
+    }
+}

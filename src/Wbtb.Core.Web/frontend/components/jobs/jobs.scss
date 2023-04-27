@@ -1,0 +1,10 @@
+@import "./../typography/typography";
+
+.jobs-image {
+    height: 152px;
+}
+
+.jobs-title {
+    @include typography-title;
+    display: block;
+}

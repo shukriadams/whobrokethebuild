@@ -1,0 +1,55 @@
+﻿@using Wbtb.Core.Common;
+@using Wbtb.Core.Web; 
+@using Humanizer; 
+@model BuildHostModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<x-list class="--dense">
+    @foreach (ViewBuild build in Model.Builds.Items)
+        { 
+            <x-list-row class="job-buildItem">
+                <a class="job-buildTitle" href="/build/@build.Id">
+                    <div class="jobsList-statusFlag jobsList-statusFlag--@ViewHelpers.BuildStatusToCSSClass(build)"></div>
+                </a>
+                <x-list-cell class="jobsList-buildTitle">
+                    <div>
+                        <a class="job-buildTitle" href="/build/@build.Id">
+                            @build.Identifier
+                        </a>
+                    </div>
+                </x-list-cell>
+                <x-list-cell>
+                    <div>
+                        @ViewHelpers.JobLink(build.Job)
+                    </div>
+                </x-list-cell>
+                <x-list-cell class="jobsList-status">
+                    <div class="card-status card-status--@ViewHelpers.BuildStatusToCSSClass(build)"></div>
+                    <div>
+                        @ViewHelpers.TranslateBuildStatus(build) 
+                    </div>
+                    <div>
+                        @build.StartedUtc.Humanize() @build.StartedUtc.ToShortTimeString().Humanize()
+                    </div>
+                </x-list-cell>    
+
+                <x-list-cell>
+                    @foreach(ViewBuildInvolvement involvement in build.BuildInvolvements)
+                    {
+                        <li>
+                            @involvement.RevisionCode - by 
+                            @ViewHelpers.BuildInvolvementUserLink(involvement)
+                            @if (involvement.Revision != null)
+                            { 
+                                @ViewHelpers.GistOf(involvement.Revision.Description, 20, "...") 
+                            }
+                        </li>
+                    }
+                </x-list-cell>
+            </x-list-row>
+        }
+</x-list>
+
+@ViewHelpers.PagerBar(Model.BaseUrl, Model.Builds)

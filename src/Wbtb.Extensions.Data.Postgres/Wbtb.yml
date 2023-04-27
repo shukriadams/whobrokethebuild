@@ -1,0 +1,7 @@
+﻿Key: Wbtb.Data.Postgres
+Runtime: dotnet
+Assembly: Wbtb.Extensions.Data.Postgres
+Main: Wbtb.Extensions.Data.Postgres.dll
+Interface: Wbtb.Core.Common.IDataLayerPlugin
+Concrete: Wbtb.Extensions.Data.Postgres.Postgres
+Version: 0.0.1

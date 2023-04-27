@@ -1,0 +1,7 @@
+﻿Key: Wbtb.LogParsing.Cpp
+Runtime: dotnet
+Main: Wbtb.Extensions.LogParsing.Cpp.dll
+Interface: Wbtb.Core.Common.ILogParser
+Assembly: Wbtb.Extensions.LogParsing.Cpp
+Concrete: Wbtb.Extensions.LogParsing.Cpp.Cpp
+Version: 0.0.1

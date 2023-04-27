@@ -1,9 +1,0 @@
-.build-changes {
-    border: none; // remove the default border on bootstrip list
-}
-
-.build-revisionFile {
-    &.build-revisionFile--atFault {
-        background-color: var(--bootstrip-color-crownOfThorns);
-    }
-}

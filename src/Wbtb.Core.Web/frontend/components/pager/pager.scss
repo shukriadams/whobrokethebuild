@@ -1,0 +1,8 @@
+.pager-anchor {
+    background-color:var(--color-crusta);
+    color: white;
+}
+
+.pager-anchor.--active {
+    background-color: var(--color-mineshaft);
+}

@@ -1,0 +1,7 @@
+﻿Key: Wbtb.PostProcessing.Test
+Runtime: dotnet
+Main: Wbtb.Extensions.PostProcessing.Test.dll
+Interface: Wbtb.Core.Common.IPostProcessor
+Assembly: Wbtb.Extensions.PostProcessing.Test
+Concrete: Wbtb.Extensions.PostProcessing.Test.Test
+Version: 0.0.1

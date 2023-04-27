@@ -1,0 +1,34 @@
+﻿@using Wbtb.Core.Common;
+@using Wbtb.Core.Web; 
+@model UsersPageModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<x-list class="--dense">
+    @foreach(User user in Model.Users)
+    { 
+        <x-list-row class="job-buildItem">
+            <div>
+                User : @user.Key
+            </div>
+            
+            @if(string.IsNullOrEmpty(user.AuthPlugin)){ 
+                <div>
+                    No auth plugin defined for user - login not possible.
+                </div>
+            }
+
+            @foreach(UserSourceIdentity id in user.SourceServerIdentities)
+            { 
+                <div>
+                    Source server : @id.SourceServerKey
+                </div>
+                <div>
+                    Id : @id.Name
+                </div>
+            }
+        </x-list-row>
+    }
+</x-list>

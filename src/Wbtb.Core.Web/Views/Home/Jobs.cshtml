@@ -1,0 +1,16 @@
+﻿@using Wbtb.Core.Common;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    IEnumerable<string> jobs = ViewData["jobs"] as IEnumerable<string>;
+    BuildServer buildServer = ViewData["buildserver"] as BuildServer;
+}
+
+<h2>Remote jobs on build server @buildServer.Key</h2>
+<ul>
+    @foreach(string job in jobs)
+    { 
+        <li>
+            @job
+        </li>
+    }
+</ul>

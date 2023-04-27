@@ -1,0 +1,42 @@
+.jobsList {
+    x-list-row {
+        align-content: inherit;
+    }
+}
+
+.jobsList-statusFlag {
+    width: var(--bootstrip-card-strokeWidth);
+    flex-grow: inherit;
+    flex-basis: inherit;
+    height: 100%;
+    margin-right: 32px;
+
+    &.jobsList-statusFlag--broken {
+        
+    }
+
+    &.jobsList-statusFlag--passing {
+        background-color: var(--bootstrip-color-genoa);
+    }
+
+    &.jobsList-statusFlag--broken {
+        background-color: var(--bootstrip-color-punch);
+    }
+
+    &.jobsList-statusFlag--building {
+        background-color: var(--bootstrip-color-corn);
+    }
+
+}
+
+.jobsList-buildTitle {
+    flex-grow: inherit;
+    flex-basis: inherit;
+    width: 72px;
+}
+
+.jobsList-status {
+    min-width: 300px;
+    flex-grow: 0;
+}
+

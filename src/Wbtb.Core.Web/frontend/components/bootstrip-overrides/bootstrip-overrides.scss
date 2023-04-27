@@ -1,0 +1,68 @@
+:root {
+    // override existing value
+    --bootstrip-layout-gutter: 24px;
+    --color-crusta: #FE752F;
+}
+
+a {
+    color: var(--color-crusta);
+}
+
+h1 {
+    margin-top: 1.5rem;
+}
+
+h2 {
+    margin-top: 1rem;
+}
+
+h3 {
+    margin-top: .5rem;
+}
+
+h4 {
+    margin-top: .5rem;
+}
+
+h5 {
+    margin-top: .5rem;
+}
+
+x-header {
+    height: var(--layout-header-height);
+}
+
+x-header-logoContainer {
+    width: var(--layout-sideMenu-width);
+}
+
+x-card {
+    border: none;
+}
+
+x-card-stroke {
+    z-index: 1; // so floats above card image
+    &.--passing {
+        background-color: var(--bootstrip-color-genoa);
+        color: var(--bootstrip-color-white);
+    }
+
+    &.--broken {
+        background-color: var(--bootstrip-color-crownOfThorns);
+        color: var(--bootstrip-color-white);
+    }
+
+    &.--building {
+        background-color: var(--bootstrip-color-corn);
+        color: var(--bootstrip-color-white);
+    }
+}
+
+.header-title {
+    font-size: 24px;
+}
+
+x-list {
+    border: none;
+}
+

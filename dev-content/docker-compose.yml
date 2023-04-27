@@ -1,0 +1,48 @@
+version: "2"
+services:
+
+    jenkins:
+        container_name: jenkins
+        image: jenkins/jenkins:2.234
+        restart: unless-stopped
+        ports:
+        - "8080:8080"
+        - "50000:50000"
+        environment:
+            TZ: Europe/Copenhagen
+        volumes:
+        - ./jenkins:/var/jenkins_home/:rw
+        # disabled until sock binding can be autostarted
+        #- $SSH_AUTH_SOCK:/ssh-agent
+
+    postgres:
+        image: postgres:12-alpine
+        container_name: postgres
+        restart: unless-stopped
+        environment:
+            POSTGRES_PASSWORD: passwurd
+            PGDATA: /var/lib/postgresql/data # needed to allow postgress to mount to external volume folder
+        ports:
+        - "5432:5432"
+        volumes:
+        - ~/postgres:/var/lib/postgresql/data:rw
+        - ~/postgres-init:/docker-entrypoint-initdb.d    
+        - ~/postgres-dumps:/tmp/postgresdumps:rw
+
+    # very IMPORTANT : when running dev, pgadmin cannot resolve "localhost", you must
+    # use the IP number of the machine your pg db is running on
+    # connect as 
+    # database name : "postgres"
+    # username : "postgres"
+    # password : POSTGRES_PASSWORD as defined in postgres container above
+    pgadmin:
+        image: dpage/pgadmin4:4.12
+        container_name: pgadmin
+        restart: unless-stopped
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@localhost
+            PGADMIN_DEFAULT_PASSWORD: admin
+        volumes:
+        - /pgadmin:/var/lib/pgadmin:rw
+        ports:
+        - "5433:80"

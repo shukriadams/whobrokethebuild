@@ -1,0 +1,101 @@
+﻿@using Wbtb.Core.Common;
+@using Wbtb.Core.Web; 
+@using Humanizer;
+@model JobsPageModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (Model.Jobs.Any())
+{
+    <x-columns class="--four">
+
+    @foreach(ViewJob job in Model.Jobs)
+    { 
+        <x-card class="--stroke @ViewHelpers.BuildStatusToCSSClass(job.LatestBuild)">
+            <x-card-stroke class="--@ViewHelpers.BuildStatusToCSSClass(job.LatestBuild)"></x-card-stroke>
+            
+            @if (Model.AnyJobUsingBanners)
+            {
+                <a class="jobs-title" href="/job/@job.Id">
+                    <x-cover class="jobs-image" style="background-image: url(@job.Image)"></x-cover>
+                </a>
+            }
+
+            <x-card-pad>
+                <h4 class="bold">
+                    <a class="jobs-title" href="/job/@job.Id">@job.Name</a>
+                </h4>
+
+                @if(job.LatestBuild != null)
+                { 
+                    <text>
+
+                        last build was <a href="/build/@job.LatestBuild.Id">@job.LatestBuild.Identifier</a>,
+                                
+                        @if (@job.LatestBuild.EndedUtc.HasValue)
+                        {
+                            <text>@job.LatestBuild.EndedUtc.Value.Humanize()</text>
+                        }
+                        else 
+                        {
+                            <text>started @job.LatestBuild.StartedUtc.Humanize()</text>
+                        }
+
+                        @if (job.BreakBuild != null)
+                        {
+                            <div>
+                                Broken  
+                                @if (job.BreakBuild.Id != job.LatestBuild.Id) 
+                                { 
+                                    <a href="/build/@job.BreakBuild.Id">@job.BreakBuild.Identifier </a> 
+
+                                    @if(job.BreakBuild.EndedUtc.HasValue)
+                                    {
+                                        <text>
+                                            ago > @job.BreakBuild.EndedUtc.Value
+                                        </text>
+                                    }
+                                }
+
+                                @foreach(BuildInvolvement inv in job.BreakBuild.BuildInvolvements)
+                                {
+                                    @if (inv.Blame == Blame.Guilty)
+                                    {
+                                        @if (!string.IsNullOrEmpty(inv.MappedUserId))
+                                        { 
+                                            <text>
+                                                <a href="/user/@inv.MappedUserId">inv.MappedUserId</a>
+                                            </text>
+                                        } 
+                                    }
+                                }
+
+                            </div>
+                        }
+
+
+                    </text>
+                }
+                
+                @if(job.LatestBuild == null){ 
+                    <span>
+                        hasn't run yet
+                    </span>
+                }
+
+            </x-card-pad>
+        </x-card>
+    }
+    
+    </X-columns>
+}
+
+@if(!Model.Jobs.Any())
+{
+    <x-card>
+        <x-card-pad>
+            There are currently no builds to show.
+        </x-card-pad>
+    </x-card>
+}

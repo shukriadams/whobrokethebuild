@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Wbtb.Extensions.Data.Postgres": {
+      "commandName": "Project"
+    }
+  }
+}

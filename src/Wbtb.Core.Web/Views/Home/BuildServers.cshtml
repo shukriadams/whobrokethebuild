@@ -1,0 +1,34 @@
+﻿@using Wbtb.Core.Common;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    IEnumerable<BuildServer> buildservers = ViewData["buildservers"] as IEnumerable<BuildServer>;
+    IEnumerable<string> jobs = ViewData["jobs"] as IEnumerable<string>;
+}
+
+@if(buildservers.Any())
+{ 
+    <ul>
+    @foreach(BuildServer buildserver in buildservers)
+    { 
+        <li>
+            <a href="/jobs/@buildserver.Key">@buildserver.Key</a>
+        </li>
+
+        <li>
+            Key : @buildserver.Key
+        </li>
+
+        <li>
+            Name : @buildserver.Name
+        </li>
+    }
+</ul>
+}
+else 
+{ 
+    <text>
+        No build servers - add one to config file and restart.
+    </text>
+}
+
+

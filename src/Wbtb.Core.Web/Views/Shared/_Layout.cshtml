@@ -1,0 +1,195 @@
+﻿@using Wbtb.Core.Web; 
+@model LayoutModel;
+@{
+    string bundleMode= "";
+    string title = "title";
+    string session_name = "";
+    bool isLoggedIn = false;
+    bool isAdmin = false;
+}
+
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&family=Righteous&family=Roboto:wght@300;500;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/css/bundle@(bundleMode).css" type="text/css">
+        <link rel='shortcut icon' type='image/x-icon' href='/images/favicon.png'/>
+        <meta http-equiv="content-type" name="description" content="">
+        <meta http-equiv="content-type" name="keywords" content="">
+        <title>@title - WbtbWeb</title>
+    </head>
+    <body data-consoleSize=@Model.ConsoleSize>
+        <header>
+            <x-header class="--sticky">
+                <x-header-logoContainer>
+                    <a href="/">
+                        <x-header-logo>
+                            <a class="header-title" href="/">WBTB?
+                                <i class="icon icon-fingerprint"></i>
+                            </a>
+                        </x-header-logo>
+                    </a>
+                </x-header-logoContainer>
+
+                <x-header-content>
+
+                </x-header-content>    
+            </x-header>
+        </header>
+
+        <aside>
+            <ul class="sideMenu">
+
+                @if (isLoggedIn){
+                    <li class="sideMenu-header">
+                        Hi there <a class="header-username" href="/settings">@session_name</a>
+                    </li>
+                } else {
+                    <li class="sideMenu-item">
+                        <a class="sideMenu-anchor" data-function-login href="/login" title="Login">
+                            <span class="sideMenu-iconWrapper">
+                                <i class="icon icon-login"></i>
+                            </span>
+                            Login
+                        </a>
+                    </li>
+                }
+
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/Ad" title="Ad">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-radar"></i> 
+                        </span>
+                        Ad
+                    </a> 
+                </li>
+
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/" title="Jobs">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-radar"></i> 
+                        </span>
+                        Jobs
+                    </a> 
+                </li>
+
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/users" title="Users">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-users"></i> 
+                        </span>
+                        Users
+                    </a> 
+                </li>
+
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/buildservers" title="Users">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-users"></i> 
+                        </span>
+                        Buildservers
+                    </a> 
+                </li>
+
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/perforce" title="Users">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-users"></i> 
+                        </span>
+                        Perforce
+                    </a> 
+                </li>
+
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/slack" title="Slack">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-users"></i> 
+                        </span>
+                        Slack
+                    </a> 
+                </li>
+
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/contactLog" title="Contact log">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-log"></i> 
+                        </span>
+                        Contact log
+                    </a> 
+                </li>
+
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/referenceLogs" title="Reference logs">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-log"></i> 
+                        </span>
+                        Ref logs
+                    </a> 
+                </li>    
+
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/console" title="Console">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon"></i> 
+                        </span>
+                        Console
+                    </a> 
+                </li>
+
+                @if (isAdmin) 
+                {
+                    <li class="sideMenu-item">
+                        <a class="sideMenu-anchor" href="/settings/system" title="System">
+                            <span class="sideMenu-iconWrapper">
+                                <i class="icon icon-gear"></i> 
+                            </span>
+                            System
+                        </a>
+                    </li>
+                    <li class="sideMenu-item">
+                        <a class="sideMenu-anchor" href="/log" title="Log">
+                            <span class="sideMenu-iconWrapper">
+                                <i class="icon icon-log"></i> 
+                            </span>
+                            Log
+                        </a> 
+                    </li>
+                } 
+
+                @if (isLoggedIn)
+                {
+                    <li class="sideMenu-item active">
+                        <a href="javascript:void(0)" data-function-logout class="sideMenu-anchor" title="Logout">
+                            <span class="sideMenu-iconWrapper">
+                                <i class="icon icon-logout"></i>
+                            </span>
+                            Logout
+                        </a>
+                    </li>
+                }
+
+                    <li class="sideMenu-item">
+                        <a class="sideMenu-anchor" href="/buildflags" title="Build flags">
+                            <span class="sideMenu-iconWrapper">
+                                <i class="icon icon-log"></i> 
+                            </span>
+                            Build Flags
+                        </a> 
+                    </li>
+
+
+            </ul>
+        </aside>
+
+        <main>
+            @RenderBody()
+            <footer>
+                <div class="layout-scaffold">
+                </div>
+            </footer>
+        </main>
+
+        <script src="/js/bundle.js"></script>
+    </body>
+</html>

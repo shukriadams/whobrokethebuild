@@ -1,0 +1,25 @@
+{
+  "name": "wbtb-frontend",
+  "license": "UNLICENSED",
+  "repository": "https://github.com/shukriadams/whobrokethebuild",
+  "scripts": {
+    "build": "npm run assets",
+    "buildall": "npm run build && npm run icons && node build/build-all-assets",
+    "assets": "node ./build/build-all-assets",
+    "icons": "cd build && node icons"
+  },
+  "devDependencies": {
+    "fileconcat": "2.0.1",
+    "globby": "11.1.0",
+    "concat": "1.0.3",
+    "clean-css": "4.2.1",
+    "chokidar": "2.1.5",
+    "node-sass": "4.12.0",
+    "minimist": "1.2.5",
+    "cross-spawn": "6.0.5",
+    "@microsoft/signalr": "6.0.7",
+    "webfonts-generator": "0.4.0",
+    "madscience-node-assert": "https://github.com/shukriadams/node-assert.git#0.0.2",
+    "node-sass-runner": "https://github.com/shukriadams/node-sass-runner.git#1.0.3"
+  }
+}

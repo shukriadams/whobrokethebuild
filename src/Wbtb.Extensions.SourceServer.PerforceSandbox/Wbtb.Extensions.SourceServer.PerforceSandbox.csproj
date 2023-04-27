@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="JSON\Revisions\56330.json" />
+    <None Remove="JSON\Revisions\56331.json" />
+    <None Remove="JSON\Revisions\56332.json" />
+    <None Remove="Wbtb.yml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="JSON\Revisions\56330.json" />
+    <EmbeddedResource Include="JSON\Revisions\56332.json" />
+    <EmbeddedResource Include="JSON\Revisions\56331.json" />
+    <EmbeddedResource Include="Wbtb.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Madscience.Perforce\Madscience.Perforce.csproj" />
+    <ProjectReference Include="..\Wbtb.Core.Common\Wbtb.Core.Common.csproj" />
+  </ItemGroup>
+
+</Project>

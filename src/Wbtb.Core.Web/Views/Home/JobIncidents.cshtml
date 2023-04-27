@@ -1,0 +1,22 @@
+﻿@using Wbtb.Core.Common;
+@using Wbtb.Core.Web; 
+@using Humanizer;
+@model JobIncidentsModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <x-list>
+    @foreach(ViewBuild build in Model.Builds.Items)
+    {
+        <div>
+            Date : @build.StartedUtc.ToLocalTime().ToISOShort()) (@build.StartedUtc.ToLocalTime().Humanize())
+            Cause : <a href="/build/@build.IncidentBuildId">@build.IncidentBuildId</a> 
+            Number of builds : ---
+            Duration : ----
+        </div>
+
+    }
+    </x-list>
+</div>

@@ -1,0 +1,12 @@
+﻿using Wbtb.Core.Common.Plugins;
+
+namespace Wbtb.Extensions.LogParsing.Cpp
+{
+    class Entry
+    {
+        static void Main(string[] args)
+        {
+            new PluginShellReceiver<Cpp>().Process(args);
+        }
+    }
+}

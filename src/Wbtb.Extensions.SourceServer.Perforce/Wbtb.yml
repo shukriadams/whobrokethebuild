@@ -1,0 +1,7 @@
+﻿Key: Wbtb.SourceServer.Perforce
+Runtime: dotnet
+Assembly: Wbtb.Extensions.SourceServer.Perforce
+Main: Wbtb.Extensions.SourceServer.Perforce.dll
+Interface: Wbtb.Core.Common.ISourceServerPlugin
+Concrete: Wbtb.Extensions.SourceServer.Perforce.Perforce
+Version: 0.0.1
