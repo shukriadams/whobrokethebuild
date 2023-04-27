@@ -18,7 +18,7 @@ then once inside the wbtb guest vm
     cd src
     dotnet restore Wbtb.Core.Web
     dotnet build Wbtb.Core.Web
-    dotnet run --project Tetrifact.Web
+    dotnet run --project Wbtb.Core.Web
 
 ## Coding and Debugging
 

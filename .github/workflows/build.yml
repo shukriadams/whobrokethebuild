@@ -8,8 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: builds
-        run: cd build && sh ./build.sh --ci --dockerpush
+      - name: builds container and pushes to container repo
+        run: |
+            cd build/docker 
+            sh ./build.sh --smoketest --push
         env:
             DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
             DOCKER_USER: ${{ secrets.DOCKER_USER }}
