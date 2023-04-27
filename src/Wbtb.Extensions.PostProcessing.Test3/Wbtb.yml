@@ -1,0 +1,5 @@
+Key: Wbtb.Extensions.Private.Pyplug
+Runtime: python
+Main: script.py
+Interface: Wbtb.Core.Common.IPostProcessor
+Version: 0.0.1
