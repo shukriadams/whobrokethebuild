@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Dotnet 3.1
+- Dotnet 6.0
 - NodeJS 12 or better
 
 ## Setup
@@ -12,12 +12,31 @@ The suggested way to work on this project is in Vagrant. A complete dev environm
     cd vagrant/<your-vm-flavor>
     vagrant up
     vagrant ssh
- 
+
 then once inside the wbtb guest vm
+ 
+to set up frontend components (generally required once only when setting up project)
+
+    cd src/Wbtb.Core.Web/frontend
+    sh ./setup.sh
+    npm install
+    npm run icons
+    npm run build
+
+if you update frontend code after this 
+
+    cd src/Wbtb.Core.Web/frontend
+    npm run build
+
+to build the server
 
     cd src
     dotnet restore Wbtb.Core.Web
     dotnet build Wbtb.Core.Web
+
+and to start the server
+
+    cd src
     dotnet run --project Wbtb.Core.Web
 
 ## Coding and Debugging
