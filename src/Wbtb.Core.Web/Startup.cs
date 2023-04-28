@@ -17,6 +17,7 @@ using Wbtb.Extensions.LogParsing.JenkinsSelfFailing;
 using Wbtb.Extensions.LogParsing.Cpp;
 using Wbtb.Extensions.Auth.Internal;
 using Wbtb.Extensions.Auth.ActiveDirectorySandbox;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Wbtb.Core.Web
 {
@@ -40,27 +41,27 @@ namespace Wbtb.Core.Web
             services.AddTransient<IMessageQueue, MessageQueue>();
 
             // DEV ONLY! - these are needed by controllers only
-            services.AddTransient<IDataLayerPlugin, Postgres>();
-            services.AddTransient<IAuthenticationPlugin, ActiveDirectory>();
-            services.AddTransient<IAuthenticationPlugin, ActiveDirectorySandbox>();
-            services.AddTransient<IAuthenticationPlugin, Internal>();
-            services.AddTransient<IBuildServerPlugin, Extensions.BuildServer.Jenkins.Jenkins>();
-            services.AddTransient<IBuildServerPlugin, Extensions.BuildServer.JenkinsSandbox.JenkinsSandbox>();
-            services.AddTransient<ISourceServerPlugin, Perforce>();
-            services.AddTransient<ISourceServerPlugin, Extensions.SourceServer.PerforceSandbox.PerforceSandbox>();
-            services.AddTransient<IMessaging, Slack>();
-            services.AddTransient<ILogParser, Unreal4>();
-            services.AddTransient<ILogParser, Cpp>();
-            services.AddTransient<ILogParser, JenkinsSelfFailing>();
-            services.AddTransient<IWebDaemon, BuildImportDaemon>();
-            services.AddTransient<IWebDaemon, UserBuildInvolvementLinkDaemon>();
-            services.AddTransient<IWebDaemon, RevisionResolveDaemon>();
-            services.AddTransient<IWebDaemon, LogParseDaemon>();
-            services.AddTransient<IWebDaemon, BuildRevisionFromLogDaemon>();
-            services.AddTransient<IWebDaemon, IncidentAssignDaemon>();
-            services.AddTransient<IDaemonProcessRunner, DaemonProcessRunner>();
-            services.AddTransient<IPostProcessor, Extensions.PostProcessing.Test.Test>();
-            services.AddTransient<IPostProcessor, Extensions.PostProcessing.Test2.Test2>();
+            services.AddTransient(typeof(IDataLayerPlugin), typeof(Postgres));
+            services.AddTransient(typeof(IAuthenticationPlugin), typeof(ActiveDirectory));
+            services.AddTransient(typeof(IAuthenticationPlugin), typeof(ActiveDirectorySandbox));
+            services.AddTransient(typeof(IAuthenticationPlugin), typeof(Internal));
+            services.AddTransient(typeof(IBuildServerPlugin), typeof(Extensions.BuildServer.Jenkins.Jenkins));
+            services.AddTransient(typeof(IBuildServerPlugin), typeof(Extensions.BuildServer.JenkinsSandbox.JenkinsSandbox));
+            services.AddTransient(typeof(ISourceServerPlugin), typeof(Perforce));
+            services.AddTransient(typeof(ISourceServerPlugin), typeof(Extensions.SourceServer.PerforceSandbox.PerforceSandbox));
+            services.AddTransient(typeof(IMessaging), typeof(Slack));
+            services.AddTransient(typeof(ILogParser), typeof(Unreal4));
+            services.AddTransient(typeof(ILogParser), typeof(Cpp));
+            services.AddTransient(typeof(ILogParser), typeof(JenkinsSelfFailing));
+            services.AddTransient(typeof(IWebDaemon), typeof(BuildImportDaemon));
+            services.AddTransient(typeof(IWebDaemon), typeof(UserBuildInvolvementLinkDaemon));
+            services.AddTransient(typeof(IWebDaemon), typeof(RevisionResolveDaemon));
+            services.AddTransient(typeof(IWebDaemon), typeof(LogParseDaemon));
+            services.AddTransient(typeof(IWebDaemon), typeof(BuildRevisionFromLogDaemon));
+            services.AddTransient(typeof(IWebDaemon), typeof(IncidentAssignDaemon));
+            services.AddTransient(typeof(IDaemonProcessRunner), typeof(DaemonProcessRunner));
+            services.AddTransient(typeof(IPostProcessor), typeof(Extensions.PostProcessing.Test.Test));
+            services.AddTransient(typeof(IPostProcessor), typeof(Extensions.PostProcessing.Test2.Test2));
             
             services.AddHostedService<ServerStartService>();
 
@@ -91,21 +92,21 @@ namespace Wbtb.Core.Web
 
             // bind types - dev only! These are needed by all general plugin activity
             StandardKernel kernel = new StandardKernel();
-            kernel.Bind<IDataLayerPlugin>().To<Postgres>();
-            kernel.Bind<IAuthenticationPlugin>().To<ActiveDirectory>();
-            kernel.Bind<IAuthenticationPlugin>().To<ActiveDirectorySandbox>();
-            kernel.Bind<IAuthenticationPlugin>().To<Internal>();
+            kernel.Bind(typeof(IDataLayerPlugin)).To(typeof(Postgres));
+            kernel.Bind(typeof(IAuthenticationPlugin)).To(typeof(ActiveDirectory));
+            kernel.Bind(typeof(IAuthenticationPlugin)).To(typeof(ActiveDirectorySandbox));
+            kernel.Bind(typeof(IAuthenticationPlugin)).To(typeof(Internal));
             //kernel.Bind<IBuildServerPlugin>().To<Extensions.BuildServer.Jenkins.Jenkins>();
-            kernel.Bind<IBuildServerPlugin>().To<Extensions.BuildServer.JenkinsSandbox.JenkinsSandbox>();
-            kernel.Bind<ISourceServerPlugin>().To<Perforce>();
-            kernel.Bind<ISourceServerPlugin>().To<Extensions.SourceServer.PerforceSandbox.PerforceSandbox>();
-            kernel.Bind<IMessaging>().To<Slack>();
-            kernel.Bind<ILogParser>().To<Unreal4>();
-            kernel.Bind<ILogParser>().To<Cpp>();
-            kernel.Bind<ILogParser>().To<JenkinsSelfFailing>();
+            kernel.Bind(typeof(IBuildServerPlugin)).To(typeof(Extensions.BuildServer.JenkinsSandbox.JenkinsSandbox));
+            kernel.Bind(typeof(ISourceServerPlugin)).To(typeof(Perforce));
+            kernel.Bind(typeof(ISourceServerPlugin)).To(typeof(Extensions.SourceServer.PerforceSandbox.PerforceSandbox));
+            kernel.Bind(typeof(IMessaging)).To(typeof(Slack));
+            kernel.Bind(typeof(ILogParser)).To(typeof(Unreal4));
+            kernel.Bind(typeof(ILogParser)).To(typeof(Cpp));
+            kernel.Bind(typeof(ILogParser)).To(typeof(JenkinsSelfFailing));
 
-            kernel.Bind<IPostProcessor>().To<Extensions.PostProcessing.Test.Test>();
-            kernel.Bind<IPostProcessor>().To<Extensions.PostProcessing.Test2.Test2>();
+            kernel.Bind(typeof(IPostProcessor)).To(typeof(Extensions.PostProcessing.Test.Test));
+            kernel.Bind(typeof(IPostProcessor)).To(typeof(Extensions.PostProcessing.Test2.Test2));
 
             PluginProvider.Factory = new NinjectWrapper(kernel);
         }
