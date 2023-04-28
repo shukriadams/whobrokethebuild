@@ -15,6 +15,15 @@ namespace Wbtb.Core.Common.Plugins.Transmitters
             });
         }
 
+        public object InitializeDatastore() 
+        {
+            IPluginSender pluginSender = PluginSenderFactory.Get();
+            return pluginSender.InvokeMethod<object>(this, new PluginArgs
+            {
+                FunctionName = "InitializeDatastore"
+            });
+        }
+
         #endregion
 
         #region BUILD SERVER

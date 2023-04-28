@@ -55,7 +55,7 @@ namespace Wbtb.Core.Common.Plugins
                     throw new ConfigurationException("Factory not set. If you are running unit tests on a plugin without the core project, you need to provide your own factory to provider non-proxy instances of plugins ");
 
                 // TODO - cache type lookup for performance
-                Type? concreteType = DevTypeHelper.ResolveType(pluginConfig.Manifest.Concrete);
+                Type? concreteType = TypeHelper.ResolveType(pluginConfig.Manifest.Concrete);
                 if (concreteType == null)
                     throw new ConfigurationException($"Could not load concrete type {pluginConfig.Manifest.Concrete} from available assemblies");
                 

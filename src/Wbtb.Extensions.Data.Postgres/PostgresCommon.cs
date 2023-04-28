@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Wbtb.Core.Common;
 using Wbtb.Core.Common.Plugins;
+using Wbtb.Core.Common.Utils;
 
 namespace Wbtb.Extensions.Data.Postgres
 {
@@ -26,6 +28,38 @@ namespace Wbtb.Extensions.Data.Postgres
             connection.Open();
 
             return connection;
+        }
+
+        public static object InitializeDatastore(PluginConfig contextPluginConfig)
+        {
+            string query = @"SELECT EXISTS (
+                SELECT FROM 
+                    information_schema.tables 
+                WHERE  
+                    table_name   = 'sourceserver');";
+
+            bool isInitialized = false;
+            using (NpgsqlConnection connection = GetConnection(contextPluginConfig)) 
+            {
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                {
+                    reader.Read();
+                    isInitialized = reader.GetBoolean(0);
+                }
+
+                if (isInitialized)
+                    return null;
+
+                string createDbStructures = ResourceHelper.ReadResourceAsString(typeof(PostgresCommon), "sql.create-structures.sql");
+                int updatedCount = 0;
+                using (NpgsqlCommand cmd = new NpgsqlCommand(createDbStructures, connection))
+                {
+                    updatedCount = cmd.ExecuteNonQuery();
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -103,7 +137,15 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public static int ExecuteQuery(PluginConfig contextPluginConfig, string query, IEnumerable<QueryParameter> queryParameters, NpgsqlConnection connection)
+        /// <summary>
+        /// Executes a query and returns count of rows affected instead of a data object.
+        /// </summary>
+        /// <param name="contextPluginConfig"></param>
+        /// <param name="query"></param>
+        /// <param name="queryParameters"></param>
+        /// <param name="connection"></param>
+        /// <returns></returns>
+        public static int ExecuteNonQuery(PluginConfig contextPluginConfig, string query, IEnumerable<QueryParameter> queryParameters, NpgsqlConnection connection)
         {
             bool close = false;
 

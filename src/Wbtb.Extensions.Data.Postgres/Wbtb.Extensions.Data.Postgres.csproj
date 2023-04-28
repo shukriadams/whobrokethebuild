@@ -15,10 +15,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="sql\create-database.sql" />
+    <None Remove="sql\create-structures.sql" />
     <None Remove="Wbtb.yml" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="sql\create-database.sql" />
+    <EmbeddedResource Include="sql\create-structures.sql" />
     <EmbeddedResource Include="Wbtb.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>

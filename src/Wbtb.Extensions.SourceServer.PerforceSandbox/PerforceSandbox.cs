@@ -23,17 +23,7 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
 
         public void VerifySourceServerConfig(Core.Common.SourceServer contextServer)
         {
-            //if (contextServer.Config == null)
-            //    throw new ConfigurationException("Missing item \"Config\"");
-
-            if (!contextServer.Config.Any(c => c.Key == "Host"))
-                throw new ConfigurationException("Missing item \"Host\"");
-
-            if (!contextServer.Config.Any(c => c.Key == "Password"))
-                throw new ConfigurationException("Missing item \"Password\"");
-
-            if (!contextServer.Config.Any(c => c.Key == "User"))
-                throw new ConfigurationException("Missing item \"User\"");
+            // no config validation required
         }
 
         public ReachAttemptResult AttemptReach(Core.Common.SourceServer contextServer)

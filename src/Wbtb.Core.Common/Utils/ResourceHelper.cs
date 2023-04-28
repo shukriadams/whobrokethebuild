@@ -6,15 +6,11 @@ namespace Wbtb.Core.Common.Utils
 {
     public class ResourceHelper
     {
-        public static string ReadResourceAsString(Type typeInTargetAssembly, string resourceName)
+        public static string ReadResourceAsString(Assembly assembly, string resourceName)
         {
-            Assembly assembly = Assembly.GetAssembly(typeInTargetAssembly);
-            if (assembly == null)
-                throw new Exception($"Failed to find assemby for type {typeInTargetAssembly.FullName}");
-
             string assemblyName = assembly.ManifestModule.Name;
             assemblyName = assemblyName.Substring(0, assemblyName.Length - 4); // clip off ".dll"
-            string resourceFullName= $"{assemblyName}.{resourceName}";
+            string resourceFullName = $"{assemblyName}.{resourceName}";
 
             using (Stream stream = assembly.GetManifestResourceStream(resourceFullName))
             {
@@ -26,6 +22,15 @@ namespace Wbtb.Core.Common.Utils
                     return reader.ReadToEnd();
                 }
             }
+        }
+
+        public static string ReadResourceAsString(Type typeInTargetAssembly, string resourceName)
+        {
+            Assembly assembly = Assembly.GetAssembly(typeInTargetAssembly);
+            if (assembly == null)
+                throw new Exception($"Failed to find assemby for type {typeInTargetAssembly.FullName}");
+
+            return ReadResourceAsString(assembly, resourceName);
         }
 
         public static string LoadFromLocalJsonOrLocalResourceAsString(Type callerType, string diskPath, string resourcePath)
@@ -57,20 +62,25 @@ namespace Wbtb.Core.Common.Utils
             return JsonConvert.DeserializeObject(rawJson);
         }
 
+        public static bool ResourceExists(Assembly assembly, string resourceName)
+        {
+            string assemblyName = assembly.ManifestModule.Name;
+            assemblyName = assemblyName.Substring(0, assemblyName.Length - 4); // clip off ".dll"
+            string resourceFullName = $"{assembly.GetName().Name}.{resourceName}";
+
+            using (Stream stream = assembly.GetManifestResourceStream(resourceFullName))
+            {
+                return stream != null;
+            }
+        }
+
         public static bool ResourceExists(Type typeInTargetAssembly, string resourceName)
         {
             Assembly assembly = Assembly.GetAssembly(typeInTargetAssembly);
             if (assembly == null)
                 throw new Exception($"Failed to find assemby for type {typeInTargetAssembly.FullName}");
 
-            string assemblyName = assembly.ManifestModule.Name;
-            assemblyName = assemblyName.Substring(0, assemblyName.Length - 4); // clip off ".dll"
-            string resourceFullName = $"{assemblyName}.{resourceName}";
-
-            using (Stream stream = assembly.GetManifestResourceStream(resourceFullName))
-            {
-                return stream != null;
-            }
+            return ResourceExists(assembly, resourceName);
         }
     }
 }

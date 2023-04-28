@@ -23,7 +23,13 @@ namespace Wbtb.Core.Web
                     if (hashChanged)
                         lifetime.StopApplication();
 
-                    Wbtb.Core.Core.StartServer();
+                    Wbtb.Core.Core.StartServer(allowedInternalPlugins : new string[] { 
+                        "Wbtb.Extensions.BuildServer.Jenkins",
+                        "Wbtb.Extensions.BuildServer.JenkinsSandbox",
+                        "Wbtb.Extensions.SourceServer.Perforce",
+                        "Wbtb.Extensions.SourceServer.PerforceSandbox",
+                        "Wbtb.Extensions.Data.Postgres",
+                    });
 
                     // these shoule be moved to "startserver" too
                     using (IServiceScope scope = serviceProvider.CreateScope())

@@ -2,16 +2,38 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Wbtb.Core.Common;
 using Wbtb.Core.Common.Plugins;
+using Wbtb.Core.Common.Utils;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 
 namespace Wbtb.Core.Configuration
 {
-    public class ConfigManager
+    public class ConfigurationManager
     {
+        #region CTORS
+
+        /// <summary>
+        /// 
+        /// </summary>
+        static ConfigurationManager() 
+        {
+            AllowedInternalPlugins = new string[] { };
+        }
+
+        #endregion
+
+        #region PROPERTIES
+
+        public static IEnumerable<string> AllowedInternalPlugins { get; set; }
+
+        #endregion
+
+        #region METHODS
+
         /// <summary>
         /// Required first step for working with static config - set's the path config 
         /// </summary>
@@ -77,6 +99,7 @@ namespace Wbtb.Core.Configuration
             tempConfig.Groups = tempConfig.Groups.Where(g => g.Enable).ToList();
             tempConfig.BuildServers = tempConfig.BuildServers.Where(b => b.Enable).ToList();
             tempConfig.SourceServers = tempConfig.SourceServers.Where(s => s.Enable).ToList();
+            tempConfig.Users = tempConfig.Users.Where(p => p.Enable).ToList();
 
             foreach (BuildServer buildServer in tempConfig.BuildServers)
             {
@@ -105,7 +128,6 @@ namespace Wbtb.Core.Configuration
             EnsureNoneManifestLogicValid(tempConfig);
 
             return tempConfig;
-
         }
         
         public static void FinalizeConfig(Config unsafeConfig)
@@ -213,14 +235,42 @@ namespace Wbtb.Core.Configuration
             foreach (PluginConfig pluginConfig in config.Plugins)
             {
                 if (string.IsNullOrEmpty(pluginConfig.Path))
-                    throw new ConfigurationException($"ERROR : plugin \"{pluginConfig.Key}\" does not declare Path. Path should be absolute path to exe or project root for that plugin.");
+                    throw new ConfigurationException($"ERROR : Plugin \"{pluginConfig.Key}\" does not declare Path. Path should be absolute path to plugin script/binary, or for internal plugins, should be plugin's Namespace, egs \"Wbtb.Extensions.Data.Postgres.\"");
+
+                // if path does not point to an existing location on disk, determie if path is a valid internal plugin
+                if (Directory.Exists(pluginConfig.Path))
+                {
+                    pluginConfig.IsExternal = true;
+                }
+                else
+                {
+                    if (!ConfigurationManager.AllowedInternalPlugins.Contains(pluginConfig.Path))
+                        throw new ConfigurationException($"ERROR : Plugin \"{pluginConfig.Key}\"'s Path \"{pluginConfig.Path}\" should be a directory path or an internal plugin in list \"{string.Join(", ", ConfigurationManager.AllowedInternalPlugins)}\".");
+                }
 
                 // try to get manifest directly from file path, this is for local dev  mainly, but _should_ work on production(?)
-                string pluginYmlManifestPath = Path.Join(pluginConfig.Path, "Wbtb.yml");
-                if (!File.Exists(pluginYmlManifestPath))
-                    throw new ConfigurationException($"ERROR : plugin \"{pluginConfig.Key}\" does not have a manifest @ expected location {pluginYmlManifestPath} - plugin will be disabled");
+                string pluginManifestRaw = null;
+                if (pluginConfig.IsExternal)
+                {
+                    string pluginYmlManifestPath = Path.Join(pluginConfig.Path, "Wbtb.yml");
+                    if (!File.Exists(pluginYmlManifestPath))
+                        throw new ConfigurationException($"ERROR : plugin \"{pluginConfig.Key}\" does not have a manifest @ expected location {pluginYmlManifestPath}.");
 
-                string pluginManifestRaw = File.ReadAllText(pluginYmlManifestPath);
+                    pluginManifestRaw = File.ReadAllText(pluginYmlManifestPath);
+                }
+                else 
+                {
+                    Assembly pluginAssembly = TypeHelper.GetAssembly(pluginConfig.Path);
+                    if (pluginAssembly == null)
+                        throw new ConfigurationException($"ERROR : plugin \"{pluginConfig.Key}\" is assumed running from assembly {pluginConfig.Path}, but no assembly with this name could be found.");
+
+                    if (!ResourceHelper.ResourceExists(pluginAssembly, "Wbtb.yml"))
+                        throw new ConfigurationException($"ERROR : plugin \"{pluginConfig.Key}\" does not have a manifest");
+
+                    pluginConfig.Proxy = false;
+                    pluginManifestRaw = ResourceHelper.ReadResourceAsString(pluginAssembly, "Wbtb.yml");
+                }
+
                 try
                 {
                     IDeserializer deserializer = YmlHelper.GetDeserializer();
@@ -534,7 +584,7 @@ namespace Wbtb.Core.Configuration
             IDeserializer deserializer = YmlHelper.GetDeserializer();
             return deserializer.Deserialize<PluginManifest>(rawYml);
         }
-
-        
     }
+
+    #endregion
 }

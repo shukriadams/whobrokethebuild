@@ -11,6 +11,12 @@ namespace Wbtb.Core.Common
     [PluginBehaviour(true)]
     public interface IDataLayerPlugin: IReachable, IPlugin 
     {
+        #region UTILITY
+
+        object InitializeDatastore();
+
+        #endregion
+
         #region BUILD SERVERS
 
         BuildServer SaveBuildServer(BuildServer buildServer);

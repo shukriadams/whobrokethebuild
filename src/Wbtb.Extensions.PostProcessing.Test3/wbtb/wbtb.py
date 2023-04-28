@@ -126,12 +126,16 @@ class DataLayer:
             raise ValueError("Could not locate plugin that implements Wbtb.Core.Common.IDataLayerPlugin")
 
     def Verify():
-
         return invokeMethod(self, self.pluginKey,
         {
             "FunctionName" : "Verify"
         })
 
+    def VerInitializeDatastoreify():
+        return invokeMethod(self, self.pluginKey,
+        {
+            "FunctionName" : "InitializeDatastore"
+        })
 
     def SaveBuildServer(self, buildServer):
         return invokeMethod(self, self.pluginKey,

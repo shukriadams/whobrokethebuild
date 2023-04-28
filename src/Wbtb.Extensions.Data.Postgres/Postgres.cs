@@ -28,20 +28,6 @@ namespace Wbtb.Extensions.Data.Postgres
             if (!this.ContextPluginConfig.Config.Any(c => c.Key == "Database"))
                 throw new ConfigurationException("Missing config item \"Database\"");
 
-            //  to connect to db by performing an arbitrary operation
-            try 
-            {
-                this.GetBuildServers();
-            }
-            catch (Exception ex)
-            {
-                return new PluginInitResult
-                {
-                    Description = $"Connection error : {ex}",
-                    Success = false
-                };
-            }
-
             return new PluginInitResult{ 
                 SessionId = Guid.NewGuid().ToString(),
                 Success = true
@@ -59,6 +45,11 @@ namespace Wbtb.Extensions.Data.Postgres
             {
                 return new ReachAttemptResult { Exception = ex };
             }
+        }
+
+        public object InitializeDatastore()
+        {
+            return PostgresCommon.InitializeDatastore(this.ContextPluginConfig);
         }
 
         #endregion

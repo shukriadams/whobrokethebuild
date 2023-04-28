@@ -25,23 +25,24 @@ namespace Wbtb.Core
         /// <summary>
         /// Single-call wrapper to start server.
         /// </summary>
-        public static void StartServer()
+        public static void StartServer(IEnumerable<string> allowedInternalPlugins)
         {
             // pre-start stuff
             CustomEnvironmentArgs.Apply();
             ConfigBootstrapper.EnsureLatest();
 
             // first part of server start, tries to load config
-            Config unsafeConfig = ConfigManager.LoadUnsafeConfig(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
+            ConfigurationManager.AllowedInternalPlugins = allowedInternalPlugins;
+            Config unsafeConfig = ConfigurationManager.LoadUnsafeConfig(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
 
             // ensure directories, this requires that config is loaded
             Directory.CreateDirectory(unsafeConfig.DataDirectory);
             Directory.CreateDirectory(unsafeConfig.BuildLogsDirectory);
             Directory.CreateDirectory(unsafeConfig.PluginsWorkingDirectory);
             Directory.CreateDirectory(unsafeConfig.PluginDataPersistDirectory);
-
-            ConfigManager.FetchPlugins(unsafeConfig);
-            ConfigManager.FinalizeConfig(unsafeConfig);
+            
+            ConfigurationManager.FetchPlugins(unsafeConfig);
+            ConfigurationManager.FinalizeConfig(unsafeConfig);
 
             bool isAnyPluginProxying = unsafeConfig.Plugins.Where(p => p.Proxy).Any();
             if (isAnyPluginProxying)

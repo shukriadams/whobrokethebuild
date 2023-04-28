@@ -24,12 +24,20 @@ namespace Wbtb.Core.Common.Plugins
         public string RawJson { get; set; }
 
         /// <summary>
-        /// human-friendly label this plugin provides. Keep it short, this text will be displayed all over.
+        /// Optional. Human-friendly label this plugin provides.
         /// </summary>
-        public string Description{ get; set; }
+        public string Description { get; set; }
 
         /// <summary>
-        /// Source enum plugin binaries pulled from.
+        /// Should be set internally.
+        /// 
+        /// If false, plugin is compiled with and runs in the same application context as Wbtb core application. If true, plugin is a shell app that runs 
+        /// in its own context. Note that Proxy can still be enabled for internal plugins.
+        /// </summary>
+        public bool IsExternal { get; set; }
+
+        /// <summary>
+        /// Source enum plugin binaries pulled from. For external plugins only
         /// </summary>
         public PluginSourceTypes SourceType { get; set; }
 

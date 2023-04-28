@@ -97,7 +97,7 @@ namespace Wbtb.Core.Common
             string id = queueClient.Add(data);
             string tid = Guid.NewGuid().ToString(); //todo store for cross check
 
-            Type? concreteResolvedType = DevTypeHelper.ResolveType(concreteType);
+            Type? concreteResolvedType = TypeHelper.ResolveType(concreteType);
             if (concreteResolvedType == null)
                 throw new Exception($"Failed to resolved required concrete type {concreteResolvedType}");
 

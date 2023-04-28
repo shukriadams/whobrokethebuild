@@ -128,9 +128,16 @@ namespace Wbtb.Core
                     throw ex;
                 }
 
-                // validate credentials if plugin supports it
+                if (initResult == null || !initResult.Success)
+                    throw new ConfigurationException($"Plugin '{pluginConfig.Manifest.Key}' failed to initialize - {initResult.Description}");
+            }
+
+            // attempt to reach remote system behind plugin if plugin supports 
+            foreach (PluginConfig pluginConfig in ConfigKeeper.Instance.Plugins)
+            {
+                IPlugin plugin = PluginProvider.GetDistinct(pluginConfig) as IPlugin;
                 if (typeof(IReachable).IsAssignableFrom(plugin.GetType()))
-                { 
+                {
                     IReachable reachable = plugin as IReachable;
                     ReachAttemptResult reach = reachable.AttemptReach();
 
@@ -140,10 +147,15 @@ namespace Wbtb.Core
                     else
                         throw new ConfigurationException($"Credentials for plugin \"{pluginConfig.Key}\" failed : {reach.Error}{reach.Exception}.");
                 }
-
-                if (initResult == null || !initResult.Success)
-                    throw new ConfigurationException($"Plugin '{pluginConfig.Manifest.Key}' failed to initialize - {initResult.Description}");
             }
+
+            // attempt to initialize datastores for all datalayer plugins
+            foreach (PluginConfig pluginConfig in ConfigKeeper.Instance.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name<IDataLayerPlugin>()))
+            {
+                IDataLayerPlugin dataLayerPlugin = PluginProvider.GetDistinct(pluginConfig) as IDataLayerPlugin;
+                dataLayerPlugin.InitializeDatastore();
+            }
+
 
             // validate build servers
             foreach (BuildServer buildserver in ConfigKeeper.Instance.BuildServers)
