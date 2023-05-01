@@ -38,7 +38,6 @@ namespace Wbtb.Core.CLI
                 kernel.Bind<ILogParser>().To<JenkinsSelfFailing>();
                 kernel.Bind<ILogParser>().To<Cpp>();
                 kernel.Bind<IMessaging>().To<Slack>();
-                PluginProvider.Factory = new NinjectWrapper(kernel);
 
                 CustomEnvironmentArgs.Apply();
                 if (!ConfigBootstrapper.EnsureLatest())

@@ -1,10 +1,7 @@
 ﻿using Ninject;
 using System;
-using System.IO;
 using System.Linq;
-using Wbtb.Core;
 using Wbtb.Core.Common;
-using Wbtb.Core.Common.Plugins;
 using Wbtb.Extensions.Auth.ActiveDirectory;
 
 namespace Wbtb.Extensions.Data.Postgres.Tests
@@ -22,7 +19,6 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
             StandardKernel kernel = new StandardKernel();
             kernel.Bind<IDataLayerPlugin>().To<Postgres>();
             kernel.Bind<IAuthenticationPlugin>().To<ActiveDirectory>();
-            PluginProvider.Factory = new NinjectWrapper(kernel);
 
             throw new NotImplementedException("fix this");
             //Core.Core.LoadConfig(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));

@@ -41,7 +41,7 @@ namespace Wbtb.Core.Web
                         Type concrete = TypeHelper.ResolveType(plugin.Manifest.Concrete);
                         kernel.Bind(interfaceType).To(concrete);
                     }
-                    PluginProvider.Factory = new NinjectWrapper(kernel);
+                    PluginProvider.Factory = new NinjectWrapper();
 
                     Wbtb.Core.Core.LoadPlugins();
 
