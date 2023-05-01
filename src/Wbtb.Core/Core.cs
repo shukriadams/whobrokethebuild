@@ -56,20 +56,15 @@ namespace Wbtb.Core
                 Console.WriteLine("No plugins running in proxy mode, ignoring MessageQueue status.");
             }
 
-            Core.LoadPlugins();
 
             // second main part of server start, connect data store, check data state, create data from config, etc
-            Core.InitializeData();
         }
 
         public static void LoadPlugins()
         {
             PluginManager.Initialize();
             PluginManager.WriteCurrentPluginStateToStore();
-        }
 
-        public static void InitializeData()
-        {
             ConfigurationBuilder.InjectSourceServers();
             ConfigurationBuilder.InjectUsers();
 
@@ -77,11 +72,12 @@ namespace Wbtb.Core
             ConfigurationBuilder.InjectBuildServers();
 
             IEnumerable<string> orphans = ConfigurationBuilder.FindOrphans();
-            foreach(string orphan in orphans)
+            foreach (string orphan in orphans)
                 Console.WriteLine(orphan);
 
-            if(orphans.Count() > 0)
+            if (orphans.Count() > 0)
                 throw new ConfigurationException("Orphan records detected. Please merge or delete orphans");
         }
     }
+
 }

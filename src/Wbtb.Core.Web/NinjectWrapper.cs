@@ -9,16 +9,16 @@ namespace Wbtb.Core.Web
     /// </summary>
     public class NinjectWrapper : IPluginFactory
     {
-        private StandardKernel _kernel;
+        public StandardKernel Kernel { private set; get; }
 
         public NinjectWrapper(StandardKernel kernel)
         {
-            _kernel = kernel;
+            Kernel = kernel;
         }
 
         public object Get(Type t)
         { 
-            return _kernel.Get(t);
+            return Kernel.Get(t);
         }
     }
 }

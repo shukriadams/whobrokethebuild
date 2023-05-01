@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Ninject;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Wbtb.Core.Common;
+using Wbtb.Core.Common.Plugins;
 
 namespace Wbtb.Core.Web
 {
@@ -31,6 +34,17 @@ namespace Wbtb.Core.Web
                         "Wbtb.Extensions.Data.Postgres",
                     });
 
+                    StandardKernel kernel = new StandardKernel();
+                    foreach (PluginConfig plugin in ConfigKeeper.Instance.Plugins.Where(p=> p.Manifest.RuntimeParsed == Runtimes.dotnet)) 
+                    {
+                        Type interfaceType = TypeHelper.GetCommonType(plugin.Manifest.Interface);
+                        Type concrete = TypeHelper.ResolveType(plugin.Manifest.Concrete);
+                        kernel.Bind(interfaceType).To(concrete);
+                    }
+                    PluginProvider.Factory = new NinjectWrapper(kernel);
+
+                    Wbtb.Core.Core.LoadPlugins();
+
                     // these shoule be moved to "startserver" too
                     using (IServiceScope scope = serviceProvider.CreateScope())
                     {
@@ -50,7 +64,6 @@ namespace Wbtb.Core.Web
                             Console.SetOut(consoleWriter);
                         }
                     }
-                    
                 }
                 catch (ConfigurationException ex)
                 {

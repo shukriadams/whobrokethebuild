@@ -60,6 +60,8 @@ namespace Wbtb.Core.Common.Plugins
                     throw new ConfigurationException($"Could not load concrete type {pluginConfig.Manifest.Concrete} from available assemblies");
                 
                 plugin = Factory.Get(concreteType);
+                if (plugin == null)
+                    throw new ConfigurationException($"Could not create instance of plugin {pluginConfig.Key}");
             }
 
             IPlugin iplugin = plugin as IPlugin;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Wbtb.Core.Common.Plugins;
 
 namespace Wbtb.Core.Common
@@ -151,15 +150,6 @@ namespace Wbtb.Core.Common
             this.Groups = new List<Group>();
             this.FailingPlugins = new List<PluginConfig>();
             this.DisabledPlugins = new List<PluginConfig>();
-        }
-
-        #endregion
-
-        #region METHODS
-
-        public static bool HasPlugin(Config config, string pluginName)
-        {
-            return config.Plugins.Any(p => p.Key == pluginName);
         }
 
         #endregion

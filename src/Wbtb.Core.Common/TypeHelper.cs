@@ -31,10 +31,15 @@ namespace Wbtb.Core.Common
 
         public static Assembly GetAssembly(string namespc) 
         {
-            return AppDomain.CurrentDomain
+            Assembly assembly = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .Where(a => a.GetName().Name == namespc)
                 .FirstOrDefault();
+
+            if (assembly == null)
+                assembly = Assembly.Load(namespc);
+
+            return assembly;
         }
 
         public static Type? ResolveType(string namespacedType)
