@@ -64,14 +64,15 @@ namespace Wbtb.Core
         {
             PluginManager.Initialize();
             PluginManager.WriteCurrentPluginStateToStore();
-
-            ConfigurationBuilder.InjectSourceServers();
-            ConfigurationBuilder.InjectUsers();
+            LowEffortDI di = new LowEffortDI();
+            ConfigurationBuilder builder = di.Resolve<ConfigurationBuilder>();
+            builder.InjectSourceServers();
+            builder.InjectUsers();
 
             // build servers should be scafolded last, as they have data that has dependencies on other top level objects
-            ConfigurationBuilder.InjectBuildServers();
+            builder.InjectBuildServers();
 
-            IEnumerable<string> orphans = ConfigurationBuilder.FindOrphans();
+            IEnumerable<string> orphans = builder.FindOrphans();
             foreach (string orphan in orphans)
                 Console.WriteLine(orphan);
 

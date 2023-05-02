@@ -9,6 +9,21 @@ namespace Wbtb.Extensions.Data.Postgres
 {
     public class Postgres : Plugin, IDataLayerPlugin
     {
+        #region FIELDS
+
+        private readonly Config _config;
+
+        #endregion
+
+        #region CTORS
+
+        public Postgres(Config config) 
+        { 
+            _config = config;
+        }
+
+        #endregion
+
         #region UTIL
 
         public PluginInitResult InitializePlugin()
@@ -85,12 +100,12 @@ namespace Wbtb.Extensions.Data.Postgres
 
         public BuildServer GetBuildServerById(string id)
         {
-            return PostgresCommon.GetById(this.ContextPluginConfig, id, "buildserver", new BuildServerConvert());
+            return PostgresCommon.GetById(this.ContextPluginConfig, id, "buildserver", new BuildServerConvert(_config));
         }
 
         public BuildServer GetBuildServerByKey(string id)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", id, "buildserver", new BuildServerConvert());
+            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", id, "buildserver", new BuildServerConvert(_config));
         }
 
         public IEnumerable<BuildServer> GetBuildServers()
@@ -105,7 +120,7 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                return new BuildServerConvert().ToCommonList(reader);
+                return new BuildServerConvert(_config).ToCommonList(reader);
         }
 
         public bool DeleteBuildServer(BuildServer record)
@@ -145,12 +160,12 @@ namespace Wbtb.Extensions.Data.Postgres
 
         public SourceServer GetSourceServerById(string id)
         {
-            return PostgresCommon.GetById(this.ContextPluginConfig, id, "sourceserver", new SourceServerConvert());
+            return PostgresCommon.GetById(this.ContextPluginConfig, id, "sourceserver", new SourceServerConvert(_config));
         }
 
         public SourceServer GetSourceServerByKey(string id)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", id, "sourceserver", new SourceServerConvert());
+            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", id, "sourceserver", new SourceServerConvert(_config));
         }
 
         public IEnumerable<SourceServer> GetSourceServers()
@@ -165,7 +180,7 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                return new SourceServerConvert().ToCommonList(reader);
+                return new SourceServerConvert(_config).ToCommonList(reader);
         }
 
         public bool DeleteSourceServer(SourceServer record)
@@ -207,12 +222,12 @@ namespace Wbtb.Extensions.Data.Postgres
 
         public Job GetJobById(string id)
         {
-            return PostgresCommon.GetById<Job>(this.ContextPluginConfig, id, "job", new JobConvert());
+            return PostgresCommon.GetById<Job>(this.ContextPluginConfig, id, "job", new JobConvert(_config));
         }
 
         public Job GetJobByKey(string key)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "job", new JobConvert());
+            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "job", new JobConvert(_config));
         }
 
         public IEnumerable<Job> GetJobsByBuildServerId(string buildServerId)
@@ -223,7 +238,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 cmd.Parameters.AddWithValue("buildserverid", int.Parse(buildServerId));
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new JobConvert().ToCommonList(reader);
+                    return new JobConvert(_config).ToCommonList(reader);
             }
         }
 
@@ -233,7 +248,7 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT * from job", connection))
             {
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new JobConvert().ToCommonList(reader);
+                    return new JobConvert(_config).ToCommonList(reader);
             }
         }
 
@@ -561,12 +576,12 @@ namespace Wbtb.Extensions.Data.Postgres
 
         public User GetUserById(string id)
         {
-            return PostgresCommon.GetById<User>(this.ContextPluginConfig, id, "usr", new UserConvert());
+            return PostgresCommon.GetById<User>(this.ContextPluginConfig, id, "usr", new UserConvert(_config));
         }
 
         public User GetUserByKey(string key)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "usr", new UserConvert());
+            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "usr", new UserConvert(_config));
         }
 
         public IEnumerable<User> GetUsers()
@@ -581,7 +596,7 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                return new UserConvert().ToCommonList(reader);
+                return new UserConvert(_config).ToCommonList(reader);
         }
 
         public PageableData<User> PageUsers(int index, int pageSize)
@@ -615,7 +630,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     cmd.Parameters.AddWithValue("pagesize", pageSize);
 
                     using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                        users = new UserConvert().ToCommonList(reader);
+                        users = new UserConvert(_config).ToCommonList(reader);
                 }
 
                 // get count of total records possible

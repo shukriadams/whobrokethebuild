@@ -7,6 +7,13 @@ namespace Wbtb.Extensions.Data.Postgres
 {
     public class SourceServerConvert : IRecordConverter<SourceServer>
     {
+        private readonly Config _config;
+
+        internal SourceServerConvert(Config config) 
+        {
+            _config = config;
+        }
+
         private SourceServer ToCommonSingle(NpgsqlDataReader reader)
         {
             SourceServer sourceServer = new SourceServer
@@ -16,7 +23,7 @@ namespace Wbtb.Extensions.Data.Postgres
             };
 
             // fill in rest of values from config
-            SourceServer config = ConfigKeeper.Instance.SourceServers.SingleOrDefault(r => r.Key == sourceServer.Key);
+            SourceServer config = _config.SourceServers.SingleOrDefault(r => r.Key == sourceServer.Key);
             if (config != null)
             {
                 sourceServer.Config = config.Config;

@@ -37,6 +37,9 @@ namespace Wbtb.Core.Web
             services.AddTransient(typeof(IWebDaemon), typeof(IncidentAssignDaemon));
 
             services.AddMemoryCache();
+
+            LowEffortDI di = new LowEffortDI();
+            di.Register<Configuration.ConfigurationBuilder, Configuration.ConfigurationBuilder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -133,7 +133,8 @@ namespace Wbtb.Core.Configuration
         public static void FinalizeConfig(Config unsafeConfig)
         {
             EnsureManifestLogicValid(unsafeConfig);
-
+            LowEffortDI di = new LowEffortDI();
+            di.RegisterSingleton<Config>(unsafeConfig);
             ConfigKeeper.Instance = unsafeConfig;
         }
 

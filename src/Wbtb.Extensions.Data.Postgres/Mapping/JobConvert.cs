@@ -4,8 +4,15 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
 {
-    public class JobConvert : IRecordConverter<Job>
+    internal class JobConvert : IRecordConverter<Job>
     {
+        private readonly Config _config;
+
+        internal JobConvert(Config config) 
+        {
+            _config = config;
+        }
+        
         private Job ToCommonSingle(NpgsqlDataReader reader)
         {
             Job job = new Job
@@ -17,7 +24,7 @@ namespace Wbtb.Extensions.Data.Postgres
             };
 
             // fill in rest of values from config
-            foreach (BuildServer buildServer in ConfigKeeper.Instance.BuildServers)
+            foreach (BuildServer buildServer in _config.BuildServers)
                 foreach (Job config in buildServer.Jobs)
                 { 
                     if (config.Key == job.Key)

@@ -7,6 +7,13 @@ namespace Wbtb.Extensions.Data.Postgres
 {
     internal class BuildServerConvert : IRecordConverter<BuildServer>
     {
+        private readonly Config _config;
+
+        public BuildServerConvert(Config config)
+        {
+            _config = config;
+        }
+
         private BuildServer ToCommonSingle(NpgsqlDataReader reader)
         {
             BuildServer buildserver = new BuildServer
@@ -16,7 +23,7 @@ namespace Wbtb.Extensions.Data.Postgres
             };
 
             // fill in rest of values from config
-            BuildServer config = ConfigKeeper.Instance.BuildServers.SingleOrDefault(r => r.Key == buildserver.Key);
+            BuildServer config = _config.BuildServers.SingleOrDefault(r => r.Key == buildserver.Key);
             if (config != null)
             { 
                 buildserver.Config = config.Config;

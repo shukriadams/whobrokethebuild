@@ -8,8 +8,24 @@ namespace Wbtb.Core.Configuration
 {
     public class ConfigurationBuilder
     {
+        #region FIELDS
 
-        public static IEnumerable<string> FindOrphans()
+        private readonly Config _config;
+
+        #endregion
+
+        #region CTORS
+
+        public ConfigurationBuilder(Config config) 
+        {
+            _config = config;
+        }
+
+        #endregion
+
+        #region METHODS
+
+        public IEnumerable<string> FindOrphans()
         {
             IDataLayerPlugin datalayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             IList<string> errors = new List<string>();
@@ -17,7 +33,7 @@ namespace Wbtb.Core.Configuration
             // source servers
             IEnumerable<SourceServer> existingSourceServers = datalayer.GetSourceServers();
             foreach (SourceServer existingSourceServer in existingSourceServers)
-                if (!ConfigKeeper.Instance.SourceServers.Where(s => s.Key == existingSourceServer.Key).Any()) 
+                if (!_config.SourceServers.Where(s => s.Key == existingSourceServer.Key).Any()) 
                 {
                     errors.Add($"The data store contains a source server with key {existingSourceServer.Key} that does not exist in config. This should deleted or merged with a valid object.");
                     foreach(Job job in datalayer.GetJobs().Where(j => j.SourceServerId == existingSourceServer.Id))
@@ -27,7 +43,7 @@ namespace Wbtb.Core.Configuration
             // buildservers
             IEnumerable<BuildServer> existingBuildServers = datalayer.GetBuildServers();
             foreach (BuildServer existingBuildServer in existingBuildServers)
-                if (!ConfigKeeper.Instance.BuildServers.Where(s => s.Key == existingBuildServer.Key).Any()) 
+                if (!_config.BuildServers.Where(s => s.Key == existingBuildServer.Key).Any()) 
                 {
                     errors.Add($"The data store contains a build server with key {existingBuildServer.Key} that does not exist in config. This should deleted or merged with a valid object.");
                     foreach (Job job in datalayer.GetJobs().Where(j => j.BuildServerId == existingBuildServer.Id))
@@ -39,7 +55,7 @@ namespace Wbtb.Core.Configuration
             foreach (Job existingJob in existingJobs)
             {
                 BuildServer buildserver = datalayer.GetBuildServerById(existingJob.BuildServerId);
-                BuildServer buildServerConfig = ConfigKeeper.Instance.BuildServers.SingleOrDefault(b => b.Key == buildserver.Key);
+                BuildServer buildServerConfig = _config.BuildServers.SingleOrDefault(b => b.Key == buildserver.Key);
                 if (buildServerConfig == null)
                 {
                     errors.Add($"Job {existingJob.Key} is parented to a build server with {buildserver.Key}, but this build server does not exist in config.");
@@ -53,19 +69,19 @@ namespace Wbtb.Core.Configuration
             // users
             IEnumerable<User> existingUsers = datalayer.GetUsers();
             foreach (User existingUser in existingUsers)
-                if (!ConfigKeeper.Instance.Users.Where(s => s.Key == existingUser.Key).Any())
+                if (!_config.Users.Where(s => s.Key == existingUser.Key).Any())
                     errors.Add($"The data store contains a user with key {existingUser.Key} that does not exist in config. This should deleted or merged with a valid object.");
 
             return errors;
         }
 
-        public static void InjectBuildServers()
+        public void InjectBuildServers()
         { 
             IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             List<string> errors = new List<string>();
 
-            foreach(BuildServer buildServerConfig in ConfigKeeper.Instance.BuildServers)
+            foreach(BuildServer buildServerConfig in _config.BuildServers)
             {
                 BuildServer buildserver = dataLayer.GetBuildServerByKey(buildServerConfig.Key);
                 
@@ -135,11 +151,11 @@ namespace Wbtb.Core.Configuration
 
         }
 
-        public static void InjectUsers()
+        public void InjectUsers()
         {
             IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
-            foreach (User userConfig in ConfigKeeper.Instance.Users)
+            foreach (User userConfig in _config.Users)
             {
                 User user = dataLayer.GetUserByKey(userConfig.Key);
                 if (user == null && !string.IsNullOrEmpty(userConfig.KeyPrev))
@@ -170,11 +186,11 @@ namespace Wbtb.Core.Configuration
             }
         }
 
-        public static void InjectSourceServers()
+        public void InjectSourceServers()
         {
             IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
-            foreach (SourceServer sourceServerConfig in ConfigKeeper.Instance.SourceServers)
+            foreach (SourceServer sourceServerConfig in _config.SourceServers)
             {
                 SourceServer sourceServer = dataLayer.GetSourceServerByKey(sourceServerConfig.Key);
                 if (sourceServer == null && !string.IsNullOrEmpty(sourceServerConfig.KeyPrev))
@@ -206,4 +222,6 @@ namespace Wbtb.Core.Configuration
         }
 
     }
+
+    #endregion
 }

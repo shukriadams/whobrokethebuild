@@ -26,7 +26,6 @@ namespace Wbtb.Core.Common.Plugins
         {
             try 
             {
-
                 PluginArgs pluginArgs = null;
 
                 try
@@ -42,6 +41,13 @@ namespace Wbtb.Core.Common.Plugins
                     PluginLogger.Write(interfaceData);
                     return;
                 }
+
+                // register this plugin. 
+                // todo : this is messy, move to calling method with other DI registration
+                LowEffortDI di = new LowEffortDI();
+                Config config = di.Resolve<Config>();
+                di.Register(typeof(TPlugin), typeof(TPlugin));
+
 
                 MethodInfo method = typeof(TPlugin).GetMethod(pluginArgs.FunctionName);
                 if (method == null)
@@ -66,8 +72,8 @@ namespace Wbtb.Core.Common.Plugins
                         methodArgs.Add(JsonConvert.DeserializeObject(JsonConvert.SerializeObject(incomingparameter.Value), parameter.ParameterType));
                 }
 
-                TPlugin pluginInstance = Activator.CreateInstance<TPlugin>();
-                ((IPlugin)pluginInstance).ContextPluginConfig = ConfigKeeper.Instance.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
+                TPlugin pluginInstance = di.Resolve<TPlugin>();
+                ((IPlugin)pluginInstance).ContextPluginConfig = config.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
                 Console.WriteLine($"Invoking method {pluginArgs.FunctionName}");
 
                 // note : we don't support async methods
@@ -81,7 +87,6 @@ namespace Wbtb.Core.Common.Plugins
                 PluginLogger.Write($"Invoke directly with: {string.Join(" ", args)}");
                 Environment.Exit(1);
             }
-
         }
 
         /// <summary>
@@ -107,15 +112,15 @@ namespace Wbtb.Core.Common.Plugins
             CommandLineSwitches switches = new CommandLineSwitches(args);
 
             MessageQueueHtppClient client = new MessageQueueHtppClient();
-            ConfigKeeper.Instance = client.GetConfig();
-            ConfigKeeper.Instance.IsCurrentContextProxyPlugin = true;
 
-            if (ConfigKeeper.Instance == null)
-            {
-                PluginLogger.Write("NULL CONFIG DETECTED; EXITING");
-                Environment.Exit(0);
-                return;
-            }
+            Config config = client.GetConfig();
+            config.IsCurrentContextProxyPlugin = true;
+            LowEffortDI di = new LowEffortDI();
+            di.RegisterSingleton<Config>(config);
+            // register proxy types, except for plugin this is being currently used from, that will always be concrete
+            string thisPluginName = TypeHelper.Name<TPlugin>();
+            foreach (PluginConfig pluginConfig in config.Plugins.Where(p => p.Manifest.Concrete != thisPluginName))
+                di.Register(TypeHelper.ResolveType(pluginConfig.Manifest.Interface), TypeHelper.GetRequiredProxyType(pluginConfig.Manifest.Interface));
 
                 // initialize plugin, this must be done once at app start, after handshake
             if (switches.Contains("wbtb-initialize"))
@@ -156,6 +161,8 @@ namespace Wbtb.Core.Common.Plugins
             {
                 string messageid = switches.Get("wbtb-message");
                 string data = client.Retrieve(messageid);
+
+
 
                 if (ConfigBasic.Instance.PersistCalls)
                     File.WriteAllText("__interfaceCall.txt", data);

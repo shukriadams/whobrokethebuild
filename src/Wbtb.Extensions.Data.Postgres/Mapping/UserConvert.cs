@@ -7,6 +7,13 @@ namespace Wbtb.Extensions.Data.Postgres
 {
     internal class UserConvert : IRecordConverter<User>
     {
+        private readonly Config _config;
+
+        internal UserConvert(Config config) 
+        { 
+            _config = config;
+        }
+
         private User ToCommonSingle(NpgsqlDataReader reader)
         {
             User user = new User
@@ -16,7 +23,7 @@ namespace Wbtb.Extensions.Data.Postgres
             };
 
             // fill in rest of values from config
-            User config = ConfigKeeper.Instance.Users.SingleOrDefault(r => r.Key == user.Key);
+            User config = _config.Users.SingleOrDefault(r => r.Key == user.Key);
             if (config != null)
             {
                 user.Name = config.Name;

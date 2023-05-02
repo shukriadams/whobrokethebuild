@@ -1,9 +1,9 @@
-﻿using Ninject;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Common.Plugins;
+using Wbtb.Core.Configuration;
 using Wbtb.Extensions.Auth.ActiveDirectory;
 using Wbtb.Extensions.Auth.ActiveDirectorySandbox;
 using Wbtb.Extensions.BuildServer.Jenkins;
@@ -24,26 +24,29 @@ namespace Wbtb.Core.CLI
             try 
             {
                 // bind types - dev only! These are needed by all general plugin activity
-                StandardKernel kernel = new StandardKernel();
-                kernel.Bind<IDataLayerPlugin>().To<Postgres>();
-                kernel.Bind<IAuthenticationPlugin>().To<ActiveDirectory>();
-                kernel.Bind<IAuthenticationPlugin>().To<ActiveDirectorySandbox>();
-                kernel.Bind<IBuildServerPlugin>().To<Jenkins>();
-                kernel.Bind<IBuildServerPlugin>().To<Extensions.BuildServer.JenkinsSandbox.JenkinsSandbox>();
-                kernel.Bind<IPostProcessor>().To<Extensions.PostProcessing.Test.Test>();
-                kernel.Bind<IPostProcessor>().To<Extensions.PostProcessing.Test2.Test2>();
-                kernel.Bind<ISourceServerPlugin>().To<Perforce>();
-                kernel.Bind<ISourceServerPlugin>().To<PerforceSandbox>();
-                kernel.Bind<ILogParser>().To<Unreal4>();
-                kernel.Bind<ILogParser>().To<JenkinsSelfFailing>();
-                kernel.Bind<ILogParser>().To<Cpp>();
-                kernel.Bind<IMessaging>().To<Slack>();
+                LowEffortDI di = new LowEffortDI();
+                di.Register<IDataLayerPlugin, Postgres>();
+                di.Register<IAuthenticationPlugin, ActiveDirectory>();
+                di.Register<IAuthenticationPlugin, ActiveDirectorySandbox>();
+                di.Register<IBuildServerPlugin, Jenkins>();
+                di.Register<IBuildServerPlugin, Extensions.BuildServer.JenkinsSandbox.JenkinsSandbox>();
+                di.Register<IPostProcessor, Extensions.PostProcessing.Test.Test>();
+                di.Register<IPostProcessor, Extensions.PostProcessing.Test2.Test2>();
+                di.Register<ISourceServerPlugin, Perforce>();
+                di.Register<ISourceServerPlugin, PerforceSandbox>();
+                di.Register<ILogParser, Unreal4>();
+                di.Register<ILogParser, JenkinsSelfFailing>();
+                di.Register<ILogParser, Cpp>();
+                di.Register<IMessaging, Slack>();
+                di.Register<ConfigurationBuilder, ConfigurationBuilder>();
 
                 CustomEnvironmentArgs.Apply();
                 if (!ConfigBootstrapper.EnsureLatest())
                     Environment.Exit(0);
 
                 throw new NotImplementedException("fix this");
+
+                ConfigurationBuilder configurationBuilder = di.Resolve<ConfigurationBuilder>();
                 //Core.LoadConfig(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
                 //Core.LoadPlugins();
 
@@ -82,7 +85,7 @@ namespace Wbtb.Core.CLI
                 { 
                     Console.WriteLine("Executing function IDataLayerPlugin.ListOrphanedRecords");
 
-                    IEnumerable<string> orphans = Configuration.ConfigurationBuilder.FindOrphans();
+                    IEnumerable<string> orphans = configurationBuilder.FindOrphans();
                     foreach(string orphan in orphans)
                         Console.WriteLine(orphan);
                 }

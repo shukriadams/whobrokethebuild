@@ -6,21 +6,25 @@ using System.Reflection;
 
 namespace Wbtb.Core.Common
 {
-    public delegate object CompiledConstructor(params object[] args);
+
 
     /// <summary>
-    /// A very simple dependency injection framework in a single file.
+    /// A very simple dependency injection system in a single file.
     /// </summary>
     public class LowEffortDI
     {
+        private delegate object CompiledConstructor(params object[] args);
+
         private static IList<Registration> ApplicationContextRegister = new List<Registration>();
 
         private static Dictionary<Type, CompiledConstructor> ApplicationContextConstructors = new Dictionary<Type, CompiledConstructor>();
 
-        class Registration 
+        class Registration
         {
             public Type Service { get; set; }
             public Type Implementation { get; set; }
+
+            public object Instance { get; set; }
         }
 
         /// <summary>
@@ -33,11 +37,31 @@ namespace Wbtb.Core.Common
         /// </summary>
         private Dictionary<Type, CompiledConstructor> _constructors = new Dictionary<Type, CompiledConstructor>();
 
-        public LowEffortDI() 
+        #region CTORS
+
+        public LowEffortDI()
         {
             _register = ApplicationContextRegister;
             _constructors = ApplicationContextConstructors;
         }
+
+        #endregion
+
+        #region METHODS
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TService"></typeparam>
+        /// <typeparam name="TImplementation"></typeparam>
+        /// <param name="service"></param>
+        /// <param name="implementation"></param>
+        /// <param name="allowMultiple"></param>
+        public void Register<TService, TImplementation>(bool allowMultiple = false)
+        {
+            Register(typeof(TService), typeof(TImplementation), allowMultiple);
+        }
+
 
         /// <summary>
         /// Binds an implementation to a service type. Registration is required before resolving.
@@ -46,18 +70,53 @@ namespace Wbtb.Core.Common
         /// <param name="implementation"></param>
         /// <param name="allowMultiple"></param>
         /// <exception cref="Exception"></exception>
-        public void Register(Type service, Type implementation, bool allowMultiple = false) 
+        public void Register(Type service, Type implementation, bool allowMultiple = false)
         {
-            if (implementation.GetConstructors().Length > 1)
-                throw new Exception($"Cannot bind {TypeHelper.Name(implementation)}, type has more than one constructor.");
+            lock (_register)
+            {
+                if (implementation.GetConstructors().Length > 1)
+                    throw new Exception($"Cannot bind {TypeHelper.Name(implementation)}, type has more than one constructor.");
 
-            if (implementation.IsAbstract)
-                throw new Exception($"Cannot bind service type {TypeHelper.Name(implementation)}.");
+                if (implementation.IsAbstract)
+                    throw new Exception($"Cannot bind service type {TypeHelper.Name(implementation)}.");
 
-            if (!allowMultiple && _register.Where(r => r.Service == service).Any())
-                throw new Exception($"Cannot bind service type {TypeHelper.Name(service)}, a binding for this already exists.");
+                if (!allowMultiple && _register.Where(r => r.Service == service).Any())
+                    throw new Exception($"Cannot bind service type {TypeHelper.Name(service)}, a binding for this already exists.");
 
-            _register.Add(new Registration { Service = service, Implementation = implementation });
+                _register.Add(new Registration { Service = service, Implementation = implementation });
+            }
+        }
+
+        /// <summary>
+        /// Binds an instance to a service type. The given instance will always be returned for that service.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="singleton"></param>
+        public void RegisterSingleton<T>(object singleton)
+        {
+            RegisterSingleton(typeof(T), singleton);
+        }
+
+        /// <summary>
+        /// Binds an instance to a service type. The given instance will always be returned for that service.
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="singleton"></param>
+        /// <exception cref="Exception"></exception>
+        public void RegisterSingleton(Type service, object singleton)
+        {
+            lock (_register)
+            { 
+                if (_register.Where(r => r.Service == service).Any())
+                    throw new Exception($"Cannot bind service type {TypeHelper.Name(service)}, a binding for this already exists.");
+
+                _register.Add(new Registration { Service = service, Implementation = singleton.GetType(), Instance = singleton });
+            }
+        }
+
+        public T Resolve<T>() 
+        {
+            return (T)Resolve(typeof(T));
         }
 
         /// <summary>
@@ -75,7 +134,7 @@ namespace Wbtb.Core.Common
             if (!matches.Any())
                 throw new Exception($"No implementations are registered for service {TypeHelper.Name(service)}.");
 
-            return ResolveInternal(matches.First().Implementation);
+            return ResolveInternal(matches.First());
         }
 
         public object ResolveImplementation(Type implementation) 
@@ -87,7 +146,7 @@ namespace Wbtb.Core.Common
             if (!matches.Any())
                 throw new Exception($"No implementations are registered for type {TypeHelper.Name(implementation)}.");
 
-            return ResolveInternal(matches.First().Implementation);
+            return ResolveInternal(matches.First());
         }
 
         /// <summary>
@@ -103,7 +162,7 @@ namespace Wbtb.Core.Common
                 throw new Exception($"No implementations registered for service {TypeHelper.Name(service)}.");
 
             foreach (Registration registration in registrations) 
-                instances.Add(ResolveInternal(registration.Implementation));
+                instances.Add(ResolveInternal(registration));
 
             return instances;
         }
@@ -120,7 +179,7 @@ namespace Wbtb.Core.Common
             if (!registrations.Any())
                 throw new Exception($"No implementations registered for service {TypeHelper.Name(service)}.");
 
-            return ResolveInternal(registrations.First().Implementation);
+            return ResolveInternal(registrations.First());
         }
 
         /// <summary>
@@ -130,16 +189,17 @@ namespace Wbtb.Core.Common
         /// <param name="registration"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private object ResolveInternal(Type implementation)
+        private object ResolveInternal(Registration registration)
         {
-            ConstructorInfo ctor = implementation.GetConstructors().First();
+            if (registration.Instance != null)
+                return registration.Instance;
 
-
+            ConstructorInfo ctor = registration.Implementation.GetConstructors().First();
             CompiledConstructor compiledConstructor = null;
-            if (!_constructors.TryGetValue(implementation, out compiledConstructor)) 
+            if (!_constructors.TryGetValue(registration.Implementation, out compiledConstructor)) 
             {
                 compiledConstructor = BuildConstructor(ctor);
-                _constructors.Add(implementation, compiledConstructor);
+                _constructors.Add(registration.Implementation, compiledConstructor);
             }
 
             IList<object> args = new List<object>();
@@ -147,7 +207,7 @@ namespace Wbtb.Core.Common
             foreach (ParameterInfo parameterInfo in ctor.GetParameters())
             {
                 if (!_register.Any(r => r.Service == parameterInfo.ParameterType))
-                    throw new Exception($"Could not create instance of {TypeHelper.Name(implementation)}, ctor arg {TypeHelper.Name(parameterInfo.ParameterType)} is not registered");
+                    throw new Exception($"Could not create instance of {TypeHelper.Name(registration.Implementation)}, ctor arg {TypeHelper.Name(parameterInfo.ParameterType)} is not registered");
 
                 //  turtles all the way down
                 object instance = Resolve(parameterInfo.ParameterType);
@@ -168,7 +228,6 @@ namespace Wbtb.Core.Common
         {
             Type type = ctor.DeclaringType;
             ParameterInfo[] ctorParameters = ctor.GetParameters();
-
 
             //create a single param of type object[]
             ParameterExpression parameters = Expression.Parameter(typeof(object[]), "args");
@@ -202,5 +261,7 @@ namespace Wbtb.Core.Common
 
             return compiled;
         }
+
+        #endregion
     }
 }

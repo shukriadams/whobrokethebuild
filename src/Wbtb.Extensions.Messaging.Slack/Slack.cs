@@ -19,6 +19,13 @@ namespace Wbtb.Extensions.Messaging.Slack
     {
         static readonly string[] allowedTargetTypes = new string[] { "user", "group" };
 
+        private readonly Config _config;
+
+        public Slack(Config config) 
+        {
+            _config = config;
+        }
+
         /// <summary>
         /// Attempt to reach slack to ensure config works
         /// </summary>
@@ -78,13 +85,13 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             if (!string.IsNullOrEmpty(alertHandler.User))
             { 
-                User user = ConfigKeeper.Instance.Users.Single(u => u.Key == alertHandler.User);
+                User user = _config.Users.Single(u => u.Key == alertHandler.User);
                 targetSlackConfig = user.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
             if (!string.IsNullOrEmpty(alertHandler.Group))
             {
-                Group group = ConfigKeeper.Instance.Groups.Single(u => u.Key == alertHandler.Group);
+                Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
                 targetSlackConfig = group.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
@@ -175,13 +182,13 @@ namespace Wbtb.Extensions.Messaging.Slack
             AlertConfig targetSlackConfig = null;
             if (!string.IsNullOrEmpty(alertHandler.User))
             {
-                User user = ConfigKeeper.Instance.Users.Single(u => u.Key == alertHandler.User);
+                User user = _config.Users.Single(u => u.Key == alertHandler.User);
                 targetSlackConfig = user.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
             if (!string.IsNullOrEmpty(alertHandler.Group))
             {
-                Group group = ConfigKeeper.Instance.Groups.Single(u => u.Key == alertHandler.Group);
+                Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
                 targetSlackConfig = group.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
             

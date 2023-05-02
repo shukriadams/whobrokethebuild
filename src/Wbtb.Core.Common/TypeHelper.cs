@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Wbtb.Core.Common.Plugins;
@@ -7,7 +8,7 @@ namespace Wbtb.Core.Common
 {
     public class TypeHelper
     {
-        static System.Reflection.Assembly _commonAssembly;
+        static Assembly _commonAssembly;
 
         static TypeHelper()
         {
@@ -40,6 +41,30 @@ namespace Wbtb.Core.Common
                 assembly = Assembly.Load(namespc);
 
             return assembly;
+        }
+
+        public static Type GetRequiredProxyType(string namespc) 
+        {
+            Type type = ResolveType(namespc);
+            if (type == null)
+                throw new Exception($"String {namespc} could not be resolved");
+
+            return GetRequiredProxyType(type);
+        }
+
+        /// <summary>
+        /// Gets the WBTB proxy type for a given type. Raises exception if that type does not properly define a proxy.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static Type GetRequiredProxyType(Type type) 
+        {
+            PluginProxyAttribute attribute = TypeDescriptor.GetAttributes(type).OfType<PluginProxyAttribute>().SingleOrDefault();
+            if (attribute == null)
+                throw new Exception($"Type {TypeHelper.Name(type)} does not implement {TypeHelper.Name<PluginProxyAttribute>()}");
+
+            return attribute.ProxyType;
         }
 
         public static Type? ResolveType(string namespacedType)
