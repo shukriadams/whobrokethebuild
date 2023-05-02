@@ -34,14 +34,13 @@ namespace Wbtb.Core.Web
                         "Wbtb.Extensions.Data.Postgres",
                     });
 
-                    StandardKernel kernel = new StandardKernel();
+                    LowEffortDI di = new LowEffortDI();
                     foreach (PluginConfig plugin in ConfigKeeper.Instance.Plugins.Where(p=> p.Manifest.RuntimeParsed == Runtimes.dotnet)) 
                     {
                         Type interfaceType = TypeHelper.GetCommonType(plugin.Manifest.Interface);
                         Type concrete = TypeHelper.ResolveType(plugin.Manifest.Concrete);
-                        kernel.Bind(interfaceType).To(concrete);
+                        di.Register(interfaceType, concrete);
                     }
-                    PluginProvider.Factory = new NinjectWrapper();
 
                     Wbtb.Core.Core.LoadPlugins();
 

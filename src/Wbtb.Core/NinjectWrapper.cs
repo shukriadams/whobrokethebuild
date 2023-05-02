@@ -1,5 +1,4 @@
-﻿using Ninject;
-using System;
+﻿using System;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core
@@ -11,8 +10,8 @@ namespace Wbtb.Core
     {
         public object Get(Type t)
         {
-            using (IKernel kernel = new StandardKernel())    
-                return kernel.Get(t);
+            LowEffortDI di = new LowEffortDI();
+            return di.Resolve(t);
         }
     }
 }

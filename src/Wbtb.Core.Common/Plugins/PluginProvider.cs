@@ -5,8 +5,6 @@ namespace Wbtb.Core.Common.Plugins
 {
     public class PluginProvider
     {
-        public static IPluginFactory Factory { get;set; }
-
         public static T GetFirstForInterface<T>(bool expected = true)
         { 
             Type t = typeof(T);
@@ -51,15 +49,13 @@ namespace Wbtb.Core.Common.Plugins
             }
             else 
             {
-                if (Factory == null)
-                    throw new ConfigurationException("Factory not set. If you are running unit tests on a plugin without the core project, you need to provide your own factory to provider non-proxy instances of plugins ");
-
                 // TODO - cache type lookup for performance
                 Type? concreteType = TypeHelper.ResolveType(pluginConfig.Manifest.Concrete);
                 if (concreteType == null)
                     throw new ConfigurationException($"Could not load concrete type {pluginConfig.Manifest.Concrete} from available assemblies");
-                
-                plugin = Factory.Get(concreteType);
+
+                LowEffortDI di = new LowEffortDI();
+                plugin = di.ResolveImplementation(concreteType);
                 if (plugin == null)
                     throw new ConfigurationException($"Could not create instance of plugin {pluginConfig.Key}");
             }
