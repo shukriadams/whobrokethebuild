@@ -33,20 +33,15 @@ namespace Wbtb.Core.Web
             
             services.AddTransient<IMessageQueue, MessageQueue>();
             services.AddHostedService<ServerStartService>();
-            services.AddTransient(typeof(IDaemonProcessRunner), typeof(DaemonProcessRunner));
-            services.AddTransient(typeof(IWebDaemon), typeof(BuildImportDaemon));
-            services.AddTransient(typeof(IWebDaemon), typeof(UserBuildInvolvementLinkDaemon));
-            services.AddTransient(typeof(IWebDaemon), typeof(RevisionResolveDaemon));
-            services.AddTransient(typeof(IWebDaemon), typeof(LogParseDaemon));
-            services.AddTransient(typeof(IWebDaemon), typeof(BuildRevisionFromLogDaemon));
-            services.AddTransient(typeof(IWebDaemon), typeof(IncidentAssignDaemon));
             // force built-in DI to use our DI's controller factory, this is the only known way to bypass M$' DI for controllers
             services.AddSingleton<IControllerFactory, ControllerFactory>();
-
             services.AddMemoryCache();
 
             SimpleDI di = new SimpleDI();
 
+            di.Register<ConfigBootstrapper, ConfigBootstrapper>();
+            di.Register<GitHelper, GitHelper>();
+            di.Register<BuildLogParseResultHelper, BuildLogParseResultHelper>();
             di.Register<Configuration.ConfigurationBuilder, Configuration.ConfigurationBuilder>();
             di.Register<PluginProvider, PluginProvider>();
             di.Register<PluginManager, PluginManager>();
@@ -55,6 +50,13 @@ namespace Wbtb.Core.Web
             di.Register<BuildController, BuildController>();
             di.Register<InvokeController, InvokeController>();
             di.Register<JobController, JobController>();
+            di.Register<IDaemonProcessRunner, DaemonProcessRunner>();
+            di.Register<IWebDaemon, BuildImportDaemon>(true);
+            di.Register<IWebDaemon, UserBuildInvolvementLinkDaemon>(true);
+            di.Register<IWebDaemon, RevisionResolveDaemon>(true);
+            di.Register<IWebDaemon, LogParseDaemon>(true);
+            di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(true);
+            di.Register<IWebDaemon, IncidentAssignDaemon>(true);
             di.RegisterFactory<ILogger, LogProvider>();
             di.RegisterFactory<IHubContext, HubFactory>();
         }

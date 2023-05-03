@@ -43,9 +43,11 @@ namespace Wbtb.Core.CLI
                 di.Register<PluginManager, PluginManager>();
                 di.Register<PluginProvider, PluginProvider>();
                 di.Register<OrphanRecordHelper, OrphanRecordHelper>();
+                di.Register<ConfigBootstrapper, ConfigBootstrapper>();
 
+                ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
                 CustomEnvironmentArgs.Apply();
-                if (!ConfigBootstrapper.EnsureLatest())
+                if (!configBootstrapper.EnsureLatest())
                     Environment.Exit(0);
 
                 throw new NotImplementedException("fix this");

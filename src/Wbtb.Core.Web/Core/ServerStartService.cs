@@ -50,7 +50,7 @@ namespace Wbtb.Core.Web
                     using (IServiceScope scope = serviceProvider.CreateScope())
                     {
                         // start daemons by find all types that implement IWebdaemon, start all
-                        IEnumerable<IWebDaemon> webDaemons = scope.ServiceProvider.GetServices<IWebDaemon>();
+                        IEnumerable<IWebDaemon> webDaemons = di.ResolveAll<IWebDaemon>(); // scope.ServiceProvider.GetServices<IWebDaemon>();
                         foreach (IWebDaemon daemon in webDaemons)
                             daemon.Start(config.DaemonInterval * 1000);
 

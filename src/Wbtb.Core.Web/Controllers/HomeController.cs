@@ -434,6 +434,8 @@ namespace Wbtb.Core.Web.Controllers
             Build build = dataLayer.GetBuildById(buildid);
             Job job = dataLayer.GetJobById(build.JobId);
             List<ILogParser> logParsers = new List<ILogParser>();
+            SimpleDI di = new SimpleDI();
+            BuildLogParseResultHelper buildLogParseResultHelper = di.Resolve<BuildLogParseResultHelper>();
             foreach (string logParserName in job.LogParserPlugins)
                 logParsers.Add(_pluginProvider.GetByKey(logParserName) as ILogParser);
 
@@ -442,7 +444,7 @@ namespace Wbtb.Core.Web.Controllers
                 dataLayer.DeleteBuildLogParseResult(logParseResult);
 
             foreach (ILogParser logParser in logParsers)
-                BuildLogParseResultHelper.ProcessBuild(dataLayer, build, logParser, _log);
+                buildLogParseResultHelper.ProcessBuild(dataLayer, build, logParser, _log);
 
             return string.Empty;
         }

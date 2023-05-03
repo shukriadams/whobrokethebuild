@@ -15,7 +15,7 @@ namespace Wbtb.Core
         /// <param name="buildWithUnparsedLogs"></param>
         /// <param name="parser"></param>
         /// <param name="log"></param>
-        public static void ProcessBuild(IDataLayerPlugin dataLayer, Build buildWithUnparsedLogs, ILogParser parser, ILogger log)
+        public void ProcessBuild(IDataLayerPlugin dataLayer, Build buildWithUnparsedLogs, ILogParser parser, ILogger log)
         {
             try
             {

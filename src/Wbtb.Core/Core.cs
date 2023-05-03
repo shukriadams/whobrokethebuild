@@ -19,7 +19,9 @@ namespace Wbtb.Core
         public static bool EnsureConfig()
         {
             CustomEnvironmentArgs.Apply();
-            return ConfigBootstrapper.EnsureLatest();
+            SimpleDI di = new SimpleDI();
+            ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
+            return configBootstrapper.EnsureLatest();
         }
 
         /// <summary>
@@ -28,8 +30,11 @@ namespace Wbtb.Core
         public static void StartServer(IEnumerable<string> allowedInternalPlugins)
         {
             // pre-start stuff
+            SimpleDI di = new SimpleDI();
+            ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
+
             CustomEnvironmentArgs.Apply();
-            ConfigBootstrapper.EnsureLatest();
+            configBootstrapper.EnsureLatest();
 
             // first part of server start, tries to load config
             ConfigurationManager.AllowedInternalPlugins = allowedInternalPlugins;

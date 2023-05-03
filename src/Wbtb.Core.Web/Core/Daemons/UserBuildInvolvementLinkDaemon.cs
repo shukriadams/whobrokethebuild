@@ -14,7 +14,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private ILogger<UserBuildInvolvementLinkDaemon> _log;
+        private ILogger _log;
 
         private IDaemonProcessRunner _processRunner;
 
@@ -26,7 +26,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public UserBuildInvolvementLinkDaemon(ILogger<UserBuildInvolvementLinkDaemon> log, IDaemonProcessRunner processRunner)
+        public UserBuildInvolvementLinkDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

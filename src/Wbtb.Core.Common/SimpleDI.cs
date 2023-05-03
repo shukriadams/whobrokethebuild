@@ -205,6 +205,16 @@ namespace Wbtb.Core.Common
             return ResolveInternal(matches.First(), implementation);
         }
 
+        public IEnumerable<T> ResolveAll<T>() 
+        {
+            IEnumerable<object> objects = ResolveAll(typeof(T));
+            IList<T> castObjects = new List<T>();
+            foreach (object o in objects)
+                castObjects.Add((T)o);
+
+            return castObjects;
+        }
+
         /// <summary>
         /// Resolves all implementations for a given service type.
         /// </summary>

@@ -14,7 +14,7 @@ namespace Wbtb.Core.Web.Core.Daemons
     {
         #region FIELDS
 
-        private ILogger<BuildLogImportDaemon> _log;
+        private ILogger _log;
 
         private IDaemonProcessRunner _processRunner;
         
@@ -28,7 +28,7 @@ namespace Wbtb.Core.Web.Core.Daemons
 
         #region CTORS
 
-        public BuildLogImportDaemon(ILogger<BuildLogImportDaemon> log, IDaemonProcessRunner processRunner)
+        public BuildLogImportDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

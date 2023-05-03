@@ -6,7 +6,7 @@ namespace Wbtb.Core
 {
     public class GitHelper
     {
-        private static void EnsureLatest(string gitRemote, string checkoutPath)
+        public void EnsureLatest(string gitRemote, string checkoutPath)
         {
             // ensure git is available
             Shell shell = new Shell();
@@ -31,9 +31,9 @@ namespace Wbtb.Core
             }
         }
 
-        public static string GetLatestTag(string gitRemote, string checkoutPath)
+        public string GetLatestTag(string gitRemote, string checkoutPath)
         { 
-            EnsureLatest(gitRemote, checkoutPath);
+            this.EnsureLatest(gitRemote, checkoutPath);
             Shell shell = new Shell();
             shell.WorkingDirectory = checkoutPath;
             shell.Run("git describe --abbrev=0 --tags");

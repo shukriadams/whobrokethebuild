@@ -16,7 +16,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private ILogger<BuildRevisionFromLogDaemon> _log;
+        private ILogger _log;
 
         private IDaemonProcessRunner _processRunner;
 
@@ -28,7 +28,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildRevisionFromLogDaemon(ILogger<BuildRevisionFromLogDaemon> log, IDaemonProcessRunner processRunner)
+        public BuildRevisionFromLogDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

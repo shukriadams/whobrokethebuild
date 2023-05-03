@@ -14,7 +14,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private ILogger<LogParseDaemon> _log;
+        private ILogger _log;
 
         private IDaemonProcessRunner _processRunner;
         
@@ -22,19 +22,19 @@ namespace Wbtb.Core.Web
 
         private readonly Config _config;
 
+        private readonly BuildLogParseResultHelper _buildLogParseResultHelper;
+
         #endregion
 
         #region CTORS
 
-        public LogParseDaemon(ILogger<LogParseDaemon> log, IDaemonProcessRunner processRunner)
+        public LogParseDaemon(ILogger log, Config config, PluginProvider pluginProvider, BuildLogParseResultHelper buildLogParseResultHelper, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
-
-            SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>();
-            _pluginProvider = di.Resolve<PluginProvider>();
-
+            _buildLogParseResultHelper = buildLogParseResultHelper;
+            _config = config;
+            _pluginProvider = pluginProvider;
         }
 
         #endregion
@@ -99,7 +99,7 @@ namespace Wbtb.Core.Web
                         IEnumerable<Build> buildsWithUnparsedLogs = dataLayer.GetUnparsedBuildLogs(thisjob);
                         foreach (Build buildWithUnparsedLogs in buildsWithUnparsedLogs)
                             foreach(ILogParser parser in logParsers)
-                                BuildLogParseResultHelper.ProcessBuild(dataLayer, buildWithUnparsedLogs, parser, _log);
+                                _buildLogParseResultHelper.ProcessBuild(dataLayer, buildWithUnparsedLogs, parser, _log);
 
                     }
                     catch (Exception ex)

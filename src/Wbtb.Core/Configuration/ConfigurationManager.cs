@@ -14,6 +14,12 @@ namespace Wbtb.Core.Configuration
 {
     public class ConfigurationManager
     {
+        #region PROPERTIES
+
+        public static IEnumerable<string> AllowedInternalPlugins { get; set; }
+
+        #endregion
+
         #region CTORS
 
         /// <summary>
@@ -23,12 +29,6 @@ namespace Wbtb.Core.Configuration
         {
             AllowedInternalPlugins = new string[] { };
         }
-
-        #endregion
-
-        #region PROPERTIES
-
-        public static IEnumerable<string> AllowedInternalPlugins { get; set; }
 
         #endregion
 
@@ -147,6 +147,8 @@ namespace Wbtb.Core.Configuration
         {
             // ensure write permission
             bool updated = false;
+            SimpleDI di = new SimpleDI();
+            GitHelper gitHelper = di.Resolve<GitHelper>();
 
             foreach (PluginConfig pluginConfig in config.Plugins.Where(p => p.SourceType != PluginSourceTypes.None))
             {
@@ -179,7 +181,7 @@ namespace Wbtb.Core.Configuration
                 Directory.CreateDirectory(plugingWorkingDir);
                 string checkoutPath = Path.Combine(plugingWorkingDir, ".checkout");
 
-                string tag = GitHelper.GetLatestTag(pluginConfig.Source, checkoutPath);
+                string tag = gitHelper.GetLatestTag(pluginConfig.Source, checkoutPath);
                 string tagFile = Path.Combine(plugingWorkingDir, ".wbtbtag");
 
                 if (string.IsNullOrEmpty(tag))
@@ -585,7 +587,7 @@ namespace Wbtb.Core.Configuration
             IDeserializer deserializer = YmlHelper.GetDeserializer();
             return deserializer.Deserialize<PluginManifest>(rawYml);
         }
-    }
 
-    #endregion
+        #endregion
+    }
 }

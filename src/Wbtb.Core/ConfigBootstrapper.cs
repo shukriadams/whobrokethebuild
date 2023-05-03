@@ -14,7 +14,7 @@ namespace Wbtb.Core
         /// Ensures latest config. returns true of config has changed
         /// </summary>
         /// <returns></returns>
-        public static bool EnsureLatest() 
+        public bool EnsureLatest() 
         {
             if (Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_SYNC") != "true")
                 return false;

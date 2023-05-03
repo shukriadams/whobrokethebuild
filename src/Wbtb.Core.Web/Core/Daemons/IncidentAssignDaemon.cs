@@ -13,7 +13,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private ILogger<IncidentAssignDaemon> _log;
+        private ILogger _log;
 
         private IDaemonProcessRunner _processRunner;
 
@@ -25,7 +25,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public IncidentAssignDaemon(ILogger<IncidentAssignDaemon> log, IDaemonProcessRunner processRunner)
+        public IncidentAssignDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
