@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Razor.Language.Intermediate;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using Wbtb.Core.Common;
 using Wbtb.Core.Common.Plugins;
@@ -40,10 +40,12 @@ namespace Wbtb.Core.Web
             services.AddMemoryCache();
 
             SimpleDI di = new SimpleDI();
+
             di.Register<Configuration.ConfigurationBuilder, Configuration.ConfigurationBuilder>();
             di.Register<PluginProvider, PluginProvider>();
             di.Register<PluginManager, PluginManager>();
             di.Register<BuildLevelPluginHelper, BuildLevelPluginHelper>();
+            di.RegisterFactory<ILogger, LogProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
