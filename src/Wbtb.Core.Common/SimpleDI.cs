@@ -11,7 +11,7 @@ namespace Wbtb.Core.Common
     /// <summary>
     /// A very simple dependency injection system in a single file.
     /// </summary>
-    public class LowEffortDI
+    public class SimpleDI
     {
         private delegate object CompiledConstructor(params object[] args);
 
@@ -39,7 +39,7 @@ namespace Wbtb.Core.Common
 
         #region CTORS
 
-        public LowEffortDI()
+        public SimpleDI()
         {
             _register = ApplicationContextRegister;
             _constructors = ApplicationContextConstructors;

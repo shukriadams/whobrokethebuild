@@ -14,6 +14,20 @@ namespace Wbtb.Core.Web.Controllers
     [ApiController]
     public class InvokeController : Controller
     {
+        #region FIELDS
+
+        private readonly Config _config;
+
+        private readonly PluginProvider _pluginProvider;
+
+        #endregion
+        public InvokeController() 
+        {
+            SimpleDI di = new SimpleDI();
+            _config = di.Resolve<Config>();
+            _pluginProvider = di.Resolve<PluginProvider>();  
+        } 
+
         /// <summary>
         /// Puts a message in queue
         /// </summary>
@@ -30,7 +44,7 @@ namespace Wbtb.Core.Web.Controllers
                         json = await reader.ReadToEndAsync();
 
                 PluginArgs pluginArgs = JsonConvert.DeserializeObject<PluginArgs>(json);
-                IPlugin plugin = PluginProvider.GetByKey(pluginArgs.pluginKey);
+                IPlugin plugin = _pluginProvider.GetByKey(pluginArgs.pluginKey);
                 pluginType = plugin.GetType();
 
                 MethodInfo method = pluginType.GetMethod(pluginArgs.FunctionName);
@@ -48,7 +62,7 @@ namespace Wbtb.Core.Web.Controllers
                         methodArgs.Add(JsonConvert.DeserializeObject(JsonConvert.SerializeObject(incomingparameter.Value), parameter.ParameterType));
                 }
 
-                plugin.ContextPluginConfig = ConfigKeeper.Instance.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
+                plugin.ContextPluginConfig = _config.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
                 Console.WriteLine($"Invoking method {pluginArgs.FunctionName}");
 
                 // note : we don't support async methods

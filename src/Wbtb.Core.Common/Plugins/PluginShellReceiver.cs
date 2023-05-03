@@ -44,7 +44,7 @@ namespace Wbtb.Core.Common.Plugins
 
                 // register this plugin. 
                 // todo : this is messy, move to calling method with other DI registration
-                LowEffortDI di = new LowEffortDI();
+                SimpleDI di = new SimpleDI();
                 Config config = di.Resolve<Config>();
                 di.Register(typeof(TPlugin), typeof(TPlugin));
 
@@ -115,7 +115,7 @@ namespace Wbtb.Core.Common.Plugins
 
             Config config = client.GetConfig();
             config.IsCurrentContextProxyPlugin = true;
-            LowEffortDI di = new LowEffortDI();
+            SimpleDI di = new SimpleDI();
             di.RegisterSingleton<Config>(config);
             // register proxy types, except for plugin this is being currently used from, that will always be concrete
             string thisPluginName = TypeHelper.Name<TPlugin>();

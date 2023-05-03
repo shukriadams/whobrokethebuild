@@ -17,6 +17,12 @@ namespace Wbtb.Core.Web.Core.Daemons
         private ILogger<BuildLogImportDaemon> _log;
 
         private IDaemonProcessRunner _processRunner;
+        
+        private readonly PluginProvider _pluginProvider;
+
+        private readonly BuildLevelPluginHelper _buildLevelPluginHelper;
+
+        private readonly Config _config;
 
         #endregion
 
@@ -26,6 +32,10 @@ namespace Wbtb.Core.Web.Core.Daemons
         {
             _log = log;
             _processRunner = processRunner;
+            SimpleDI di = new SimpleDI();
+            _config = di.Resolve<Config>();
+            _pluginProvider = di.Resolve<PluginProvider>();
+            _buildLevelPluginHelper = di.Resolve<BuildLevelPluginHelper>();
         }
 
         #endregion
@@ -50,17 +60,17 @@ namespace Wbtb.Core.Web.Core.Daemons
         /// </summary>
         private void Work()
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             // start daemons - this should be folded into start
-            foreach (BuildServer cfgbuildServer in ConfigKeeper.Instance.BuildServers)
+            foreach (BuildServer cfgbuildServer in _config.BuildServers)
             {
                 BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
                 // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
                 if (buildServer == null)
                     continue;
 
-                IBuildServerPlugin buildServerPlugin = PluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                 ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
                 int count = 100;
@@ -88,7 +98,7 @@ namespace Wbtb.Core.Web.Core.Daemons
                         _log.LogInformation($"Imported {processedBuilds.Count()} logs.");
 
                         foreach (Build build in processedBuilds)
-                            BuildLevelPluginHelper.InvokeEvents("OnLogAvailable", job.OnLogAvailable, build);
+                            _buildLevelPluginHelper.InvokeEvents("OnLogAvailable", job.OnLogAvailable, build);
                     }
                     catch (Exception ex)
                     {

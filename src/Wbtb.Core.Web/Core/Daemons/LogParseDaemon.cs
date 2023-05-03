@@ -17,6 +17,10 @@ namespace Wbtb.Core.Web
         private ILogger<LogParseDaemon> _log;
 
         private IDaemonProcessRunner _processRunner;
+        
+        private readonly PluginProvider _pluginProvider;
+
+        private readonly Config _config;
 
         #endregion
 
@@ -26,6 +30,11 @@ namespace Wbtb.Core.Web
         {
             _log = log;
             _processRunner = processRunner;
+
+            SimpleDI di = new SimpleDI();
+            _config = di.Resolve<Config>();
+            _pluginProvider = di.Resolve<PluginProvider>();
+
         }
 
         #endregion
@@ -50,10 +59,10 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             // start daemons - this should be folded into start
-            foreach (BuildServer cfgbuildServer in ConfigKeeper.Instance.BuildServers)
+            foreach (BuildServer cfgbuildServer in _config.BuildServers)
             {
                 BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
                 // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
@@ -61,7 +70,7 @@ namespace Wbtb.Core.Web
                     continue;
 
                 // why are we trying to reach build server??
-                IBuildServerPlugin buildServerPlugin = PluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                 ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
                 int count = 100;
@@ -85,7 +94,7 @@ namespace Wbtb.Core.Web
                         // get log parser plugins for job
                         IList<ILogParser> logParsers = new List<ILogParser>();
                         foreach(string lopParserPlugin in thisjob.LogParserPlugins)
-                            logParsers.Add(PluginProvider.GetByKey(lopParserPlugin) as ILogParser);
+                            logParsers.Add(_pluginProvider.GetByKey(lopParserPlugin) as ILogParser);
 
                         IEnumerable<Build> buildsWithUnparsedLogs = dataLayer.GetUnparsedBuildLogs(thisjob);
                         foreach (Build buildWithUnparsedLogs in buildsWithUnparsedLogs)

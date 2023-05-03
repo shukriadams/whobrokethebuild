@@ -8,6 +8,24 @@ namespace Wbtb.Core.Web
     [ApiController]
     public class BuildController : Controller
     {
+        #region FIELDS
+
+        private readonly PluginProvider _pluginProvider;
+
+        #endregion
+        
+        #region FIELDS
+
+        public BuildController() 
+        { 
+            SimpleDI di = new SimpleDI();
+            _pluginProvider = di.Resolve<PluginProvider>();
+        }
+
+        #endregion
+
+        #region METHODS
+
         /// <summary>
         /// TEMPORARY, REMOVE THIS
         /// </summary>
@@ -16,12 +34,14 @@ namespace Wbtb.Core.Web
         [HttpDelete("{buildid}")]
         public string BuildDelete(string buildid)
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Build build = dataLayer.GetBuildById(buildid);
             if (build != null)
                 dataLayer.DeleteBuild(build);
 
             return "deleted";
         }
+
+        #endregion
     }
 }

@@ -13,6 +13,13 @@ namespace Wbtb.Core.Common
     /// </summary>
     public class PluginDirectSender : IPluginSender
     {
+        private readonly Config _config;
+
+        public PluginDirectSender() 
+        {
+            SimpleDI di = new SimpleDI();
+            _config = di.Resolve<Config>();
+        }
 
         /// <summary>
         /// Special method for to pass config etc from main app to plugin. this is called after main app config is done. CAnnot be called at handshake time
@@ -26,15 +33,12 @@ namespace Wbtb.Core.Common
         /// <returns></returns>
         public PluginInitResult Initialize(string pluginName)
         {
-            if (ConfigKeeper.Instance == null)
-                throw new ConfigurationException("Cannot send null config to plugin");
-
-            PluginConfig pluginConfig = ConfigKeeper.Instance.Plugins.SingleOrDefault(r => r.Manifest.Key == pluginName);
+            PluginConfig pluginConfig = _config.Plugins.SingleOrDefault(r => r.Manifest.Key == pluginName);
             if (pluginConfig == null)
                 throw new ConfigurationException($"no config found for plugin {pluginName}. did plugin fail to load?");
 
             return this.Invoke<PluginInitResult>(
-                ConfigKeeper.Instance,
+                _config,
                 "wbtb-initialize",
                 pluginConfig.Manifest.Concrete);
         }
@@ -48,7 +52,7 @@ namespace Wbtb.Core.Common
         /// <returns></returns>
         public TReturnType InvokeMethod<TReturnType>(IPluginProxy callingProxy, PluginArgs args)
         {
-            PluginConfig pluginConfig = ConfigKeeper.Instance.Plugins.SingleOrDefault(r => r.Key == callingProxy.PluginKey);
+            PluginConfig pluginConfig = _config.Plugins.SingleOrDefault(r => r.Key == callingProxy.PluginKey);
             if (pluginConfig == null)
                 throw new ConfigurationException($"no config found for plugin id {callingProxy.PluginKey}. did plugin fail to load?");
 
@@ -67,7 +71,7 @@ namespace Wbtb.Core.Common
         /// <param name="args"></param>
         public void InvokeMethod(IPluginProxy callingProxy, PluginArgs args)
         {
-            PluginConfig pluginConfig = ConfigKeeper.Instance.Plugins.SingleOrDefault(r => r.Key == callingProxy.PluginKey);
+            PluginConfig pluginConfig = _config.Plugins.SingleOrDefault(r => r.Key == callingProxy.PluginKey);
             if (pluginConfig == null)
                 throw new ConfigurationException($"no config found for plugin id {callingProxy.PluginKey}. did plugin fail to load?");
 
@@ -127,7 +131,7 @@ namespace Wbtb.Core.Common
 
 
             IPlugin pluginInstance = Activator.CreateInstance(concreteResolvedType) as IPlugin;
-            pluginInstance.ContextPluginConfig = ConfigKeeper.Instance.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
+            pluginInstance.ContextPluginConfig = _config.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
             Console.WriteLine($"Invoking method {pluginArgs.FunctionName}");
 
             object result = method.Invoke(pluginInstance, methodArgs.ToArray());

@@ -11,6 +11,24 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 {
     public class Jenkins : Plugin, IBuildServerPlugin
     {
+        #region FIELDS
+
+        private readonly Config _config;
+
+        private readonly PluginProvider _pluginProvider;
+
+        #endregion
+
+        #region CTORS
+
+        public Jenkins(Config config, PluginProvider pluginProvider) 
+        {
+            _config = config;
+            _pluginProvider = pluginProvider;
+        }
+
+        #endregion
+
         #region UTIL
 
         public PluginInitResult InitializePlugin()
@@ -81,7 +99,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             if (string.IsNullOrEmpty(contextServer.Url))
                 return null;
 
-            IDataLayerPlugin datalayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Job job = datalayer.GetJobById(build.JobId);
             return new Uri(new Uri(contextServer.Url), $"job/{job.Key}/{build.Identifier}").ToString();
         }
@@ -90,7 +108,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             try
             {
-                IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+                IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
                 Job job = dataLayer.GetJobById(build.JobId);
                 Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
                 WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
@@ -108,11 +126,11 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         private string GetAndStoreBuildLog(Build build)
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             // persist path
             Job job = dataLayer.GetJobById(build.JobId);
 
-            string persistPath = Path.Combine(ConfigKeeper.Instance.PluginDataPersistDirectory, this.ContextPluginConfig.Key, job.Key, build.Identifier, "log.txt");
+            string persistPath = Path.Combine(_config.PluginDataPersistDirectory, this.ContextPluginConfig.Key, job.Key, build.Identifier, "log.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
             if (File.Exists(persistPath))
                 return File.ReadAllText(persistPath);
@@ -188,7 +206,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         /// <returns></returns>
         private IEnumerable<string> GetRevisionsInBuild(Job job, Build build)
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             string persistPath = PersistPathHelper.GetPath(this, job.Key, build.Identifier, "revisions.json");
 
@@ -268,7 +286,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         public BuildImportSummary ImportBuilds(Job job, int take)
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
 
             WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
@@ -288,7 +306,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         private BuildImportSummary ImportBuildsInternal(Job job, IEnumerable<RawBuild> rawBuilds)
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             BuildImportSummary summary = new BuildImportSummary();
 
             foreach (RawBuild rawBuild in rawBuilds)
@@ -344,7 +362,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         public IEnumerable<Build> ImportLogs(Job job)
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             IEnumerable<Build> buildsWithNoLog = dataLayer.GetBuildsWithNoLog(job);
             string logPath = string.Empty;
             IList<Build> processedBuilds = new List<Build>(); // not used - remove this
@@ -354,7 +372,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 try 
                 {
                     string logContent = GetAndStoreBuildLog(buildWithNoLog);
-                    string logDirectory = Path.Combine(ConfigKeeper.Instance.BuildLogsDirectory, GetRandom(), GetRandom());
+                    string logDirectory = Path.Combine(_config.BuildLogsDirectory, GetRandom(), GetRandom());
 
                     Directory.CreateDirectory(logDirectory);
                     logPath = Path.Combine(logDirectory, $"{Guid.NewGuid()}.txt");

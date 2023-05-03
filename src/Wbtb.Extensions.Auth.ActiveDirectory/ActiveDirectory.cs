@@ -8,6 +8,21 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
 {
     public class ActiveDirectory : Plugin, IAuthenticationPlugin 
     {
+
+        #region FIELDS
+
+        private readonly Config _config;
+
+        #endregion
+
+        #region CTORS
+
+        public ActiveDirectory() 
+        {
+            _config = new Config();
+        }
+        #endregion
+
         public PluginInitResult InitializePlugin()
         {
             if (!this.ContextPluginConfig.Config.Any(c => c.Key == "Host"))
@@ -98,7 +113,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
 
         public AuthenticationResult RequestPasswordLogin(string username, string password)
         {
-            string host = ConfigKeeper.Instance.Plugins.Single(r => r.Key == ContextPluginConfig.Key).Config.First(r => r.Key == "Host").Value.ToString();
+            string host = _config.Plugins.Single(r => r.Key == ContextPluginConfig.Key).Config.First(r => r.Key == "Host").Value.ToString();
 
             try
             {

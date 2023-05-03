@@ -5,10 +5,19 @@ namespace Wbtb.Core.Common.Plugins
 {
     public class PluginProvider
     {
-        public static T GetFirstForInterface<T>(bool expected = true)
+        private readonly Config _config;
+             
+        public PluginProvider() 
+        {
+            SimpleDI di = new SimpleDI();
+            _config = di.Resolve<Config>(); 
+        }
+
+        public T GetFirstForInterface<T>(bool expected = true)
         { 
             Type t = typeof(T);
-            PluginConfig config = ConfigKeeper.Instance.Plugins.FirstOrDefault(c => c.Manifest.Interface == $"Wbtb.Core.Common.{t.Name}");
+
+            PluginConfig config = _config.Plugins.FirstOrDefault(c => c.Manifest.Interface == $"Wbtb.Core.Common.{t.Name}");
             T plugin = (T)GetDistinct(config);
             
             if (expected && plugin == null)
@@ -17,19 +26,19 @@ namespace Wbtb.Core.Common.Plugins
             return plugin; 
         }
 
-        public static IPlugin GetByKey(string key)
+        public IPlugin GetByKey(string key)
         {
             if (string.IsNullOrEmpty(key))
                 throw new Exception("Attemtping to get plugin ById, but id is empty. Error likely caused by upstream data error");
 
-            PluginConfig config = ConfigKeeper.Instance.Plugins.FirstOrDefault(p => p.Key == key);
+            PluginConfig config = _config.Plugins.FirstOrDefault(p => p.Key == key);
             if (config == null)
                 throw new Exception($"Requested plugin {key} does not exist or is disabled. This error should not occur, and is likely caused by config that has been improperly changed. Do a scan for orphaned records and fix accordingly.");
 
             return GetDistinct(config) as IPlugin;
         }
 
-        public static object GetDistinct(PluginConfig pluginConfig)
+        public object GetDistinct(PluginConfig pluginConfig)
         {
             if (pluginConfig == null)
                 return null;
@@ -38,7 +47,7 @@ namespace Wbtb.Core.Common.Plugins
 
             // normally in production environments, factory is the proxy factory. in dev environments your starting app needs to supply it's own factory, normally done
             // with ninject, unity or some other other IOC system, as well as statically include the plugin projects you intend to load.
-            if (pluginConfig.Proxy || ConfigKeeper.Instance.IsCurrentContextProxyPlugin)
+            if (pluginConfig.Proxy || _config.IsCurrentContextProxyPlugin)
             {
                 Type concreteType = Type.GetType(pluginConfig.ForcedProxyType, true, true);
                 if (concreteType == null)
@@ -54,7 +63,7 @@ namespace Wbtb.Core.Common.Plugins
                 if (concreteType == null)
                     throw new ConfigurationException($"Could not load concrete type {pluginConfig.Manifest.Concrete} from available assemblies");
 
-                LowEffortDI di = new LowEffortDI();
+                SimpleDI di = new SimpleDI();
                 plugin = di.ResolveImplementation(concreteType);
                 if (plugin == null)
                     throw new ConfigurationException($"Could not create instance of plugin {pluginConfig.Key}");

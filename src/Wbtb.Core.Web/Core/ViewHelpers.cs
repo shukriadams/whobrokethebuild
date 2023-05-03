@@ -61,8 +61,11 @@ namespace Wbtb.Core.Web
             if (involvement == null)
                 return new HtmlString(string.Empty);
 
+            SimpleDI di = new SimpleDI();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+
             if (!string.IsNullOrEmpty(involvement.MappedUserId)){
-                IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+                IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
                 User user = dataLayer.GetUserById(involvement.MappedUserId);
                 return new HtmlString($"<a href=\"/user/{involvement.MappedUserId}\">{user.Name}</a>");
             }
@@ -80,9 +83,12 @@ namespace Wbtb.Core.Web
             if (involvement == null)
                 return new HtmlString(string.Empty);
 
+            SimpleDI di = new SimpleDI();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+
             if (!string.IsNullOrEmpty(involvement.MappedUserId))
             {
-                IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+                IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
                 User user = dataLayer.GetUserById(involvement.MappedUserId);
                 return new HtmlString($"<a href=\"/user/{involvement.MappedUserId}\">{user.Name}</a>");
             }
@@ -189,10 +195,10 @@ namespace Wbtb.Core.Web
             return $"{text.Substring(0, length)}{overflow}";
         }
 
-        public static HtmlString PagerBar<T>(string baseUrl, PageableData<T> data)
+        public static HtmlString PagerBar<T>(string baseUrl, PageableData<T> data, Config config)
         {
             Pager pager = new Pager();
-            return new HtmlString(pager.Render(data, ConfigKeeper.Instance.PagesPerPageGroup, baseUrl, "page"));
+            return new HtmlString(pager.Render(data, config.PagesPerPageGroup, baseUrl, "page"));
         }
 
         public static string Duration(Build build)

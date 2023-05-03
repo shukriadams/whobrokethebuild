@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.DirectoryServices;
 using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Common.Plugins;
@@ -13,10 +14,15 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private ILogger<BuildImportDaemon> _log;
+        private readonly ILogger<BuildImportDaemon> _log;
 
-        private IDaemonProcessRunner _processRunner;
+        private readonly IDaemonProcessRunner _processRunner;
 
+        private readonly PluginProvider _pluginProvider;
+
+        private readonly Config _config;
+
+        private readonly BuildLevelPluginHelper _buildLevelPluginHelper;
         #endregion
 
         #region CTORS
@@ -25,6 +31,11 @@ namespace Wbtb.Core.Web
         {
             _log = log;
             _processRunner = processRunner;
+
+            SimpleDI di = new SimpleDI();
+            _config = di.Resolve<Config>();
+            _pluginProvider = di.Resolve<PluginProvider>();
+            _buildLevelPluginHelper = di.Resolve<BuildLevelPluginHelper>();
         }
 
         #endregion
@@ -49,17 +60,17 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             // start daemons - this should be folded into start
-            foreach (BuildServer cfgbuildServer in ConfigKeeper.Instance.BuildServers)
+            foreach (BuildServer cfgbuildServer in _config.BuildServers)
             {
                 BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
                 // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
                 if (buildServer == null)
                     continue;
 
-                IBuildServerPlugin buildServerPlugin = PluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                 ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
                 int count = 100;
@@ -114,10 +125,10 @@ namespace Wbtb.Core.Web
 
                         // fire events
                         foreach (Build build in importSummary.Created)
-                            BuildLevelPluginHelper.InvokeEvents("OnBuildStart", job.OnBuildStart, build);
+                            _buildLevelPluginHelper.InvokeEvents("OnBuildStart", job.OnBuildStart, build);
 
                         foreach (Build build in importSummary.Ended)
-                            BuildLevelPluginHelper.InvokeEvents("OnBuildEnd", job.OnBuildEnd, build);
+                            _buildLevelPluginHelper.InvokeEvents("OnBuildEnd", job.OnBuildEnd, build);
 
                         // handle current state of game
                         Build latestBuild = importSummary.Ended.OrderByDescending(b => b.EndedUtc.Value).FirstOrDefault();
@@ -127,13 +138,13 @@ namespace Wbtb.Core.Web
                             if (latestBuild.Status == BuildStatus.Failed && latestBuild.Status == BuildStatus.Passed)
                             {
                                 // build has gone from failing to passing
-                                BuildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestBuild);
+                                _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestBuild);
                                 dataLayer.SaveJobDelta(latestBuild);
                             }
                             else if(latestBuild.Status == BuildStatus.Passed && latestBuild.Status == BuildStatus.Failed)
                             {
                                 // build has gone from failing to passing
-                                BuildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, latestBuild);
+                                _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, latestBuild);
                                 dataLayer.SaveJobDelta(latestBuild);
                             }
                         }

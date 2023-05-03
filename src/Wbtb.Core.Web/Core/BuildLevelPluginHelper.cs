@@ -8,7 +8,14 @@ namespace Wbtb.Core.Web
 {
     public class BuildLevelPluginHelper
     {
-        public static void InvokeEvents(string eventCategory, IEnumerable<string> plugins, Build build)
+        private readonly PluginProvider _pluginProvider;
+        public BuildLevelPluginHelper() 
+        {
+            SimpleDI di = new SimpleDI();
+            _pluginProvider = di.Resolve<PluginProvider>();
+        }
+
+        public void InvokeEvents(string eventCategory, IEnumerable<string> plugins, Build build)
         {
             ILogger logger = LogHelper.GetILogger<BuildLevelPluginHelper>();
 
@@ -16,7 +23,7 @@ namespace Wbtb.Core.Web
             {
                 try
                 {
-                    IBuildLevelProcessor postProcessor = PluginProvider.GetByKey(plugin) as IBuildLevelProcessor;
+                    IBuildLevelProcessor postProcessor = _pluginProvider.GetByKey(plugin) as IBuildLevelProcessor;
                     postProcessor.Process(build);
                 }
                 catch (Exception ex)

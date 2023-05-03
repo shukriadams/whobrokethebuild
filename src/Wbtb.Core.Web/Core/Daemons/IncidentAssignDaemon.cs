@@ -17,6 +17,10 @@ namespace Wbtb.Core.Web
 
         private IDaemonProcessRunner _processRunner;
 
+        private readonly PluginProvider _pluginProvider;
+
+        private readonly Config _config;
+
         #endregion
 
         #region CTORS
@@ -25,6 +29,11 @@ namespace Wbtb.Core.Web
         {
             _log = log;
             _processRunner = processRunner;
+
+            SimpleDI di = new SimpleDI();
+            _config = di.Resolve<Config>();
+            _pluginProvider = di.Resolve<PluginProvider>(); 
+
         }
 
         #endregion
@@ -49,16 +58,16 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
-            foreach (BuildServer cfgbuildServer in ConfigKeeper.Instance.BuildServers)
+            foreach (BuildServer cfgbuildServer in _config.BuildServers)
             {
                 BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
                 // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
                 if (buildServer == null)
                     continue;
 
-                IBuildServerPlugin buildServerPlugin = PluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                 ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
                 int count = 100;

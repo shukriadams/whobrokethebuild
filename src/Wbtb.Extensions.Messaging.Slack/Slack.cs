@@ -17,14 +17,25 @@ namespace Wbtb.Extensions.Messaging.Slack
 
     public class Slack : Plugin, IMessaging
     {
+        #region FIELDS
+
         static readonly string[] allowedTargetTypes = new string[] { "user", "group" };
 
         private readonly Config _config;
 
-        public Slack(Config config) 
+        private readonly PluginProvider _pluginProvider;
+
+        #endregion
+
+        #region CTORS
+
+        public Slack(Config config, PluginProvider pluginProvider) 
         {
             _config = config;
+            _pluginProvider = pluginProvider;
         }
+
+        #endregion
 
         /// <summary>
         /// Attempt to reach slack to ensure config works
@@ -114,7 +125,7 @@ namespace Wbtb.Extensions.Messaging.Slack
                 }
             }
 
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
             string message = $"Build for {job.Name} broke at #{build.Identifier}.";
             dynamic attachment = new JObject();

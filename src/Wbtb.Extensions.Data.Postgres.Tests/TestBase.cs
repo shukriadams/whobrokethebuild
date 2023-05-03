@@ -15,7 +15,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
         public TestBase()
         {
-            LowEffortDI di = new LowEffortDI();
+            SimpleDI di = new SimpleDI();
             di.Register<IDataLayerPlugin,Postgres>();
             di.Register<IAuthenticationPlugin, ActiveDirectory>();
 
@@ -24,7 +24,8 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
             //Core.Core.LoadPlugins();
 
             Postgres = di.Resolve<IDataLayerPlugin>();
-            Postgres.ContextPluginConfig = ConfigKeeper.Instance.Plugins.First(p => p.Manifest.Concrete == TypeHelper.Name<Postgres>());
+            Config config = di.Resolve<Config>();
+            Postgres.ContextPluginConfig = config.Plugins.First(p => p.Manifest.Concrete == TypeHelper.Name<Postgres>());
             PostgresCommon.ClearAllTables(Postgres.ContextPluginConfig);
         }
     }

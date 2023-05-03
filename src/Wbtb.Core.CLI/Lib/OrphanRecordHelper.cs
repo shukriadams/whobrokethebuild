@@ -8,9 +8,16 @@ namespace Wbtb.Core.CLI
 {
     public class OrphanRecordHelper
     {
-        public static void MergeSourceServers(string fromServerKey, string toServerKey)
+        private readonly PluginProvider _pluginProvider;
+        
+        public OrphanRecordHelper(PluginProvider pluginProvider) 
         {
-            IDataLayerPlugin datalayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            _pluginProvider = pluginProvider;
+        }
+
+        public void MergeSourceServers(string fromServerKey, string toServerKey)
+        {
+            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             SourceServer fromSourceServer = datalayer.GetSourceServerByKey(fromServerKey);
             SourceServer toSourceServer = datalayer.GetSourceServerByKey(toServerKey);
@@ -41,9 +48,9 @@ namespace Wbtb.Core.CLI
             Console.WriteLine($"Deleted from sourceserver {fromSourceServer.Key}");
         }
 
-        public static void MergeBuildServers(string fromServerKey, string toServerKey)
+        public void MergeBuildServers(string fromServerKey, string toServerKey)
         {
-            IDataLayerPlugin datalayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             BuildServer fromBuildServer = datalayer.GetBuildServerByKey(fromServerKey);
             BuildServer toBuildServer = datalayer.GetBuildServerByKey(toServerKey);
@@ -66,9 +73,9 @@ namespace Wbtb.Core.CLI
             Console.WriteLine($"Deleted from buildserver {fromBuildServer.Key}");
         }
 
-        public static void DeleteUser(string key) 
+        public void DeleteUser(string key) 
         {
-            IDataLayerPlugin datalayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             User record = datalayer.GetUserByKey(key);
             if (record == null)
@@ -79,9 +86,9 @@ namespace Wbtb.Core.CLI
             Console.WriteLine($"Deleted user {key}");
         }
 
-        public static void DeleteSourceServer(string key)
+        public void DeleteSourceServer(string key)
         {
-            IDataLayerPlugin datalayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             SourceServer record = datalayer.GetSourceServerByKey(key);
             if (record == null)
@@ -92,9 +99,9 @@ namespace Wbtb.Core.CLI
             Console.WriteLine($"Deleted sourceserver {key}");
         }
 
-        public static void DeleteBuildServer(string key)
+        public void DeleteBuildServer(string key)
         {
-            IDataLayerPlugin datalayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             BuildServer record = datalayer.GetBuildServerByKey(key);
             if (record == null)
@@ -105,9 +112,9 @@ namespace Wbtb.Core.CLI
             Console.WriteLine($"Deleted buildserver {key}");
         }
 
-        public static void MergeUsers(string fromUserKey, string toUserKey)
+        public void MergeUsers(string fromUserKey, string toUserKey)
         {
-            IDataLayerPlugin datalayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             User fromUser = datalayer.GetUserByKey(fromUserKey);
             User toUser = datalayer.GetUserByKey(toUserKey);

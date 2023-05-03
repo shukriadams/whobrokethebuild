@@ -12,10 +12,17 @@ namespace Wbtb.Core
 {
     public class PluginManager
     {
+        private readonly PluginProvider _pluginProvider;
+
+        public PluginManager(PluginProvider pluginProvider) 
+        {
+            _pluginProvider = pluginProvider;
+        } 
+        
         /// <summary>
         /// Does all plugin init / setup / test / install etc. Call this from web start
         /// </summary>
-        public static void Initialize()
+        public void Initialize()
         {
             // immediately remove all disabled plugins, a disabled plugin does not exist re: wbtb. As Config is global, this removes the chance a 
             // disabled plugin will be accidentally used in its disabled state
@@ -47,7 +54,7 @@ namespace Wbtb.Core
                 {
                     // get instance of plugin - this will either be a proxy to a remote executable, or if in development mode a local project assembly
                     // to use proxy proxying must be enabled, and the plugin must define a path where it can found
-                    IPlugin plugin = PluginProvider.GetDistinct(pluginConfig) as IPlugin;
+                    IPlugin plugin = _pluginProvider.GetDistinct(pluginConfig) as IPlugin;
 
                     if (pluginConfig.Proxy && !Directory.Exists(pluginConfig.Path))
                     {
@@ -112,7 +119,7 @@ namespace Wbtb.Core
             // plugin init fail would put app into broken state, so must fail if any plugin fails
             foreach(PluginConfig pluginConfig in ConfigKeeper.Instance.Plugins)
             {
-                IPlugin plugin = PluginProvider.GetDistinct(pluginConfig) as IPlugin;
+                IPlugin plugin = _pluginProvider.GetDistinct(pluginConfig) as IPlugin;
 
                 PluginInitResult initResult;
 
@@ -135,7 +142,7 @@ namespace Wbtb.Core
             // attempt to reach remote system behind plugin if plugin supports 
             foreach (PluginConfig pluginConfig in ConfigKeeper.Instance.Plugins)
             {
-                IPlugin plugin = PluginProvider.GetDistinct(pluginConfig) as IPlugin;
+                IPlugin plugin = _pluginProvider.GetDistinct(pluginConfig) as IPlugin;
                 if (typeof(IReachable).IsAssignableFrom(plugin.GetType()))
                 {
                     IReachable reachable = plugin as IReachable;
@@ -152,7 +159,7 @@ namespace Wbtb.Core
             // attempt to initialize datastores for all datalayer plugins
             foreach (PluginConfig pluginConfig in ConfigKeeper.Instance.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name<IDataLayerPlugin>()))
             {
-                IDataLayerPlugin dataLayerPlugin = PluginProvider.GetDistinct(pluginConfig) as IDataLayerPlugin;
+                IDataLayerPlugin dataLayerPlugin = _pluginProvider.GetDistinct(pluginConfig) as IDataLayerPlugin;
                 dataLayerPlugin.InitializeDatastore();
             }
 
@@ -160,7 +167,7 @@ namespace Wbtb.Core
             // validate build servers
             foreach (BuildServer buildserver in ConfigKeeper.Instance.BuildServers)
             {
-                IBuildServerPlugin buildServerPlugin = PluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
+                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
 
                 try 
                 {
@@ -188,7 +195,7 @@ namespace Wbtb.Core
             // validate source servers
             foreach (SourceServer sourceSErver in ConfigKeeper.Instance.SourceServers) 
             {
-                ISourceServerPlugin sourceServerPlugin = PluginProvider.GetByKey(sourceSErver.Plugin) as ISourceServerPlugin;
+                ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceSErver.Plugin) as ISourceServerPlugin;
 
                 try
                 {
@@ -222,7 +229,7 @@ namespace Wbtb.Core
                             continue;
                         }
 
-                        IPlugin plugin = PluginProvider.GetByKey(alert.Plugin);
+                        IPlugin plugin = _pluginProvider.GetByKey(alert.Plugin);
                         if (!typeof (IMessaging).IsAssignableFrom(plugin.GetType()))
                             throw new ConfigurationException($"Job \"{job.Key}\" defines an alert with plugin \"{alert.Plugin}\". This plugin exists, but does not impliment the interface {typeof(IMessaging).FullName}.");
                     
@@ -286,20 +293,20 @@ namespace Wbtb.Core
                 Console.WriteLine($"WBTB : initialized plugin {pluginConfig.Key}");
         }
 
-        private static void ValidateRuntimeState()
+        private void ValidateRuntimeState()
         {
             // validate soft config, ie, that there is 1 data layer etc et
             if (!ConfigKeeper.Instance.Plugins.Any(plugin => plugin.Manifest.Interface == TypeHelper.Name<IDataLayerPlugin>()))
                 throw new ConfigurationException("ERROR : No active data plugin detected. Please ensure your application has a plugin of category 'data', and that it is enabled.");
         }
 
-        public static void WriteCurrentPluginStateToStore() 
+        public void WriteCurrentPluginStateToStore() 
         {
             // write unique config to db
             ISerializer serializer = YmlHelper.GetSerializer();
             string serializedConfig = serializer.Serialize(ConfigKeeper.Instance);
             string configHash = Sha256.FromString(serializedConfig);
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             ConfigurationState latestConfigState = dataLayer.GetLatestConfigurationState();
             if (latestConfigState == null || latestConfigState.Hash != configHash)

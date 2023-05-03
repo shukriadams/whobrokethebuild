@@ -10,7 +10,7 @@ namespace Wbtb.Core
     {
         public object Get(Type t)
         {
-            LowEffortDI di = new LowEffortDI();
+            SimpleDI di = new SimpleDI();
             return di.Resolve(t);
         }
     }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using Wbtb.Core.Common;
+using Wbtb.Core.Common.Plugins;
 
 namespace Wbtb.Core.Web
 {
@@ -38,8 +39,11 @@ namespace Wbtb.Core.Web
 
             services.AddMemoryCache();
 
-            LowEffortDI di = new LowEffortDI();
+            SimpleDI di = new SimpleDI();
             di.Register<Configuration.ConfigurationBuilder, Configuration.ConfigurationBuilder>();
+            di.Register<PluginProvider, PluginProvider>();
+            di.Register<PluginManager, PluginManager>();
+            di.Register<BuildLevelPluginHelper, BuildLevelPluginHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

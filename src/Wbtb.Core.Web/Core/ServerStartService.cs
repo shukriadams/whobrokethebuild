@@ -19,6 +19,7 @@ namespace Wbtb.Core.Web
             lifetime.ApplicationStarted.Register(() =>{
                 try
                 {
+
                     bool hashChanged = Wbtb.Core.Core.EnsureConfig();
                     // if config changed, cleanly stop app, this will give us a chance to restart with new config. 
                     // in a containerized environemnt this should happen automatically
@@ -33,8 +34,10 @@ namespace Wbtb.Core.Web
                         "Wbtb.Extensions.Data.Postgres",
                     });
 
-                    LowEffortDI di = new LowEffortDI();
-                    foreach (PluginConfig plugin in ConfigKeeper.Instance.Plugins.Where(p=> p.Manifest.RuntimeParsed == Runtimes.dotnet)) 
+                    SimpleDI di = new SimpleDI();
+                    Config config = di.Resolve<Config>();
+
+                    foreach (PluginConfig plugin in config.Plugins.Where(p=> p.Manifest.RuntimeParsed == Runtimes.dotnet)) 
                     {
                         Type interfaceType = TypeHelper.GetCommonType(plugin.Manifest.Interface);
                         Type concrete = TypeHelper.ResolveType(plugin.Manifest.Concrete);
@@ -49,7 +52,7 @@ namespace Wbtb.Core.Web
                         // start daemons by find all types that implement IWebdaemon, start all
                         IEnumerable<IWebDaemon> webDaemons = scope.ServiceProvider.GetServices<IWebDaemon>();
                         foreach (IWebDaemon daemon in webDaemons)
-                            daemon.Start(ConfigKeeper.Instance.DaemonInterval * 1000);
+                            daemon.Start(config.DaemonInterval * 1000);
 
                         // signlr, pipe all console write and writelines to signlr hub
                         // dev stuff, this should be moved somewhere better. 

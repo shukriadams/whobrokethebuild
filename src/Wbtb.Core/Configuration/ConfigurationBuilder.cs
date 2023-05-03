@@ -11,14 +11,16 @@ namespace Wbtb.Core.Configuration
         #region FIELDS
 
         private readonly Config _config;
+        private readonly PluginProvider _pluginProvider;
 
         #endregion
 
         #region CTORS
 
-        public ConfigurationBuilder(Config config) 
+        public ConfigurationBuilder(Config config, PluginProvider pluginProvider) 
         {
             _config = config;
+            _pluginProvider = pluginProvider;
         }
 
         #endregion
@@ -27,7 +29,7 @@ namespace Wbtb.Core.Configuration
 
         public IEnumerable<string> FindOrphans()
         {
-            IDataLayerPlugin datalayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             IList<string> errors = new List<string>();
 
             // source servers
@@ -77,7 +79,7 @@ namespace Wbtb.Core.Configuration
 
         public void InjectBuildServers()
         { 
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             List<string> errors = new List<string>();
 
@@ -142,7 +144,7 @@ namespace Wbtb.Core.Configuration
                         Description = jobConfig.Description
                     });
 
-                    IBuildServerPlugin buildServerPlugin = PluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
+                    IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
                     buildServerPlugin.ImportAllCachedBuilds(job);
 
                     Console.WriteLine($"WBTB : SETUP : Created Job {jobConfig.Key} under build server {buildServerConfig.Key}");
@@ -153,7 +155,7 @@ namespace Wbtb.Core.Configuration
 
         public void InjectUsers()
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             foreach (User userConfig in _config.Users)
             {
@@ -188,7 +190,7 @@ namespace Wbtb.Core.Configuration
 
         public void InjectSourceServers()
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             foreach (SourceServer sourceServerConfig in _config.SourceServers)
             {

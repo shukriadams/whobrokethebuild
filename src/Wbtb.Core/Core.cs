@@ -62,10 +62,13 @@ namespace Wbtb.Core
 
         public static void LoadPlugins()
         {
-            PluginManager.Initialize();
-            PluginManager.WriteCurrentPluginStateToStore();
-            LowEffortDI di = new LowEffortDI();
+            SimpleDI di = new SimpleDI();
+            PluginManager pluginManager = di.Resolve<PluginManager>();
             ConfigurationBuilder builder = di.Resolve<ConfigurationBuilder>();
+
+            pluginManager.Initialize();
+            pluginManager.WriteCurrentPluginStateToStore();
+
             builder.InjectSourceServers();
             builder.InjectUsers();
 

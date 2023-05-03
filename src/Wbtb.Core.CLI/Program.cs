@@ -24,7 +24,7 @@ namespace Wbtb.Core.CLI
             try 
             {
                 // bind types - dev only! These are needed by all general plugin activity
-                LowEffortDI di = new LowEffortDI();
+                SimpleDI di = new SimpleDI();
                 di.Register<IDataLayerPlugin, Postgres>();
                 di.Register<IAuthenticationPlugin, ActiveDirectory>();
                 di.Register<IAuthenticationPlugin, ActiveDirectorySandbox>();
@@ -39,6 +39,10 @@ namespace Wbtb.Core.CLI
                 di.Register<ILogParser, Cpp>();
                 di.Register<IMessaging, Slack>();
                 di.Register<ConfigurationBuilder, ConfigurationBuilder>();
+                di.Register<OrphanRecordHelper, OrphanRecordHelper>();
+                di.Register<PluginManager, PluginManager>();
+                di.Register<PluginProvider, PluginProvider>();
+                di.Register<OrphanRecordHelper, OrphanRecordHelper>();
 
                 CustomEnvironmentArgs.Apply();
                 if (!ConfigBootstrapper.EnsureLatest())
@@ -47,6 +51,8 @@ namespace Wbtb.Core.CLI
                 throw new NotImplementedException("fix this");
 
                 ConfigurationBuilder configurationBuilder = di.Resolve<ConfigurationBuilder>();
+                OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
+                PluginProvider pluginProvider = di.Resolve<PluginProvider>();
                 //Core.LoadConfig(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
                 //Core.LoadPlugins();
 
@@ -69,7 +75,7 @@ namespace Wbtb.Core.CLI
                         Environment.Exit(1);
                     }
 
-                    IBuildServerPlugin buildServerPlugin = PluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                    IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                     IEnumerable<string> jobs = buildServerPlugin.ListRemoteJobsCanonical(buildServer);
                     Console.WriteLine($"Found {jobs.Count()} on buildserver \"{buildServer.Key}\".");
 
@@ -111,7 +117,7 @@ namespace Wbtb.Core.CLI
 
                     try 
                     {
-                        OrphanRecordHelper.MergeSourceServers(fromSourceServerKey, toSourceServerKey);
+                        orphanRecordHelper.MergeSourceServers(fromSourceServerKey, toSourceServerKey);
                     }
                     catch(RecordNotFoundException ex)
                     {
@@ -142,7 +148,7 @@ namespace Wbtb.Core.CLI
 
                     try
                     {
-                        OrphanRecordHelper.MergeBuildServers(fromBuildServerKey, toBuildServerKey);
+                        orphanRecordHelper.MergeBuildServers(fromBuildServerKey, toBuildServerKey);
                     }
                     catch (RecordNotFoundException ex)
                     {
@@ -172,7 +178,7 @@ namespace Wbtb.Core.CLI
 
                     try
                     {
-                        OrphanRecordHelper.MergeUsers(fromUserKey, toUserKey);
+                        orphanRecordHelper.MergeUsers(fromUserKey, toUserKey);
                     }
                     catch (RecordNotFoundException ex)
                     {
@@ -196,7 +202,7 @@ namespace Wbtb.Core.CLI
 
                     try
                     {
-                        OrphanRecordHelper.DeleteUser(key);
+                        orphanRecordHelper.DeleteUser(key);
                     }
                     catch (RecordNotFoundException ex)
                     {
@@ -220,7 +226,7 @@ namespace Wbtb.Core.CLI
 
                     try
                     {
-                        OrphanRecordHelper.DeleteSourceServer(key);
+                        orphanRecordHelper.DeleteSourceServer(key);
                     }
                     catch (RecordNotFoundException ex)
                     {
@@ -243,7 +249,7 @@ namespace Wbtb.Core.CLI
 
                     try
                     {
-                        OrphanRecordHelper.DeleteBuildServer(key);
+                        orphanRecordHelper.DeleteBuildServer(key);
                     }
                     catch (RecordNotFoundException ex)
                     {

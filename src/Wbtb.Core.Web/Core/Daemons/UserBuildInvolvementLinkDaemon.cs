@@ -18,6 +18,10 @@ namespace Wbtb.Core.Web
 
         private IDaemonProcessRunner _processRunner;
 
+        private readonly PluginProvider _pluginProvider;
+
+        private readonly Config _config;
+
         #endregion
 
         #region CTORS
@@ -26,6 +30,11 @@ namespace Wbtb.Core.Web
         {
             _log = log;
             _processRunner = processRunner;
+
+            SimpleDI di = new SimpleDI();
+            _config = di.Resolve<Config>();
+            _pluginProvider = di.Resolve<PluginProvider>(); 
+
         }
 
         #endregion
@@ -47,9 +56,9 @@ namespace Wbtb.Core.Web
 
         private void Work()
         {
-            IDataLayerPlugin dataLayer = PluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
-            foreach (BuildServer cfgbuildServer in ConfigKeeper.Instance.BuildServers)
+            foreach (BuildServer cfgbuildServer in _config.BuildServers)
             {
                 BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
                 // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
@@ -65,7 +74,7 @@ namespace Wbtb.Core.Web
 
                         Job job = dataLayer.GetJobByKey(cfgJob.Key);
                         SourceServer sourceServer = dataLayer.GetSourceServerById(job.SourceServerId);
-                        ISourceServerPlugin sourceServerPlugin = PluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
+                        ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
                         IEnumerable<BuildInvolvement> buildInvolvementsWithoutUser = dataLayer.GetBuildInvolvementsWithoutMappedUser(job.Id);
 
                         foreach (BuildInvolvement buildInvolvementWithoutUser in buildInvolvementsWithoutUser)
@@ -77,7 +86,7 @@ namespace Wbtb.Core.Web
 
                                 // build involvement now contains the name of the user in the source control system from which the build
                                 // revision originates - use this to try to find the user in the config
-                                User matchingUser = ConfigKeeper.Instance.Users
+                                User matchingUser = _config.Users
                                     .FirstOrDefault(r => r.SourceServerIdentities
                                         .Any(r => r.Name == revision.User));
 
