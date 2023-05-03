@@ -10,6 +10,8 @@ namespace Wbtb.Core.Common
     public interface ISimpleDIFactory
     {
         object Resolve<T>();
+
+        object Resolve(Type service);
     }
 
     /// <summary>
@@ -94,7 +96,7 @@ namespace Wbtb.Core.Common
                     throw new Exception($"Cannot bind service type {TypeHelper.Name(service)}, a binding for this already exists.");
 
                 // register factory against itself, as we need to create instance of this to provide service
-                if (!_register.Any(r => r.Service == factory))
+                if (!_register.Any(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(factory, true)))
                     _register.Add(new Registration { Service = factory, Implementation = factory });
 
                 // register factory against service 
@@ -119,7 +121,7 @@ namespace Wbtb.Core.Common
                 if (implementation.IsAbstract)
                     throw new Exception($"Cannot bind service type {TypeHelper.Name(implementation)}.");
 
-                if (!allowMultiple && _register.Where(r => r.Service == service).Any())
+                if (!allowMultiple && _register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true)).Any())
                     throw new Exception($"Cannot bind service type {TypeHelper.Name(service)}, a binding for this already exists.");
 
                 _register.Add(new Registration { Service = service, Implementation = implementation });
@@ -146,7 +148,7 @@ namespace Wbtb.Core.Common
         {
             lock (_register)
             { 
-                if (_register.Where(r => r.Service == service).Any())
+                if (_register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true)).Any())
                     throw new Exception($"Cannot bind service type {TypeHelper.Name(service)}, a binding for this already exists.");
 
                 _register.Add(new Registration { Service = service, Singleton = singleton });
@@ -156,7 +158,7 @@ namespace Wbtb.Core.Common
         public T Resolve<T>() 
         {
             Type service = typeof(T);
-            IEnumerable<Registration> matches = _register.Where(r => r.Service == service);
+            IEnumerable<Registration> matches = _register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true));
             if (matches.Count() > 1)
                 throw new Exception($"Multiple implementations are registered for service {TypeHelper.Name(service)}.");
 
@@ -170,7 +172,7 @@ namespace Wbtb.Core.Common
                 return (T)factory.Resolve<T>();
             }
 
-            return (T)ResolveInternal(registration);
+            return (T)ResolveInternal(registration, service);
         }
 
         /// <summary>
@@ -181,26 +183,26 @@ namespace Wbtb.Core.Common
         /// <exception cref="Exception"></exception>
         public object Resolve(Type service) 
         {
-            IEnumerable<Registration> matches = _register.Where(r => r.Service == service);
+            IEnumerable<Registration> matches = _register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true));
             if (matches.Count() > 1)
                 throw new Exception($"Multiple implementations are registered for service {TypeHelper.Name(service)}.");
 
             if (!matches.Any())
                 throw new Exception($"No implementations are registered for service {TypeHelper.Name(service)}.");
 
-            return ResolveInternal(matches.First());
+            return ResolveInternal(matches.First(), service);
         }
 
         public object ResolveImplementation(Type implementation) 
         {
-            IEnumerable<Registration> matches = _register.Where(r => r.Implementation == implementation);
+            IEnumerable<Registration> matches = _register.Where(r => r.Implementation != null && TypeHelper.Name(r.Implementation, true) == TypeHelper.Name(implementation, true));
             if (matches.Count() > 1)
                 throw new Exception($"Multiple implementations are registered for type {TypeHelper.Name(implementation)}.");
 
             if (!matches.Any())
                 throw new Exception($"No implementations are registered for type {TypeHelper.Name(implementation)}.");
 
-            return ResolveInternal(matches.First());
+            return ResolveInternal(matches.First(), implementation);
         }
 
         /// <summary>
@@ -211,12 +213,12 @@ namespace Wbtb.Core.Common
         public IEnumerable<object> ResolveAll(Type service)
         {
             IList<object> instances = new List<object>();
-            IEnumerable<Registration> registrations = _register.Where(r => r.Service == service);
+            IEnumerable<Registration> registrations = _register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true));
             if (!registrations.Any())
                 throw new Exception($"No implementations registered for service {TypeHelper.Name(service)}.");
 
             foreach (Registration registration in registrations) 
-                instances.Add(ResolveInternal(registration));
+                instances.Add(ResolveInternal(registration, service));
 
             return instances;
         }
@@ -229,11 +231,11 @@ namespace Wbtb.Core.Common
         public object ResolveFirst(Type service)
         {
             IList<object> instances = new List<object>();
-            IEnumerable<Registration> registrations = _register.Where(r => r.Service == service);
+            IEnumerable<Registration> registrations = _register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true));
             if (!registrations.Any())
                 throw new Exception($"No implementations registered for service {TypeHelper.Name(service)}.");
 
-            return ResolveInternal(registrations.First());
+            return ResolveInternal(registrations.First(), service);
         }
 
         /// <summary>
@@ -243,10 +245,16 @@ namespace Wbtb.Core.Common
         /// <param name="registration"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private object ResolveInternal(Registration registration)
+        private object ResolveInternal(Registration registration, Type requestedService)
         {
             if (registration.Singleton != null)
                 return registration.Singleton;
+
+            if (registration.Factory != null)
+            {
+                ISimpleDIFactory factory = this.Resolve(registration.Factory) as ISimpleDIFactory;
+                return factory.Resolve(requestedService);
+            }
 
             // safety null check
             if (registration.Implementation == null)
@@ -265,7 +273,8 @@ namespace Wbtb.Core.Common
 
             foreach (ParameterInfo parameterInfo in ctor.GetParameters())
             {
-                if (!_register.Any(r => r.Service == parameterInfo.ParameterType))
+                // inner generics parameterInfo.ParameterType.GenericTypeArguments
+                if (!_register.Any(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(parameterInfo.ParameterType, true)))
                     throw new Exception($"Could not create instance of {TypeHelper.Name(registration.Implementation)}, ctor arg {TypeHelper.Name(parameterInfo.ParameterType)} is not registered");
 
                 //  turtles all the way down

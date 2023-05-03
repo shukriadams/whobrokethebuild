@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core
@@ -7,12 +8,17 @@ namespace Wbtb.Core
     {
         public object Resolve<T>()
         {
-            // todo : get log level from config
+            return this.Resolve(typeof(T));
+        }
+
+        public object Resolve(Type service)
+        {
             using ILoggerFactory loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
                 .SetMinimumLevel(LogLevel.Warning)
                 .AddConsole());
 
-            return loggerFactory.CreateLogger<T>();
+            return loggerFactory.CreateLogger(service);
+
         }
     }
 }

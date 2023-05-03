@@ -25,9 +25,13 @@ namespace Wbtb.Core.Common
             return Name(obj.GetType());
         }
 
-        public static string Name(Type type)
+        public static string Name(Type type, bool removeGeneric = false)
         {
-            return $"{type.Namespace}.{type.Name}";
+            string name = $"{type.Namespace}.{type.Name}";
+            if (name.EndsWith("`1"))
+                name = name.Substring(0, name.Length - 2);
+
+            return name;
         }
 
         public static Assembly GetAssembly(string namespc) 

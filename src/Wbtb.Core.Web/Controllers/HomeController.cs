@@ -18,7 +18,7 @@ namespace Wbtb.Core.Web.Controllers
 
         private IHubContext<ConsoleHub> _hub;
 
-        private ILogger<HomeController> _log;
+        private ILogger _log;
 
         private readonly PluginProvider _pluginProvider;
 
@@ -28,7 +28,7 @@ namespace Wbtb.Core.Web.Controllers
 
         #region CTORS
 
-        public HomeController(IHubContext<ConsoleHub> hub, ILogger<HomeController> log)
+        public HomeController(IHubContext<ConsoleHub> hub, ILogger log)
         {
             _hub = hub;
             _log = log;
