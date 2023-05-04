@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using Wbtb.Core.Common.Configuration;
 
 namespace Wbtb.Core.Common.Plugins
 {
-    public class PluginConfig : IIdentifiable, IConfigHolder
+    public class PluginConfig : IIdentifiable
     {
         #region PROPERTIES
 
