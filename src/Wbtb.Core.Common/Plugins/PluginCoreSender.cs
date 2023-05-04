@@ -11,6 +11,12 @@ namespace Wbtb.Core.Common.Plugins
     /// </summary>
     public class PluginCoreSender : IPluginSender
     {
+        private readonly Config _config;
+
+        public PluginCoreSender(Config config) 
+        {
+            _config = config;
+        }
 
         /// <summary>
         /// Special method for to pass config etc from main app to plugin. this is called after main app config is done. CAnnot be called at handshake time
@@ -36,7 +42,7 @@ namespace Wbtb.Core.Common.Plugins
         /// <returns></returns>
         public TReturnType InvokeMethod<TReturnType>(IPluginProxy callingProxy, PluginArgs args)
         {
-            PluginConfig pluginConfig = ConfigKeeper.Instance.Plugins.SingleOrDefault(r => r.Key == callingProxy.PluginKey);
+            PluginConfig pluginConfig = _config.Plugins.SingleOrDefault(r => r.Key == callingProxy.PluginKey);
             if (pluginConfig == null)
                 throw new ConfigurationException($"no config found for plugin id {callingProxy.PluginKey}. did plugin fail to load?");
 
@@ -52,7 +58,7 @@ namespace Wbtb.Core.Common.Plugins
         /// <param name="args"></param>
         public void InvokeMethod(IPluginProxy callingProxy, PluginArgs args)
         {
-            PluginConfig pluginConfig = ConfigKeeper.Instance.Plugins.SingleOrDefault(r => r.Key == callingProxy.PluginKey);
+            PluginConfig pluginConfig = _config.Plugins.SingleOrDefault(r => r.Key == callingProxy.PluginKey);
             if (pluginConfig == null)
                 throw new ConfigurationException($"no config found for plugin id {callingProxy.PluginKey}. did plugin fail to load?");
 
@@ -76,7 +82,7 @@ namespace Wbtb.Core.Common.Plugins
             WebClient client = new WebClient();
             string json = JsonConvert.SerializeObject(data);
             byte[] postData = Encoding.ASCII.GetBytes(json);
-            byte[] reply = client.UploadData($"http://localhost:{ConfigKeeper.Instance.Port}/api/v1/invoke", postData);
+            byte[] reply = client.UploadData($"http://localhost:{_config.Port}/api/v1/invoke", postData);
             string result = Encoding.ASCII.GetString(reply);
 
             Regex regex = new Regex(@"<WBTB-output(.*)>([\S\s]*?)<\/WBTB-output>");

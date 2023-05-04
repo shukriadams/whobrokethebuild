@@ -39,6 +39,9 @@ namespace Wbtb.Core.Web
 
             SimpleDI di = new SimpleDI();
 
+            di.Register<LogHelper, LogHelper>();   
+            di.Register<PluginDirectSender, PluginDirectSender>();
+            di.Register<PluginCoreSender, PluginCoreSender>(); 
             di.Register<PersistPathHelper, PersistPathHelper>();
             di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();
             di.Register<ConfigBasic, ConfigBasic>();

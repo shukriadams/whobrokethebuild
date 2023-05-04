@@ -8,17 +8,18 @@ namespace Wbtb.Core.Web
 {
     public class BuildLevelPluginHelper
     {
+        private readonly ILogger _logger;
+
         private readonly PluginProvider _pluginProvider;
-        public BuildLevelPluginHelper() 
+
+        public BuildLevelPluginHelper(PluginProvider pluginProvider, ILogger logger) 
         {
-            SimpleDI di = new SimpleDI();
-            _pluginProvider = di.Resolve<PluginProvider>();
+            _pluginProvider = pluginProvider;
+            _logger = logger;
         }
 
         public void InvokeEvents(string eventCategory, IEnumerable<string> plugins, Build build)
         {
-            ILogger logger = LogHelper.GetILogger<BuildLevelPluginHelper>();
-
             foreach (string plugin in plugins)
             {
                 try
@@ -28,7 +29,7 @@ namespace Wbtb.Core.Web
                 }
                 catch (Exception ex)
                 {
-                    logger.LogInformation($"failed {eventCategory} hook {plugin } for {build.Id} : {ex}");
+                    _logger.LogInformation($"failed {eventCategory} hook {plugin } for {build.Id} : {ex}");
                 }
             }
         }

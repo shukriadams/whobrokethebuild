@@ -10,6 +10,7 @@ namespace Wbtb.Core.Common.Plugins
 
         private readonly Config _config;
 
+        private readonly SimpleDI _di;
         #endregion
 
         #region CTORS
@@ -18,6 +19,7 @@ namespace Wbtb.Core.Common.Plugins
         {
             _config = config;
             _configBasic = configBasic;
+            _di = new SimpleDI();
         }
 
         #endregion
@@ -32,13 +34,12 @@ namespace Wbtb.Core.Common.Plugins
         public object Resolve(Type service)
         {
             if (_config.IsCurrentContextProxyPlugin)
-                return new PluginCoreSender();
+                return _di.Resolve<PluginCoreSender>();
 
             if (_configBasic.ProxyMode == "direct")
-                return new PluginDirectSender();
+                return _di.Resolve<PluginDirectSender>();
 
-            SimpleDI di = new SimpleDI();
-            return di.Resolve<PluginShellSender>();
+            return _di.Resolve<PluginShellSender>();
         }
 
         #endregion

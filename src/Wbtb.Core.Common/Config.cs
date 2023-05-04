@@ -90,16 +90,6 @@ namespace Wbtb.Core.Common
         public IList<PluginConfig> Plugins {get;set; }
 
         /// <summary>
-        /// Plugins defined in static config, but set to disabled in static config.
-        /// </summary>
-        public IList<PluginConfig> DisabledPlugins { get; set; }
-
-        /// <summary>
-        /// Plugins defined in static config, but which failed to load.
-        /// </summary>
-        public IList<PluginConfig> FailingPlugins { get; set; }
-
-        /// <summary>
         /// 
         /// </summary>
         public IList<Group> Groups { get; set; }
@@ -148,8 +138,6 @@ namespace Wbtb.Core.Common
             this.SourceServers = new List<SourceServer>();
             this.Users = new List<User>();
             this.Groups = new List<Group>();
-            this.FailingPlugins = new List<PluginConfig>();
-            this.DisabledPlugins = new List<PluginConfig>();
         }
 
         #endregion

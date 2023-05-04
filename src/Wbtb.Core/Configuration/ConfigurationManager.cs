@@ -135,7 +135,6 @@ namespace Wbtb.Core.Configuration
             EnsureManifestLogicValid(unsafeConfig);
             SimpleDI di = new SimpleDI();
             di.RegisterSingleton<Config>(unsafeConfig);
-            ConfigKeeper.Instance = unsafeConfig;
         }
 
 

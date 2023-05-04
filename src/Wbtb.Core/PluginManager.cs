@@ -16,13 +16,15 @@ namespace Wbtb.Core
 
         private readonly PluginProvider _pluginProvider;
 
+        private readonly Config _config;
         #endregion
 
         #region CTORS
 
-        public PluginManager(PluginProvider pluginProvider) 
+        public PluginManager(PluginProvider pluginProvider, Config config) 
         {
             _pluginProvider = pluginProvider;
+            _config = config;
         }
 
         #endregion
@@ -34,16 +36,6 @@ namespace Wbtb.Core
         /// </summary>
         public void Initialize()
         {
-            // immediately remove all disabled plugins, a disabled plugin does not exist re: wbtb. As Config is global, this removes the chance a 
-            // disabled plugin will be accidentally used in its disabled state
-            ConfigKeeper.Instance.DisabledPlugins = ConfigKeeper.Instance.Plugins.Where(r => !r.Enable).ToList();
-            ConfigKeeper.Instance.Plugins = ConfigKeeper.Instance.Plugins.Where(r => r.Enable).ToList();
-            ConfigKeeper.Instance.BuildServers = ConfigKeeper.Instance.BuildServers.Where(b => b.Enable).ToList();
-            ConfigKeeper.Instance.SourceServers = ConfigKeeper.Instance.SourceServers.Where(s => s.Enable).ToList();
-            ConfigKeeper.Instance.Users = ConfigKeeper.Instance.Users.Where(u => u.Enable).ToList();
-            foreach(BuildServer buildserver in ConfigKeeper.Instance.BuildServers)
-                buildserver.Jobs = buildserver.Jobs.Where(j => j.Enable).ToList();
-
             IList<PluginConfig> loadingPlugins = new List<PluginConfig>();
             
             // find this assembly using a type we know is defined in it
@@ -58,7 +50,7 @@ namespace Wbtb.Core
             // 2 - Try to get manifest data from plugin, we could read it directly using its path, but for common
             // useage we call a method on plugin to request its manifest as a string. This requires a plugin
             // instance
-            foreach (PluginConfig pluginConfig in ConfigKeeper.Instance.Plugins)
+            foreach (PluginConfig pluginConfig in _config.Plugins)
             { 
                 try 
                 {
@@ -127,7 +119,7 @@ namespace Wbtb.Core
             // once handshaked, need to initialize each plugin by passing config to it. this config contains data for all plugins so each can talk direcly, this requires
             // that all handsaking is done.
             // plugin init fail would put app into broken state, so must fail if any plugin fails
-            foreach(PluginConfig pluginConfig in ConfigKeeper.Instance.Plugins)
+            foreach(PluginConfig pluginConfig in _config.Plugins)
             {
                 IPlugin plugin = _pluginProvider.GetDistinct(pluginConfig) as IPlugin;
 
@@ -150,7 +142,7 @@ namespace Wbtb.Core
             }
 
             // attempt to reach remote system behind plugin if plugin supports 
-            foreach (PluginConfig pluginConfig in ConfigKeeper.Instance.Plugins)
+            foreach (PluginConfig pluginConfig in _config.Plugins)
             {
                 IPlugin plugin = _pluginProvider.GetDistinct(pluginConfig) as IPlugin;
                 if (typeof(IReachable).IsAssignableFrom(plugin.GetType()))
@@ -167,7 +159,7 @@ namespace Wbtb.Core
             }
 
             // attempt to initialize datastores for all datalayer plugins
-            foreach (PluginConfig pluginConfig in ConfigKeeper.Instance.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name<IDataLayerPlugin>()))
+            foreach (PluginConfig pluginConfig in _config.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name<IDataLayerPlugin>()))
             {
                 IDataLayerPlugin dataLayerPlugin = _pluginProvider.GetDistinct(pluginConfig) as IDataLayerPlugin;
                 dataLayerPlugin.InitializeDatastore();
@@ -175,7 +167,7 @@ namespace Wbtb.Core
 
 
             // validate build servers
-            foreach (BuildServer buildserver in ConfigKeeper.Instance.BuildServers)
+            foreach (BuildServer buildserver in _config.BuildServers)
             {
                 IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
 
@@ -203,7 +195,7 @@ namespace Wbtb.Core
             }
 
             // validate source servers
-            foreach (SourceServer sourceSErver in ConfigKeeper.Instance.SourceServers) 
+            foreach (SourceServer sourceSErver in _config.SourceServers) 
             {
                 ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceSErver.Plugin) as ISourceServerPlugin;
 
@@ -219,26 +211,19 @@ namespace Wbtb.Core
             }
 
             // validate alert config against plugins - alerting is done by a specific plugin, that plugin can impose its own requirements.
-            foreach (BuildServer buildserver in ConfigKeeper.Instance.BuildServers)
+            foreach (BuildServer buildserver in _config.BuildServers)
                 foreach (Job job in buildserver.Jobs){
                     
                     // ensure that declared log parsers actually declare log parser interfaces
                     foreach(string logParserKey in job.LogParserPlugins)
                     { 
-                        PluginConfig logParserConfig = ConfigKeeper.Instance.Plugins.Single(p => p.Key == logParserKey);
+                        PluginConfig logParserConfig = _config.Plugins.Single(p => p.Key == logParserKey);
                         if (logParserConfig.Manifest.Interface != TypeHelper.Name(typeof(ILogParser)))
                             throw new ConfigurationException($"Job {job.Key} defines a log parser plugin {logParserKey}, but this plugin does not implement the expected interface {typeof(ILogParser).Name}.");
                     }
 
                     foreach(AlertHandler alert in job.Alert.Where(a => a.Enable))
                     {
-                        // plugin is disabled, ignore
-                        if (ConfigKeeper.Instance.DisabledPlugins.Any(p => p.Key == alert.Plugin))
-                        {
-                            Console.WriteLine($"INFO : Job \"{job.Key}\" defines an alert for plugin \"{alert.Plugin}\", but this plugin is disabled. These alerts will not be sent.");
-                            continue;
-                        }
-
                         IPlugin plugin = _pluginProvider.GetByKey(alert.Plugin);
                         if (!typeof (IMessaging).IsAssignableFrom(plugin.GetType()))
                             throw new ConfigurationException($"Job \"{job.Key}\" defines an alert with plugin \"{alert.Plugin}\". This plugin exists, but does not impliment the interface {typeof(IMessaging).FullName}.");
@@ -260,7 +245,7 @@ namespace Wbtb.Core
                         // alerts are chained from job > user|group > alert handling plugin
                         if (!string.IsNullOrEmpty(alert.User))
                         { 
-                            User user = ConfigKeeper.Instance.Users.FirstOrDefault(u => u.Key == alert.User);
+                            User user = _config.Users.FirstOrDefault(u => u.Key == alert.User);
                             if (user == null)
                                 throw new ConfigurationException($"Job \"{job.Key}\" defines a target user \"{alert.User}\" but this user is not defined under users.");
 
@@ -271,7 +256,7 @@ namespace Wbtb.Core
 
                         if (!string.IsNullOrEmpty(alert.Group))
                         {
-                            Group group = ConfigKeeper.Instance.Groups.FirstOrDefault(u => u.Key == alert.Group);
+                            Group group = _config.Groups.FirstOrDefault(u => u.Key == alert.Group);
                             if (group == null)
                                 throw new ConfigurationException($"Job \"{job.Key}\" defines a target group \"{alert.Group}\" but this group is not defined under groups.");
 
@@ -296,17 +281,14 @@ namespace Wbtb.Core
 
             ValidateRuntimeState();
 
-            ConfigKeeper.Instance.DisabledPlugins = ConfigKeeper.Instance.DisabledPlugins.Concat(ConfigKeeper.Instance.Plugins.Where(r => !r.Enable)).ToList();
-            ConfigKeeper.Instance.Plugins = ConfigKeeper.Instance.Plugins.Where(r => r.Enable).ToList();
-
-            foreach (PluginConfig pluginConfig in ConfigKeeper.Instance.Plugins)
+            foreach (PluginConfig pluginConfig in _config.Plugins)
                 Console.WriteLine($"WBTB : initialized plugin {pluginConfig.Key}");
         }
 
         private void ValidateRuntimeState()
         {
             // validate soft config, ie, that there is 1 data layer etc et
-            if (!ConfigKeeper.Instance.Plugins.Any(plugin => plugin.Manifest.Interface == TypeHelper.Name<IDataLayerPlugin>()))
+            if (!_config.Plugins.Any(plugin => plugin.Manifest.Interface == TypeHelper.Name<IDataLayerPlugin>()))
                 throw new ConfigurationException("ERROR : No active data plugin detected. Please ensure your application has a plugin of category 'data', and that it is enabled.");
         }
 
@@ -314,7 +296,7 @@ namespace Wbtb.Core
         {
             // write unique config to db
             ISerializer serializer = YmlHelper.GetSerializer();
-            string serializedConfig = serializer.Serialize(ConfigKeeper.Instance);
+            string serializedConfig = serializer.Serialize(_config);
             string configHash = Sha256.FromString(serializedConfig);
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 

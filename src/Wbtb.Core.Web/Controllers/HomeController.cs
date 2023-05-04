@@ -24,18 +24,19 @@ namespace Wbtb.Core.Web.Controllers
 
         private Config _config;
 
+        private LogHelper _loghelper;
+
         #endregion
 
         #region CTORS
 
-        public HomeController(IHubContext<ConsoleHub> hub, ILogger log)
+        public HomeController(IHubContext<ConsoleHub> hub, Config config, ILogger log, LogHelper loghelper, PluginProvider pluginProvider)
         {
             _hub = hub;
             _log = log;
-            
-            SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>();
-            _pluginProvider = di.Resolve<PluginProvider>();
+            _config = config;
+            _pluginProvider = pluginProvider;
+            _loghelper = loghelper;
         }
 
         #endregion
@@ -91,7 +92,7 @@ namespace Wbtb.Core.Web.Controllers
                 return Responses.NotFoundError($"BuildProcessor {buildProcessorId} does not exist");
 
             model.Build = dataLayer.GetBuildById(buildProcessor.BuildId);
-            model.Log = LogHelper.GetBuildProcessorLog(buildProcessor.BuildId, buildProcessor.Id);
+            model.Log = _loghelper.GetBuildProcessorLog(buildProcessor.BuildId, buildProcessor.Id);
             model.BuildProcessor = buildProcessor;
 
             return View(model);

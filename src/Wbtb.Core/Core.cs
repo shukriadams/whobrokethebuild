@@ -57,15 +57,12 @@ namespace Wbtb.Core
             {
                 MessageQueueHtppClient client = di.Resolve<MessageQueueHtppClient>();
                 client.EnsureAvailable();
-                client.AddConfig(ConfigKeeper.Instance);
+                client.AddConfig(unsafeConfig);
             }
             else
             {
                 Console.WriteLine("No plugins running in proxy mode, ignoring MessageQueue status.");
             }
-
-
-            // second main part of server start, connect data store, check data state, create data from config, etc
         }
 
         public static void LoadPlugins()
