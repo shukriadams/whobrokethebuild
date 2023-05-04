@@ -59,8 +59,8 @@ src/Wbtb.Extensions.PostProcessing.Test2/obj
 .giturl
 src/Wbtb.Extensions.Auth.ActiveDirectorySandbox/bin
 src/Wbtb.Extensions.Auth.ActiveDirectorySandbox/obj
-src-messageServer/MessageQueue/bin
-src-messageServer/MessageQueue/obj
+src/MessageQueue/bin
+src/MessageQueue/obj
 *.pyc
 src/Wbtb.Extensions.PostProcessing.Test3/wbtb/log.txt
 .checkout

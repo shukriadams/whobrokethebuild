@@ -17,7 +17,7 @@ namespace MessageQueue
             HttpServer server = new HttpServer() { Verbose = Verbose };
             server.Start();
 
-            Console.WriteLine("Server started");
+            Console.WriteLine("WBTB MessageQueue started ...");
             if (Persist)
                 Console.WriteLine("Persist mode enabled");
             if (Verbose)

@@ -8,11 +8,15 @@ A server to process build data from CI servers like Jenkins, aiding communicatio
 
 WBTB requires a database to function. Currently PostgreSQL is supported. It will automatically create 
 
-### Basic config
+### Configuration 
 
-All WBTB's configuration is kept in a single YML file in the application root directory. WBTB attempts to load and validate this file on application start, and will exit if your configuration is valid. 
+All WBTB's configuration is kept in a single YML file. WBTB attempts to load and validate this file on application start, and will exit if your configuration is invalid. 
 
-To set up a basic demonstration server, create or mount a file called `config.yml` in the app root directory (typically the directory with Wbtb.Core.Web.dll) and set its content to
+#### Basic config
+
+If you want to look around and inspect how WBTB works, you can spin up an instance quickly with Docker. 
+
+To set up a basic demonstration server, create a file called `config.yml` and set its content to
 
     Plugins: 
     -   Key: Postgres
@@ -38,4 +42,9 @@ To set up a basic demonstration server, create or mount a file called `config.ym
         -   Key: Project_Ironbird
             SourceServer: myperforce
 
-Assuming you're running WBTB from a Docker container image, start your container and point it to the above config. All required data tables will be automatically created in the Postgres database pointed to, build data will be pulled from from sandbox sources for Jenkins and Perforce, and saved to the database. For additional information on working with the built-in dummy datasources in WBTB, or running a WBTB from source code, check the the /docs directory of this project.
+Assuming you're running WBTB from the official Docker container image, volume mount this file in /wbtb/config.yml. All required data tables will be automatically created in the Postgres database pointed to, build and source data will be pulled from sandbox Jenkins and Perforce sources, and saved to the database. For additional information on working with the built-in dummy datasources in WBTB, or running a WBTB instance from source code, check the the /docs directory of this project.
+
+#### Production config
+
+
+
