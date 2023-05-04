@@ -6,8 +6,6 @@
     /// </summary>
     public class ConfigBasic
     {
-        private static ConfigBasic _basicConfig;
-
         public int MessageQueuePort { get;set; }
 
         public bool PersistCalls { get; set; }
@@ -24,15 +22,5 @@
             this.ProxyMode = EnvironmentVariableHelper.GetString("WBTB_PROXYMODE", "default");
         }
 
-        public static ConfigBasic Instance
-        {
-            get 
-            { 
-                if (_basicConfig == null)
-                    _basicConfig= new ConfigBasic();
-
-                return _basicConfig;
-            }
-        }
     }
 }

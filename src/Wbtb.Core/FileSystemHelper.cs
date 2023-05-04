@@ -5,14 +5,14 @@ using System.Linq;
 
 namespace Wbtb.Core
 {
-    class FileSystemHelper
+    public class FileSystemHelper
     {
         /// <summary>
         /// Deletes everything in a folder
         /// </summary>
         /// <param name="directory"></param>
         /// <returns>True on no errors, false if there were errors.</returns>
-        public static bool ClearDirectory(string directory)
+        public bool ClearDirectory(string directory)
         {
             DirectoryInfo dir = new DirectoryInfo(directory);
             if (!dir.Exists)
@@ -52,7 +52,7 @@ namespace Wbtb.Core
         /// </summary>
         /// <param name="sourceDir"></param>
         /// <param name="targetDir"></param>
-        public static void CopyDirectory(string sourceDir, string targetDir)
+        public void CopyDirectory(string sourceDir, string targetDir)
         {
             DirectoryInfo dir = new DirectoryInfo(sourceDir);
             DirectoryInfo[] childDirs = dir.GetDirectories();

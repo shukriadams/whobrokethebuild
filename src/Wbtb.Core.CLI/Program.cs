@@ -46,11 +46,14 @@ namespace Wbtb.Core.CLI
                 di.Register<ConfigBootstrapper, ConfigBootstrapper>();
 
                 ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
-                CustomEnvironmentArgs.Apply();
+                CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
+                customEnvironmentArgs.Apply();
                 if (!configBootstrapper.EnsureLatest())
                     Environment.Exit(0);
 
                 throw new NotImplementedException("fix this");
+
+                Config config = di.Resolve<Config>();
 
                 ConfigurationBuilder configurationBuilder = di.Resolve<ConfigurationBuilder>();
                 OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
@@ -70,7 +73,7 @@ namespace Wbtb.Core.CLI
                     }
                         
                     string buildServerKey = switches.Get("Key");
-                    BuildServer buildServer = ConfigKeeper.Instance.BuildServers.FirstOrDefault(r => r.Key == buildServerKey);
+                    BuildServer buildServer = config.BuildServers.FirstOrDefault(r => r.Key == buildServerKey);
                     if (buildServer == null)
                     {
                         Console.WriteLine($"ERROR : Buildserver with key \"{buildServerKey}\" not found");

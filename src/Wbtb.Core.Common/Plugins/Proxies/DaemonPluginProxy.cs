@@ -4,10 +4,16 @@ namespace Wbtb.Core.Common
 {
     public class DaemonPluginProxy : PluginProxy, IDaemon
     {
+        private readonly IPluginSender _pluginSender;
+
+        public DaemonPluginProxy(IPluginSender pluginSender) : base(pluginSender)
+        {
+            _pluginSender = pluginSender;
+        }
+
         public void Tick()
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            pluginSender.InvokeMethod(this, new PluginArgs
+            _pluginSender.InvokeMethod(this, new PluginArgs
             {
                 FunctionName = "Tick"
             });

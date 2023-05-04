@@ -4,7 +4,7 @@ using Wbtb.Core.Common.Plugins;
 
 namespace Wbtb.Core.Common.Configuration
 {
-    public class ConfigHelper
+    public class ConfigurationHelper
     {
 
         public static bool HasConfigItem(Config config, string pluginId, string itemName)

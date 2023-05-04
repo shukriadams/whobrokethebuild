@@ -2,10 +2,16 @@
 {
     public class LogParserProxy : PluginProxy, ILogParser
     {
+        private readonly IPluginSender _pluginSender;
+
+        public LogParserProxy(IPluginSender pluginSender) : base(pluginSender)
+        {
+            _pluginSender = pluginSender;
+        }
+
         public string Parse(string raw)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            return pluginSender.InvokeMethod<string>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
                 FunctionName = "Parse",
                 Arguments = new PluginFunctionParameter[] {

@@ -12,13 +12,23 @@ namespace Wbtb.Core
 {
     public class PluginManager
     {
+        #region PROPERTIES
+
         private readonly PluginProvider _pluginProvider;
+
+        #endregion
+
+        #region CTORS
 
         public PluginManager(PluginProvider pluginProvider) 
         {
             _pluginProvider = pluginProvider;
-        } 
-        
+        }
+
+        #endregion
+
+        #region METHODS
+
         /// <summary>
         /// Does all plugin init / setup / test / install etc. Call this from web start
         /// </summary>
@@ -323,5 +333,7 @@ namespace Wbtb.Core
                 });
             }
         }
+
+        #endregion
     }
 }

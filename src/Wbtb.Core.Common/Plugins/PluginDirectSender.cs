@@ -15,10 +15,13 @@ namespace Wbtb.Core.Common
     {
         private readonly Config _config;
 
+        private readonly MessageQueueHtppClient _messageQueueHtppClient;
+
         public PluginDirectSender() 
         {
             SimpleDI di = new SimpleDI();
             _config = di.Resolve<Config>();
+            _messageQueueHtppClient = di.Resolve<MessageQueueHtppClient>();
         }
 
         /// <summary>
@@ -96,9 +99,8 @@ namespace Wbtb.Core.Common
         private TReturnType Invoke<TReturnType>(object data, string switchName, string concreteType)
         {
             // write data to message queue
-            MessageQueueHtppClient queueClient = new MessageQueueHtppClient();
 
-            string id = queueClient.Add(data);
+            string id = _messageQueueHtppClient.Add(data);
             string tid = Guid.NewGuid().ToString(); //todo store for cross check
 
             Type? concreteResolvedType = TypeHelper.ResolveType(concreteType);
@@ -107,7 +109,7 @@ namespace Wbtb.Core.Common
 
 
             // OTHER SIDE OF WALL
-            string messageData = queueClient.Retrieve(id);
+            string messageData = _messageQueueHtppClient.Retrieve(id);
             PluginArgs pluginArgs = null;
 
             pluginArgs = JsonConvert.DeserializeObject<PluginArgs>(messageData);

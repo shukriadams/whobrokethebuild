@@ -9,7 +9,7 @@ namespace Wbtb.Core
         /// <summary>
         /// Applies name:value arg in .env file in project root. this is a dev aid.
         /// </summary>
-        public static void Apply()
+        public void Apply()
         {
             string envArgFilePath = null;
             DirectoryInfo currentPath = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);

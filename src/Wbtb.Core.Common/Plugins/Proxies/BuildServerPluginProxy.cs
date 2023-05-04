@@ -5,10 +5,16 @@ namespace Wbtb.Core.Common
 {
     public class BuildServerPluginProxy : PluginProxy , IBuildServerPlugin
     {
+        private readonly IPluginSender _pluginSender;
+
+        public BuildServerPluginProxy(IPluginSender pluginSender) : base(pluginSender)
+        {
+            _pluginSender = pluginSender;
+        }
+
         void IBuildServerPlugin.VerifyBuildServerConfig(BuildServer buildServer)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs
+            _pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs
             {
                 FunctionName = "VerifyBuildServerConfig",
                 Arguments = new PluginFunctionParameter[] {
@@ -19,8 +25,7 @@ namespace Wbtb.Core.Common
 
         ReachAttemptResult IBuildServerPlugin.AttemptReach(BuildServer contextServer)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            return pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs
             {
                 FunctionName = "AttemptReach",
                 Arguments = new PluginFunctionParameter[] {
@@ -31,8 +36,7 @@ namespace Wbtb.Core.Common
 
         void IBuildServerPlugin.AttemptReachJob(BuildServer buildServer, Job job)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            pluginSender.InvokeMethod(this, new PluginArgs
+            _pluginSender.InvokeMethod(this, new PluginArgs
             {
                 FunctionName = "AttemptReachJob",
                 Arguments = new PluginFunctionParameter[] {
@@ -44,8 +48,7 @@ namespace Wbtb.Core.Common
 
          string IBuildServerPlugin.GetBuildUrl(BuildServer contextServer, Build build)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            return pluginSender.InvokeMethod<string>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
                 FunctionName = "GetBuildUrl",
                 Arguments = new PluginFunctionParameter[] {
@@ -57,8 +60,7 @@ namespace Wbtb.Core.Common
 
         IEnumerable<string> IBuildServerPlugin.ListRemoteJobsCanonical(BuildServer buildserver)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            return pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
             {
                 FunctionName = "ListRemoteJobsCanonical",
                 Arguments = new PluginFunctionParameter[] {
@@ -69,8 +71,7 @@ namespace Wbtb.Core.Common
 
         IEnumerable<User> IBuildServerPlugin.GetUsersInBuild(BuildServer buildServer, string remoteBuildId)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            return pluginSender.InvokeMethod<IEnumerable<User>>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<IEnumerable<User>>(this, new PluginArgs
             {
                 FunctionName = "GetUsersInBuild",
                 Arguments = new PluginFunctionParameter[] {
@@ -82,8 +83,7 @@ namespace Wbtb.Core.Common
 
         BuildImportSummary IBuildServerPlugin.ImportBuilds(Job job, int take)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            return pluginSender.InvokeMethod<BuildImportSummary>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<BuildImportSummary>(this, new PluginArgs
             {
                 FunctionName = "ImportBuilds",
                 Arguments = new PluginFunctionParameter[] {
@@ -95,8 +95,7 @@ namespace Wbtb.Core.Common
 
         BuildImportSummary IBuildServerPlugin.ImportAllCachedBuilds(Job job)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            return pluginSender.InvokeMethod<BuildImportSummary>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<BuildImportSummary>(this, new PluginArgs
             {
                 FunctionName = "ImportAllCachedBuilds",
                 Arguments = new PluginFunctionParameter[] {
@@ -107,8 +106,7 @@ namespace Wbtb.Core.Common
         
         IEnumerable<Build> IBuildServerPlugin.ImportLogs(Job job)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            return pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
                 FunctionName = "ImportLogs",
                 Arguments = new PluginFunctionParameter[] {
@@ -119,8 +117,7 @@ namespace Wbtb.Core.Common
 
         string IBuildServerPlugin.GetEphemeralBuildLog(Build build)
         {
-            IPluginSender pluginSender = PluginSenderFactory.Get();
-            return pluginSender.InvokeMethod<string>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
                 FunctionName = "GetEphemeralBuildLog",
                 Arguments = new PluginFunctionParameter[] {

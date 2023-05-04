@@ -17,14 +17,16 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         private readonly PluginProvider _pluginProvider;
 
+        private readonly PersistPathHelper _persistPathHelper;
         #endregion
 
         #region CTORS
 
-        public Jenkins(Config config, PluginProvider pluginProvider) 
+        public Jenkins(Config config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper) 
         {
             _config = config;
             _pluginProvider = pluginProvider;
+            _persistPathHelper = persistPathHelper;
         }
 
         #endregion
@@ -208,7 +210,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
-            string persistPath = PersistPathHelper.GetPath(this, job.Key, build.Identifier, "revisions.json");
+            string persistPath = _persistPathHelper.GetPath(this, job.Key, build.Identifier, "revisions.json");
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
             string rawJson;
@@ -274,7 +276,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IList<RawBuild> rawBuilds = new List<RawBuild>();
 
-            foreach (string directory in Directory.GetDirectories(PersistPathHelper.GetPath(this, job.Key)).Where(d => !string.IsNullOrEmpty(d)))
+            foreach (string directory in Directory.GetDirectories(_persistPathHelper.GetPath(this, job.Key)).Where(d => !string.IsNullOrEmpty(d)))
             {
                 string rawBuildFile = Path.Combine(directory, "raw.json");
                 if (File.Exists(rawBuildFile))

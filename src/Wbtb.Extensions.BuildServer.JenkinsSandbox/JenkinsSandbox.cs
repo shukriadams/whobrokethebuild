@@ -16,14 +16,16 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         private readonly PluginProvider _pluginProvider;
 
+        private readonly PersistPathHelper _persistPathHelper;
         #endregion
 
         #region CTORS
 
-        public JenkinsSandbox(Config config, PluginProvider pluginProvider) 
+        public JenkinsSandbox(Config config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper) 
         { 
             _config = config;
             _pluginProvider = pluginProvider;
+            _persistPathHelper = persistPathHelper;
         } 
 
         #endregion
@@ -133,7 +135,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             string filePath = $"./JSON/builds/{job.Key}/build_{build.Identifier}_revisions.json";
             string rawJson = null;
 
-            string persistPath = PersistPathHelper.GetPath(this, job.Key, build.Identifier, "revisions.json");
+            string persistPath = _persistPathHelper.GetPath(this, job.Key, build.Identifier, "revisions.json");
             
             if (File.Exists(persistPath)) 
             {
@@ -177,7 +179,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             // persist each rawbuild if necessary
             foreach(RawBuild rawbuild in rawBuilds) 
             {
-                string persistPath = PersistPathHelper.GetPath(this, job.Key, rawbuild.number, "raw.json");
+                string persistPath = _persistPathHelper.GetPath(this, job.Key, rawbuild.number, "raw.json");
                 if (!File.Exists(persistPath)) 
                 { 
                     Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
@@ -195,7 +197,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         public BuildImportSummary ImportAllCachedBuilds(Job job)
         { 
             IList<RawBuild> rawBuilds = new List<RawBuild>();
-            string cachePath = PersistPathHelper.GetPath(this, job.Key);
+            string cachePath = _persistPathHelper.GetPath(this, job.Key);
 
             if (Directory.Exists(cachePath))
                 foreach(string directory in Directory.GetDirectories(cachePath).Where(d => !string.IsNullOrEmpty(d)))
@@ -296,7 +298,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             // persist path
             Job job = dataLayer.GetJobById(build.JobId);
 
-            string persistPath = PersistPathHelper.GetPath(this, job.Key, build.Identifier, "log.txt");
+            string persistPath = _persistPathHelper.GetPath(this, job.Key, build.Identifier, "log.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
             if (File.Exists(persistPath))
                 return File.ReadAllText(persistPath);

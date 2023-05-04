@@ -5,25 +5,43 @@ namespace Wbtb.Core.Common
 {
     public class PersistPathHelper
     {
-        public static string GetPath(Plugin plugin, string itemFragment)
+        #region FIELDS
+
+        private readonly Config _config;
+
+        #endregion
+
+        #region
+
+        public PersistPathHelper(Config config) 
         {
-            return Path.Combine(ConfigKeeper.Instance.PluginDataPersistDirectory, plugin.ContextPluginConfig.Key, itemFragment);
+            _config = config;
         }
 
-        public static string GetPath(Plugin plugin, string itemFragment, string itemFragment2)
+        #endregion
+
+        #region METHODS
+
+        public string GetPath(Plugin plugin, string itemFragment)
         {
-            return Path.Combine(ConfigKeeper.Instance.PluginDataPersistDirectory, plugin.ContextPluginConfig.Key, itemFragment, itemFragment2);
+            return Path.Combine(_config.PluginDataPersistDirectory, plugin.ContextPluginConfig.Key, itemFragment);
         }
 
-        public static string GetPath(Plugin plugin, string itemFragment, string itemFragment2, string itemFragment3)
+        public string GetPath(Plugin plugin, string itemFragment, string itemFragment2)
         {
-            return Path.Combine(ConfigKeeper.Instance.PluginDataPersistDirectory, plugin.ContextPluginConfig.Key, itemFragment, itemFragment2, itemFragment3);
+            return Path.Combine(_config.PluginDataPersistDirectory, plugin.ContextPluginConfig.Key, itemFragment, itemFragment2);
         }
 
-        public static string GetPath(Plugin plugin, string itemFragment, string itemFragment2, string itemFragment3, string itemFragment4)
+        public string GetPath(Plugin plugin, string itemFragment, string itemFragment2, string itemFragment3)
         {
-            return Path.Combine(ConfigKeeper.Instance.PluginDataPersistDirectory, plugin.ContextPluginConfig.Key, itemFragment, itemFragment2, itemFragment3, itemFragment4);
+            return Path.Combine(_config.PluginDataPersistDirectory, plugin.ContextPluginConfig.Key, itemFragment, itemFragment2, itemFragment3);
         }
 
+        public string GetPath(Plugin plugin, string itemFragment, string itemFragment2, string itemFragment3, string itemFragment4)
+        {
+            return Path.Combine(_config.PluginDataPersistDirectory, plugin.ContextPluginConfig.Key, itemFragment, itemFragment2, itemFragment3, itemFragment4);
+        }
+
+        #endregion
     }
 }

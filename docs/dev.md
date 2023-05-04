@@ -63,16 +63,15 @@ Wbtb requires basic configuration to function - starting it without this will ca
 
 Project config must be serializable, as it passed out to plugin executables as JSON. It should therefore not contain types that cannot be easily serialzied, such as Type.
 
-## Why not fluent nhibernate
+## Why not fluent nhibernate or similar
 
-- I didn't want to expose nhibernate objects to the entire app, it's convenient to have objects live linked to each other, but this will be negated by WBTB's disconnected plugin architecture.
-
-- I found nhibernate too opinionated in how it wanted objects to be structured. It expects everything to follow 
+WBTB's core feature is a distrubuted, cross-runtime plugin system. Data objects from frameworks likeNhibernatecannot cross between objects while maintaining their live-updating ability, which is one of the core reasons for using them. 
 
 ## Plugins
 
-- Plugins should always be stateless
-- Do not not use any constructor logic in your plugin, as it will be initialized cross-domain by a system that cannot resolve constructor dependencies etc. 
+- Plugins should always be stateless. A plugin is instantiated to invoke a function on it, once the function exists, the plugin instance is assumed destroyed.
+
+- In theory, you can implement a plugin in way you want, as long as it respects WBTB's HTTP and CLI interface requirements (TBD), and has a WBTB manifest yml file in its root directory. If you're working in C# and want to use the WBTB.Common library as a base to get a plugin working quickly, your plugin should implement one of the standard WBTB plugin interfaces, and should have either a parameterless-constructor, or constructor arguments which are registered with WBTB's dependency injection system. You can register your own types in your plugin if you want.
 
 ## Dependencies
 

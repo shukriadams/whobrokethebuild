@@ -109,14 +109,18 @@ namespace Wbtb.Core.Common.Plugins
         /// <param name="args"></param>
         public void Process(string[] args)
         {
+            SimpleDI di = new SimpleDI();
+
             CommandLineSwitches switches = new CommandLineSwitches(args);
 
-            MessageQueueHtppClient client = new MessageQueueHtppClient();
+            MessageQueueHtppClient client = di.Resolve<MessageQueueHtppClient>();
 
             Config config = client.GetConfig();
             config.IsCurrentContextProxyPlugin = true;
-            SimpleDI di = new SimpleDI();
+            ConfigBasic configBasic = di.Resolve<ConfigBasic>();
+            // register config, this meant to happen in the plugin runtime
             di.RegisterSingleton<Config>(config);
+
             // register proxy types, except for plugin this is being currently used from, that will always be concrete
             string thisPluginName = TypeHelper.Name<TPlugin>();
             foreach (PluginConfig pluginConfig in config.Plugins.Where(p => p.Manifest.Concrete != thisPluginName))
@@ -127,7 +131,7 @@ namespace Wbtb.Core.Common.Plugins
             {
                 // todo : set session id for security fingerprint
 
-                if (ConfigBasic.Instance.PersistCalls)
+                if (configBasic.PersistCalls)
                     File.AppendAllText("__init.txt", switches.Get("wbtb-initialize"));
                 
 
@@ -141,7 +145,7 @@ namespace Wbtb.Core.Common.Plugins
             // invoke method directly
             if (switches.Contains("wbtb-invoke"))
             {
-                if (ConfigBasic.Instance.PersistCalls)
+                if (configBasic.PersistCalls)
                     File.WriteAllText("__interfaceCall.txt", DecodeJsonString(switches.Get("wbtb-invoke")));
 
                 ProcessInterfaceCommand(DecodeJsonString(switches.Get("wbtb-invoke")), args);
@@ -164,7 +168,7 @@ namespace Wbtb.Core.Common.Plugins
 
 
 
-                if (ConfigBasic.Instance.PersistCalls)
+                if (configBasic.PersistCalls)
                     File.WriteAllText("__interfaceCall.txt", data);
 
                 ProcessInterfaceCommand(data, args);

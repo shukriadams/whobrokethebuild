@@ -6,13 +6,20 @@ namespace Wbtb.Core.Common
 {
     public class MessageQueueHtppClient
     {
+        private readonly ConfigBasic _configBasic;
+
+        public MessageQueueHtppClient(ConfigBasic configBasic) 
+        {
+            _configBasic = configBasic;
+        }
+
         public string Add(object data)
         { 
             WebClient client = new WebClient();
             
             string json = JsonConvert.SerializeObject(data);
             byte[] postData = Encoding.ASCII.GetBytes(json);
-            byte[] reply = client.UploadData($"http://localhost:{ConfigBasic.Instance.MessageQueuePort}/api/v1/messagequeue", postData);
+            byte[] reply = client.UploadData($"http://localhost:{_configBasic.MessageQueuePort}/api/v1/messagequeue", postData);
             string id = Encoding.ASCII.GetString(reply);
 
             return id;
@@ -23,7 +30,7 @@ namespace Wbtb.Core.Common
             try
             {
                 WebClient client = new WebClient();
-                string reply = client.DownloadString($"http://localhost:{ConfigBasic.Instance.MessageQueuePort}/api/v1/messagequeue");
+                string reply = client.DownloadString($"http://localhost:{_configBasic.MessageQueuePort}/api/v1/messagequeue");
                 if (!reply.Contains("online"))
                     throw new ConfigurationException($"Unexpected response from messagequeue server");
             }
@@ -42,21 +49,21 @@ namespace Wbtb.Core.Common
 
             string json = JsonConvert.SerializeObject(config);
             byte[] postData = Encoding.ASCII.GetBytes(json);
-            client.UploadData($"http://localhost:{ConfigBasic.Instance.MessageQueuePort}/api/v1/messagequeueconfig", postData);
+            client.UploadData($"http://localhost:{_configBasic.MessageQueuePort}/api/v1/messagequeueconfig", postData);
         }
 
 
         public string Retrieve(string id)
         {
             WebClient client = new WebClient();
-            string reply = client.DownloadString($"http://localhost:{ConfigBasic.Instance.MessageQueuePort}/api/v1/messagequeue/{id}");
+            string reply = client.DownloadString($"http://localhost:{_configBasic.MessageQueuePort}/api/v1/messagequeue/{id}");
             return reply;
         }
 
         public Config GetConfig()
         {
             WebClient client = new WebClient();
-            string reply = client.DownloadString($"http://localhost:{ConfigBasic.Instance.MessageQueuePort}/api/v1/messagequeueconfig");
+            string reply = client.DownloadString($"http://localhost:{_configBasic.MessageQueuePort}/api/v1/messagequeueconfig");
             return JsonConvert.DeserializeObject<Config>(reply);
         }
     }

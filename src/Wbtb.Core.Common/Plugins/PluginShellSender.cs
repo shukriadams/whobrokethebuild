@@ -7,6 +7,13 @@ namespace Wbtb.Core.Common.Plugins
 {
     public class PluginShellSender : IPluginSender
     {
+        private readonly MessageQueueHtppClient _messageQueueHtppClient;
+
+        public PluginShellSender(MessageQueueHtppClient messageQueueHtppClient) 
+        {
+            _messageQueueHtppClient = messageQueueHtppClient;
+        }
+
         /// <summary>
         /// Special method for to pass config etc from main app to plugin. this is called after main app config is done. CAnnot be called at handshake time
         /// because at that point we don't yet know which apps are working. Initialize make all plugins aware of all other plugins, so all handshaking must 
@@ -95,8 +102,7 @@ namespace Wbtb.Core.Common.Plugins
             };
 
             // write data to message queue
-            MessageQueueHtppClient queueClient = new MessageQueueHtppClient();
-            string id = queueClient.Add(data);
+            string id = _messageQueueHtppClient.Add(data);
             string tid = Guid.NewGuid().ToString(); //todo store for cross check
 
             string command = $"{runtime} {mainBin} --wbtb-message {id} --wbtb-tid {tid}";

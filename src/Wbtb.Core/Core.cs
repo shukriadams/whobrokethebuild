@@ -18,9 +18,11 @@ namespace Wbtb.Core
         /// <returns></returns>
         public static bool EnsureConfig()
         {
-            CustomEnvironmentArgs.Apply();
             SimpleDI di = new SimpleDI();
             ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
+            CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
+            customEnvironmentArgs.Apply();
+
             return configBootstrapper.EnsureLatest();
         }
 
@@ -32,8 +34,9 @@ namespace Wbtb.Core
             // pre-start stuff
             SimpleDI di = new SimpleDI();
             ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
+            CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
 
-            CustomEnvironmentArgs.Apply();
+            customEnvironmentArgs.Apply();
             configBootstrapper.EnsureLatest();
 
             // first part of server start, tries to load config
@@ -52,7 +55,7 @@ namespace Wbtb.Core
             bool isAnyPluginProxying = unsafeConfig.Plugins.Where(p => p.Proxy).Any();
             if (isAnyPluginProxying)
             {
-                MessageQueueHtppClient client = new MessageQueueHtppClient();
+                MessageQueueHtppClient client = di.Resolve<MessageQueueHtppClient>();
                 client.EnsureAvailable();
                 client.AddConfig(ConfigKeeper.Instance);
             }

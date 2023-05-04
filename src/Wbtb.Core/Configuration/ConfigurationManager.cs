@@ -149,6 +149,7 @@ namespace Wbtb.Core.Configuration
             bool updated = false;
             SimpleDI di = new SimpleDI();
             GitHelper gitHelper = di.Resolve<GitHelper>();
+            FileSystemHelper filesystemHelper = di.Resolve<FileSystemHelper>();
 
             foreach (PluginConfig pluginConfig in config.Plugins.Where(p => p.SourceType != PluginSourceTypes.None))
             {
@@ -160,7 +161,6 @@ namespace Wbtb.Core.Configuration
                 { 
                     throw new ConfigurationException($"Failed to create plugin directory for {pluginConfig.Key}:{ex}");
                 }
-
                 
                 try 
                 {
@@ -197,8 +197,8 @@ namespace Wbtb.Core.Configuration
 
                 if (copy)
                 {
-                    FileSystemHelper.ClearDirectory(pluginConfig.Path);
-                    FileSystemHelper.CopyDirectory(checkoutPath, pluginConfig.Path);
+                    filesystemHelper.ClearDirectory(pluginConfig.Path);
+                    filesystemHelper.CopyDirectory(checkoutPath, pluginConfig.Path);
                     File.WriteAllText(tagFile, tag);
                     updated = true;
                 }

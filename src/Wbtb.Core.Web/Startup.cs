@@ -39,6 +39,9 @@ namespace Wbtb.Core.Web
 
             SimpleDI di = new SimpleDI();
 
+            di.Register<PersistPathHelper, PersistPathHelper>();
+            di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();
+            di.Register<ConfigBasic, ConfigBasic>();
             di.Register<ConfigBootstrapper, ConfigBootstrapper>();
             di.Register<GitHelper, GitHelper>();
             di.Register<BuildLogParseResultHelper, BuildLogParseResultHelper>();
@@ -57,8 +60,12 @@ namespace Wbtb.Core.Web
             di.Register<IWebDaemon, LogParseDaemon>(true);
             di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(true);
             di.Register<IWebDaemon, IncidentAssignDaemon>(true);
+            di.Register<FileSystemHelper, FileSystemHelper>();
+            di.Register<CustomEnvironmentArgs, CustomEnvironmentArgs>();
             di.RegisterFactory<ILogger, LogProvider>();
             di.RegisterFactory<IHubContext, HubFactory>();
+            di.RegisterFactory<IPluginSender, PluginSenderFactory>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
