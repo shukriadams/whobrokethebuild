@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Wbtb.Core.Common.Plugins
+namespace Wbtb.Core.Common
 {
     public class PluginProvider
     {

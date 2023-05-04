@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
-using Wbtb.Core.Common.Plugins;
-using Wbtb.Core.Configuration;
 using Wbtb.Extensions.Auth.ActiveDirectory;
 using Wbtb.Extensions.Auth.ActiveDirectorySandbox;
 using Wbtb.Extensions.BuildServer.Jenkins;

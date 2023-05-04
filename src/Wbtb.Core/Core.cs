@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Wbtb.Core.Common;
-using Wbtb.Core.Configuration;
 
 namespace Wbtb.Core
 {

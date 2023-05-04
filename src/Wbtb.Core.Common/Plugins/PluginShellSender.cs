@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Wbtb.Core.Common.Utils;
 
-namespace Wbtb.Core.Common.Plugins
+namespace Wbtb.Core.Common
 {
     public class PluginShellSender : IPluginSender
     {
+        #region FIELDS
+
         private readonly MessageQueueHtppClient _messageQueueHtppClient;
 
         private readonly Config _config;
+
+        #endregion
+
+        #region CTORS
 
         public PluginShellSender(MessageQueueHtppClient messageQueueHtppClient, Config config) 
         {
@@ -17,28 +22,9 @@ namespace Wbtb.Core.Common.Plugins
             _config = config;
         }
 
-        /// <summary>
-        /// Special method for to pass config etc from main app to plugin. this is called after main app config is done. CAnnot be called at handshake time
-        /// because at that point we don't yet know which apps are working. Initialize make all plugins aware of all other plugins, so all handshaking must 
-        /// already be done at this point.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="workingDirectory"></param>
-        /// <param name="runtime"></param>
-        /// <param name="mainBin"></param>
-        /// <returns></returns>
-        public PluginInitResult Initialize(string pluginName)
-        {
-            PluginConfig pluginConfig = _config.Plugins.SingleOrDefault(r => r.Manifest.Key == pluginName);
-            if (pluginConfig == null)
-                throw new ConfigurationException($"no config found for plugin {pluginName}. did plugin fail to load?");
+        #endregion
 
-            return this.Invoke<PluginInitResult>(
-                _config,
-                pluginConfig.Path,
-                pluginConfig.Manifest.Runtime,
-                pluginConfig.Manifest.Main);
-        }
+        #region METHODS
 
         /// <summary>
         /// Common metho for calling all standard interface methods in plugin.
@@ -144,5 +130,7 @@ namespace Wbtb.Core.Common.Plugins
                 throw ex;
             }
         }
+
+        #endregion
     }
 }

@@ -5,7 +5,7 @@ using Wbtb.Core.Common;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 
-namespace Wbtb.Core.Configuration
+namespace Wbtb.Core
 {
     public class ConfigurationHelper
     {

@@ -1,16 +1,7 @@
-﻿using Wbtb.Core.Common.Plugins;
-
-namespace Wbtb.Core.Common
+﻿namespace Wbtb.Core.Common
 {
     public interface IPluginSender
     {
-        /// <summary>
-        /// handshakes plugin at app start - determines if plugin is available, and if config in app meets plugin's requirements
-        /// </summary>
-        /// <param name="pluginName"></param>
-        /// <returns></returns>
-        PluginInitResult Initialize(string pluginName);
-
         /// <summary>
         /// Invokes a method in plugin with a return value.
         /// </summary>

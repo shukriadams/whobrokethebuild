@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Wbtb.Core.Common.Plugins
+namespace Wbtb.Core.Common
 {
     public class PluginSenderFactory : ISimpleDIFactory
     {

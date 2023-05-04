@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
-using Wbtb.Core.Common.Plugins;
 
 namespace Wbtb.Core.Web
 {

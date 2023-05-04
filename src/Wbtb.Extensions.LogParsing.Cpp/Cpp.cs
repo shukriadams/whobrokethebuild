@@ -2,7 +2,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
-using Wbtb.Core.Common.Plugins;
 
 namespace Wbtb.Extensions.LogParsing.Cpp
 {

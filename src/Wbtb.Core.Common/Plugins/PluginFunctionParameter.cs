@@ -1,4 +1,4 @@
-﻿namespace Wbtb.Core.Common.Plugins
+﻿namespace Wbtb.Core.Common
 {
     public class PluginFunctionParameter
     {

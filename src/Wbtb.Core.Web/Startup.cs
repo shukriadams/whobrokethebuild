@@ -8,9 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using Wbtb.Core.Common;
-using Wbtb.Core.Common.Plugins;
 using Wbtb.Core.Web.Controllers;
-using Wbtb.Core.Web.Core;
 
 namespace Wbtb.Core.Web
 {
@@ -48,7 +46,7 @@ namespace Wbtb.Core.Web
             di.Register<ConfigBootstrapper, ConfigBootstrapper>();
             di.Register<GitHelper, GitHelper>();
             di.Register<BuildLogParseResultHelper, BuildLogParseResultHelper>();
-            di.Register<Configuration.ConfigurationBuilder, Configuration.ConfigurationBuilder>();
+            di.Register<ConfigurationBuilder, ConfigurationBuilder>();
             di.Register<PluginProvider, PluginProvider>();
             di.Register<PluginManager, PluginManager>();
             di.Register<BuildLevelPluginHelper, BuildLevelPluginHelper>();

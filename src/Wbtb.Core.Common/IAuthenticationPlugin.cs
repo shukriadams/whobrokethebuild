@@ -1,6 +1,4 @@
-﻿using Wbtb.Core.Common.Plugins;
-
-namespace Wbtb.Core.Common
+﻿namespace Wbtb.Core.Common
 {
     /// <summary>
     /// Auth provider for users, egs, AD, Github, internal (wbtb) etc

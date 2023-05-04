@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Wbtb.Core.Common.Utils;
+using Wbtb.Core.Common;
 
 namespace Wbtb.Core
 {

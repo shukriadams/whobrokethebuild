@@ -1,5 +1,4 @@
-﻿using Wbtb.Core.Configuration;
-using YamlDotNet.Serialization;
+﻿using YamlDotNet.Serialization;
 
 namespace Wbtb.Core
 {

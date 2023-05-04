@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Html;
 using System;
 using System.Web;
 using Wbtb.Core.Common;
-using Wbtb.Core.Common.Plugins;
 
 namespace Wbtb.Core.Web
 {

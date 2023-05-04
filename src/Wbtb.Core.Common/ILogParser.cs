@@ -1,6 +1,4 @@
-﻿using Wbtb.Core.Common.Plugins;
-
-namespace Wbtb.Core.Common
+﻿namespace Wbtb.Core.Common
 {
     [PluginProxy(typeof(LogParserProxy))]
     [PluginBehaviour(false)]

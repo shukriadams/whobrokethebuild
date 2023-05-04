@@ -3,10 +3,9 @@ using System.Collections;
 using System.Reflection;
 using System.Linq;
 using System.IO;
-using System.Text;
 using System.Collections.Generic;
 
-namespace Wbtb.Core.Common.Plugins
+namespace Wbtb.Core.Common
 {
     /// <summary>
     /// Plugin-side handler for incoming console messages. This class is run in plugins only, and only when the plugin runs in standalone mode. "Under development" plugins
@@ -16,11 +15,6 @@ namespace Wbtb.Core.Common.Plugins
     public class PluginShellReceiver<TPlugin>
     {
         #region METHODS
-
-        private static string DecodeJsonString(string jsonString)
-        {
-            return Encoding.UTF8.GetString(Convert.FromBase64String(jsonString));
-        }
 
         private void ProcessInterfaceCommand(string interfaceData, string[] args)
         {
@@ -126,47 +120,11 @@ namespace Wbtb.Core.Common.Plugins
             foreach (PluginConfig pluginConfig in config.Plugins.Where(p => p.Manifest.Concrete != thisPluginName))
                 di.Register(TypeHelper.ResolveType(pluginConfig.Manifest.Interface), TypeHelper.GetRequiredProxyType(pluginConfig.Manifest.Interface));
 
-                // initialize plugin, this must be done once at app start, after handshake
-            if (switches.Contains("wbtb-initialize"))
-            {
-                // todo : set session id for security fingerprint
-
-                if (configBasic.PersistCalls)
-                    File.AppendAllText("__init.txt", switches.Get("wbtb-initialize"));
-                
-
-                PluginInitResult initResult = new PluginInitResult { SessionId = Guid.NewGuid().ToString() };
-
-                // todo : replace with dedicated init result type
-                PrintJSONToSTDOut(PluginOutputEncoder.Encode<TPlugin>(initResult));
-                return;
-            }
-
-            // invoke method directly
-            if (switches.Contains("wbtb-invoke"))
-            {
-                if (configBasic.PersistCalls)
-                    File.WriteAllText("__interfaceCall.txt", DecodeJsonString(switches.Get("wbtb-invoke")));
-
-                ProcessInterfaceCommand(DecodeJsonString(switches.Get("wbtb-invoke")), args);
-            }
-
-            // invoke method using arguments stored in text file, this is for dev/debugging
-            if (switches.Contains("wbtb-invokecached"))
-            {
-                if (!File.Exists(switches.Get("wbtb-invokecached")))
-                    throw new ConfigurationException($"File ${switches.Get("wbtb-invokecached")} not found");
-
-                ProcessInterfaceCommand(File.ReadAllText(switches.Get("wbtb-invokecached")), args);
-            }
-
             // retrieve message for actual data
             if (switches.Contains("wbtb-message"))
             {
                 string messageid = switches.Get("wbtb-message");
                 string data = client.Retrieve(messageid);
-
-
 
                 if (configBasic.PersistCalls)
                     File.WriteAllText("__interfaceCall.txt", data);
@@ -190,8 +148,7 @@ namespace Wbtb.Core.Common.Plugins
 
             string status = "WBTB plugin catcher - no or invalid args specified. Args are : \n" +
                 "--manifest to view manifest\n" +
-                "--wbtb-initialize to view manifest\n" +
-                "--wbtb-invoke <methodname>";
+                "--wbtb-message <messageid>";
 
             PrintJSONToSTDOut(PluginOutputEncoder.Encode<TPlugin>(status));
         }

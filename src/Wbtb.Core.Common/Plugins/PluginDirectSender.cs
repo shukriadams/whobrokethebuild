@@ -3,7 +3,6 @@ using System.Collections;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Wbtb.Core.Common.Plugins;
 
 namespace Wbtb.Core.Common
 {
@@ -24,27 +23,6 @@ namespace Wbtb.Core.Common
             _messageQueueHtppClient = di.Resolve<MessageQueueHtppClient>();
         }
 
-        /// <summary>
-        /// Special method for to pass config etc from main app to plugin. this is called after main app config is done. CAnnot be called at handshake time
-        /// because at that point we don't yet know which apps are working. Initialize make all plugins aware of all other plugins, so all handshaking must 
-        /// already be done at this point.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="workingDirectory"></param>
-        /// <param name="runtime"></param>
-        /// <param name="mainBin"></param>
-        /// <returns></returns>
-        public PluginInitResult Initialize(string pluginName)
-        {
-            PluginConfig pluginConfig = _config.Plugins.SingleOrDefault(r => r.Manifest.Key == pluginName);
-            if (pluginConfig == null)
-                throw new ConfigurationException($"no config found for plugin {pluginName}. did plugin fail to load?");
-
-            return this.Invoke<PluginInitResult>(
-                _config,
-                "wbtb-initialize",
-                pluginConfig.Manifest.Concrete);
-        }
 
         /// <summary>
         /// Common metho for calling all standard interface methods in plugin.

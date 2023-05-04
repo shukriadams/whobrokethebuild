@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Wbtb.Core.Common;
-using Wbtb.Core.Common.Plugins;
 
 namespace Wbtb.Core.Web
 {

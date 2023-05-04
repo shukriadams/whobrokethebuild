@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Wbtb.Core.Common;
-using Wbtb.Core.Common.Plugins;
 using Wbtb.Extensions.Auth.ActiveDirectory;
 using Wbtb.Extensions.Messaging.Slack;
 using Microsoft.AspNetCore.SignalR;

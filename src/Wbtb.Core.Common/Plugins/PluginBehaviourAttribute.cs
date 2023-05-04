@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Wbtb.Core.Common.Plugins
+namespace Wbtb.Core.Common
 {
     [AttributeUsage(AttributeTargets.Interface, Inherited = true, AllowMultiple = false)]
     public class PluginBehaviourAttribute : Attribute

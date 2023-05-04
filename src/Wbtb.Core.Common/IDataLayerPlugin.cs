@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using Wbtb.Core.Common.Plugins;
-using Wbtb.Core.Common.Plugins.Transmitters;
 
 namespace Wbtb.Core.Common
 {

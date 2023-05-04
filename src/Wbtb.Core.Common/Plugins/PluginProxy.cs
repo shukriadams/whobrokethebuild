@@ -1,17 +1,31 @@
-﻿namespace Wbtb.Core.Common.Plugins
+﻿namespace Wbtb.Core.Common
 {
     public abstract class PluginProxy : IPluginProxy
     {
+        #region FIELDS
+
         private readonly IPluginSender _pluginSender;
+
+        #endregion
+
+        #region PROPERTIES
 
         public string PluginKey { get; set; }
 
         public PluginConfig ContextPluginConfig { get; set; }
 
+        #endregion
+
+        #region CTORS
+
         public PluginProxy(IPluginSender pluginSender) 
         {
             _pluginSender = pluginSender;
         }
+
+        #endregion
+
+        #region METHODS
 
         public void InjectConfig(PluginConfig config)
         {
@@ -40,5 +54,6 @@
             });
         }
 
+        #endregion
     }
 }

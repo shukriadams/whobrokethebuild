@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Wbtb.Core.Common;
-using Wbtb.Core.Common.Plugins;
 using YamlDotNet.Serialization;
 
 namespace Wbtb.Core

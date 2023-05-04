@@ -1,7 +1,4 @@
-﻿using Wbtb.Core.Common.Plugins;
-using Wbtb.Core.Common.Plugins.Proxies;
-
-namespace Wbtb.Core.Common
+﻿namespace Wbtb.Core.Common
 {
     [PluginProxy(typeof(MessagingPluginProxy))]
     [PluginBehaviour(true)]

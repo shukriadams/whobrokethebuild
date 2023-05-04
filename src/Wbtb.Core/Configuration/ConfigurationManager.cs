@@ -5,12 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Wbtb.Core.Common;
-using Wbtb.Core.Common.Plugins;
-using Wbtb.Core.Common.Utils;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 
-namespace Wbtb.Core.Configuration
+namespace Wbtb.Core
 {
     public class ConfigurationManager
     {

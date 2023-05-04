@@ -1,4 +1,4 @@
-﻿namespace Wbtb.Core.Common.Utils
+﻿namespace Wbtb.Core.Common
 {
     public delegate void SimpleEvent(string data);
 }

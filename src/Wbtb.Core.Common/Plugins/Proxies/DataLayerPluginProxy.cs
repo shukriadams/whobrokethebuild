@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Wbtb.Core.Common.Plugins.Transmitters
+namespace Wbtb.Core.Common
 {
     public class DataLayerPluginProxy : PluginProxy, IDataLayerPlugin
     {

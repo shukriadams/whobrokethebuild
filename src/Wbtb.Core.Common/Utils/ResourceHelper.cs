@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace Wbtb.Core.Common.Utils
+namespace Wbtb.Core.Common
 {
     public class ResourceHelper
     {

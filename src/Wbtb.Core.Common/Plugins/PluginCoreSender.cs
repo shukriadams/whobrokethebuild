@@ -4,7 +4,7 @@ using System.Text;
 using System.Net;
 using System.Text.RegularExpressions;
 
-namespace Wbtb.Core.Common.Plugins
+namespace Wbtb.Core.Common
 {
     /// <summary>
     /// plugin sender used from plugins. Calls are routed back via the core app, which can then service the call internally or route out to another plugin.
@@ -16,21 +16,6 @@ namespace Wbtb.Core.Common.Plugins
         public PluginCoreSender(Config config) 
         {
             _config = config;
-        }
-
-        /// <summary>
-        /// Special method for to pass config etc from main app to plugin. this is called after main app config is done. CAnnot be called at handshake time
-        /// because at that point we don't yet know which apps are working. Initialize make all plugins aware of all other plugins, so all handshaking must 
-        /// already be done at this point.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="workingDirectory"></param>
-        /// <param name="runtime"></param>
-        /// <param name="mainBin"></param>
-        /// <returns></returns>
-        public PluginInitResult Initialize(string pluginName)
-        {
-            throw new NotImplementedException("Not used in this context");
         }
 
         /// <summary>
