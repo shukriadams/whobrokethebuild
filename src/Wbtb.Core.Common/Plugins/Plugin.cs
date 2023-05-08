@@ -6,14 +6,9 @@
 
         public PluginConfig ContextPluginConfig { get; set; }
 
-        // override as needed
-        public void InjectConfig(PluginConfig config)
-        {
-            // ensure variables here
-
-            this.ContextPluginConfig = config;
-        }
-
+        /// <summary>
+        /// Override as needed
+        /// </summary>
         public void Diagnose()
         {
 

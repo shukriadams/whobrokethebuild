@@ -39,8 +39,12 @@ namespace Wbtb.Core.Web
                     foreach (PluginConfig plugin in config.Plugins.Where(p=> p.Manifest.RuntimeParsed == Runtimes.dotnet)) 
                     {
                         Type interfaceType = TypeHelper.GetCommonType(plugin.Manifest.Interface);
-                        Type concrete = TypeHelper.ResolveType(plugin.Manifest.Concrete);
-                        di.Register(interfaceType, concrete);
+                        
+                        if (!plugin.Proxy)
+                            TypeHelper.GetAssembly(plugin.Manifest.Assembly); // force load assembly
+
+                        Type implementation = plugin.Proxy ? TypeHelper.GetRequiredProxyType(interfaceType) : TypeHelper.ResolveType(plugin.Manifest.Concrete);
+                        di.Register(interfaceType, implementation);
                     }
 
                     Wbtb.Core.Core.LoadPlugins();

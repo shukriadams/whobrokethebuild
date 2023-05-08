@@ -28,14 +28,6 @@ namespace Wbtb.Core.Common
         public string Description { get; set; }
 
         /// <summary>
-        /// Should be set internally.
-        /// 
-        /// If false, plugin is compiled with and runs in the same application context as Wbtb core application. If true, plugin is a shell app that runs 
-        /// in its own context. Note that Proxy can still be enabled for internal plugins.
-        /// </summary>
-        public bool IsExternal { get; set; }
-
-        /// <summary>
         /// Source enum plugin binaries pulled from. For external plugins only
         /// </summary>
         public PluginSourceTypes SourceType { get; set; }

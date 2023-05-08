@@ -80,6 +80,8 @@ namespace Wbtb.Core.Common
                     return concreteType;
             }
 
+            // couldn't resolve type, does it live in an assembly that needs to be loaded?
+
             return null;
         }
 

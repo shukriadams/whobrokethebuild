@@ -39,6 +39,7 @@ namespace Wbtb.Core.Web
 
             di.Register<LogHelper, LogHelper>();   
             di.Register<PluginDirectSender, PluginDirectSender>();
+            di.Register<PluginShellSender, PluginShellSender>();
             di.Register<PluginCoreSender, PluginCoreSender>(); 
             di.Register<PersistPathHelper, PersistPathHelper>();
             di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();

@@ -109,8 +109,8 @@ namespace Wbtb.Core.Common
                     methodArgs.Add(JsonConvert.DeserializeObject(JsonConvert.SerializeObject(incomingparameter.Value), parameter.ParameterType));
             }
 
-
-            IPlugin pluginInstance = Activator.CreateInstance(concreteResolvedType) as IPlugin;
+            SimpleDI di = new SimpleDI();
+            IPlugin pluginInstance = di.Resolve(concreteResolvedType) as IPlugin;
             pluginInstance.ContextPluginConfig = _config.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
             Console.WriteLine($"Invoking method {pluginArgs.FunctionName}");
 

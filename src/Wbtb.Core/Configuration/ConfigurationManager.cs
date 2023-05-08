@@ -175,9 +175,10 @@ namespace Wbtb.Core
             {
                 string fsSafePluginName = Convert.ToBase64String(Encoding.UTF8.GetBytes(pluginConfig.Key));
                 string plugingWorkingDir = Path.Combine(config.PluginsWorkingDirectory, fsSafePluginName);
-                Directory.CreateDirectory(plugingWorkingDir);
-                string checkoutPath = Path.Combine(plugingWorkingDir, ".checkout");
 
+                Directory.CreateDirectory(plugingWorkingDir);
+
+                string checkoutPath = Path.Combine(plugingWorkingDir, ".checkout");
                 string tag = gitHelper.GetLatestTag(pluginConfig.Source, checkoutPath);
                 string tagFile = Path.Combine(plugingWorkingDir, ".wbtbtag");
 
@@ -237,20 +238,31 @@ namespace Wbtb.Core
                 if (string.IsNullOrEmpty(pluginConfig.Path))
                     throw new ConfigurationException($"ERROR : Plugin \"{pluginConfig.Key}\" does not declare Path. Path should be absolute path to plugin script/binary, or for internal plugins, should be plugin's Namespace, egs \"Wbtb.Extensions.Data.Postgres.\"");
 
-                // if path does not point to an existing location on disk, determie if path is a valid internal plugin
-                if (Directory.Exists(pluginConfig.Path))
+                // try to autoresolve plugin location, this is a dev feature. normally path will point to an absolute location, but as a dev aid
+                // we allow it be set to a project name in-solution. If we can find plugin files at a location in solution, we automatically use
+                // those files' location as plugin path
+                bool directoryExists = Directory.Exists(pluginConfig.Path);
+                bool isExternal = directoryExists;
+
+                if (!directoryExists && ConfigurationManager.AllowedInternalPlugins.Contains(pluginConfig.Path)) 
                 {
-                    pluginConfig.IsExternal = true;
+                    // try to autoresolve if running in visual studio
+                    string devPath = Path.Combine($"..{Path.DirectorySeparatorChar}",  pluginConfig.Path, "bin", "Debug", "net6.0");
+                    if (Directory.Exists(devPath))
+                    {
+                        Console.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}");
+                        pluginConfig.Path = devPath;
+                        pluginConfig.Proxy = false;
+                        isExternal = true;
+                    }
                 }
-                else
-                {
-                    if (!ConfigurationManager.AllowedInternalPlugins.Contains(pluginConfig.Path))
-                        throw new ConfigurationException($"ERROR : Plugin \"{pluginConfig.Key}\"'s Path \"{pluginConfig.Path}\" should be a directory path or an internal plugin in list \"{string.Join(", ", ConfigurationManager.AllowedInternalPlugins)}\".");
-                }
+
+                if (!Directory.Exists(pluginConfig.Path))
+                    throw new ConfigurationException($"ERROR : Plugin \"{pluginConfig.Key}\"'s Path \"{pluginConfig.Path}\" should be a directory path or an internal plugin in list \"{string.Join(", ", ConfigurationManager.AllowedInternalPlugins)}\".");
 
                 // try to get manifest directly from file path, this is for local dev  mainly, but _should_ work on production(?)
                 string pluginManifestRaw = null;
-                if (pluginConfig.IsExternal)
+                if (isExternal)
                 {
                     string pluginYmlManifestPath = Path.Join(pluginConfig.Path, "Wbtb.yml");
                     if (!File.Exists(pluginYmlManifestPath))
@@ -267,7 +279,6 @@ namespace Wbtb.Core
                     if (!ResourceHelper.ResourceExists(pluginAssembly, "Wbtb.yml"))
                         throw new ConfigurationException($"ERROR : plugin \"{pluginConfig.Key}\" does not have a manifest");
 
-                    pluginConfig.Proxy = false;
                     pluginManifestRaw = ResourceHelper.ReadResourceAsString(pluginAssembly, "Wbtb.yml");
                 }
 

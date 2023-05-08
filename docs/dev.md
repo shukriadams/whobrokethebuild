@@ -51,19 +51,27 @@ You can also add a `.giturl` file to the same location, for the repo you keep Wb
 
 Debugging WBTB is admittedly not always a simple matter of loading the solution in Visual Studio and hitting F5.
 
-## Simple setup
+### Simple setup
 
 WBTB can be configured to run all plugins in a single application context, allowing you to step into all C# code when running the core server. This is intended for use during plugin development.
 
 Add your plugin to the WBTB solution, and then as Project dependency to Wbtb.Core.Web. You don't need to register it as a dependency, the plugin manager will do this automatically assuming the plugin has a valid Wbtb.yml file in its root.
 
-## Direct messaging
+### Direct messaging setup
 
 Normally plugins communicate via a combination of shell and HTTP. Shell interaction is the riskiest of the two, and is therefore locked down to very simple interactions that are kept stable. HTTP interaction are more suscepitble to variable conditions, and you can run a plugin in the same application context as the core app, but where all communication to plugins still happens over http. Set the environment variable `WBTB_PROXYMODE` to `direct` to enable this.
 
-## Disconnected debugging
+### Diagnostic mode
 
-WBTB plugins run as independent scripts or CLI applications, making debugging in a single application context impossible. There are mitigations however. You can run multiple instances of Visual Studio on the same application, but with different starting apps. Set one instance to start the core app, and the second to run your plugin. Plugins are executables that run stateless single operations. Start your plugin with the arguments passed to it by the core, and it will perform a single operation - you can apply breakpoints etc.
+You can start any C# plugin in diagnostic mode by starting it with the `--diagnostic` switch. This mode is primarily intended to ensure that the plugin application can start properly and enters a state where incoming message can be received. The plugin will automatically invoke its `Diagnose` method, which you can override locally, then exit immediately.
+
+Diagnostic mode requires a running Messagequeue instance for the plugin to connect to. The easiest way to achieve this is manually start a MessageQueue server, then open the solution in another instance of Visual Studio, set `ForceMessageQueue=true` in config.yml and start the server. This will prime the MessageQueue with a valid config.
+
+### Disconnected debugging
+
+WBTB plugins run as independent scripts or CLI applications, making debugging in a single application context impossible. There are mitigations however. 
+
+You can run multiple instances of Visual Studio on the same application, but with different starting apps. Set one instance to start the core app, and the second to run your plugin. Plugins are executables that run stateless single operations. Start your plugin with the arguments passed to it by the core, and it will perform a single operation - you can apply breakpoints etc.
 
 Before debugging be sure to run the messagequeue service with `--persist` to ensure that invocation data passed between various sub-systems in WBTB doesn't get timeout or get removed.
 

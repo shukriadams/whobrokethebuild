@@ -60,7 +60,7 @@ namespace Wbtb.Core
                     if (pluginConfig.Proxy && !Directory.Exists(pluginConfig.Path))
                     {
                         // try to autoresolve if running in visual studio
-                        string devPath = Path.Combine(pluginConfig.Path, "bin", "Debug", "netcoreapp3.1");
+                        string devPath = Path.Combine(pluginConfig.Path, "bin", "Debug", "net6.0");
                         if (Directory.Exists(devPath))
                         {
                             Console.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}");
