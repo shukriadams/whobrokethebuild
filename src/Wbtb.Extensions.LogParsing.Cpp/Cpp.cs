@@ -7,6 +7,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
 {
     public class Cpp : Plugin, ILogParser
     {
+
         public PluginInitResult InitializePlugin()
         {
             return new PluginInitResult

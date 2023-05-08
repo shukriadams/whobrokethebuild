@@ -13,5 +13,10 @@
 
             this.ContextPluginConfig = config;
         }
+
+        public void Diagnose()
+        {
+
+        }
     }
 }

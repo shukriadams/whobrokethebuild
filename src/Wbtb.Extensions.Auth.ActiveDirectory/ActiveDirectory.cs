@@ -20,7 +20,10 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
         {
             _config = new Config();
         }
+
         #endregion
+
+        #region METHODS
 
         public PluginInitResult InitializePlugin()
         {
@@ -141,5 +144,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
                 throw ex;
             }
         }
+
+        #endregion
     }
 }

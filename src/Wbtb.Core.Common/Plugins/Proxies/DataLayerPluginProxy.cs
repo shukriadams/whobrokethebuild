@@ -13,6 +13,14 @@ namespace Wbtb.Core.Common
 
         #region UTIL
 
+        public void Diagnose()
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = "Diagnose"
+            });
+        }
+
         public string Verify()
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs

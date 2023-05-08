@@ -4,6 +4,14 @@
     {
         private readonly IPluginSender _pluginSender;
 
+        public void Diagnose()
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = "Diagnose"
+            });
+        }
+
         public LogParserProxy(IPluginSender pluginSender) : base(pluginSender)
         {
             _pluginSender = pluginSender;

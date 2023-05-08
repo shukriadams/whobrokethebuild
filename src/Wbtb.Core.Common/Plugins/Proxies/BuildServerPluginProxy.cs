@@ -11,6 +11,14 @@ namespace Wbtb.Core.Common
             _pluginSender = pluginSender;
         }
 
+        public void Diagnose()
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = "Diagnose"
+            });
+        }
+
         void IBuildServerPlugin.VerifyBuildServerConfig(BuildServer buildServer)
         {
             _pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs

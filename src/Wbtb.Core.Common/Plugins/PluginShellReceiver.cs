@@ -16,7 +16,7 @@ namespace Wbtb.Core.Common
     {
         #region METHODS
 
-        private void ProcessInterfaceCommand(string interfaceData, string[] args)
+        private void ProcessInterfaceCommand(string interfaceData, string[] args, Config config, TPlugin pluginInstance)
         {
             try 
             {
@@ -35,13 +35,6 @@ namespace Wbtb.Core.Common
                     PluginLogger.Write(interfaceData);
                     return;
                 }
-
-                // register this plugin. 
-                // todo : this is messy, move to calling method with other DI registration
-                SimpleDI di = new SimpleDI();
-                Config config = di.Resolve<Config>();
-                di.Register(typeof(TPlugin), typeof(TPlugin));
-
 
                 MethodInfo method = typeof(TPlugin).GetMethod(pluginArgs.FunctionName);
                 if (method == null)
@@ -66,7 +59,6 @@ namespace Wbtb.Core.Common
                         methodArgs.Add(JsonConvert.DeserializeObject(JsonConvert.SerializeObject(incomingparameter.Value), parameter.ParameterType));
                 }
 
-                TPlugin pluginInstance = di.Resolve<TPlugin>();
                 ((IPlugin)pluginInstance).ContextPluginConfig = config.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
                 Console.WriteLine($"Invoking method {pluginArgs.FunctionName}");
 
@@ -103,19 +95,26 @@ namespace Wbtb.Core.Common
         /// <param name="args"></param>
         public void Process(string[] args)
         {
+            // do global setup, this is the application entry-point for plugins running in standalone mode
             SimpleDI di = new SimpleDI();
+
+            di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();
+            di.Register<ConfigBasic, ConfigBasic>();
 
             CommandLineSwitches switches = new CommandLineSwitches(args);
 
             MessageQueueHtppClient client = di.Resolve<MessageQueueHtppClient>();
-
+            
+            // fetch config from messenger service
             Config config = client.GetConfig();
             config.IsCurrentContextProxyPlugin = true;
             ConfigBasic configBasic = di.Resolve<ConfigBasic>();
-            // register config, this meant to happen in the plugin runtime
             di.RegisterSingleton<Config>(config);
+            
+            // register this plugin as the type defined in this assembly
+            di.Register(typeof(TPlugin), typeof(TPlugin));
 
-            // register proxy types, except for plugin this is being currently used from, that will always be concrete
+            // register other plugin types as proxies
             string thisPluginName = TypeHelper.Name<TPlugin>();
             foreach (PluginConfig pluginConfig in config.Plugins.Where(p => p.Manifest.Concrete != thisPluginName))
                 di.Register(TypeHelper.ResolveType(pluginConfig.Manifest.Interface), TypeHelper.GetRequiredProxyType(pluginConfig.Manifest.Interface));
@@ -129,7 +128,14 @@ namespace Wbtb.Core.Common
                 if (configBasic.PersistCalls)
                     File.WriteAllText("__interfaceCall.txt", data);
 
-                ProcessInterfaceCommand(data, args);
+                TPlugin pluginInstance = di.Resolve<TPlugin>();
+                ProcessInterfaceCommand(data, args, config, pluginInstance);
+            }
+
+            if (switches.Contains("diagnostic")) 
+            {
+                IPlugin plugin = di.Resolve<TPlugin>() as IPlugin;
+                plugin.Diagnose();
             }
 
             if (switches.Contains("manifest"))

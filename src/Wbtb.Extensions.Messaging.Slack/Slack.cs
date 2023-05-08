@@ -36,6 +36,8 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         #endregion
 
+        #region METHODS
+
         /// <summary>
         /// Attempt to reach slack to ensure config works
         /// </summary>
@@ -267,5 +269,6 @@ namespace Wbtb.Extensions.Messaging.Slack
             return string.Empty;
         }
 
+        #endregion
     }
 }

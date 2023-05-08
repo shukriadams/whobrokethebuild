@@ -2,11 +2,29 @@
 {
     public class AuthPluginProxy : PluginProxy, IAuthenticationPlugin, IPluginProxy
     {
+        #region FIELDS
+
         private readonly IPluginSender _pluginSender;
+
+        #endregion
+
+        #region CTORS
 
         public AuthPluginProxy(IPluginSender pluginSender) : base(pluginSender)
         {
             _pluginSender = pluginSender;
+        }
+
+        #endregion
+
+        #region METHODS
+
+        public void Diagnose()
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = "Diagnose"
+            });
         }
 
         public AuthenticationResult RequestPasswordLogin(string username, string password)
@@ -21,6 +39,6 @@
             });
         }
 
-
+        #endregion
     }
 }

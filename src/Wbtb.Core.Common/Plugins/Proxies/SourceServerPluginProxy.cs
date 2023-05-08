@@ -10,7 +10,15 @@ namespace Wbtb.Core.Common
         {
             _pluginSender = pluginSender;
         }
-        
+
+        public void Diagnose()
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = "Diagnose"
+            });
+        }
+
         public string Verify()
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs

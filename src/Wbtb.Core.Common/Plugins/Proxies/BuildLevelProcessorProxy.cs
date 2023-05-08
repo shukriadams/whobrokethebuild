@@ -9,6 +9,14 @@
             _pluginSender = pluginSender;
         }
 
+        public void Diagnose()
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = "Diagnose"
+            });
+        }
+
         public void Process(Build build)
         {
             _pluginSender.InvokeMethod(this, new PluginArgs

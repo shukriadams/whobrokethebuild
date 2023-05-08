@@ -23,5 +23,10 @@ namespace Wbtb.Core.Common
         /// Config for this instance of plugin
         /// </summary>
         PluginConfig ContextPluginConfig { get;set; }
+
+        /// <summary>
+        /// Can be left empty. Place diagnostic / debug features here. This method can be invoked directly in standalone mode.
+        /// </summary>
+        void Diagnose();
     }
 }
