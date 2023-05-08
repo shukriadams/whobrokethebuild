@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace Wbtb.Core.Common
 {
@@ -100,6 +101,10 @@ namespace Wbtb.Core.Common
 
             di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();
             di.Register<ConfigBasic, ConfigBasic>();
+            di.Register<PluginDirectSender, PluginDirectSender>();
+            di.Register<PluginCoreSender, PluginCoreSender>();
+            di.Register<PersistPathHelper, PersistPathHelper>();
+            di.Register<PluginProvider, PluginProvider>();
 
             CommandLineSwitches switches = new CommandLineSwitches(args);
 

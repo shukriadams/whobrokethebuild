@@ -52,7 +52,7 @@ namespace Wbtb.Core
             ConfigurationManager.FinalizeConfig(unsafeConfig);
 
             bool isAnyPluginProxying = unsafeConfig.Plugins.Where(p => p.Proxy).Any();
-            if (isAnyPluginProxying)
+            if (isAnyPluginProxying || unsafeConfig.ForceMessageQueue)
             {
                 MessageQueueHtppClient client = di.Resolve<MessageQueueHtppClient>();
                 client.EnsureAvailable();

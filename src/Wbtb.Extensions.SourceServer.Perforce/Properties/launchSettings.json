@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Wbtb.Extensions.Data.Postgres": {
+    "Wbtb.Extensions.SourceServer.Perforce": {
       "commandName": "Project",
       "commandLineArgs": "--diagnostic"
     }

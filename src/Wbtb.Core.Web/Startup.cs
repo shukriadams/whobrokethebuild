@@ -50,6 +50,10 @@ namespace Wbtb.Core.Web
             di.Register<PluginProvider, PluginProvider>();
             di.Register<PluginManager, PluginManager>();
             di.Register<BuildLevelPluginHelper, BuildLevelPluginHelper>();
+            di.Register<FileSystemHelper, FileSystemHelper>();
+            di.Register<CustomEnvironmentArgs, CustomEnvironmentArgs>();
+            di.RegisterFactory<ILogger, LogProvider>();
+
             di.Register<HomeController, HomeController>();
             di.Register<BuildController, BuildController>();
             di.Register<InvokeController, InvokeController>();
@@ -61,12 +65,8 @@ namespace Wbtb.Core.Web
             di.Register<IWebDaemon, LogParseDaemon>(true);
             di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(true);
             di.Register<IWebDaemon, IncidentAssignDaemon>(true);
-            di.Register<FileSystemHelper, FileSystemHelper>();
-            di.Register<CustomEnvironmentArgs, CustomEnvironmentArgs>();
-            di.RegisterFactory<ILogger, LogProvider>();
             di.RegisterFactory<IHubContext, HubFactory>();
             di.RegisterFactory<IPluginSender, PluginSenderFactory>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

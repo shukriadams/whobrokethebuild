@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Wbtb.Extensions.Data.Postgres": {
+    "Wbtb.Extensions.LogParsing.JenkinsSelfFailing": {
       "commandName": "Project",
       "commandLineArgs": "--diagnostic"
     }

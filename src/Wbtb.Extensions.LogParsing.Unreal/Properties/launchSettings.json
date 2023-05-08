@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Wbtb.Extensions.Data.Postgres": {
+    "Wbtb.Extensions.LogParsing.Unreal": {
       "commandName": "Project",
       "commandLineArgs": "--diagnostic"
     }

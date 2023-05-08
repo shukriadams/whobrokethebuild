@@ -18,7 +18,7 @@ namespace Wbtb.Core.Common
             Type t = typeof(T);
 
             PluginConfig config = _config.Plugins.FirstOrDefault(c => c.Manifest.Interface == $"Wbtb.Core.Common.{t.Name}");
-            T plugin = (T)GetDistinct(config);
+            T plugin = (T)GetDistinct(config, false);
             
             if (expected && plugin == null)
                 throw new PluginNotFoundExpection(typeof(T));
@@ -38,7 +38,7 @@ namespace Wbtb.Core.Common
             return GetDistinct(config) as IPlugin;
         }
 
-        public object GetDistinct(PluginConfig pluginConfig)
+        public object GetDistinct(PluginConfig pluginConfig, bool forceConcrete = true)
         {
             if (pluginConfig == null)
                 return null;
@@ -58,15 +58,26 @@ namespace Wbtb.Core.Common
             }
             else 
             {
-                // TODO - cache type lookup for performance
-                Type? concreteType = TypeHelper.ResolveType(pluginConfig.Manifest.Concrete);
-                if (concreteType == null)
-                    throw new ConfigurationException($"Could not load concrete type {pluginConfig.Manifest.Concrete} from available assemblies");
+                if (forceConcrete) 
+                {
+                    // TODO - cache type lookup for performance
+                    Type? concreteType = TypeHelper.ResolveType(pluginConfig.Manifest.Concrete);
+                    if (concreteType == null)
+                        throw new ConfigurationException($"Could not load concrete type {pluginConfig.Manifest.Concrete} from available assemblies");
 
-                SimpleDI di = new SimpleDI();
-                plugin = di.ResolveImplementation(concreteType);
-                if (plugin == null)
-                    throw new ConfigurationException($"Could not create instance of plugin {pluginConfig.Key}");
+                    SimpleDI di = new SimpleDI();
+                    plugin = di.ResolveImplementation(concreteType);
+                    if (plugin == null)
+                        throw new ConfigurationException($"Could not create instance of plugin {pluginConfig.Key} by concrete type {pluginConfig.Manifest.Concrete}.");
+                } 
+                else 
+                {
+                    // get by interface
+                    SimpleDI di = new SimpleDI();
+                    plugin = di.Resolve(TypeHelper.ResolveType(pluginConfig.Manifest.Interface));
+                    if (plugin == null)
+                        throw new ConfigurationException($"Could not create instance of plugin {pluginConfig.Key} by interface {pluginConfig.Manifest.Interface}.");
+                }
             }
 
             IPlugin iplugin = plugin as IPlugin;

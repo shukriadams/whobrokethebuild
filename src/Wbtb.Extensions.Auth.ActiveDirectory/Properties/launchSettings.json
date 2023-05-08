@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Wbtb.Extensions.Data.Postgres": {
+    "Wbtb.Extensions.Auth.ActiveDirectory": {
       "commandName": "Project",
       "commandLineArgs": "--diagnostic"
     }

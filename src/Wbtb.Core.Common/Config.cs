@@ -109,6 +109,11 @@ namespace Wbtb.Core.Common
         public bool IsCurrentContextProxyPlugin { get;set;}
 
         /// <summary>
+        /// For internal dev; set to true to to force server to connect to MessageQueue
+        /// </summary>
+        public bool ForceMessageQueue { get; set; }
+
+        /// <summary>
         /// 
         /// </summary>
         public int Port { get; set; }

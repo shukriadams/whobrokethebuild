@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Wbtb.Extensions.Data.Postgres": {
+    "Wbtb.Extensions.PostProcessing.Test": {
       "commandName": "Project",
       "commandLineArgs": "--diagnostic"
     }
