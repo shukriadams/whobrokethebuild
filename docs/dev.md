@@ -37,7 +37,9 @@ to build the server
 and to start the server
 
     cd src
-    dotnet run --project Wbtb.Core.Web
+    dotnet run --project Wbtb.Core.Web --urls=http://0.0.0.0:5000
+
+The url above may be required in Vagrant, depending on your VM provider platform.
 
 ## Developer settings
 

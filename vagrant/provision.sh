@@ -8,7 +8,7 @@ wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-pr
 sudo dpkg -i packages-microsoft-prod.deb
 sudo apt-get install apt-transport-https
 sudo apt-get update
-sudo apt-get install dotnet-sdk-3.1 -y
+sudo apt-get install dotnet-sdk-6.0 -y
 
 # altecover report generator
 dotnet tool install --global dotnet-reportgenerator-globaltool --version 4.1.5
@@ -17,6 +17,11 @@ dotnet tool install --global dotnet-reportgenerator-globaltool --version 4.1.5
 sudo apt install docker.io -y
 sudo apt install docker-compose -y
 sudo usermod -aG docker vagrant
+
+# nodejs
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+sudo apt-get install nodejs -y
+
 
 # force startup folder to vagrant project
 echo "cd /vagrant/src" >> /home/vagrant/.bashrc
