@@ -64,3 +64,4 @@ src/MessageQueue/obj
 *.pyc
 src/Wbtb.Extensions.PostProcessing.Test3/wbtb/log.txt
 .checkout
+src/Wbtb.Core.Web/currentVersion.txt

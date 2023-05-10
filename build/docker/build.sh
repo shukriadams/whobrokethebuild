@@ -18,26 +18,25 @@ if [ -z "$TAG" ]; then
 fi
 
 # write hhash + tag to currentVersion.txt in source, this will be displayed by web ui
-echo "$HASH $TAG" > ./../../src/WBTB.Core.Web/currentVersion.txt 
+echo "$HASH $TAG" > ./../../src/Wbtb.Core.Web/currentVersion.txt 
 
 docker run \
     -e TAG=$TAG \
     -v $(pwd)./../../src:/tmp/wbtb \
-    shukriadams/tetrifact-build:0.0.4 \
+    mcr.microsoft.com/dotnet/sdk:6.0 \
     sh -c "cd /tmp/wbtb && \
-        dotnet restore && \
-        dotnet publish /property:PublishWithAspNetCoreTargetManifest=false --configuration Release && \
-        cd ./WBTB.Core.Web/bin/Release/netcoreapp3.1 && \
-        zip -r ./WBTB.$TAG.zip ./publish/*"
+        dotnet restore Wbtb.Core.Web && \
+        dotnet publish Wbtb.Core.Web /property:PublishWithAspNetCoreTargetManifest=false --configuration Release && \
+        cd ./Wbtb.Core.Web/bin/Release/net6.0"
 
 # build hosting container
-cd ./../../src/WBTB.Core.Web
+cd ./../../src/Wbtb.Core.Web
 docker build -t shukriadams/wbtb . 
 docker tag shukriadams/wbtb:latest shukriadams/wbtb:$TAG 
 cd -
 
 if [ $SMOKETEST -eq 1 ]; then
-    docker-compose -f docker-compose-test.yml down 
+    docker-compose -f docker-compose-test.yml down --remove-orphans
     docker-compose -f docker-compose-test.yml up -d 
     sleep 5  # wait a few seconds to make sure app in container has started
     STATUS=$(curl -s -o /dev/null -w "%{http_code}" localhost:49022) 

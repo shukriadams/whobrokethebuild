@@ -1,0 +1,18 @@
+Plugins: 
+-   Key: Postgres
+    Path: Wbtb.Extensions.Data.PostgresSandbox
+-   Key: jenkinsSandbox
+    Path : Wbtb.Extensions.BuildServer.JenkinsSandbox
+-   Key: p4Sandbox
+    Path: Wbtb.Extensions.SourceServer.PerforceSandbox
+
+SourceServers:
+-   Key: myperforce
+    Plugin: p4Sandbox
+
+BuildServers:
+-   Key: MyJenkins
+    Plugin: jenkinsSandbox
+    Jobs:
+    -   Key: Project_Ironbird
+        SourceServer: myperforce

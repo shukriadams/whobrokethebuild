@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # squelch tzdata prompt
 ENV DEBIAN_FRONTEND=noninteractive
@@ -6,11 +6,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install -y wget \
     && apt-get install -y tzdata \
-    && wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb \
+    && wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
     && sh -c 'dpkg -i packages-microsoft-prod.deb' \
     && apt-get install apt-transport-https -y \
     && apt-get update \
-    && apt-get install aspnetcore-runtime-3.1 -y \
+    && apt-get install aspnetcore-runtime-6.0 -y \
     ## clean up
     && rm packages-microsoft-prod.deb \
     && apt-get remove wget -y \
@@ -21,11 +21,11 @@ RUN apt-get update \
     && chown wbtb /var/wbtb
 
 # this assumes the application has already been built in publish mode
-COPY ./bin/Release/netcoreapp3.1/publish/*/. /var/wbtb
+COPY ./bin/Release/net6.0/. /var/wbtb
 
 USER wbtb
 
 # set wbtb default log level
 ENV Logging__LogLevel__Microsoft=Warning
 
-CMD sh -c 'cd /var/wbtb && dotnet WBTB.Core.Web.dll'
+CMD sh -c 'cd /var/wbtb && dotnet Wbtb.Core.Web.dll'
