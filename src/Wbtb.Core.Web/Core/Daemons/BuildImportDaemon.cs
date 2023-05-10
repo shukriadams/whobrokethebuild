@@ -96,8 +96,11 @@ namespace Wbtb.Core.Web
 
                         BuildImportSummary importSummary = buildServerPlugin.ImportBuilds(thisjob, count);
 
-                        foreach (Build build in importSummary.Ended)
+                        foreach (Build incomingbuild in importSummary.Ended)
                         {
+                            // get fresh copy of build to prevent concurrency collisions
+                            Build build = dataLayer.GetBuildById(incomingbuild.Id);
+
                             // set delta
                             Build previousBuild = dataLayer.GetPreviousBuild(build);
                             BuildDelta? delta = null;
