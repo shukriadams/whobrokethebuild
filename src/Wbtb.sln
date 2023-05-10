@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Core", "Wbtb.Core\Wbtb.Core.csproj", "{A0DB097C-643A-48C8-8E21-8AD0823AEC90}"
 EndProject
@@ -45,7 +45,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.PostProcess
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.PostProcessing.Test2", "Wbtb.Extensions.PostProcessing.Test2\Wbtb.Extensions.PostProcessing.Test2.csproj", "{A76CB26E-7DAC-442C-807A-533D68525C8F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wbtb.Extensions.Auth.ActiveDirectorySandbox", "Wbtb.Extensions.Auth.ActiveDirectorySandbox\Wbtb.Extensions.Auth.ActiveDirectorySandbox.csproj", "{9038C600-400E-4CBC-870C-24D03482DEFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.Auth.ActiveDirectorySandbox", "Wbtb.Extensions.Auth.ActiveDirectorySandbox\Wbtb.Extensions.Auth.ActiveDirectorySandbox.csproj", "{9038C600-400E-4CBC-870C-24D03482DEFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wbtb.Extensions.Data.FileSystem", "Wbtb.Extensions.Data.FileSystem\Wbtb.Extensions.Data.FileSystem.csproj", "{2ACB2C81-AA7F-4842-BCA3-D3A3CDCD68CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,6 +143,10 @@ Global
 		{9038C600-400E-4CBC-870C-24D03482DEFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9038C600-400E-4CBC-870C-24D03482DEFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9038C600-400E-4CBC-870C-24D03482DEFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ACB2C81-AA7F-4842-BCA3-D3A3CDCD68CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ACB2C81-AA7F-4842-BCA3-D3A3CDCD68CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ACB2C81-AA7F-4842-BCA3-D3A3CDCD68CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ACB2C81-AA7F-4842-BCA3-D3A3CDCD68CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

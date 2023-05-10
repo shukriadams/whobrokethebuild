@@ -1,6 +1,6 @@
 Plugins: 
--   Key: Postgres
-    Path: Wbtb.Extensions.Data.PostgresSandbox
+-   Key: fsData
+    Path: Wbtb.Extensions.Data.FileSystem
 -   Key: jenkinsSandbox
     Path : Wbtb.Extensions.BuildServer.JenkinsSandbox
 -   Key: p4Sandbox

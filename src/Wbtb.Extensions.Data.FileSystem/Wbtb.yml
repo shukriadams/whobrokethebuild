@@ -1,0 +1,8 @@
+﻿Key: Wbtb.Data.FileSystem
+Runtime: dotnet
+Assembly: Wbtb.Extensions.Data.FileSystem
+Main: Wbtb.Extensions.Data.FileSystem.dll
+Interface: Wbtb.Core.Common.IDataLayerPlugin
+Concrete: Wbtb.Extensions.Data.FileSystem.FileSystem
+Version: 0.0.1
+Description: Dummy/test/sandbox data, for dev use only.

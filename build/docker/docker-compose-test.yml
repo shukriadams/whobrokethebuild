@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_URLS : http://*:5000
+      WBTB_DISABLE_DAEMONS: 1
     volumes:
     - ./config.yml://var/wbtb/config.yml
     ports:

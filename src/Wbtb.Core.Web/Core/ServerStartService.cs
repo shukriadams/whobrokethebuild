@@ -30,6 +30,7 @@ namespace Wbtb.Core.Web
                         "Wbtb.Extensions.BuildServer.JenkinsSandbox",
                         "Wbtb.Extensions.SourceServer.Perforce",
                         "Wbtb.Extensions.SourceServer.PerforceSandbox",
+                        "Wbtb.Extensions.Data.FileSystem",
                         "Wbtb.Extensions.Data.Postgres",
                     });
 
@@ -44,30 +45,44 @@ namespace Wbtb.Core.Web
                             TypeHelper.GetAssembly(plugin.Manifest.Assembly); // force load assembly
 
                         Type implementation = plugin.Proxy ? TypeHelper.GetRequiredProxyType(interfaceType) : TypeHelper.ResolveType(plugin.Manifest.Concrete);
+                        if (implementation == null)
+                            throw new ConfigurationException($"Could not resolve plugin type {plugin.Manifest.Concrete}");
+
                         di.Register(interfaceType, implementation);
                     }
 
                     Wbtb.Core.Core.LoadPlugins();
 
-                    // these shoule be moved to "startserver" too
-                    using (IServiceScope scope = serviceProvider.CreateScope())
-                    {
-                        // start daemons by find all types that implement IWebdaemon, start all
-                        IEnumerable<IWebDaemon> webDaemons = di.ResolveAll<IWebDaemon>(); // scope.ServiceProvider.GetServices<IWebDaemon>();
-                        foreach (IWebDaemon daemon in webDaemons)
-                            daemon.Start(config.DaemonInterval * 1000);
+                    string disableDaemonsLook = Environment.GetEnvironmentVariable("WBTB_DISABLE_DAEMONS");
+                    bool disableDaemons = disableDaemonsLook == "1" || disableDaemonsLook == "true";
 
-                        // signlr, pipe all console write and writelines to signlr hub
-                        // dev stuff, this should be moved somewhere better. 
-                        IHubContext<ConsoleHub> hub = scope.ServiceProvider.GetService<IHubContext<ConsoleHub>>();
-                        using (var consoleWriter = new ConsoleWriter())
+                    // these shoule be moved to "startserver" too
+                    if (disableDaemons)
+                    {
+                        Console.WriteLine("DAEMONS DISABLED");
+                    }
+                    else 
+                    {
+                        using (IServiceScope scope = serviceProvider.CreateScope())
                         {
-                            consoleWriter.WriteEvent += (object sender, ConsoleWriterEventArgs e) => {
-                                hub.Clients.All.SendAsync("ReceiveMessage", "some user", e.Value);
-                            };
-                            Console.SetOut(consoleWriter);
+                            // start daemons by find all types that implement IWebdaemon, start all
+                            IEnumerable<IWebDaemon> webDaemons = di.ResolveAll<IWebDaemon>(); // scope.ServiceProvider.GetServices<IWebDaemon>();
+                            foreach (IWebDaemon daemon in webDaemons)
+                                daemon.Start(config.DaemonInterval * 1000);
+
+                            // signlr, pipe all console write and writelines to signlr hub
+                            // dev stuff, this should be moved somewhere better. 
+                            IHubContext<ConsoleHub> hub = scope.ServiceProvider.GetService<IHubContext<ConsoleHub>>();
+                            using (var consoleWriter = new ConsoleWriter())
+                            {
+                                consoleWriter.WriteEvent += (object sender, ConsoleWriterEventArgs e) => {
+                                    hub.Clients.All.SendAsync("ReceiveMessage", "some user", e.Value);
+                                };
+                                Console.SetOut(consoleWriter);
+                            }
                         }
                     }
+
                 }
                 catch (ConfigurationException ex)
                 {
