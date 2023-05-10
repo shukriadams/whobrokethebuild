@@ -27,7 +27,7 @@ To set up a basic demonstration server, create a file called `config.yml` and se
         - Password: <postgres-password>
         - Database: <postgres-database>
     -   Key: jenkinsSandbox
-        Path : Wbtb.Extensions.Data.JenkinsSandbox
+        Path : Wbtb.Extensions.BuildServer.JenkinsSandbox
     -   Key: p4Sandbox
         Path: Wbtb.Extensions.SourceServer.PerforceSandbox
 
