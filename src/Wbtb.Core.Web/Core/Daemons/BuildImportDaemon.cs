@@ -21,6 +21,8 @@ namespace Wbtb.Core.Web
         private readonly Config _config;
 
         private readonly BuildLevelPluginHelper _buildLevelPluginHelper;
+
+        private readonly SimpleDI _di;
         #endregion
 
         #region CTORS
@@ -30,10 +32,10 @@ namespace Wbtb.Core.Web
             _log = log;
             _processRunner = processRunner;
 
-            SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>();
-            _pluginProvider = di.Resolve<PluginProvider>();
-            _buildLevelPluginHelper = di.Resolve<BuildLevelPluginHelper>();
+            _di = new SimpleDI();
+            _config = _di.Resolve<Config>();
+            _pluginProvider = _di.Resolve<PluginProvider>();
+            _buildLevelPluginHelper = _di.Resolve<BuildLevelPluginHelper>();
         }
 
         #endregion

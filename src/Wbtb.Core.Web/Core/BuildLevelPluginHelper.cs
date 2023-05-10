@@ -11,8 +11,11 @@ namespace Wbtb.Core.Web
 
         private readonly PluginProvider _pluginProvider;
 
+        private readonly SimpleDI _di;
+
         public BuildLevelPluginHelper(PluginProvider pluginProvider, ILogger logger) 
         {
+            _di = new SimpleDI();
             _pluginProvider = pluginProvider;
             _logger = logger;
         }

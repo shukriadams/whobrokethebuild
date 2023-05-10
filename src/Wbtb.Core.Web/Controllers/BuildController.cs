@@ -11,14 +11,16 @@ namespace Wbtb.Core.Web
 
         private readonly PluginProvider _pluginProvider;
 
+        private readonly SimpleDI _di;
+
         #endregion
         
         #region FIELDS
 
         public BuildController() 
-        { 
-            SimpleDI di = new SimpleDI();
-            _pluginProvider = di.Resolve<PluginProvider>();
+        {
+            _di = new SimpleDI();
+            _pluginProvider = _di.Resolve<PluginProvider>();
         }
 
         #endregion

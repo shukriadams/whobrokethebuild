@@ -19,12 +19,14 @@ namespace Wbtb.Core.Web.Controllers
 
         private readonly PluginProvider _pluginProvider;
 
+        private readonly SimpleDI _di;
+
         #endregion
         public InvokeController() 
         {
-            SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>();
-            _pluginProvider = di.Resolve<PluginProvider>();  
+            _di = new SimpleDI();
+            _config = _di.Resolve<Config>();
+            _pluginProvider = _di.Resolve<PluginProvider>();  
         } 
 
         /// <summary>

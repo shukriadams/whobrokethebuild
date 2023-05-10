@@ -25,17 +25,23 @@ namespace Wbtb.Core.Web.Controllers
 
         private LogHelper _loghelper;
 
+        private SimpleDI _di;
+
         #endregion
 
         #region CTORS
 
-        public HomeController(IHubContext<ConsoleHub> hub, Config config, ILogger log, LogHelper loghelper, PluginProvider pluginProvider)
+        /// <summary>
+        /// M$ hides how to pass HTTP context to custom controller factory, so we need to do all DI inside the CTOR.
+        /// </summary>
+        public HomeController()
         {
-            _hub = hub;
-            _log = log;
-            _config = config;
-            _pluginProvider = pluginProvider;
-            _loghelper = loghelper;
+            _di = new SimpleDI();
+            _hub = _di.Resolve<IHubContext<ConsoleHub>>();
+            _log = _di.Resolve<ILogger>();
+            _config = _di.Resolve<Config>();
+            _pluginProvider = _di.Resolve<PluginProvider>();
+            _loghelper = _di.Resolve<LogHelper>();
         }
 
         #endregion
@@ -49,6 +55,8 @@ namespace Wbtb.Core.Web.Controllers
         [Route("")]
         public IActionResult Index()
         {
+            //return new EmptyResult();
+
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             // todo : replace with redirect to /buildserver/{id?}

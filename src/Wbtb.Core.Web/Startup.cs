@@ -32,7 +32,7 @@ namespace Wbtb.Core.Web
             services.AddTransient<IMessageQueue, MessageQueue>();
             services.AddHostedService<ServerStartService>();
             // force built-in DI to use our DI's controller factory, this is the only known way to bypass M$' DI for controllers
-            services.AddSingleton<IControllerFactory, ControllerFactory>();
+            //services.AddSingleton<IControllerFactory, ControllerFactory>();
             services.AddMemoryCache();
 
             SimpleDI di = new SimpleDI();

@@ -15,13 +15,15 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private ILogger _log;
+        private readonly ILogger _log;
 
-        private IDaemonProcessRunner _processRunner;
+        private readonly IDaemonProcessRunner _processRunner;
 
         private readonly Config _config;
 
         private readonly PluginProvider _pluginProvider;
+
+        private readonly SimpleDI _di;
 
         #endregion
 
@@ -32,10 +34,9 @@ namespace Wbtb.Core.Web
             _log = log;
             _processRunner = processRunner;
 
-            SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>();
-            _pluginProvider = di.Resolve<PluginProvider>(); 
-
+            _di = new SimpleDI();
+            _config = _di.Resolve<Config>();
+            _pluginProvider = _di.Resolve<PluginProvider>(); 
         }
 
         #endregion

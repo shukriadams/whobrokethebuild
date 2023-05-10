@@ -105,6 +105,7 @@ namespace Wbtb.Core.Common
             di.Register<PluginCoreSender, PluginCoreSender>();
             di.Register<PersistPathHelper, PersistPathHelper>();
             di.Register<PluginProvider, PluginProvider>();
+            di.Register<IPluginSender, PluginCoreSender>();
 
             CommandLineSwitches switches = new CommandLineSwitches(args);
 

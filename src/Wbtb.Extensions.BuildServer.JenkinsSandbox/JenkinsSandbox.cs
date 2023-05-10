@@ -15,6 +15,8 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         private readonly PluginProvider _pluginProvider;
 
         private readonly PersistPathHelper _persistPathHelper;
+
+        private readonly SimpleDI _di;
         #endregion
 
         #region CTORS
@@ -24,7 +26,8 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             _config = config;
             _pluginProvider = pluginProvider;
             _persistPathHelper = persistPathHelper;
-        } 
+            _di = new SimpleDI();
+        }
 
         #endregion
 
@@ -37,6 +40,12 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
                 SessionId = Guid.NewGuid().ToString(),
                 Success = true
             };
+        }
+
+        public void Diagnose() 
+        {
+            IDataLayerPlugin data = _di.Resolve<IDataLayerPlugin>();
+            var records = data.GetBuildServers();
         }
 
         public ReachAttemptResult AttemptReach(Core.Common.BuildServer contextServer)
