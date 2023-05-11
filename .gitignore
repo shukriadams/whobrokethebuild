@@ -68,3 +68,5 @@ src/Wbtb.Core.Web/currentVersion.txt
 src/Wbtb.Extensions.Data.FileSystem/bin
 src/Wbtb.Extensions.Data.FileSystem/obj
 build/docker/data
+src/Wbtb.Extensions.Messaging.Sandbox/bin
+src/Wbtb.Extensions.Messaging.Sandbox/obj
