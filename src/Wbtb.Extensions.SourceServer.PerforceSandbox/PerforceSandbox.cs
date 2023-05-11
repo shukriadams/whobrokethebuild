@@ -36,7 +36,7 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
 
         public IEnumerable<Revision> GetRevisionsBetween(Core.Common.SourceServer contextServer, string revisionStart, string revisionEnd)
         {
-            return null;
+            return new Revision[] {};
         }
 
         public Revision GetRevision(Core.Common.SourceServer contextServer, string revisionCode)

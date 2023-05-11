@@ -42,7 +42,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs
             {
-                FunctionName = "GetRevisionsBetween",
+                FunctionName = "AttemptReach",
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "contextServer", Value = contextServer }
                 }
