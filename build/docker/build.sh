@@ -30,6 +30,15 @@ docker run \
 
 docker run \
     -v $(pwd)./../../src:/tmp/wbtb \
+    shukriadams/node12build:0.0.4 \
+    sh -c "cd /tmp/wbtb/Wbtb.Core.Web/frontend && \
+        sh ./setup.sh
+        npm install && \
+        npm run icons && \
+        npm run build"
+
+docker run \
+    -v $(pwd)./../../src:/tmp/wbtb \
     mcr.microsoft.com/dotnet/sdk:6.0 \
     sh -c "cd /tmp/wbtb && \
         dotnet restore MessageQueue && \

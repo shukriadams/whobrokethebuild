@@ -23,6 +23,7 @@ RUN apt-get update \
 
 # this assumes the application has already been built in publish mode
 COPY ./Wbtb.Core.Web/bin/Release/net6.0/. /var/wbtb/Wbtb.Core.Web
+COPY ./Wbtb.Core.Web/wwwroot/. /var/wbtb/Wbtb.Core.Web/wwwroot
 # include messageQueue
 COPY ./MessageQueue/bin/Release/net6.0/. /var/wbtb/MessageQueue
 # include built-in plugins WBTB always ships with
