@@ -68,9 +68,6 @@ namespace Wbtb.Core.Web
                 {
                     try
                     {
-                        if (!cfgJob.Enable)
-                            continue;
-
                         Job job = dataLayer.GetJobByKey(cfgJob.Key);
                         SourceServer sourceServer = dataLayer.GetSourceServerById(job.SourceServerId);
                         ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;

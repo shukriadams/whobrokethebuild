@@ -82,7 +82,7 @@ namespace Wbtb.Core.Web
                     return;
                 }
 
-                foreach (Job job in buildServer.Jobs.Where(job => job.Enable && job.LogParserPlugins.Any()))
+                foreach (Job job in buildServer.Jobs.Where(job => job.LogParserPlugins.Any()))
                 {
                     try
                     {

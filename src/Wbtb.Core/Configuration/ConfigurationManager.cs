@@ -104,7 +104,7 @@ namespace Wbtb.Core
                 buildServer.Jobs = buildServer.Jobs.Where(j => j.Enable).ToList();
 
                 foreach (Job job in buildServer.Jobs)
-                    job.Alert = job.Alert.Where(a => a.Enable).ToList();
+                    job.Alerts = job.Alerts.Where(a => a.Enable).ToList();
             }
 
             // find and embed raw config data as JSON onto plugins, groups and users. Raw JSON allows plugins to define custom
@@ -382,7 +382,7 @@ namespace Wbtb.Core
                 foreach (Job job in buildserver.Jobs){
 
                     // ensure job alerts are associated with valid plugins, and that plugins validate alert config
-                    foreach (AlertHandler alert in job.Alert)
+                    foreach (AlertHandler alert in job.Alerts)
                         if (!config.Plugins.Any(g => g.Key == alert.Plugin))
                             throw new ConfigurationException($"Job \"{job.Key}\" defines an alert with plugin target \"{alert.Plugin}\", but this plugin does not exist.");
                 }
@@ -414,9 +414,6 @@ namespace Wbtb.Core
                 // ensure contact identities point to valid source servers
                 foreach (AlertConfig alertConfig in user.Alert)
                 {
-                    if (string.IsNullOrEmpty(alertConfig.Key))
-                        throw new ConfigurationException($"User \"{user.Key}\" defines an Alert that has no \"Id\" property.");
-
                     if (string.IsNullOrEmpty(alertConfig.Plugin))
                         throw new ConfigurationException($"User \"{user.Key}\" defines an Alert that has no \"Plugin\" property.");
 
@@ -433,9 +430,6 @@ namespace Wbtb.Core
             foreach (Group group in config.Groups)
                 foreach (AlertConfig alertConfig in group.Alert)
                 {
-                    if (string.IsNullOrEmpty(alertConfig.Key))
-                        throw new ConfigurationException($"Group \"{group.Key}\" defines an alert that has no \"Key\" property.");
-
                     if (string.IsNullOrEmpty(alertConfig.Plugin))
                         throw new ConfigurationException($"Group \"{group.Key}\" defines an Alert that has no \"Plugin\" property.");
 

@@ -11,6 +11,7 @@ namespace Wbtb.Extensions.Messaging.Slack
 {
     public class SlackConfig
     { 
+        public string SlackId { get; set; }
         public bool IsGroup { get;set; }
     }
 
@@ -76,12 +77,8 @@ namespace Wbtb.Extensions.Messaging.Slack
             };
         }
 
-
         public void ValidateAlertConfig(AlertConfig alertConfig)
         {
-            if (string.IsNullOrEmpty(alertConfig.Key))
-                throw new ConfigurationException("Slack detected alert with no \"Id\" value.");
-
             if (string.IsNullOrEmpty(alertConfig.Plugin))
                 throw new ConfigurationException("Slack detected alert with no \"Plugin\" value.");
         }
@@ -107,8 +104,11 @@ namespace Wbtb.Extensions.Messaging.Slack
                 targetSlackConfig = group.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
+            if (targetSlackConfig == null)
+                throw new Exception("alerthandler has neither user nor group");
+
             SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(targetSlackConfig.RawJson);
-            string slackId = targetSlackConfig.Key;
+            string slackId = config.SlackId;
 
             // if user, we need to get user channel id from user slack id, and post to this
             if (!config.IsGroup)
@@ -205,7 +205,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             }
             
             SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(targetSlackConfig.RawJson);
-            string slackId = targetSlackConfig.Key;
+            string slackId = config.SlackId;
 
 
             // if user, we need to get user channel id from user slack id, and post to this

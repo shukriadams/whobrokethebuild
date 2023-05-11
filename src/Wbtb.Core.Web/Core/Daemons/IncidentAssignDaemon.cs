@@ -83,9 +83,6 @@ namespace Wbtb.Core.Web
                 {
                     try
                     {
-                        if (!job.Enable)
-                            continue;
-
                         Job thisjob = dataLayer.GetJobByKey(job.Key);
                         IEnumerable<Build> buildsWithoutIncident = dataLayer.GetFailingBuildsWithoutIncident(thisjob);
                         foreach(Build buildWithoutIncident in buildsWithoutIncident)

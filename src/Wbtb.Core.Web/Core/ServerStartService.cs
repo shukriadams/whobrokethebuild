@@ -30,6 +30,7 @@ namespace Wbtb.Core.Web
                         "Wbtb.Extensions.BuildServer.JenkinsSandbox",
                         "Wbtb.Extensions.SourceServer.Perforce",
                         "Wbtb.Extensions.SourceServer.PerforceSandbox",
+                        "Wbtb.Extensions.Messaging.Sandbox",
                         "Wbtb.Extensions.Data.FileSystem",
                         "Wbtb.Extensions.Data.Postgres",
                     });

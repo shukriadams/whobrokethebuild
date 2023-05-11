@@ -17,7 +17,7 @@ namespace Wbtb.Core.Web
                 return null;
 
             return new ViewJob{ 
-                Alert = job.Alert,
+                Alerts = job.Alerts,
                 BuildServer = job.BuildServer,
                 Description = job.Description,
                 Enable = job.Enable,

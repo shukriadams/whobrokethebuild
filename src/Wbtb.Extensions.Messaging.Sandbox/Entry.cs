@@ -6,7 +6,7 @@ namespace Wbtb.Extensions.Messaging.Sandbox
     {
         public static void Main(string[] args)
         {
-            new PluginShellReceiver<MessagagingSandbox>().Process(args);
+            new PluginShellReceiver<MessagingSandbox>().Process(args);
         }
     }
 }

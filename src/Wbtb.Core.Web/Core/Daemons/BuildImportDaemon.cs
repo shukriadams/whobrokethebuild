@@ -83,13 +83,12 @@ namespace Wbtb.Core.Web
                     return;
                 }
 
+                
+
                 foreach (Job job in buildServer.Jobs)
                 {
                     try
                     {
-                        if (!job.Enable)
-                            continue;
-
                         Job thisjob = dataLayer.GetJobByKey(job.Key);
                         if (thisjob.ImportCount.HasValue)
                             count = thisjob.ImportCount.Value;
@@ -140,15 +139,27 @@ namespace Wbtb.Core.Web
                             Build lastDeltaBuild = dataLayer.GetLastJobDelta(thisjob.Id);
                             if (latestBuild.Status == BuildStatus.Failed && latestBuild.Status == BuildStatus.Passed)
                             {
-                                // build has gone from failing to passing
+                                // build has gone from passing to failing
                                 _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestBuild);
                                 dataLayer.SaveJobDelta(latestBuild);
+
+                                foreach (AlertHandler alert in job.Alerts) 
+                                {
+                                    IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
+                                    messagePlugin.AlertBreaking(alert, latestBuild);
+                                }
                             }
                             else if(latestBuild.Status == BuildStatus.Passed && latestBuild.Status == BuildStatus.Failed)
                             {
                                 // build has gone from failing to passing
                                 _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, latestBuild);
                                 dataLayer.SaveJobDelta(latestBuild);
+
+                                foreach (AlertHandler alert in job.Alerts)
+                                {
+                                    IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
+                                    messagePlugin.AlertPassing(alert, latestBuild);
+                                }
                             }
                         }
                     }
@@ -156,10 +167,8 @@ namespace Wbtb.Core.Web
                     {
                         _log.LogError($"Unexpected error trying to import jobs/logs for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
                     }
-                }
-
-
-            }
+                } //foreach job
+            } // foreach buildserver
         }
 
         #endregion

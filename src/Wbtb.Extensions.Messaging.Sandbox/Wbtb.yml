@@ -1,0 +1,8 @@
+﻿Key: Wbtb.Messaging.Sandbox
+Runtime: dotnet
+Main: Wbtb.Extensions.Messaging.Sandbox.dll
+Interface: Wbtb.Core.Common.IMessaging
+Assembly: Wbtb.Extensions.Messaging.Sandbox
+Concrete: Wbtb.Extensions.Messaging.Sandbox.MessagingSandbox
+Version: 0.0.1
+APIVersion: 0.0.1

@@ -88,9 +88,6 @@ namespace Wbtb.Core.Web.Core.Daemons
                 {
                     try
                     {
-                        if (!job.Enable)
-                            continue;
-
                         Job thisjob = dataLayer.GetJobByKey(job.Key);
                         if (thisjob.ImportCount.HasValue)
                             count = thisjob.ImportCount.Value;

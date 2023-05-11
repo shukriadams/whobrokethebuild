@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 
 namespace Wbtb.Core.Common
 {

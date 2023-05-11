@@ -221,7 +221,7 @@ namespace Wbtb.Core
                             throw new ConfigurationException($"Job {job.Key} defines a log parser plugin {logParserKey}, but this plugin does not implement the expected interface {typeof(ILogParser).Name}.");
                     }
 
-                    foreach(AlertHandler alert in job.Alert.Where(a => a.Enable))
+                    foreach(AlertHandler alert in job.Alerts.Where(a => a.Enable))
                     {
                         IPlugin plugin = _pluginProvider.GetByKey(alert.Plugin);
                         if (!typeof (IMessaging).IsAssignableFrom(plugin.GetType()))
@@ -266,6 +266,15 @@ namespace Wbtb.Core
                         }
                         
                         IMessaging messagingPlugin = plugin as IMessaging;
+
+                        try
+                        {
+                            messagingPlugin.AttemptReach();
+                        }
+                        catch (ConfigurationException ex)
+                        {
+                            throw new ConfigurationException($"Plugin \"{alert.Plugin}\" failed reach attempt : {ex.Message}");
+                        }
 
                         try 
                         {

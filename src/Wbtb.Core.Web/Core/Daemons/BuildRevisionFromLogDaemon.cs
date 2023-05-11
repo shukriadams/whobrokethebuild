@@ -77,7 +77,7 @@ namespace Wbtb.Core.Web
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             // start daemons - this should be folded into start
-            foreach (BuildServer cfgbuildServer in _config.BuildServers.Where(b => b.Enable))
+            foreach (BuildServer cfgbuildServer in _config.BuildServers)
             {
                 BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
                 // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
