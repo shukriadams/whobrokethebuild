@@ -2,7 +2,7 @@
   "profiles": {
     "Wbtb.Extensions.SourceServer.Perforce": {
       "commandName": "Project",
-      "commandLineArgs": "--diagnostic"
+      "commandLineArgs": "--diagnose"
     }
   }
 }

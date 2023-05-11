@@ -2,7 +2,7 @@
   "profiles": {
     "Wbtb.Extensions.LogParsing.JenkinsSelfFailing": {
       "commandName": "Project",
-      "commandLineArgs": "--diagnostic"
+      "commandLineArgs": "--diagnose"
     }
   }
 }

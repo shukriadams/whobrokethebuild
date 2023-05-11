@@ -138,7 +138,7 @@ namespace Wbtb.Core.Common
                 ProcessInterfaceCommand(data, args, config, pluginInstance);
             }
 
-            if (switches.Contains("diagose")) 
+            if (switches.Contains("diagnose")) 
             {
                 IPlugin plugin = di.Resolve<TPlugin>() as IPlugin;
                 plugin.Diagnose();

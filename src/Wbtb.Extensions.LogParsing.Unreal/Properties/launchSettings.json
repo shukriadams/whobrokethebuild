@@ -2,7 +2,7 @@
   "profiles": {
     "Wbtb.Extensions.LogParsing.Unreal": {
       "commandName": "Project",
-      "commandLineArgs": "--diagnostic"
+      "commandLineArgs": "--diagnose"
     }
   }
 }

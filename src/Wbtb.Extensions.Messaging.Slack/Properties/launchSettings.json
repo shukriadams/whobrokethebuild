@@ -2,7 +2,7 @@
   "profiles": {
     "Wbtb.Extensions.Messaging.Slack": {
       "commandName": "Project",
-      "commandLineArgs": "--diagnostic"
+      "commandLineArgs": "--diagnose"
     }
   }
 }

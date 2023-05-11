@@ -2,7 +2,7 @@
   "profiles": {
     "Wbtb.Extensions.Auth.ActiveDirectorySandbox": {
       "commandName": "Project",
-      "commandLineArgs": "--diagnostic"
+      "commandLineArgs": "--diagnose"
     }
   }
 }
