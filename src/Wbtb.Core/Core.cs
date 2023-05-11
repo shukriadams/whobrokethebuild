@@ -2,14 +2,30 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core
 {
-    public delegate void ShutdownHandler();
-
     public class Core
     {
+        public static SemanticVersion CoreVersion { private set; get; }
+
+        public static string CurrentHash { private set; get; }
+
+        static Core() 
+        {
+            // read this from currentVersion.txt file in app root
+            string currentVersion = File.ReadAllText("./currentVersion.txt");
+            Regex regex = new Regex("^(.*)? (.*)?");
+            Match match = regex.Match(currentVersion);
+            if (!match.Success)
+                throw new ConfigurationException($"currentVersion.txt content {currentVersion} is invalid");
+
+            CurrentHash = match.Groups[1].Value;
+            CoreVersion = SemanticVersion.TryParse(match.Groups[2].Value);
+        }
+
         /// <summary>
         /// Updates config from git. Requires env variables to do so, self-checks and throws errors on missing config.
         /// Returns true if config has changed

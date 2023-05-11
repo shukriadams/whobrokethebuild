@@ -6,3 +6,4 @@ Main: Wbtb.Extensions.BuildServer.JenkinsSandbox.dll
 Interface: Wbtb.Core.Common.IBuildServerPlugin
 Concrete: Wbtb.Extensions.BuildServer.JenkinsSandbox.JenkinsSandbox
 Version: 0.0.1
+APIVersion: 0.0.1

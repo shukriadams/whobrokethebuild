@@ -233,6 +233,11 @@ namespace Wbtb.Core
         /// <param name="config"></param>
         private static void EnsureManifestLogicValid(Config config)
         {
+            // enforce API version check if semver of current version is not all zero (local dev)
+            bool doAPIVersionCheck = Core.CoreVersion.Major > 0 && Core.CoreVersion.Minor > 0 && Core.CoreVersion.Patch > 0;
+            if (!doAPIVersionCheck)
+                Console.WriteLine("Skipping semver checking, dev versioning detected");
+
             foreach (PluginConfig pluginConfig in config.Plugins)
             {
                 if (string.IsNullOrEmpty(pluginConfig.Path))
@@ -282,6 +287,7 @@ namespace Wbtb.Core
                     pluginManifestRaw = ResourceHelper.ReadResourceAsString(pluginAssembly, "Wbtb.yml");
                 }
 
+                // load and parse manifest from YML
                 try
                 {
                     IDeserializer deserializer = YmlHelper.GetDeserializer();
@@ -292,9 +298,17 @@ namespace Wbtb.Core
                     throw new ConfigurationException($"Failed to deserialize manifest yml for plugin {pluginConfig.Key} : {ex}");
                 }
 
-                // ensure that plugin manifest exists, past here here we can assume manifest always exists
+                // ensure that plugin manifest loaded, past here here we can assume manifest always exists
                 if (pluginConfig.Manifest == null)
                     throw new ConfigurationException($"Failed to load manifest for plugin {pluginConfig.Key}. Manifest does not exist or is malformed.");
+
+                // ensure that plugins's API version is patch version compatible 
+                if (doAPIVersionCheck)
+                {
+                    SemanticVersion pluginVersion = SemanticVersion.TryParse(pluginConfig.Manifest.APIVersion);
+                    if (pluginVersion.Major != Core.CoreVersion.Major || pluginVersion.Minor != Core.CoreVersion.Minor || pluginVersion.Patch > Core.CoreVersion.Patch)
+                        throw new ConfigurationException($"Plugin {pluginConfig.Key} at version {pluginConfig.Manifest.Version} has an APIVersion requirement {pluginConfig.Manifest.APIVersion} that is not compatible with this Wbtb core version {Core.CoreVersion}.");
+                }
 
                 if (string.IsNullOrEmpty(pluginConfig.Manifest.Runtime))
                     throw new ConfigurationException($"manifest yml for plugin {pluginConfig.Key} has no \"Runtime\" property.");

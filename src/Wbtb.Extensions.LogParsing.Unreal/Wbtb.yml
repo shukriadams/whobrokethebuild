@@ -5,3 +5,4 @@ Interface: Wbtb.Core.Common.ILogParser
 Assembly: Wbtb.Extensions.LogParsing.Unreal
 Concrete: Wbtb.Extensions.LogParsing.Unreal.Unreal4
 Version: 0.0.1
+APIVersion: 0.0.1

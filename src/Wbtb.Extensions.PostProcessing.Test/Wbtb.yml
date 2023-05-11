@@ -5,3 +5,4 @@ Interface: Wbtb.Core.Common.IPostProcessor
 Assembly: Wbtb.Extensions.PostProcessing.Test
 Concrete: Wbtb.Extensions.PostProcessing.Test.Test
 Version: 0.0.1
+APIVersion: 0.0.1

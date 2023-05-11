@@ -38,6 +38,11 @@
         public string Version { get; set; }
 
         /// <summary>
+        /// Version of WBTB common API that plugin expects. This is checked on app startup
+        /// </summary>
+        public string APIVersion { get; set; }
+
+        /// <summary>
         /// Pl
         /// </summary>
         public string SourceUrl { get; set; }

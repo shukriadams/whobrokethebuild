@@ -5,3 +5,4 @@ Interface: Wbtb.Core.Common.IMessaging
 Assembly: Wbtb.Extensions.Messaging.Slack
 Concrete: Wbtb.Extensions.Messaging.Slack.Slack
 Version: 0.0.1
+APIVersion: 0.0.1

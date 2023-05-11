@@ -5,3 +5,4 @@ Interface: Wbtb.Core.Common.ILogParser
 Assembly: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 Concrete: Wbtb.Extensions.LogParsing.JenkinsSelfFailing.JenkinsSelfFailing
 Version: 0.0.1
+APIVersion: 0.0.1

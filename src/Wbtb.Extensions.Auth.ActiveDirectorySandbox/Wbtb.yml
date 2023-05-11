@@ -3,5 +3,6 @@ Runtime: dotnet
 Main: Wbtb.Extensions.Auth.ActiveDirectorySandbox.dll
 Interface: Wbtb.Core.Common.IAuthenticationPlugin
 Version: 0.0.1
+APIVersion: 0.0.1
 Assembly: Wbtb.Extensions.Auth.ActiveDirectorySandbox
 Concrete: Wbtb.Extensions.Auth.ActiveDirectorySandbox.ActiveDirectorySandbox
