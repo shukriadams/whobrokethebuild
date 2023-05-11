@@ -1,10 +1,10 @@
 Plugins: 
 -   Key: fsData
-    Path: Wbtb.Extensions.Data.FileSystem
+    Path: /var/wbtb/Wbtb.Extensions.Data.FileSystem
 -   Key: jenkinsSandbox
-    Path : Wbtb.Extensions.BuildServer.JenkinsSandbox
+    Path : /var/wbtb/Wbtb.Extensions.BuildServer.JenkinsSandbox
 -   Key: p4Sandbox
-    Path: Wbtb.Extensions.SourceServer.PerforceSandbox
+    Path: /var/wbtb/Wbtb.Extensions.SourceServer.PerforceSandbox
 
 SourceServers:
 -   Key: myperforce

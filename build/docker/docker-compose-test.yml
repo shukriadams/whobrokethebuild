@@ -7,7 +7,11 @@ services:
     environment:
       ASPNETCORE_URLS : http://*:5000
       WBTB_DISABLE_DAEMONS: 1
+    user: "${UID}:${GID}"      
     volumes:
-    - ./config.yml://var/wbtb/config.yml
+    - ./config.yml:/var/wbtb/Wbtb.Core.Web/config.yml
+    - ./data:/var/wbtb/Wbtb.Core.Web/data
     ports:
     - "49022:5000"
+    # uncomment to disable wbtb app but keep container running
+    command: /bin/sh -c  "while true ;sleep 5; do continue; done"

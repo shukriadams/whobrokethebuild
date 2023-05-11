@@ -67,3 +67,4 @@ src/Wbtb.Extensions.PostProcessing.Test3/wbtb/log.txt
 src/Wbtb.Core.Web/currentVersion.txt
 src/Wbtb.Extensions.Data.FileSystem/bin
 src/Wbtb.Extensions.Data.FileSystem/obj
+build/docker/data

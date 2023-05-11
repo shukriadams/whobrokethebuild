@@ -26,11 +26,17 @@ docker run \
     mcr.microsoft.com/dotnet/sdk:6.0 \
     sh -c "cd /tmp/wbtb && \
         dotnet restore Wbtb.Core.Web && \
-        dotnet publish Wbtb.Core.Web /property:PublishWithAspNetCoreTargetManifest=false --configuration Release && \
-        cd ./Wbtb.Core.Web/bin/Release/net6.0"
+        dotnet publish Wbtb.Core.Web /property:PublishWithAspNetCoreTargetManifest=false --configuration Release"
+
+docker run \
+    -v $(pwd)./../../src:/tmp/wbtb \
+    mcr.microsoft.com/dotnet/sdk:6.0 \
+    sh -c "cd /tmp/wbtb && \
+        dotnet restore MessageQueue && \
+        dotnet publish MessageQueue /property:PublishWithAspNetCoreTargetManifest=false --configuration Release"
 
 # build hosting container
-cd ./../../src/Wbtb.Core.Web
+cd ./../../src
 docker build -t shukriadams/wbtb . 
 docker tag shukriadams/wbtb:latest shukriadams/wbtb:$TAG 
 cd -
