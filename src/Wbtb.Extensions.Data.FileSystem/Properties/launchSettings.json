@@ -2,7 +2,7 @@
   "profiles": {
     "Wbtb.Extensions.Data.FileSystem": {
       "commandName": "Project",
-      "commandLineArgs": "--diagnose"
+      "commandLineArgs": "--wbtb-message cda04fd1-36a6-497d-a5c7-20eb7aa6e143"
     }
   }
 }

@@ -53,8 +53,8 @@ namespace Wbtb.Core.Web
 
                     Wbtb.Core.Core.LoadPlugins();
 
-                    string disableDaemonsLook = Environment.GetEnvironmentVariable("WBTB_DISABLE_DAEMONS");
-                    bool disableDaemons = disableDaemonsLook == "1" || disableDaemonsLook == "true";
+                    string disableDaemonsLook = Environment.GetEnvironmentVariable("WBTB_ENABLE_DAEMONS");
+                    bool disableDaemons = disableDaemonsLook == "0" || disableDaemonsLook == "false" || config.EnabledDaemons == false;
 
                     // these shoule be moved to "startserver" too
                     if (disableDaemons)
@@ -82,7 +82,6 @@ namespace Wbtb.Core.Web
                             }
                         }
                     }
-
                 }
                 catch (ConfigurationException ex)
                 {

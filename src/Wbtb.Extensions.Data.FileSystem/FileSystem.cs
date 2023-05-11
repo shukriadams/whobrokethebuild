@@ -144,7 +144,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new BuildServer { };
         }
 
-        public BuildServer GetBuildServerByKey(string id)
+        public BuildServer GetBuildServerByKey(string key)
         {
             return new BuildServer { };
         }
@@ -189,7 +189,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Job { };
         }
 
-        public Job GetJobByKey(string id)
+        public Job GetJobByKey(string key)
         {
             return new Job { };
         }
@@ -249,7 +249,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Revision { };
         }
 
-        public Revision GetRevisionByKey(string id)
+        public Revision GetRevisionByKey(string key)
         {
             return new Revision { };
         }
@@ -274,7 +274,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new SourceServer { };
         }
 
-        public SourceServer GetSourceServerByKey(string id)
+        public SourceServer GetSourceServerByKey(string key)
         {
             return new SourceServer { };
         }
@@ -294,7 +294,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new User { };
         }
 
-        public User GetUserByKey(string id)
+        public User GetUserByKey(string key)
         {
             return new User { };
         }

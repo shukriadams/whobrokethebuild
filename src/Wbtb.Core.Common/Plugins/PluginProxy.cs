@@ -50,7 +50,7 @@
         {
             return _pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs
             {
-                FunctionName = "VerifyCredentials"
+                FunctionName = "AttemptReach"
             });
         }
 

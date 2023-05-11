@@ -118,6 +118,8 @@ namespace Wbtb.Core.Common
         /// </summary>
         public int Port { get; set; }
 
+        public bool EnabledDaemons { get; set; }
+
         #endregion
 
         #region CTORS
@@ -136,6 +138,7 @@ namespace Wbtb.Core.Common
             this.DaemonInterval = 60;
             this.UnprocessedBuildProcessorLimit = 50;
             this.Port = 5000;
+            this.EnabledDaemons = true;
 
             this.Plugins = new List<PluginConfig>();
             this.BuildServers = new List<BuildServer>();

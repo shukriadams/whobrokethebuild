@@ -102,9 +102,9 @@ namespace Wbtb.Extensions.Data.Postgres
             return PostgresCommon.GetById(this.ContextPluginConfig, id, "buildserver", new BuildServerConvert(_config));
         }
 
-        public BuildServer GetBuildServerByKey(string id)
+        public BuildServer GetBuildServerByKey(string key)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", id, "buildserver", new BuildServerConvert(_config));
+            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "buildserver", new BuildServerConvert(_config));
         }
 
         public IEnumerable<BuildServer> GetBuildServers()
@@ -162,9 +162,9 @@ namespace Wbtb.Extensions.Data.Postgres
             return PostgresCommon.GetById(this.ContextPluginConfig, id, "sourceserver", new SourceServerConvert(_config));
         }
 
-        public SourceServer GetSourceServerByKey(string id)
+        public SourceServer GetSourceServerByKey(string key)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", id, "sourceserver", new SourceServerConvert(_config));
+            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "sourceserver", new SourceServerConvert(_config));
         }
 
         public IEnumerable<SourceServer> GetSourceServers()
@@ -1870,7 +1870,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Revision GetRevisionByKey(string id)
+        public Revision GetRevisionByKey(string key)
         {
             string query = @"
                 SELECT 
@@ -1883,7 +1883,7 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             {
-                cmd.Parameters.AddWithValue("id", id);
+                cmd.Parameters.AddWithValue("id", key);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new RevisionConvert().ToCommon(reader);

@@ -16,6 +16,8 @@ namespace Wbtb.Core.Common
 
         public IList<string> StdErr = new List<string>();
 
+        private string _mode = "sh";
+
         #endregion
 
         #region PROPERTIES
@@ -40,8 +42,19 @@ namespace Wbtb.Core.Common
         public string Run(string cmd)
         {
             Process command = new Process();
-            command.StartInfo.FileName = "cmd.exe";
-            command.StartInfo.Arguments = $"/k {cmd}";
+
+            // for now we're forcing sh as a standard shell, if you're running windows and don't have sh at the cmd line install git-for-windows and map its sh.exe to your path
+            if (_mode == "sh")
+            {
+                command.StartInfo.FileName = "sh";
+                command.StartInfo.Arguments = $"-c \"{cmd}\"";
+            }
+            else if (_mode == "cmd")
+            {
+                command.StartInfo.FileName = "cmd.exe";
+                command.StartInfo.Arguments = $"/k {cmd}";
+            }
+
             command.StartInfo.WorkingDirectory = this.WorkingDirectory;
             command.StartInfo.RedirectStandardInput = true;
             command.StartInfo.RedirectStandardOutput = true;

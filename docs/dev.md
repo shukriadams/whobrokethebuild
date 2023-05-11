@@ -4,6 +4,7 @@
 
 - Dotnet 6.0
 - NodeJS 12 or better
+- sh at the command line - this is standard on Linux, and can be easily installed on Windows by installing git-for-windows and including its built-in sh.exe on your PATH.
 
 ## Setup
 

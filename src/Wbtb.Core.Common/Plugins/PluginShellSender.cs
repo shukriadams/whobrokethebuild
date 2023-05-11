@@ -111,7 +111,7 @@ namespace Wbtb.Core.Common
             Regex regex = new Regex(@"<WBTB-output(.*)>([\S\s]*?)<\/WBTB-output>");
             Match match = regex.Match(result);
             if (!match.Success)
-                throw new ConfigurationException($"Command call failed, got unexpected output:{result}");
+                throw new ConfigurationException($"Command call failed, got unexpected output : \"{result}\".");
 
             if (typeof(TReturnType) == typeof(NullReturn))
                 return default(TReturnType);

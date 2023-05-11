@@ -45,13 +45,16 @@ namespace Wbtb.Core.Common
                     return;
                 }
 
+                if (pluginArgs.Arguments == null)
+                    pluginArgs.Arguments = new PluginFunctionParameter[0];
+
                 ArrayList methodArgs = new ArrayList();
                 foreach (ParameterInfo parameter in method.GetParameters())
                 {
                     PluginFunctionParameter incomingparameter = pluginArgs.Arguments.FirstOrDefault(r => r.Name == parameter.Name);
                     if (!parameter.IsOptional && incomingparameter == null)
                     {
-                        PluginLogger.Write($"Missing required parameter ${parameter.Name}");
+                        PluginLogger.Write($"Missing required parameter \"{parameter.Name}\" on method call \"{pluginArgs.FunctionName}\".");
                         Environment.Exit(1);
                         return;
                     }

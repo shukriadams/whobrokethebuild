@@ -78,7 +78,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildServer>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildServerById"
+                FunctionName = "GetBuildServers"
             });
         }
 
@@ -119,13 +119,13 @@ namespace Wbtb.Core.Common
             });
         }
 
-        SourceServer IDataLayerPlugin.GetSourceServerByKey(string id)
+        SourceServer IDataLayerPlugin.GetSourceServerByKey(string key)
         {
             return _pluginSender.InvokeMethod<SourceServer>(this, new PluginArgs
             {
                 FunctionName = "GetSourceServerByKey",
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "id", Value = id }
+                    new PluginFunctionParameter { Name = "key", Value = key }
                 }
             });
         }
@@ -175,13 +175,13 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Job IDataLayerPlugin.GetJobByKey(string id)
+        Job IDataLayerPlugin.GetJobByKey(string key)
         {
             return _pluginSender.InvokeMethod<Job>(this, new PluginArgs
             {
                 FunctionName = "GetJobByKey",
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "id", Value = id }
+                    new PluginFunctionParameter { Name = "key", Value = key }
                 }
             });
         }
@@ -267,13 +267,13 @@ namespace Wbtb.Core.Common
             });
         }
 
-        User IDataLayerPlugin.GetUserByKey(string id)
+        User IDataLayerPlugin.GetUserByKey(string key)
         {
             return _pluginSender.InvokeMethod<User>(this, new PluginArgs
             {
                 FunctionName = "GetUserByKey",
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "id", Value = id }
+                    new PluginFunctionParameter { Name = "key", Value = key }
                 }
             });
         }
@@ -826,13 +826,13 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Revision IDataLayerPlugin.GetRevisionByKey(string id)
+        Revision IDataLayerPlugin.GetRevisionByKey(string key)
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
                 FunctionName = "GetRevisionByKey",
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "id", Value = id }
+                    new PluginFunctionParameter { Name = "key", Value = key }
                 }
             });
         }

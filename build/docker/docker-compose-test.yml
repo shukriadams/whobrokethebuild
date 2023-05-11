@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_URLS : http://*:5000
-      WBTB_DISABLE_DAEMONS: 1
+      WBTB_ENABLE_DAEMONS: 0
     user: "${UID}:${GID}"      
     volumes:
     - ./config.yml:/var/wbtb/Wbtb.Core.Web/config.yml
