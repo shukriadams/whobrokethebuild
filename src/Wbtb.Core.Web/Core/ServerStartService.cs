@@ -25,15 +25,7 @@ namespace Wbtb.Core.Web
                     if (hashChanged)
                         lifetime.StopApplication();
 
-                    Wbtb.Core.Core.StartServer(allowedInternalPlugins : new string[] { 
-                        "Wbtb.Extensions.BuildServer.Jenkins",
-                        "Wbtb.Extensions.BuildServer.JenkinsSandbox",
-                        "Wbtb.Extensions.SourceServer.Perforce",
-                        "Wbtb.Extensions.SourceServer.PerforceSandbox",
-                        "Wbtb.Extensions.Messaging.Sandbox",
-                        "Wbtb.Extensions.Data.FileSystem",
-                        "Wbtb.Extensions.Data.Postgres",
-                    });
+                    Wbtb.Core.Core.StartServer();
 
                     SimpleDI di = new SimpleDI();
                     Config config = di.Resolve<Config>();
@@ -49,7 +41,9 @@ namespace Wbtb.Core.Web
                         if (implementation == null)
                             throw new ConfigurationException($"Could not resolve plugin type {plugin.Manifest.Concrete}");
 
-                        di.Register(interfaceType, implementation);
+                        PluginBehaviourAttribute pluginBehaviour = TypeHelper.GetAttribute<PluginBehaviourAttribute>(interfaceType);
+
+                        di.Register(interfaceType, implementation, key : plugin.Key, allowMultiple : pluginBehaviour.AllowMultiple);
                     }
 
                     Wbtb.Core.Core.LoadPlugins();

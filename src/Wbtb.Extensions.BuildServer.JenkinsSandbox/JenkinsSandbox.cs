@@ -243,18 +243,22 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
                     Console.WriteLine($"Imported build {build.Identifier}");
                 }
 
+                bool isChanged = false;
                 build.Status = ConvertBuildStatus(rawBuild.result);
-                if (!string.IsNullOrEmpty(rawBuild.duration)){
+                if (!string.IsNullOrEmpty(rawBuild.duration) && !build.EndedUtc.HasValue){
                     build.EndedUtc = build.StartedUtc.AddMilliseconds(int.Parse(rawBuild.duration));
-                    summary.Ended.Add(build);
+                    isChanged  = true;
                 }
 
                 bool isCreating = build.Id == null;
-                build = dataLayer.SaveBuild(build);
+                if (isCreating || isChanged)
+                    build = dataLayer.SaveBuild(build);
                 
                 if (isCreating)
                     summary.Created.Add(build);
-
+            
+                if (isChanged)
+                    summary.Ended.Add(build);
 
                 IEnumerable<string> buildRevisions = GetRevisionsInBuild(job, build);
 

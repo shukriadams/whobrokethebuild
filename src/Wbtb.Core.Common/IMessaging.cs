@@ -1,7 +1,7 @@
 ﻿namespace Wbtb.Core.Common
 {
     [PluginProxy(typeof(MessagingPluginProxy))]
-    [PluginBehaviour(true)]
+    [PluginBehaviour(allowMultiple: true)]
 
     public interface IMessaging : IReachable, IPlugin
     {

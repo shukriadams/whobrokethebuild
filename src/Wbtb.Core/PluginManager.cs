@@ -55,7 +55,7 @@ namespace Wbtb.Core
                 {
                     // get instance of plugin - this will either be a proxy to a remote executable, or if in development mode a local project assembly
                     // to use proxy proxying must be enabled, and the plugin must define a path where it can found
-                    IPlugin plugin = _pluginProvider.GetDistinct(pluginConfig) as IPlugin;
+                    IPlugin plugin = _pluginProvider.GetByKey(pluginConfig.Key) as IPlugin;
 
                     if (pluginConfig.Proxy && !Directory.Exists(pluginConfig.Path))
                     {
@@ -103,11 +103,11 @@ namespace Wbtb.Core
                     throw new ConfigurationException($"The manifest in plugin {config.Manifest.Key} declares an interface {config.Manifest.Interface} that could not be matched to a known interface. Please contact plugin developer.");
 
                 // ensure exclusivity
-                PluginBehaviourAttribute behaviourAttribute = TypeDescriptor.GetAttributes(interfaceFace).OfType<PluginBehaviourAttribute>().SingleOrDefault();
+                PluginBehaviourAttribute behaviourAttribute = TypeHelper.GetAttribute<PluginBehaviourAttribute>(interfaceFace);
                 if (behaviourAttribute == null)
                     throw new ConfigurationException($"plugin interface {interfaceFace} does not impliment attribute {typeof(PluginBehaviourAttribute).Name}.");
 
-                if (behaviourAttribute.IsExclusive){
+                if (!behaviourAttribute.AllowMultiple){
                     IEnumerable<PluginConfig> implimenting = loadingPlugins.Where(r => r.Manifest.Interface== config.Manifest.Interface);
                     if (implimenting.Count() > 2)
                         throw new ConfigurationException($"multiple plugins ({string.Join(",", implimenting)}) declare interface {config.Manifest.Interface}, but this interface allows only a single active plugin");
@@ -120,7 +120,7 @@ namespace Wbtb.Core
             // plugin init fail would put app into broken state, so must fail if any plugin fails
             foreach(PluginConfig pluginConfig in _config.Plugins)
             {
-                IPlugin plugin = _pluginProvider.GetDistinct(pluginConfig) as IPlugin;
+                IPlugin plugin = _pluginProvider.GetByKey(pluginConfig.Key) as IPlugin;
 
                 PluginInitResult initResult;
 
@@ -143,7 +143,7 @@ namespace Wbtb.Core
             // attempt to reach remote system behind plugin if plugin supports 
             foreach (PluginConfig pluginConfig in _config.Plugins)
             {
-                IPlugin plugin = _pluginProvider.GetDistinct(pluginConfig) as IPlugin;
+                IPlugin plugin = _pluginProvider.GetByKey(pluginConfig.Key) as IPlugin;
                 if (typeof(IReachable).IsAssignableFrom(plugin.GetType()))
                 {
                     IReachable reachable = plugin as IReachable;

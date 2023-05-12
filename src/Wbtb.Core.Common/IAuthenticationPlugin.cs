@@ -4,7 +4,7 @@
     /// Auth provider for users, egs, AD, Github, internal (wbtb) etc
     /// </summary>
     [PluginProxy(typeof(AuthPluginProxy))]
-    [PluginBehaviour(false)]
+    [PluginBehaviour(allowMultiple : true)]
     public interface IAuthenticationPlugin : IPlugin, IReachable
     {
         AuthenticationResult RequestPasswordLogin(string username, string password);

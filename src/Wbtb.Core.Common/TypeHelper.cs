@@ -70,6 +70,18 @@ namespace Wbtb.Core.Common
             return attribute.ProxyType;
         }
 
+        /// <summary>
+        /// Gets first occurrence of the given attribute on the source type.
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static T GetAttribute<T>(Type source) 
+        {
+            return TypeDescriptor.GetAttributes(source).OfType<T>().FirstOrDefault();
+        }
+
         public static Type? ResolveType(string namespacedType)
         {
             // TODO - cache type lookup for performance

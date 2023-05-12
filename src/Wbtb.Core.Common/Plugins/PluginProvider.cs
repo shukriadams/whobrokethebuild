@@ -31,11 +31,18 @@ namespace Wbtb.Core.Common
             if (string.IsNullOrEmpty(key))
                 throw new Exception("Attemtping to get plugin ById, but id is empty. Error likely caused by upstream data error");
 
-            PluginConfig config = _config.Plugins.FirstOrDefault(p => p.Key == key);
-            if (config == null)
-                throw new Exception($"Requested plugin {key} does not exist or is disabled. This error should not occur, and is likely caused by config that has been improperly changed. Do a scan for orphaned records and fix accordingly.");
+            PluginConfig config = _config.Plugins.FirstOrDefault(c => c.Key == key);
 
-            return GetDistinct(config) as IPlugin;
+            SimpleDI di = new SimpleDI();
+            IPlugin plugin = di.ResolveByKey<IPlugin>(key);
+            
+            // equivalent when proxying is done in PluginReceiver
+            plugin.ContextPluginConfig = config;
+
+            if (plugin is IPluginProxy)
+                ((IPluginProxy)plugin).PluginKey = key;
+
+            return plugin;
         }
 
         public object GetDistinct(PluginConfig pluginConfig, bool forceConcrete = true)

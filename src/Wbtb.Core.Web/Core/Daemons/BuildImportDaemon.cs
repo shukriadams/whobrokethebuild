@@ -103,6 +103,7 @@ namespace Wbtb.Core.Web
                             // set delta
                             Build previousBuild = dataLayer.GetPreviousBuild(build);
                             BuildDelta? delta = null;
+
                             if (previousBuild == null)
                             { 
                                 // this build is first build
@@ -132,36 +133,54 @@ namespace Wbtb.Core.Web
                         foreach (Build build in importSummary.Ended)
                             _buildLevelPluginHelper.InvokeEvents("OnBuildEnd", job.OnBuildEnd, build);
 
+                        // from here on it's all build delta, consider moving this to own daemon
+                        if (!importSummary.Ended.Any())
+                            continue;
+
                         // handle current state of game
-                        Build latestBuild = importSummary.Ended.OrderByDescending(b => b.EndedUtc.Value).FirstOrDefault();
-                        if (latestBuild != null)
-                        { 
-                            Build lastDeltaBuild = dataLayer.GetLastJobDelta(thisjob.Id);
-                            if (latestBuild.Status == BuildStatus.Failed && latestBuild.Status == BuildStatus.Passed)
+                        Build latestBuild = importSummary.Ended.OrderByDescending(b => b.EndedUtc.Value).First();
+                        Build previousDeltaBuild = dataLayer.GetLastJobDelta(thisjob.Id);
+                        bool alertFailing = false;
+                        bool alertPassing = false;
+
+                        if (previousDeltaBuild == null)
+                        {
+                            // this build is first, so it is the first delta
+                            dataLayer.SaveJobDelta(latestBuild);
+                            alertFailing = true;
+                        }
+                        else
+                        {
+                            if (latestBuild.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
                             {
                                 // build has gone from passing to failing
                                 _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestBuild);
                                 dataLayer.SaveJobDelta(latestBuild);
-
-                                foreach (AlertHandler alert in job.Alerts) 
-                                {
-                                    IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
-                                    messagePlugin.AlertBreaking(alert, latestBuild);
-                                }
+                                alertFailing = true;
                             }
-                            else if(latestBuild.Status == BuildStatus.Passed && latestBuild.Status == BuildStatus.Failed)
+                            else if (latestBuild.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
                             {
                                 // build has gone from failing to passing
                                 _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, latestBuild);
                                 dataLayer.SaveJobDelta(latestBuild);
-
-                                foreach (AlertHandler alert in job.Alerts)
-                                {
-                                    IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
-                                    messagePlugin.AlertPassing(alert, latestBuild);
-                                }
+                                alertPassing = true;
                             }
                         }
+
+                        if (alertFailing)
+                            foreach (AlertHandler alert in job.Alerts)
+                            {
+                                IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
+                                messagePlugin.AlertBreaking(alert, latestBuild);
+                            }
+
+                        if (alertPassing)
+                            foreach (AlertHandler alert in job.Alerts)
+                            {
+                                IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
+                                messagePlugin.AlertPassing(alert, latestBuild);
+                            }
+
                     }
                     catch (Exception ex)
                     {

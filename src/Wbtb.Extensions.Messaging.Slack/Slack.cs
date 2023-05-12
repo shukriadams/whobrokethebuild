@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -163,6 +164,20 @@ namespace Wbtb.Extensions.Messaging.Slack
         {
             if (data == null)
                 data = new NameValueCollection();
+
+            string token = this.ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
+            if (token.ToLower() == "sandbox") 
+            {
+                string output = "";
+                foreach (string key in data.AllKeys)
+                    output += $"{key} : {data.Get(key)}\n";
+
+                // put plugin into sandbox mode, write message to file system
+                string pluginDataDirectory = Path.Combine(_config.PluginDataPersistDirectory, this.ContextPluginConfig.Manifest.Key);
+                Directory.CreateDirectory(pluginDataDirectory);
+                File.WriteAllText(Path.Combine(pluginDataDirectory, $"{DateTime.UtcNow.Ticks}.txt"), output);
+                return Newtonsoft.Json.JsonConvert.DeserializeObject("{ \"ok\": true, \"ts\":\"12345\", \"channel\":{ \"id\": { \"Value\" :\"my-channel-id\"  } } }");
+            }
 
             WebClient client = new WebClient();
             string jsonResponse = Encoding.UTF8.GetString(client.UploadValues($"https://slack.com/api/{apiFragment}", method, data));

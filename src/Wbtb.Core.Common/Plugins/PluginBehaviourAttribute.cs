@@ -8,11 +8,11 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// If true, only one instance of a plugin can be bound at a time
         /// </summary>
-        public bool IsExclusive{ get; private set; }
+        public bool AllowMultiple{ get; private set; }
 
-        public PluginBehaviourAttribute(bool isExclusive)
+        public PluginBehaviourAttribute(bool allowMultiple)
         {
-            this.IsExclusive = isExclusive;
+            this.AllowMultiple = allowMultiple;
         }
     }
 }

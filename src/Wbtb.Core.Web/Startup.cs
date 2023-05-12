@@ -60,12 +60,12 @@ namespace Wbtb.Core.Web
             di.Register<InvokeController, InvokeController>();
             di.Register<JobController, JobController>();
             di.Register<IDaemonProcessRunner, DaemonProcessRunner>();
-            di.Register<IWebDaemon, BuildImportDaemon>(true);
-            di.Register<IWebDaemon, UserBuildInvolvementLinkDaemon>(true);
-            di.Register<IWebDaemon, RevisionResolveDaemon>(true);
-            di.Register<IWebDaemon, LogParseDaemon>(true);
-            di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(true);
-            di.Register<IWebDaemon, IncidentAssignDaemon>(true);
+            di.Register<IWebDaemon, BuildImportDaemon>(null, true);
+            di.Register<IWebDaemon, UserBuildInvolvementLinkDaemon>(null, true);
+            di.Register<IWebDaemon, RevisionResolveDaemon>(null, true);
+            di.Register<IWebDaemon, LogParseDaemon>(null, true);
+            di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(null, true);
+            di.Register<IWebDaemon, IncidentAssignDaemon>(null, true);
             di.RegisterFactory<IHubContext, HubFactory>();
             di.RegisterFactory<IPluginSender, PluginSenderFactory>();
         }

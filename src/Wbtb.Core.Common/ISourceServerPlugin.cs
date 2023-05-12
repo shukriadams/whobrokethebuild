@@ -3,7 +3,7 @@
 namespace Wbtb.Core.Common
 {
     [PluginProxy(typeof(SourceServerPluginProxy))]
-    [PluginBehaviour(true)]
+    [PluginBehaviour(allowMultiple: true)]
     public interface ISourceServerPlugin : IPlugin
     {
         ReachAttemptResult AttemptReach(SourceServer contextServer);

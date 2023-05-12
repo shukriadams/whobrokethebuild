@@ -8,6 +8,10 @@
         Config:
         - Token: <slack access token>
 
+### Sandbox mode
+
+This plugin can be forced into sandbox mode by setting its Config `Token` value to `sandbox`. It is most improbable that an actual Slack API token be this value.
+
 ### Build involvement alerting
 
 To inform user that they are involved in a build break/fix

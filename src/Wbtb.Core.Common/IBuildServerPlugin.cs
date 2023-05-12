@@ -3,7 +3,7 @@
 namespace Wbtb.Core.Common
 {
     [PluginProxy(typeof(BuildServerPluginProxy))]
-    [PluginBehaviour(false)]
+    [PluginBehaviour(allowMultiple: true)]
     public interface IBuildServerPlugin : IPlugin
     {
         /// <summary>

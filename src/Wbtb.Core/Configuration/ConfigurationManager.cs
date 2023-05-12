@@ -12,24 +12,6 @@ namespace Wbtb.Core
 {
     public class ConfigurationManager
     {
-        #region PROPERTIES
-
-        public static IEnumerable<string> AllowedInternalPlugins { get; set; }
-
-        #endregion
-
-        #region CTORS
-
-        /// <summary>
-        /// 
-        /// </summary>
-        static ConfigurationManager() 
-        {
-            AllowedInternalPlugins = new string[] { };
-        }
-
-        #endregion
-
         #region METHODS
 
         /// <summary>
@@ -249,7 +231,7 @@ namespace Wbtb.Core
                 bool directoryExists = Directory.Exists(pluginConfig.Path);
                 bool isExternal = directoryExists;
 
-                if (!directoryExists && ConfigurationManager.AllowedInternalPlugins.Contains(pluginConfig.Path)) 
+                if (!directoryExists) 
                 {
                     // try to autoresolve if running in visual studio
                     string devPath = Path.Combine($"..{Path.DirectorySeparatorChar}",  pluginConfig.Path, "bin", "Debug", "net6.0");
@@ -263,7 +245,7 @@ namespace Wbtb.Core
                 }
 
                 if (!Directory.Exists(pluginConfig.Path))
-                    throw new ConfigurationException($"ERROR : Plugin \"{pluginConfig.Key}\"'s Path \"{pluginConfig.Path}\" should be a directory path or an internal plugin in list \"{string.Join(", ", ConfigurationManager.AllowedInternalPlugins)}\".");
+                    throw new ConfigurationException($"ERROR : Plugin \"{pluginConfig.Key}\"'s Path \"{pluginConfig.Path}\" could not be resolved.");
 
                 // try to get manifest directly from file path, this is for local dev  mainly, but _should_ work on production(?)
                 string pluginManifestRaw = null;

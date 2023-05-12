@@ -28,6 +28,11 @@ namespace Wbtb.Core.Common
         class Registration
         {
             /// <summary>
+            /// Plugins can be registered by unique strings.
+            /// </summary>
+            public string Key { get; set; }
+
+            /// <summary>
             /// Service or interface type is registered by.
             /// </summary>
             public Type Service { get; set; }
@@ -78,9 +83,9 @@ namespace Wbtb.Core.Common
         /// <param name="service"></param>
         /// <param name="implementation"></param>
         /// <param name="allowMultiple"></param>
-        public void Register<TService, TImplementation>(bool allowMultiple = false)
+        public void Register<TService, TImplementation>(string key = "", bool allowMultiple = false)
         {
-            Register(typeof(TService), typeof(TImplementation), allowMultiple);
+            Register(typeof(TService), typeof(TImplementation), key, allowMultiple);
         }
 
         public void RegisterFactory<TService, TFactory>() 
@@ -111,7 +116,7 @@ namespace Wbtb.Core.Common
         /// <param name="implementation"></param>
         /// <param name="allowMultiple"></param>
         /// <exception cref="Exception"></exception>
-        public void Register(Type service, Type implementation, bool allowMultiple = false)
+        public void Register(Type service, Type implementation, string key = "", bool allowMultiple = false)
         {
             lock (_register)
             {
@@ -121,10 +126,13 @@ namespace Wbtb.Core.Common
                 if (implementation.IsAbstract)
                     throw new Exception($"Cannot bind service type {TypeHelper.Name(implementation)}.");
 
-                if (!allowMultiple && _register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true)).Any())
-                    throw new Exception($"Cannot bind service type {TypeHelper.Name(service)}, a binding for this already exists.");
+                if (!string.IsNullOrEmpty(key) && _register.Where(r => r.Key == key).Any())
+                    throw new Exception($"Cannot bind key {key}, this key already exists.");
 
-                _register.Add(new Registration { Service = service, Implementation = implementation });
+                if (!allowMultiple && _register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true)).Any())
+                    throw new Exception($"Cannot bind implementation {TypeHelper.Name(implementation)} to service {TypeHelper.Name(service)}, a binding for this service already exists.");
+
+                _register.Add(new Registration { Service = service, Key = key, Implementation = implementation });
             }
         }
 
@@ -153,6 +161,16 @@ namespace Wbtb.Core.Common
 
                 _register.Add(new Registration { Service = service, Singleton = singleton });
             }
+        }
+
+        public T ResolveByKey<T>(string key) 
+        {
+            Type service = typeof(T);
+            IEnumerable<Registration> matches = _register.Where(r => r.Key == key);
+            if (!matches.Any())
+                throw new Exception($"No implementations registered for key {key}.");
+
+            return (T)ResolveInternal(matches.First(), service);
         }
 
         public T Resolve<T>() 

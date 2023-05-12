@@ -331,7 +331,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
                 build.Status = ConvertBuildStatus(rawBuild.result);
 
-                if (build.EndedUtc == null &&!string.IsNullOrEmpty(rawBuild.duration)){
+                if (!build.EndedUtc.HasValue && !string.IsNullOrEmpty(rawBuild.duration)){
                     build.EndedUtc = build.StartedUtc.AddMilliseconds(int.Parse(rawBuild.duration));
                     summary.Ended.Add(build);
                 }

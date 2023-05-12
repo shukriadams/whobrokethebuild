@@ -44,7 +44,7 @@ namespace Wbtb.Core
         /// <summary>
         /// Single-call wrapper to start server.
         /// </summary>
-        public static void StartServer(IEnumerable<string> allowedInternalPlugins)
+        public static void StartServer()
         {
             // pre-start stuff
             SimpleDI di = new SimpleDI();
@@ -55,7 +55,6 @@ namespace Wbtb.Core
             configBootstrapper.EnsureLatest();
 
             // first part of server start, tries to load config
-            ConfigurationManager.AllowedInternalPlugins = allowedInternalPlugins;
             Config unsafeConfig = ConfigurationManager.LoadUnsafeConfig(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
 
             // ensure directories, this requires that config is loaded
