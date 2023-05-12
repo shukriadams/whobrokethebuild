@@ -39,6 +39,55 @@ namespace Wbtb.Core.Common
 
         #endregion
 
+        #region STOREITEM
+
+
+        StoreItem IDataLayerPlugin.SaveStore(StoreItem storeItem)
+        {
+            return _pluginSender.InvokeMethod<StoreItem>(this, new PluginArgs
+            {
+                FunctionName = "SaveStore",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "storeItem", Value = storeItem }
+                }
+            });
+        }
+
+        StoreItem IDataLayerPlugin.GetStoreItemByItem(string id)
+        {
+            return _pluginSender.InvokeMethod<StoreItem>(this, new PluginArgs
+            {
+                FunctionName = "GetStoreItemByItem",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "id", Value = id }
+                }
+            });
+        }
+
+        StoreItem IDataLayerPlugin.GetStoreItemByKey(string key)
+        {
+            return _pluginSender.InvokeMethod<StoreItem>(this, new PluginArgs
+            {
+                FunctionName = "GetStoreItemByKey",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "key", Value = key }
+                }
+            });
+        }
+
+        bool IDataLayerPlugin.DeleteStoreItem(StoreItem record)
+        {
+            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
+            {
+                FunctionName = "DeleteStoreItem",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "record", Value = record }
+                }
+            });
+        }
+
+        #endregion
+
         #region BUILD SERVER
 
         BuildServer IDataLayerPlugin.SaveBuildServer(BuildServer buildServer)

@@ -15,6 +15,18 @@ namespace Wbtb.Core.Common
 
         #endregion
 
+        #region STOREITEM
+
+        StoreItem SaveStore(StoreItem storeItem);
+
+        StoreItem GetStoreItemByItem(string id);
+
+        StoreItem GetStoreItemByKey(string key);
+
+        bool DeleteStoreItem(StoreItem record);
+
+        #endregion
+
         #region BUILD SERVERS
 
         BuildServer SaveBuildServer(BuildServer buildServer);

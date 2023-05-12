@@ -1,4 +1,5 @@
-﻿using Wbtb.Core.Common;
+﻿using System.Reflection.Metadata.Ecma335;
+using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.FileSystem
 {
@@ -60,6 +61,11 @@ namespace Wbtb.Extensions.Data.FileSystem
         }
 
         public bool DeleteSourceServer(SourceServer record)
+        {
+            return false;
+        }
+
+        public bool DeleteStoreItem(StoreItem record)
         {
             return false;
         }
@@ -284,6 +290,16 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new SourceServer[] { };
         }
 
+        public StoreItem GetStoreItemByItem(string id)
+        {
+            return new StoreItem { };
+        }
+
+        public StoreItem GetStoreItemByKey(string key)
+        {
+            return new StoreItem { };
+        }
+
         public IEnumerable<Build> GetUnparsedBuildLogs(Job job)
         {
             return new Build[] { };
@@ -417,6 +433,11 @@ namespace Wbtb.Extensions.Data.FileSystem
         public SourceServer SaveSourceServer(SourceServer sourceServer)
         {
             return new SourceServer { };
+        }
+
+        public StoreItem SaveStore(StoreItem storeItem)
+        {
+            return new StoreItem { };
         }
 
         public User SaveUser(User user)

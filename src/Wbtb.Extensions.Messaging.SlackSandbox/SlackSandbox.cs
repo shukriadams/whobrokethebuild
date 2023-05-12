@@ -122,7 +122,10 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
                 }
             }
 
+            string messageKey = "{}";
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            //dataLayer.GetStoreItemByKey();
+
             Job job = dataLayer.GetJobById(build.JobId);
             string message = $"Build for {job.Name} broke at #{build.Identifier}.";
             dynamic attachment = new JObject();

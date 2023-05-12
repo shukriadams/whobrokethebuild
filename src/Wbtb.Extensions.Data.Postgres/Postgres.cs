@@ -68,6 +68,51 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #endregion
 
+
+        #region STORE
+
+        public StoreItem SaveStore(StoreItem storeItem)
+        {
+            string insertQuery = @"
+                INSERT INTO store
+                    (key, plugin, content)
+                VALUES
+                    (@key, @plugin, @content)
+                RETURNING id";
+
+            string updateQuery = @"                    
+                UPDATE store SET 
+                    content = @content
+                WHERE
+                    id = @id";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            {
+                if (string.IsNullOrEmpty(storeItem.Id))
+                    storeItem.Id = PostgresCommon.InsertWithId(this.ContextPluginConfig, insertQuery, storeItem, new ParameterMapper<StoreItem>(StoreItemMapping.MapParameters), connection);
+                else
+                    PostgresCommon.Update(this.ContextPluginConfig, updateQuery, storeItem, new ParameterMapper<StoreItem>(StoreItemMapping.MapParameters), connection);
+
+                return storeItem;
+            }
+        }
+        public StoreItem GetStoreItemByItem(string id)
+        {
+            return PostgresCommon.GetById(this.ContextPluginConfig, id, "store", new StoreItemConvert());
+        }
+
+        public StoreItem GetStoreItemByKey(string key)
+        {
+            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "store", new StoreItemConvert());
+        }
+
+        public bool DeleteStoreItem(StoreItem record)
+        {
+            return PostgresCommon.Delete(this.ContextPluginConfig, "store", "id", record.Id);
+        }
+
+        #endregion
+
         #region BUILD SERVER
 
         public BuildServer SaveBuildServer(BuildServer buildServer)
@@ -94,7 +139,6 @@ namespace Wbtb.Extensions.Data.Postgres
 
                 return buildServer;
             }
-
         }
 
         public BuildServer GetBuildServerById(string id)

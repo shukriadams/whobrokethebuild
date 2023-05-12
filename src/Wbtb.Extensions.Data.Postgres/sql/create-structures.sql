@@ -1,4 +1,12 @@
 ﻿-- CREATE SEQUENCES
+CREATE SEQUENCE public."store_id_seq"
+    INCREMENT 1
+    START 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+ALTER SEQUENCE public."store_id_seq" OWNER TO postgres;
+
 CREATE SEQUENCE public."jobdelta_id_seq"
     INCREMENT 1
     START 1
@@ -213,6 +221,21 @@ ALTER SEQUENCE public."usr_id_seq" OWNER TO postgres;
 
 
 -- CREATE TABLES
+-- TABLE : Store
+CREATE TABLE public."store"
+(
+    id integer NOT NULL DEFAULT nextval('"store_id_seq"'::regclass),
+    "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    "plugin" character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    content text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "store_pkey" PRIMARY KEY (id),
+    CONSTRAINT "store_key_unique" UNIQUE ("key")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+ALTER TABLE public."store" OWNER TO postgres;
 
 
 -- TABLE : BuildServer

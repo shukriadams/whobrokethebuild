@@ -30,7 +30,7 @@ DROP TABLE IF EXISTS public."buildserver";
 DROP TABLE IF EXISTS public."sourceserver";
 DROP TABLE IF EXISTS public."usr";
 DROP TABLE IF EXISTS public."configurationstate";
-
+DROP TABLE IF EXISTS public."store";
 
 -- DROP SEQUENCES
 DROP SEQUENCE IF EXISTS public."incident_id_seq";
@@ -59,3 +59,4 @@ DROP SEQUENCE IF EXISTS public."usr_id_seq";
 DROP SEQUENCE IF EXISTS public."session_userid_seq";
 DROP SEQUENCE IF EXISTS public."configurationstate_id_seq";
 DROP SEQUENCE IF EXISTS public."jobdelta_id_seq";
+DROP SEQUENCE IF EXISTS public."store_id_seq";
