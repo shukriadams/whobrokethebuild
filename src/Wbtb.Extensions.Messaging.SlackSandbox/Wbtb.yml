@@ -1,0 +1,8 @@
+﻿Key: Wbtb.Messaging.SlackSandbox
+Runtime: dotnet
+Main: Wbtb.Extensions.Messaging.SlackSandbox.dll
+Interface: Wbtb.Core.Common.IMessaging
+Assembly: Wbtb.Extensions.Messaging.SlackSandbox
+Concrete: Wbtb.Extensions.Messaging.SlackSandbox.SlackSandbox
+Version: 0.0.1
+APIVersion: 0.0.1

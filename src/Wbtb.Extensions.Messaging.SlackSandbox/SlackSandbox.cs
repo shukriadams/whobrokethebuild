@@ -1,22 +1,16 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
 using Wbtb.Core.Common;
 
-namespace Wbtb.Extensions.Messaging.Slack
+namespace Wbtb.Extensions.Messaging.SlackSandbox
 {
     public class SlackConfig
-    { 
+    {
         public string SlackId { get; set; }
-        public bool IsGroup { get;set; }
+        public bool IsGroup { get; set; }
     }
 
-    public class Slack : Plugin, IMessaging
+    public class SlackSandbox : Plugin, IMessaging
     {
         #region FIELDS
 
@@ -30,7 +24,7 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         #region CTORS
 
-        public Slack(Config config, PluginProvider pluginProvider) 
+        public SlackSandbox(Config config, PluginProvider pluginProvider)
         {
             _config = config;
             _pluginProvider = pluginProvider;
@@ -50,10 +44,11 @@ namespace Wbtb.Extensions.Messaging.Slack
             data["token"] = this.ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
             // list channels to ensure connection works
-            
+
             try
             {
-                dynamic response = ExecAPI("conversations.list", data);
+                dynamic forcedResponse = new { error = (string)null };
+                dynamic response = ExecAPI("conversations.list", data, forcedResponse);
 
                 if (response.error != null && response.error.Value == "invalid_auth")
                     return new ReachAttemptResult { Error = "Slack credentials failed" };
@@ -94,7 +89,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             AlertConfig targetSlackConfig = null;
 
             if (!string.IsNullOrEmpty(alertHandler.User))
-            { 
+            {
                 User user = _config.Users.Single(u => u.Key == alertHandler.User);
                 targetSlackConfig = user.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
@@ -139,7 +134,15 @@ namespace Wbtb.Extensions.Messaging.Slack
             data["text"] = message;
             data["attachments"] = JsonConvert.SerializeObject(attachment);
 
-            dynamic response = ExecAPI("chat.postMessage", data);
+            dynamic forcedResponse = new {
+                ok = new {
+                    Value = true
+                },
+                ts = new { 
+                    Value = "Message-id-1234"
+                }
+            };
+            dynamic response = ExecAPI("chat.postMessage", data, forcedResponse);
 
             if (response.ok.Value)
             {
@@ -160,29 +163,22 @@ namespace Wbtb.Extensions.Messaging.Slack
             return string.Empty;
         }
 
-        private dynamic ExecAPI(string apiFragment, NameValueCollection data, string method = "POST")
+        private dynamic ExecAPI(string apiFragment, NameValueCollection data, dynamic forcedResponse)
         {
             if (data == null)
                 data = new NameValueCollection();
 
             string token = this.ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
-            if (token.ToLower() == "sandbox") 
-            {
-                string output = "";
-                foreach (string key in data.AllKeys)
-                    output += $"{key} : {data.Get(key)}\n";
+            string output = "";
+            foreach (string key in data.AllKeys)
+                output += $"{key} : {data.Get(key)}\n";
 
-                // put plugin into sandbox mode, write message to file system
-                string pluginDataDirectory = Path.Combine(_config.PluginDataPersistDirectory, this.ContextPluginConfig.Manifest.Key);
-                Directory.CreateDirectory(pluginDataDirectory);
-                File.WriteAllText(Path.Combine(pluginDataDirectory, $"{DateTime.UtcNow.Ticks}.txt"), output);
-                return Newtonsoft.Json.JsonConvert.DeserializeObject("{ \"ok\": true, \"ts\":\"12345\", \"channel\":{ \"id\": { \"Value\" :\"my-channel-id\"  } } }");
-            }
+            // put plugin into sandbox mode, write message to file system
+            string pluginDataDirectory = Path.Combine(_config.PluginDataPersistDirectory, this.ContextPluginConfig.Manifest.Key);
+            Directory.CreateDirectory(pluginDataDirectory);
+            File.WriteAllText(Path.Combine(pluginDataDirectory, $"{DateTime.UtcNow.Ticks}.txt"), output);
 
-            WebClient client = new WebClient();
-            string jsonResponse = Encoding.UTF8.GetString(client.UploadValues($"https://slack.com/api/{apiFragment}", method, data));
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(jsonResponse);
-
+            return forcedResponse;
         }
 
         private string GetUserChannelId(string slackUserId)
@@ -193,7 +189,18 @@ namespace Wbtb.Extensions.Messaging.Slack
             data["token"] = token;
             data["users"] = slackUserId;
 
-            dynamic response = ExecAPI("conversations.open", data);
+            dynamic channelLookup = new { 
+                ok = new { 
+                    Value = true
+                },
+                channel = new { 
+                    id = new { 
+                        Value = "user-channel-1234" 
+                    }
+                } 
+            };
+
+            dynamic response = ExecAPI("conversations.open", data, channelLookup);
             if (response.ok.Value == true)
                 return response.channel.id.Value;
 
@@ -218,7 +225,7 @@ namespace Wbtb.Extensions.Messaging.Slack
                 Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
                 targetSlackConfig = group.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
-            
+
             SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(targetSlackConfig.RawJson);
             string slackId = config.SlackId;
 
@@ -249,7 +256,15 @@ namespace Wbtb.Extensions.Messaging.Slack
             data["text"] = "test message";
             data["attachments"] = Convert.ToString(attachment);
 
-            dynamic response = ExecAPI("chat.postMessage", data);
+            dynamic forceResponse = new { 
+                ok = new { 
+                    Value = true
+                },
+                ts = new { 
+                    Value = "message-id-1234"
+                }
+            };
+            dynamic response = ExecAPI("chat.postMessage", data, forceResponse);
 
             if (response.ok.Value)
             {
@@ -271,7 +286,11 @@ namespace Wbtb.Extensions.Messaging.Slack
             data["token"] = this.ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
             // list channels to ensure connection works
-            dynamic response = ExecAPI("conversations.list", data);
+            dynamic forcedResponse = new { 
+                channels = new List<JToken> { JToken.FromObject(new { id = "123", name = "some channel" })}
+            };
+
+            dynamic response = ExecAPI("conversations.list", data, forcedResponse);
             IEnumerable<JToken> channels = Enumerable.ToList(response.channels);
             foreach (JToken channel in channels)
                 Console.WriteLine(channel);

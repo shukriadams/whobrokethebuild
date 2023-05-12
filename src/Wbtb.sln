@@ -49,7 +49,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.Auth.Active
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.Data.FileSystem", "Wbtb.Extensions.Data.FileSystem\Wbtb.Extensions.Data.FileSystem.csproj", "{2ACB2C81-AA7F-4842-BCA3-D3A3CDCD68CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wbtb.Extensions.Messaging.Sandbox", "Wbtb.Extensions.Messaging.Sandbox\Wbtb.Extensions.Messaging.Sandbox.csproj", "{EFE42FC8-D96A-4C25-BDAD-4C869C246C44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.Messaging.Sandbox", "Wbtb.Extensions.Messaging.Sandbox\Wbtb.Extensions.Messaging.Sandbox.csproj", "{EFE42FC8-D96A-4C25-BDAD-4C869C246C44}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wbtb.Extensions.Messaging.SlackSandbox", "Wbtb.Extensions.Messaging.SlackSandbox\Wbtb.Extensions.Messaging.SlackSandbox.csproj", "{E5B3E281-EDE8-4A48-A159-6FDB97CFE4C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,6 +155,10 @@ Global
 		{EFE42FC8-D96A-4C25-BDAD-4C869C246C44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFE42FC8-D96A-4C25-BDAD-4C869C246C44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFE42FC8-D96A-4C25-BDAD-4C869C246C44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5B3E281-EDE8-4A48-A159-6FDB97CFE4C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5B3E281-EDE8-4A48-A159-6FDB97CFE4C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5B3E281-EDE8-4A48-A159-6FDB97CFE4C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5B3E281-EDE8-4A48-A159-6FDB97CFE4C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

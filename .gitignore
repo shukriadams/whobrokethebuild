@@ -70,3 +70,5 @@ src/Wbtb.Extensions.Data.FileSystem/obj
 build/docker/data
 src/Wbtb.Extensions.Messaging.Sandbox/bin
 src/Wbtb.Extensions.Messaging.Sandbox/obj
+src/Wbtb.Extensions.Messaging.SlackSandbox/bin
+src/Wbtb.Extensions.Messaging.SlackSandbox/obj
