@@ -27,14 +27,10 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            // cludge a build nr together
-            int buildsCount = (int)dataLayer.PageBuildsByJob(job.Id, 0, 1).TotalItemCount;
-
-
             dataLayer.SaveBuild(new Build
             {
                 JobId = job.Id,
-                Identifier = (buildsCount + 1 ).ToString(),
+                Identifier = Guid.NewGuid().ToString(),
                 StartedUtc = DateTime.UtcNow,
                 EndedUtc = DateTime.UtcNow,
                 Status = BuildStatus.Passed,
