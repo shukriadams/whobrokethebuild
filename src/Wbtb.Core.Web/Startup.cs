@@ -5,10 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using Wbtb.Core.Common;
-using Wbtb.Core.Web.Controllers;
 
 namespace Wbtb.Core.Web
 {
@@ -27,47 +24,10 @@ namespace Wbtb.Core.Web
             services.AddRazorPages()
                 .AddRazorRuntimeCompilation(); // allows us to to reload view changes without recompile
 
+            // note : we don't use dotnet's DI framew
             services.AddSignalR();
-            
-            services.AddTransient<IMessageQueue, MessageQueue>();
             services.AddHostedService<ServerStartService>();
-            // force built-in DI to use our DI's controller factory, this is the only known way to bypass M$' DI for controllers
-            //services.AddSingleton<IControllerFactory, ControllerFactory>();
             services.AddMemoryCache();
-
-            SimpleDI di = new SimpleDI();
-
-            di.Register<LogHelper, LogHelper>();   
-            di.Register<PluginDirectSender, PluginDirectSender>();
-            di.Register<PluginShellSender, PluginShellSender>();
-            di.Register<PluginCoreSender, PluginCoreSender>(); 
-            di.Register<PersistPathHelper, PersistPathHelper>();
-            di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();
-            di.Register<ConfigBasic, ConfigBasic>();
-            di.Register<ConfigBootstrapper, ConfigBootstrapper>();
-            di.Register<GitHelper, GitHelper>();
-            di.Register<BuildLogParseResultHelper, BuildLogParseResultHelper>();
-            di.Register<ConfigurationBuilder, ConfigurationBuilder>();
-            di.Register<PluginProvider, PluginProvider>();
-            di.Register<PluginManager, PluginManager>();
-            di.Register<BuildLevelPluginHelper, BuildLevelPluginHelper>();
-            di.Register<FileSystemHelper, FileSystemHelper>();
-            di.Register<CustomEnvironmentArgs, CustomEnvironmentArgs>();
-            di.RegisterFactory<ILogger, LogProvider>();
-
-            di.Register<HomeController, HomeController>();
-            di.Register<BuildController, BuildController>();
-            di.Register<InvokeController, InvokeController>();
-            di.Register<JobController, JobController>();
-            di.Register<IDaemonProcessRunner, DaemonProcessRunner>();
-            di.Register<IWebDaemon, BuildImportDaemon>(null, true);
-            di.Register<IWebDaemon, UserBuildInvolvementLinkDaemon>(null, true);
-            di.Register<IWebDaemon, RevisionResolveDaemon>(null, true);
-            di.Register<IWebDaemon, LogParseDaemon>(null, true);
-            di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(null, true);
-            di.Register<IWebDaemon, IncidentAssignDaemon>(null, true);
-            di.RegisterFactory<IHubContext, HubFactory>();
-            di.RegisterFactory<IPluginSender, PluginSenderFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

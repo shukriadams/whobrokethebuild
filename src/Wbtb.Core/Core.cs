@@ -1,70 +1,66 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core
 {
+    /// <summary>
+    /// Wraps logic for starting a Wbtb application - both CLI and server. An application needs to be started in stages. 
+    /// 1 - registered known basic types with DI system. These types will be used to start the app.
+    /// 2 - Attempt to fetch 
+    /// </summary>
     public class Core
     {
-        public static SemanticVersion CoreVersion { private set; get; }
-
-        public static string CurrentHash { private set; get; }
-
-        static Core() 
-        {
-            // read this from currentVersion.txt file in app root
-            string currentVersion = File.ReadAllText("./currentVersion.txt");
-            Regex regex = new Regex("^(.*)? (.*)?");
-            Match match = regex.Match(currentVersion);
-            if (!match.Success)
-                throw new ConfigurationException($"currentVersion.txt content {currentVersion} is invalid");
-
-            CurrentHash = match.Groups[1].Value;
-            CoreVersion = SemanticVersion.TryParse(match.Groups[2].Value);
-        }
-
-        /// <summary>
-        /// Updates config from git. Requires env variables to do so, self-checks and throws errors on missing config.
-        /// Returns true if config has changed
-        /// </summary>
-        /// <returns></returns>
-        public static bool EnsureConfig()
-        {
-            SimpleDI di = new SimpleDI();
-            ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
-            CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
-            customEnvironmentArgs.Apply();
-
-            return configBootstrapper.EnsureLatest();
-        }
-
         /// <summary>
         /// Single-call wrapper to start server.
         /// </summary>
-        public static void StartServer()
+        public void Start()
         {
             // pre-start stuff
             SimpleDI di = new SimpleDI();
+
+            di.Register<ConfigurationManager, ConfigurationManager>();
+            di.Register<CurrentVersion, CurrentVersion>();
+            di.Register<LogHelper, LogHelper>();
+            di.Register<PluginDirectSender, PluginDirectSender>();
+            di.Register<PluginShellSender, PluginShellSender>();
+            di.Register<PluginCoreSender, PluginCoreSender>();
+            di.Register<PersistPathHelper, PersistPathHelper>();
+            di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();
+            di.Register<ConfigBasic, ConfigBasic>();
+            di.Register<ConfigBootstrapper, ConfigBootstrapper>();
+            di.Register<GitHelper, GitHelper>();
+            di.Register<BuildLogParseResultHelper, BuildLogParseResultHelper>();
+            di.Register<ConfigurationBuilder, ConfigurationBuilder>();
+            di.Register<PluginProvider, PluginProvider>();
+            di.Register<PluginManager, PluginManager>();
+            di.Register<FileSystemHelper, FileSystemHelper>();
+            di.Register<CustomEnvironmentArgs, CustomEnvironmentArgs>();
+            di.RegisterFactory<ILogger, LogProvider>();
+            di.RegisterFactory<IPluginSender, PluginSenderFactory>();
+
             ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
             CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
 
             customEnvironmentArgs.Apply();
             configBootstrapper.EnsureLatest();
 
+            ConfigurationManager configurationManager = di.Resolve<ConfigurationManager>();
+
             // first part of server start, tries to load config
-            Config unsafeConfig = ConfigurationManager.LoadUnsafeConfig(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
+            Config unsafeConfig = configurationManager.LoadUnsafeConfig(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
 
             // ensure directories, this requires that config is loaded
             Directory.CreateDirectory(unsafeConfig.DataDirectory);
             Directory.CreateDirectory(unsafeConfig.BuildLogsDirectory);
             Directory.CreateDirectory(unsafeConfig.PluginsWorkingDirectory);
             Directory.CreateDirectory(unsafeConfig.PluginDataPersistDirectory);
-            
-            ConfigurationManager.FetchPlugins(unsafeConfig);
-            ConfigurationManager.FinalizeConfig(unsafeConfig);
+
+            configurationManager.FetchPlugins(unsafeConfig);
+            configurationManager.FinalizeConfig(unsafeConfig);
 
             bool isAnyPluginProxying = unsafeConfig.Plugins.Where(p => p.Proxy).Any();
             if (isAnyPluginProxying || unsafeConfig.ForceMessageQueue)
@@ -77,11 +73,27 @@ namespace Wbtb.Core
             {
                 Console.WriteLine("No plugins running in proxy mode, ignoring MessageQueue status.");
             }
-        }
 
-        public static void LoadPlugins()
-        {
-            SimpleDI di = new SimpleDI();
+            Config config = di.Resolve<Config>();
+
+            // register plugins using config
+            foreach (PluginConfig plugin in config.Plugins.Where(p => p.Manifest.RuntimeParsed == Runtimes.dotnet))
+            {
+                Type interfaceType = TypeHelper.GetCommonType(plugin.Manifest.Interface);
+
+                if (!plugin.Proxy)
+                    TypeHelper.GetAssembly(plugin.Manifest.Assembly); // force load assembly
+
+                Type implementation = plugin.Proxy ? TypeHelper.GetRequiredProxyType(interfaceType) : TypeHelper.ResolveType(plugin.Manifest.Concrete);
+                if (implementation == null)
+                    throw new ConfigurationException($"Could not resolve plugin type {plugin.Manifest.Concrete}");
+
+                PluginBehaviourAttribute pluginBehaviour = TypeHelper.GetAttribute<PluginBehaviourAttribute>(interfaceType);
+
+                di.Register(interfaceType, implementation, key: plugin.Key, allowMultiple: pluginBehaviour.AllowMultiple);
+            }
+
+
             PluginManager pluginManager = di.Resolve<PluginManager>();
             ConfigurationBuilder builder = di.Resolve<ConfigurationBuilder>();
 
@@ -100,7 +112,7 @@ namespace Wbtb.Core
 
             if (orphans.Count() > 0)
                 throw new ConfigurationException("Orphan records detected. Please merge or delete orphans");
+
         }
     }
-
 }

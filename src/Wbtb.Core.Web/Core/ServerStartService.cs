@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Wbtb.Core.Common;
@@ -18,53 +17,49 @@ namespace Wbtb.Core.Web
             lifetime.ApplicationStarted.Register(() =>{
                 try
                 {
-
-                    bool hashChanged = Wbtb.Core.Core.EnsureConfig();
-                    // if config changed, cleanly stop app, this will give us a chance to restart with new config. 
-                    // in a containerized environemnt this should happen automatically
-                    if (hashChanged)
-                        lifetime.StopApplication();
-
-                    Wbtb.Core.Core.StartServer();
-
                     SimpleDI di = new SimpleDI();
+
+                    // register types defined in web project
+                    di.Register<IDaemonProcessRunner, DaemonProcessRunner>();
+                    di.Register<IWebDaemon, BuildImportDaemon>(null, true);
+                    di.Register<IWebDaemon, UserBuildInvolvementLinkDaemon>(null, true);
+                    di.Register<IWebDaemon, RevisionResolveDaemon>(null, true);
+                    di.Register<IWebDaemon, LogParseDaemon>(null, true);
+                    di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(null, true);
+                    di.Register<IWebDaemon, IncidentAssignDaemon>(null, true);
+                    di.RegisterFactory<IHubContext, HubFactory>();
+                    di.Register<BuildLevelPluginHelper, BuildLevelPluginHelper>();
+
+                    Wbtb.Core.Core core = new Wbtb.Core.Core();
+                    core.Start();
+
                     Config config = di.Resolve<Config>();
-
-                    foreach (PluginConfig plugin in config.Plugins.Where(p=> p.Manifest.RuntimeParsed == Runtimes.dotnet)) 
-                    {
-                        Type interfaceType = TypeHelper.GetCommonType(plugin.Manifest.Interface);
-                        
-                        if (!plugin.Proxy)
-                            TypeHelper.GetAssembly(plugin.Manifest.Assembly); // force load assembly
-
-                        Type implementation = plugin.Proxy ? TypeHelper.GetRequiredProxyType(interfaceType) : TypeHelper.ResolveType(plugin.Manifest.Concrete);
-                        if (implementation == null)
-                            throw new ConfigurationException($"Could not resolve plugin type {plugin.Manifest.Concrete}");
-
-                        PluginBehaviourAttribute pluginBehaviour = TypeHelper.GetAttribute<PluginBehaviourAttribute>(interfaceType);
-
-                        di.Register(interfaceType, implementation, key : plugin.Key, allowMultiple : pluginBehaviour.AllowMultiple);
-                    }
-
-                    Wbtb.Core.Core.LoadPlugins();
 
                     string disableDaemonsLook = Environment.GetEnvironmentVariable("WBTB_ENABLE_DAEMONS");
                     bool disableDaemons = disableDaemonsLook == "0" || disableDaemonsLook == "false" || config.EnabledDaemons == false;
+                    string disableSocketsLook = Environment.GetEnvironmentVariable("WBTB_ENABLE_SOCKETS");
+                    bool disableSockets = disableSocketsLook == "0" || disableSocketsLook == "false" || config.EnabledSockets == false;
 
-                    // these shoule be moved to "startserver" too
-                    if (disableDaemons)
+                    using (IServiceScope scope = serviceProvider.CreateScope())
                     {
-                        Console.WriteLine("DAEMONS DISABLED");
-                    }
-                    else 
-                    {
-                        using (IServiceScope scope = serviceProvider.CreateScope())
+                        if (disableDaemons)
+                        {
+                            Console.WriteLine("DAEMONS DISABLED");
+                        }
+                        else
                         {
                             // start daemons by find all types that implement IWebdaemon, start all
-                            IEnumerable<IWebDaemon> webDaemons = di.ResolveAll<IWebDaemon>(); // scope.ServiceProvider.GetServices<IWebDaemon>();
+                            IEnumerable<IWebDaemon> webDaemons = di.ResolveAll<IWebDaemon>();
                             foreach (IWebDaemon daemon in webDaemons)
                                 daemon.Start(config.DaemonInterval * 1000);
+                        }
 
+                        if (disableSockets)
+                        {
+                            Console.WriteLine("SOCKETS DISABLED");
+                        }
+                        else
+                        {
                             // signlr, pipe all console write and writelines to signlr hub
                             // dev stuff, this should be moved somewhere better. 
                             IHubContext<ConsoleHub> hub = scope.ServiceProvider.GetService<IHubContext<ConsoleHub>>();
@@ -75,6 +70,7 @@ namespace Wbtb.Core.Web
                                 };
                                 Console.SetOut(consoleWriter);
                             }
+
                         }
                     }
                 }

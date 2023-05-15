@@ -15,8 +15,7 @@ namespace Wbtb.Core.Web
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureLogging((hostingContext, builder) =>
-                {
+                .ConfigureLogging((hostingContext, builder) => {
                     // set up logging
                     string logPath = Environment.GetEnvironmentVariable("WBTB_LOG_PATH");
                     if (string.IsNullOrEmpty(logPath))
@@ -25,8 +24,7 @@ namespace Wbtb.Core.Web
                     Directory.CreateDirectory(Path.GetDirectoryName(logPath));
                     builder.AddFile(logPath);
                 })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
+                .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<Startup>();
                 });
     }

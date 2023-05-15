@@ -23,6 +23,7 @@ namespace Wbtb.Core.CLI
             {
                 // bind types - dev only! These are needed by all general plugin activity
                 SimpleDI di = new SimpleDI();
+
                 di.Register<IDataLayerPlugin, Postgres>();
                 di.Register<IAuthenticationPlugin, ActiveDirectory>();
                 di.Register<IAuthenticationPlugin, ActiveDirectorySandbox>();
@@ -48,8 +49,6 @@ namespace Wbtb.Core.CLI
                 customEnvironmentArgs.Apply();
                 if (!configBootstrapper.EnsureLatest())
                     Environment.Exit(0);
-
-                throw new NotImplementedException("fix this");
 
                 Config config = di.Resolve<Config>();
 

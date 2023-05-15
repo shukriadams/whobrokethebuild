@@ -18,7 +18,7 @@ namespace Wbtb.Core
         /// Required first step for working with static config - set's the path config 
         /// </summary>
         /// <param name="path"></param>
-        public static Config LoadUnsafeConfig(string path)
+        public Config LoadUnsafeConfig(string path)
         {
             if (string.IsNullOrEmpty(path))
                 throw new ConfigurationException("Config path cannot be an empty string");
@@ -110,7 +110,7 @@ namespace Wbtb.Core
             return tempConfig;
         }
         
-        public static void FinalizeConfig(Config unsafeConfig)
+        public void FinalizeConfig(Config unsafeConfig)
         {
             EnsureManifestLogicValid(unsafeConfig);
             SimpleDI di = new SimpleDI();
@@ -122,7 +122,7 @@ namespace Wbtb.Core
         /// move this to independent class, no need to be ehre
         /// </summary>
         /// <param name="config"></param>
-        public static bool FetchPlugins(Config config)
+        public bool FetchPlugins(Config config)
         {
             // ensure write permission
             bool updated = false;
@@ -192,7 +192,7 @@ namespace Wbtb.Core
         /// config needs to be in place first.
         /// </summary>
         /// <param name="config"></param>
-        private static void EnsureNoneManifestLogicValid(Config config)
+        private void EnsureNoneManifestLogicValid(Config config)
         {
             EnsureIdPresentAndUnique(config.Plugins, "plugin");
             EnsureIdPresentAndUnique(config.BuildServers, "build server");
@@ -213,10 +213,13 @@ namespace Wbtb.Core
         /// application start. Does not change config structure
         /// </summary>
         /// <param name="config"></param>
-        private static void EnsureManifestLogicValid(Config config)
+        private void EnsureManifestLogicValid(Config config)
         {
+            CurrentVersion currentVersion = new CurrentVersion();
+            currentVersion.Resolve();
+
             // enforce API version check if semver of current version is not all zero (local dev)
-            bool doAPIVersionCheck = Core.CoreVersion.Major > 0 && Core.CoreVersion.Minor > 0 && Core.CoreVersion.Patch > 0;
+            bool doAPIVersionCheck = currentVersion.CoreVersion.Major > 0 && currentVersion.CoreVersion.Minor > 0 && currentVersion.CoreVersion.Patch > 0;
             if (!doAPIVersionCheck)
                 Console.WriteLine("Skipping semver checking, dev versioning detected");
 
@@ -288,8 +291,8 @@ namespace Wbtb.Core
                 if (doAPIVersionCheck)
                 {
                     SemanticVersion pluginVersion = SemanticVersion.TryParse(pluginConfig.Manifest.APIVersion);
-                    if (pluginVersion.Major != Core.CoreVersion.Major || pluginVersion.Minor != Core.CoreVersion.Minor || pluginVersion.Patch > Core.CoreVersion.Patch)
-                        throw new ConfigurationException($"Plugin {pluginConfig.Key} at version {pluginConfig.Manifest.Version} has an APIVersion requirement {pluginConfig.Manifest.APIVersion} that is not compatible with this Wbtb core version {Core.CoreVersion}.");
+                    if (pluginVersion.Major != currentVersion.CoreVersion.Major || pluginVersion.Minor != currentVersion.CoreVersion.Minor || pluginVersion.Patch > currentVersion.CoreVersion.Patch)
+                        throw new ConfigurationException($"Plugin {pluginConfig.Key} at version {pluginConfig.Manifest.Version} has an APIVersion requirement {pluginConfig.Manifest.APIVersion} that is not compatible with this Wbtb core version {currentVersion.CoreVersion}.");
                 }
 
                 if (string.IsNullOrEmpty(pluginConfig.Manifest.Runtime))
@@ -483,7 +486,7 @@ namespace Wbtb.Core
             }
         }
 
-        private static void ValidateProcessors<T>(Config config, Job job, IEnumerable<string> processors, string category) 
+        private void ValidateProcessors<T>(Config config, Job job, IEnumerable<string> processors, string category) 
         {
             foreach (string processorPlugin in processors)
             {
@@ -501,7 +504,7 @@ namespace Wbtb.Core
         /// Where possible fills out values which can be inferred. This changes the contents of the config object.
         /// </summary>
         /// <param name="config"></param>
-        private static void AutofillOptionalValues(Config config)
+        private void AutofillOptionalValues(Config config)
         { 
             foreach (User user in config.Users)
             { 
@@ -522,7 +525,7 @@ namespace Wbtb.Core
         /// </summary>
         /// <param name="items"></param>
         /// <param name="collectionName"></param>
-        private static void EnsureIdPresentAndUnique(IEnumerable<IIdentifiable> items, string collectionName)
+        private void EnsureIdPresentAndUnique(IEnumerable<IIdentifiable> items, string collectionName)
         {
             foreach (IIdentifiable item in items)
             {
@@ -541,7 +544,7 @@ namespace Wbtb.Core
         /// </summary>
         /// <param name="ymlText"></param>
         /// <returns></returns>
-        private static ConfigValidationError ValidateYmlFormat(string ymlText)
+        private ConfigValidationError ValidateYmlFormat(string ymlText)
         {
             IDeserializer deserializer = YmlHelper.GetDeserializer();
 
@@ -565,7 +568,7 @@ namespace Wbtb.Core
         /// 
         /// </summary>
         /// <returns></returns>
-        public static string GetBlank()
+        public string GetBlank()
         {
             Config testconfig = new Config();
             ISerializer serializer = new SerializerBuilder()
@@ -580,7 +583,7 @@ namespace Wbtb.Core
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static PluginManifest ParseManifest(string rawYml)
+        public PluginManifest ParseManifest(string rawYml)
         {
             IDeserializer deserializer = YmlHelper.GetDeserializer();
             return deserializer.Deserialize<PluginManifest>(rawYml);
