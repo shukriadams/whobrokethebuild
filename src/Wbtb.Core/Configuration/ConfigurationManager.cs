@@ -215,6 +215,7 @@ namespace Wbtb.Core
         /// <param name="config"></param>
         private void EnsureManifestLogicValid(Config config)
         {
+            
             CurrentVersion currentVersion = new CurrentVersion();
             currentVersion.Resolve();
 
@@ -222,7 +223,7 @@ namespace Wbtb.Core
             bool doAPIVersionCheck = currentVersion.CoreVersion.Major > 0 && currentVersion.CoreVersion.Minor > 0 && currentVersion.CoreVersion.Patch > 0;
             if (!doAPIVersionCheck)
                 Console.WriteLine("Skipping semver checking, dev versioning detected");
-
+            
             foreach (PluginConfig pluginConfig in config.Plugins)
             {
                 if (string.IsNullOrEmpty(pluginConfig.Path))
@@ -237,7 +238,12 @@ namespace Wbtb.Core
                 if (!directoryExists) 
                 {
                     // try to autoresolve if running in visual studio
+                    // web project starts in the project root
                     string devPath = Path.Combine($"..{Path.DirectorySeparatorChar}",  pluginConfig.Path, "bin", "Debug", "net6.0");
+                    // cli starts in bin/debug/runtime
+                    if (!Directory.Exists(devPath))
+                        devPath = Path.Combine($"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}", pluginConfig.Path, "bin", "Debug", "net6.0");
+
                     if (Directory.Exists(devPath))
                     {
                         Console.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}");

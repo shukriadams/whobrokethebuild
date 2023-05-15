@@ -163,6 +163,11 @@ namespace Wbtb.Core.Common
             }
         }
 
+        public bool IsServiceRegistered(Type service) 
+        {
+            return _register.Where(r => r.Service != null && r.Service == service).Any();
+        }
+
         public T ResolveByKey<T>(string key) 
         {
             Type service = typeof(T);

@@ -44,7 +44,6 @@ namespace Wbtb.Core
 
             ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
             CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
-
             customEnvironmentArgs.Apply();
             configBootstrapper.EnsureLatest();
 
@@ -93,7 +92,6 @@ namespace Wbtb.Core
                 di.Register(interfaceType, implementation, key: plugin.Key, allowMultiple: pluginBehaviour.AllowMultiple);
             }
 
-
             PluginManager pluginManager = di.Resolve<PluginManager>();
             ConfigurationBuilder builder = di.Resolve<ConfigurationBuilder>();
 
@@ -112,7 +110,6 @@ namespace Wbtb.Core
 
             if (orphans.Count() > 0)
                 throw new ConfigurationException("Orphan records detected. Please merge or delete orphans");
-
         }
     }
 }

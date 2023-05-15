@@ -3,9 +3,9 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
-    internal class GetLatestConfig
+    internal class GetLatestConfig: ICommand
     {
-        public static void EnsureConfig()
+        public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();
             ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
