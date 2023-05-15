@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
 
-namespace Wbtb.Core.Web.Core.Daemons
+namespace Wbtb.Core.Web.Core
 {
     /// <summary>
     /// Runs import build and import log on build systems.

@@ -45,6 +45,20 @@ namespace Wbtb.Core.Common
             return plugin;
         }
 
+        public TPluginType GetDistinct<TPluginType>()
+        {
+            PluginConfig config = _config.Plugins.FirstOrDefault(c => c.Manifest.Interface == TypeHelper.Name<TPluginType>());
+            if (config == null)
+                throw new Exception($"No service found for type {TypeHelper.Name<TPluginType>()}");
+
+            object resolved = GetDistinct(config);
+
+            TPluginType resolvedTyped = (TPluginType)resolved;
+            if (resolvedTyped == null)
+                throw new Exception($"Could not cast plugin {config.Key} to {TypeHelper.Name<TPluginType>()}");
+
+            return resolvedTyped;
+        }
         public object GetDistinct(PluginConfig pluginConfig, bool forceConcrete = true)
         {
             if (pluginConfig == null)

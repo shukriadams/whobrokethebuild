@@ -68,7 +68,6 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #endregion
 
-
         #region STORE
 
         public StoreItem SaveStore(StoreItem storeItem)

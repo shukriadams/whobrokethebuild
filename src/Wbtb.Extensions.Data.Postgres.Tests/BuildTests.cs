@@ -19,7 +19,6 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
             Build record = this.Postgres.SaveBuild(new Build
             {
                 Identifier = "mybuildId",
-                Delta = BuildDelta.ContinuedBreak,
                 EndedUtc = new DateTime(2001,1,1),
                 Hostname = "myhostname",
                 JobId = job.Key,
@@ -32,7 +31,6 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
             Assert.NotEqual("0", record.Id);
 
             Assert.Equal("mybuildId", record.Identifier);
-            Assert.Equal(BuildDelta.ContinuedBreak, record.Delta);
             Assert.Equal(new DateTime(2001, 1, 1), record.EndedUtc);
             Assert.Equal("myhostname", record.Hostname);
             Assert.Equal(job.Key, record.JobId);

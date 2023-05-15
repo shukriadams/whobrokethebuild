@@ -12,7 +12,6 @@ namespace Wbtb.Extensions.Data.Postgres
 
             collection.AddWithValue("signature", record.Signature);
             collection.AddWithValue("identifier", record.Identifier);
-            collection.AddWithValue("delta", record.Delta.ToString());
             collection.AddWithValue("logpath", string.IsNullOrEmpty(record.LogPath) ? (object)DBNull.Value : record.LogPath);
             collection.AddWithValue("endedutc", record.EndedUtc == null ? (object)DBNull.Value : record.EndedUtc.Value);
             collection.AddWithValue("hostname", string.IsNullOrEmpty(record.Hostname) ? (object)DBNull.Value : record.Hostname);

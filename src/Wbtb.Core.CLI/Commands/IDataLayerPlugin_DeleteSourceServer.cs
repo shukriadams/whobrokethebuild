@@ -15,6 +15,7 @@ namespace Wbtb.Core.CLI.Commands
             {
                 Console.WriteLine($"ERROR : key required");
                 Environment.Exit(1);
+                return;
             }
 
 

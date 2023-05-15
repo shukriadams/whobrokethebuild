@@ -15,12 +15,14 @@ namespace Wbtb.Core.CLI
             {
                 Console.WriteLine($"ERROR : key \"from\" required");
                 Environment.Exit(1);
+                return;
             }
 
             if (!switches.Contains("to"))
             {
                 Console.WriteLine($"ERROR : key \"to\" required");
                 Environment.Exit(1);
+                return;
             }
 
             string fromBuildServerKey = switches.Get("from");

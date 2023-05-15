@@ -17,6 +17,7 @@ namespace Wbtb.Core.CLI
             {
                 Console.WriteLine($"ERROR : \"Key\" arg required, for buildserver Key to list jobs for");
                 Environment.Exit(1);
+                return;
             }
 
             string buildServerKey = switches.Get("Key");

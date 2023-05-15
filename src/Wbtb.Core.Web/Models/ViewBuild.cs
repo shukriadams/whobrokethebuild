@@ -37,7 +37,6 @@ namespace Wbtb.Core.Web
                 return null;
 
             return new ViewBuild{ 
-                Delta = build.Delta,
                 EndedUtc = build.EndedUtc,
                 Hostname = build.Hostname,
                 Identifier = build.Identifier,

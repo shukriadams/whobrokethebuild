@@ -83,8 +83,6 @@ namespace Wbtb.Core.Web
                     return;
                 }
 
-                
-
                 foreach (Job job in buildServer.Jobs)
                 {
                     try
@@ -94,37 +92,6 @@ namespace Wbtb.Core.Web
                             count = thisjob.ImportCount.Value;
 
                         BuildImportSummary importSummary = buildServerPlugin.ImportBuilds(thisjob, count);
-
-                        foreach (Build incomingbuild in importSummary.Ended)
-                        {
-                            // get fresh copy of build to prevent concurrency collisions
-                            Build build = dataLayer.GetBuildById(incomingbuild.Id);
-
-                            // set delta
-                            Build previousBuild = dataLayer.GetPreviousBuild(build);
-                            BuildDelta? delta = null;
-
-                            if (previousBuild == null)
-                            { 
-                                // this build is first build
-                                if (build.Status == BuildStatus.Failed)
-                                    delta = BuildDelta.Broke;
-                                else if (build.Status == BuildStatus.Passed)
-                                    delta = BuildDelta.Pass;
-                                else if (build.Status == BuildStatus.InProgress || build.Status == BuildStatus.Queued || build.Status == BuildStatus.Unknown)
-                                { 
-                                    // this should not happen on build end, import has failed somehow
-                                    delta = BuildDelta.Unknown;
-                                    _log.LogError($"Invalid status detected on completed build {build.Id}");
-                                }
-                            }
-
-                            if (delta != null)
-                            { 
-                                build.Delta = delta.Value;
-                                dataLayer.SaveBuild(build);
-                            }
-                        }
 
                         // fire events
                         foreach (Build build in importSummary.Created)
@@ -136,6 +103,10 @@ namespace Wbtb.Core.Web
                         // from here on it's all build delta, consider moving this to own daemon
                         if (!importSummary.Ended.Any())
                             continue;
+
+
+
+
 
                         // handle current state of game
                         Build latestBuild = importSummary.Ended.OrderByDescending(b => b.EndedUtc.Value).First();

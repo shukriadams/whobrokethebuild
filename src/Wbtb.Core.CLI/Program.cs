@@ -26,6 +26,8 @@ namespace Wbtb.Core.CLI
                 di.Register<IDataLayerPlugin_DeleteUser, IDataLayerPlugin_DeleteUser>();
                 di.Register<IDataLayerPlugin_MergeBuildServers, IDataLayerPlugin_MergeBuildServers>();
                 di.Register<IDataLayerPlugin_MergeUsers, IDataLayerPlugin_MergeUsers>();
+                di.Register<Debug_BreakBuild, Debug_BreakBuild>();
+                di.Register<Debug_FixBuild, Debug_FixBuild>();
 
                 Config config = di.Resolve<Config>();
 

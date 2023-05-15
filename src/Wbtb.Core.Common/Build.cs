@@ -51,11 +51,6 @@ namespace Wbtb.Core.Common
         public BuildStatus Status { get; set; }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public BuildDelta Delta { get; set; }
-
-        /// <summary>
         /// If build has not passed, it must be assigned an incident build, which is the the first build _after_ the last preceeding build that passed. This
         /// can be this build if the preceeding build passed. This build id is assigned by a daemon, and will eventually always be set if the build status is
         /// not pasing. Aborted builds count as incidents too.

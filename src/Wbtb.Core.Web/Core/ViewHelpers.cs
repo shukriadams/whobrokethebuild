@@ -144,25 +144,6 @@ namespace Wbtb.Core.Web
             // first try to use build delta 
             string result = string.Empty;
 
-            switch(build.Delta)
-            { 
-                case BuildDelta.Pass:
-                    result = "Passing";
-                    break;
-
-                case BuildDelta.Restore:
-                    result = "Fixed build";
-                    break;
-
-                case BuildDelta.Broke:
-                    result = "Broke build";
-                    break;
-
-                case BuildDelta.ContinuedBreak:
-                    result = "Already broken";
-                    break;
-            }
-
             if (result == string.Empty)
                 switch(build.Status)
                 { 
