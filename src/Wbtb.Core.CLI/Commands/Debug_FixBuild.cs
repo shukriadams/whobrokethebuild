@@ -1,7 +1,7 @@
 ﻿using System;
 using Wbtb.Core.Common;
 
-namespace Wbtb.Core.CLI.Commands
+namespace Wbtb.Core.CLI
 {
     internal class Debug_FixBuild :ICommand
     {
@@ -27,13 +27,20 @@ namespace Wbtb.Core.CLI.Commands
                 return;
             }
 
+            // cludge a build nr together
+            int buildsCount = (int)dataLayer.PageBuildsByJob(job.Id, 0, 1).TotalItemCount;
+
+
             dataLayer.SaveBuild(new Build
             {
                 JobId = job.Id,
+                Identifier = (buildsCount + 1 ).ToString(),
+                StartedUtc = DateTime.UtcNow,
                 EndedUtc = DateTime.UtcNow,
                 Status = BuildStatus.Passed,
             });
 
+            Console.WriteLine($"Fixed job {job.Key} - order has been restored");
         }
     }
 }

@@ -22,6 +22,7 @@ namespace Wbtb.Core.Web
                     // register types defined in web project
                     di.Register<IDaemonProcessRunner, DaemonProcessRunner>();
                     di.Register<IWebDaemon, BuildImportDaemon>(null, true);
+                    di.Register<IWebDaemon, BuildStatusAlertDaemon>(null, true);
                     di.Register<IWebDaemon, UserBuildInvolvementLinkDaemon>(null, true);
                     di.Register<IWebDaemon, RevisionResolveDaemon>(null, true);
                     di.Register<IWebDaemon, LogParseDaemon>(null, true);

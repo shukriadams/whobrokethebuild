@@ -363,7 +363,6 @@ CREATE TABLE public."build"
     logpath character varying(256) COLLATE pg_catalog."default",
     hostname character varying(64) COLLATE pg_catalog."default",
     status integer NOT NULL,
-    delta character varying(64) COLLATE pg_catalog."default",
     CONSTRAINT "build_pkey" PRIMARY KEY (id),
     CONSTRAINT "build_identifier_unique" UNIQUE (identifier, jobid),
     CONSTRAINT "build_jobid_fk" FOREIGN KEY (jobid)

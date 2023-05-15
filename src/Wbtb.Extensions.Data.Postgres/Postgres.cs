@@ -705,9 +705,9 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO build
-                    (jobid, signature, identifier, logpath, incidentbuildid, triggeringcodechange, triggeringtype, startedutc, endedutc, hostname, status, delta)
+                    (jobid, signature, identifier, logpath, incidentbuildid, triggeringcodechange, triggeringtype, startedutc, endedutc, hostname, status)
                 VALUES
-                    (@jobid, @signature, @identifier, @logpath, @incidentbuildid, @triggeringcodechange, @triggeringtype, @startedutc, @endedutc, @hostname, @status, @delta)
+                    (@jobid, @signature, @identifier, @logpath, @incidentbuildid, @triggeringcodechange, @triggeringtype, @startedutc, @endedutc, @hostname, @status)
                 RETURNING id";
 
             string updateQuery = @"                    
@@ -722,8 +722,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     startedutc = @startedutc, 
                     endedutc = @endedutc, 
                     hostname = @hostname, 
-                    status = @status, 
-                    delta = @delta
+                    status = @status
                 WHERE
                     id = @id
                     AND signature = @signature";
@@ -954,8 +953,7 @@ namespace Wbtb.Extensions.Data.Postgres
 	                startedutc,
 	                endedutc,
 	                hostname,
-	                status,
-	                delta
+	                status
                 FROM
                     build B
                 WHERE NOT EXISTS (
