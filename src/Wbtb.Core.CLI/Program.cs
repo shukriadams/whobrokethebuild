@@ -17,6 +17,7 @@ namespace Wbtb.Core.CLI
                 SimpleDI di = new SimpleDI();
                 di.Register<OrphanRecordHelper, OrphanRecordHelper>();
                 // register local commands
+                di.Register<IDataLayerPlugin_ResetJob, IDataLayerPlugin_ResetJob>();
                 di.Register<GetLatestConfig, GetLatestConfig>();
                 di.Register<IBuildServerPlugin_ListRemoteJobsCanonical, IBuildServerPlugin_ListRemoteJobsCanonical>();
                 di.Register<IDataLayerPlugin_ListOrphanedRecords, IDataLayerPlugin_ListOrphanedRecords>();

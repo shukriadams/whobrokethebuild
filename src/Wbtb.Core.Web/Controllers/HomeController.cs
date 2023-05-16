@@ -114,15 +114,6 @@ namespace Wbtb.Core.Web.Controllers
         }
 
 
-        [Route("/jobsoftreset/{jobId}")]
-        public IActionResult SoftResetJob(string jobId)
-        {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-            int deleted = dataLayer.ResetJob(jobId, false);
-            System.Console.WriteLine($"Reset {deleted} incident from job {jobId}");
-
-            return Redirect($"/job/{jobId}");
-        }
 
         [Route("/buildsoftreset/{buildId}")]
         public IActionResult SoftResetBuild(string buildId) 
@@ -134,15 +125,6 @@ namespace Wbtb.Core.Web.Controllers
             return Redirect($"/build/{buildId}");
         }
 
-        [Route("/jobhardreset/{jobId}")]
-        public IActionResult HardResetJob(string jobId)
-        {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-            int deleted = dataLayer.ResetJob(jobId, true);
-            System.Console.WriteLine($"Reset {deleted} incident from job {jobId}");
-
-            return Redirect($"/job/{jobId}");
-        }
 
         /// <summary>
         /// 
