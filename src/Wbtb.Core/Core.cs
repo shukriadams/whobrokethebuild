@@ -22,6 +22,7 @@ namespace Wbtb.Core
             // pre-start stuff
             SimpleDI di = new SimpleDI();
 
+            di.Register<UrlHelper, UrlHelper>();
             di.Register<ConfigurationManager, ConfigurationManager>();
             di.Register<CurrentVersion, CurrentVersion>();
             di.Register<LogHelper, LogHelper>();

@@ -27,10 +27,18 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
+            int key = 0;
+            while (true) 
+            {
+                key++;
+                if (dataLayer.GetBuildByKey(job.Id, key.ToString()) == null)
+                    break;
+            }
+
             dataLayer.SaveBuild(new Build
             {
                 JobId = job.Id,
-                Identifier = Guid.NewGuid().ToString(),
+                Identifier = key.ToString(),
                 StartedUtc = DateTime.UtcNow,
                 EndedUtc = DateTime.UtcNow,
                 Status = BuildStatus.Failed,

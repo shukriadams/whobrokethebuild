@@ -18,16 +18,19 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
 
         private readonly Config _config;
 
+        private readonly UrlHelper _urlHelper;
+
         private readonly PluginProvider _pluginProvider;
 
         #endregion
 
         #region CTORS
 
-        public SlackSandbox(Config config, PluginProvider pluginProvider)
+        public SlackSandbox(Config config, UrlHelper urlHelper, PluginProvider pluginProvider)
         {
             _config = config;
             _pluginProvider = pluginProvider;
+            _urlHelper = urlHelper;
         }
 
         #endregion
@@ -79,13 +82,112 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
                 throw new ConfigurationException("Slack detected alert with no \"Plugin\" value.");
         }
 
-        public string AlertBreaking(AlertHandler alertHandler, Build build)
+        private string AlertKey(string slackChannelId, string jobId, string incidentBuildId) 
+        {
+            return $"buildStatusAlert_slack_{slackChannelId}_job{jobId}_incident{incidentBuildId}";
+        }
+
+        public string AlertBreaking(AlertHandler alertHandler, Build incidentBuild)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
             NameValueCollection data = new NameValueCollection();
 
+            AlertConfig targetSlackConfig = null;
 
+            if (!string.IsNullOrEmpty(alertHandler.User))
+            {
+                User user = _config.Users.Single(u => u.Key == alertHandler.User);
+                targetSlackConfig = user.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
+            }
+
+            if (!string.IsNullOrEmpty(alertHandler.Group))
+            {
+                Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
+                targetSlackConfig = group.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
+            }
+
+            if (targetSlackConfig == null)
+                throw new Exception("alerthandler has neither user nor group");
+
+            SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(targetSlackConfig.RawJson);
+            string slackId = config.SlackId;
+
+            // if user, we need to get user channel id from user slack id, and post to this
+            if (!config.IsGroup)
+            {
+                try
+                {
+                    slackId = this.GetUserChannelId(slackId);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    return null;
+                }
+            }
+
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            Job job = dataLayer.GetJobById(incidentBuild.JobId);
+
+            // check if alert has already been sent
+            string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
+            StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
+            if (storeItem != null) 
+                return null;
+
+            string message = $"Build for {job.Name} broke at #{incidentBuild.Identifier}.";
+            dynamic attachment = new JObject();
+            attachment.fallback = " ";
+            attachment.text = message;
+
+            data["title_link"] = _urlHelper.Build(incidentBuild);
+            data["channel"] = slackId;
+            data["text"] = message;
+            data["attachments"] = JsonConvert.SerializeObject(attachment);
+
+            dynamic response = ExecAPI("chat.postMessage", data, new
+            {
+                ok = new
+                {
+                    Value = true
+                },
+                ts = new
+                {
+                    Value = "BreakingMessage-id-1234"
+                }
+            });
+
+            if (response.ok.Value)
+            {
+                // store message info and proof of sending
+                dataLayer.SaveStore(new StoreItem
+                {
+                    Plugin = this.ContextPluginConfig.Manifest.Key,
+                    Key = $"buildStatusAlert_slack_{slackId}_job{job.Id}_incident{incidentBuild.IncidentBuildId}",
+                    Content = JsonConvert.SerializeObject(new
+                    {
+                        ts = response.ts.Value,
+                        status = incidentBuild.Status.ToString()
+                    })
+                });
+
+                return response.ts.Value;
+            }
+            else
+            {
+                // log error
+                // mark message sent as failed, somwhere
+                Console.WriteLine(response);
+                return null;
+            }
+        }
+
+        public string AlertPassing(AlertHandler alertHandler, Build incidentBuild, Build fixingBuild)
+        {
+            string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
+
+            NameValueCollection data = new NameValueCollection();
             AlertConfig targetSlackConfig = null;
 
             if (!string.IsNullOrEmpty(alertHandler.User))
@@ -122,33 +224,56 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
                 }
             }
 
-            string messageKey = "{}";
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-            //dataLayer.GetStoreItemByKey();
+            Job job = dataLayer.GetJobById(fixingBuild.JobId);
 
-            Job job = dataLayer.GetJobById(build.JobId);
-            string message = $"Build for {job.Name} broke at #{build.Identifier}.";
+            // get message transaction
+            string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
+            StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
+
+            if (storeItem == null)
+                // no alert for this build was sent, ignore it
+                return null;
+
+            dynamic storeItemPayload = Newtonsoft.Json.JsonConvert.DeserializeObject(storeItem.Content);
+            // build already marked as passing
+            if ((string)storeItemPayload.status == fixingBuild.Status.ToString())
+                return null;
+
+            string message = $"Build for {job.Name} fixed by #{fixingBuild.Identifier}, originally broken by #{incidentBuild.Identifier}.";
             dynamic attachment = new JObject();
-            attachment.fallback = "dummy";
+            attachment.fallback = " ";
             attachment.text = message;
 
+            data["title_link"] = _urlHelper.Build(fixingBuild);
             data["token"] = token;
+            data["ts"] = (string)storeItemPayload.ts;
             data["channel"] = slackId;
             data["text"] = message;
             data["attachments"] = JsonConvert.SerializeObject(attachment);
 
-            dynamic forcedResponse = new {
-                ok = new {
+            dynamic response = ExecAPI("chat.update", data, new
+            {
+                ok = new
+                {
                     Value = true
                 },
-                ts = new { 
-                    Value = "Message-id-1234"
+                ts = new
+                {
+                    Value = "FixedMessage-id-1234"
                 }
-            };
-            dynamic response = ExecAPI("chat.postMessage", data, forcedResponse);
+            });
 
             if (response.ok.Value)
             {
+                storeItem.Content = JsonConvert.SerializeObject(new
+                {
+                    ts = response.ts.Value,
+                    status = fixingBuild.Status.ToString()
+                });
+
+                dataLayer.SaveStore(storeItem);
+                
                 // message sent
                 return response.ts.Value;
             }
@@ -159,11 +284,6 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
                 Console.WriteLine(response);
                 return null;
             }
-        }
-
-        public string AlertPassing(AlertHandler alertHandler, Build build)
-        {
-            return string.Empty;
         }
 
         private dynamic ExecAPI(string apiFragment, NameValueCollection data, dynamic forcedResponse)

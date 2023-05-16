@@ -122,6 +122,11 @@ namespace Wbtb.Core.Common
 
         public bool EnabledSockets { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Address { get; set; }
+
         #endregion
 
         #region CTORS

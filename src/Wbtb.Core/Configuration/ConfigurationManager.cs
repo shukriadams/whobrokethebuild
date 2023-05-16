@@ -498,6 +498,7 @@ namespace Wbtb.Core
             {
                 PluginConfig postProcessorPlugin = config.Plugins.FirstOrDefault(r => r.Key == processorPlugin);
                 Type pluginInterfaceType = TypeHelper.GetCommonType(postProcessorPlugin.Manifest.Interface);
+                
                 if (postProcessorPlugin == null)
                     throw new ConfigurationException($"Job \"{job.Key}\" defines an {category} processor plugin \"{processorPlugin}\", but no enabled plugin with this key was found.");
 
@@ -511,19 +512,15 @@ namespace Wbtb.Core
         /// </summary>
         /// <param name="config"></param>
         private void AutofillOptionalValues(Config config)
-        { 
+        {
             foreach (User user in config.Users)
-            { 
                 if (string.IsNullOrEmpty(user.Name))
                     user.Name = user.Key;
-            }
 
             foreach(BuildServer buildServer in config.BuildServers.Where(b => !string.IsNullOrEmpty(b.Url)))
-            { 
                 // ensure url protocol, this is optional in config
                 if (!buildServer.Url.ToLower().StartsWith("http"))
                     buildServer.Url = $"http://{buildServer.Url}";
-            }
         }
 
         /// <summary>

@@ -145,12 +145,16 @@ namespace Wbtb.Core.Web
                                 messagePlugin.AlertBreaking(alert, latestBuild);
                             }
 
-                        if (alertPassing)
+                        if (alertPassing) 
+                        {
+                            Build incidentCausingBuild = dataLayer.GetBuildById(previousDeltaBuild.IncidentBuildId);
+
                             foreach (AlertHandler alert in job.Alerts)
                             {
                                 IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
-                                messagePlugin.AlertPassing(alert, latestBuild);
+                                messagePlugin.AlertPassing(alert, incidentCausingBuild, latestBuild);
                             }
+                        }
 
                     }
                     catch (Exception ex)

@@ -28,26 +28,27 @@
             });
         }
 
-        public string AlertBreaking(AlertHandler alertHandler, Build build)
+        public string AlertBreaking(AlertHandler alertHandler, Build incidentBuild)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
                 FunctionName = "AlertBreaking",
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "alertHandler", Value = alertHandler },
-                    new PluginFunctionParameter { Name = "build", Value = build }
+                    new PluginFunctionParameter { Name = "incidentBuild", Value = incidentBuild }
                 }
             });
         }
 
-        public string AlertPassing(AlertHandler alertHandler, Build build)
+        public string AlertPassing(AlertHandler alertHandler, Build incidentBuild, Build fixingBuild)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
                 FunctionName = "AlertCustomPassing",
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "alertHandler", Value = alertHandler },
-                    new PluginFunctionParameter { Name = "build", Value = build }
+                    new PluginFunctionParameter { Name = "incidentBuild", Value = incidentBuild },
+                    new PluginFunctionParameter { Name = "fixingBuild", Value = fixingBuild }
                 }
             });
         }

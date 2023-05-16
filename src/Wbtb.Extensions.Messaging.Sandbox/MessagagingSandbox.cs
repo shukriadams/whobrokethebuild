@@ -4,12 +4,12 @@ namespace Wbtb.Extensions.Messaging.Sandbox
 {
     internal class MessagingSandbox : Plugin, IMessaging
     {
-        public string AlertBreaking(AlertHandler alertHandler, Build build)
+        public string AlertBreaking(AlertHandler alertHandler, Build incidentBuild)
         {
             return "alerted";
         }
 
-        public string AlertPassing(AlertHandler alertHandler, Build build)
+        public string AlertPassing(AlertHandler alertHandler, Build incidentBuild, Build fixingBuild)
         {
             return "alerted";
         }

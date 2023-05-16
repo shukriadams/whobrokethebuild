@@ -11,7 +11,7 @@ namespace Wbtb.Extensions.Data.Postgres
             return new Core.Common.StoreItem
             {
                 Id = reader["id"].ToString(),
-                Key = reader["signature"].ToString(),
+                Key = reader["key"].ToString(),
                 Plugin = reader["plugin"].ToString(),
                 Content = reader["content"].ToString(),
             };

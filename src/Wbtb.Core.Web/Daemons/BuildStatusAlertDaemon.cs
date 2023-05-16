@@ -94,6 +94,10 @@ namespace Wbtb.Core.Web
                         bool alertFailing = false;
                         bool alertPassing = false;
 
+                        // ignore alerts on failing builds that don't have incidents yet, they need processing by the incident assign daemon first
+                        if (latestBuild.Status != BuildStatus.Passed && latestBuild.IncidentBuildId == null)
+                                continue;
+
                         if (previousDeltaBuild == null)
                         {
                             // this build is first, so it is the first delta
@@ -129,7 +133,7 @@ namespace Wbtb.Core.Web
                             foreach (AlertHandler alert in job.Alerts)
                             {
                                 IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
-                                messagePlugin.AlertPassing(alert, latestBuild);
+                                messagePlugin.AlertPassing(alert, previousDeltaBuild, latestBuild);
                             }
 
                     }
