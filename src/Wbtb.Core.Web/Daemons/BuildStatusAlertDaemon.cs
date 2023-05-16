@@ -94,9 +94,13 @@ namespace Wbtb.Core.Web
                         bool alertFailing = false;
                         bool alertPassing = false;
 
+                        // no builds for this job yet
+                        if (latestBuild == null)
+                            continue;
+
                         // ignore alerts on failing builds that don't have incidents yet, they need processing by the incident assign daemon first
                         if (latestBuild.Status != BuildStatus.Passed && latestBuild.IncidentBuildId == null)
-                                continue;
+                            continue;
 
                         if (previousDeltaBuild == null)
                         {

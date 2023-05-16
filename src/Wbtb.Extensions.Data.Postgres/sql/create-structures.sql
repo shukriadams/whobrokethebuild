@@ -422,7 +422,6 @@ ALTER TABLE public."buildinvolvement" OWNER TO postgres;
 CREATE TABLE public."buildlogparseresult"
 (
     id integer NOT NULL DEFAULT nextval('"buildlogparseresult_id_seq"'::regclass),
-    signature character varying(38) COLLATE pg_catalog."default" NOT NULL,
     buildid integer NOT NULL,
     logparserplugin character varying(64) COLLATE pg_catalog."default" NOT NULL,
     parsedcontent text COLLATE pg_catalog."default",

@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Wbtb.Extensions.BuildServer.JenkinsSandbox": {
-      "commandName": "Project",
-      "commandLineArgs": "--diagnose"
-    }
-  }
-}

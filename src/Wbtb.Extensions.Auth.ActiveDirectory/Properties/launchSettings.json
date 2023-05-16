@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Wbtb.Extensions.Auth.ActiveDirectory": {
-      "commandName": "Project",
-      "commandLineArgs": "--diagnose"
-    }
-  }
-}

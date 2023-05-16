@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Wbtb.Extensions.Messaging.SlackSandbox": {
-      "commandName": "Project",
-      "commandLineArgs": "--diagnose\r\n"
-    }
-  }
-}

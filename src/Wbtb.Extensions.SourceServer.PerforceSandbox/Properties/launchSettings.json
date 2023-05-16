@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Wbtb.Extensions.SourceServer.PerforceSandbox": {
-      "commandName": "Project",
-      "commandLineArgs": "--diagnose"
-    }
-  }
-}

@@ -140,13 +140,6 @@ namespace Wbtb.Core.Common
                 ProcessInterfaceCommand(data, args, config, pluginInstance);
             }
 
-            if (switches.Contains("diagnose")) 
-            {
-                IPlugin plugin = di.Resolve<TPlugin>() as IPlugin;
-                plugin.Diagnose();
-                return;
-            }
-
             if (switches.Contains("manifest"))
             {
                 string manifestPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Wbtb.yml");
@@ -161,12 +154,19 @@ namespace Wbtb.Core.Common
                 return;
             }
 
-            string status = "WBTB plugin catcher - no or invalid args specified. Args are : \n" +
-                "--manifest to view manifest\n" +
-                "--diagnose to test plugin\n" +
-                "--wbtb-message <messageid>";
+            if (switches.Contains("help")) 
+            {
+                string status = "WBTB plugin catcher - no or invalid args specified. Args are : \n" +
+                    "--manifest to view manifest\n" +
+                    "--diagnose to test plugin\n" +
+                    "--wbtb-message <messageid>";
 
-            PrintJSONToSTDOut(PluginOutputEncoder.Encode<TPlugin>(status));
+                PrintJSONToSTDOut(PluginOutputEncoder.Encode<TPlugin>(status));
+            }
+
+            // default to diagnose mode
+            IPlugin plugin = di.Resolve<TPlugin>() as IPlugin;
+            plugin.Diagnose();
         }
 
         #endregion

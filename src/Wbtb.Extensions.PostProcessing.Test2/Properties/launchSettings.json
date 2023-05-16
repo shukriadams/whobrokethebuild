@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Wbtb.Extensions.PostProcessing.Test2": {
-      "commandName": "Project",
-      "commandLineArgs": "--diagnose"
-    }
-  }
-}

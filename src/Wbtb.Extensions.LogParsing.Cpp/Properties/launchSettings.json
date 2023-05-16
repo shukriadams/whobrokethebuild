@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Wbtb.Extensions.LogParsing.Cpp": {
-      "commandName": "Project",
-      "commandLineArgs": "--diagnose"
-    }
-  }
-}

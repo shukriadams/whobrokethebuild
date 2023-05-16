@@ -13,7 +13,7 @@ namespace Wbtb.Core.Common
         /// </summary>
         public void Diagnose()
         {
-            Console.WriteLine("Base diagnose mode reached. Override this method in your plugin to add more detailed testing.");
+            Console.WriteLine("Base diagnose mode reached. Override this method in your plugin to add more detailed testing. Use the --help switch for more options.");
         }
     }
 }
