@@ -943,17 +943,7 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string query = @"
                 SELECT 
-                    id,
-	                jobid,
-                    incidentbuildid,
-	                identifier,
-	                triggeringcodechange,
-	                triggeringtype,
-                    logpath,
-	                startedutc,
-	                endedutc,
-	                hostname,
-	                status
+                    B.*
                 FROM
                     build B
                 WHERE NOT EXISTS (

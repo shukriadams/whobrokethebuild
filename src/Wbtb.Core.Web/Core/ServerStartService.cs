@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Wbtb.Core.Common;
+using Wbtb.Core.Web.Core;
 
 namespace Wbtb.Core.Web
 {
@@ -22,6 +23,7 @@ namespace Wbtb.Core.Web
                     // register types defined in web project
                     di.Register<IDaemonProcessRunner, DaemonProcessRunner>();
                     di.Register<IWebDaemon, BuildImportDaemon>(null, true);
+                    di.Register<IWebDaemon, BuildLogImportDaemon>(null, true);
                     di.Register<IWebDaemon, BuildStatusAlertDaemon>(null, true);
                     di.Register<IWebDaemon, UserBuildInvolvementLinkDaemon>(null, true);
                     di.Register<IWebDaemon, RevisionResolveDaemon>(null, true);

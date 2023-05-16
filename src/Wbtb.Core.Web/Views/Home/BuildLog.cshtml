@@ -4,9 +4,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div>
-    Full Log for Build : @ViewHelpers.BuildLink(Model.Build)
-</div>
+<h1>Build #@Model.Build.Identifier Log</h1>
 
 @if (!string.IsNullOrEmpty(Model.Raw))
 {
