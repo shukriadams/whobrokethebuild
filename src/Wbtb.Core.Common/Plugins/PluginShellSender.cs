@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Wbtb.Core.Common
 {
@@ -118,15 +119,22 @@ namespace Wbtb.Core.Common
 
             string messageId = match.Groups[match.Groups.Count - 1].Value;
             string json = _messageQueueHtppClient.Retrieve(messageId);
+            TReturnType returnObject = default(TReturnType);
 
             try
             {
-                return JsonConvert.DeserializeObject<TReturnType>(json);
+                returnObject = JsonConvert.DeserializeObject<TReturnType>(json);
             }
             catch (Exception ex)
             {
                 throw new Exception($"Failed to parse plugin result to type {typeof(TReturnType)}. Raw plugin response was \"{result}\", json was \"{json}\".", ex);
             }
+
+            if (returnObject == null && json != "null")
+                throw new Exception($"JSON deserialize failed, json from messagequeue was: {json}");
+
+            return returnObject;
+
         }
 
         #endregion
