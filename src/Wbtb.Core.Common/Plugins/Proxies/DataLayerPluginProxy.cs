@@ -831,7 +831,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildProcessor>(this, new PluginArgs
             {
-                FunctionName = "SaveBuildInvolement",
+                FunctionName = "SaveBuildProcessor",
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildProcessor", Value = buildProcessor }
                 }
@@ -842,7 +842,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildProcessor>>(this, new PluginArgs
             {
-                FunctionName = "GetByBuildId",
+                FunctionName = "GetBuildProcessorsByBuildId",
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId }
                 }
@@ -986,7 +986,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "SaveSession",
+                FunctionName = "GetLastJobDelta",
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobId", Value = jobId }
                 }
@@ -1031,7 +1031,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<PageableData<ConfigurationState>>(this, new PluginArgs
             {
-                FunctionName = "PageConfigurationState",
+                FunctionName = "PageConfigurationStates",
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "index", Value = index },
                     new PluginFunctionParameter { Name = "pageSize", Value = pageSize }
