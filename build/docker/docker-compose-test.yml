@@ -10,7 +10,7 @@ services:
     user: "${UID}:${GID}"      
     volumes:
     - ./config.yml:/var/wbtb/Wbtb.Core.Web/config.yml
-    - ./data:/var/wbtb/Wbtb.Core.Web/data
+    - ./data:/var/wbtb/Wbtb.Core.Web/Data
     ports:
     - "49022:5000"
     # uncomment to disable wbtb app but keep container running

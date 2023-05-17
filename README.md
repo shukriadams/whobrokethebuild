@@ -42,9 +42,10 @@ To set up a basic demonstration server, create a file called `config.yml` and se
         -   Key: Project_Ironbird
             SourceServer: myperforce
 
-Assuming you're running WBTB from the official Docker container image, volume mount this file in /wbtb/config.yml. All required data tables will be automatically created in the Postgres database pointed to, build and source data will be pulled from sandbox Jenkins and Perforce sources, and saved to the database. For additional information on working with the built-in dummy datasources in WBTB, or running a WBTB instance from source code, check the the /docs directory of this project.
+Assuming you're running WBTB from the official Docker container image, volume mount this file in /wbtb/config.yml. All required data tables will be automatically created in the Postgres database pointed to, build and source data will be pulled from sandbox Jenkins and Perforce sources, and saved to the database. `Project_Ironbird` is one of the demonstration projects included in the sandbox Jenkins plugin. For additional information on working with the built-in dummy datasources in WBTB, or running a WBTB instance from source code, check the the /docs directory of this project.
 
 #### Production config
 
+in progress ....
 
 

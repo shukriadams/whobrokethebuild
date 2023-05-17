@@ -22,6 +22,10 @@ sudo usermod -aG docker vagrant
 curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt-get install nodejs -y
 
+# nodejs packages needed by wbtb
+npm install yarn -g
+npm install uglify-es -g
+npm install concat-cli -g
 
 # force startup folder to vagrant project
 echo "cd /vagrant/src" >> /home/vagrant/.bashrc

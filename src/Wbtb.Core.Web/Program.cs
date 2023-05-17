@@ -16,10 +16,11 @@ namespace Wbtb.Core.Web
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureLogging((hostingContext, builder) => {
+
                     // set up logging
                     string logPath = Environment.GetEnvironmentVariable("WBTB_LOG_PATH");
                     if (string.IsNullOrEmpty(logPath))
-                        logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
+                        logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "logs", "log.txt");
 
                     Directory.CreateDirectory(Path.GetDirectoryName(logPath));
                     builder.AddFile(logPath);

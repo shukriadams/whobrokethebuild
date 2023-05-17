@@ -22,35 +22,26 @@ WBTB requires a data backend to function. Currently Postgres is supported. Add t
         -   Password: mypassword
         -   Database: mywbtb
 
-## Run from source
+## Local development
 
-Requires NodeJS 12 or higher, and Dotnetcore 3.1 or higher
+### Setup
+
+Wbtb requires .Net 6.0. Building static frontend resources for Wbtb requires Nodejs 12 or higher. Nodejs isn't required to run the server in production mode. A full development environment setup is available in /vagrant/provision.sh of this repository.
+
+### Run
 
 - Clone project
 - cd src/Wbtb.Core.Web/frontend
-- sh ./setup-onetime.sh
+- sh ./setup.sh
 - npm install
-- npm run buildall
-- run Postgres create database script
-- run Postgres create database structures script
+- npm run build
 - start project in vs studio or build from cmnd line
-
-## Config bootstrapping
-
-WBTB can pull config from git. Enabling this feature requires adding the following env vars to your application 
-
-    WBTB_GIT_CONFIG_SYNC=true
-    WBTB_GIT_CONFIG_LOCAL_PATH=config.yml 
-    WBTB_GIT_CONFIG_REPO_URL=https://<auth-capable-url>
-
-WBTB works with Git only, and requires urls that built-in auth tokens. Password and SSH authentication is not supported. If you are running on a Windows dev env and your Git url has an "=" char in it, you can place your giturl in a `.giturl` file in the root dir of the Wbtb.Core.Web project in your solution.
 
 ## More on Config
 
 - There is no admin interface. All config is written in a single yml file.
-- When the app starts it will validate the yml, both for format, for logical structure, and finally, runtime tests to
-  ensure that systems pointed to are available. 
-- In most cases, the app will fail to start in the event of an error.
+- When the app starts it will validate the yml, both for format, for logical structure, and finally, runtime tests to ensure that systems pointed to are available. 
+- In the event of a configuration error the app will exit and give you some kind of error message explaining how to fix the config.
 - Because WBTB is an open-ended system, plugins can define their own requirements for config. Config is limited to name:value items, and must always be placed under a `Config` node.
 - Upper parts of config are type-safe and defined in the core app
 - plugin-specific parts can be defined in a block called `Config` for each plugin. This is passed as a string to the plugin and can be deserialized there
