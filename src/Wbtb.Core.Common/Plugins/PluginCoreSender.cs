@@ -68,17 +68,8 @@ namespace Wbtb.Core.Common
             string json = JsonConvert.SerializeObject(data);
             byte[] postData = Encoding.ASCII.GetBytes(json);
             byte[] reply = client.UploadData($"http://localhost:{_config.Port}/api/v1/invoke", postData);
-            string result = Encoding.ASCII.GetString(reply);
+            string innerJson = Encoding.ASCII.GetString(reply);
 
-            Regex regex = new Regex(@"<WBTB-output(.*)>([\S\s]*?)<\/WBTB-output>");
-            Match match = regex.Match(result);
-            if (!match.Success)
-                throw new ConfigurationException($"Command call failed, got unexpected output:{result}");
-
-            if (typeof(TReturnType) == typeof(NullReturn))
-                return default(TReturnType);
-
-            string innerJson = match.Groups[match.Groups.Count - 1].Value;
             try
             {
                 
@@ -87,7 +78,7 @@ namespace Wbtb.Core.Common
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to parse plugin result {innerJson} to type {typeof(TReturnType).Name}.");
-                Console.WriteLine(result, ex);
+                Console.WriteLine(innerJson, ex);
 
                 throw ex;
             }

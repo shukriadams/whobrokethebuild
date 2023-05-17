@@ -112,12 +112,12 @@ namespace Wbtb.Core.Common
             SimpleDI di = new SimpleDI();
             IPlugin pluginInstance = di.Resolve(concreteResolvedType) as IPlugin;
             pluginInstance.ContextPluginConfig = _config.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
-            Console.WriteLine($"Invoking method {pluginArgs.FunctionName}");
 
             object result = method.Invoke(pluginInstance, methodArgs.ToArray());
+            string replyId = _messageQueueHtppClient.Add(result);
 
             // THIS SIDE OF WALL AGAIN
-            string jsonOut = string.Join(string.Empty, PluginOutputEncoder.Encode<TReturnType>(result));
+            string jsonOut = string.Join(string.Empty, PluginOutputEncoder.Encode<TReturnType>(replyId));
             Regex regex = new Regex(@"<WBTB-output(.*)>([\S\s]*?)<\/WBTB-output>");
             Match match = regex.Match(jsonOut);
             if (!match.Success)
@@ -126,8 +126,12 @@ namespace Wbtb.Core.Common
             if (typeof(TReturnType) == typeof(NullReturn))
                 return default(TReturnType);
 
-            return JsonConvert.DeserializeObject<TReturnType>(match.Groups[match.Groups.Count - 1].Value);
-        }
+            string parsedReplyId = JsonConvert.DeserializeObject<string>(match.Groups[match.Groups.Count - 1].Value);
+            if (parsedReplyId != replyId)
+                throw new Exception($"parsedReplyId {parsedReplyId} mismatch with replyId {replyId}.");
 
+            string payload = _messageQueueHtppClient.Retrieve(parsedReplyId);
+            return JsonConvert.DeserializeObject<TReturnType>(payload);
+        }
     }
 }

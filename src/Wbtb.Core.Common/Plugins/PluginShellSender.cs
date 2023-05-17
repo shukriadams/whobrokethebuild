@@ -116,18 +116,16 @@ namespace Wbtb.Core.Common
             if (typeof(TReturnType) == typeof(NullReturn))
                 return default(TReturnType);
 
-            string json = match.Groups[match.Groups.Count - 1].Value;
+            string messageId = match.Groups[match.Groups.Count - 1].Value;
+            string json = _messageQueueHtppClient.Retrieve(messageId);
+
             try
             {
                 return JsonConvert.DeserializeObject<TReturnType>(json);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to parse plugin result to expected type {typeof(TReturnType)}");
-                Console.WriteLine(json);
-                Console.WriteLine(result, ex);
-
-                throw ex;
+                throw new Exception($"Failed to parse plugin result to type {typeof(TReturnType)}. Raw plugin response was \"{result}\", json was \"{json}\".", ex);
             }
         }
 

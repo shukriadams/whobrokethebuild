@@ -4,21 +4,21 @@ namespace Wbtb.Core.Common
 {
     public class PluginOutputEncoder
     {
-        public static string[] Encode<TSourcePlugin>(object payload)
+        public static string[] Encode<TSourcePlugin>(string messageId)
         {
-            return Encode(payload, typeof(TSourcePlugin));
+            return Encode(messageId, typeof(TSourcePlugin));
         }
 
-        public static string[] Encode(object payload, IPlugin callingPlugin)
+        public static string[] Encode(string messageId, IPlugin callingPlugin)
         {
-            return Encode(payload, callingPlugin.GetType());
+            return Encode(messageId, callingPlugin.GetType());
         }
 
-        public static string[] Encode(object payload, Type callingPluginType)
+        public static string[] Encode(string messageId, Type callingPluginType)
         {
             return new string[]{
                 $"<WBTB-output ts=\"{DateTime.UtcNow}\" pluginType=\"{callingPluginType.Namespace}.{callingPluginType.Name}\" >",
-                JsonConvert.SerializeObject(payload),
+                messageId,
                 "</WBTB-output>"
             };
         }

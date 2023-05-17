@@ -63,11 +63,15 @@ namespace Wbtb.Core.Common
                 }
 
                 ((IPlugin)pluginInstance).ContextPluginConfig = config.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
-                Console.WriteLine($"Invoking method {pluginArgs.FunctionName}");
 
                 // note : we don't support async methods
                 object result = method.Invoke(pluginInstance, methodArgs.ToArray());
-                PrintJSONToSTDOut(PluginOutputEncoder.Encode<TPlugin>(result));
+
+                SimpleDI di = new SimpleDI();
+                MessageQueueHtppClient client = di.Resolve<MessageQueueHtppClient>();
+                string messageid = client.Add(result);
+
+                PrintJSONToSTDOut(PluginOutputEncoder.Encode<TPlugin>(messageid));
             }
             catch (Exception ex)
             { 

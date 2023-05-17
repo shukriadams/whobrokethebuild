@@ -22,6 +22,7 @@ namespace Wbtb.Core.Web.Controllers
         private readonly SimpleDI _di;
 
         #endregion
+
         public InvokeController() 
         {
             _di = new SimpleDI();
@@ -42,7 +43,7 @@ namespace Wbtb.Core.Web.Controllers
             {
                 string json;
                 using (StreamReader reader = new StreamReader(Request.Body))
-                        json = await reader.ReadToEndAsync();
+                    json = await reader.ReadToEndAsync();
 
                 PluginArgs pluginArgs = JsonConvert.DeserializeObject<PluginArgs>(json);
                 IPlugin plugin = _pluginProvider.GetByKey(pluginArgs.pluginKey);
@@ -64,12 +65,10 @@ namespace Wbtb.Core.Web.Controllers
                 }
 
                 plugin.ContextPluginConfig = _config.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
-                Console.WriteLine($"Invoking method {pluginArgs.FunctionName}");
 
                 // note : we don't support async methods
                 object result = method.Invoke(plugin, methodArgs.ToArray());
-                string ret = string.Join(string.Empty, PluginOutputEncoder.Encode(result, pluginType));
-                return ret;
+                return JsonConvert.SerializeObject(result);
             }
             catch (Exception ex)
             {

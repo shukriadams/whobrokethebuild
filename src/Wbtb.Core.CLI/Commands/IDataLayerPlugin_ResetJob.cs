@@ -39,7 +39,10 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            Console.WriteLine("Performing soft reset - to force delete all child records under job use --hard switch");
+            if (hard)
+                Console.WriteLine("Performing hard reset");
+            else
+                Console.WriteLine("Performing reset - to force delete all child records under job use --hard switch");
 
             int deleted = dataLayer.ResetJob(job.Id, hard);
 

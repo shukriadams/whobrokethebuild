@@ -159,7 +159,7 @@ namespace Wbtb.Core.Web
                     }
                     catch (Exception ex)
                     {
-                        _log.LogError($"Unexpected error trying to import jobs/logs for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
+                        _log.LogError($"Unexpected error trying to import builds for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
                     }
                 } //foreach job
             } // foreach buildserver
