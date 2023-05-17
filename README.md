@@ -20,7 +20,7 @@ To set up a basic demonstration server, create a file called `config.yml` and se
 
     Plugins: 
     -   Key: Postgres
-        Path: Wbtb.Extensions.Data.Postgres
+        Path: var/wbtb/Wbtb.Extensions.Data.Postgres
         Config:
         - Host: <postgres-address>
         - User: <postgres-user>
