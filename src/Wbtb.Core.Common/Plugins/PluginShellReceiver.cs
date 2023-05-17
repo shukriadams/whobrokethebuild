@@ -119,6 +119,9 @@ namespace Wbtb.Core.Common
             
             // fetch config from messenger service
             Config config = client.GetConfig();
+            if (config == null)
+                throw new Exception("Failed to get config from MessageQueue. Has config been initialized?");
+                
             config.IsCurrentContextProxyPlugin = true;
             ConfigBasic configBasic = di.Resolve<ConfigBasic>();
             di.RegisterSingleton<Config>(config);
