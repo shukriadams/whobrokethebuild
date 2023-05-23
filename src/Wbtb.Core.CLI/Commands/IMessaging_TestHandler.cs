@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
-    internal class IMessaging_TestHandler
+    internal class IMessaging_TestHandler : ICommand
     {
         public void Process(CommandLineSwitches switches)
         {
