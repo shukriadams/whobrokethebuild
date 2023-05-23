@@ -139,7 +139,7 @@ namespace Wbtb.Core.Web
                         }
 
                         if (alertFailing)
-                            foreach (AlertHandler alert in job.Alerts)
+                            foreach (MessageHandler alert in job.Message)
                             {
                                 IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
                                 messagePlugin.AlertBreaking(alert, latestBuild);
@@ -149,7 +149,7 @@ namespace Wbtb.Core.Web
                         {
                             Build incidentCausingBuild = dataLayer.GetBuildById(previousDeltaBuild.IncidentBuildId);
 
-                            foreach (AlertHandler alert in job.Alerts)
+                            foreach (MessageHandler alert in job.Message)
                             {
                                 IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
                                 messagePlugin.AlertPassing(alert, incidentCausingBuild, latestBuild);

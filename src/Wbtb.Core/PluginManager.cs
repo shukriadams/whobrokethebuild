@@ -221,7 +221,7 @@ namespace Wbtb.Core
                             throw new ConfigurationException($"Job {job.Key} defines a log parser plugin {logParserKey}, but this plugin does not implement the expected interface {typeof(ILogParser).Name}.");
                     }
 
-                    foreach(AlertHandler alert in job.Alerts.Where(a => a.Enable))
+                    foreach(MessageHandler alert in job.Message)
                     {
                         IPlugin plugin = _pluginProvider.GetByKey(alert.Plugin);
                         if (!typeof (IMessaging).IsAssignableFrom(plugin.GetType()))
@@ -239,7 +239,7 @@ namespace Wbtb.Core
                         if (configCount > 1)
                             throw new ConfigurationException($"Job \"{job.Key}\" defines more than one target config - use only User, Group or Config info.");
                         
-                        AlertConfig config = null;
+                        MessageConfiguration config = null;
 
                         // alerts are chained from job > user|group > alert handling plugin
                         if (!string.IsNullOrEmpty(alert.User))
@@ -248,7 +248,7 @@ namespace Wbtb.Core
                             if (user == null)
                                 throw new ConfigurationException($"Job \"{job.Key}\" defines a target user \"{alert.User}\" but this user is not defined under users.");
 
-                            config = user.Alert.FirstOrDefault(r => r.Plugin == alert.Plugin);
+                            config = user.Message.FirstOrDefault(r => r.Plugin == alert.Plugin);
                             if (config == null)
                                 throw new ConfigurationException($"Job \"{job.Key}\" defines a target user \"{alert.User}\" with expected plugin info for \"{alert.Plugin}\", but this user has no config for this plugin.");
                         }
@@ -259,7 +259,7 @@ namespace Wbtb.Core
                             if (group == null)
                                 throw new ConfigurationException($"Job \"{job.Key}\" defines a target group \"{alert.Group}\" but this group is not defined under groups.");
 
-                            config = group.Alert.FirstOrDefault(r => r.Plugin == alert.Plugin);
+                            config = group.Message.FirstOrDefault(r => r.Plugin == alert.Plugin);
                             if (config == null)
                                 throw new ConfigurationException($"Job \"{job.Key}\" defines a target group \"{alert.Group}\" with expected plugin info for \"{alert.Plugin}\", but this user has no config for this plugin.");
 

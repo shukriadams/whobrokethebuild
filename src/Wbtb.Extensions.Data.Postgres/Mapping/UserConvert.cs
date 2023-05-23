@@ -27,7 +27,7 @@ namespace Wbtb.Extensions.Data.Postgres
             if (config != null)
             {
                 user.Name = config.Name;
-                user.Alert = config.Alert;
+                user.Message = config.Message;
                 user.Description = config.Description;
                 user.Enable = config.Enable;
                 user.SourceServerIdentities = config.SourceServerIdentities;

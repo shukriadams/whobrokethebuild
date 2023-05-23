@@ -5,14 +5,14 @@
     [PluginBehaviour(allowMultiple: true)]
     public interface IMessaging : IReachable, IPlugin
     {
-        string TestHandler(AlertHandler alertHandler);
+        string TestHandler(MessageConfiguration alertHandler);
 
         string DeleteAlert(object alertId);
 
-        string AlertBreaking(AlertHandler alertHandler, Build incidentBuild);
+        string AlertBreaking(MessageHandler alertHandler, Build incidentBuild);
 
-        string AlertPassing(AlertHandler alertHandler, Build incidentBuild, Build fixingBuild);
+        string AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild);
 
-        void ValidateAlertConfig(AlertConfig alertConfig);
+        void ValidateAlertConfig(MessageConfiguration alertConfig);
     }
 }

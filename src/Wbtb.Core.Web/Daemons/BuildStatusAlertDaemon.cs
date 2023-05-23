@@ -127,14 +127,14 @@ namespace Wbtb.Core.Web
                         }
 
                         if (alertFailing)
-                            foreach (AlertHandler alert in job.Alerts)
+                            foreach (MessageHandler alert in job.Message)
                             {
                                 IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
                                 messagePlugin.AlertBreaking(alert, latestBuild);
                             }
 
                         if (alertPassing)
-                            foreach (AlertHandler alert in job.Alerts)
+                            foreach (MessageHandler alert in job.Message)
                             {
                                 IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
                                 messagePlugin.AlertPassing(alert, previousDeltaBuild, latestBuild);

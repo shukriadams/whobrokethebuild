@@ -76,7 +76,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             };
         }
 
-        public void ValidateAlertConfig(AlertConfig alertConfig)
+        public void ValidateAlertConfig(MessageConfiguration alertConfig)
         {
             if (string.IsNullOrEmpty(alertConfig.Plugin))
                 throw new ConfigurationException("Slack detected alert with no \"Plugin\" value.");
@@ -87,24 +87,24 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             return $"buildStatusAlert_slack_{slackChannelId}_job{jobId}_incident{incidentBuildId}";
         }
 
-        public string AlertBreaking(AlertHandler alertHandler, Build incidentBuild)
+        public string AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
             NameValueCollection data = new NameValueCollection();
 
-            AlertConfig targetSlackConfig = null;
+            MessageConfiguration targetSlackConfig = null;
 
             if (!string.IsNullOrEmpty(alertHandler.User))
             {
                 User user = _config.Users.Single(u => u.Key == alertHandler.User);
-                targetSlackConfig = user.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                targetSlackConfig = user.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
             if (!string.IsNullOrEmpty(alertHandler.Group))
             {
                 Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
-                targetSlackConfig = group.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                targetSlackConfig = group.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
             if (targetSlackConfig == null)
@@ -183,23 +183,23 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             }
         }
 
-        public string AlertPassing(AlertHandler alertHandler, Build incidentBuild, Build fixingBuild)
+        public string AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
             NameValueCollection data = new NameValueCollection();
-            AlertConfig targetSlackConfig = null;
+            MessageConfiguration targetSlackConfig = null;
 
             if (!string.IsNullOrEmpty(alertHandler.User))
             {
                 User user = _config.Users.Single(u => u.Key == alertHandler.User);
-                targetSlackConfig = user.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                targetSlackConfig = user.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
             if (!string.IsNullOrEmpty(alertHandler.Group))
             {
                 Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
-                targetSlackConfig = group.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                targetSlackConfig = group.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
             if (targetSlackConfig == null)
@@ -330,26 +330,13 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             throw new Exception($"Failed to get user channel for slack userid {slackUserId}", response);
         }
 
-        public string TestHandler(AlertHandler alertHandler)
+        public string TestHandler(MessageConfiguration messageConfiguration)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
             NameValueCollection data = new NameValueCollection();
 
-            AlertConfig targetSlackConfig = null;
-            if (!string.IsNullOrEmpty(alertHandler.User))
-            {
-                User user = _config.Users.Single(u => u.Key == alertHandler.User);
-                targetSlackConfig = user.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
-            }
-
-            if (!string.IsNullOrEmpty(alertHandler.Group))
-            {
-                Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
-                targetSlackConfig = group.Alert.First(c => c.Plugin == this.ContextPluginConfig.Key);
-            }
-
-            SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(targetSlackConfig.RawJson);
+            SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(messageConfiguration.RawJson);
             string slackId = config.SlackId;
 
 

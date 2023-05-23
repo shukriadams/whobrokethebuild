@@ -29,7 +29,7 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// Plugin-specific configuration for this user. 
         /// </summary>
-        public IList<AlertConfig> Alert { get; set; }
+        public IList<MessageConfiguration> Message { get; set; }
 
         #endregion
 
@@ -38,7 +38,7 @@ namespace Wbtb.Core.Common
         public Group()
         {
             this.Users = new List<string>();
-            this.Alert = new List<AlertConfig>();
+            this.Message = new List<MessageConfiguration>();
             this.Enable = true;
         }
 

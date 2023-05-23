@@ -29,7 +29,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 { 
                     if (config.Key == job.Key)
                     {
-                        job.Alerts = config.Alerts;
+                        job.Message = config.Message;
                         job.BuildServer = buildServer.Key;
                         job.Description = config.Description;
                         job.Enable = config.Enable;

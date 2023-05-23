@@ -17,7 +17,7 @@
             });
         }
 
-        public string TestHandler(AlertHandler alertHandler)
+        public string TestHandler(MessageConfiguration alertHandler)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
@@ -28,7 +28,7 @@
             });
         }
 
-        public string AlertBreaking(AlertHandler alertHandler, Build incidentBuild)
+        public string AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
@@ -40,7 +40,7 @@
             });
         }
 
-        public string AlertPassing(AlertHandler alertHandler, Build incidentBuild, Build fixingBuild)
+        public string AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
@@ -64,7 +64,7 @@
             });
         }
 
-        public void ValidateAlertConfig(AlertConfig config)
+        public void ValidateAlertConfig(MessageConfiguration config)
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {

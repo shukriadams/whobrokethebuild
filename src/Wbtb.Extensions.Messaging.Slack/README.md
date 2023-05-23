@@ -1,12 +1,37 @@
 ## Config requirements
 
-### Required settings
+### Settings
 
     Plugins: 
     -   Key: myslack
         Path: Wbtb.Extensions.Messaging.Slack
         Config:
         - Token: <slack access token>
+
+### General informing
+
+To explicitly inform a user or group on every build regression/fix, using the following config. This doesn't treat the target as being implicated in the build.
+
+    Users:
+        - Key: some_user_key
+          Message:
+          - Plugin: myslack
+            SlackId: myslackid
+
+    Groups:
+        - Key: some_group_key
+          Message:
+          - Plugin: myslackchannel
+            SlackId: myslackchannelid
+
+    BuildServers:
+    -   <buildserver config>
+        Jobs:
+        -   Message:
+            - Plugin: myslack
+              User: some_user_key
+            - Plugin: myslackchannel
+              Group: some_group_key
 
 ### Build involvement alerting
 
@@ -17,7 +42,7 @@ To inform user that they are involved in a build break/fix
 
     Users:
       - Key: MyUser
-        Alert:
+        Message:
         - Plugin: myslack
           SlackId: myslackid
         SourceServerIdentities:
@@ -33,29 +58,3 @@ To inform user that they are involved in a build break/fix
 
 
 Messages sent in this way treat the target as being implicated in the build break.
-
-### General informing
-
-To explicitly inform a user or group on every build regression/fix, using the following config. This doesn't treat the target as being implicated in the build.
-
-    Users:
-        - Key: some_user_key
-          Alert:
-          - Plugin: myslack
-            SlackId: myslackid
-
-    Groups:
-        - Key: some_group_key
-          Alert:
-          - Plugin: myslackchannel
-            SlackId: myslackchannelid
-
-    BuildServers:
-    -   <buildserver config>
-        Jobs:
-        -   Alerts:
-            - Plugin: myslack
-              User: some_user_key
-            - Plugin: myslackchannel
-              Group: some_group_key
-

@@ -4,12 +4,12 @@ namespace Wbtb.Extensions.Messaging.Sandbox
 {
     internal class MessagingSandbox : Plugin, IMessaging
     {
-        public string AlertBreaking(AlertHandler alertHandler, Build incidentBuild)
+        public string AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
         {
             return "alerted";
         }
 
-        public string AlertPassing(AlertHandler alertHandler, Build incidentBuild, Build fixingBuild)
+        public string AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
         {
             return "alerted";
         }
@@ -29,12 +29,12 @@ namespace Wbtb.Extensions.Messaging.Sandbox
             return new PluginInitResult { Success = true };
         }
 
-        public string TestHandler(AlertHandler alertHandler)
+        public string TestHandler(MessageConfiguration alertHandler)
         {
             return "working";
         }
 
-        public void ValidateAlertConfig(AlertConfig alertConfig)
+        public void ValidateAlertConfig(MessageConfiguration alertConfig)
         {
             
         }

@@ -42,9 +42,9 @@ namespace Wbtb.Core.Common
         public string Name { get; set; }
 
         /// <summary>
-        /// Name of users or groups to alert on job status change
+        /// 
         /// </summary>
-        public IList<AlertHandler> Alerts { get; set; }
+        public IList<MessageHandler> Message { get; set; }
 
         /// <summary>
         /// Config-defined id of version control server this job builds code for
@@ -117,7 +117,7 @@ namespace Wbtb.Core.Common
 
         public Job()
         {
-            this.Alerts = new List<AlertHandler>();
+            this.Message = new List<MessageHandler>();
             this.LogParserPlugins = new List<string>();
             this.OnBuildStart = new List<string>();
             this.OnBuildEnd = new List<string>();

@@ -49,7 +49,7 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// 
         /// </summary>
-        public IList<AlertConfig> Alert { get; set; }
+        public IList<MessageConfiguration> Message { get; set; }
 
         #endregion
 
@@ -59,7 +59,7 @@ namespace Wbtb.Core.Common
         { 
             this.Enable = true;
             this.SourceServerIdentities = new List<UserSourceIdentity>();
-            this.Alert = new List<AlertConfig>();
+            this.Message = new List<MessageConfiguration>();
         }
 
         #endregion

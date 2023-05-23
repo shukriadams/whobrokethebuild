@@ -86,7 +86,7 @@ namespace Wbtb.Core
                 buildServer.Jobs = buildServer.Jobs.Where(j => j.Enable).ToList();
 
                 foreach (Job job in buildServer.Jobs)
-                    job.Alerts = job.Alerts.Where(a => a.Enable).ToList();
+                    job.Message = job.Message.Where(a => a.Enable).ToList();
             }
 
             // find and embed raw config data as JSON onto plugins, groups and users. Raw JSON allows plugins to define custom
@@ -96,12 +96,12 @@ namespace Wbtb.Core
                 pluginConfig.RawJson = ConfigurationHelper.GetRawPluginConfigByPluginId(rawConfig, pluginConfig.Key);
 
             foreach (Group group in tempConfig.Groups)
-                for (int i = 0; i < group.Alert.Count; i++)
-                    group.Alert[i].RawJson = ConfigurationHelper.GetRawAlertConfigByIndex(rawConfig, "Groups", group.Key, i);
+                for (int i = 0; i < group.Message.Count; i++)
+                    group.Message[i].RawJson = ConfigurationHelper.GetRawAlertConfigByIndex(rawConfig, "Groups", group.Key, i);
 
             foreach (User user in tempConfig.Users)
-                for (int i = 0; i < user.Alert.Count; i++)
-                    user.Alert[i].RawJson = ConfigurationHelper.GetRawAlertConfigByIndex(rawConfig, "Users", user.Key, i);
+                for (int i = 0; i < user.Message.Count; i++)
+                    user.Message[i].RawJson = ConfigurationHelper.GetRawAlertConfigByIndex(rawConfig, "Users", user.Key, i);
 
             AutofillOptionalValues(tempConfig);
 
@@ -373,7 +373,7 @@ namespace Wbtb.Core
                 foreach (Job job in buildserver.Jobs){
 
                     // ensure job alerts are associated with valid plugins, and that plugins validate alert config
-                    foreach (AlertHandler alert in job.Alerts)
+                    foreach (MessageHandler alert in job.Message)
                         if (!config.Plugins.Any(g => g.Key == alert.Plugin))
                             throw new ConfigurationException($"Job \"{job.Key}\" defines an alert with plugin target \"{alert.Plugin}\", but this plugin does not exist.");
                 }
@@ -403,7 +403,7 @@ namespace Wbtb.Core
                 }
 
                 // ensure contact identities point to valid source servers
-                foreach (AlertConfig alertConfig in user.Alert)
+                foreach (MessageConfiguration alertConfig in user.Message)
                 {
                     if (string.IsNullOrEmpty(alertConfig.Plugin))
                         throw new ConfigurationException($"User \"{user.Key}\" defines an Alert that has no \"Plugin\" property.");
@@ -419,7 +419,7 @@ namespace Wbtb.Core
 
             // todo : merge with user logic block above using interface?
             foreach (Group group in config.Groups)
-                foreach (AlertConfig alertConfig in group.Alert)
+                foreach (MessageConfiguration alertConfig in group.Message)
                 {
                     if (string.IsNullOrEmpty(alertConfig.Plugin))
                         throw new ConfigurationException($"Group \"{group.Key}\" defines an Alert that has no \"Plugin\" property.");

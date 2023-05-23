@@ -1,6 +1,6 @@
 ﻿namespace Wbtb.Core.Common
 {
-    public class AlertHandler 
+    public class MessageHandler
     {
         #region PROPERTIES
 
@@ -28,7 +28,7 @@
 
         #region CTORS
 
-        public AlertHandler()
+        public MessageHandler()
         { 
             this.Enable = true;
         }
