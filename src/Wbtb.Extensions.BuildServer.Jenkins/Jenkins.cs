@@ -17,6 +17,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         private readonly PluginProvider _pluginProvider;
 
         private readonly PersistPathHelper _persistPathHelper;
+        private readonly SimpleDI _di;
         #endregion
 
         #region CTORS
@@ -26,6 +27,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             _config = config;
             _pluginProvider = pluginProvider;
             _persistPathHelper = persistPathHelper;
+            _di = new SimpleDI();
         }
 
         #endregion
@@ -44,14 +46,36 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         public ReachAttemptResult AttemptReach(Core.Common.BuildServer contextServer)
         {
+            if (contextServer.Config == null)
+                throw new ConfigurationException("Missing item \"Config\"");
+
             if (!contextServer.Config.Any(c => c.Key == "Host"))
-                throw new ConfigurationException("Missing item \"Host\"");
+                throw new ConfigurationException("Missing Config item \"Host\"");
 
             if (!contextServer.Config.Any(c => c.Key == "Username"))
-                throw new ConfigurationException("Missing item \"Username\"");
+                throw new ConfigurationException("Missing Config item \"Username\"");
 
             if (!contextServer.Config.Any(c => c.Key == "Token"))
-                throw new ConfigurationException("Missing item \"Token\"");
+                throw new ConfigurationException("Missing Config item \"Token\"");
+
+            Config config = _di.Resolve<Config>();
+
+            string persistDirectory = Path.Join(config.PluginDataPersistDirectory, this.ContextPluginConfig.Manifest.Key);
+            Directory.CreateDirectory(persistDirectory);
+
+            // each job should have RemoteKey config item
+            foreach (Job job in contextServer.Jobs) 
+            {
+                if (job.Config == null)
+                    throw new ConfigurationException($"Job {job.Key} on buildServer {contextServer.Key} is missing Config node");
+
+                if (!job.Config.Any(c => c.Key == "RemoteKey"))
+                    throw new ConfigurationException($"Job {job.Key} on buildServer {contextServer.Key} is missing Config \"RemoteKey\"");
+
+                
+                string jobPersistPath = Path.Combine(persistDirectory, job.Key);
+                Directory.CreateDirectory(jobPersistPath);
+            }
 
             try
             {
@@ -70,9 +94,11 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         public void AttemptReachJob(Core.Common.BuildServer buildServer, Job job)
         {
+            var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
+
             WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
             string hostUrl = GetHostUrl(buildServer);
-            string url = UrlHelper.Join(hostUrl, "job", job.Key, "api/json?pretty=true");
+            string url = UrlHelper.Join(hostUrl, "job", remotekey.Value.ToString(), "api/json?pretty=true");
             webClient.DownloadString(url);
         }
 
@@ -112,10 +138,12 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
                 Job job = dataLayer.GetJobById(build.JobId);
                 Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
+                var remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
+
                 WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
 
                 string hostUrl = GetHostUrl(buildServer);
-                string url = UrlHelper.Join(hostUrl, "job", job.Key, build.Identifier, "consoleText");
+                string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), build.Identifier, "consoleText");
                 string log = webClient.DownloadString(url);
                 return log;
             }
@@ -222,7 +250,8 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             {
                 WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
                 string hostUrl = GetHostUrl(buildServer);
-                string url = UrlHelper.Join(hostUrl, "job", job.Key, build.Identifier, "api/json?pretty=true&tree=changeSet[items[commitId]]");
+                var remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
+                string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), build.Identifier, "api/json?pretty=true&tree=changeSet[items[commitId]]");
                 rawJson = webClient.DownloadString(url);
 
                 Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
@@ -289,10 +318,11 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
+            var remoteKey = job.Config.First(r => r.Key == "RemoteKey");
 
             WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
             string hostUrl = GetHostUrl(buildServer);
-            string url = UrlHelper.Join(hostUrl, "job", job.Key, "api/json?pretty=true&tree=allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]");
+            string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), "api/json?pretty=true&tree=allBuilds[fullDisplayName,id,number,timestamp,duration,builtOn,result]");
             string rawJson = webClient.DownloadString(url);
 
             dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);

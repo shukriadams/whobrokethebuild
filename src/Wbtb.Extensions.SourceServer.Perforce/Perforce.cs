@@ -25,8 +25,8 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
         public void VerifySourceServerConfig(Core.Common.SourceServer contextServer)
         {
-            //if (contextServer.Config == null)
-            //    throw new ConfigurationException("Missing item \"Config\"");
+            if (contextServer.Config == null)
+                throw new ConfigurationException("Missing item \"Config\"");
 
             if (!contextServer.Config.Any(c => c.Key == "Host"))
                 throw new ConfigurationException("Missing item \"Host\"");

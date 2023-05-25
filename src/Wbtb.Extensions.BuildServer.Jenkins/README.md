@@ -5,26 +5,16 @@ Plugin for connecting Wbtb to a Jenkins server.
 ## Config
 
     Plugins:
-    -   Id: myJenkins
-        Path: /var/wbtb/Wbtb.Extensions.BuildServer.JenkinsSandbox   
-        Proxy: false
-    -   Id: WBTB-Perforce
-        Path: C:\projects\wbtb\src\Wbtb.Extensions.SourceServer.Perforce
-        Proxy: false
-        Enable: true
-
+    -   Key: myJenkins
+        Path: /var/wbtb/Wbtb.Extensions.BuildServer.Jenkins
+    
     BuildServers:
-    -   Id: MyJenkins
-        Host: jenkins.myserver.local
-        Plugin: fakeJenkins
-        Enable: true
+    -   Plugin: myJenkins
+        Config:
+        - Host: http://myJenkins.com
+        - Username: myUser
+        - Token: Myaccesstoken
         Jobs:
-        -    Id: myjob
-             SourceServer: p4_1
-             Enable: false
-
-    SourceServers:
-    -   Id: p4_1
-        Host: ssl:p4.myserver.local:1666
-        User: myuser
-        Password: myPassword
+        - Key: MyJob
+          Config:
+           - RemoteKey: My%20Build%20On%20Jenkins/

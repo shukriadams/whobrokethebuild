@@ -47,7 +47,7 @@ namespace Wbtb.Core.Common
         public IList<MessageHandler> Message { get; set; }
 
         /// <summary>
-        /// Config-defined id of version control server this job builds code for
+        /// Config-defined key of version control server this job builds code for
         /// </summary>
         public string SourceServer { get; set; }
 
@@ -110,6 +110,11 @@ namespace Wbtb.Core.Common
         /// If RevisionAtBuildRegex is being used, and this is set to true, all revisions since last revision in previous build will be assumed to be part of current build.
         /// </summary>
         public bool RevisionScrapeSpanBuilds { get; set; }
+
+        /// <summary>
+        /// Addition key-value config specific to plugin. These are defined in config.yml
+        /// </summary>
+        public IEnumerable<KeyValuePair<string, object>> Config { get; set; }
 
         #endregion
 
