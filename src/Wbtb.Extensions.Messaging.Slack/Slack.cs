@@ -315,7 +315,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (response.ok.Value == true)
                 return response.channel.id.Value;
 
-            throw new Exception($"Failed to get user channel for slack userid {slackUserId}", response);
+            throw new Exception($"Failed to get user channel for slack userid {slackUserId}: {response}");
         }
 
         public string TestHandler(MessageConfiguration messageConfiguration)
@@ -351,7 +351,7 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             data["token"] = token;
             data["channel"] = slackId;
-            data["text"] = "test message";
+            data["text"] = message;
             data["attachments"] = Convert.ToString(attachment);
 
             dynamic response = ExecAPI("chat.postMessage", data);

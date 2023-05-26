@@ -23,6 +23,7 @@ To explicitly inform a user or group on every build regression/fix, using the fo
           Message:
           - Plugin: myslackchannel
             SlackId: myslackchannelid
+            IsGroup: true
 
     BuildServers:
     -   <buildserver config>
@@ -32,6 +33,8 @@ To explicitly inform a user or group on every build regression/fix, using the fo
               User: some_user_key
             - Plugin: myslackchannel
               Group: some_group_key
+
+Note the `IsGroup: true` for targeting groups. 
 
 ### Build involvement alerting
 

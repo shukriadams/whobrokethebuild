@@ -94,11 +94,11 @@ namespace Wbtb.Core
 
                 string rawId = userConfig["Key"].ToString();
 
-                if (objectId == rawId && userConfig.AllNodes.Contains("Alert") && userConfig["Alert"] != null)
+                if (objectId == rawId && userConfig.AllNodes.Contains("Message") && userConfig["Message"] != null)
                 {
-                    IEnumerable<YamlNode> alertConfigs = (IEnumerable<YamlNode>)userConfig["Alert"];
+                    IEnumerable<YamlNode> alertConfigs = (IEnumerable<YamlNode>)userConfig["Message"];
                     if (alertConfigs == null)
-                        throw new ConfigurationException($"Alert config for user {objectId} could not be converted to IList");
+                        throw new ConfigurationException($"Message config for user {objectId} could not be converted to IList");
 
                     if (alertConfigs.Count() > alertIndex)
                         return ConfigurationHelper.YmlNodeToJson(alertConfigs.ElementAt(alertIndex));
