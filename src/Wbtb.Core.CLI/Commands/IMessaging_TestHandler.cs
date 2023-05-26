@@ -47,7 +47,6 @@ namespace Wbtb.Core.CLI
             MessageConfiguration messageConfiguration = null;
             User user = null;
             Group group = null;
-            MessageConfiguration messageConfiguration1 = null;
             if (!string.IsNullOrEmpty(userKey))
             {
                 user = dataLayer.GetUserByKey(userKey);
@@ -72,7 +71,7 @@ namespace Wbtb.Core.CLI
                 messageConfiguration = group.Message.Where(m => m.Plugin == pluginKey).FirstOrDefault();
             }
 
-            if (messageConfiguration1 == null) 
+            if (messageConfiguration == null) 
             {
                 Console.Write($"Target recipient does not have a message configuration for plugin \"{pluginKey}\".");
                 Environment.Exit(1);

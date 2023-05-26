@@ -45,13 +45,15 @@ namespace Wbtb.Core
 
             ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
             CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
+            ConfigBasic configBasic = di.Resolve<ConfigBasic>();
             customEnvironmentArgs.Apply();
             configBootstrapper.EnsureLatest();
 
             ConfigurationManager configurationManager = di.Resolve<ConfigurationManager>();
 
             // first part of server start, tries to load config
-            Config unsafeConfig = configurationManager.LoadUnsafeConfig(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
+            string configPath = configBasic.ConfigPath;
+            Config unsafeConfig = configurationManager.LoadUnsafeConfig(configPath);
 
             // ensure directories, this requires that config is loaded
             Directory.CreateDirectory(unsafeConfig.DataDirectory);

@@ -1,4 +1,7 @@
-﻿namespace Wbtb.Core.Common
+﻿using System.IO;
+using System;
+
+namespace Wbtb.Core.Common
 {
     /// <summary>
     /// Simple configuration required for baseline functionality, including for plugins. Config is not checked as thoroughly as main config,
@@ -11,6 +14,8 @@
         public bool PersistCalls { get; set; }
 
         public string ProxyMode { get;set;}
+         
+        public string ConfigPath { get; set; }
 
         public ConfigBasic()
         {
@@ -20,6 +25,7 @@
 
             this.PersistCalls = EnvironmentVariableHelper.GetBool("WBTB_PERSISTCALLS", false);
             this.ProxyMode = EnvironmentVariableHelper.GetString("WBTB_PROXYMODE", "default");
+            this.ConfigPath = EnvironmentVariableHelper.GetString("WBTB_CONFIGPATH", Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
         }
 
     }

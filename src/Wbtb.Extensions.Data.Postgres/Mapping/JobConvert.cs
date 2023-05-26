@@ -31,6 +31,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     {
                         job.Message = config.Message;
                         job.BuildServer = buildServer.Key;
+                        job.Config = config.Config;
                         job.Description = config.Description;
                         job.Enable = config.Enable;
                         job.HistoryLimit = config.HistoryLimit;

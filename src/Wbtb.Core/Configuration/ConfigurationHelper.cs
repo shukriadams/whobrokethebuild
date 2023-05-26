@@ -94,7 +94,7 @@ namespace Wbtb.Core
 
                 string rawId = userConfig["Key"].ToString();
 
-                if (objectId == rawId && userConfig["Alert"] != null)
+                if (objectId == rawId && userConfig.AllNodes.Contains("Alert") && userConfig["Alert"] != null)
                 {
                     IEnumerable<YamlNode> alertConfigs = (IEnumerable<YamlNode>)userConfig["Alert"];
                     if (alertConfigs == null)

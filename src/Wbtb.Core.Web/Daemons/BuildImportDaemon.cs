@@ -104,10 +104,6 @@ namespace Wbtb.Core.Web
                         if (!importSummary.Ended.Any())
                             continue;
 
-
-
-
-
                         // handle current state of game
                         Build latestBuild = importSummary.Ended.OrderByDescending(b => b.EndedUtc.Value).First();
                         Build previousDeltaBuild = dataLayer.GetLastJobDelta(thisjob.Id);
