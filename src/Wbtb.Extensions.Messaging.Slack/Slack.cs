@@ -148,16 +148,21 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (storeItem != null)
                 return null;
 
-            string message = $"Build for {job.Name} broke at #{incidentBuild.Identifier}.";
+            string message = $"Build broke at #{incidentBuild.Identifier}.";
             dynamic attachment = new JObject();
+            attachment.title = $"{job.Name} is DOWN";
             attachment.fallback = " ";
             attachment.text = message;
+            attachment.title_link = _urlHelper.Build(incidentBuild);
+
+            var attachments = new JArray(1);
+            attachments[0] = attachment;
+
 
             data["token"] = token;
-            data["title_link"] = _urlHelper.Build(incidentBuild);
             data["channel"] = slackId;
-            data["text"] = message;
-            data["attachments"] = JsonConvert.SerializeObject(attachment);
+            data["text"] = " ";
+            data["attachments"] = Convert.ToString(attachments);
 
             dynamic response = ExecAPI("chat.postMessage", data);
 
@@ -244,17 +249,21 @@ namespace Wbtb.Extensions.Messaging.Slack
             if ((string)storeItemPayload.status == fixingBuild.Status.ToString())
                 return null;
 
-            string message = $"Build for {job.Name} fixed by #{fixingBuild.Identifier}, originally broken by #{incidentBuild.Identifier}.";
+            string message = $"Build fixed by #{fixingBuild.Identifier}, originally broken by #{incidentBuild.Identifier}.";
             dynamic attachment = new JObject();
+            attachment.title = $"{job.Name} is working again";
             attachment.fallback = " ";
             attachment.text = message;
+            attachment["title_link"] = _urlHelper.Build(fixingBuild);
 
-            data["title_link"] = _urlHelper.Build(fixingBuild);
+            var attachments = new JArray(1);
+            attachments[0] = attachment;
+
             data["token"] = token;
             data["ts"] = (string)storeItemPayload.ts;
             data["channel"] = slackId;
-            data["text"] = message;
-            data["attachments"] = JsonConvert.SerializeObject(attachment);
+            data["text"] = " ";
+            data["attachments"] = Convert.ToString(attachments);
 
             dynamic response = ExecAPI("chat.update", data);
 
@@ -348,12 +357,19 @@ namespace Wbtb.Extensions.Messaging.Slack
             dynamic attachment = new JObject();
             string message = "This is a test message from WBTB to ensure connectivity works";
             attachment.fallback = message;
+            attachment.title = "Test message";
             attachment.text = message;
+            attachment.title_link = _config.Address;
+
+            var attachments = new JArray(1);
+            attachments[0] = attachment;
+
+
 
             data["token"] = token;
             data["channel"] = slackId;
-            data["text"] = message;
-            data["attachments"] = Convert.ToString(attachment);
+            data["text"] = " ";
+            data["attachments"] = Convert.ToString(attachments);
 
             dynamic response = ExecAPI("chat.postMessage", data);
 

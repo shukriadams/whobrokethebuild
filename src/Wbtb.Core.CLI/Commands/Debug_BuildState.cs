@@ -3,7 +3,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
-    internal class Debug_BreakBuild: ICommand
+    internal class Debug_BuildState: ICommand
     {
         public void Process(CommandLineSwitches switches)
         {
@@ -17,7 +17,24 @@ namespace Wbtb.Core.CLI
                 Environment.Exit(1);
                 return;
             }
+
+            if (!switches.Contains("State"))
+            {
+                Console.WriteLine($"ERROR : \"State\" key required");
+                Environment.Exit(1);
+                return;
+            }
+
+
             string jobKey = switches.Get("Job");
+            string state = switches.Get("state");
+            if (state != "pass" && state != "fail")
+            {
+                Console.WriteLine($"ERROR : \"State\" must be either \"pass\" or \"fail\".");
+                Environment.Exit(1);
+                return;
+            }
+
 
             Job job = dataLayer.GetJobByKey(jobKey);
             if (job == null) 
@@ -41,10 +58,10 @@ namespace Wbtb.Core.CLI
                 Identifier = key.ToString(),
                 StartedUtc = DateTime.UtcNow,
                 EndedUtc = DateTime.UtcNow,
-                Status = BuildStatus.Failed,
+                Status = state == "fail" ? BuildStatus.Failed : BuildStatus.Passed,
             });
 
-            Console.WriteLine($"Deliberately broke job {job.Key} - hope you're satisfied");
+            Console.WriteLine($"Set job {job.Key} to {state}");
         }
     }
 }
