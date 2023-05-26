@@ -153,6 +153,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             attachment.fallback = " ";
             attachment.text = message;
 
+            data["token"] = token;
             data["title_link"] = _urlHelper.Build(incidentBuild);
             data["channel"] = slackId;
             data["text"] = message;

@@ -17,7 +17,7 @@ namespace Wbtb.Core
         /// <summary>
         /// Single-call wrapper to start server.
         /// </summary>
-        public void Start()
+        public void Start(bool failOnOrphans=true)
         {
             // pre-start stuff
             SimpleDI di = new SimpleDI();
@@ -111,7 +111,7 @@ namespace Wbtb.Core
             foreach (string orphan in orphans)
                 Console.WriteLine(orphan);
 
-            if (orphans.Count() > 0)
+            if (failOnOrphans && orphans.Count() > 0)
                 throw new ConfigurationException("Orphan records detected. Please merge or delete orphans");
         }
     }

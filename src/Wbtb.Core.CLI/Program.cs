@@ -13,7 +13,7 @@ namespace Wbtb.Core.CLI
             {
                 // bind types - dev only! These are needed by all general plugin activity
                 Core core = new Core();
-                core.Start();
+                core.Start(failOnOrphans:false);
 
                 SimpleDI di = new SimpleDI();
                 di.Register<OrphanRecordHelper, OrphanRecordHelper>();
