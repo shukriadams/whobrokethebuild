@@ -35,7 +35,14 @@ to build the server
     dotnet restore Wbtb.Core.Web
     dotnet build Wbtb.Core.Web
 
-and to start the server
+In most cases, Wbtb will require a separate service, MessageQueue, to be started as a process. You
+
+    cd src
+    dotnet restore MessageQueue
+    dotnet build MessageQueue
+    dotnet run --project MessageQueue
+
+To start the Wbtb server
 
     cd src
     dotnet run --project Wbtb.Core.Web --urls=http://0.0.0.0:5000
