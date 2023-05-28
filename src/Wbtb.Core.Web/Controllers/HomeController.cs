@@ -113,7 +113,12 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
-
+        [Route("/login")]
+        public IActionResult Login()
+        {
+            LayoutModel model = new LayoutModel();
+            return View(model);
+        }
 
         [Route("/buildsoftreset/{buildId}")]
         public IActionResult SoftResetBuild(string buildId) 
