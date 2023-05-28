@@ -80,7 +80,6 @@ namespace Wbtb.Core.Web.Controllers
                     v.BreakBuild.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(v.BreakBuild.Id));
             }
 
-            model.AnyJobUsingBanners = viewjobs.Where(j => !string.IsNullOrEmpty(j.Image)).Any();
             model.Jobs = viewjobs;
             model.Title = "my jobs";
 
@@ -102,14 +101,6 @@ namespace Wbtb.Core.Web.Controllers
             model.Log = _loghelper.GetBuildProcessorLog(buildProcessor.BuildId, buildProcessor.Id);
             model.BuildProcessor = buildProcessor;
 
-            return View(model);
-        }
-
-
-        [Route("/admin")]
-        public IActionResult Admin()
-        {
-            LayoutModel model = new LayoutModel(); 
             return View(model);
         }
 
@@ -354,7 +345,7 @@ namespace Wbtb.Core.Web.Controllers
         }
 
         /// <summary>
-        /// Lists remove jobs on build server, NOT jobs in local db
+        /// Lists remote jobs on build server, NOT jobs in local db
         /// </summary>
         /// <param name="buildserverid"></param>
         /// <returns></returns>

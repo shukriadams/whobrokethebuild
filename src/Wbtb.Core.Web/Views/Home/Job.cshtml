@@ -82,9 +82,24 @@
                 </text>
             }
 
-
         </x-card-pad>
     </x-card>
+
+    @if (Model.Job.Message.Any())
+    {
+        <x-card>
+            <x-card-pad>
+                Alerts will be sent to :
+
+                @foreach(MessageHandler message in Model.Job.Message)
+                {
+                    <div>
+                        @message.Group via @message.Plugin
+                    </div>
+                }
+            </x-card-pad>
+        </x-card>
+    }
 </x-content>
 
 <x-content>

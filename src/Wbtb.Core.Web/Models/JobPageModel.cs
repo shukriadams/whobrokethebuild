@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using Wbtb.Core.Common;
+﻿using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
 {

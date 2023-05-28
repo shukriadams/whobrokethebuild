@@ -21,14 +21,15 @@ To explicitly inform a user or group on every build regression/fix, using the fo
     Groups:
         - Key: some_group_key
           Message:
-          - Plugin: myslackchannel
+          - Plugin: myslack
             SlackId: myslackchannelid
             IsGroup: true
 
     BuildServers:
     -   <buildserver config>
         Jobs:
-        -   Message:
+        -   Key: myJob
+            Message:
             - Plugin: myslack
               User: some_user_key
             - Plugin: myslackchannel
