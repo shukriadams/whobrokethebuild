@@ -2,11 +2,15 @@
 
 ### Settings
 
+Your Slack plugin needs a Slack APP API token. Create an app @ `https://api.slack.com`. Add the permission scopes `chat:write.public, chat:write`, and add it to your workspace. Get its `Verification Token` value under its settings there. You can also use its `Signing Secret`. On WBTB both will work, and must be assigned as `Token`
+
     Plugins: 
     -   Key: myslack
         Path: Wbtb.Extensions.Messaging.Slack
         Config:
         - Token: <slack access token>
+
+
 
 ### General informing
 

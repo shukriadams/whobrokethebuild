@@ -11,6 +11,11 @@ namespace Wbtb.Core.Web
         
         public ViewBuild BreakBuild { get; set; }
 
+        /// <summary>
+        /// Last build in job to set delta. can be null.
+        /// </summary>
+        public Build DeltaBuild { get; set; }
+
         public static ViewJob Copy(Job job)
         {
             if (job == null)

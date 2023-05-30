@@ -166,7 +166,7 @@ namespace Wbtb.Core.Web.Controllers
 
             model.Job.LatestBuild = dataLayer.GetLatestBuildByJob(model.Job);
             model.Job.BreakBuild = ViewBuild.Copy(dataLayer.GetBreakingBuildByJob(model.Job));
-
+            model.Job.DeltaBuild = dataLayer.GetLastJobDelta(model.Job.Id);
             model.Stats = dataLayer.GetJobStats(model.Job);
             model.BaseUrl = $"/job/{jobid}";
             model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByJob(jobid, pageIndex, _config.StandardPageSize));

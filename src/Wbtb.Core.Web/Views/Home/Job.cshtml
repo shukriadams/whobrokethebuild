@@ -11,13 +11,20 @@
 
 <x-content>
     <x-card class="--stroke @ViewHelpers.BuildStatusToCSSClass(Model.Job.LatestBuild)">
-        <x-card-stroke class="--@ViewHelpers.BuildStatusToCSSClass(Model.Job.LatestBuild)"></x-card-stroke>
+        <x-card-stroke class="--@ViewHelpers.BuildStatusToCSSClass(Model.Job.DeltaBuild)"></x-card-stroke>
         <x-card-pad>
     
             @if(!string.IsNullOrEmpty(Model.Job.Description))
             { 
                 <div>
                     @(Model.Job.Description)
+                </div>
+            }
+
+            @if (Model.Job.DeltaBuild != null && Model.Job.DeltaBuild.Status == BuildStatus.Failed)
+            {
+                <div>
+                    Build has been down for @((DateTime.UtcNow - Model.Job.DeltaBuild.EndedUtc.Value).Humanize())
                 </div>
             }
 
@@ -32,7 +39,7 @@
     
             <div>
                 @if (Model.Stats.LatestBreakingBuild!= null){ 
-                    <text>Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild), @Model.Stats.LatestBreakingBuild.StartedUtc.Humanize()</text>
+                    <text>Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild), @Model.Stats.LatestBreakingBuild.EndedUtc.Humanize()</text>
                 }
                 @if (Model.Stats.LatestBreakDuration.HasValue){ 
                     <text>,and that lasted @Model.Stats.LatestBreakDuration.Value.Humanize()</text>
@@ -126,7 +133,7 @@
                             @ViewHelpers.TranslateBuildStatus(build) 
                         </div>
                         <div>
-                            @build.StartedUtc.ToLocalTime().Humanize() (@build.StartedUtc.ToLocalTime().ToISOShort())
+                            @build.VisibleDateUtc.ToLocalTime().Humanize() (@build.VisibleDateUtc.ToLocalTime().ToISOShort())
                         </div>
                     </x-list-cell>    
 

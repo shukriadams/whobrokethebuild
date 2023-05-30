@@ -13,5 +13,6 @@ namespace Wbtb.Core.Web
         public JobStats Stats { get; set; }
 
         public PageableData<ViewBuild> Builds { get; set; }
+
     }
 }

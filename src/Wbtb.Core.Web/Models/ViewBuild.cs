@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
 
@@ -21,6 +22,11 @@ namespace Wbtb.Core.Web
 
         public ViewJob Job { get; set; }
 
+        /// <summary>
+        /// Safe date that can always be relied on to display on view. Is build.endutc if set, else reverts to build.startuc
+        /// </summary>
+        public DateTime VisibleDateUtc { get; set; }
+
         public ViewBuild()
         {
             BuildInvolvements = new List<ViewBuildInvolvement>();
@@ -40,6 +46,7 @@ namespace Wbtb.Core.Web
                 EndedUtc = build.EndedUtc,
                 Hostname = build.Hostname,
                 Identifier = build.Identifier,
+                VisibleDateUtc = build.EndedUtc.HasValue ? build.EndedUtc.Value : build.StartedUtc,
                 IncidentBuildId = build.IncidentBuildId,
                 LogPath = build.LogPath,
                 JobId = build.JobId,
