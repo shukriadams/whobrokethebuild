@@ -25,11 +25,6 @@ namespace Wbtb.Core.Common
         public string Plugin { get; set; }
 
         /// <summary>
-        /// Public Url server can be reached at. Not that url may be used to construct link to job, build etc pages on server
-        /// </summary>
-        public string Url { get;set; }
-
-        /// <summary>
         /// 
         /// </summary>
         public string Name { get; set; }

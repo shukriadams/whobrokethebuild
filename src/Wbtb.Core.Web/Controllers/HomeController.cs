@@ -232,10 +232,11 @@ namespace Wbtb.Core.Web.Controllers
             foreach (ViewBuildInvolvement bi in model.BuildInvolvements)
                 if (bi.RevisionId != null)
                     bi.Revision = dataLayer.GetRevisionById(bi.RevisionId);
-            
+
+            model.UrlOnBuildServer = buildServerPlugin.GetBuildUrl(buildServer, model.Build);
+            model.BuildServer = buildServer;
             model.PreviousBuild = dataLayer.GetPreviousBuild(model.Build);
             model.NextBuild = dataLayer.GetNextBuild(model.Build);
-            model.LinkToBuildSystem = buildServerPlugin.GetBuildUrl(buildServer, model.Build);
             model.BuildParseResults = dataLayer.GetBuildLogParseResultsByBuildId(buildid);
             model.Build.IncidentBuild = string.IsNullOrEmpty(model.Build.IncidentBuildId) ? null : ViewBuild.Copy(dataLayer.GetBuildById(model.Build.IncidentBuildId));
             model.BuildFlags = dataLayer.GetBuildFlagsForBuild(model.Build);

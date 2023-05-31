@@ -5,34 +5,41 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<x-list class="--dense">
-    @if(Model.User != null)
-    {
-        <div>
-            @Model.User.Name
-        </div>
-    }
+@if(Model.User != null)
+{
+    <div>
+        @Model.User.Name
+    </div>
+}
 
-    @if(Model.RecentPassing.Any())
+@if(Model.RecentPassing.Any())
+{
+    <h2>Recent Passing Builds</h2>
+    <x-list>
+    @foreach(ViewBuildInvolvement buildInvolvement in Model.RecentPassing)
     { 
-        <h2>Recent Passing Builds</h2>
-        @foreach(ViewBuildInvolvement buildInvolvement in Model.RecentPassing)
-        { 
-            <div>
+        <x-list-row>
+            <x-list-cell>
                 @ViewHelpers.BuildLink(buildInvolvement.Build)
-            </div>
-        }
+            </x-list-cell>
+        </x-list-row>
     }
+    </x-list>
+}
 
-    @if (Model.RecentBreaking.Any())
+@if (Model.RecentBreaking.Any())
+{ 
+    <h2>Recent Failing Builds</h2>
+    <x-list>
+    @foreach(ViewBuildInvolvement buildInvolvement in Model.RecentBreaking)
     { 
-        <h2>Recent Failing Builds</h2>
-        @foreach(ViewBuildInvolvement buildInvolvement in Model.RecentBreaking)
-        { 
-            <div>
-                @ViewHelpers.BuildLink(buildInvolvement.Build)
-            </div>
-        }
+        <x-list-row>
+            <x-list-cell>
+            @ViewHelpers.BuildLink(buildInvolvement.Build)
+            </x-list-cell>
+        </x-list-row>
     }
+    </x-list>
+}
 
-</x-list>
+

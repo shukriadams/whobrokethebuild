@@ -15,6 +15,8 @@ namespace Wbtb.Core.Common
         /// 
         /// </summary>
         public string KeyPrev { get; set; }
+         
+        public string Name { get; set; }
 
         /// <summary>
         /// 

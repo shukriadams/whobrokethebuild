@@ -206,22 +206,29 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public static void ClearAllTables(PluginConfig contextPluginConfig)
+        public static int ClearAllTables(PluginConfig contextPluginConfig)
         {
-            ClearTable(contextPluginConfig, "buildinvolvement");
-            ClearTable(contextPluginConfig, "buildlog");
-            ClearTable(contextPluginConfig, "build");
-            ClearTable(contextPluginConfig, "incidentbuild");
-            ClearTable(contextPluginConfig, "incident");
-            ClearTable(contextPluginConfig, "job");
-            ClearTable(contextPluginConfig, "revision");
-            ClearTable(contextPluginConfig, "session");
-            ClearTable(contextPluginConfig, "sourceserveruser");
-            ClearTable(contextPluginConfig, "transmissionlog");
-            ClearTable(contextPluginConfig, "version");
-            ClearTable(contextPluginConfig, "usr");
-            ClearTable(contextPluginConfig, "sourceserver");
-            ClearTable(contextPluginConfig, "buildserver");
+            int deleted = 0;
+
+            deleted += ClearTable(contextPluginConfig, "buildflag");
+            deleted += ClearTable(contextPluginConfig, "buildprocessor");
+            deleted += ClearTable(contextPluginConfig, "incident");
+            deleted += ClearTable(contextPluginConfig, "transmissionlog");
+            deleted += ClearTable(contextPluginConfig, "buildlogparseresult");
+            deleted += ClearTable(contextPluginConfig, "buildinvolvement");
+            deleted += ClearTable(contextPluginConfig, "revision");
+            deleted += ClearTable(contextPluginConfig, "version");
+            deleted += ClearTable(contextPluginConfig, "jobdelta");
+            deleted += ClearTable(contextPluginConfig, "build");
+            deleted += ClearTable(contextPluginConfig, "job");
+            deleted += ClearTable(contextPluginConfig, "session");
+            deleted += ClearTable(contextPluginConfig, "buildserver");
+            deleted += ClearTable(contextPluginConfig, "sourceserver");
+            deleted += ClearTable(contextPluginConfig, "usr");
+            deleted += ClearTable(contextPluginConfig, "configurationstate");
+            deleted += ClearTable(contextPluginConfig, "store");
+
+            return deleted;
         }
 
         public static void ContactServer(PluginConfig contextPluginConfig)

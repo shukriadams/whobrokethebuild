@@ -256,6 +256,8 @@ namespace Wbtb.Core.Common
 
         PageableData<ConfigurationState> PageConfigurationStates(int index, int pageSize);
 
+        int ClearAllTables();
+
         #endregion
     }
 }

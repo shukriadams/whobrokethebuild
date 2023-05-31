@@ -42,9 +42,9 @@
             Built on : @ViewHelpers.BuildHostLink(Model.Build)
         </x-card-pad>
         <x-card-pad>
-            @if (!string.IsNullOrEmpty(Model.LinkToBuildSystem))
-            { 
-                <a href="@Model.LinkToBuildSystem">View on @Model.BuildSystemName</a>
+            @if (!string.IsNullOrEmpty(Model.UrlOnBuildServer))
+            {
+                <a href="@Model.UrlOnBuildServer">View on @Model.BuildServer.Name</a>
             }
         </x-card-pad>
 
@@ -64,18 +64,6 @@
                     </text>
                 }
             </x-card-pad>
-        }
-
-        @if (Model.IsAdmin) 
-        { 
-            <x-card-pad>
-                <a href="/builddelete/@Model.Build.Id">Delete build</a>
-                <div>
-                    <a href="/buildsoftreset/@Model.Build.Id">Reset (soft)</a>
-                </div>
-
-            </x-card-pad>
-
         }
 
     </x-card>
@@ -109,24 +97,12 @@
             }
         </x-card-pad>
         <x-card-pad>
-            @if(Model.Common.IsAdmin)
+            @if (Model.Common.IsAdmin && Model.IsAlertRetractable)
             {
-                <div>
-                    <h5>Admin</h5>
-                    <button class="button --danger" data-deleteBuild="@Model.Build.Id">Remove build</button>    
-                    <p class="quiet">
-                        Delete this build to reset its data. The build will be automatically reimported if
-                        the CI system it was originally imported from is still being tracked, and the build
-                        still exists there.
-                    </p>
-                </div>
-                @if(Model.IsAlertRetractable)
-                {
-                    <button class="button --warning" data-undoAlerts="@Model.Build.Id">Delete alerts</button>    
-                    <p class="quiet">
-                        Public alerts have already been sent out for this build. You can delete them here.
-                    </p>
-                }
+                <button class="button --warning" data-undoAlerts="@Model.Build.Id">Delete alerts</button>    
+                <p class="quiet">
+                    Public alerts have already been sent out for this build. You can delete them here.
+                </p>
             }
         </x-card-pad>
     </x-card>
@@ -204,14 +180,10 @@
 <pre class="code">
 @if (involvement.Revision.Files.Any())
 { 
-                            
-
     @foreach(string file in involvement.Revision.Files)
     { 
-        <div><span class="build-revisionFile build-revisionFile--">@file</span></div>
+ <span class="build-revisionFile build-revisionFile--">@file</span>
     }
-
-
 } else { 
     <text>
         No file changes found

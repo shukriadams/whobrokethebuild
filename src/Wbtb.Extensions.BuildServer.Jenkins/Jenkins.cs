@@ -60,8 +60,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
             Config config = _di.Resolve<Config>();
 
-            string persistDirectory = Path.Join(config.PluginDataPersistDirectory, this.ContextPluginConfig.Manifest.Key);
-            Directory.CreateDirectory(persistDirectory);
+            string persistDirectory = _persistPathHelper.EnsurePluginPersistDirectory(ContextPluginConfig);
 
             // each job should have RemoteKey config item
             foreach (Job job in contextServer.Jobs) 
@@ -123,12 +122,12 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         public string GetBuildUrl(Core.Common.BuildServer contextServer, Build build)
         {
-            if (string.IsNullOrEmpty(contextServer.Url))
-                return null;
-
+            string host = contextServer.Config.First(r => r.Key == "Host").Value.ToString();
             IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Job job = datalayer.GetJobById(build.JobId);
-            return new Uri(new Uri(contextServer.Url), $"job/{job.Key}/{build.Identifier}").ToString();
+            KeyValuePair<string, object> remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
+
+            return new Uri(new Uri(host), $"job/{remoteKey.Value}/{build.Identifier}").ToString();
         }
 
         public string GetEphemeralBuildLog(Build build)
@@ -138,7 +137,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
                 Job job = dataLayer.GetJobById(build.JobId);
                 Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
-                var remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
+                KeyValuePair<string, object> remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
 
                 WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
 
@@ -237,7 +236,8 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
-            string persistPath = _persistPathHelper.GetPath(this, job.Key, build.Identifier, "revisions.json");
+
+            string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, build.Identifier, "revisions.json");
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
             string rawJson;
@@ -304,7 +304,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IList<RawBuild> rawBuilds = new List<RawBuild>();
 
-            foreach (string directory in Directory.GetDirectories(_persistPathHelper.GetPath(this, job.Key)).Where(d => !string.IsNullOrEmpty(d)))
+            foreach (string directory in Directory.GetDirectories(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key)).Where(d => !string.IsNullOrEmpty(d)))
             {
                 string rawBuildFile = Path.Combine(directory, "raw.json");
                 if (File.Exists(rawBuildFile))

@@ -1030,6 +1030,14 @@ namespace Wbtb.Core.Common
             });
         }
 
+        public int ClearAllTables() 
+        {
+            return _pluginSender.InvokeMethod<int>(this, new PluginArgs
+            {
+                FunctionName = "ClearAllTables"
+            });
+        }
+
         public ConfigurationState GetLatestConfigurationState()
         {
             return _pluginSender.InvokeMethod<ConfigurationState>(this, new PluginArgs

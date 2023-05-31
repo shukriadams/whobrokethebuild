@@ -33,7 +33,6 @@ namespace Wbtb.Extensions.Data.Postgres
                 buildserver.Enable = config.Enable;
                 buildserver.Jobs = config.Jobs;
                 buildserver.Name = config.Name;
-                buildserver.Url = config.Url;
                 buildserver.ImportCount = config.ImportCount;
                 buildserver.ServerType = config.ServerType;
             }

@@ -4,9 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
+using Group = Wbtb.Core.Common.Group;
 
 namespace Wbtb.Core
 {
@@ -474,10 +476,10 @@ namespace Wbtb.Core
                     foreach(string logparserPluginKey in jobConfig.LogParserPlugins)
                     {
                         PluginConfig logParserPlugin = config.Plugins.FirstOrDefault(r => r.Key == logparserPluginKey);
-                        Type pluginInterfaceType = TypeHelper.GetCommonType(logParserPlugin.Manifest.Interface);
                         if (logParserPlugin == null)
                             throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a log parser \"{logparserPluginKey}\", but no enabled plugin for this parser was found.");
 
+                        Type pluginInterfaceType = TypeHelper.GetCommonType(logParserPlugin.Manifest.Interface);
                         if (!typeof(ILogParser).IsAssignableFrom(pluginInterfaceType))
                             throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a log parser \"{logparserPluginKey}\", but this plugin does not implement type {TypeHelper.Name<ILogParser>()}.");
                     }
@@ -517,10 +519,23 @@ namespace Wbtb.Core
                 if (string.IsNullOrEmpty(user.Name))
                     user.Name = user.Key;
 
-            foreach(BuildServer buildServer in config.BuildServers.Where(b => !string.IsNullOrEmpty(b.Url)))
-                // ensure url protocol, this is optional in config
-                if (!buildServer.Url.ToLower().StartsWith("http"))
-                    buildServer.Url = $"http://{buildServer.Url}";
+            foreach (Group group in config.Groups)
+                if (string.IsNullOrEmpty(group.Name))
+                    group.Name = group.Key;
+
+            foreach (BuildServer buildServer in config.BuildServers)
+            {
+                if (string.IsNullOrEmpty(buildServer.Name))
+                    buildServer.Name = buildServer.Key;
+
+                foreach(Job job in buildServer.Jobs)
+                    if (string.IsNullOrEmpty(job.Name))
+                        job.Name = job.Key;
+            }
+
+            foreach (SourceServer sourceServer in config.SourceServers)
+                if (string.IsNullOrEmpty(sourceServer.Name))
+                    sourceServer.Name = sourceServer.Key;
         }
 
         /// <summary>

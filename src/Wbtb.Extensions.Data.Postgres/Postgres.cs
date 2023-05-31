@@ -1,6 +1,5 @@
 ﻿using Npgsql;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
@@ -65,6 +64,11 @@ namespace Wbtb.Extensions.Data.Postgres
         public object InitializeDatastore()
         {
             return PostgresCommon.InitializeDatastore(this.ContextPluginConfig);
+        }
+
+        public void ClearAllTable()
+        {
+            PostgresCommon.ClearAllTables(this.ContextPluginConfig);
         }
 
         #endregion
@@ -2126,6 +2130,11 @@ namespace Wbtb.Extensions.Data.Postgres
         #endregion
 
         #region CONFIGURATIONSTATE
+
+        public int ClearAllTables() 
+        {
+            return PostgresCommon.ClearAllTables(this.ContextPluginConfig);
+        }
 
         public ConfigurationState AddConfigurationState(ConfigurationState configurationState)
         {

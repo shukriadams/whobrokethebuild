@@ -448,5 +448,10 @@ namespace Wbtb.Extensions.Data.FileSystem
         {
             return new User { };
         }
+
+        public int ClearAllTables() 
+        {
+            return 0;
+        }
     }
 }

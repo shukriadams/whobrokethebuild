@@ -14,6 +14,13 @@ namespace Wbtb.Core.Web
         /// </summary>
         public ViewBuild Build { get; set; }
 
+        public BuildServer BuildServer { get; set; }
+
+        /// <summary>
+        /// Url on build server
+        /// </summary>
+        public string UrlOnBuildServer { get; set; }
+
         /// <summary>
         /// If focus build is part of a breaking incident, this is the build responsible for incident. Null if not known / no incident
         /// </summary>
@@ -24,17 +31,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         public IEnumerable<User> BuildBreakers { get; set; }
 
-        /// <summary>
-        /// URL iif we can link to external build system where build occurred
-        /// </summary>
-        public string LinkToBuildSystem { get; set; }
-
         public IEnumerable<BuildProcessor> buildProcessors { get; set; }
-
-        /// <summary>
-        /// IF LinkToBuildSystem is set, give the build system a human-friendly name. Always set.
-        /// </summary>
-        public string BuildSystemName { get; set; }
 
         public CommonModel Common { get;set; }
 
@@ -65,7 +62,6 @@ namespace Wbtb.Core.Web
         public BuildPageModel()
         { 
             this.BuildBreakers = new List<User>();
-            this.BuildSystemName = "Build server";
             this.Common = new CommonModel();
             this.BuildInvolvements = new List<ViewBuildInvolvement>();
             this.BuildFlags = new List<BuildFlag>();
