@@ -433,6 +433,17 @@ namespace Wbtb.Core.Common
             });
         }
 
+        IEnumerable<Build> IDataLayerPlugin.GetBuildsByIncident(string incidentId)
+        {
+            return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
+            {
+                FunctionName = "GetBuildsByIncident",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "incidentId", Value = incidentId }
+                }
+            });
+        }
+
         bool IDataLayerPlugin.DeleteBuild(Build record)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs

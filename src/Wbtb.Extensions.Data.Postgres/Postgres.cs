@@ -1,5 +1,6 @@
 ﻿using Npgsql;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
@@ -828,6 +829,8 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
+
+
         public PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize)
         {
             string pageQuery = @"
@@ -880,6 +883,32 @@ namespace Wbtb.Extensions.Data.Postgres
                 }
 
                 return new PageableData<Build>(builds, index, pageSize, virtualItemCount);
+            }
+        }
+
+        public IEnumerable<Build> GetBuildsByIncident(string incidentId) 
+        {
+            string query = @"
+                SELECT 
+                    *
+                FROM
+                    build 
+                WHERE
+                    incidentBuildId = @incidentId
+                    AND NOT id = @incidentId
+                ORDER BY
+                    startedutc DESC
+                LIMIT 
+                    100";
+
+            
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection)) 
+            {
+                cmd.Parameters.AddWithValue("incidentId", int.Parse(incidentId));
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new BuildConvert().ToCommonList(reader);
             }
         }
 

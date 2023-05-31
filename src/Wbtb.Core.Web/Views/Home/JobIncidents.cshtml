@@ -6,17 +6,44 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div>
-    <x-list>
-    @foreach(ViewBuild build in Model.Builds.Items)
-    {
-        <div>
-            Date : @build.StartedUtc.ToLocalTime().ToISOShort()) (@build.StartedUtc.ToLocalTime().Humanize())
-            Cause : <a href="/build/@build.IncidentBuildId">@build.IncidentBuildId</a> 
-            Number of builds : ---
-            Duration : ----
-        </div>
+<x-content>
+    <x-cover class="--rounded jobBanner-cover" style="background-image: url(@Model.Job.Image)">
+        <div class="jobBanner-coverMask"></div>
+        <h1 class="jobBanner-coverTitle"><a href="/">Jobs</a> / <a href="/job/@Model.Job.Id">@Model.Job.Name</a> / Incidents</h1>
+    </x-cover>
+</x-content>
 
+<div>
+    <x-list class="--dense">
+        <x-list-row>
+            <x-list-cell class="--header">
+                Caused by
+            </x-list-cell>
+            <x-list-cell class="--header">
+                Date
+            </x-list-cell>
+            <x-list-cell class="--header">
+                Builds
+            </x-list-cell>
+        </x-list-row>
+        @foreach (ViewIncidentCauseBuild build in Model.Builds.Items)
+        {
+        <x-list-row>
+            <x-list-cell>
+                @ViewHelpers.BuildLink(build)
+            </x-list-cell>
+            <x-list-cell>
+                @build.StartedUtc.ToLocalTime().Humanize() (@build.StartedUtc.ToLocalTime().ToISOShort()))
+            </x-list-cell>
+            <x-list-cell>
+                @foreach(Build involved in build.InvolvedBuilds)
+                {
+                    <div>
+                        @ViewHelpers.BuildLink(involved)
+                    </div>
+                }
+            </x-list-cell>
+        </x-list-row>
     }
     </x-list>
 </div>

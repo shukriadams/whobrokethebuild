@@ -349,6 +349,11 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new PageableData<Build>(new Build[] { }, 0, 0, 0);
         }
 
+        public IEnumerable<Build> GetBuildsByIncident(string incidentId)
+        {
+            return new Build[] { };
+        }
+
         public PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize)
         {
             return new PageableData<Build>(new Build[] { }, 0, 0, 0);

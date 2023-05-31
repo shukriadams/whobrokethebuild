@@ -117,6 +117,8 @@ namespace Wbtb.Core.Common
 
         PageableData<Build> PageBuildsByBuildAgent(string hostname, int index, int pageSize);
 
+        IEnumerable<Build> GetBuildsByIncident(string incidentId);
+
         bool DeleteBuild(Build record);
 
         IEnumerable<Build> GetBuildsWithNoLog(Job job);

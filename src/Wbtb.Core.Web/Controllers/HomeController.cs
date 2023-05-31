@@ -183,7 +183,11 @@ namespace Wbtb.Core.Web.Controllers
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             JobIncidentsModel model = new JobIncidentsModel();
             model.BaseUrl = $"/job/incidents/{jobid}";
-            model.Builds = ViewBuild.Copy(dataLayer.PageIncidentsByJob(jobid, pageIndex, _config.StandardPageSize));
+            model.Job = ViewJob.Copy(dataLayer.GetJobById(jobid));
+
+            PageableData<Build> incidentBuilds = dataLayer.PageIncidentsByJob(jobid, pageIndex, _config.StandardPageSize);
+            model.Builds = ViewIncidentCauseBuild.Copy(incidentBuilds);
+
             return View(model);
         }
 

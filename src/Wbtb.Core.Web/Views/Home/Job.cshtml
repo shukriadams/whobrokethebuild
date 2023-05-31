@@ -13,100 +13,105 @@
     <x-card class="--stroke @ViewHelpers.BuildStatusToCSSClass(Model.Job.LatestBuild)">
         <x-card-stroke class="--@ViewHelpers.BuildStatusToCSSClass(Model.Job.DeltaBuild)"></x-card-stroke>
         <x-card-pad>
-    
-            @if(!string.IsNullOrEmpty(Model.Job.Description))
-            { 
+            <x-columns class="--two-one">
                 <div>
-                    @(Model.Job.Description)
-                </div>
-            }
+                    @if (!string.IsNullOrEmpty(Model.Job.Description))
+                    {
+                        <div>
+                            @(Model.Job.Description)
+                        </div>
+                    }
 
-            @if (Model.Job.DeltaBuild != null && Model.Job.DeltaBuild.Status == BuildStatus.Failed)
-            {
-                <div>
-                    Build has been down for @((DateTime.UtcNow - Model.Job.DeltaBuild.EndedUtc.Value).Humanize())
-                </div>
-            }
+                    @if (Model.Job.DeltaBuild != null && Model.Job.DeltaBuild.Status == BuildStatus.Failed)
+                    {
+                        <div>
+                            Build has been down for @((DateTime.UtcNow - Model.Job.DeltaBuild.EndedUtc.Value).Humanize())
+                        </div>
+                    }
 
-            <div>
-                @if(Model.Stats.JobDuration.HasValue)
-                {
-                    <text>
-                        Has built over @Model.Stats.JobDuration.Value.Humanize(), from @Model.Stats.StartUtc.Value.ToShortDateString().Humanize() to @Model.Stats.LatestBuild.EndedUtc.Value.ToShortDateString().Humanize().
-                    </text>
-                }
-            </div>
-    
-            <div>
-                @if (Model.Stats.LatestBreakingBuild!= null){ 
-                    <text>Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild), @Model.Stats.LatestBreakingBuild.EndedUtc.Humanize()</text>
-                }
-                @if (Model.Stats.LatestBreakDuration.HasValue){ 
-                    <text>,and that lasted @Model.Stats.LatestBreakDuration.Value.Humanize()</text>
-                }
-            </div>
-    
-            @if(Model.Stats.TotalBuilds == 0)
-            { 
-                <div>
-                    Project hasn't built yet.
-                </div>
-            }
+                    <div>
+                        @if (Model.Stats.JobDuration.HasValue)
+                        {
+                            <text>
+                                Has built over @Model.Stats.JobDuration.Value.Humanize(), from @Model.Stats.StartUtc.Value.ToShortDateString().Humanize() to @Model.Stats.LatestBuild.EndedUtc.Value.ToShortDateString().Humanize().
+                            </text>
+                        }
+                    </div>
 
-            @if(Model.Stats.TotalBuilds > 0)
-            { 
-                <div>
-                    Has built @(Model.Stats.TotalBuilds) times. 
-                    @if(Model.Stats.FailRatePercent == 0)
+                    <div>
+                        @if (Model.Stats.LatestBreakingBuild != null)
+                        {
+                            <text>Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild), @Model.Stats.LatestBreakingBuild.EndedUtc.Humanize()</text>
+                        }
+                        @if (Model.Stats.LatestBreakDuration.HasValue)
+                        {
+                            <text>,and that lasted @Model.Stats.LatestBreakDuration.Value.Humanize()</text>
+                        }
+                    </div>
+
+                    @if (Model.Stats.TotalBuilds == 0)
+                    {
+                        <div>
+                            Project hasn't built yet.
+                        </div>
+                    }
+
+                    @if (Model.Stats.TotalBuilds > 0)
+                    {
+                        <div>
+                            Has built @(Model.Stats.TotalBuilds) times.
+
+                            @if (Model.Stats.FailRatePercent == 0)
+                            {
+                                <text>
+                                    No fails detected.
+                                </text>
+                            }
+
+                            @if (Model.Stats.FailRatePercent > 0)
+                            {
+                                <text>
+                                    Fail rate is @(Model.Stats.FailRatePercent)%, over <a href="/incidents/@Model.Job.Id">@Model.Stats.Incidents incidents</a>. Longest passing streak is __ time_unit. Most frequent error cause is ___.
+                                </text>
+                            }
+                        </div>
+                        <div>
+                            Most frequent builders are ___. Builds on X agents, most frequent one is being ___.
+                        </div>
+                    }
+
+                    @if (Model.Job.BreakBuild != null)
                     {
                         <text>
-                            No fails detected.
-                        </text>
-                    } 
+                            <x-badge class="--danger">Broke</x-badge> @Model.Job.BreakBuild.EndedUtc.Humanize() by
+                            @foreach (BuildInvolvement involvement in Model.Job.BreakBuild.BuildInvolvements.Where(r => r.Blame == Blame.Guilty))
+                            {
+                                @ViewHelpers.BuildInvolvementUserLink(involvement)
+                            }
 
-                    @if(Model.Stats.FailRatePercent > 0)
-                    { 
-                        <text>
-                            Fail rate is @(Model.Stats.FailRatePercent)%, over <a href="/incidents/@Model.Job.Id">@Model.Stats.Incidents incidents</a>. Longest passing streak is __ time_unit. Most frequent error cause is ___.
+                            build <a href="/build/@Model.Job.BreakBuild.Id">@Model.Job.BreakBuild.Identifier</a>
                         </text>
                     }
                 </div>
                 <div>
-                    Most frequent builders are ___. Builds on X agents, most frequent one is being ___.
-                </div>
-            }
+                    <a href="/incidents/@Model.Job.Id">Incidents</a>
+                    @if (Model.Job.Message.Any())
+                    {
+                        <text>
+                            Alerts will be sent to :
 
-            @if (Model.Job.BreakBuild != null)
-            {
-                <text>
-                    <x-badge class="--danger">Broke</x-badge> @Model.Job.BreakBuild.EndedUtc.Humanize() by 
-                    @foreach(BuildInvolvement involvement in Model.Job.BreakBuild.BuildInvolvements.Where(r => r.Blame == Blame.Guilty))
-                    { 
-                        @ViewHelpers.BuildInvolvementUserLink(involvement)
+                            @foreach (MessageHandler message in Model.Job.Message)
+                            {
+                                <div>
+                                    @message.Group via @message.Plugin
+                                </div>
+                            }
+                        </text>
                     }
-
-                    build <a href="/build/@Model.Job.BreakBuild.Id">@Model.Job.BreakBuild.Identifier</a>
-                </text>
-            }
-
+                </div>
+            </x-columns>
         </x-card-pad>
     </x-card>
-
-    @if (Model.Job.Message.Any())
-    {
-        <x-card>
-            <x-card-pad>
-                Alerts will be sent to :
-
-                @foreach(MessageHandler message in Model.Job.Message)
-                {
-                    <div>
-                        @message.Group via @message.Plugin
-                    </div>
-                }
-            </x-card-pad>
-        </x-card>
-    }
 </x-content>
 
 <x-content>
