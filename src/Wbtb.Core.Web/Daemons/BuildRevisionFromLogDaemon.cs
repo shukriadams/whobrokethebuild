@@ -85,7 +85,7 @@ namespace Wbtb.Core.Web
                     continue;
 
                 IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                foreach (Job cfgJob in buildServer.Jobs.Where(j => !string.IsNullOrEmpty(j.RevisionAtBuildRegex)))
+                foreach (Job cfgJob in buildServer.Jobs.Where(j => !string.IsNullOrEmpty(j.SourceServerId) && !string.IsNullOrEmpty(j.RevisionAtBuildRegex)))
                 {
                     try
                     {

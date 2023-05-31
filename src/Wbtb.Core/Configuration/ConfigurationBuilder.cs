@@ -130,15 +130,15 @@ namespace Wbtb.Core
                         continue;
                     }
 
-                    SourceServer sourceServer = dataLayer.GetSourceServerByKey(jobConfig.SourceServer);
-                    if (sourceServer == null)
-                        throw new ConfigurationException($"Failed to create job \"{jobConfig.Key}\", did not find expected source server \"{jobConfig.SourceServer}\"");
+                    SourceServer sourceServer = null;
+                    if (!string.IsNullOrEmpty(jobConfig.SourceServer))
+                        sourceServer = dataLayer.GetSourceServerByKey(jobConfig.SourceServer);
 
                     job = dataLayer.SaveJob(new Job
                     {
                         Key = jobConfig.Key,
                         BuildServerId = buildserver.Id,
-                        SourceServerId = sourceServer.Id,
+                        SourceServerId = sourceServer == null ? null : sourceServer.Id,
                         Name = string.IsNullOrEmpty(jobConfig.Name) ? jobConfig.Key : jobConfig.Name,
                         Description = jobConfig.Description
                     });

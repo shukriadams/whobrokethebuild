@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using System;
 
 namespace Wbtb.Extensions.Data.Postgres
 {
@@ -10,7 +11,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 collection.AddWithValue("id", int.Parse(record.Id));
 
             collection.AddWithValue("buildserverid", int.Parse(record.BuildServerId));
-            collection.AddWithValue("sourceserverId", int.Parse(record.SourceServerId));
+            collection.AddWithValue("sourceserverId", string.IsNullOrEmpty(record.SourceServerId) ? (object)DBNull.Value : int.Parse(record.SourceServerId));
             collection.AddWithValue("key", record.Key);
         }
     }

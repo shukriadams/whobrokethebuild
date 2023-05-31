@@ -64,7 +64,7 @@ namespace Wbtb.Core.Web
                 if (buildServer == null)
                     continue;
 
-                foreach (Job cfgJob in buildServer.Jobs)
+                foreach (Job cfgJob in buildServer.Jobs.Where(j => !string.IsNullOrEmpty(j.SourceServerId)))
                 {
                     try
                     {

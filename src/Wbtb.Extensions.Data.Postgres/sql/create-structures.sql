@@ -305,7 +305,7 @@ CREATE TABLE public."job"
     id integer NOT NULL DEFAULT nextval('"job_id_seq"'::regclass),
     "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
     buildserverid integer NOT NULL DEFAULT nextval('"job_buildserverid_seq"'::regclass),
-    sourceserverid integer NOT NULL DEFAULT nextval('"job_sourceserverid_seq"'::regclass),
+    sourceserverid integer DEFAULT nextval('"job_sourceserverid_seq"'::regclass),
     CONSTRAINT "job_pkey" PRIMARY KEY (id),
     CONSTRAINT "job_id_unique" UNIQUE ("key", buildserverid),
     CONSTRAINT "job_buildserverid_fk" FOREIGN KEY (buildserverid)

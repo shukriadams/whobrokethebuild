@@ -459,13 +459,9 @@ namespace Wbtb.Core
 
                 foreach (Job jobConfig in buildServer.Jobs)
                 {
-                    // ensure that job defines a source server 
-                    if (string.IsNullOrEmpty(jobConfig.SourceServer))
-                        throw new ConfigurationException($"Job \"{jobConfig.Key}\" has no SourceServer property - a job must point to a sourceserver plugin that its build content uses.");
-
                     // ensure that job's source server exists
                     // todo : how to ensure plugin found is of type source server?
-                    if (!config.SourceServers.Any(r => r.Key == jobConfig.SourceServer))
+                    if (!string.IsNullOrEmpty(jobConfig.SourceServer) && !config.SourceServers.Any(r => r.Key == jobConfig.SourceServer))
                         throw new ConfigurationException($"The SourceControlPlugin \"{jobConfig.SourceServer}\" in job \"{jobConfig.Key}\" is not defined as a plugin, or is not enabled.");
 
                     // if job name isn't set, revert to key as name

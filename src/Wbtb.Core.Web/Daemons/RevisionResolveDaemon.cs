@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -81,7 +82,7 @@ namespace Wbtb.Core.Web
                     return;
                 }
 
-                foreach (Job job in buildServer.Jobs)
+                foreach (Job job in buildServer.Jobs.Where(j => !string.IsNullOrEmpty(j.SourceServerId)))
                 {
                     try
                     {
