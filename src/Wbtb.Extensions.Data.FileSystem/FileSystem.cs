@@ -184,6 +184,11 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Build { };
         }
 
+        public Build GetDeltaBuildAtBuild(Build build) 
+        {
+            return new Build { };
+        }
+
         public IEnumerable<string> GetIncidentIdsForJob(Job job)
         {
             return new string[] { };

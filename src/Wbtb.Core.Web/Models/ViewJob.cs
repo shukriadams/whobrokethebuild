@@ -8,13 +8,11 @@ namespace Wbtb.Core.Web
         /// Carrier property, must be set at runtime. 
         /// </summary>
         public Build LatestBuild { get; set; }
-        
-        public ViewBuild BreakBuild { get; set; }
 
         /// <summary>
         /// Last build in job to set delta. can be null.
         /// </summary>
-        public Build DeltaBuild { get; set; }
+        public ViewBuild DeltaBuild { get; set; }
 
         public static ViewJob Copy(Job job)
         {

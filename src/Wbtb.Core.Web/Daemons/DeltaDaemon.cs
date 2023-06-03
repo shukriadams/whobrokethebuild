@@ -1,13 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using Wbtb.Core.Common;
+using YamlDotNet.Serialization.NodeTypeResolvers;
 
 namespace Wbtb.Core.Web
 {
-    /// <summary>
-    /// Runs import build and import log on build systems.
-    /// </summary>
-    public class BuildStatusAlertDaemon : IWebDaemon
+    public class DeltaDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -22,12 +20,11 @@ namespace Wbtb.Core.Web
         private readonly BuildLevelPluginHelper _buildLevelPluginHelper;
 
         private readonly SimpleDI _di;
-
         #endregion
 
         #region CTORS
 
-        public BuildStatusAlertDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public DeltaDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
@@ -88,20 +85,16 @@ namespace Wbtb.Core.Web
                     try
                     {
                         Job thisjob = dataLayer.GetJobByKey(job.Key);
-
-                        // handle current state of game
-                        Build latestBuild = dataLayer.GetLatestBuildByJob(thisjob); 
+                        Build latestBuild = dataLayer.GetLatestBuildByJob(thisjob);
                         Build previousDeltaBuild = dataLayer.GetLastJobDelta(thisjob.Id);
                         bool alertFailing = false;
                         bool alertPassing = false;
 
-                        // no builds for this job yet
-                        if (latestBuild == null)
+                        // build delta is correct, ignore
+                        if (latestBuild != null && previousDeltaBuild != null && latestBuild.Status == previousDeltaBuild.Status) 
                             continue;
 
-                        // ignore alerts on failing builds that don't have incidents yet, they need processing by the incident assign daemon first
-                        if (latestBuild.Status != BuildStatus.Passed && latestBuild.IncidentBuildId == null)
-                            continue;
+                        Build deltaLookup = dataLayer.GetDeltaBuildAtBuild(latestBuild);
 
                         if (previousDeltaBuild == null)
                         {
@@ -114,15 +107,15 @@ namespace Wbtb.Core.Web
                             if (latestBuild.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
                             {
                                 // build has gone from passing to failing
-                                _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestBuild);
                                 dataLayer.SaveJobDelta(latestBuild);
+                                _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestBuild);
                                 alertFailing = true;
                             }
                             else if (latestBuild.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
                             {
                                 // build has gone from failing to passing
-                                _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, latestBuild);
                                 dataLayer.SaveJobDelta(latestBuild);
+                                _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, latestBuild);
                                 alertPassing = true;
                             }
                         }
@@ -135,16 +128,20 @@ namespace Wbtb.Core.Web
                             }
 
                         if (alertPassing)
+                        {
+                            Build incidentCausingBuild = dataLayer.GetBuildById(previousDeltaBuild.IncidentBuildId);
+
                             foreach (MessageHandler alert in job.Message)
                             {
                                 IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
-                                messagePlugin.AlertPassing(alert, previousDeltaBuild, latestBuild);
+                                messagePlugin.AlertPassing(alert, incidentCausingBuild, latestBuild);
                             }
+                        }
 
                     }
                     catch (Exception ex)
                     {
-                        _log.LogError($"Unexpected error trying to import jobs/logs for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
+                        _log.LogError($"Unexpected error trying to import builds for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
                     }
                 } //foreach job
             } // foreach buildserver

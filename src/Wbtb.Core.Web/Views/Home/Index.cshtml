@@ -39,23 +39,22 @@
                             <text>started @job.LatestBuild.StartedUtc.Humanize()</text>
                         }
 
-                        @if (job.BreakBuild != null)
+                        @if (job.DeltaBuild != null && job.DeltaBuild.Status == BuildStatus.Failed)
                         {
                             <div>
                                 Broken  
-                                @if (job.BreakBuild.Id != job.LatestBuild.Id) 
+                                @if (job.DeltaBuild.Id != job.LatestBuild.Id) 
                                 { 
-                                    <a href="/build/@job.BreakBuild.Id">@job.BreakBuild.Identifier </a> 
-
-                                    @if(job.BreakBuild.EndedUtc.HasValue)
+                                    <text>by</text> <a href="/build/@job.DeltaBuild.Id">@job.DeltaBuild.Identifier </a> 
+                                    @if(job.DeltaBuild.EndedUtc.HasValue)
                                     {
                                         <text>
-                                            ago > @job.BreakBuild.EndedUtc.Value
+                                            @job.DeltaBuild.EndedUtc.Value.Humanize()
                                         </text>
                                     }
                                 }
 
-                                @foreach(BuildInvolvement inv in job.BreakBuild.BuildInvolvements)
+                                @foreach(BuildInvolvement inv in job.DeltaBuild.BuildInvolvements)
                                 {
                                     @if (inv.Blame == Blame.Guilty)
                                     {

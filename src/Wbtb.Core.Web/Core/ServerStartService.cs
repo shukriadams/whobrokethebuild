@@ -30,6 +30,8 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, LogParseDaemon>(null, true);
                     di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(null, true);
                     di.Register<IWebDaemon, IncidentAssignDaemon>(null, true);
+                    di.Register<IWebDaemon, DeltaDaemon>(null, true);
+                    
                     di.RegisterFactory<IHubContext, HubFactory>();
                     di.Register<BuildLevelPluginHelper, BuildLevelPluginHelper>();
 

@@ -127,6 +127,8 @@ namespace Wbtb.Core.Common
 
         IEnumerable<Build> GetFailingBuildsWithoutIncident(Job job);
 
+        Build GetDeltaBuildAtBuild(Build build);
+
         Build GetLatestBuildByJob(Job job);
 
         /// <summary>

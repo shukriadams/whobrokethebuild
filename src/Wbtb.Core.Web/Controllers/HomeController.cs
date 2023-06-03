@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Wbtb.Core.Common;
 using Wbtb.Extensions.Auth.ActiveDirectory;
 using Wbtb.Extensions.Messaging.Slack;
-using Microsoft.AspNetCore.SignalR;
-using System;
-using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Core.Web.Controllers
 {
@@ -62,8 +62,7 @@ namespace Wbtb.Core.Web.Controllers
             // todo : replace with redirect to /buildserver/{id?}
             BuildServer buildServer = dataLayer.GetBuildServers().FirstOrDefault();
             IEnumerable<Job> jobs = new List<Job>();
-            IList<ViewJob> viewjobs = new List<ViewJob>();
-
+            IList<ViewJob> tempjobs = new List<ViewJob>();
             JobsPageModel model = new JobsPageModel();
 
             if (buildServer != null)
@@ -72,13 +71,19 @@ namespace Wbtb.Core.Web.Controllers
             foreach(Job job in jobs)
             {
                 ViewJob v = ViewJob.Copy(job);
-                viewjobs.Add(v);
+                tempjobs.Add(v);
                 v.LatestBuild = dataLayer.GetLatestBuildByJob(job);
-                v.BreakBuild = ViewBuild.Copy(dataLayer.GetBreakingBuildByJob(job));
+                v.DeltaBuild = ViewBuild.Copy(dataLayer.GetLastJobDelta(job.Id));
 
-                if (v.BreakBuild != null)
-                    v.BreakBuild.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(v.BreakBuild.Id));
+                if (v.DeltaBuild != null)
+                    v.DeltaBuild.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(v.DeltaBuild.Id));
             }
+
+            IList<ViewJob> viewjobs = new List<ViewJob>();
+            viewjobs = viewjobs.Concat(tempjobs.Where(j => j.LatestBuild != null && j.LatestBuild.Status == BuildStatus.Failed)).ToList();
+            viewjobs = viewjobs.Concat(tempjobs.Where(j => j.LatestBuild != null && j.LatestBuild.Status == BuildStatus.InProgress)).ToList();
+            viewjobs = viewjobs.Concat(tempjobs.Where(j => j.LatestBuild != null && j.LatestBuild.Status == BuildStatus.Passed)).ToList();
+            viewjobs = viewjobs.Concat(tempjobs.Where(j => j.LatestBuild == null || (j.LatestBuild.Status != BuildStatus.Failed && j.LatestBuild.Status != BuildStatus.InProgress && j.LatestBuild.Status != BuildStatus.Passed))).ToList();
 
             model.Jobs = viewjobs;
             model.Title = "my jobs";
@@ -165,8 +170,7 @@ namespace Wbtb.Core.Web.Controllers
                 return Responses.NotFoundError($"Job {jobid} does not exist");
 
             model.Job.LatestBuild = dataLayer.GetLatestBuildByJob(model.Job);
-            model.Job.BreakBuild = ViewBuild.Copy(dataLayer.GetBreakingBuildByJob(model.Job));
-            model.Job.DeltaBuild = dataLayer.GetLastJobDelta(model.Job.Id);
+            model.Job.DeltaBuild = ViewBuild.Copy(dataLayer.GetLastJobDelta(model.Job.Id));
             model.Stats = dataLayer.GetJobStats(model.Job);
             model.BaseUrl = $"/job/{jobid}";
             model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByJob(jobid, pageIndex, _config.StandardPageSize));

@@ -499,6 +499,17 @@ namespace Wbtb.Core.Common
             });
         }
 
+        Build IDataLayerPlugin.GetDeltaBuildAtBuild(Build build)
+        {
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            {
+                FunctionName = "GetDeltaBuildAtBuild",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "build", Value = build }
+                }
+            });
+        }
+
         Build IDataLayerPlugin.GetFirstPassingBuildAfterBuild(Build build)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs

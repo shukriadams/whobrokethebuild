@@ -4,15 +4,23 @@
     }
 }
 
+.jobsList-statusFlagContainer {
+    flex-grow:unset;
+}
+
 .jobsList-statusFlag {
     width: var(--bootstrip-card-strokeWidth);
     flex-grow: inherit;
     flex-basis: inherit;
     height: 100%;
     margin-right: 32px;
+    position: absolute;
+    height: 54px;
+    width: 10px;
+    left: -8px;
+    top: -28px;
 
     &.jobsList-statusFlag--broken {
-        
     }
 
     &.jobsList-statusFlag--passing {
@@ -20,13 +28,12 @@
     }
 
     &.jobsList-statusFlag--broken {
-        background-color: var(--bootstrip-color-punch);
+        background-color: var(--bootstrip-color-crownOfThorns);
     }
 
     &.jobsList-statusFlag--building {
         background-color: var(--bootstrip-color-corn);
     }
-
 }
 
 .jobsList-buildTitle {

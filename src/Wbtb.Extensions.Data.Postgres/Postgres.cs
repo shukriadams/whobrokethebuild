@@ -1073,6 +1073,49 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
+        public Build GetDeltaBuildAtBuild(Build build)
+        {
+            // get first build in job that has the same status as referenceBuild
+            string query = @"
+                SELECT
+                    *
+                FROM
+                    build
+                WHERE
+                    jobid = @jobid
+                    AND status = @status
+                    AND id < @buildid
+                    AND id > (
+                        SELECT
+                            id
+                        FROM
+                            build
+                        WHERE
+                            jobid = @jobid
+                            AND NOT status = @status
+                            AND id < @buildid
+                        ORDER BY
+                            startedutc DESC
+                        LIMIT
+                            1
+                    )
+                ORDER BY
+                    startedutc ASC
+                LIMIT
+                    1";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            {
+                cmd.Parameters.AddWithValue("jobid", int.Parse(build.JobId));
+                cmd.Parameters.AddWithValue("buildid", int.Parse(build.Id));
+                cmd.Parameters.AddWithValue("status", (int)build.Status);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new BuildConvert().ToCommon(reader);
+            }
+        }
+
         public Build GetFirstPassingBuildAfterBuild(Build build)
         {
             string query = @"
