@@ -76,11 +76,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         public string GetBuildUrl(Core.Common.BuildServer contextServer, Build build)
         {
-            string host = contextServer.Config.First(r => r.Key == "Host").Value.ToString();
-
-            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-            Job job = datalayer.GetJobById(build.JobId);
-            return new Uri(new Uri(host), $"job/{job.Key}/{build.Identifier}").ToString();
+            return string.Empty;
         }
 
 

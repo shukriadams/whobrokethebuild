@@ -1084,7 +1084,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     jobid = @jobid
                     AND status = @status
-                    AND id < @buildid
+                    AND id <= @buildid
                     AND id > (
                         SELECT
                             id

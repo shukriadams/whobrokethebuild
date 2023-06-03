@@ -127,6 +127,11 @@ namespace Wbtb.Core.Common
 
         IEnumerable<Build> GetFailingBuildsWithoutIncident(Job job);
 
+        /// <summary>
+        /// Gets the build started the delta relative to a given build. Returns the given build if that build started the delta. 
+        /// </summary>
+        /// <param name="build"></param>
+        /// <returns></returns>
         Build GetDeltaBuildAtBuild(Build build);
 
         Build GetLatestBuildByJob(Job job);
