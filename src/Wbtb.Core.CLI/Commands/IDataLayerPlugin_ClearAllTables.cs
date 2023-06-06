@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -21,8 +18,8 @@ namespace Wbtb.Core.CLI
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IDataLayerPlugin dataLayerPlugin = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
-            dataLayerPlugin.ClearAllTables();
-            Console.WriteLine("Tables cleared");
+            int count = dataLayerPlugin.ClearAllTables();
+            Console.WriteLine($"Tables cleared, {count} records removed.");
         }
     }
 }

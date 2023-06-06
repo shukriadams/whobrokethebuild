@@ -90,33 +90,43 @@ namespace Wbtb.Core.Web
                         bool alertFailing = false;
                         bool alertPassing = false;
 
-                        // build delta is correct, ignore
-                        if (latestBuild != null && previousDeltaBuild != null && latestBuild.Status == previousDeltaBuild.Status) 
+                        // not built yet
+                        if (latestBuild == null)
                             continue;
 
                         Build deltaLookup = dataLayer.GetDeltaBuildAtBuild(latestBuild);
 
-                        if (previousDeltaBuild == null)
+                        // build delta is correct, ignore
+                        if (previousDeltaBuild != null && deltaLookup != null && previousDeltaBuild.Id == deltaLookup.Id)
+                            continue;
+
+                        Build alertBuild = null;
+                        if (previousDeltaBuild == null && deltaLookup != null)
                         {
-                            // this build is first, so it is the first delta
-                            dataLayer.SaveJobDelta(latestBuild);
-                            if (latestBuild.Status == BuildStatus.Failed)
+                            // no previous delta, so set delta to latest build
+                            dataLayer.SaveJobDelta(deltaLookup);
+                            if (deltaLookup.Status == BuildStatus.Failed) { 
                                 alertFailing = true;
+                                alertBuild = deltaLookup;
+                            }
                         }
-                        else
+
+                        if (previousDeltaBuild != null && deltaLookup != null)
                         {
-                            if (latestBuild.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
+                            alertBuild = deltaLookup;
+
+                            if (deltaLookup.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
                             {
                                 // build has gone from passing to failing
-                                dataLayer.SaveJobDelta(latestBuild);
-                                _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestBuild);
+                                dataLayer.SaveJobDelta(deltaLookup);
+                                _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaLookup);
                                 alertFailing = true;
                             }
-                            else if (latestBuild.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
+                            else if (deltaLookup.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
                             {
                                 // build has gone from failing to passing
-                                dataLayer.SaveJobDelta(latestBuild);
-                                _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, latestBuild);
+                                dataLayer.SaveJobDelta(deltaLookup);
+                                _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, deltaLookup);
                                 alertPassing = true;
                             }
                         }
@@ -125,7 +135,7 @@ namespace Wbtb.Core.Web
                             foreach (MessageHandler alert in job.Message)
                             {
                                 IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
-                                messagePlugin.AlertBreaking(alert, latestBuild);
+                                messagePlugin.AlertBreaking(alert, alertBuild);
                             }
 
                         if (alertPassing)
@@ -135,7 +145,7 @@ namespace Wbtb.Core.Web
                             foreach (MessageHandler alert in job.Message)
                             {
                                 IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
-                                messagePlugin.AlertPassing(alert, incidentCausingBuild, latestBuild);
+                                messagePlugin.AlertPassing(alert, incidentCausingBuild, alertBuild);
                             }
                         }
 

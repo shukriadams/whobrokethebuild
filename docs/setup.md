@@ -48,6 +48,13 @@ Jobs are tied to a build server. A job must have a unique `Key`, as well as vali
         -   Key: Project_Ironbird
             SourceServer: myperforce
 
+### Detailed job settings
+
+    ImportCount : <int>. Default is 100.
+    
+    Number of builds to import for a given job.
+
+
 ### Optional Job properties
 
 #### Image

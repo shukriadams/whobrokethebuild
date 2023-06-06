@@ -1092,6 +1092,7 @@ namespace Wbtb.Extensions.Data.Postgres
                             build
                         WHERE
                             jobid = @jobid
+                            AND (status = @failing OR status = @passing)
                             AND NOT status = @status
                             AND id < @buildid
                         ORDER BY
@@ -1110,6 +1111,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 cmd.Parameters.AddWithValue("jobid", int.Parse(build.JobId));
                 cmd.Parameters.AddWithValue("buildid", int.Parse(build.Id));
                 cmd.Parameters.AddWithValue("status", (int)build.Status);
+                cmd.Parameters.AddWithValue("passing", (int)BuildStatus.Passed);
+                cmd.Parameters.AddWithValue("failing", (int)BuildStatus.Failed);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new BuildConvert().ToCommon(reader);

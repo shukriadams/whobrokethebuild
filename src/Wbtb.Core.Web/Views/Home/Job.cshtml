@@ -80,7 +80,7 @@
                     @if (Model.Job.DeltaBuild != null && Model.Job.DeltaBuild.Status == BuildStatus.Failed)
                     {
                         <text>
-                            <x-badge class="--danger">Broke</x-badge> @Model.Job.DeltaBuild.EndedUtc.Humanize() by
+                            @Model.Job.DeltaBuild.EndedUtc.Humanize() by
                             @foreach (BuildInvolvement involvement in Model.Job.DeltaBuild.BuildInvolvements.Where(r => r.Blame == Blame.Guilty))
                             {
                                 @ViewHelpers.BuildInvolvementUserLink(involvement)
