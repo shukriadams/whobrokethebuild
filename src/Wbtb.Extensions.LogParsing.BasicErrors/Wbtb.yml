@@ -1,0 +1,8 @@
+﻿Key: Wbtb.LogParsing.BasicErrors
+Runtime: dotnet
+Main: Wbtb.Extensions.LogParsing.BasicErrors.dll
+Interface: Wbtb.Core.Common.ILogParser
+Assembly: Wbtb.Extensions.LogParsing.BasicErrors
+Concrete: Wbtb.Extensions.LogParsing.BasicErrors.BasicErrors
+Version: 0.0.1
+APIVersion: 0.0.1

@@ -137,19 +137,60 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             if (storeItem != null) 
                 return null;
 
-            string message = $"Build for {job.Name} broke at #{incidentBuild.Identifier}.";
+            string message = $"Build broke at #{incidentBuild.Identifier}.";
+
+            // try to create an error message from log parser results
+            string errors = string.Empty;
+            if (parseResults.Any())
+            {
+                // get parse results in order log parsers are defined, exit on first that has produced result
+                foreach (string parserKey in job.LogParserPlugins)
+                {
+                    BuildLogParseResult parseResult = parseResults.Where(p => p.LogParserPlugin == parserKey).FirstOrDefault();
+                    if (parseResult == null || string.IsNullOrEmpty(parseResult.ParsedContent))
+                        continue;
+
+                    if (parseResult.ParsedContent.Contains("<x-logParseLine>"))
+                    {
+                        errors += "```";
+                        System.Text.RegularExpressions.MatchCollection linesLookup = new System.Text.RegularExpressions.Regex("<x-logParseLine>(.+?)<\\/x-logParseLine>", System.Text.RegularExpressions.RegexOptions.Multiline).Matches(parseResult.ParsedContent);
+                        foreach (System.Text.RegularExpressions.Match line in linesLookup)
+                        {
+                            System.Text.RegularExpressions.MatchCollection itemsLookup = new System.Text.RegularExpressions.Regex("<x-logParseItem>(.+?)<\\/x-logParseItem>", System.Text.RegularExpressions.RegexOptions.Multiline).Matches(line.Value);
+                            foreach (System.Text.RegularExpressions.Match item in itemsLookup)
+                                if (item.Groups.Count > 0)
+                                    errors += $"{item.Groups[1].Value}";
+
+                            errors += "\n";
+                        }
+                        errors += "```";
+                    }
+                    else
+                    {
+                        errors += $"```{parseResult.ParsedContent}```";
+                    }
+
+                    break;
+                }
+            }
+
+            if (errors.Length > 200)
+                errors = $"{errors.Substring(0, 200)}...\n\ntruncated, click link for full";
+
             dynamic attachment = new JObject();
+            attachment.title = $"{job.Name} is DOWN";
             attachment.fallback = " ";
-            attachment.text = message;
             attachment.color = "#D92424";
-            
+            attachment.text = message + errors;
+            attachment.title_link = _urlHelper.Build(incidentBuild);
+
             var attachments = new JArray(1);
             attachments[0] = attachment;
 
-            data["title_link"] = _urlHelper.Build(incidentBuild);
+            data["token"] = token;
             data["channel"] = slackId;
-            data["text"] = message;
-            data["attachments"] = JsonConvert.SerializeObject(attachments);
+            data["text"] = " ";
+            data["attachments"] = Convert.ToString(attachments);
 
             dynamic response = ExecAPI("chat.postMessage", data, new
             {
@@ -308,7 +349,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             // put plugin into sandbox mode, write message to file system
             string pluginDataDirectory = Path.Combine(_config.PluginDataPersistDirectory, this.ContextPluginConfig.Manifest.Key);
             Directory.CreateDirectory(pluginDataDirectory);
-            File.WriteAllText(Path.Combine(pluginDataDirectory, $"{DateTime.UtcNow.Ticks}.txt"), output);
+            File.WriteAllText(Path.Combine(pluginDataDirectory, $"{apiFragment}-{DateTime.UtcNow.Ticks}.txt"), output);
 
             return forcedResponse;
         }

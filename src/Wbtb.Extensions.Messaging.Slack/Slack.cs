@@ -142,38 +142,50 @@ namespace Wbtb.Extensions.Messaging.Slack
             IEnumerable<BuildLogParseResult> parseResults = dataLayer.GetBuildLogParseResultsByBuildId(incidentBuild.Id);
 
             // check if alert has already been sent
-            
-            
             string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
             StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
             if (storeItem != null)
                 return null;
 
             string message = $"Build broke at #{incidentBuild.Identifier}.";
+            
+            // try to create an error message from log parser results
             string errors = string.Empty;
             if (parseResults.Any())
-                foreach (BuildLogParseResult parseResult in parseResults.Where(p => !string.IsNullOrEmpty(p.ParsedContent))) 
+            {
+                // get parse results in order log parsers are defined, exit on first that has produced result
+                foreach(string parserKey in job.LogParserPlugins) 
                 {
+                    BuildLogParseResult parseResult = parseResults.Where(p => p.LogParserPlugin == parserKey).FirstOrDefault();
+                    if (parseResult == null || string.IsNullOrEmpty(parseResult.ParsedContent))
+                        continue;
+
                     if (parseResult.ParsedContent.Contains("<x-logParseLine>"))
                     {
                         errors += "```";
                         System.Text.RegularExpressions.MatchCollection linesLookup = new System.Text.RegularExpressions.Regex("<x-logParseLine>(.+?)<\\/x-logParseLine>", System.Text.RegularExpressions.RegexOptions.Multiline).Matches(parseResult.ParsedContent);
-                        foreach (System.Text.RegularExpressions.Match line in linesLookup) 
+                        foreach (System.Text.RegularExpressions.Match line in linesLookup)
                         {
                             System.Text.RegularExpressions.MatchCollection itemsLookup = new System.Text.RegularExpressions.Regex("<x-logParseItem>(.+?)<\\/x-logParseItem>", System.Text.RegularExpressions.RegexOptions.Multiline).Matches(line.Value);
-                            foreach(System.Text.RegularExpressions.Match item in itemsLookup)
+                            foreach (System.Text.RegularExpressions.Match item in itemsLookup)
                                 if (item.Groups.Count > 0)
                                     errors += $"{item.Groups[1].Value}";
-                            
+
                             errors += "\n";
                         }
                         errors += "```";
                     }
-                    else 
+                    else
                     {
                         errors += $"```{parseResult.ParsedContent}```";
                     }
+
+                    break;
                 }
+            }
+
+            if (errors.Length > 200)
+                errors = $"{errors.Substring(0, 200)}...\n\ntruncated, click link for full";
 
             dynamic attachment = new JObject();
             attachment.title = $"{job.Name} is DOWN";
@@ -184,7 +196,6 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             var attachments = new JArray(1);
             attachments[0] = attachment;
-
 
             data["token"] = token;
             data["channel"] = slackId;

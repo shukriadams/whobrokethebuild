@@ -107,7 +107,8 @@ namespace Wbtb.Core.Web
                         {
                             // this build is first, so it is the first delta
                             dataLayer.SaveJobDelta(latestBuild);
-                            alertFailing = true;
+                            if (latestBuild.Status == BuildStatus.Failed)
+                                alertFailing = true;
                         }
                         else
                         {
