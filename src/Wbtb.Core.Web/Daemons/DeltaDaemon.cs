@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using Wbtb.Core.Common;
-using YamlDotNet.Serialization.NodeTypeResolvers;
 
 namespace Wbtb.Core.Web
 {

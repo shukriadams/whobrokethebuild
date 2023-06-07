@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -141,19 +139,47 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Job job = dataLayer.GetJobById(incidentBuild.JobId);
+            IEnumerable<BuildLogParseResult> parseResults = dataLayer.GetBuildLogParseResultsByBuildId(incidentBuild.Id);
 
             // check if alert has already been sent
+            
+            
             string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
             StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
             if (storeItem != null)
                 return null;
 
             string message = $"Build broke at #{incidentBuild.Identifier}.";
+            string errors = string.Empty;
+            if (parseResults.Any())
+                foreach (BuildLogParseResult parseResult in parseResults.Where(p => !string.IsNullOrEmpty(p.ParsedContent))) 
+                {
+                    if (parseResult.ParsedContent.Contains("<x-logParseLine>"))
+                    {
+                        errors += "```";
+                        System.Text.RegularExpressions.MatchCollection linesLookup = new System.Text.RegularExpressions.Regex("<x-logParseLine>(.+?)<\\/x-logParseLine>", System.Text.RegularExpressions.RegexOptions.Multiline).Matches(parseResult.ParsedContent);
+                        foreach (System.Text.RegularExpressions.Match line in linesLookup) 
+                        {
+                            System.Text.RegularExpressions.MatchCollection itemsLookup = new System.Text.RegularExpressions.Regex("<x-logParseItem>(.+?)<\\/x-logParseItem>", System.Text.RegularExpressions.RegexOptions.Multiline).Matches(line.Value);
+                            foreach(System.Text.RegularExpressions.Match item in itemsLookup)
+                                if (item.Groups.Count > 0)
+                                    errors += $"{item.Groups[1].Value}";
+                            
+                            errors += "\n";
+                        }
+                        errors += "```";
+                    }
+                    else 
+                    {
+                        errors += $"```{parseResult.ParsedContent}```";
+                    }
+                }
+
             dynamic attachment = new JObject();
             attachment.title = $"{job.Name} is DOWN";
             attachment.fallback = " ";
             attachment.color = "#D92424";
-            attachment.text = message;
+            attachment.text = message+errors;
             attachment.title_link = _urlHelper.Build(incidentBuild);
 
             var attachments = new JArray(1);

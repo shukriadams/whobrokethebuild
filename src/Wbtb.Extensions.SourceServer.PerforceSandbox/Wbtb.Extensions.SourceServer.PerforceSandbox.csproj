@@ -9,6 +9,8 @@
     <None Remove="JSON\Revisions\56330.json" />
     <None Remove="JSON\Revisions\56331.json" />
     <None Remove="JSON\Revisions\56332.json" />
+    <None Remove="JSON\Revisions\56333.json" />
+    <None Remove="JSON\Revisions\56334.json" />
     <None Remove="Wbtb.yml" />
   </ItemGroup>
 
@@ -16,6 +18,8 @@
     <EmbeddedResource Include="JSON\Revisions\56330.json" />
     <EmbeddedResource Include="JSON\Revisions\56332.json" />
     <EmbeddedResource Include="JSON\Revisions\56331.json" />
+    <EmbeddedResource Include="JSON\Revisions\56333.json" />
+    <EmbeddedResource Include="JSON\Revisions\56334.json" />
     <EmbeddedResource Include="Wbtb.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>

@@ -129,6 +129,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
 
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Job job = dataLayer.GetJobById(incidentBuild.JobId);
+            IEnumerable<BuildLogParseResult> parseResults = dataLayer.GetBuildLogParseResultsByBuildId(incidentBuild.Id);
 
             // check if alert has already been sent
             string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
@@ -140,11 +141,15 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             dynamic attachment = new JObject();
             attachment.fallback = " ";
             attachment.text = message;
+            attachment.color = "#D92424";
+            
+            var attachments = new JArray(1);
+            attachments[0] = attachment;
 
             data["title_link"] = _urlHelper.Build(incidentBuild);
             data["channel"] = slackId;
             data["text"] = message;
-            data["attachments"] = JsonConvert.SerializeObject(attachment);
+            data["attachments"] = JsonConvert.SerializeObject(attachments);
 
             dynamic response = ExecAPI("chat.postMessage", data, new
             {
@@ -244,13 +249,17 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             dynamic attachment = new JObject();
             attachment.fallback = " ";
             attachment.text = message;
+            attachment.color = "#007a5a";
+
+            var attachments = new JArray(1);
+            attachments[0] = attachment;
 
             data["title_link"] = _urlHelper.Build(fixingBuild);
             data["token"] = token;
             data["ts"] = (string)storeItemPayload.ts;
             data["channel"] = slackId;
             data["text"] = message;
-            data["attachments"] = JsonConvert.SerializeObject(attachment);
+            data["attachments"] = JsonConvert.SerializeObject(attachments);
 
             dynamic response = ExecAPI("chat.update", data, new
             {

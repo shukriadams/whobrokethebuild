@@ -32,7 +32,7 @@ To explicitly inform a user or group on every build regression/fix, using the fo
             Message:
             - Plugin: myslack
               User: some_user_key
-            - Plugin: myslackchannel
+            - Plugin: myslack
               Group: some_group_key
 
 Note the `IsGroup: true` for targeting groups. 

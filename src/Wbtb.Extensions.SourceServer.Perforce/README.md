@@ -19,5 +19,14 @@ Plugin for connecting Wbtb to a Perforce server.
     BuildServers:
     -   Jobs:
         - SourceServer: myPerforce
+
+## Defining users
+
+To add a user MyUser with a Perforce username `p4_myUser` :
           
+    Users:
+    -   Key: myUser
+        SourceServerIdentities:
+            -   SourceServerKey: myPerforce
+                Name: p4_myUser
 

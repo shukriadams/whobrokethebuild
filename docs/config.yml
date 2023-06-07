@@ -1,0 +1,52 @@
+# A copy-paste config to get a dev server up and running immediately.
+
+Address: http://myserver.local
+DaemonInterval: 10
+
+Plugins: 
+-   Key: Postgres
+    Path: Wbtb.Extensions.Data.Postgres
+    Config:
+    -   User: postgres
+    -   Host: <IP>
+    -   Password: <PWD>
+    -   Database: <DB>
+-   Key: jenkinsSandbox
+    Path : Wbtb.Extensions.BuildServer.JenkinsSandbox
+-   Key: p4Sandbox
+    Path: Wbtb.Extensions.SourceServer.PerforceSandbox
+-   Key: CppParser
+    Path: Wbtb.Extensions.LogParsing.Cpp
+-   Key: myslack
+    Path: Wbtb.Extensions.Messaging.SlackSandbox
+    Config:
+    -   Token: mytoken
+
+
+Users:
+-   Key: Ug
+    SourceServerIdentities:
+    -   SourceServerKey: myperforce
+        Name: Ug
+Groups:
+  - Key: mygroup
+    Message:
+    -   Plugin: myslack
+        SlackId: myslackchannelid
+        IsGroup: true
+
+SourceServers:
+-   Key: myperforce
+    Plugin: p4Sandbox
+
+BuildServers:
+-   Key: MyJenkins
+    Plugin: jenkinsSandbox
+    Jobs:
+    -   Key: Project_Ironbird
+        SourceServer: myperforce
+        LogParserPlugins: 
+        -   CppParser
+        Message:
+        -   Plugin: myslack
+            Group: mygroup

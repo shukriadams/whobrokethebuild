@@ -1,0 +1,19 @@
+﻿{
+  "Revision": "56333",
+  "Workspace": "Ug's workspace",
+  "Date": "2022-01-01T12:00",
+  "User": "Ug",
+  "Description": "some changes",
+  "Files": [
+    {
+      "File": "text1.txt",
+      "Change": "add",
+      "Differences": [ ">> some line", "<< some other line" ]
+    },
+    {
+      "File": "text3.txt",
+      "Change": "edit",
+      "Differences": [ ">> a line", "line 2", "line 3" ]
+    }
+  ]
+}
