@@ -71,7 +71,7 @@
                             @if (Model.Stats.FailRatePercent > 0)
                             {
                                 <text>
-                                    Fail rate is @(Model.Stats.FailRatePercent)%, over <a href="/incidents/@Model.Job.Id">@Model.Stats.Incidents incidents</a>. Longest passing streak is __ time_unit.
+                                    Fail rate is @(Model.Stats.FailRatePercent)%, over <a href="/incidents/@Model.Job.Id">@Model.Stats.Incidents incidents</a>.
                                 </text>
                             }
                         </div>

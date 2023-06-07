@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -151,6 +152,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             dynamic attachment = new JObject();
             attachment.title = $"{job.Name} is DOWN";
             attachment.fallback = " ";
+            attachment.color = "#D92424";
             attachment.text = message;
             attachment.title_link = _urlHelper.Build(incidentBuild);
 
@@ -252,6 +254,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             dynamic attachment = new JObject();
             attachment.title = $"{job.Name} is working again";
             attachment.fallback = " ";
+            attachment.color = "#007a5a";
             attachment.text = message;
             attachment["title_link"] = _urlHelper.Build(fixingBuild);
 
