@@ -30,6 +30,7 @@
     <ProjectReference Include="..\Wbtb.Extensions.BuildServer.Jenkins\Wbtb.Extensions.BuildServer.Jenkins.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.Data.FileSystem\Wbtb.Extensions.Data.FileSystem.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.Data.Postgres\Wbtb.Extensions.Data.Postgres.csproj" />
+    <ProjectReference Include="..\Wbtb.Extensions.LogParsing.BasicErrors\Wbtb.Extensions.LogParsing.BasicErrors.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.LogParsing.Cpp\Wbtb.Extensions.LogParsing.Cpp.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.LogParsing.JenkinsSelfFailing\Wbtb.Extensions.LogParsing.JenkinsSelfFailing.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.LogParsing.Unreal\Wbtb.Extensions.LogParsing.Unreal.csproj" />

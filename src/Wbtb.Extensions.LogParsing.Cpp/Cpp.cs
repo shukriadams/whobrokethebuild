@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
@@ -38,23 +39,20 @@ namespace Wbtb.Extensions.LogParsing.Cpp
 
             StringBuilder s = new StringBuilder();
 
-            if (matches.Count > 0)
-            {
-                s.AppendLine("C++ compiler errors detected");
-                foreach (Match match in matches)
-                {
-                    s.Append("<x-logParseLine>");
-                    s.Append($"<x-logParseItem>{match.Groups[1]}</x-logParseItem>");
-                    s.Append($"<x-logParseItem>{match.Groups[2]}</x-logParseItem>");
-                    s.Append($"<x-logParseItem>{match.Groups[3]}</x-logParseItem>");
-                    s.Append($"<x-logParseItem>{match.Groups[4]}</x-logParseItem>");
-                    s.Append("</x-logParseLine>");
-                }
+            if (!matches.Any())
+                return string.Empty;
 
-                return s.ToString();
+            foreach (Match match in matches)
+            {
+                s.Append("<x-logParseLine>");
+                s.Append($"<x-logParseItem>{match.Groups[1]}</x-logParseItem>");
+                s.Append($"<x-logParseItem>{match.Groups[2]}</x-logParseItem>");
+                s.Append($"<x-logParseItem>{match.Groups[3]}</x-logParseItem>");
+                s.Append($"<x-logParseItem>{match.Groups[4]}</x-logParseItem>");
+                s.Append("</x-logParseLine>");
             }
 
-            return null;
+            return s.ToString();
         }
     }
 }

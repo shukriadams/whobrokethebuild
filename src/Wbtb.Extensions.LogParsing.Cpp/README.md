@@ -11,6 +11,6 @@ Register plugin, then add to a job under the `LogParserPlugins` node.
         Path: Wbtb.Extensions.LogParsing.Cpp
 
     Jobs:
-    -   Key : MyJob
+    -   Key: MyJob
         LogParserPlugins: 
-        - MyCppParser
+        -   MyCppParser
