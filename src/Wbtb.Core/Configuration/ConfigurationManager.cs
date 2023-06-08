@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
@@ -29,7 +28,7 @@ namespace Wbtb.Core
                 throw new ConfigurationException($"Could not resolve directory in path {path}");
 
             if (!File.Exists(path))
-                throw new ConfigurationException($"Config path was set to \"{path}\", but no config file was found at this location.");
+                throw new ConfigurationException($"Config path was set to \"{path}\", but no config file was found at this location. You can override path with the \"{Constants.ENV_VAR_CONFIG_PATH}\" env var.");
 
             string rawYml = File.ReadAllText(path);
             
@@ -217,7 +216,6 @@ namespace Wbtb.Core
         /// <param name="config"></param>
         private void EnsureManifestLogicValid(Config config)
         {
-            
             CurrentVersion currentVersion = new CurrentVersion();
             currentVersion.Resolve();
 

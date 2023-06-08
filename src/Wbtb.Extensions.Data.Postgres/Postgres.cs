@@ -976,14 +976,12 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string query = @"
                 SELECT 
-                    B.*
+                    *
                 FROM
                     build B
-                WHERE NOT EXISTS (
-                    SELECT FROM buildlogparseresult BL
-                    WHERE B.id = BL.buildid
-                )
+                WHERE
                     AND B.jobid = @jobid
+                    AND B.logpath IS NULL
                     AND
                         (
                             B.status = @build_failed

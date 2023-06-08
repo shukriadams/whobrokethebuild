@@ -205,7 +205,7 @@ namespace Wbtb.Core.Web
                 case Blame.Guilty:
                     return "Broke build";
                 default:
-                    return "Undermined";
+                    return "Undetermined";
             }
         }
     }

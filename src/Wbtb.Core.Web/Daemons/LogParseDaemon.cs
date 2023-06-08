@@ -68,27 +68,11 @@ namespace Wbtb.Core.Web
                 if (buildServer == null)
                     continue;
 
-                // why are we trying to reach build server??
-                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-
-                int count = 100;
-                if (buildServer.ImportCount.HasValue)
-                    count = buildServer.ImportCount.Value;
-
-                if (!reach.Reachable)
-                {
-                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import aborted {reach.Error}{reach.Exception}");
-                    return;
-                }
-
                 foreach (Job job in buildServer.Jobs.Where(job => job.LogParserPlugins.Any()))
                 {
                     try
                     {
                         Job thisjob = dataLayer.GetJobByKey(job.Key);
-                        if (thisjob.ImportCount.HasValue)
-                            count = thisjob.ImportCount.Value;
 
                         // get log parser plugins for job
                         IList<ILogParser> logParsers = new List<ILogParser>();
