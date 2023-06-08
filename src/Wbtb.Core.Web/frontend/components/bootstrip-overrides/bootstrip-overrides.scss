@@ -41,7 +41,6 @@ x-card {
 }
 
 x-card-stroke {
-    z-index: 1; // so floats above card image
     &.--passing {
         background-color: var(--bootstrip-color-genoa);
         color: var(--bootstrip-color-white);
