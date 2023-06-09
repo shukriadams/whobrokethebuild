@@ -20,7 +20,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             if (string.IsNullOrEmpty(raw))
                 return string.Empty;
 
-            MatchCollection matches = new Regex(@"^.*error.*$", RegexOptions.IgnoreCase|RegexOptions.Multiline).Matches(raw);
+            MatchCollection matches = new Regex(@"^.*error:.*$", RegexOptions.IgnoreCase|RegexOptions.Multiline).Matches(raw);
             StringBuilder s = new StringBuilder();
 
             if (!matches.Any())

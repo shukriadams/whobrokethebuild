@@ -52,12 +52,51 @@ namespace Wbtb.Core.CLI
                     break;
             }
 
+            string logPath = null;
+
+            if (state == "fail") 
+            {
+                if (switches.Contains("logbuild"))
+                {
+                    int buildId = 0;
+                    if (!int.TryParse(switches.Get("logbuild"), out buildId)) 
+                    {
+                        Console.WriteLine("--logbuild value is not an integer");
+                        Environment.Exit(1);
+                        return;
+                    }
+
+                    Build logBuild = dataLayer.GetBuildById(switches.Get("logbuild"));
+                    if (logBuild == null)
+                    {
+                        Console.WriteLine($"Could not find build with id {switches.Get("logbuild")}");
+                        Environment.Exit(1);
+                        return;
+                    }
+
+                    if (logBuild.LogPath == null)
+                    {
+                        Console.WriteLine($"build with id {switches.Get("logbuild")} has no log");
+                        Environment.Exit(1);
+                        return;
+                    }
+
+                    logPath = logBuild.LogPath;
+                    Console.WriteLine($"logpath for forced build will be set to path from build {logBuild.Id}.");
+                }
+                else 
+                {
+                    Console.WriteLine("--logbuild not set, ignoring. You can force an error log from an existing build with this switch.");
+                }
+            }
+
             dataLayer.SaveBuild(new Build
             {
                 JobId = job.Id,
                 Identifier = key.ToString(),
                 StartedUtc = DateTime.UtcNow,
                 EndedUtc = DateTime.UtcNow,
+                LogPath = logPath,
                 Status = state == "fail" ? BuildStatus.Failed : BuildStatus.Passed,
             });
 

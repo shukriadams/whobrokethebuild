@@ -980,7 +980,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 FROM
                     build B
                 WHERE
-                    AND B.jobid = @jobid
+                    B.jobid = @jobid
                     AND B.logpath IS NULL
                     AND
                         (
