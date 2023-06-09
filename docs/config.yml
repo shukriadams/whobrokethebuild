@@ -17,6 +17,8 @@ Plugins:
     Path: Wbtb.Extensions.SourceServer.PerforceSandbox
 -   Key: CppParser
     Path: Wbtb.Extensions.LogParsing.Cpp
+-   Key: BasicErrors
+    Path: Wbtb.Extensions.LogParsing.BasicErrors    
 -   Key: myslack
     Path: Wbtb.Extensions.Messaging.SlackSandbox
     Config:
@@ -47,6 +49,7 @@ BuildServers:
         SourceServer: myperforce
         LogParserPlugins: 
         -   CppParser
+        -   BasicErrors
         Message:
         -   Plugin: myslack
             Group: mygroup

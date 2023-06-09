@@ -752,13 +752,13 @@ namespace Wbtb.Core.Common
             });
         }
 
-        BuildInvolvement IDataLayerPlugin.GetBuildInvolvementByRevisionCode(string jobId, string revisionCode)
+        BuildInvolvement IDataLayerPlugin.GetBuildInvolvementByRevisionCode(string buildid, string revisionCode)
         {
             return _pluginSender.InvokeMethod<BuildInvolvement>(this, new PluginArgs
             {
                 FunctionName = "GetBuildInvolvementByRevisionCode",
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "jobId", Value = jobId },
+                    new PluginFunctionParameter { Name = "buildid", Value = buildid },
                     new PluginFunctionParameter { Name = "revisionCode", Value = revisionCode }
                 }
             });

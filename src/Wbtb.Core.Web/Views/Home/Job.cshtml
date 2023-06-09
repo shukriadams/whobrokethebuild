@@ -43,6 +43,7 @@
                         {
                             <text>Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild), @Model.Stats.LatestBreakingBuild.EndedUtc.Humanize()</text>
                         }
+
                         @if (Model.Stats.LatestBreakDuration.HasValue)
                         {
                             <text>,and that lasted @Model.Stats.LatestBreakDuration.Value.Humanize()</text>
@@ -71,7 +72,7 @@
                             @if (Model.Stats.FailRatePercent > 0)
                             {
                                 <text>
-                                    Fail rate is @(Model.Stats.FailRatePercent)%, over <a href="/incidents/@Model.Job.Id">@Model.Stats.Incidents incidents</a>.
+                                    Fail rate is @(Model.Stats.FailRatePercent)%.
                                 </text>
                             }
                         </div>
@@ -91,7 +92,7 @@
                     }
                 </div>
                 <div>
-                    <a href="/incidents/@Model.Job.Id">Incidents</a>
+                    <a href="/incidents/@Model.Job.Id">Incidents (@Model.Stats.Incidents)</a>
                     @if (Model.Job.Message.Any())
                     {
                         <text>
@@ -104,6 +105,27 @@
                                 </div>
                             }
                         </text>
+                    }
+
+                    <h5>Log parsers</h5>
+                    @if (Model.Job.LogParserPlugins.Any())
+                    {
+                        <text>
+                            <ul>
+                            @foreach (string logParser in Model.Job.LogParserPlugins)
+                            {
+                                <li>
+                                    @logParser
+                                </li>
+                            }
+                            </ul>
+                        </text>
+                    } 
+                    else
+                    {
+                        <text>
+                            none
+                        </text>   
                     }
                 </div>
             </x-columns>

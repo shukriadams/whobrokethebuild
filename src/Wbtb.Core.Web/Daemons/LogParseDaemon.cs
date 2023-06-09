@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -68,6 +69,7 @@ namespace Wbtb.Core.Web
                 if (buildServer == null)
                     continue;
 
+                IList<(Build, ILogParser)> buildsToProcess = new List<(Build, ILogParser)>();
                 foreach (Job job in buildServer.Jobs.Where(job => job.LogParserPlugins.Any()))
                 {
                     try
@@ -81,15 +83,25 @@ namespace Wbtb.Core.Web
 
                         IEnumerable<Build> buildsWithUnparsedLogs = dataLayer.GetUnparsedBuildLogs(thisjob);
                         foreach (Build buildWithUnparsedLogs in buildsWithUnparsedLogs)
-                            foreach(ILogParser parser in logParsers)
-                                _buildLogParseResultHelper.ProcessBuild(dataLayer, buildWithUnparsedLogs, parser, _log);
-
+                            foreach (ILogParser parser in logParsers)
+                                buildsToProcess.Add((buildWithUnparsedLogs, parser));
                     }
                     catch (Exception ex)
                     {
-                        _log.LogError($"Unexpected error trying to import jobs/logs for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
+                        _log.LogError($"Unexpected error trying to index jobs/logs for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
                     }
                 }
+
+                buildsToProcess.AsParallel().ForAll(delegate ((Build, ILogParser) buildToProcess) {
+                    try 
+                    {
+                        _buildLogParseResultHelper.ProcessBuild(dataLayer, buildToProcess.Item1, buildToProcess.Item2, _log);
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.LogError($"Unexpected error trying to process jobs/logs for build id \"{buildToProcess.Item1.Id}\" from buildserver \"{buildServer.Key}\" : {ex}");
+                    }
+                });
             }
         }
 

@@ -259,7 +259,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
                 foreach (string buildRevision in buildRevisions)
                 {
-                    BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementByRevisionCode(job.Id, buildRevision);
+                    BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementByRevisionCode(build.Id, buildRevision);
                     if (buildInvolvement == null)
                     {
                         buildInvolvement = new BuildInvolvement

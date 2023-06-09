@@ -104,7 +104,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new BuildInvolvement { };
         }
 
-        public BuildInvolvement GetBuildInvolvementByRevisionCode(string jobId, string revisionCode)
+        public BuildInvolvement GetBuildInvolvementByRevisionCode(string buildid, string revisionCode)
         {
             return new BuildInvolvement { };
         }

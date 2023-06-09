@@ -80,7 +80,7 @@ namespace Wbtb.Core.Web
         public static HtmlString BuildInvolvementUserLink(ViewBuildInvolvement involvement)
         {
             if (involvement == null)
-                return new HtmlString(string.Empty);
+                return new HtmlString("-");
 
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
@@ -93,9 +93,9 @@ namespace Wbtb.Core.Web
             }
 
             if (involvement.Revision != null) 
-                return new HtmlString($"<span class=\"\">{involvement.Revision.User} (user unresolved)</span>");
+                return new HtmlString($"<span class=\"\">{involvement.Revision.User} (unresolved)</span>");
 
-            return new HtmlString($"<span class=\"\">revision data unresolved</span>");
+            return new HtmlString($"<span class=\"\">revision unresolved.</span>");
         }
 
         public static HtmlString BuildLink(Build build)

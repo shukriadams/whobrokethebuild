@@ -1663,22 +1663,21 @@ namespace Wbtb.Extensions.Data.Postgres
             return PostgresCommon.GetById<BuildInvolvement>(this.ContextPluginConfig, id, "buildinvolvement", new BuildInvolvementConvert());
         }
 
-        public BuildInvolvement GetBuildInvolvementByRevisionCode(string jobId, string revisionCode)
+        public BuildInvolvement GetBuildInvolvementByRevisionCode(string buildid, string revisionCode)
         {
             string sql = @"
-                SELECT 
-                    BI.* 
-                FROM 
-                    buildinvolvement BI
-                    JOIN build B ON B.id = BI.buildid
-                WHERE 
-                    B.jobid = @jobid
-                    AND BI.revisioncode = @revisioncode";
+                SELECT
+                    *
+                FROM
+                    buildinvolvement
+                WHERE
+                    buildid = @buildid
+                    AND revisioncode = @revisioncode";
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
             {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                cmd.Parameters.AddWithValue("buildid", int.Parse(buildid));
                 cmd.Parameters.AddWithValue("revisioncode", revisionCode);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())

@@ -82,7 +82,7 @@ namespace Wbtb.Core.Web
                     return;
                 }
 
-                foreach (Job job in buildServer.Jobs.Where(j => !string.IsNullOrEmpty(j.SourceServerId)))
+                foreach (Job job in buildServer.Jobs.Where(j => !string.IsNullOrEmpty(j.SourceServer)))
                 {
                     try
                     {

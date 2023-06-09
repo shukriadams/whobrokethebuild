@@ -159,7 +159,7 @@
                             </text>
                         }
 
-                        @ViewHelpers.BuildInvolvementUserLink(involvement)
+                        by @ViewHelpers.BuildInvolvementUserLink(involvement)
 
                         @if (Model.Build.Status == BuildStatus.Failed) 
                         {
@@ -203,7 +203,6 @@
         </text>
     }
 
-
     @if (!Model.BuildInvolvements.Any())
     {
         <x-list-row>
@@ -245,13 +244,13 @@
     <div>
         Build log has not yet been retrieved.
     </div>
-} else 
+} 
+else 
 {
     <div>
         <a href="/build/log/@Model.Build.Id">View full build log</a>
     </div>
 }
-
 
 
 @if (!Model.Build.Job.LogParserPlugins.Any())
@@ -291,7 +290,8 @@ else
             <text>
                 Log parsing not possible - resolve data/config issues first.
             </text>
-        }else
+        }
+        else
         {
             <text>
                 No log parse results.
