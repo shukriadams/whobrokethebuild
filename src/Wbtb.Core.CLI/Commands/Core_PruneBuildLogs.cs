@@ -15,6 +15,7 @@ namespace Wbtb.Core.CLI
             Config config = di.Resolve<Config>();
             IEnumerable<string> existingLogFiles = FileSystemHelper.GetFilesUnder(config.BuildLogsDirectory);
             IList<string> knownLogs = new List<string>();
+            
             foreach (Job job in dataLayer.GetJobs())
             {
                 int i = 0;

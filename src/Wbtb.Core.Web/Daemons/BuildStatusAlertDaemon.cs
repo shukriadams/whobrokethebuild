@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -95,13 +97,39 @@ namespace Wbtb.Core.Web
                         bool alertFailing = false;
                         bool alertPassing = false;
 
+
                         // no builds for this job yet
                         if (latestBuild == null)
                             continue;
 
+
                         // ignore alerts on failing builds that don't have incidents yet, they need processing by the incident assign daemon first
                         if (latestBuild.Status != BuildStatus.Passed && latestBuild.IncidentBuildId == null)
                             continue;
+
+                        Build buildtoInformOn = previousDeltaBuild;
+                        if (buildtoInformOn == null)
+                            buildtoInformOn = latestBuild;
+
+                        // check if log processing errors occurred - if not, ensure that all log processors have run. Else, alert on error, alert plugin
+                        // should pick up on error and generate appropriate message
+                        IEnumerable<BuildFlag> flags = dataLayer.GetBuildFlagsForBuild(buildtoInformOn);
+                        if (!flags.Where(f => f.Flag == BuildFlags.LogParseFailed).Any()) 
+                        {
+                            // 
+                            bool allLogsParsed = true;
+                            IEnumerable<BuildLogParseResult> parseResults = dataLayer.GetBuildLogParseResultsByBuildId(buildtoInformOn.Id);
+                            foreach (string parser in job.LogParserPlugins)
+                                if (!parseResults.Where(r => r.LogParserPlugin == parser).Any())
+                                {
+                                    allLogsParsed = false;
+                                    break;
+                                }
+
+                            // wait for logs to finish processing
+                            if (!allLogsParsed)
+                                continue;
+                        }
 
                         if (previousDeltaBuild == null)
                         {

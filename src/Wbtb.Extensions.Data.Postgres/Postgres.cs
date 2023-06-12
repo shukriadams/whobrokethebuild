@@ -1276,19 +1276,18 @@ namespace Wbtb.Extensions.Data.Postgres
 
         public IEnumerable<Build> GetUnparsedBuildLogs(Job job)
         {
-            // we want logs for failed builds only
             string query = @"
                 SELECT
                     B.*
                 FROM
                     build B
-
                 WHERE
 
                     -- ignore any build that has any kind of log fail flag on it
                     NOT EXISTS (
                         SELECT FROM buildflag BF
-                        WHERE B.id = BF.buildid
+                        WHERE 
+                            B.id = BF.buildid
                             AND BF.flag = @logparsefail
                             AND BF.ignored IS NULL
                 
