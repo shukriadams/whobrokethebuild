@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using System;
 using System.Collections.Generic;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -13,7 +14,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 Id = reader["id"].ToString(),
                 Key = reader["key"].ToString(),
                 Plugin = reader["plugin"].ToString(),
-                Content = reader["content"].ToString(),
+                Content = reader["content"] == DBNull.Value ? null : reader["content"].ToString(),
             };
         }
 

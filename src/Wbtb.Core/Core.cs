@@ -111,8 +111,11 @@ namespace Wbtb.Core
             foreach (string orphan in orphans)
                 Console.WriteLine(orphan);
 
+            if (failOnOrphans == true && config.FailOnOrphans == false)
+                failOnOrphans = false;
+
             if (failOnOrphans && orphans.Count() > 0)
-                throw new ConfigurationException("Orphan records detected. Please merge or delete orphans");
+                throw new ConfigurationException("Orphan records detected. Please merge or delete orphans. Disable this check with \"FailOnOrphans: false\" in config.");
         }
     }
 }
