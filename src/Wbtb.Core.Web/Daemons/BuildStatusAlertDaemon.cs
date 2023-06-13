@@ -141,6 +141,7 @@ namespace Wbtb.Core.Web
                             _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, deltaBuild);
                             string lastbreakingId = dataLayer.GetIncidentIdsForJob(thisjob).FirstOrDefault();
                             Build lastBreakingBuild = null;
+
                             if (!string.IsNullOrEmpty(lastbreakingId)) 
                                 lastBreakingBuild = dataLayer.GetBuildById(lastbreakingId);
 
@@ -153,7 +154,6 @@ namespace Wbtb.Core.Web
                                 IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
                                 messagePlugin.AlertPassing(alert, lastBreakingBuild, deltaBuild);
                             }
-
                         }
 
                         dataLayer.SaveStore(new StoreItem { 

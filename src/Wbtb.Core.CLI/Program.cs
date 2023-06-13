@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Wbtb.Core.CLI.Lib;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -13,10 +14,11 @@ namespace Wbtb.Core.CLI
             {
                 // bind types - dev only! These are needed by all general plugin activity
                 Core core = new Core();
-                core.Start(failOnOrphans:false);
+                core.Start(persistStateToDatabase:false);
 
                 SimpleDI di = new SimpleDI();
                 di.Register<OrphanRecordHelper, OrphanRecordHelper>();
+                di.Register<ConsoleHelper, ConsoleHelper>();
 
                 // register local commands dynamically
                 IEnumerable<Type> availableCommands = AppDomain.CurrentDomain.GetAssemblies()

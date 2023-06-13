@@ -428,12 +428,12 @@ namespace Wbtb.Extensions.Data.Postgres
 
             // total incidents
             string incidentCountQuery = @"
-                    SELECT COUNT(DISTINCT
-                        incidentbuildid) 
-                    FROM 
-                        build
-                    WHERE
-                        jobid = @jobid";
+                SELECT COUNT(DISTINCT
+                    incidentbuildid) 
+                FROM 
+                    build
+                WHERE
+                    jobid = @jobid";
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(incidentCountQuery, connection))
@@ -462,12 +462,13 @@ namespace Wbtb.Extensions.Data.Postgres
 
             // longest downtime
 
-            
             return stats;
         }
 
         public int ResetJob(string jobId, bool hard)
         {
+            int affected = 0;
+
             // remove build involvements
             string removeBuildInvolvements = @"
                 DELETE FROM 
@@ -476,14 +477,13 @@ namespace Wbtb.Extensions.Data.Postgres
                     build
                 WHERE
                     build.id = buildinvolvement.buildid
-                    AND build.jobid = @jobid
-                ";
+                    AND build.jobid = @jobid";
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(removeBuildInvolvements, connection))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                cmd.ExecuteNonQuery();
+                affected += cmd.ExecuteNonQuery();
             }
 
             // reset build log parsed result
@@ -500,7 +500,7 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, connection))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                cmd.ExecuteNonQuery();
+                affected += cmd.ExecuteNonQuery();
             }
 
             // remove buildflags for job
@@ -516,47 +516,45 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlCommand cmd = new NpgsqlCommand(resetFlags, connection))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                cmd.ExecuteNonQuery();
+                affected += cmd.ExecuteNonQuery();
             }
 
             if (hard)
             {
                 // delete all builds
                 string delete = @"
-                DELETE FROM 
-                    build 
-                WHERE 
-                    jobid = @jobid";
+                    DELETE FROM 
+                        build 
+                    WHERE 
+                        jobid = @jobid";
 
                 using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
                 using (NpgsqlCommand cmd = new NpgsqlCommand(delete, connection))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                    cmd.ExecuteNonQuery();
+                    affected += cmd.ExecuteNonQuery();
                 }
-
             }
             else
             {
-                // remove incident builds from other builds
+                // clear incident builds 
                 string incidentReset = @"
-                UPDATE 
-                    build 
-                SET
-                    incidentbuildid = NULL
-                WHERE 
-                    jobid = @jobid";
+                    UPDATE 
+                        build 
+                    SET
+                        incidentbuildid = NULL
+                    WHERE 
+                        jobid = @jobid";
 
                 using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
                 using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReset, connection))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                    cmd.ExecuteNonQuery();
+                    affected += cmd.ExecuteNonQuery();
                 }
             }
 
-            // number meaningless, drop it
-            return 0;
+            return affected;
         }
 
         public IEnumerable<string> GetIncidentIdsForJob(Job job)
