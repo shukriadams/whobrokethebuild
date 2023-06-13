@@ -29,18 +29,19 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             // try to parse out C++ compile errors from log, these errors have the form like
             // D:\some\path\file.h(41,12): error C2143: syntax error: missing ';' before '*'
             // file path(line number): error code: description
-            MatchCollection matches = new Regex(@"(.*?)(\(\d+,\d+\)): error\s?([A-Z]{1,2}[0-9]+):(.*)", RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
-            // groups
+            //
+            // Groups
             // 0 : all
             // 1 : file path
             // 2 : line nr in file
             // 3 : error code
             // 4 : description
-
-            StringBuilder s = new StringBuilder();
+            MatchCollection matches = new Regex(@"(.*?)(\(\d+,\d+\)): error\s?([A-Z]{1,2}[0-9]+):(.*)", RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
 
             if (!matches.Any())
                 return string.Empty;
+
+            StringBuilder s = new StringBuilder();
 
             foreach (Match match in matches)
             {
