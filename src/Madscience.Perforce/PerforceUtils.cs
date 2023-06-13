@@ -170,7 +170,7 @@ namespace Madscience.Perforce
 
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
-            //cmd.WaitForExit(); // hangs on windows
+            cmd.WaitForExit(); // hangs on windows
 
             List<string> stdOut = new List<string>();
             List<string> stdErr = new List<string>();

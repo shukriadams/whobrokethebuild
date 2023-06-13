@@ -39,7 +39,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();
             string password = contextServer.Config.First(c => c.Key == "Password").Value.ToString();
-            string shell = ContextPluginConfig.Config.Any(c => c.Key == "shell")? (string)ContextPluginConfig.Config.First(c => c.Key == "shell").Value : "cmd";
+            string shell = ContextPluginConfig.Config.Any(c => c.Key == "shell")? (string)ContextPluginConfig.Config.First(c => c.Key == "shell").Value : "sh";
             PerforceUtils.ShellType shellType = shell == "cmd" ? PerforceUtils.ShellType.Cmd : PerforceUtils.ShellType.Sh;
             
             bool trust = false;
