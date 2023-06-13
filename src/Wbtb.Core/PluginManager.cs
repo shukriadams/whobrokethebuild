@@ -194,18 +194,19 @@ namespace Wbtb.Core
             }
 
             // validate source servers
-            foreach (SourceServer sourceSErver in _config.SourceServers) 
+            foreach (SourceServer sourceServer in _config.SourceServers) 
             {
-                ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceSErver.Plugin) as ISourceServerPlugin;
+                ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
 
                 try
                 {
-                    sourceServerPlugin.AttemptReach(sourceSErver);
-                    sourceServerPlugin.VerifySourceServerConfig(sourceSErver);
+                    sourceServerPlugin.AttemptReach(sourceServer);
+                    sourceServerPlugin.VerifySourceServerConfig(sourceServer);
+                    Console.WriteLine($"{sourceServer.Name} is contactable");
                 }
                 catch (Exception ex)
                 {
-                    throw new ConfigurationException($"Source server \"{sourceSErver.Key}\" failed config test :{ex}");
+                    throw new ConfigurationException($"Source server \"{sourceServer.Key}\" failed config test :{ex}");
                 }
             }
 

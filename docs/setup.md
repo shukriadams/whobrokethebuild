@@ -35,6 +35,22 @@ Do not change keys abruptly. Instead, create a `KeyPrev` property, set this valu
 
 If your forgot to use the `KeyPrev` method to update a key, you can still recovover orphans, using the appropriate `IDataLayerPlugin_Merge*` command for the type of orphan.
 
+## Plugins
+
+Plugins are defined under  `Plugins` node. `Key` and `Path` are required. 
+
+    Plugins: 
+    -   Key: p4Sandbox
+        Path: /var/wbtb/Wbtb.Extensions.SourceServer.PerforceSandbox
+
+WBTB ships with a few built-in plugins, but these are typically for sandboxing. To use these use the `Proxy: true` property on a plugin.
+
+    -   Key: p4Sandbox
+        Proxy: true
+        Path: /var/wbtb/Wbtb.Extensions.SourceServer.PerforceSandbox
+
+    
+
 ## Job
 
 Jobs are tied to a build server. A job must have a unique `Key`, as well as valid `SourceServer` property.

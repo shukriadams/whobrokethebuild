@@ -12,10 +12,6 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
         public PluginInitResult InitializePlugin()
         {
-            // ensure that p4 is available
-            if (!PerforceUtils.IsInstalled())
-                return new PluginInitResult { Success = false, Description = "p4 not installed" };
-
             return new PluginInitResult
             {
                 SessionId = Guid.NewGuid().ToString(),
@@ -43,16 +39,24 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();
             string password = contextServer.Config.First(c => c.Key == "Password").Value.ToString();
+            string shell = ContextPluginConfig.Config.Any(c => c.Key == "shell")? (string)ContextPluginConfig.Config.First(c => c.Key == "shell").Value : "cmd";
+            PerforceUtils.ShellType shellType = shell == "cmd" ? PerforceUtils.ShellType.Cmd : PerforceUtils.ShellType.Sh;
+            
             bool trust = false;
+
+            // ensure that p4 is available
+            if (!PerforceUtils.IsInstalled(shellType))
+                return new ReachAttemptResult { Error = "p4 not installed" };
+
             if (contextServer.Config.Any(c => c.Key == "Trust")) 
                 trust= contextServer.Config.First(c => c.Key == "Trust").Value.ToString().ToLower() == "true";
             
             try
             {
                 if (trust)
-                    PerforceUtils.Trust(host);
+                    PerforceUtils.Trust(host, shellType);
 
-                PerforceUtils.VerifyCredentials(user, password, host);
+                PerforceUtils.VerifyCredentials(user, password, host, shellType);
                 return new ReachAttemptResult { Reachable = true };
             }
             catch (Exception ex)
@@ -70,8 +74,10 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();
             string password = contextServer.Config.First(c => c.Key == "Password").Value.ToString();
+            string shell = ContextPluginConfig.Config.Any(c => c.Key == "shell") ? (string)ContextPluginConfig.Config.First(c => c.Key == "shell").Value : "cmd";
+            PerforceUtils.ShellType shellType = shell == "cmd" ? PerforceUtils.ShellType.Cmd : PerforceUtils.ShellType.Sh;
 
-            IEnumerable<Change> changes = PerforceUtils.ChangesBetween(user, password, host, int.Parse(revisionStart), int.Parse(revisionEnd));
+            IEnumerable<Change> changes = PerforceUtils.ChangesBetween(user, password, host, int.Parse(revisionStart), int.Parse(revisionEnd), shellType);
             return changes.Select(change => FromChange(change));
         }
 
@@ -80,9 +86,11 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();
             string password = contextServer.Config.First(c => c.Key == "Password").Value.ToString();
+            string shell = ContextPluginConfig.Config.Any(c => c.Key == "shell") ? (string)ContextPluginConfig.Config.First(c => c.Key == "shell").Value : "cmd";
+            PerforceUtils.ShellType shellType = shell == "cmd" ? PerforceUtils.ShellType.Cmd : PerforceUtils.ShellType.Sh;
 
             // todo : add caching here, no need to hit p4 each time, history never changes
-            return FromChange(PerforceUtils.Describe(user, password, host, int.Parse(revisionCode)));
+            return FromChange(PerforceUtils.Describe(user, password, host, int.Parse(revisionCode), shellType));
         }
 
         private static Revision FromChange(Change change)

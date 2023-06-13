@@ -135,7 +135,7 @@ namespace Madscience.Perforce
     /// </summary>
     public class PerforceUtils
     {
-        private enum ShellType
+        public enum ShellType
         { 
             Sh, Cmd
         }
@@ -229,24 +229,24 @@ namespace Madscience.Perforce
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="host"></param>
-        private static void EnsureSession(string username, string password, string host)
+        private static void EnsureSession(string username, string password, string host, ShellType shellType)
         {
-            ShellResult result = Run($"p4 set P4USER={username}", ShellType.Cmd);
+            ShellResult result = Run($"p4 set P4USER={username}", shellType);
             if (result.ExitCode != 0)
                 throw new Exception($"Failed to set user, got code {result.ExitCode} - {result.StdErr}");
 
-            result = Run($"p4 set P4PORT={host}", ShellType.Cmd);
+            result = Run($"p4 set P4PORT={host}", shellType);
             if (result.ExitCode != 0)
                 throw new Exception($"Failed to set port, got code {result.ExitCode} - {result.StdErr}");
 
-            Run($"echo {password}|p4 login", ShellType.Cmd);
+            Run($"echo {password}|p4 login", shellType);
             if (result.ExitCode != 0)
                 throw new Exception($"Failed to login, got code {result.ExitCode} - {result.StdErr}");
         }
 
-        public static  bool IsInstalled() 
+        public static  bool IsInstalled(ShellType shellType) 
         {
-            ShellResult result = Run($"p4", ShellType.Cmd);
+            ShellResult result = Run($"p4", shellType);
             string stdErr = string.Join("", result.StdErr);
             // windows only, what about linux?
             if (stdErr.Contains("is not recognized as an internal or external command"))
@@ -263,12 +263,12 @@ namespace Madscience.Perforce
         /// <param name="host"></param>
         /// <param name="revision"></param>
         /// <returns></returns>
-        public static Change Describe(string username, string password, string host, int revision)
+        public static Change Describe(string username, string password, string host, int revision, ShellType shellType)
         {
-            EnsureSession(username, password, host);
+            EnsureSession(username, password, host, shellType);
             string command = $"p4 describe {revision}";
 
-            ShellResult result = Run(command, ShellType.Cmd);
+            ShellResult result = Run(command, shellType);
 
             if (result.ExitCode != 0 || result.StdErr.Any())
             { 
@@ -287,13 +287,13 @@ namespace Madscience.Perforce
             return ParseDescribe(describeRaw);
         }
 
-        public static void Trust(string host) 
+        public static void Trust(string host, ShellType shellType) 
         {
-            ShellResult result = Run($"p4 trust -i {host}", ShellType.Cmd);
+            ShellResult result = Run($"p4 trust -i {host}", shellType);
             if (result.ExitCode != 0)
                 throw new Exception($"P4 command exited with code {result.ExitCode} : {result.StdErr}");
 
-            result = Run($"p4 trust -f -y", ShellType.Cmd);
+            result = Run($"p4 trust -f -y", shellType);
             if (result.ExitCode != 0)
                 throw new Exception($"P4 command exited with code {result.ExitCode} : {result.StdErr}");
         }
@@ -305,10 +305,10 @@ namespace Madscience.Perforce
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="host"></param>
-        public static void VerifyCredentials(string username, string password, string host)
+        public static void VerifyCredentials(string username, string password, string host, ShellType shellType)
         {
-            EnsureSession(username, password, host);
-            ShellResult result = Run("p4 tickets", ShellType.Cmd);
+            EnsureSession(username, password, host, shellType);
+            ShellResult result = Run("p4 tickets", shellType);
             
             if (result.ExitCode != 0)
                 throw new Exception($"P4 command exited with code {result.ExitCode} : {result.StdErr}");
@@ -397,16 +397,16 @@ namespace Madscience.Perforce
         /// <param name="filePath"></param>
         /// <param name="revision"></param>
         /// <returns></returns>
-        public static Annotate Annotate(string username, string password, string host, string filePath, int? revision = null)
+        public static Annotate Annotate(string username, string password, string host, string filePath, ShellType shellType, int? revision = null)
         {
-            EnsureSession(username, password, host);
+            EnsureSession(username, password, host, shellType);
 
             string revisionSwitch = string.Empty;
             if (revision.HasValue)
                 revisionSwitch = $"@{revision.Value}";
 
             string command = $"p4 annotate -c {filePath}{revisionSwitch}";
-            ShellResult result = Run(command, ShellType.Cmd);
+            ShellResult result = Run(command, shellType);
             if (result.ExitCode != 0)
                 throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {result.StdErr}");
 
@@ -471,30 +471,30 @@ namespace Madscience.Perforce
         /// <param name="max"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static IEnumerable<Change> Changes(string username, string password, string host, int max = 0, string path = "//...")
+        public static IEnumerable<Change> Changes(string username, string password, string host, ShellType shellType, int max = 0, string path = "//...")
         {
-            EnsureSession(username, password, host);
+            EnsureSession(username, password, host, shellType);
 
             string maxModifier = max > 0 ? $"-m {max}" : string.Empty;
             string command = $"p4 changes {maxModifier} -l {path}";
 
-            ShellResult result = Run(command, ShellType.Cmd);
+            ShellResult result = Run(command, shellType);
             if (result.ExitCode != 0)
                 throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\\n", result.StdErr)}");
 
             return ParseChanges(result.StdOut);
         }
 
-        public static IEnumerable<Change> ChangesBetween(string username, string password, string host, int startRevision, int endRevision, string path = "//...")
+        public static IEnumerable<Change> ChangesBetween(string username, string password, string host, int startRevision, int endRevision, ShellType shellType, string path = "//...")
         {
-            EnsureSession(username, password, host);
+            EnsureSession(username, password, host, shellType);
             IList<int> revisions = new List<int>();
             bool limitReached = false;
 
             while(!limitReached)
             {
                 string command = $"p4 changes -m 100 -e {startRevision} -l {path}";
-                ShellResult result = Run(command, ShellType.Cmd);
+                ShellResult result = Run(command, shellType);
                 if (result.ExitCode != 0 || result.StdErr.Any())
                     throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\\n", result.StdErr)}");
 
@@ -515,7 +515,7 @@ namespace Madscience.Perforce
                 }
             }
 
-            return revisions.Select(rev => Describe(username, password, host, rev));
+            return revisions.Select(rev => Describe(username, password, host, rev, shellType));
         }
 
         /// <summary>

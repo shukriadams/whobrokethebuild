@@ -95,7 +95,7 @@ namespace Wbtb.Core.Web
             if (involvement.Revision != null) 
                 return new HtmlString($"<span class=\"\">{involvement.Revision.User} (unresolved)</span>");
 
-            return new HtmlString($"<span class=\"\">revision unresolved.</span>");
+            return new HtmlString($"<span class=\"\">(Revision unresolved).</span>");
         }
 
         public static HtmlString BuildLink(Build build)

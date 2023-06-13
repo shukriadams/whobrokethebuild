@@ -206,7 +206,6 @@ namespace Wbtb.Core
 
             if (config.PagesPerPageGroup < 1)
                 throw new ConfigurationException("PagesPerPageGroup cannot be less than 1");
-
         }
 
         /// <summary>

@@ -12,13 +12,14 @@ Plugin for connecting Wbtb to a Perforce server.
     -   Key: myPerforce
         Plugin: p4
         Config:
-        - Host: myp4.com:1666
-        - User: myuser
-        - Password: mypassword
-    
+        -   Host: myp4.com:1666
+        -   User: myuser
+        -   Password: mypassword
+        -   ShellType: sh|cmd
+
     BuildServers:
     -   Jobs:
-        - SourceServer: myPerforce
+        -   SourceServer: myPerforce
 
 ## Defining users
 
