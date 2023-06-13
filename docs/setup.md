@@ -60,3 +60,8 @@ Jobs are tied to a build server. A job must have a unique `Key`, as well as vali
 #### Image
 
 `Image` gives the job a thumbnail in dashboards. It can be an absolute URL visible to your WBTB server, or you can mount images anywhere into `/var/wbtb/Wbtb.Core.Web/wwwroot` on your container and add their relative paths. For example, an image mapped to `/var/wbtb/Wbtb.Core.Web/wwwroot/images/myimage.jpg` will have have property `Image:/images/myimage.jpg` in config.
+
+
+## Secrets
+
+Config.yml is stored in plaintext. You can store credentials as env vars on your host/container instance and reference them in config.yml as `"{{env.YOUR_VAR_NAME}}"` (quotes required).

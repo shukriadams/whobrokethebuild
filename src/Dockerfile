@@ -31,6 +31,13 @@ COPY ./Wbtb.Extensions.Data.FileSystem/bin/Release/net6.0/. /var/wbtb/Wbtb.Exten
 COPY ./Wbtb.Extensions.Data.Postgres/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.Data.Postgres
 COPY ./Wbtb.Extensions.BuildServer.JenkinsSandbox/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.BuildServer.JenkinsSandbox
 COPY ./Wbtb.Extensions.SourceServer.PerforceSandbox/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.SourceServer.PerforceSandbox
+# testing only, these need to be spun before proper release
+COPY ./Wbtb.Extensions.BuildServer.Jenkins/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.BuildServer.Jenkins
+COPY ./Wbtb.Extensions.SourceServer.Perforce/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.SourceServer.Perforce
+COPY ./Wbtb.Extensions.Messaging.Slack/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.Messaging.Slack
+COPY ./Wbtb.Extensions.LogParsing.Cpp/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.Cpp
+COPY ./Wbtb.Extensions.LogParsing.BasicErrors/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.BasicErrors
+COPY ./Wbtb.Extensions.LogParsing.JenkinsSelfFailing/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 
 USER wbtb
 
