@@ -3,7 +3,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
-    internal class Core_BuildState: ICommand
+    internal class Core_JobState: ICommand
     {
         public void Process(CommandLineSwitches switches)
         {

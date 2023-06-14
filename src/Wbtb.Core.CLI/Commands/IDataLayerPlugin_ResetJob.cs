@@ -1,12 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using Wbtb.Core.CLI.Lib;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
     internal class IDataLayerPlugin_ResetJob : ICommand
     {
+        #region FIELDS
+
+        private readonly PluginProvider _pluginProvider;
+
+        private readonly ConsoleHelper _consoleHelper;
+
+        #endregion
+
+        #region CTORS
+
+        public IDataLayerPlugin_ResetJob(PluginProvider pluginProvider, ConsoleHelper consoleHelper) 
+        {
+            _pluginProvider = pluginProvider;
+            _consoleHelper = consoleHelper;
+        }
+
+        #endregion
+
+        #region METHODS
+
         public void Process(CommandLineSwitches switches) 
         {
             if (!switches.Contains("job"))
@@ -20,21 +39,12 @@ namespace Wbtb.Core.CLI
             bool hard = switches.Contains("hard");
 
             SimpleDI di = new SimpleDI();
-            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Job job = dataLayer.GetJobByKey(jobkey);
             if (job == null)
             {
                 Console.WriteLine($"ERROR : \"job\" key {jobkey} does not point to a valid job");
-                IEnumerable<Job> jobs = dataLayer.GetJobs();
-                if (jobs.Any()) 
-                {
-                    Console.WriteLine("Existing job keys are : ");
-                    foreach (Job existingJob in jobs) 
-                    {
-                        Console.WriteLine($"{existingJob.Key}");
-                    }
-                }
+                _consoleHelper.PrintJobs();
                 Environment.Exit(1);    
                 return;
             }
@@ -48,5 +58,7 @@ namespace Wbtb.Core.CLI
 
             Console.Write($"Job reset. {deleted} records deleted.");
         }
+
+        #endregion
     }
 }

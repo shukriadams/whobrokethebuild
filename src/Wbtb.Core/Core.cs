@@ -17,7 +17,7 @@ namespace Wbtb.Core
         /// <summary>
         /// Single-call wrapper to start server.
         /// </summary>
-        public void Start(bool failOnOrphans=true)
+        public void Start(bool persistStateToDatabase=true)
         {
             // pre-start stuff
             SimpleDI di = new SimpleDI();
@@ -99,20 +99,29 @@ namespace Wbtb.Core
             ConfigurationBuilder builder = di.Resolve<ConfigurationBuilder>();
 
             pluginManager.Initialize();
-            pluginManager.WriteCurrentPluginStateToStore();
 
-            builder.InjectSourceServers();
-            builder.InjectUsers();
+            if (persistStateToDatabase)
+            {
+                pluginManager.WriteCurrentPluginStateToStore();
 
-            // build servers should be scafolded last, as they have data that has dependencies on other top level objects
-            builder.InjectBuildServers();
+                builder.InjectSourceServers();
+                builder.InjectUsers();
 
-            IEnumerable<string> orphans = builder.FindOrphans();
-            foreach (string orphan in orphans)
-                Console.WriteLine(orphan);
+                // build servers should be scafolded last, as they have data that has dependencies on other top level objects
+                builder.InjectBuildServers();
 
-            if (failOnOrphans && orphans.Count() > 0)
-                throw new ConfigurationException("Orphan records detected. Please merge or delete orphans");
+                IEnumerable<string> orphans = builder.FindOrphans();
+                foreach (string orphan in orphans)
+                    Console.WriteLine(orphan);
+
+                if (config.FailOnOrphans == false)
+                    persistStateToDatabase = false;
+
+                if (orphans.Count() > 0)
+                    throw new ConfigurationException("Orphan records detected. Please merge or delete orphans. Disable this check with \"FailOnOrphans: false\" in config.");
+
+            }
+
         }
     }
 }

@@ -19,6 +19,8 @@ namespace Wbtb.Extensions.Messaging.Slack
     {
         #region FIELDS
 
+        static readonly int MAX_ALERT_LENGTH = 600;
+
         static readonly string[] allowedTargetTypes = new string[] { "user", "group" };
 
         private readonly Config _config;
@@ -154,7 +156,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (parseResults.Any())
             {
                 // get parse results in order log parsers are defined, exit on first that has produced result
-                foreach(string parserKey in job.LogParserPlugins) 
+                foreach (string parserKey in job.LogParserPlugins)
                 {
                     BuildLogParseResult parseResult = parseResults.Where(p => p.LogParserPlugin == parserKey).FirstOrDefault();
                     if (parseResult == null || string.IsNullOrEmpty(parseResult.ParsedContent))
@@ -173,7 +175,17 @@ namespace Wbtb.Extensions.Messaging.Slack
 
                             errors += "\n";
                         }
+
+                        bool truncated = false;
+                        if (errors.Length > MAX_ALERT_LENGTH)
+                        {
+                            errors = errors.Substring(0, MAX_ALERT_LENGTH);
+                            truncated = true;
+                        }
+
                         errors += "```";
+                        if (truncated)
+                            errors = $"{errors}...\n\ntruncated, click link for full";
                     }
                     else
                     {
@@ -183,9 +195,14 @@ namespace Wbtb.Extensions.Messaging.Slack
                     break;
                 }
             }
+            else 
+            {
+                // if no log parse results, check if log parse errors occurred
+                IEnumerable<BuildFlag> flags = dataLayer.GetBuildFlagsForBuild(incidentBuild);
+                if (flags.Where(f => f.Flag == BuildFlags.LogParseFailed).Any())
+                    errors = $"```Log parse failed due to errors, see WBTB log for more info.```";
+            }
 
-            if (errors.Length > 200)
-                errors = $"{errors.Substring(0, 200)}...\n\ntruncated, click link for full";
 
             dynamic attachment = new JObject();
             attachment.title = $"{job.Name} is DOWN";

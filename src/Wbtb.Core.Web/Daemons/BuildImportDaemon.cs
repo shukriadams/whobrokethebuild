@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -94,9 +93,12 @@ namespace Wbtb.Core.Web
                         BuildImportSummary importSummary = buildServerPlugin.ImportBuilds(thisjob, count);
 
                         // fire events
+                        // fires when a build record is created, no guarantee of other data surrounding build record
                         foreach (Build build in importSummary.Created)
                             _buildLevelPluginHelper.InvokeEvents("OnBuildStart", job.OnBuildStart, build);
 
+                        // fires when a build record gets its end date, there is no guarantee of build log state or 
+                        // other processes that would still have to be carried out
                         foreach (Build build in importSummary.Ended)
                             _buildLevelPluginHelper.InvokeEvents("OnBuildEnd", job.OnBuildEnd, build);
                     }

@@ -13,6 +13,8 @@ namespace Wbtb.Core.Common
     {
         #region PROPERTIES
 
+        public bool FailOnOrphans { get; set; }
+
         /// <summary>
         /// Root dir where all WBTB is persisted. This dir contains other named directories based on specific nature
         /// </summary>
@@ -134,6 +136,7 @@ namespace Wbtb.Core.Common
         public Config()
         {
             // defaults
+            this.FailOnOrphans = true;
             this.StandardPageSize = 25;
             this.PagesPerPageGroup = 20;
             this.MaxReadableRawLogSize = 30000000;

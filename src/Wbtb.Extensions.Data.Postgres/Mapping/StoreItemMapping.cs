@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using System;
 
 namespace Wbtb.Extensions.Data.Postgres
 {
@@ -11,7 +12,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
             collection.AddWithValue("key", record.Key);
             collection.AddWithValue("plugin", record.Plugin);
-            collection.AddWithValue("content", record.Content);
+            collection.AddWithValue("content", string.IsNullOrEmpty(record.Content) ? (object)DBNull.Value : record.Content);
         }
     }
 }

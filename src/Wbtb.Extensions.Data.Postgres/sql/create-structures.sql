@@ -227,7 +227,7 @@ CREATE TABLE public."store"
     id integer NOT NULL DEFAULT nextval('"store_id_seq"'::regclass),
     "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
     "plugin" character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    content text COLLATE pg_catalog."default" NOT NULL,
+    content text COLLATE pg_catalog."default",
     CONSTRAINT "store_pkey" PRIMARY KEY (id),
     CONSTRAINT "store_key_unique" UNIQUE ("key")
 )
@@ -335,7 +335,7 @@ CREATE TABLE public."revision"
     usr character varying(64) COLLATE pg_catalog."default" NOT NULL,
     files text COLLATE pg_catalog."default",
     description text COLLATE pg_catalog."default",
-    CONSTRAINT "Revision_primary_key" PRIMARY KEY (id),
+    CONSTRAINT "revision_primary_key" PRIMARY KEY (id),
     CONSTRAINT "revision_sourceserver_fk" FOREIGN KEY (sourceserverid)
         REFERENCES public."sourceserver" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -396,8 +396,8 @@ CREATE TABLE public."buildinvolvement"
     blame integer NOT NULL,
     inferredrevisionlink boolean NOT NULL,
     comment character varying(256) COLLATE pg_catalog."default",
-    CONSTRAINT "BuildInvolvement_pkey" PRIMARY KEY (id),
-    CONSTRAINT "BuildInvolvement_primary_key" UNIQUE (buildid, revisioncode),
+    CONSTRAINT "buildInvolvement_pkey" PRIMARY KEY (id),
+    CONSTRAINT "buildInvolvement_primary_key" UNIQUE (buildid, revisioncode),
     CONSTRAINT "buildinvolvement_buildid_fk" FOREIGN KEY (buildid)
         REFERENCES public."build" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -425,8 +425,8 @@ CREATE TABLE public."buildlogparseresult"
     buildid integer NOT NULL,
     logparserplugin character varying(64) COLLATE pg_catalog."default" NOT NULL,
     parsedcontent text COLLATE pg_catalog."default",
-    CONSTRAINT "BuildLogparseresult_pkey" PRIMARY KEY (id),
-    CONSTRAINT "BuildLogparseresult_compoundkey" UNIQUE (buildid, logparserplugin),
+    CONSTRAINT "buildLogparseresult_pkey" PRIMARY KEY (id),
+    CONSTRAINT "buildLogparseresult_compoundkey" UNIQUE (buildid, logparserplugin),
     CONSTRAINT "buildlogparseresult_buildid_fk" FOREIGN KEY (buildid)
         REFERENCES public."build" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -470,6 +470,8 @@ CREATE TABLE public."buildflag"
     createdutc timestamp(4) without time zone NOT NULL,
     ignored boolean,
     CONSTRAINT "buildflag_primary_key" PRIMARY KEY (id),
+    -- a flag should not appear more than once on a build, else there's a risk of it flooding table on repeating, unsolved errors
+    CONSTRAINT "buildflag_compoundkey" UNIQUE (buildid, flag),
     CONSTRAINT "buildflag_buildid_fk" FOREIGN KEY (buildid)
         REFERENCES public."build" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -531,7 +533,7 @@ CREATE TABLE public."incident"
 (
     id integer NOT NULL DEFAULT nextval('"incident_id_seq"'::regclass),
     status character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT "Incident_pkey" PRIMARY KEY (id)
+    CONSTRAINT "incident_pkey" PRIMARY KEY (id)
 )
 WITH (
     OIDS = FALSE
@@ -545,7 +547,7 @@ CREATE TABLE public."version"
 (
     id character varying(64) NOT NULL COLLATE pg_catalog."default",
     created timestamp(4) without time zone,
-    CONSTRAINT "Version_pkey" PRIMARY KEY (id)
+    CONSTRAINT "version_pkey" PRIMARY KEY (id)
 )
 WITH (
     OIDS = FALSE

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -84,70 +85,41 @@ namespace Wbtb.Core.Web
                     try
                     {
                         Job thisjob = dataLayer.GetJobByKey(job.Key);
+
+                        // handle current state of game
                         Build latestBuild = dataLayer.GetLatestBuildByJob(thisjob);
                         Build previousDeltaBuild = dataLayer.GetLastJobDelta(thisjob.Id);
-                        bool alertFailing = false;
-                        bool alertPassing = false;
 
-                        // not built yet
+                        // no builds for this job yet
                         if (latestBuild == null)
                             continue;
 
-                        Build deltaLookup = dataLayer.GetDeltaBuildAtBuild(latestBuild);
-
-                        // build delta is correct, ignore
-                        if (previousDeltaBuild != null && deltaLookup != null && previousDeltaBuild.Id == deltaLookup.Id)
+                        // ignore builds that don't have incidents yet, they need processing by the incident assign daemon first
+                        if (latestBuild.Status == BuildStatus.Failed && latestBuild.IncidentBuildId == null)
                             continue;
 
-                        Build alertBuild = null;
-                        if (previousDeltaBuild == null && deltaLookup != null)
+                        Build buildtoInformOn = previousDeltaBuild;
+                        if (buildtoInformOn == null)
+                            buildtoInformOn = latestBuild;
+
+                        // this build is first, so it is the first delta
+                        if (previousDeltaBuild == null)
                         {
-                            // no previous delta, so set delta to latest build
-                            dataLayer.SaveJobDelta(deltaLookup);
-                            if (deltaLookup.Status == BuildStatus.Failed) { 
-                                alertFailing = true;
-                                alertBuild = deltaLookup;
-                            }
+                            dataLayer.SaveJobDelta(latestBuild);
                         }
-
-                        if (previousDeltaBuild != null && deltaLookup != null)
+                        else
                         {
-                            alertBuild = deltaLookup;
-
-                            if (deltaLookup.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
+                            if (latestBuild.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
                             {
                                 // build has gone from passing to failing
-                                dataLayer.SaveJobDelta(deltaLookup);
-                                _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaLookup);
-                                alertFailing = true;
+                                dataLayer.SaveJobDelta(latestBuild);
                             }
-                            else if (deltaLookup.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
+                            else if (latestBuild.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
                             {
                                 // build has gone from failing to passing
-                                dataLayer.SaveJobDelta(deltaLookup);
-                                _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, deltaLookup);
-                                alertPassing = true;
+                                dataLayer.SaveJobDelta(latestBuild);
                             }
                         }
-
-                        if (alertFailing)
-                            foreach (MessageHandler alert in job.Message)
-                            {
-                                IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
-                                messagePlugin.AlertBreaking(alert, alertBuild);
-                            }
-
-                        if (alertPassing)
-                        {
-                            Build incidentCausingBuild = dataLayer.GetBuildById(previousDeltaBuild.IncidentBuildId);
-
-                            foreach (MessageHandler alert in job.Message)
-                            {
-                                IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
-                                messagePlugin.AlertPassing(alert, incidentCausingBuild, alertBuild);
-                            }
-                        }
-
                     }
                     catch (Exception ex)
                     {
