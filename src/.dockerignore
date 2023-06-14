@@ -1,2 +1,3 @@
 Wbtb.Core.Web/frontend/node_modules/**/*
 Wbtb.Core.Web/frontend/components/**/*
+Wbtb.Core.Web/bin/Debug/Data/**/*

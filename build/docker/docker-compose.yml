@@ -7,7 +7,7 @@ services:
     environment:
       ASPNETCORE_URLS : http://*:5000
       WBTB_ENABLE_DAEMONS: 0
-    user: "${UID}:${GID}"      
+    #user: "${UID}:${GID}"      
     volumes:
     - ./config.yml:/var/wbtb/Wbtb.Core.Web/config.yml
     - ./data:/var/wbtb/Wbtb.Core.Web/Data

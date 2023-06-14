@@ -5,6 +5,7 @@
     <AssemblyName>Wbtb.Core.Web</AssemblyName>
     <RootNamespace>Wbtb.Core.Web</RootNamespace>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

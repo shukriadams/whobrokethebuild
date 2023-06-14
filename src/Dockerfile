@@ -21,6 +21,8 @@ RUN apt-get update \
     && chmod +x /usr/bin/p4/p4broker \
     && chmod +x /usr/bin/p4/p4d \
     && chmod +x /usr/bin/p4/p4p \
+    # set up wbtb cli alias
+    && echo "alias=\"dotnet /var/wbtb/Wbtb.Core.CLI/Wbtb.Core.CLI.dll\"" >> /etc/bash.bashrc \
     ## clean up
     && rm packages-microsoft-prod.deb \
     && apt-get remove wget -y \
@@ -28,14 +30,16 @@ RUN apt-get update \
     # set up user+directories
     && useradd -u 1000 wbtb \
     && mkdir -p /var/wbtb/External \
-    && chmod 700 -R /var/wbtb \
-    && chown wbtb -R /var/wbtb
 
-# this assumes the application has already been built in publish mode
+# WARNING : The following assumes the application has already been built in publish mode. See /build/docker/build.sh in project source to do this.
+# core web server
 COPY ./Wbtb.Core.Web/bin/Release/net6.0/. /var/wbtb/Wbtb.Core.Web
 COPY ./Wbtb.Core.Web/wwwroot/. /var/wbtb/Wbtb.Core.Web/wwwroot
 # include messageQueue
 COPY ./MessageQueue/bin/Release/net6.0/. /var/wbtb/MessageQueue
+# include CLI
+COPY ./Wbtb.Core.CLI/bin/Release/net6.0/. /var/wbtb/Wbtb.Core.CLI
+COPY ./Wbtb.Core.CLI/wbtb.sh /usr/bin/wbtb
 # include built-in plugins WBTB always ships with
 COPY ./Wbtb.Extensions.Data.FileSystem/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.Data.FileSystem
 COPY ./Wbtb.Extensions.Data.Postgres/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.Data.Postgres
@@ -49,12 +53,19 @@ COPY ./Wbtb.Extensions.LogParsing.Cpp/bin/Release/net6.0/. /var/wbtb/Wbtb.Extens
 COPY ./Wbtb.Extensions.LogParsing.BasicErrors/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.BasicErrors
 COPY ./Wbtb.Extensions.LogParsing.JenkinsSelfFailing/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 
+RUN chmod +x /usr/bin/wbtb \
+    && chown wbtb /usr/bin/wbtb \
+    && chmod 700 -R /var/wbtb \
+    && chown wbtb -R /var/wbtb
+
 USER wbtb
 
 # p4 only (REMOVE)
-ENV PATH="${PATH}:/usr/bin/p4"    
+ENV PATH="${PATH}:/usr/bin/p4" 
 
 # set wbtb default log level
 ENV Logging__LogLevel__Microsoft=Warning
+# declare config location for wbtb CLI app
+ENV WBTB_CONFIGPATH=/var/wbtb/Wbtb.Core.Web/config.yml
 
 CMD sh -c 'dotnet /var/wbtb/MessageQueue/MessageQueue.dll & cd /var/wbtb/Wbtb.Core.Web && dotnet Wbtb.Core.Web.dll && fg'

@@ -20,6 +20,16 @@ fi
 # write hhash + tag to currentVersion.txt in source, this will be displayed by web ui
 echo "$HASH $TAG" > ./../../src/Wbtb.Core.Web/currentVersion.txt 
 
+echo "Building CLI ..."
+docker run \
+    -e TAG=$TAG \
+    -v $(pwd)./../../src:/tmp/wbtb \
+    mcr.microsoft.com/dotnet/sdk:6.0 \
+    sh -c "cd /tmp/wbtb && \
+        dotnet restore Wbtb.Core.CLI && \
+        dotnet publish Wbtb.Core.CLI --configuration Release"
+
+echo "Building web server ..."
 docker run \
     -e TAG=$TAG \
     -v $(pwd)./../../src:/tmp/wbtb \
@@ -28,6 +38,7 @@ docker run \
         dotnet restore Wbtb.Core.Web && \
         dotnet publish Wbtb.Core.Web /property:PublishWithAspNetCoreTargetManifest=false --configuration Release"
 
+echo "Building web static assets ..."
 docker run \
     -v $(pwd)./../../src:/tmp/wbtb \
     shukriadams/node12build:0.0.4 \
@@ -37,6 +48,7 @@ docker run \
         npm run icons && \
         npm run build"
 
+echo "Building Message queue ..."
 docker run \
     -v $(pwd)./../../src:/tmp/wbtb \
     mcr.microsoft.com/dotnet/sdk:6.0 \
@@ -45,6 +57,7 @@ docker run \
         dotnet publish MessageQueue /property:PublishWithAspNetCoreTargetManifest=false --configuration Release"
 
 # build hosting container
+echo "Building container ..."
 cd ./../../src
 docker build -t shukriadams/wbtb . 
 docker tag shukriadams/wbtb:latest shukriadams/wbtb:$TAG 
