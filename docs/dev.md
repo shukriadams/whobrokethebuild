@@ -53,7 +53,7 @@ The url above may be required in Vagrant, depending on your VM provider platform
 
 Normally Wbtb settings are written to a config.yml file in the application execution root. In visual studio you can specify additional config in two ways.
 
-You can add a `.env` file to the root of the Visual Studio project you're running from. This file is already listed in the included .gitignore, so it's a good place to put secrets etc that you don't want commited, or overwritten. The file uses a name=value syntax.
+You can add a `.env` file to the root of the Visual Studio project you're running from (most likely Wbtb.Core.Web/). This file is already listed in the included .gitignore, so it's a good place to put secrets etc that you don't want commited, or overwritten. The file uses a name=value syntax.
 
 You can also add a `.giturl` file to the same location, for the repo you keep Wbtb's settings in. This is done because some url's contain `=` characters, which break the `.env` file.
 
