@@ -3,7 +3,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI.Commands
 {
-    internal class IDataLayerPlugin_DeleteSourceServer : ICommand
+    internal class IDataLayer_DeleteSourceServer : ICommand
     {
         public void Process(CommandLineSwitches switches)
         {

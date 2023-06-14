@@ -4,7 +4,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
-    internal class IDataLayerPlugin_ListOrphanedRecords : ICommand
+    internal class IDataLayer_ListOrphans : ICommand
     {
         public void Process(CommandLineSwitches switches) 
         {

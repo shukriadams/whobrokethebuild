@@ -3,7 +3,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
-    internal class IDataLayerPlugin_ClearAllTables : ICommand
+    internal class IDataLayer_ClearAllTables : ICommand
     {
         public void Process(CommandLineSwitches switches)
         {

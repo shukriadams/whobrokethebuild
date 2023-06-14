@@ -4,7 +4,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
-    internal class IDataLayerPlugin_ResetJob : ICommand
+    internal class IDataLayer_ResetJob : ICommand
     {
         #region FIELDS
 
@@ -16,7 +16,7 @@ namespace Wbtb.Core.CLI
 
         #region CTORS
 
-        public IDataLayerPlugin_ResetJob(PluginProvider pluginProvider, ConsoleHelper consoleHelper) 
+        public IDataLayer_ResetJob(PluginProvider pluginProvider, ConsoleHelper consoleHelper) 
         {
             _pluginProvider = pluginProvider;
             _consoleHelper = consoleHelper;

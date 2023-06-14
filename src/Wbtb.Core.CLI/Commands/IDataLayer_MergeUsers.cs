@@ -1,16 +1,16 @@
 ﻿using System;
 using Wbtb.Core.Common;
 
-namespace Wbtb.Core.CLI
+namespace Wbtb.Core.CLI.Commands
 {
-    internal class IDataLayerPlugin_MergeBuildServers : ICommand
+    internal class IDataLayer_MergeUsers : ICommand
     {
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();
             OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
 
-            Console.WriteLine("Executing function IDataLayerPlugin.MergeBuildServers");
+            Console.WriteLine("Executing function IDataLayerPlugin.MergeUsers");
             if (!switches.Contains("from"))
             {
                 Console.WriteLine($"ERROR : key \"from\" required");
@@ -25,12 +25,12 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            string fromBuildServerKey = switches.Get("from");
-            string toBuildServerKey = switches.Get("to");
+            string fromUserKey = switches.Get("from");
+            string toUserKey = switches.Get("to");
 
             try
             {
-                orphanRecordHelper.MergeBuildServers(fromBuildServerKey, toBuildServerKey);
+                orphanRecordHelper.MergeUsers(fromUserKey, toUserKey);
             }
             catch (RecordNotFoundException ex)
             {

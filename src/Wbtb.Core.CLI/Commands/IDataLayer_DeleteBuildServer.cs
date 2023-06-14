@@ -3,14 +3,14 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI.Commands
 {
-    internal class IDataLayerPlugin_DeleteUser : ICommand
+    internal class IDataLayer_DeleteBuildServer : ICommand
     {
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();
             OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
 
-            Console.WriteLine("Executing function IDataLayerPlugin.DeleteUser");
+            Console.WriteLine("Executing function IDataLayerPlugin.DeleteBuildServer");
             if (!switches.Contains("key"))
             {
                 Console.WriteLine($"ERROR : key required");
@@ -22,7 +22,7 @@ namespace Wbtb.Core.CLI.Commands
 
             try
             {
-                orphanRecordHelper.DeleteUser(key);
+                orphanRecordHelper.DeleteBuildServer(key);
             }
             catch (RecordNotFoundException ex)
             {

@@ -8,18 +8,19 @@ namespace Wbtb.Core.CLI
     public class OrphanRecordHelper
     {
         private readonly PluginProvider _pluginProvider;
-        
+
+        private readonly IDataLayerPlugin _datalayer;
+
         public OrphanRecordHelper(PluginProvider pluginProvider) 
         {
             _pluginProvider = pluginProvider;
+            _datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
         }
 
         public void MergeSourceServers(string fromServerKey, string toServerKey)
         {
-            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-
-            SourceServer fromSourceServer = datalayer.GetSourceServerByKey(fromServerKey);
-            SourceServer toSourceServer = datalayer.GetSourceServerByKey(toServerKey);
+            SourceServer fromSourceServer = _datalayer.GetSourceServerByKey(fromServerKey);
+            SourceServer toSourceServer = _datalayer.GetSourceServerByKey(toServerKey);
 
             if (fromSourceServer == null)
                 throw new RecordNotFoundException($"ERROR : sourceserver with key \"{fromServerKey}\" not found");
@@ -28,31 +29,29 @@ namespace Wbtb.Core.CLI
                 throw new RecordNotFoundException($"ERROR : sourceserver with key \"{toSourceServer}\" not found");
 
             // update job
-            foreach (Job job in datalayer.GetJobs().Where(j => j.SourceServerId == fromSourceServer.Id))
+            foreach (Job job in _datalayer.GetJobs().Where(j => j.SourceServerId == fromSourceServer.Id))
             {
                 job.SourceServerId = toSourceServer.Id;
-                datalayer.SaveJob(job);
+                _datalayer.SaveJob(job);
                 Console.WriteLine($"Merged job {job.Key}");
             }
 
             // update revisions
-            foreach (Revision revision in datalayer.GetRevisionsBySourceServer(fromSourceServer.Id))
+            foreach (Revision revision in _datalayer.GetRevisionsBySourceServer(fromSourceServer.Id))
             {
                 revision.SourceServerId = toSourceServer.Id;
-                datalayer.SaveRevision(revision);
+                _datalayer.SaveRevision(revision);
                 Console.WriteLine($"Merged revison {revision.Code}");
             }
 
-            datalayer.DeleteSourceServer(fromSourceServer);
+            _datalayer.DeleteSourceServer(fromSourceServer);
             Console.WriteLine($"Deleted from sourceserver {fromSourceServer.Key}");
         }
 
         public void MergeBuildServers(string fromServerKey, string toServerKey)
         {
-            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-
-            BuildServer fromBuildServer = datalayer.GetBuildServerByKey(fromServerKey);
-            BuildServer toBuildServer = datalayer.GetBuildServerByKey(toServerKey);
+            BuildServer fromBuildServer = _datalayer.GetBuildServerByKey(fromServerKey);
+            BuildServer toBuildServer = _datalayer.GetBuildServerByKey(toServerKey);
 
             if (fromBuildServer == null)
                 throw new RecordNotFoundException($"ERROR : build server with key \"{fromServerKey}\" not found");
@@ -61,62 +60,65 @@ namespace Wbtb.Core.CLI
                 throw new RecordNotFoundException($"ERROR : build server with key \"{toServerKey}\" not found");
 
             // update job
-            foreach (Job job in datalayer.GetJobs().Where(j => j.BuildServerId == fromBuildServer.Id))
+            foreach (Job job in _datalayer.GetJobs().Where(j => j.BuildServerId == fromBuildServer.Id))
             {
                 job.BuildServerId = toBuildServer.Id;
-                datalayer.SaveJob(job);
+                _datalayer.SaveJob(job);
                 Console.WriteLine($"Merged job {job.Key}");
             }
 
-            datalayer.DeleteBuildServer(fromBuildServer);
+            _datalayer.DeleteBuildServer(fromBuildServer);
             Console.WriteLine($"Deleted from buildserver {fromBuildServer.Key}");
         }
 
         public void DeleteUser(string key) 
         {
-            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-
-            User record = datalayer.GetUserByKey(key);
+            User record = _datalayer.GetUserByKey(key);
             if (record == null)
                 throw new RecordNotFoundException($"User with key {key} not found");
 
-            datalayer.DeleteUser(record);
+            _datalayer.DeleteUser(record);
 
             Console.WriteLine($"Deleted user {key}");
         }
 
+        public void DeleteJob(string key) 
+        {
+            Job record = _datalayer.GetJobByKey(key);
+            if (record == null)
+                throw new RecordNotFoundException($"Job with key {key} not found");
+
+            _datalayer.DeleteJob(record);
+
+            Console.WriteLine($"Deleted job {key}");
+        }
+
         public void DeleteSourceServer(string key)
         {
-            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-
-            SourceServer record = datalayer.GetSourceServerByKey(key);
+            SourceServer record = _datalayer.GetSourceServerByKey(key);
             if (record == null)
                 throw new RecordNotFoundException($"Sourceserver with key {key} not found");
 
-            datalayer.DeleteSourceServer(record);
+            _datalayer.DeleteSourceServer(record);
 
             Console.WriteLine($"Deleted sourceserver {key}");
         }
 
         public void DeleteBuildServer(string key)
         {
-            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-
-            BuildServer record = datalayer.GetBuildServerByKey(key);
+            BuildServer record = _datalayer.GetBuildServerByKey(key);
             if (record == null)
                 throw new RecordNotFoundException($"Buildserver with key {key} not found");
 
-            datalayer.DeleteBuildServer(record);
+            _datalayer.DeleteBuildServer(record);
 
             Console.WriteLine($"Deleted buildserver {key}");
         }
 
         public void MergeUsers(string fromUserKey, string toUserKey)
         {
-            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-
-            User fromUser = datalayer.GetUserByKey(fromUserKey);
-            User toUser = datalayer.GetUserByKey(toUserKey);
+            User fromUser = _datalayer.GetUserByKey(fromUserKey);
+            User toUser = _datalayer.GetUserByKey(toUserKey);
 
             if (fromUser == null)
                 throw new RecordNotFoundException($"ERROR : user with key \"{fromUserKey}\" not found");
@@ -125,23 +127,23 @@ namespace Wbtb.Core.CLI
                 throw new RecordNotFoundException($"ERROR : user with key \"{toUserKey}\" not found");
 
             // build involvement
-            IEnumerable<BuildInvolvement> buildInvolvements = datalayer.GetBuildInvolvementByUserId(fromUser.Id);
+            IEnumerable<BuildInvolvement> buildInvolvements = _datalayer.GetBuildInvolvementByUserId(fromUser.Id);
             foreach(BuildInvolvement buildInvolvement in buildInvolvements)
             {
                 buildInvolvement.MappedUserId = toUser.Id;
-                datalayer.SaveBuildInvolement(buildInvolvement);
+                _datalayer.SaveBuildInvolement(buildInvolvement);
                 Console.WriteLine($"Merged buildInvolvement {buildInvolvement.Id}");
             }
 
             // session can't be updated, force delete
-            IEnumerable<Session> sessions = datalayer.GetSessionByUserId(fromUser.Id);
+            IEnumerable<Session> sessions = _datalayer.GetSessionByUserId(fromUser.Id);
             foreach(Session session in sessions)
-            { 
-                datalayer.DeleteSession(session);
+            {
+                _datalayer.DeleteSession(session);
                 Console.WriteLine($"Deleted session {session.Id}");
             }
 
-            datalayer.DeleteUser(fromUser);
+            _datalayer.DeleteUser(fromUser);
             Console.WriteLine($"Deleted from user {fromUser.Key}");
         }
     }

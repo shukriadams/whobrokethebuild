@@ -5,7 +5,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
-    internal class IBuildServerPlugin_ListRemoteJobsCanonical : ICommand
+    internal class IBuildServer_ListRemoteJobsCanonical : ICommand
     {
         public void Process(CommandLineSwitches switches) 
         {
