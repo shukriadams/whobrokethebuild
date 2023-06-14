@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Core;
 
@@ -14,6 +15,7 @@ namespace Wbtb.Core.Web
     {
         public ServerStartService(IServiceProvider serviceProvider, IHostApplicationLifetime lifetime)
         {
+            bool exitOnConfigError = true;
 
             lifetime.ApplicationStarted.Register(() =>{
                 try
@@ -31,9 +33,17 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(null, true);
                     di.Register<IWebDaemon, IncidentAssignDaemon>(null, true);
                     di.Register<IWebDaemon, DeltaDaemon>(null, true);
-                    
                     di.RegisterFactory<IHubContext, HubFactory>();
                     di.Register<BuildLevelPluginHelper, BuildLevelPluginHelper>();
+
+
+                    string exitOnConfigErrorLook = Environment.GetEnvironmentVariable("WBTB_EXIT_ON_CONFIG_ERROR");
+
+                    if (exitOnConfigErrorLook == "0" || exitOnConfigErrorLook == "false") { 
+                        exitOnConfigError = false;
+                        Console.WriteLine("exit on config error is disabled");
+                    }
+                    exitOnConfigError = false;
 
                     Wbtb.Core.Core core = new Wbtb.Core.Core();
                     core.Start();
@@ -44,6 +54,7 @@ namespace Wbtb.Core.Web
                     bool disableDaemons = disableDaemonsLook == "0" || disableDaemonsLook == "false" || config.EnabledDaemons == false;
                     string disableSocketsLook = Environment.GetEnvironmentVariable("WBTB_ENABLE_SOCKETS");
                     bool disableSockets = disableSocketsLook == "0" || disableSocketsLook == "false" || config.EnabledSockets == false;
+
 
                     using (IServiceScope scope = serviceProvider.CreateScope())
                     {
@@ -78,16 +89,23 @@ namespace Wbtb.Core.Web
 
                         }
                     }
+
+                    AppState.Ready = true;
                 }
                 catch (ConfigurationException ex)
                 {
-                    Console.WriteLine("WBTB failed to start - configuration errors were detected :");
+                    AppState.ConfigErrors = true;
+
                     Console.WriteLine(ex.Message);
 
-                    // force exit app if config failed
-                    System.Diagnostics.Process
-                        .GetCurrentProcess()
-                        .Kill();
+                    if (exitOnConfigError) 
+                    {
+                        Console.WriteLine("WBTB failed to start - configuration errors were detected :");
+                        // force exit app if config failed
+                        System.Diagnostics.Process
+                            .GetCurrentProcess()
+                            .Kill();
+                    }
                 }
             }); 
         }

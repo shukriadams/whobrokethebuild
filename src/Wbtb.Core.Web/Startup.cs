@@ -44,6 +44,28 @@ namespace Wbtb.Core.Web
                 app.UseExceptionHandler("/Error");
             }
 
+            app.Use(async (context, next) =>
+            {
+                if ((string)context.Request.Path == "/ConfigErrors" || (string)context.Request.Path == "/NotReady")
+                {
+                    await next();
+                }
+                else 
+                {
+                    if (AppState.ConfigErrors)
+                    {
+                        context.Response.Redirect("/ConfigErrors");
+                        return;
+                    }
+
+                    if (!AppState.Ready)
+                    {
+                        context.Response.Redirect("/NotReady");
+                        return;
+                    }
+                }
+            });
+
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthorization();
