@@ -4,13 +4,23 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
-    && apt-get install -y wget \
-    && apt-get install -y tzdata \
+    && apt-get install wget -y \
+    && apt-get install git -y \
+    && apt-get install tzdata -y \
     && wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
     && sh -c 'dpkg -i packages-microsoft-prod.deb' \
     && apt-get install apt-transport-https -y \
     && apt-get update \
     && apt-get install aspnetcore-runtime-6.0 -y \
+    # p4 only (REMOVE)
+    && wget https://www.perforce.com/downloads/perforce/r22.1/bin.linux26x86_64/helix-core-server.tgz -O /tmp/p4client.tgz \
+    && mkdir -p /usr/bin/p4 \
+    && tar zxvf /tmp/p4client.tgz -C /usr/bin/p4 \
+    && rm /tmp/p4client.tgz \
+    && chmod +x /usr/bin/p4/p4 \
+    && chmod +x /usr/bin/p4/p4broker \
+    && chmod +x /usr/bin/p4/p4d \
+    && chmod +x /usr/bin/p4/p4p \
     ## clean up
     && rm packages-microsoft-prod.deb \
     && apt-get remove wget -y \
@@ -40,6 +50,9 @@ COPY ./Wbtb.Extensions.LogParsing.BasicErrors/bin/Release/net6.0/. /var/wbtb/Wbt
 COPY ./Wbtb.Extensions.LogParsing.JenkinsSelfFailing/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 
 USER wbtb
+
+# p4 only (REMOVE)
+ENV PATH="${PATH}:/usr/bin/p4"    
 
 # set wbtb default log level
 ENV Logging__LogLevel__Microsoft=Warning
