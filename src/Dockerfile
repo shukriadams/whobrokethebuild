@@ -27,7 +27,7 @@ RUN apt-get update \
     && apt-get remove apt-transport-https -y \
     # set up user+directories
     && useradd -u 1000 wbtb \
-    && mkdir -p /var/wbtb/External \
+    && mkdir -p /var/wbtb/External 
 
 # WARNING : The following assumes the application has already been built in publish mode. See /build/docker/build.sh in project source to do this.
 # core web server
@@ -53,10 +53,10 @@ COPY ./Wbtb.Extensions.LogParsing.JenkinsSelfFailing/bin/Release/net6.0/. /var/w
 
 RUN chmod +x /usr/bin/wbtb \
     && chown wbtb /usr/bin/wbtb \
-    && chmod 700 -R /var/wbtb \
-    && chown wbtb -R /var/wbtb
+    && chown wbtb -R /var/wbtb \
+    && chmod 700 -R /var/wbtb 
 
-USER wbtb
+ USER wbtb
 
 # p4 only (REMOVE)
 ENV PATH="${PATH}:/usr/bin/p4" 
