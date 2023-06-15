@@ -223,7 +223,7 @@ namespace Madscience.Perforce
         {
             ShellResult result = Run($"p4 set P4USER={username}", shellType);
             if (result.ExitCode != 0)
-                throw new Exception($"Failed to set user, got code {result.ExitCode} - {result.StdErr}");
+                throw new Exception($"Failed to set user, got code {result.ExitCode} - {string.Join("\n",result.StdOut)} {string.Join("\n",result.StdErr)}");
 
             result = Run($"p4 set P4PORT={host}", shellType);
             if (result.ExitCode != 0)

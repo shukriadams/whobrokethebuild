@@ -15,7 +15,7 @@ Plugin for connecting Wbtb to a Perforce server.
         -   Host: myp4.com:1666
         -   User: myuser
         -   Password: mypassword
-        -   ShellType: sh|cmd
+        -   Trust : true|false (optional) 
 
     BuildServers:
     -   Jobs:
