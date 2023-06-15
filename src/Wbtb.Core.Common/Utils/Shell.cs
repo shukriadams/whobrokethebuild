@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Wbtb.Core.Common
 {
@@ -44,8 +45,17 @@ namespace Wbtb.Core.Common
             Process command = new Process();
 
             // for now we're forcing sh as a standard shell, if you're running windows and don't have sh at the cmd line install git-for-windows and map its sh.exe to your path
-            command.StartInfo.FileName = "sh";
-            command.StartInfo.Arguments = $"-c \"{cmd}\"";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                command.StartInfo.FileName = "sh";
+                command.StartInfo.Arguments = $"-c \"{cmd}\"";
+            }
+            else
+            {
+                command.StartInfo.FileName = "cmd.exe";
+                command.StartInfo.Arguments = $"/k {cmd}";
+            }
+
             command.StartInfo.WorkingDirectory = this.WorkingDirectory;
             command.StartInfo.RedirectStandardInput = true;
             command.StartInfo.RedirectStandardOutput = true;
@@ -61,7 +71,8 @@ namespace Wbtb.Core.Common
             command.StandardInput.Flush();
             command.StandardInput.Close();
             command.BeginOutputReadLine();
-            command.WaitForExit();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                command.WaitForExit();
 
             return string.Join(string.Empty, StdOut);
         }

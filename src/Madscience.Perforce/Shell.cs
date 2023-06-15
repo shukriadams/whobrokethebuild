@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace MadScience.Shell
 {
@@ -22,8 +23,17 @@ namespace MadScience.Shell
         public static ShellResult RunSh(string command)
         {
             Process cmd = new Process();
-            cmd.StartInfo.FileName = "sh";
-            cmd.StartInfo.Arguments = $"-c \"{command}\"";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                cmd.StartInfo.FileName = "sh";
+                cmd.StartInfo.Arguments = $"-c \"{command}\"";
+            }
+            else
+            {
+                cmd.StartInfo.FileName = "cmd.exe";
+                cmd.StartInfo.Arguments = $"/k {command}";
+            }
+
             cmd.StartInfo.RedirectStandardInput = true;
             cmd.StartInfo.RedirectStandardOutput = true;
             cmd.StartInfo.RedirectStandardError = true;
@@ -33,7 +43,8 @@ namespace MadScience.Shell
 
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
-            cmd.WaitForExit();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                cmd.WaitForExit();
 
             List<string> stdOut = new List<string>();
             List<string> stdErr = new List<string>();

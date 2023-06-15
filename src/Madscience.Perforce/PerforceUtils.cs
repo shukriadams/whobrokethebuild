@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 /// <summary>
@@ -146,11 +148,20 @@ namespace Madscience.Perforce
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        private static ShellResult Run(string command, ShellType shellType)
+        private static ShellResult Run(string command)
         {
             Process cmd = new Process();
-            cmd.StartInfo.FileName = "sh";
-            cmd.StartInfo.Arguments = $"-c \"{command}\"";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                cmd.StartInfo.FileName = "sh";
+                cmd.StartInfo.Arguments = $"-c \"{command}\"";
+            }
+            else 
+            {
+                cmd.StartInfo.FileName = "cmd.exe";
+                cmd.StartInfo.Arguments = $"/k {command}";
+            }
+
             cmd.StartInfo.RedirectStandardInput = true;
             cmd.StartInfo.RedirectStandardOutput = true;
             cmd.StartInfo.RedirectStandardError = true;
@@ -160,7 +171,8 @@ namespace Madscience.Perforce
 
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
-            cmd.WaitForExit(); 
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                cmd.WaitForExit(); 
 
             List<string> stdOut = new List<string>();
             List<string> stdErr = new List<string>();
@@ -214,32 +226,33 @@ namespace Madscience.Perforce
 
 
         /// <summary>
-        /// Creates a perforce login session against the given host
+        /// gets a p4 ticket for user, returns string empty if faild
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="host"></param>
-        private static void EnsureSession(string username, string password, string host, ShellType shellType)
+        private static string GetTicket(string username, string password, string host, bool trust)
         {
-            ShellResult result = Run($"p4 set P4USER={username}", shellType);
-            if (result.ExitCode != 0)
-                throw new Exception($"Failed to set user, got code {result.ExitCode} - {string.Join("\n",result.StdOut)} {string.Join("\n",result.StdErr)}");
+            string command = $"echo {password}|p4 -p {host} -u {username} login && p4 tickets";
+            if (trust)
+                command = $"p4 trust -i {username} && p4 trust -f -y && {command}";
 
-            result = Run($"p4 set P4PORT={host}", shellType);
+            var result = Run(command);
             if (result.ExitCode != 0)
-                throw new Exception($"Failed to set port, got code {result.ExitCode} - {result.StdErr}");
+                throw new Exception($"Failed to login, got code {result.ExitCode} - {string.Join("\n", result.StdErr)}");
 
-            Run($"echo {password}|p4 login", shellType);
-            if (result.ExitCode != 0)
-                throw new Exception($"Failed to login, got code {result.ExitCode} - {result.StdErr}");
+            foreach (string outline in result.StdOut) 
+                if (outline.Contains($"({username})")) 
+                    return outline.Split(" ")[2];
+
+            throw new Exception($"Failed to get ticket - {string.Join("\n", result.StdErr)} {string.Join("\n", result.StdOut)} ");
         }
 
-        public static  bool IsInstalled(ShellType shellType) 
+        public static  bool IsInstalled() 
         {
-            ShellResult result = Run($"p4", shellType);
+            ShellResult result = Run($"p4");
             string stdErr = string.Join("", result.StdErr);
-            // windows only, what about linux?
-            if (stdErr.Contains("is not recognized as an internal or external command"))
+            if (stdErr.Contains("is not recognized as an internal or external command") || stdErr.Contains("'p4' not found"))
                 return false;
 
             return true;
@@ -253,12 +266,12 @@ namespace Madscience.Perforce
         /// <param name="host"></param>
         /// <param name="revision"></param>
         /// <returns></returns>
-        public static Change Describe(string username, string password, string host, int revision, ShellType shellType)
+        public static Change Describe(string username, string password, string host, bool trust, int revision)
         {
-            EnsureSession(username, password, host, shellType);
-            string command = $"p4 describe {revision}";
+            string ticket =  GetTicket(username, password, host, trust);
+            string command = $"p4 -u {username} -p {host} -P {ticket} describe {revision}";
 
-            ShellResult result = Run(command, shellType);
+            ShellResult result = Run(command);
 
             if (result.ExitCode != 0 || result.StdErr.Any())
             { 
@@ -277,17 +290,6 @@ namespace Madscience.Perforce
             return ParseDescribe(describeRaw);
         }
 
-        public static void Trust(string host, ShellType shellType) 
-        {
-            ShellResult result = Run($"p4 trust -i {host}", shellType);
-            if (result.ExitCode != 0)
-                throw new Exception($"P4 command exited with code {result.ExitCode} : {result.StdErr}");
-
-            result = Run($"p4 trust -f -y", shellType);
-            if (result.ExitCode != 0)
-                throw new Exception($"P4 command exited with code {result.ExitCode} : {result.StdErr}");
-        }
-
 
         /// <summary>
         /// 
@@ -295,16 +297,9 @@ namespace Madscience.Perforce
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="host"></param>
-        public static void VerifyCredentials(string username, string password, string host, ShellType shellType)
+        public static void VerifyCredentials(string username, string password, string host, bool trust)
         {
-            EnsureSession(username, password, host, shellType);
-            ShellResult result = Run("p4 tickets", shellType);
-            
-            if (result.ExitCode != 0)
-                throw new Exception($"P4 command exited with code {result.ExitCode} : {result.StdErr}");
-
-            if (result.StdOut.Count() < 3)
-                throw new Exception("Login failed, no ticket detected");
+            GetTicket(username, password, host, trust);
         }
 
         /// <summary>
@@ -387,16 +382,16 @@ namespace Madscience.Perforce
         /// <param name="filePath"></param>
         /// <param name="revision"></param>
         /// <returns></returns>
-        public static Annotate Annotate(string username, string password, string host, string filePath, ShellType shellType, int? revision = null)
+        public static Annotate Annotate(string username, string password, string host, bool trust, string filePath, int? revision = null)
         {
-            EnsureSession(username, password, host, shellType);
+            string ticket = GetTicket(username, password, host, trust);
 
             string revisionSwitch = string.Empty;
             if (revision.HasValue)
                 revisionSwitch = $"@{revision.Value}";
 
-            string command = $"p4 annotate -c {filePath}{revisionSwitch}";
-            ShellResult result = Run(command, shellType);
+            string command = $"p4 -u {username} -p {host} -P {ticket} annotate -c {filePath}{revisionSwitch}";
+            ShellResult result = Run(command);
             if (result.ExitCode != 0)
                 throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {result.StdErr}");
 
@@ -461,30 +456,30 @@ namespace Madscience.Perforce
         /// <param name="max"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static IEnumerable<Change> Changes(string username, string password, string host, ShellType shellType, int max = 0, string path = "//...")
+        public static IEnumerable<Change> Changes(string username, string password, string host, bool trust, int max = 0, string path = "//...")
         {
-            EnsureSession(username, password, host, shellType);
+            string ticket = GetTicket(username, password, host, trust);
 
             string maxModifier = max > 0 ? $"-m {max}" : string.Empty;
-            string command = $"p4 changes {maxModifier} -l {path}";
+            string command = $"p4 -u {username} -p {host} -P {ticket} changes {maxModifier} -l {path}";
 
-            ShellResult result = Run(command, shellType);
+            ShellResult result = Run(command);
             if (result.ExitCode != 0)
                 throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\\n", result.StdErr)}");
 
             return ParseChanges(result.StdOut);
         }
 
-        public static IEnumerable<Change> ChangesBetween(string username, string password, string host, int startRevision, int endRevision, ShellType shellType, string path = "//...")
+        public static IEnumerable<Change> ChangesBetween(string username, string password, string host, bool trust, int startRevision, int endRevision, string path = "//...")
         {
-            EnsureSession(username, password, host, shellType);
+            string ticket = GetTicket(username, password, host, trust);
             IList<int> revisions = new List<int>();
             bool limitReached = false;
 
             while(!limitReached)
             {
-                string command = $"p4 changes -m 100 -e {startRevision} -l {path}";
-                ShellResult result = Run(command, shellType);
+                string command = $"p4 -u {username} -p {host} -P {ticket} changes -m 100 -e {startRevision} -l {path}";
+                ShellResult result = Run(command);
                 if (result.ExitCode != 0 || result.StdErr.Any())
                     throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\\n", result.StdErr)}");
 
@@ -505,7 +500,7 @@ namespace Madscience.Perforce
                 }
             }
 
-            return revisions.Select(rev => Describe(username, password, host, rev, shellType));
+            return revisions.Select(rev => Describe(username, password, host, trust, rev));
         }
 
         /// <summary>
