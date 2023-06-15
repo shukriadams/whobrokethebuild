@@ -521,17 +521,6 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Build IDataLayerPlugin.GetBreakingBuildByJob(Job job)
-        {
-            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
-            {
-                FunctionName = "GetBreakingBuildByJob",
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "job", Value = job }
-                }
-            });
-        }
-
         Build IDataLayerPlugin.GetPreviousBuild(Build build)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs

@@ -10,16 +10,18 @@
     @foreach(User user in Model.Users)
     { 
         <x-list-row class="job-buildItem">
-            <div>
+            <x-list-cell>
                 User : @user.Key
-            </div>
-            
-            @if(string.IsNullOrEmpty(user.AuthPlugin)){ 
-                <div>
-                    No auth plugin defined for user - login not possible.
-                </div>
-            }
+            </x-list-cell>
 
+            <x-list-cell>
+            @if(string.IsNullOrEmpty(user.AuthPlugin)){
+                <text>
+                    No auth plugin defined for user - login not possible.
+                </text>
+            }
+            </x-list-cell>
+            <x-list-cell>
             @foreach(UserSourceIdentity id in user.SourceServerIdentities)
             { 
                 <div>
@@ -29,6 +31,7 @@
                     Id : @id.Name
                 </div>
             }
+            </x-list-cell>
         </x-list-row>
     }
 </x-list>

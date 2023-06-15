@@ -41,28 +41,13 @@
         <aside>
             <ul class="sideMenu">
 
-                @if (isLoggedIn){
-                    <li class="sideMenu-header">
-                        Hi there <a class="header-username" href="/settings">@session_name</a>
-                    </li>
-                } else {
-                    <li class="sideMenu-item">
-                        <a class="sideMenu-anchor" data-function-login href="/login" title="Login">
-                            <span class="sideMenu-iconWrapper">
-                                <i class="icon icon-login"></i>
-                            </span>
-                            Login
-                        </a>
-                    </li>
-                }
-
                 <li class="sideMenu-item">
-                    <a class="sideMenu-anchor" href="/" title="Jobs">
+                    <a class="sideMenu-anchor" href="/" title="Logs">
                         <span class="sideMenu-iconWrapper">
-                            <i class="icon icon-radar"></i> 
+                            <i class="icon icon-log"></i>
                         </span>
                         Jobs
-                    </a> 
+                    </a>
                 </li>
 
                 <li class="sideMenu-item">
@@ -71,34 +56,6 @@
                             <i class="icon icon-users"></i> 
                         </span>
                         Users
-                    </a> 
-                </li>
-
-                <li class="sideMenu-item">
-                    <a class="sideMenu-anchor" href="/buildservers" title="Users">
-                        <span class="sideMenu-iconWrapper">
-                            <i class="icon icon-users"></i> 
-                        </span>
-                        Buildservers
-                    </a> 
-                </li>
-
-                <li class="sideMenu-item">
-                    <a class="sideMenu-anchor" href="/perforce" title="Users">
-                        <span class="sideMenu-iconWrapper">
-                            <i class="icon icon-users"></i> 
-                        </span>
-                        Perforce
-                    </a> 
-                </li>
-
-
-                <li class="sideMenu-item">
-                    <a class="sideMenu-anchor" href="/console" title="Console">
-                        <span class="sideMenu-iconWrapper">
-                            <i class="icon"></i> 
-                        </span>
-                        Console
                     </a> 
                 </li>
 
@@ -134,15 +91,41 @@
                     </li>
                 }
 
-                    <li class="sideMenu-item">
-                        <a class="sideMenu-anchor" href="/buildflags" title="Build flags">
-                            <span class="sideMenu-iconWrapper">
-                                <i class="icon icon-log"></i> 
-                            </span>
-                            Build Flags
-                        </a> 
-                    </li>
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" href="/buildflags" title="Build flags">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-log"></i> 
+                        </span>
+                        Build Flags
+                    </a> 
+                </li>
 
+            <li class="sideMenu-item">
+                <a class="sideMenu-anchor" href="/console" title="Console">
+                    <span class="sideMenu-iconWrapper">
+                        <i class="icon"></i>
+                    </span>
+                    Console
+                </a>
+            </li>
+
+            @if (isLoggedIn)
+            {
+                <li class="sideMenu-header">
+                    Hi there <a class="header-username" href="/settings">@session_name</a>
+                </li>
+            }
+            else
+            {
+                <li class="sideMenu-item">
+                    <a class="sideMenu-anchor" data-function-login href="/login" title="Login">
+                        <span class="sideMenu-iconWrapper">
+                            <i class="icon icon-login"></i>
+                        </span>
+                        Login
+                    </a>
+                </li>
+            }
 
             </ul>
         </aside>

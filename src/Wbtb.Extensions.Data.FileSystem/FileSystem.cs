@@ -74,11 +74,6 @@ namespace Wbtb.Extensions.Data.FileSystem
             return false;
         }
 
-        public Build GetBreakingBuildByJob(Job job)
-        {
-            return null;
-        }
-
         public Build GetBuildById(string id)
         {
             return new Build { };

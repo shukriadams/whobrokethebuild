@@ -581,18 +581,6 @@ class DataLayer:
             ]
         })
 
-    def GetBreakingBuildByJob(self, job):
-        return invokeMethod(self, self.pluginKey,
-        {
-            "FunctionName" : "GetBreakingBuildByJob",
-            "Arguments" : [
-                { 
-                    "Name" : "job", 
-                    "Value" : job 
-                }
-            ]
-        })
-
     def GetFirstPassingBuildAfterBuild(self, build):
         return invokeMethod(self, self.pluginKey,
         {

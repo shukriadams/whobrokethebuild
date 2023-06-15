@@ -1,0 +1,43 @@
+﻿@using Humanizer;
+@using Wbtb.Core.Common;
+@using Wbtb.Core.Web;
+@model IncidentPageModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Incident @Model.IncidentBuild.Id</h1>
+<div>
+    
+    <div>
+        Breaking build : @ViewHelpers.BuildLink(Model.IncidentBuild)
+    </div>
+    <div>
+        Job : @ViewHelpers.JobLink(Model.Job)
+    </div>
+    @if (Model.IsActive)
+    {
+        <div>
+            Incident is ongoing as of @DateTime.UtcNow.ToLocalTime()
+        </div>        
+    }
+
+    @if (Model.InvolvedBuilds.Any())
+    {
+        <text>
+            Involved builds:
+        </text>
+
+        <x-list>
+
+        @foreach (Build involvedBuild in Model.InvolvedBuilds)
+        {
+            <x-list-row>
+                @ViewHelpers.BuildLink(involvedBuild)
+            </x-list-row>
+        }
+        </x-list>
+
+    }
+</div>

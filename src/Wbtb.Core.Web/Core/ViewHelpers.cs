@@ -98,6 +98,15 @@ namespace Wbtb.Core.Web
             return new HtmlString($"<span class=\"\">(Revision unresolved).</span>");
         }
 
+        
+        public static HtmlString IncidentLink(Build build)
+        {
+            if (build == null)
+                return new HtmlString(string.Empty);
+
+            return new HtmlString($"<a href=\"/incident/{build.Id}\">{build.Id}</a>");
+        }
+
         public static HtmlString BuildLink(Build build)
         { 
             if (build == null)

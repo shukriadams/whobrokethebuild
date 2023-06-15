@@ -7,22 +7,22 @@
 
 @if(buildservers.Any())
 { 
-    <ul>
-    @foreach(BuildServer buildserver in buildservers)
-    { 
-        <li>
-            <a href="/jobs/@buildserver.Key">@buildserver.Key</a>
-        </li>
-
-        <li>
-            Key : @buildserver.Key
-        </li>
-
-        <li>
-            Name : @buildserver.Name
-        </li>
-    }
-</ul>
+    <x-list>
+        @foreach(BuildServer buildserver in buildservers)
+        { 
+            <x-list-row>
+                <x-list-cell>
+                    <a href="/jobs/@buildserver.Key">@buildserver.Key</a>
+                </x-list-cell>
+                <x-list-cell>
+                    Key : @buildserver.Key
+                </x-list-cell>
+                <x-list-cell>
+                    Name : @buildserver.Name
+                </x-list-cell>
+            </x-list-row>
+        }
+    </x-list>
 }
 else 
 { 

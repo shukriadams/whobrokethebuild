@@ -109,6 +109,25 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+        [Route("/incident/{incidentId}")]
+        public IActionResult Incident(string incidentId)
+        {
+            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+
+            IncidentPageModel model = new IncidentPageModel();
+            model.IncidentBuild = dataLayer.GetBuildById(incidentId);
+            if (model.IncidentBuild == null)
+                return Responses.NotFoundError($"build {incidentId} does not exist");
+
+            Build jobDelta = dataLayer.GetLastJobDelta(model.IncidentBuild.JobId);
+            if (jobDelta != null && jobDelta.IncidentBuildId == incidentId)
+                model.IsActive = true;
+
+            model.Job = dataLayer.GetJobById(model.IncidentBuild.JobId);
+            model.InvolvedBuilds = dataLayer.GetBuildsByIncident(incidentId);
+            return View(model);
+        }
+
         [Route("/login")]
         public IActionResult Login()
         {
@@ -327,31 +346,7 @@ namespace Wbtb.Core.Web.Controllers
         }
 
 
-        [Route("/ad")]
-        public IActionResult Ad()
-        {
-            IAuthenticationPlugin authentication = _pluginProvider.GetFirstForInterface<IAuthenticationPlugin>();
-            ActiveDirectory ad = authentication as ActiveDirectory;
-            ad.ListUsers();
-            ViewData["description"] = "done";
 
-            LayoutModel model = new LayoutModel();
-            return View(model);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [Route("/buildservers")]
-        public IActionResult BuildServers()
-        {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-            IEnumerable<BuildServer> buildServers = dataLayer.GetBuildServers();
-            ViewData["buildservers"] = buildServers;
-            LayoutModel model = new LayoutModel();
-            return View(model);
-        }
 
         /// <summary>
         /// Lists remote jobs on build server, NOT jobs in local db
@@ -377,21 +372,6 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
-        /// <summary>
-        /// DEV ONLY!
-        /// </summary>
-        /// <returns></returns>
-        [Route("/perforce")]
-        public IActionResult Perforce()
-        {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-            SourceServer sourceServer = dataLayer.GetSourceServers().First();
-            //Revision revision = _sourceServer.GetRevision(sourceServer, "51112");
-            //ViewData["Description"] = revision.Description;
-
-            LayoutModel model = new LayoutModel();
-            return View(model);
-        }
 
 
         [Route("/buildflags/{page?}")]
@@ -409,18 +389,6 @@ namespace Wbtb.Core.Web.Controllers
 
         }
 
-        [Route("/slack")]
-        public IActionResult Slack()
-        {
-            Slack plugin = _pluginProvider.GetFirstForInterface<IMessaging>() as Slack;
-
-            //string result = plugin.TestHandler(ConfigKeeper.Instance.BuildServers.First().Jobs.First().Alert.First());
-            plugin.ListChannels();
-            ViewData["Description"] = "see console";
-
-            LayoutModel model = new LayoutModel();
-            return View(model);
-        }
 
         [Route("/build/reprocesslog/{buildid}")]
         public string ReprocessLog(string buildid)

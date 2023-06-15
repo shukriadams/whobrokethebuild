@@ -136,13 +136,6 @@ namespace Wbtb.Core.Common
 
         Build GetLatestBuildByJob(Job job);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="job"></param>
-        /// <returns></returns>
-        Build GetBreakingBuildByJob(Job job);
-
         Build GetFirstPassingBuildAfterBuild(Build build);
 
         Build GetPreviousBuild(Build build);

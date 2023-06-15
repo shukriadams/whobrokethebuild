@@ -1192,50 +1192,6 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Build GetBreakingBuildByJob(Job job)
-        {
-            string query = @"
-                SELECT                     
-                    *
-                FROM 
-                    build B
-                INNER JOIN (
-
-                    -- subquery gets latest build in job IF that build is either confirmed pass or fail.
-                    -- if that build is passed, returns null, else returns id
-                    -- this id can then be used to join the entire build record back, or return null if build is passing
-                    SELECT 
-                        CASE
-                            WHEN status = @build_failed THEN id
-                            ELSE NULL
-                        END AS id_link
-                    FROM
-                        build
-                    WHERE
-                        jobid = @jobid
-                        AND (
-                            status = @build_failed 
-                            OR status = @build_passed 
-                        )
-                    ORDER BY
-                        startedutc ASC
-                    LIMIT
-                        1
-
-                ) B_CHECK on b.id = B_CHECK.id_link";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
-                cmd.Parameters.AddWithValue("build_failed", (int)BuildStatus.Failed);
-                cmd.Parameters.AddWithValue("build_passed", (int)BuildStatus.Passed);
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildConvert().ToCommon(reader);
-            }
-        }
-
         public IEnumerable<Build> GetFailingBuildsWithoutIncident(Job job)
         {
             string query = @"
