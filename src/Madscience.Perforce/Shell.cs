@@ -23,7 +23,7 @@ namespace MadScience.Shell
         {
             Process cmd = new Process();
             cmd.StartInfo.FileName = "sh";
-            cmd.StartInfo.Arguments = $"-c {command}";
+            cmd.StartInfo.Arguments = $"-c \"{command}\"";
             cmd.StartInfo.RedirectStandardInput = true;
             cmd.StartInfo.RedirectStandardOutput = true;
             cmd.StartInfo.RedirectStandardError = true;

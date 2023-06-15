@@ -63,6 +63,8 @@ namespace Wbtb.Core.Web
                         context.Response.Redirect("/NotReady");
                         return;
                     }
+
+                    await next();
                 }
             });
 
