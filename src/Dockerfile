@@ -21,8 +21,6 @@ RUN apt-get update \
     && chmod +x /usr/bin/p4/p4broker \
     && chmod +x /usr/bin/p4/p4d \
     && chmod +x /usr/bin/p4/p4p \
-    # set up wbtb cli alias
-    && echo "alias=\"dotnet /var/wbtb/Wbtb.Core.CLI/Wbtb.Core.CLI.dll\"" >> /etc/bash.bashrc \
     ## clean up
     && rm packages-microsoft-prod.deb \
     && apt-get remove wget -y \

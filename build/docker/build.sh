@@ -70,7 +70,8 @@ if [ $SMOKETEST -eq 1 ]; then
     STATUS=$(curl -s -o /dev/null -w "%{http_code}" localhost:49022) 
     docker-compose -f docker-compose.yml down 
     if [ "$STATUS" != "200" ]; then
-        echo "test container returned unexpected value ${STATUS}"
+        echo "test container returned unexpected value ${STATUS}. Container log is:"
+        echo $(docker logs wbbt-test)
         exit 1
     else
         echo "smoke test passed"
