@@ -44,17 +44,8 @@ namespace Wbtb.Core.Common
             Process command = new Process();
 
             // for now we're forcing sh as a standard shell, if you're running windows and don't have sh at the cmd line install git-for-windows and map its sh.exe to your path
-            if (_mode == "sh")
-            {
-                command.StartInfo.FileName = "sh";
-                command.StartInfo.Arguments = $"-c \"{cmd}\"";
-            }
-            else if (_mode == "cmd")
-            {
-                command.StartInfo.FileName = "cmd.exe";
-                command.StartInfo.Arguments = $"/k {cmd}";
-            }
-
+            command.StartInfo.FileName = "sh";
+            command.StartInfo.Arguments = $"-c \"{cmd}\"";
             command.StartInfo.WorkingDirectory = this.WorkingDirectory;
             command.StartInfo.RedirectStandardInput = true;
             command.StartInfo.RedirectStandardOutput = true;

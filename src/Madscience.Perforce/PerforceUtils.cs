@@ -149,18 +149,8 @@ namespace Madscience.Perforce
         private static ShellResult Run(string command, ShellType shellType)
         {
             Process cmd = new Process();
-            
-            if (shellType == ShellType.Cmd)
-            {
-                cmd.StartInfo.FileName = "cmd.exe";
-                cmd.StartInfo.Arguments = $"/k {command}";
-            } 
-            else 
-            {
-                cmd.StartInfo.FileName = "sh";
-                cmd.StartInfo.Arguments = $"-c {command}";
-            }
-
+            cmd.StartInfo.FileName = "sh";
+            cmd.StartInfo.Arguments = $"-c {command}";
             cmd.StartInfo.RedirectStandardInput = true;
             cmd.StartInfo.RedirectStandardOutput = true;
             cmd.StartInfo.RedirectStandardError = true;
@@ -170,9 +160,7 @@ namespace Madscience.Perforce
 
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
-            // hangs on windows
-            if (shellType == ShellType.Sh)
-                cmd.WaitForExit(); 
+            cmd.WaitForExit(); 
 
             List<string> stdOut = new List<string>();
             List<string> stdErr = new List<string>();
