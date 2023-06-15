@@ -26,7 +26,6 @@ RUN apt-get update \
     && apt-get remove wget -y \
     && apt-get remove apt-transport-https -y \
     # set up user+directories
-    && useradd -u 1000 wbtb \
     && mkdir -p /var/wbtb/External 
 
 # WARNING : The following assumes the application has already been built in publish mode. See /build/docker/build.sh in project source to do this.
@@ -51,12 +50,7 @@ COPY ./Wbtb.Extensions.LogParsing.Cpp/bin/Release/net6.0/. /var/wbtb/Wbtb.Extens
 COPY ./Wbtb.Extensions.LogParsing.BasicErrors/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.BasicErrors
 COPY ./Wbtb.Extensions.LogParsing.JenkinsSelfFailing/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 
-RUN chmod +x /usr/bin/wbtb \
-    && chown wbtb /usr/bin/wbtb \
-    && chown wbtb -R /var/wbtb \
-    && chmod 700 -R /var/wbtb 
-
- USER wbtb
+RUN chmod +x /usr/bin/wbtb 
 
 # p4 only (REMOVE)
 ENV PATH="${PATH}:/usr/bin/p4" 

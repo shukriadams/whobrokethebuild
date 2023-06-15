@@ -5,7 +5,7 @@ SMOKETEST=0
 while [ -n "$1" ]; do 
     case "$1" in
     --push|-p) DOCKERPUSH=1 ;;
-    --smoketest|-t) SMOKETEST=1 ;;
+    --test|-t) SMOKETEST=1 ;;
     esac 
     shift
 done
@@ -67,7 +67,7 @@ if [ $SMOKETEST -eq 1 ]; then
     docker-compose -f docker-compose.yml down --remove-orphans
     docker-compose -f docker-compose.yml up -d 
     sleep 5  # wait a few seconds to make sure app in container has started
-    STATUS=$(curl -s -o /dev/null -w "%{http_code}" localhost:49022) 
+    STATUS=$(curl -s -o /dev/null -w "%{http_code}" localhost:49022/NotReady) 
     docker-compose -f docker-compose.yml down 
     if [ "$STATUS" != "200" ]; then
         echo "test container returned unexpected value ${STATUS}. Container log is:"

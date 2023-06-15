@@ -14,4 +14,4 @@ services:
     ports:
     - "49022:5000"
     # uncomment to disable wbtb app but keep container running
-    #command: /bin/sh -c  "while true ;sleep 5; do continue; done"
+    # command: /bin/sh -c  "while true ;sleep 5; do continue; done"

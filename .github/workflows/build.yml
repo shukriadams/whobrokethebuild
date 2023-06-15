@@ -11,7 +11,7 @@ jobs:
       - name: builds container and pushes to container repo
         run: |
             cd build/docker 
-            sh ./build.sh --smoketest --push
+            sh ./build.sh --test --push
         env:
             DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
             DOCKER_USER: ${{ secrets.DOCKER_USER }}
