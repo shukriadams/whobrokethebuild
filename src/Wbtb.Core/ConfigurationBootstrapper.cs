@@ -7,7 +7,7 @@ namespace Wbtb.Core
     /// <summary>
     /// Fetches WBTB config froma git repo
     /// </summary>
-    public class ConfigBootstrapper
+    public class ConfigurationBootstrapper
     {
         /// <summary>
         /// Ensures latest config. returns true of config has changed

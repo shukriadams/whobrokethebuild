@@ -2,7 +2,7 @@
 
 namespace Wbtb.Core
 {
-    public class ConfigValidationError
+    public class ConfigurationValidationError
     {
         public bool IsValid { get;set;}
 
@@ -10,7 +10,7 @@ namespace Wbtb.Core
 
         public Exception InnerException { get; set; }
 
-        public ConfigValidationError()
+        public ConfigurationValidationError()
         { 
             this.Message = string.Empty;
         }

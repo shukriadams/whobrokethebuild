@@ -32,7 +32,7 @@ namespace Wbtb.Core
             di.Register<PersistPathHelper, PersistPathHelper>();
             di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();
             di.Register<ConfigBasic, ConfigBasic>();
-            di.Register<ConfigBootstrapper, ConfigBootstrapper>();
+            di.Register<ConfigurationBootstrapper, ConfigurationBootstrapper>();
             di.Register<GitHelper, GitHelper>();
             di.Register<BuildLogParseResultHelper, BuildLogParseResultHelper>();
             di.Register<ConfigurationBuilder, ConfigurationBuilder>();
@@ -43,7 +43,7 @@ namespace Wbtb.Core
             di.RegisterFactory<ILogger, LogProvider>();
             di.RegisterFactory<IPluginSender, PluginSenderFactory>();
 
-            ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
+            ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
             CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
             ConfigBasic configBasic = di.Resolve<ConfigBasic>();
             customEnvironmentArgs.Apply();

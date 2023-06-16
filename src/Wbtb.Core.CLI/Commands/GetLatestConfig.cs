@@ -8,7 +8,7 @@ namespace Wbtb.Core.CLI
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();
-            ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
+            ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
             CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
             customEnvironmentArgs.Apply();
 

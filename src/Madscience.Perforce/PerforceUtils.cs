@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
@@ -266,7 +265,7 @@ namespace Madscience.Perforce
         /// <param name="host"></param>
         /// <param name="revision"></param>
         /// <returns></returns>
-        public static Change Describe(string username, string password, string host, string trustFingerPrint, int revision)
+        public static string GetRawDescribe(string username, string password, string host, string trustFingerPrint, int revision)
         {
             string ticket =  GetTicket(username, password, host, trustFingerPrint);
             string command = $"p4 -u {username} -p {host} -P {ticket} describe {revision}";
@@ -285,9 +284,7 @@ namespace Madscience.Perforce
                 throw new Exception($"P4 command {command} exited with code {result.ExitCode}, error : {stderr}");
             }
 
-            string describeRaw = string.Join("\\n", result.StdOut);
-            
-            return ParseDescribe(describeRaw);
+            return string.Join("\\n", result.StdOut);
         }
 
 
@@ -308,7 +305,7 @@ namespace Madscience.Perforce
         /// <param name="rawDescribe"></param>
         /// <param name="parseDifferences"></param>
         /// <returns></returns>
-        private static Change ParseDescribe(string rawDescribe, bool parseDifferences = true)
+        public static Change ParseDescribe(string rawDescribe, bool parseDifferences = true)
         {
             // convert all windows linebreaks to unix 
             rawDescribe = StandardizeLineEndings(rawDescribe);
@@ -382,7 +379,7 @@ namespace Madscience.Perforce
         /// <param name="filePath"></param>
         /// <param name="revision"></param>
         /// <returns></returns>
-        public static Annotate Annotate(string username, string password, string host, string trustFingerPrint, string filePath, int? revision = null)
+        public static IEnumerable<string> GetRawAnnotate(string username, string password, string host, string trustFingerPrint, string filePath, int? revision = null)
         {
             string ticket = GetTicket(username, password, host, trustFingerPrint);
 
@@ -395,7 +392,7 @@ namespace Madscience.Perforce
             if (result.ExitCode != 0)
                 throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {result.StdErr}");
 
-            return ParseAnnotate(result.StdOut);
+            return result.StdOut;
         }
 
 
@@ -404,7 +401,7 @@ namespace Madscience.Perforce
         /// </summary>
         /// <param name="lines"></param>
         /// <returns></returns>
-        private static Annotate ParseAnnotate(IEnumerable<string> lines)
+        public static Annotate ParseAnnotate(IEnumerable<string> lines)
         {
             lines = lines.Where(line => !string.IsNullOrEmpty(line));
             string revision = string.Empty;
@@ -446,9 +443,8 @@ namespace Madscience.Perforce
             };
         }
 
-
         /// <summary>
-        /// 
+        /// Gets raw p4 lookup of revisions from now back in time.
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
@@ -456,7 +452,7 @@ namespace Madscience.Perforce
         /// <param name="max"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static IEnumerable<Change> Changes(string username, string password, string host, string trustFingerPrint, int max = 0, string path = "//...")
+        public static IEnumerable<string> GetRawChanges(string username, string password, string host, string trustFingerPrint, int max = 0, string path = "//...")
         {
             string ticket = GetTicket(username, password, host, trustFingerPrint);
 
@@ -467,10 +463,22 @@ namespace Madscience.Perforce
             if (result.ExitCode != 0)
                 throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\\n", result.StdErr)}");
 
-            return ParseChanges(result.StdOut);
+            return result.StdOut;
         }
 
-        public static IEnumerable<Change> ChangesBetween(string username, string password, string host, string trustFingerPrint, int startRevision, int endRevision, string path = "//...")
+        /// <summary>
+        /// Gets raw p4 lookup of revisions between two change nrs.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="host"></param>
+        /// <param name="trustFingerPrint"></param>
+        /// <param name="startRevision"></param>
+        /// <param name="endRevision"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static IEnumerable<string> GetRawChangesBetween(string username, string password, string host, string trustFingerPrint, int startRevision, int endRevision, string path = "//...")
         {
             string ticket = GetTicket(username, password, host, trustFingerPrint);
             IList<int> revisions = new List<int>();
@@ -500,7 +508,7 @@ namespace Madscience.Perforce
                 }
             }
 
-            return revisions.Select(rev => Describe(username, password, host, trustFingerPrint, rev));
+            return revisions.Select(rev => rev.ToString());
         }
 
         /// <summary>
@@ -508,7 +516,7 @@ namespace Madscience.Perforce
         /// </summary>
         /// <param name="rawChanges"></param>
         /// <returns></returns>
-        private static IEnumerable<Change> ParseChanges(IEnumerable<string> rawChanges)
+        public static IEnumerable<Change> ParseChanges(IEnumerable<string> rawChanges)
         {
             List<Change> changes = new List<Change>();
             Change currentChange = new Change();

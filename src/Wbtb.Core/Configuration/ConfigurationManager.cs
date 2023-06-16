@@ -37,7 +37,7 @@ namespace Wbtb.Core
             IDeserializer deserializer = YmlHelper.GetDeserializer();
             Console.WriteLine("WBTB : initializing config");
 
-            ConfigValidationError validation = ValidateYmlFormat(rawYml);
+            ConfigurationValidationError validation = ValidateYmlFormat(rawYml);
             if (!validation.IsValid)
                 throw new ConfigurationException($"Application config yml is not properly formatted. See WBTB setup guide for details. {validation.Message}");
 
@@ -555,18 +555,18 @@ namespace Wbtb.Core
         /// </summary>
         /// <param name="ymlText"></param>
         /// <returns></returns>
-        private ConfigValidationError ValidateYmlFormat(string ymlText)
+        private ConfigurationValidationError ValidateYmlFormat(string ymlText)
         {
             IDeserializer deserializer = YmlHelper.GetDeserializer();
 
             try
             {
                 deserializer.Deserialize<Configuration>(ymlText);
-                return new ConfigValidationError { IsValid = true};
+                return new ConfigurationValidationError { IsValid = true};
             }
             catch(Exception ex) 
             { 
-                return new ConfigValidationError 
+                return new ConfigurationValidationError 
                 { 
                     IsValid = false,
                     Message = ex.Message,

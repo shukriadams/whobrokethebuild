@@ -17,7 +17,9 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         private readonly PluginProvider _pluginProvider;
 
         private readonly PersistPathHelper _persistPathHelper;
+
         private readonly SimpleDI _di;
+
         #endregion
 
         #region CTORS
@@ -235,8 +237,6 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         private IEnumerable<string> GetRevisionsInBuild(Job job, Build build)
         {
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-
-
             string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, build.Identifier, "revisions.json");
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
