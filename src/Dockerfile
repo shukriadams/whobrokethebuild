@@ -35,7 +35,7 @@ COPY ./Wbtb.Core.Web/wwwroot/. /var/wbtb/Wbtb.Core.Web/wwwroot
 # include messageQueue
 COPY ./MessageQueue/bin/Release/net6.0/. /var/wbtb/MessageQueue
 # include CLI
-COPY ./Wbtb.Core.CLI/bin/Release/net6.0/. /var/wbtb/Wbtb.Core.CLI
+COPY ./Wbtb.Core.CLI/bin/Release/net6.0/linux-x64/. /var/wbtb/Wbtb.Core.CLI
 COPY ./Wbtb.Core.CLI/wbtb.sh /usr/bin/wbtb
 # include built-in plugins WBTB always ships with
 COPY ./Wbtb.Extensions.Data.FileSystem/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.Data.FileSystem
