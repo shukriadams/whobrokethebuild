@@ -23,7 +23,7 @@ namespace Wbtb.Core
             SimpleDI di = new SimpleDI();
 
             di.Register<UrlHelper, UrlHelper>();
-            di.Register<ConfigurationManager, ConfigurationManager>();
+            di.Register<ConfigurationLoader, ConfigurationLoader>();
             di.Register<CurrentVersion, CurrentVersion>();
             di.Register<LogHelper, LogHelper>();
             di.Register<PluginDirectSender, PluginDirectSender>();
@@ -49,7 +49,7 @@ namespace Wbtb.Core
             customEnvironmentArgs.Apply();
             configBootstrapper.EnsureLatest();
 
-            ConfigurationManager configurationManager = di.Resolve<ConfigurationManager>();
+            ConfigurationLoader configurationManager = di.Resolve<ConfigurationLoader>();
 
             // first part of server start, tries to load config
             string configPath = configBasic.ConfigPath;

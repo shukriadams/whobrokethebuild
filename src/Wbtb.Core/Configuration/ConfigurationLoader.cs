@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
@@ -11,7 +12,7 @@ using Group = Wbtb.Core.Common.Group;
 
 namespace Wbtb.Core
 {
-    public class ConfigurationManager
+    public class ConfigurationLoader
     {
         #region METHODS
 
@@ -34,6 +35,23 @@ namespace Wbtb.Core
             
             Console.WriteLine($"WBTB : Loaded config @ {path}");
 
+            // substitute templated {...} settings from env variables. this is a security feature so we can store sensitive data as 
+            // env vars instead of in config file
+            MatchCollection evnVarTokens = new Regex("\\{\\{env.(.*?)\\}\\}", RegexOptions.Multiline).Matches(rawYml);
+            foreach (Match evnVarToken in evnVarTokens)
+            {
+                string envVarValue = Environment.GetEnvironmentVariable(evnVarToken.Groups[1].Value);
+                if (envVarValue == null)
+                {
+                    throw new ConfigurationException($"Config  has a template value {{env"+ evnVarToken.Groups[1].Value + "}}, but not env var for this is set.");
+                }
+                else
+                {
+                    Console.WriteLine($"Replacing env var for value \"{evnVarToken.Groups[1].Value}\".");
+                    rawYml = rawYml.Replace("{{env." + evnVarToken.Groups[1].Value + "}}", envVarValue);
+                }
+            }
+
             IDeserializer deserializer = YmlHelper.GetDeserializer();
             Console.WriteLine("WBTB : initializing config");
 
@@ -48,32 +66,6 @@ namespace Wbtb.Core
             // plugins to define their own config structure without requiring updates to WBTB's internal config structure.
             YamlNode rawConfig = ConfigurationHelper.RawConfigToDynamic(rawYml);
 
-            // substitute templated {...} settings from env variables. this is a security feature so we can store sensitive data as 
-            // env vars instead of in config file
-            System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex(@"^\{\{env.(.*)\}\}$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            foreach (PluginConfig pluginConfig in tempConfig.Plugins)
-            {
-                IList<KeyValuePair<string, object>> writeableConfig = pluginConfig.Config.ToList();
-
-                for (int i = 0; i < writeableConfig.Count; i++)
-                {
-                    KeyValuePair<string, object> item = pluginConfig.Config.ElementAt(i);
-                    string value = item.Value.ToString().Trim();
-                    System.Text.RegularExpressions.Match match = reg.Match(value);
-                    if (!match.Success)
-                        continue;
-
-                    string envArgName = match.Groups[1].Value;
-                    string envVarValue = Environment.GetEnvironmentVariable(envArgName);
-                    if (string.IsNullOrEmpty(envVarValue))
-                        throw new ConfigurationException($"plugin {pluginConfig.Key} has a config item {item.Key} requesting an env variable that is not set");
-
-                    writeableConfig[i] = new KeyValuePair<string, object>(item.Key, envVarValue);
-                    Console.WriteLine($"{pluginConfig.Key} config item {item.Key} value has been set from environment variable");
-                }
-
-                pluginConfig.Config = writeableConfig;
-            }
 
             // removes explicitly disabled data as quickly as possible, this way we don't have to constantly filter out plugins by enabled in following checks
             tempConfig.Plugins = tempConfig.Plugins.Where(p => p.Enable).ToList();
