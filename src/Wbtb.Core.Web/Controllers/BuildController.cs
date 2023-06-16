@@ -32,6 +32,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         /// <param name="buildid"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ViewStatus))]
         [HttpDelete("{buildid}")]
         public string BuildDelete(string buildid)
         {

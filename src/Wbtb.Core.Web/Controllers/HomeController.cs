@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Wbtb.Core.Common;
-using Wbtb.Extensions.Auth.ActiveDirectory;
-using Wbtb.Extensions.Messaging.Slack;
 
 namespace Wbtb.Core.Web.Controllers
 {
@@ -52,6 +50,7 @@ namespace Wbtb.Core.Web.Controllers
         /// Renders view.
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("")]
         public IActionResult Index()
         {
@@ -91,7 +90,7 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
-
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/buildprocessorlog/{buildprocessorid}")]
         public IActionResult BuildProcessorLog(string buildProcessorId)
         {
@@ -109,6 +108,7 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/incident/{incidentId}")]
         public IActionResult Incident(string incidentId)
         {
@@ -128,6 +128,7 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/login")]
         public IActionResult Login()
         {
@@ -135,6 +136,7 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/buildsoftreset/{buildId}")]
         public IActionResult SoftResetBuild(string buildId) 
         {
@@ -150,6 +152,7 @@ namespace Wbtb.Core.Web.Controllers
         /// 
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/console")]
         public IActionResult Console()
         {
@@ -160,21 +163,10 @@ namespace Wbtb.Core.Web.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <returns></returns>
-        [Route("/test")]
-        public IActionResult Test()
-        {
-            _hub.Clients.All.SendAsync("ReceiveMessage", "some user", "some message");
-            LayoutModel model = new LayoutModel();
-            return View(model);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="jobid"></param>
         /// <param name="pageIndex"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/job/{jobid}/{pageIndex?}")]
         public IActionResult Job(string jobid, int pageIndex)
         {
@@ -195,7 +187,8 @@ namespace Wbtb.Core.Web.Controllers
             model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByJob(jobid, pageIndex, _config.StandardPageSize));
             return View(model);
         }
-        
+
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/incidents/{jobid}/{pageIndex?}")]
         public IActionResult JobIncidents(string jobid, int pageIndex)
         {
@@ -214,6 +207,7 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/buildflag/reset/{buildid}/{flag}")]
         public IActionResult BuildFlagReset(string buildid, string flag)
         {
@@ -223,6 +217,7 @@ namespace Wbtb.Core.Web.Controllers
             return Redirect($"/build/{buildid}");
         }
 
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/buildflag/delete/{buildflagid}")]
         public string BuildFlagDelete(string buildflagid)
         {
@@ -237,6 +232,7 @@ namespace Wbtb.Core.Web.Controllers
         /// </summary>
         /// <param name="buildid"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/build/{buildid}")]
         public IActionResult Build(string buildid)
         {
@@ -269,6 +265,7 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/build/log/{buildid}")]
         public IActionResult BuildLog(string buildid)
         {
@@ -289,6 +286,7 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/buildhost/{hostname}/{page?}")]
         public IActionResult BuildHost(string hostname, int page)
         {
@@ -304,6 +302,7 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/user/{userid}")]
         public new IActionResult User(string userid)
         {
@@ -336,6 +335,7 @@ namespace Wbtb.Core.Web.Controllers
         /// 
         /// </summary>
         /// <returns></returns>
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/users")]
         public IActionResult Users()
         {
@@ -353,6 +353,7 @@ namespace Wbtb.Core.Web.Controllers
         /// </summary>
         /// <param name="buildserverid"></param>
         /// <returns></returns>
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/jobs/{buildserverid}")]
         public IActionResult Jobs(string buildserverid)
         {
@@ -373,7 +374,7 @@ namespace Wbtb.Core.Web.Controllers
         }
 
 
-
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/buildflags/{page?}")]
         public IActionResult BuildFlags(int page)
         {
@@ -390,6 +391,7 @@ namespace Wbtb.Core.Web.Controllers
         }
 
 
+        [ServiceFilter(typeof(ViewStatus))]
         [Route("/build/reprocesslog/{buildid}")]
         public string ReprocessLog(string buildid)
         {
@@ -410,6 +412,24 @@ namespace Wbtb.Core.Web.Controllers
                 buildLogParseResultHelper.ProcessBuild(dataLayer, build, logParser, _log);
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Renders view.
+        /// </summary>
+        /// <returns></returns>
+        [ServiceFilter(typeof(ViewStatus))]
+        [Route("error/404")]
+        public IActionResult Error404()
+        {
+            return View();
+        }
+
+        [ServiceFilter(typeof(ViewStatus))]
+        [Route("error/500")]
+        public IActionResult Error500()
+        {
+            return View();
         }
 
         #endregion
