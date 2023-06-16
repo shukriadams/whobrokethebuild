@@ -11,9 +11,9 @@ namespace Wbtb.Core.Common
     /// </summary>
     public class PluginCoreSender : IPluginSender
     {
-        private readonly Config _config;
+        private readonly Configuration _config;
 
-        public PluginCoreSender(Config config) 
+        public PluginCoreSender(Configuration config) 
         {
             _config = config;
         }

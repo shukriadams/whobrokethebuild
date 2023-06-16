@@ -16,7 +16,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
 
         static readonly string[] allowedTargetTypes = new string[] { "user", "group" };
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         private readonly UrlHelper _urlHelper;
 
@@ -26,7 +26,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
 
         #region CTORS
 
-        public SlackSandbox(Config config, UrlHelper urlHelper, PluginProvider pluginProvider)
+        public SlackSandbox(Configuration config, UrlHelper urlHelper, PluginProvider pluginProvider)
         {
             _config = config;
             _pluginProvider = pluginProvider;

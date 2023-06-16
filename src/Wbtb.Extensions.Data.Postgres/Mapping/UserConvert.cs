@@ -7,9 +7,9 @@ namespace Wbtb.Extensions.Data.Postgres
 {
     internal class UserConvert : IRecordConverter<User>
     {
-        private readonly Config _config;
+        private readonly Configuration _config;
 
-        internal UserConvert(Config config) 
+        internal UserConvert(Configuration config) 
         { 
             _config = config;
         }

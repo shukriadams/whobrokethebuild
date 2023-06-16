@@ -5,12 +5,12 @@ namespace Wbtb.Core.Common
 {
     public class PluginProvider
     {
-        private readonly Config _config;
+        private readonly Configuration _config;
              
         public PluginProvider() 
         {
             SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>(); 
+            _config = di.Resolve<Configuration>(); 
         }
 
         public T GetFirstForInterface<T>(bool expected = true)

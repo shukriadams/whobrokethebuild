@@ -4,9 +4,9 @@ namespace Wbtb.Core.Common
 {
     public class UrlHelper
     {
-        private readonly Config _config;
+        private readonly Configuration _config;
 
-        public UrlHelper(Config config) 
+        public UrlHelper(Configuration config) 
         {
             _config = config;
         }

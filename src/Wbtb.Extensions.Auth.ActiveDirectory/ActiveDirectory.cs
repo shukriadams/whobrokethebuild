@@ -10,7 +10,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
 
         #region FIELDS
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         #endregion
 
@@ -18,7 +18,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
 
         public ActiveDirectory() 
         {
-            _config = new Config();
+            _config = new Configuration();
         }
 
         #endregion

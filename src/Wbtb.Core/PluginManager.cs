@@ -15,12 +15,12 @@ namespace Wbtb.Core
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly Config _config;
+        private readonly Configuration _config;
         #endregion
 
         #region CTORS
 
-        public PluginManager(PluginProvider pluginProvider, Config config) 
+        public PluginManager(PluginProvider pluginProvider, Configuration config) 
         {
             _pluginProvider = pluginProvider;
             _config = config;

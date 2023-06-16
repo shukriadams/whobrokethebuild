@@ -24,7 +24,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
             //Core.Core.LoadPlugins();
 
             Postgres = di.Resolve<IDataLayerPlugin>();
-            Config config = di.Resolve<Config>();
+            Configuration config = di.Resolve<Configuration>();
             Postgres.ContextPluginConfig = config.Plugins.First(p => p.Manifest.Concrete == TypeHelper.Name<Postgres>());
             PostgresCommon.ClearAllTables(Postgres.ContextPluginConfig);
         }

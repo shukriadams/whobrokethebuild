@@ -53,7 +53,7 @@ namespace Wbtb.Core
 
             // first part of server start, tries to load config
             string configPath = configBasic.ConfigPath;
-            Config unsafeConfig = configurationManager.LoadUnsafeConfig(configPath);
+            Configuration unsafeConfig = configurationManager.LoadUnsafeConfig(configPath);
 
             // ensure directories, this requires that config is loaded
             Directory.CreateDirectory(unsafeConfig.DataDirectory);
@@ -76,7 +76,7 @@ namespace Wbtb.Core
                 Console.WriteLine("No plugins running in proxy mode, ignoring MessageQueue status.");
             }
 
-            Config config = di.Resolve<Config>();
+            Configuration config = di.Resolve<Configuration>();
 
             // register plugins using config
             foreach (PluginConfig plugin in config.Plugins.Where(p => p.Manifest.RuntimeParsed == Runtimes.dotnet))

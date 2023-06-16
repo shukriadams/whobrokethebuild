@@ -9,7 +9,7 @@ namespace Wbtb.Core.Common
     /// outermost is loaded from config.yml which is static and on-disk.
     /// PluginDeclarations are also static, but contain run-time data added on app start
     /// </summary>
-    public class Config
+    public class Configuration
     {
         #region PROPERTIES
 
@@ -133,7 +133,7 @@ namespace Wbtb.Core.Common
 
         #region CTORS
 
-        public Config()
+        public Configuration()
         {
             // defaults
             this.FailOnOrphans = true;

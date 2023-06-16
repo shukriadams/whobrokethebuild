@@ -9,14 +9,14 @@ namespace Wbtb.Core.Web
 
         public bool IsAdmin { get; set; }
 
-        public Config Config { get; set; }
+        public Configuration Config { get; set; }
 
 
         public LayoutModel()
         { 
 
             SimpleDI di = new SimpleDI();
-            this.Config = di.Resolve<Config>();
+            this.Config = di.Resolve<Configuration>();
 
             this.ConsoleSize = this.Config.LiveConsoleSize;
             this.IsAdmin = true;

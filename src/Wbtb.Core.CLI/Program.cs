@@ -28,7 +28,7 @@ namespace Wbtb.Core.CLI
                 foreach(Type availableCommand in availableCommands)
                     di.Register(availableCommand, availableCommand);
 
-                Config config = di.Resolve<Config>();
+                Configuration config = di.Resolve<Configuration>();
 
                 ConfigurationBuilder configurationBuilder = di.Resolve<ConfigurationBuilder>();
                 OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();

@@ -184,7 +184,7 @@ namespace Wbtb.Core.Web
             return $"{text.Substring(0, length)}{overflow}";
         }
 
-        public static HtmlString PagerBar<T>(string baseUrl, PageableData<T> data, Config config)
+        public static HtmlString PagerBar<T>(string baseUrl, PageableData<T> data, Configuration config)
         {
             Pager pager = new Pager();
             return new HtmlString(pager.Render(data, config.PagesPerPageGroup, baseUrl, "page"));

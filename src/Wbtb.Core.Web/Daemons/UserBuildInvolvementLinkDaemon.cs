@@ -19,7 +19,7 @@ namespace Wbtb.Core.Web
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         #endregion
 
@@ -31,7 +31,7 @@ namespace Wbtb.Core.Web
             _processRunner = processRunner;
 
             SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>();
+            _config = di.Resolve<Configuration>();
             _pluginProvider = di.Resolve<PluginProvider>(); 
 
         }

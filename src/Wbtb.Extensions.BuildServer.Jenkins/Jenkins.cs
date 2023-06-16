@@ -12,7 +12,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
     {
         #region FIELDS
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         private readonly PluginProvider _pluginProvider;
 
@@ -22,7 +22,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         #region CTORS
 
-        public Jenkins(Config config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper) 
+        public Jenkins(Configuration config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper) 
         {
             _config = config;
             _pluginProvider = pluginProvider;
@@ -58,7 +58,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             if (!contextServer.Config.Any(c => c.Key == "Token"))
                 throw new ConfigurationException("Missing Config item \"Token\"");
 
-            Config config = _di.Resolve<Config>();
+            Configuration config = _di.Resolve<Configuration>();
 
             string persistDirectory = _persistPathHelper.EnsurePluginPersistDirectory(ContextPluginConfig);
 

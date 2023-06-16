@@ -18,7 +18,7 @@ namespace Wbtb.Core.Web
 
         private IDaemonProcessRunner _processRunner;
 
-        private readonly Config _config;
+        private readonly Configuration _config;
         
         private readonly PluginProvider _pluginProvider;
 
@@ -32,7 +32,7 @@ namespace Wbtb.Core.Web
             _processRunner = processRunner;
 
             SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>();
+            _config = di.Resolve<Configuration>();
             _pluginProvider = di.Resolve<PluginProvider>();
         }
 

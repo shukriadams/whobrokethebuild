@@ -23,7 +23,7 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         static readonly string[] allowedTargetTypes = new string[] { "user", "group" };
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         private readonly PluginProvider _pluginProvider;
 
@@ -33,7 +33,7 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         #region CTORS
 
-        public Slack(Config config, UrlHelper urlHelper, PluginProvider pluginProvider) 
+        public Slack(Configuration config, UrlHelper urlHelper, PluginProvider pluginProvider) 
         {
             _config = config;
             _urlHelper = urlHelper;

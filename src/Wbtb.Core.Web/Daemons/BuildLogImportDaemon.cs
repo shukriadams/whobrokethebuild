@@ -21,7 +21,7 @@ namespace Wbtb.Core.Web.Core
 
         private readonly BuildLevelPluginHelper _buildLevelPluginHelper;
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         private readonly SimpleDI _di;
 
@@ -34,7 +34,7 @@ namespace Wbtb.Core.Web.Core
             _log = log;
             _processRunner = processRunner;
             _di = new SimpleDI();
-            _config = _di.Resolve<Config>();
+            _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
             _buildLevelPluginHelper = _di.Resolve<BuildLevelPluginHelper>();
         }

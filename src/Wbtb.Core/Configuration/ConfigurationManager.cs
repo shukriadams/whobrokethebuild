@@ -19,7 +19,7 @@ namespace Wbtb.Core
         /// Required first step for working with static config - set's the path config 
         /// </summary>
         /// <param name="path"></param>
-        public Config LoadUnsafeConfig(string path)
+        public Configuration LoadUnsafeConfig(string path)
         {
             if (string.IsNullOrEmpty(path))
                 throw new ConfigurationException("Config path cannot be an empty string");
@@ -42,7 +42,7 @@ namespace Wbtb.Core
                 throw new ConfigurationException($"Application config yml is not properly formatted. See WBTB setup guide for details. {validation.Message}");
 
             // load raw yml config into strongly-typed object structure used internally by WBTB
-            Config tempConfig = deserializer.Deserialize<Config>(rawYml);
+            Configuration tempConfig = deserializer.Deserialize<Configuration>(rawYml);
 
             // load raw yml config into dynamic structure, this will be used to break up and parse fragments of config to specific plugins as JSON. This allows 
             // plugins to define their own config structure without requiring updates to WBTB's internal config structure.
@@ -111,11 +111,11 @@ namespace Wbtb.Core
             return tempConfig;
         }
         
-        public void FinalizeConfig(Config unsafeConfig)
+        public void FinalizeConfig(Configuration unsafeConfig)
         {
             EnsureManifestLogicValid(unsafeConfig);
             SimpleDI di = new SimpleDI();
-            di.RegisterSingleton<Config>(unsafeConfig);
+            di.RegisterSingleton<Configuration>(unsafeConfig);
         }
 
 
@@ -123,7 +123,7 @@ namespace Wbtb.Core
         /// move this to independent class, no need to be ehre
         /// </summary>
         /// <param name="config"></param>
-        public bool FetchPlugins(Config config)
+        public bool FetchPlugins(Configuration config)
         {
             // ensure write permission
             bool updated = false;
@@ -193,7 +193,7 @@ namespace Wbtb.Core
         /// config needs to be in place first.
         /// </summary>
         /// <param name="config"></param>
-        private void EnsureNoneManifestLogicValid(Config config)
+        private void EnsureNoneManifestLogicValid(Configuration config)
         {
             EnsureIdPresentAndUnique(config.Plugins, "plugin");
             EnsureIdPresentAndUnique(config.BuildServers, "build server");
@@ -213,7 +213,7 @@ namespace Wbtb.Core
         /// application start. Does not change config structure
         /// </summary>
         /// <param name="config"></param>
-        private void EnsureManifestLogicValid(Config config)
+        private void EnsureManifestLogicValid(Configuration config)
         {
             CurrentVersion currentVersion = new CurrentVersion();
             currentVersion.Resolve();
@@ -487,7 +487,7 @@ namespace Wbtb.Core
             }
         }
 
-        private void ValidateProcessors<T>(Config config, Job job, IEnumerable<string> processors, string category) 
+        private void ValidateProcessors<T>(Configuration config, Job job, IEnumerable<string> processors, string category) 
         {
             foreach (string processorPlugin in processors)
             {
@@ -506,7 +506,7 @@ namespace Wbtb.Core
         /// Where possible fills out values which can be inferred. This changes the contents of the config object.
         /// </summary>
         /// <param name="config"></param>
-        private void AutofillOptionalValues(Config config)
+        private void AutofillOptionalValues(Configuration config)
         {
             foreach (User user in config.Users)
                 if (string.IsNullOrEmpty(user.Name))
@@ -561,7 +561,7 @@ namespace Wbtb.Core
 
             try
             {
-                deserializer.Deserialize<Config>(ymlText);
+                deserializer.Deserialize<Configuration>(ymlText);
                 return new ConfigValidationError { IsValid = true};
             }
             catch(Exception ex) 
@@ -581,7 +581,7 @@ namespace Wbtb.Core
         /// <returns></returns>
         public string GetBlank()
         {
-            Config testconfig = new Config();
+            Configuration testconfig = new Configuration();
             ISerializer serializer = new SerializerBuilder()
                 .Build();
 

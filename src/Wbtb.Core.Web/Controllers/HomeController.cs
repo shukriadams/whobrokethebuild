@@ -19,7 +19,7 @@ namespace Wbtb.Core.Web.Controllers
 
         private readonly PluginProvider _pluginProvider;
 
-        private Config _config;
+        private Configuration _config;
 
         private LogHelper _loghelper;
 
@@ -37,7 +37,7 @@ namespace Wbtb.Core.Web.Controllers
             _di = new SimpleDI();
             _hub = _di.Resolve<IHubContext<ConsoleHub>>();
             _log = _di.Resolve<ILogger>();
-            _config = _di.Resolve<Config>();
+            _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
             _loghelper = _di.Resolve<LogHelper>();
         }

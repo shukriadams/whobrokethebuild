@@ -43,7 +43,7 @@ namespace Wbtb.Core.Common
             }
         }
 
-        public void AddConfig(Config config )
+        public void AddConfig(Configuration config )
         {
             WebClient client = new WebClient();
 
@@ -60,11 +60,11 @@ namespace Wbtb.Core.Common
             return reply;
         }
 
-        public Config GetConfig()
+        public Configuration GetConfig()
         {
             WebClient client = new WebClient();
             string reply = client.DownloadString($"http://localhost:{_configBasic.MessageQueuePort}/api/v1/messagequeueconfig");
-            return JsonConvert.DeserializeObject<Config>(reply);
+            return JsonConvert.DeserializeObject<Configuration>(reply);
         }
     }
 }

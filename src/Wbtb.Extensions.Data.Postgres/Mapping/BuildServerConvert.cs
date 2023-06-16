@@ -7,9 +7,9 @@ namespace Wbtb.Extensions.Data.Postgres
 {
     internal class BuildServerConvert : IRecordConverter<BuildServer>
     {
-        private readonly Config _config;
+        private readonly Configuration _config;
 
-        public BuildServerConvert(Config config)
+        public BuildServerConvert(Configuration config)
         {
             _config = config;
         }

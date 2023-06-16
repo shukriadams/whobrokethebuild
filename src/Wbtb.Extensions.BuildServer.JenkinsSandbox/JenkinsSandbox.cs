@@ -10,7 +10,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
     {
         #region FIELDS
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         private readonly PluginProvider _pluginProvider;
 
@@ -21,7 +21,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         #region CTORS
 
-        public JenkinsSandbox(Config config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper) 
+        public JenkinsSandbox(Configuration config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper) 
         { 
             _config = config;
             _pluginProvider = pluginProvider;
