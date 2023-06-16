@@ -231,14 +231,14 @@ namespace Madscience.Perforce
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="host"></param>
-        private static string GetTicket(string username, string password, string host, bool trust)
+        private static string GetTicket(string username, string password, string host, string trustFingerPrint)
         {
-            string command = $"echo {password}|p4 -p {host} -u {username} login && p4 tickets";
-            if (trust)
-                command = $"p4 trust -i {username} && p4 trust -f -y && {command}";
+            string command = $"echo {password}|p4 -p {host} -u {username} login && p4 -p {host} tickets";
+            if (!string.IsNullOrEmpty(trustFingerPrint))
+                command = $"p4 -p {host} trust -i {trustFingerPrint.ToUpper()} && p4 -p {host} trust -f -y && {command}";
 
             var result = Run(command);
-            if (result.ExitCode != 0)
+            if (result.ExitCode != 0 || result.StdErr.Any())
                 throw new Exception($"Failed to login, got code {result.ExitCode} - {string.Join("\n", result.StdErr)}");
 
             foreach (string outline in result.StdOut) 
@@ -266,9 +266,9 @@ namespace Madscience.Perforce
         /// <param name="host"></param>
         /// <param name="revision"></param>
         /// <returns></returns>
-        public static Change Describe(string username, string password, string host, bool trust, int revision)
+        public static Change Describe(string username, string password, string host, string trustFingerPrint, int revision)
         {
-            string ticket =  GetTicket(username, password, host, trust);
+            string ticket =  GetTicket(username, password, host, trustFingerPrint);
             string command = $"p4 -u {username} -p {host} -P {ticket} describe {revision}";
 
             ShellResult result = Run(command);
@@ -297,9 +297,9 @@ namespace Madscience.Perforce
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="host"></param>
-        public static void VerifyCredentials(string username, string password, string host, bool trust)
+        public static void VerifyCredentials(string username, string password, string host, string trustFingerPrint)
         {
-            GetTicket(username, password, host, trust);
+            GetTicket(username, password, host, trustFingerPrint);
         }
 
         /// <summary>
@@ -382,9 +382,9 @@ namespace Madscience.Perforce
         /// <param name="filePath"></param>
         /// <param name="revision"></param>
         /// <returns></returns>
-        public static Annotate Annotate(string username, string password, string host, bool trust, string filePath, int? revision = null)
+        public static Annotate Annotate(string username, string password, string host, string trustFingerPrint, string filePath, int? revision = null)
         {
-            string ticket = GetTicket(username, password, host, trust);
+            string ticket = GetTicket(username, password, host, trustFingerPrint);
 
             string revisionSwitch = string.Empty;
             if (revision.HasValue)
@@ -456,9 +456,9 @@ namespace Madscience.Perforce
         /// <param name="max"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static IEnumerable<Change> Changes(string username, string password, string host, bool trust, int max = 0, string path = "//...")
+        public static IEnumerable<Change> Changes(string username, string password, string host, string trustFingerPrint, int max = 0, string path = "//...")
         {
-            string ticket = GetTicket(username, password, host, trust);
+            string ticket = GetTicket(username, password, host, trustFingerPrint);
 
             string maxModifier = max > 0 ? $"-m {max}" : string.Empty;
             string command = $"p4 -u {username} -p {host} -P {ticket} changes {maxModifier} -l {path}";
@@ -470,9 +470,9 @@ namespace Madscience.Perforce
             return ParseChanges(result.StdOut);
         }
 
-        public static IEnumerable<Change> ChangesBetween(string username, string password, string host, bool trust, int startRevision, int endRevision, string path = "//...")
+        public static IEnumerable<Change> ChangesBetween(string username, string password, string host, string trustFingerPrint, int startRevision, int endRevision, string path = "//...")
         {
-            string ticket = GetTicket(username, password, host, trust);
+            string ticket = GetTicket(username, password, host, trustFingerPrint);
             IList<int> revisions = new List<int>();
             bool limitReached = false;
 
@@ -500,7 +500,7 @@ namespace Madscience.Perforce
                 }
             }
 
-            return revisions.Select(rev => Describe(username, password, host, trust, rev));
+            return revisions.Select(rev => Describe(username, password, host, trustFingerPrint, rev));
         }
 
         /// <summary>

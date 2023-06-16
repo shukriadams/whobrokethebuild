@@ -12,14 +12,19 @@ Plugin for connecting Wbtb to a Perforce server.
     -   Key: myPerforce
         Plugin: p4
         Config:
-        -   Host: myp4.com:1666
-        -   User: myuser
-        -   Password: mypassword
-        -   Trust : true|false (optional) 
+        -   Host: host.domain:1666
+        -   User: <string>
+        -   Password: <string>
+        -   TrustFingerprint : <string> (optional) 
 
     BuildServers:
     -   Jobs:
         -   SourceServer: myPerforce
+
+Perforce integration in WBTB is stateless - you don't have to set any environment variables or P4 session for the WBTB host environment.
+
+`TrustFingerprint` is required for SSL servers only, is the fingerprint of your SSL Key, and looks like `xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx`. You can obtain it by running `p4 trust -l` against your Perforce server. See
+https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_trust.html for more info.
 
 ## Defining users
 
