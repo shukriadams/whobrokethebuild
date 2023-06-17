@@ -1,3 +1,16 @@
+## Remote Config Sync
+
+Wbtb config can be synced from a git repo. This makes managing a Wbtb instance easier as config changes can be placed under source control, with all the benefits therewith. To enable this feature, add the following environment variables to your Wbtb instance before starting:
+
+    WBTB_GIT_CONFIG_REPO_URL : <url for git repo>
+    WBTB_GIT_CONFIG_REPO_BRANCH : <branch name> (optional)    
+
+The git url given must provide full access to the repo in question, so it should point to a public repo, or more likely, include an access token to a private git repo. An example of such a value would be `https://myuser:abcd1234abcd1234abcd1234abcd1234@github.com/myuser/mw-wbtb-config.git`
+
+You can specify an optional branch to fetch the config from, else the default branch will be used. Finally, the branch in question should contain a file called `config.yml` in its root.
+
+Updates are synced at the commit level, that is to say, Wbtb will always pull the latest commit from the branch provided. 
+
 ## Daemon Interval
 
 Interval daemons tick at. In seconds. Must be an integer. Default is 60 seconds.

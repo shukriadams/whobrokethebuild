@@ -48,8 +48,6 @@ namespace Wbtb.Core.Web
                     Wbtb.Core.Core core = new Wbtb.Core.Core();
                     core.Start();
 
-                    // app is ready to accept incoming requests
-                    AppState.Ready = true;
 
                     Configuration config = di.Resolve<Configuration>();
 
@@ -93,6 +91,8 @@ namespace Wbtb.Core.Web
                         }
                     }
 
+                    // app is ready to accept incoming requests
+                    AppState.Ready = true;
 
                 }
                 catch (ConfigurationException ex)

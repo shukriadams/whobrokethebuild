@@ -54,8 +54,6 @@ namespace Wbtb.Core.Web
                     context.Request.Path = "/error/404";
                     await next();
                 }
-
-                
             });
 
             app.UseStaticFiles();

@@ -106,7 +106,7 @@ namespace Wbtb.Core.Common
             SimpleDI di = new SimpleDI();
 
             di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();
-            di.Register<ConfigBasic, ConfigBasic>();
+            di.Register<ConfigurationBasic, ConfigurationBasic>();
             di.Register<PluginDirectSender, PluginDirectSender>();
             di.Register<PluginCoreSender, PluginCoreSender>();
             di.Register<PersistPathHelper, PersistPathHelper>();
@@ -123,7 +123,7 @@ namespace Wbtb.Core.Common
                 throw new Exception("Failed to get config from MessageQueue. Has config been initialized?");
                 
             config.IsCurrentContextProxyPlugin = true;
-            ConfigBasic configBasic = di.Resolve<ConfigBasic>();
+            ConfigurationBasic configBasic = di.Resolve<ConfigurationBasic>();
             di.RegisterSingleton<Configuration>(config);
             
             // register this plugin as the type defined in this assembly

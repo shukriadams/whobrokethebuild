@@ -7,7 +7,7 @@ namespace Wbtb.Core.Common
     /// Simple configuration required for baseline functionality, including for plugins. Config is not checked as thoroughly as main config,
     /// config errors will not cause application start to halt, but will rather revert to reasonable defaults.
     /// </summary>
-    public class ConfigBasic
+    public class ConfigurationBasic
     {
         public int MessageQueuePort { get;set; }
 
@@ -17,7 +17,7 @@ namespace Wbtb.Core.Common
          
         public string ConfigPath { get; set; }
 
-        public ConfigBasic()
+        public ConfigurationBasic()
         {
          
             this.MessageQueuePort = 5001;

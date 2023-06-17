@@ -6,9 +6,9 @@ namespace Wbtb.Core.Common
 {
     public class MessageQueueHtppClient
     {
-        private readonly ConfigBasic _configBasic;
+        private readonly ConfigurationBasic _configBasic;
 
-        public MessageQueueHtppClient(ConfigBasic configBasic) 
+        public MessageQueueHtppClient(ConfigurationBasic configBasic) 
         {
             _configBasic = configBasic;
         }

@@ -15,7 +15,7 @@ namespace Wbtb.Core
         /// <returns></returns>
         public bool EnsureLatest() 
         {
-            if (Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_SYNC") != "true")
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL")))
                 return false;
 
             string gitRemote = Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL");
@@ -26,9 +26,7 @@ namespace Wbtb.Core
             if (string.IsNullOrEmpty(gitRemote))
                 throw new Exception("WBTB_GIT_CONFIG_REPO_URL required");
 
-            string localPath = Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_LOCAL_PATH");
-            if (string.IsNullOrEmpty(localPath))
-                throw new Exception("WBTB_GIT_CONFIG_LOCAL_PATH required");
+            string localPath = "config.yml";
 
             string cachePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "ConfigCache");
             string checkoutPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "ConfigCheckout");
@@ -60,25 +58,24 @@ namespace Wbtb.Core
             shell = new Shell();
             shell.Run("git rev-parse HEAD");
 
-            string lastChangeHash = string.Empty;
-            string currentHashCachePath = Path.Join(cachePath, "currenthash");
-            if (File.Exists(currentHashCachePath))
-                lastChangeHash = File.ReadAllText(currentHashCachePath);
-
             string configFileLocalPath = Path.Join(checkoutPath, localPath);
 
             if (!File.Exists(configFileLocalPath))
                 throw new ConfigurationException($"Expected config file {localPath} was not found in checkout from remote repo");
 
-            string configFileContent = File.ReadAllText(configFileLocalPath);
-            string configFileHash = Sha256.FromString(configFileContent);
+            string targetConfigFilePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml");
+            string targetConfigFileHash = string.Empty;
+            if (File.Exists(targetConfigFilePath)) 
+                targetConfigFileHash = Sha256.FromString(File.ReadAllText(targetConfigFilePath));
 
-            File.Copy(configFileLocalPath, Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"), true);
+            string incomingConfigFileHash = Sha256.FromString(File.ReadAllText(configFileLocalPath));
 
-            if (lastChangeHash != configFileHash)
+            if (targetConfigFileHash != incomingConfigFileHash)
             {
-                File.WriteAllText(currentHashCachePath, configFileHash);
-                Console.WriteLine($"CONFIG HAS CHANGED ({configFileHash}), exiting automatically. Restart app if required.");
+                File.Copy(configFileLocalPath, Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"), true);
+                shell = new Shell();
+                string commitMessage = shell.Run($"git log --format=%B -n 1 {incomingConfigFileHash}");
+                Console.WriteLine($"CONFIG HAS CHANGED ({incomingConfigFileHash} {commitMessage}).");
                 return true;
             }
 

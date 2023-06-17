@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,15 +12,7 @@ namespace Wbtb.Core.Web.Controllers
     {
         #region FIELDS
 
-        private IHubContext<ConsoleHub> _hub;
-
         private ILogger _log;
-
-        private readonly PluginProvider _pluginProvider;
-
-        private Configuration _config;
-
-        private LogHelper _loghelper;
 
         private SimpleDI _di;
 
@@ -34,12 +25,9 @@ namespace Wbtb.Core.Web.Controllers
         /// </summary>
         public HomeController()
         {
+            // Do not resolve types that depend on Configuration, they will fail to resolve if app is in error state
             _di = new SimpleDI();
-            _hub = _di.Resolve<IHubContext<ConsoleHub>>();
             _log = _di.Resolve<ILogger>();
-            _config = _di.Resolve<Configuration>();
-            _pluginProvider = _di.Resolve<PluginProvider>();
-            _loghelper = _di.Resolve<LogHelper>();
         }
 
         #endregion
@@ -54,9 +42,8 @@ namespace Wbtb.Core.Web.Controllers
         [Route("")]
         public IActionResult Index()
         {
-            //return new EmptyResult();
-
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             // todo : replace with redirect to /buildserver/{id?}
             BuildServer buildServer = dataLayer.GetBuildServers().FirstOrDefault();
@@ -94,7 +81,10 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/buildprocessorlog/{buildprocessorid}")]
         public IActionResult BuildProcessorLog(string buildProcessorId)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            LogHelper loghelper = _di.Resolve<LogHelper>();
+
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             BuildProcessorLogPageModel model = new BuildProcessorLogPageModel();
             BuildProcessor buildProcessor = dataLayer.GetBuildProcessorById(buildProcessorId);
@@ -102,7 +92,7 @@ namespace Wbtb.Core.Web.Controllers
                 return Responses.NotFoundError($"BuildProcessor {buildProcessorId} does not exist");
 
             model.Build = dataLayer.GetBuildById(buildProcessor.BuildId);
-            model.Log = _loghelper.GetBuildProcessorLog(buildProcessor.BuildId, buildProcessor.Id);
+            model.Log = loghelper.GetBuildProcessorLog(buildProcessor.BuildId, buildProcessor.Id);
             model.BuildProcessor = buildProcessor;
 
             return View(model);
@@ -112,7 +102,8 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/incident/{incidentId}")]
         public IActionResult Incident(string incidentId)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
 
             IncidentPageModel model = new IncidentPageModel();
             model.IncidentBuild = dataLayer.GetBuildById(incidentId);
@@ -140,13 +131,13 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/buildsoftreset/{buildId}")]
         public IActionResult SoftResetBuild(string buildId) 
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             int deleted = dataLayer.ResetBuild(buildId, false);
             System.Console.WriteLine($"Reset {deleted} incident from build {buildId}");
 
             return Redirect($"/build/{buildId}");
         }
-
 
         /// <summary>
         /// 
@@ -170,11 +161,13 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/job/{jobid}/{pageIndex?}")]
         public IActionResult Job(string jobid, int pageIndex)
         {
+            Configuration config = _di.Resolve<Configuration>();
             // force start-at-zero if value set, pager will never use 0
             if (pageIndex > 0)
                 pageIndex--;
 
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             JobPageModel model = new JobPageModel();
             model.Job = ViewJob.Copy(dataLayer.GetJobById(jobid));
             if (model.Job == null)
@@ -184,7 +177,7 @@ namespace Wbtb.Core.Web.Controllers
             model.Job.DeltaBuild = ViewBuild.Copy(dataLayer.GetLastJobDelta(model.Job.Id));
             model.Stats = dataLayer.GetJobStats(model.Job);
             model.BaseUrl = $"/job/{jobid}";
-            model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByJob(jobid, pageIndex, _config.StandardPageSize));
+            model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByJob(jobid, pageIndex, config.StandardPageSize));
             return View(model);
         }
 
@@ -196,12 +189,13 @@ namespace Wbtb.Core.Web.Controllers
             if (pageIndex > 0)
                 pageIndex--;
 
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            Configuration config = _di.Resolve<Configuration>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             JobIncidentsModel model = new JobIncidentsModel();
             model.BaseUrl = $"/job/incidents/{jobid}";
             model.Job = ViewJob.Copy(dataLayer.GetJobById(jobid));
-
-            PageableData<Build> incidentBuilds = dataLayer.PageIncidentsByJob(jobid, pageIndex, _config.StandardPageSize);
+            PageableData<Build> incidentBuilds = dataLayer.PageIncidentsByJob(jobid, pageIndex, config.StandardPageSize);
             model.Builds = ViewIncidentCauseBuild.Copy(incidentBuilds);
 
             return View(model);
@@ -211,7 +205,8 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/buildflag/reset/{buildid}/{flag}")]
         public IActionResult BuildFlagReset(string buildid, string flag)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Build build = dataLayer.GetBuildById(buildid);
             int affected = dataLayer.IgnoreBuildFlagsForBuild(build, (BuildFlags)Enum.Parse(typeof(BuildFlags), flag));
             return Redirect($"/build/{buildid}");
@@ -221,7 +216,8 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/buildflag/delete/{buildflagid}")]
         public string BuildFlagDelete(string buildflagid)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             BuildFlag buildFlag = dataLayer.GetBuildFlagById(buildflagid);
             dataLayer.DeleteBuildFlag(buildFlag);
             return string.Empty;
@@ -237,7 +233,8 @@ namespace Wbtb.Core.Web.Controllers
         public IActionResult Build(string buildid)
         {
             BuildPageModel model = new BuildPageModel();
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             model.Build = ViewBuild.Copy(dataLayer.GetBuildById(buildid));
             if (model.Build == null)
                 return Responses.NotFoundError($"build {buildid} does not exist");
@@ -245,7 +242,7 @@ namespace Wbtb.Core.Web.Controllers
             model.Build.Job = ViewJob.Copy(dataLayer.GetJobById(model.Build.JobId));
 
             BuildServer buildServer = dataLayer.GetBuildServerById(model.Build.Job.BuildServerId);
-            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+            IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
 
             model.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(buildid));
             foreach (ViewBuildInvolvement bi in model.BuildInvolvements)
@@ -270,7 +267,8 @@ namespace Wbtb.Core.Web.Controllers
         public IActionResult BuildLog(string buildid)
         {
             BuildLogParseResultsPageModel model = new BuildLogParseResultsPageModel();
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             model.Build = ViewBuild.Copy(dataLayer.GetBuildById(buildid));
             if (model.Build == null)
                 return Responses.NotFoundError($"build {buildid} does not exist");
@@ -290,12 +288,14 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/buildhost/{hostname}/{page?}")]
         public IActionResult BuildHost(string hostname, int page)
         {
+            Configuration config = _di.Resolve<Configuration>();
             hostname = HttpUtility.UrlDecode(hostname);
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             BuildHostModel model = new BuildHostModel();
 
             model.Hostname = hostname;
-            model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByBuildAgent(hostname, page > 0 ? page - 1 : page, _config.StandardPageSize));
+            model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByBuildAgent(hostname, page > 0 ? page - 1 : page, config.StandardPageSize));
             model.Builds.Items.ToList().ForEach(build => build.Job = ViewJob.Copy(dataLayer.GetJobById(build.JobId)));
             model.BaseUrl = $"/buildhost/{hostname}"; 
 
@@ -307,7 +307,8 @@ namespace Wbtb.Core.Web.Controllers
         public new IActionResult User(string userid)
         {
             UserPageModel model = new UserPageModel();
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             model.User = dataLayer.GetUserById(userid);
             
             if (model.User == null)
@@ -324,12 +325,10 @@ namespace Wbtb.Core.Web.Controllers
 
                 foreach (ViewBuildInvolvement bi in model.RecentPassing)
                     bi.Build = ViewBuild.Copy(dataLayer.GetBuildById(bi.BuildId));
-
             }
 
             return View(model);
         }
-
 
         /// <summary>
         /// 
@@ -339,14 +338,12 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/users")]
         public IActionResult Users()
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             UsersPageModel model = new UsersPageModel();
             model.Users = dataLayer.GetUsers();
             return View(model);
         }
-
-
-
 
         /// <summary>
         /// Lists remote jobs on build server, NOT jobs in local db
@@ -357,13 +354,14 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/jobs/{buildserverid}")]
         public IActionResult Jobs(string buildserverid)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             BuildServer buildServer = dataLayer.GetBuildServerByKey(buildserverid);
 
             if (buildServer == null)
                 return Redirect("buildserver not found");
 
-            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+            IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
             IEnumerable<string> jobs = buildServerPlugin.ListRemoteJobsCanonical(buildServer);
 
             ViewData["jobs"] = jobs;
@@ -373,36 +371,36 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
-
         [ServiceFilter(typeof(ViewStatus))]
         [Route("/buildflags/{page?}")]
         public IActionResult BuildFlags(int page)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            Configuration config = _di.Resolve<Configuration>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             // force start-at-zero if value set, pager will never use 0
             if (page > 0)
                 page--;
 
             BuildFlagsModel model = new BuildFlagsModel();
             model.BaseUrl = $"/buildflags";
-            model.BuildFlags = ViewBuildFlag.Copy(dataLayer.PageBuildFlags(page, _config.StandardPageSize));
+            model.BuildFlags = ViewBuildFlag.Copy(dataLayer.PageBuildFlags(page, config.StandardPageSize));
             return View(model);
-
         }
-
 
         [ServiceFilter(typeof(ViewStatus))]
         [Route("/build/reprocesslog/{buildid}")]
         public string ReprocessLog(string buildid)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
             Build build = dataLayer.GetBuildById(buildid);
             Job job = dataLayer.GetJobById(build.JobId);
             List<ILogParser> logParsers = new List<ILogParser>();
             SimpleDI di = new SimpleDI();
             BuildLogParseResultHelper buildLogParseResultHelper = di.Resolve<BuildLogParseResultHelper>();
             foreach (string logParserName in job.LogParserPlugins)
-                logParsers.Add(_pluginProvider.GetByKey(logParserName) as ILogParser);
+                logParsers.Add(pluginProvider.GetByKey(logParserName) as ILogParser);
 
             // delete existing log processes
             foreach(BuildLogParseResult logParseResult in dataLayer.GetBuildLogParseResultsByBuildId(buildid))
