@@ -202,14 +202,17 @@ namespace Wbtb.Core.Web.Controllers
         }
 
         [ServiceFilter(typeof(ViewStatus))]
-        [Route("/buildflag/reset/{buildid}/{flag}")]
-        public IActionResult BuildFlagReset(string buildid, string flag)
+        [Route("/buildflag/reset/{buidflagdid}")]
+        public IActionResult BuildFlagReset(string buidflagdid)
         {
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-            Build build = dataLayer.GetBuildById(buildid);
-            int affected = dataLayer.IgnoreBuildFlagsForBuild(build, (BuildFlags)Enum.Parse(typeof(BuildFlags), flag));
-            return Redirect($"/build/{buildid}");
+            BuildFlag flag = dataLayer.GetBuildFlagById(buidflagdid);
+            if (flag == null)
+                return Responses.NotFoundError($"buildflag {buidflagdid} does not exist");
+
+            bool deleted = dataLayer.DeleteBuildFlag(flag);
+            return Redirect($"/build/{flag.BuildId}");
         }
 
         [ServiceFilter(typeof(ViewStatus))]
@@ -246,8 +249,14 @@ namespace Wbtb.Core.Web.Controllers
 
             model.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(buildid));
             foreach (ViewBuildInvolvement bi in model.BuildInvolvements)
+            {
                 if (bi.RevisionId != null)
                     bi.Revision = dataLayer.GetRevisionById(bi.RevisionId);
+
+                if (bi.MappedUserId != null)
+                    bi.MappedUser = ViewUser.Copy(dataLayer.GetUserById(bi.MappedUserId));
+            }
+
 
             model.UrlOnBuildServer = buildServerPlugin.GetBuildUrl(buildServer, model.Build);
             model.BuildServer = buildServer;

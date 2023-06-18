@@ -16,10 +16,12 @@
     <div>
         Job : @ViewHelpers.JobLink(Model.Job)
     </div>
+
     @if (Model.IsActive)
     {
         <div>
-            Incident is ongoing as of @DateTime.UtcNow.ToLocalTime()
+            Incident is ongoing as of @Model.IncidentBuild.EndedUtc.Value.ToLocalTime(),
+            build has been broken for @((DateTime.UtcNow - Model.IncidentBuild.EndedUtc.Value).Humanize()).
         </div>        
     }
 

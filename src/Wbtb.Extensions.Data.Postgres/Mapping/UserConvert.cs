@@ -30,6 +30,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 user.Message = config.Message;
                 user.Description = config.Description;
                 user.Enable = config.Enable;
+                user.Image = config.Image;
                 user.SourceServerIdentities = config.SourceServerIdentities;
                 user.AuthPlugin = config.AuthPlugin;
             }

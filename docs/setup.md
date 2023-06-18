@@ -11,6 +11,12 @@ You can specify an optional branch to fetch the config from, else the default br
 
 Updates are synced at the commit level, that is to say, Wbtb will always pull the latest commit from the branch provided. 
 
+## Orphan records
+
+    FailOnOrphans: <bool> (default is true)
+
+Wbtb will fail to start if orphan records are detected in the database. This mechanism is there to catch misconfiguruation issues that would otherwise go unnoticed. You can disable this check, at your own risk, by setting `FailOnOrphans` to `false`.
+
 ## Daemon Interval
 
 Interval daemons tick at. In seconds. Must be an integer. Default is 60 seconds.
@@ -40,13 +46,13 @@ Users can also be grouped together to make it easier to send alerts to everyone 
 
 ## Keys
 
-All objects defined in Wbtb static config have unique `Key` values. Keys should not be changed once config is defined and loaded, as they are written to database. 
+All objects defined in Wbtb static config have unique `Key` values. Keys should not be changed once config is defined and loaded, as they are written to database. You can use whatever strng you want for keys, as long as they make sense to you, though we recommend you use anonymous IDs such as GUIDs, and use `Name` properties for human-friendly labels.
 
 ### Changing keys
 
-Do not change keys abruptly. Instead, create a `KeyPrev` property, set this value to your current key, change the `Key` property as desired, then load the config. Wbtb will automatically update records. If you fail to do this Wbtb will create a new record with your changed key, but leave existing records unchanged. The existing records will be detected as orphans. Orphans can be deleted, but all their child records will disapper too, resulting in potential data loss. 
+Should you need to rename a key, do not change that key value abruptly. Instead, create a `KeyPrev` property, set this value to your current key, change the `Key` property as desired, then load the config. Wbtb will automatically update records with your key change. If you fail to do this Wbtb will create a new record with your changed key, but leave existing records unchanged, and existing records will be detected as orphans. Orphans can be deleted, but all their child records will disapper too, resulting in potential data loss. 
 
-If your forgot to use the `KeyPrev` method to update a key, you can still recovover orphans, using the appropriate `IDataLayerPlugin_Merge*` command for the type of orphan.
+If your forgot to use the `KeyPrev` method to update a key, you can still recovover orphans, using the appropriate `IDataLayer_Merge*` command for the type of orphan.
 
 ## Plugins
 
@@ -61,8 +67,6 @@ WBTB ships with a few built-in plugins, but these are typically for sandboxing. 
     -   Key: p4Sandbox
         Proxy: true
         Path: /var/wbtb/Wbtb.Extensions.SourceServer.PerforceSandbox
-
-    
 
 ## Job
 

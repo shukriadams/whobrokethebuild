@@ -1,5 +1,4 @@
 # A copy-paste config to get a dev server up and running immediately.
-
 Address: http://myserver.local
 DaemonInterval: 10
 
@@ -30,6 +29,11 @@ Users:
     SourceServerIdentities:
     -   SourceServerKey: myperforce
         Name: Ug
+-   Key: Mort
+    SourceServerIdentities:
+    -   SourceServerKey: myperforce
+        Name: Mort
+
 Groups:
   - Key: mygroup
     Message:

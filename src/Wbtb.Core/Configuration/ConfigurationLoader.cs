@@ -500,9 +500,20 @@ namespace Wbtb.Core
         /// <param name="config"></param>
         private void AutofillOptionalValues(Configuration config)
         {
-            foreach (User user in config.Users)
+            foreach (User user in config.Users) 
+            { 
                 if (string.IsNullOrEmpty(user.Name))
                     user.Name = user.Key;
+
+                // take first three chars of name if intials not set.
+                if (string.IsNullOrEmpty(user.Initials)) 
+                {
+                    user.Initials = user.Name.ToUpper().Replace(" ", string.Empty);
+                    if (user.Initials.Length > 3)
+                        user.Initials = user.Initials.Substring(0, 3);
+                }
+                    
+            }
 
             foreach (Group group in config.Groups)
                 if (string.IsNullOrEmpty(group.Name))

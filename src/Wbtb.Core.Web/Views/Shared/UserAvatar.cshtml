@@ -1,0 +1,30 @@
+﻿@using Wbtb.Core.Common;
+@model User
+
+@if (Model == null)
+{
+	<x-avatar class="--round --disabled">
+		<x-avatarInitials></x-avatarInitials>
+	</x-avatar>
+} 
+else
+{
+	<div class="wbtbAvatar">
+		<a title="@Model.Name" href="/user/@Model.Id">
+			<x-avatar class="wbtbAvatarAvatar --round">
+				@if (string.IsNullOrEmpty(Model.Image))
+				{
+					<x-avatarInitials>@Model.Initials</x-avatarInitials>
+				}
+				else
+				{
+					<img src="@Model.Image" />
+				}
+			</x-avatar>
+			<div class="wbtbAvatarName">
+				@Model.Name
+			</div>
+		</a>
+	</div>
+}
+
