@@ -52,7 +52,7 @@ namespace Wbtb.Core.Common
         public bool IsIgnoredFromBreakHistory { get; set; }
 
         /// <summary>
-        /// Member of Blame enum
+        /// 
         /// </summary>
         public Blame Blame { get; set; }
 

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Web;
 using Wbtb.Core.Common;
@@ -248,8 +249,10 @@ namespace Wbtb.Core.Web.Controllers
             IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
 
             model.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(buildid));
+
             foreach (ViewBuildInvolvement bi in model.BuildInvolvements)
             {
+                bi.Build = model.Build;
                 if (bi.RevisionId != null)
                     bi.Revision = dataLayer.GetRevisionById(bi.RevisionId);
 
@@ -257,6 +260,9 @@ namespace Wbtb.Core.Web.Controllers
                     bi.MappedUser = ViewUser.Copy(dataLayer.GetUserById(bi.MappedUserId));
             }
 
+            // sorty invovlvements by revision date so they look ordered
+            if (!model.BuildInvolvements.Where(bi => bi.Revision == null).Any())
+                model.BuildInvolvements = model.BuildInvolvements.OrderByDescending(bi => bi.Revision.Created);
 
             model.UrlOnBuildServer = buildServerPlugin.GetBuildUrl(buildServer, model.Build);
             model.BuildServer = buildServer;

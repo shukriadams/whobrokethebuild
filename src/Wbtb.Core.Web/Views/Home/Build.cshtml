@@ -53,9 +53,9 @@
             <x-card-pad>
                 @if (Model.Build.Id == Model.Build.IncidentBuildId)
                 {
-                    <text>
+                    <x-badge class="--danger">
                         Build broke here.
-                    </text>
+                    </x-badge>
                 } 
                 else 
                 { 
@@ -169,31 +169,23 @@
 
                             @if (Model.Build.Status == BuildStatus.Failed)
                             {
-                                <text>
-                                    @ViewHelpers.TranslateBuildInvolvement(involvement)
-                                </text>
+                                <div class="quiet">
+                                    (@ViewHelpers.TranslateBuildInvolvement(involvement))
+                                </div>
                             }
                         </x-column>
                     </x-columns>
                     
 
 
-                    @if (involvement.Revision != null)
-                    {   
-<pre class="code">
-@if (involvement.Revision.Files.Any())
-{ 
-    @foreach(string file in involvement.Revision.Files)
-    { 
- <span class="build-revisionFile build-revisionFile--">@file</span>
-    }
-} else { 
-    <text>
-        No file changes found
-    </text>
+@if (involvement.Revision != null) {   
+<pre class="code">@if (involvement.Revision.Files.Any()) { 
+@foreach(string file in involvement.Revision.Files) { 
+<span class="build-revisionFile build-revisionFile--">@file</span>
 }
-</pre>
-                    }
+} else { 
+<text>No file changes found</text>}</pre>
+}
                 </x-list-cell>
             </x-list-row>
 
@@ -277,12 +269,7 @@ else
             } 
             else 
             { 
-            <pre class="code">
-                <h3>Parser: @parseResult.LogParserPlugin</h3>
-                <text>
-@ViewHelpers.String(parseResult.ParsedContent)
-                </text>
-            </pre>
+<pre class="code"><h4>Parser: @parseResult.LogParserPlugin</h4><text>@ViewHelpers.String(parseResult.ParsedContent)</text></pre>
             }
         }
     }

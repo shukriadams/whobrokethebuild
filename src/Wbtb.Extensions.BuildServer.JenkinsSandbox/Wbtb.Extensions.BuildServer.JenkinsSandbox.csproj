@@ -35,7 +35,12 @@
     <None Remove="JSON\builds\Project_Ironbird\logs\29.txt" />
     <None Remove="JSON\builds\Project_Ironbird\logs\33.txt" />
     <None Remove="JSON\builds\Project_Skunkwords\builds.json" />
-    <None Remove="JSON\builds\Project_Skunkwords\build_40_revisions.json" />
+    <None Remove="JSON\builds\Project_Skunkwords\logs\40.txt" />
+    <None Remove="JSON\builds\Project_Skunkwords\logs\41.txt" />
+    <None Remove="JSON\builds\Project_Skunkwords\logs\42.txt" />
+    <None Remove="JSON\builds\Project_Skunkwords\logs\43.txt" />
+    <None Remove="JSON\builds\Project_Skunkwords\logs\44.txt" />
+    <None Remove="JSON\builds\Project_Skunkwords\logs\45.txt" />
     <None Remove="JSON\builds\Project_Tardy\builds.json" />
     <None Remove="JSON\jobs.json" />
     <None Remove="JSON\revisionsInBuild.json" />
@@ -72,7 +77,12 @@
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\build_20_revisions.json" />
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\33.txt" />
     <EmbeddedResource Include="JSON\builds\Project_Skunkwords\builds.json" />
-    <EmbeddedResource Include="JSON\builds\Project_Skunkwords\build_40_revisions.json" />
+    <EmbeddedResource Include="JSON\builds\Project_Skunkwords\logs\43.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Skunkwords\logs\45.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Skunkwords\logs\44.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Skunkwords\logs\42.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Skunkwords\logs\41.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Skunkwords\logs\40.txt" />
     <EmbeddedResource Include="JSON\builds\Project_Tardy\builds.json" />
     <EmbeddedResource Include="JSON\jobs.json" />
     <EmbeddedResource Include="JSON\builds\Project_Buzzkill\build_1_revisions.json" />

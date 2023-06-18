@@ -232,11 +232,11 @@ namespace Wbtb.Core.Web
             switch(involvement.Blame)
             {
                 case Blame.Innocent:
-                    return "Not responsible";
+                    return "Did not break build";
                 case Blame.Guilty:
                     return "Broke build";
                 default:
-                    return "Undetermined";
+                    return "Unknown if broke build";
             }
         }
     }

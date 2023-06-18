@@ -63,7 +63,7 @@ namespace Wbtb.Core.Web
         /// <param name="logPath"></param>
         /// <param name="regex"></param>
         /// <returns></returns>
-        public string GetRevision(string logText, string regex)
+        public string GetRevisionFromLog(string logText, string regex)
         {
             Match match = new Regex(regex, RegexOptions.IgnoreCase & RegexOptions.Multiline).Match(logText);
             if (!match.Success || match.Groups.Count < 2)
@@ -89,18 +89,23 @@ namespace Wbtb.Core.Web
                 {
                     try
                     {
-                        Job job = dataLayer.GetJobByKey(cfgJob.Key);
-                        SourceServer sourceServer = dataLayer.GetSourceServerById(job.SourceServerId);
+                        Job jobInDatabase = dataLayer.GetJobByKey(cfgJob.Key);
+                        SourceServer sourceServer = dataLayer.GetSourceServerById(jobInDatabase.SourceServerId);
                         ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
-                        IEnumerable<Build> builds = dataLayer.GetBuildsWithNoInvolvements(job)
+                        IEnumerable<Build> builds = dataLayer.GetBuildsWithNoInvolvements(jobInDatabase)
                             .OrderBy(b => b.StartedUtc);
 
                         foreach (Build build in builds)
                         {
                             try 
-                            { 
+                            {
+                                // check if there are unmapped revisions, if so, wait until revision mapping daemon has had a chance to process
+                                if (dataLayer.GetBuildInvolvementsWithoutMappedRevisions(jobInDatabase.Id).Any())
+                                    break;
+
                                 string logText = buildServerPlugin.GetEphemeralBuildLog(build);
-                                string revisionCode = GetRevision(logText, job.RevisionAtBuildRegex);
+                                string revisionCode = GetRevisionFromLog(logText, jobInDatabase.RevisionAtBuildRegex);
+                                
                                 if (string.IsNullOrEmpty(revisionCode))
                                 { 
                                     if (build.Status == BuildStatus.Aborted || build.Status == BuildStatus.Failed || build.Status == BuildStatus.Passed)
@@ -127,17 +132,14 @@ namespace Wbtb.Core.Web
                                 IList<Revision> revisionsToLink = new List<Revision>();
                                 revisionsToLink.Add(revisionAtBuildTime);
 
-                                if (job.RevisionScrapeSpanBuilds)
-                                { 
-                                    // get previous build and if it has any revision on it, span the gap with current build
-                                    Build previousBuild = dataLayer.GetPreviousBuild(build);
-                                    if (previousBuild != null)
-                                    {
-                                        Revision lastRevisionOnPreviousBuild = dataLayer.GetNewestRevisionForBuild(previousBuild.Id);
+                                // get previous build and if it has any revision on it, span the gap with current build
+                                Build previousBuild = dataLayer.GetPreviousBuild(build);
+                                if (previousBuild != null)
+                                {
+                                    Revision lastRevisionOnPreviousBuild = dataLayer.GetNewestRevisionForBuild(previousBuild.Id);
 
-                                        if (lastRevisionOnPreviousBuild != null)
-                                            revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(sourceServer, lastRevisionOnPreviousBuild.Code, revisionAtBuildTime.Code));
-                                    }
+                                    if (lastRevisionOnPreviousBuild != null)
+                                        revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(sourceServer, lastRevisionOnPreviousBuild.Code, revisionAtBuildTime.Code)).ToList();
                                 }
 
                                 foreach (Revision revision in revisionsToLink){

@@ -84,9 +84,15 @@ Jobs are tied to a build server. A job must have a unique `Key`, as well as vali
 ### Detailed job settings
 
     ImportCount : <int>. Default is 100.
-    
     Number of builds to import for a given job.
 
+    RevisionAtBuildRegex : <string>. Regex.
+    Regex useed to parse revision at time of build. Use for jobs that are not triggered by commits.
+    Requires that your build script writes the build out to log using a format can be parsed back with the given regex. For example, have your build script get current revision nr on the code base being built, then echo this out to log with echo "<current-revision>1234</current-revision>". Then set add 
+
+        `RevisionAtBuildRegex : "<current-revision>(.*)<\/current-revision>"`
+
+    to your config. Wbtb will parse out `1234` from your build log and assign that revision to your build.
 
 ### Optional Job properties
 

@@ -57,3 +57,12 @@ BuildServers:
         Message:
         -   Plugin: myslack
             Group: mygroup
+    -   Key: Project_Skunkwords
+        SourceServer: myperforce
+        RevisionAtBuildRegex : "<current-revision>(.*)<\/current-revision>"
+        LogParserPlugins: 
+        -   CppParser
+        -   BasicErrors
+        Message:
+        -   Plugin: myslack
+            Group: mygroup            
