@@ -45,13 +45,14 @@ namespace Wbtb.Core
 
             ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
             CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
-            ConfigurationBasic configBasic = di.Resolve<ConfigurationBasic>();
             customEnvironmentArgs.Apply();
             configBootstrapper.EnsureLatest();
 
             ConfigurationLoader configurationManager = di.Resolve<ConfigurationLoader>();
 
             // first part of server start, tries to load config
+            // always resolve ConfigurationBasic after apply custom env args
+            ConfigurationBasic configBasic = di.Resolve<ConfigurationBasic>(); 
             string configPath = configBasic.ConfigPath;
             Configuration unsafeConfig = configurationManager.LoadUnsafeConfig(configPath);
 
