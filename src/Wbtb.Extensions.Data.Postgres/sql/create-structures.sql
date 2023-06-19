@@ -63,22 +63,6 @@ CREATE SEQUENCE public."incident_id_seq"
     CACHE 1;
 ALTER SEQUENCE public."incident_id_seq" OWNER TO postgres;
 
-CREATE SEQUENCE public."transmissionlog_buildid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."transmissionlog_buildid_seq" OWNER TO postgres;
-
-CREATE SEQUENCE public."transmissionlog_id_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."transmissionlog_id_seq" OWNER TO postgres;
-
 CREATE SEQUENCE public."buildflag_id_seq"
     INCREMENT 1
     START 1
@@ -506,28 +490,6 @@ TABLESPACE pg_default;
 ALTER TABLE public."jobdelta" OWNER TO postgres;
 
 
--- TABLE : Transmission
-CREATE TABLE public."transmissionlog"
-(
-    id integer NOT NULL DEFAULT nextval('"transmissionlog_id_seq"'::regclass),
-    buildid integer NOT NULL DEFAULT nextval('"transmissionlog_buildid_seq"'::regclass),
-    carriercontext character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    receivercontext character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    eventcontext character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    createdUtc timestamp(4) without time zone NOT NULL,
-    CONSTRAINT "transmissionLog_primary_key" PRIMARY KEY (buildid),
-    CONSTRAINT "transmissionlog_buildid_fk" FOREIGN KEY (buildid)
-        REFERENCES public."build" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-ALTER TABLE public."transmissionlog" OWNER TO postgres;
-
-
 -- TABLE : INCIDENT
 CREATE TABLE public."incident"
 (
@@ -626,11 +588,6 @@ CREATE INDEX "buildprocessor_buildid_fk"
 
 CREATE INDEX "buildlogparseresult_buildid_fk"
     ON public."buildlogparseresult" USING btree
-    (buildid)
-    TABLESPACE pg_default;
-
-CREATE INDEX "transmissionlog_buildid_fk"
-    ON public."transmissionlog" USING btree
     (buildid)
     TABLESPACE pg_default;
 
