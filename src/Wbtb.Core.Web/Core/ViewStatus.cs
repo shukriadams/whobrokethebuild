@@ -19,14 +19,14 @@ namespace Wbtb.Core.Web
             {
                 context.Result = new ViewResult
                 {
-                    ViewName = "~/Views/Home/ErrorConfiguration.cshtml"
+                    ViewName = "~/Views/Error/Configuration.cshtml"
                 };
             }
             else if (!AppState.Ready /*&& (string)context.HttpContext.Request.Path == "/NotReady"*/)
             {
                 context.Result = new ViewResult
                 {
-                    ViewName = "~/Views/Home/ErrorNotReady.cshtml"
+                    ViewName = "~/Views/Error/NotReady.cshtml"
                 };
             }
         }

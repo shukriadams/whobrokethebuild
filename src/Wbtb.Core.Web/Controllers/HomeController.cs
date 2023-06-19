@@ -427,23 +427,6 @@ namespace Wbtb.Core.Web.Controllers
             return string.Empty;
         }
 
-        /// <summary>
-        /// Renders view.
-        /// </summary>
-        /// <returns></returns>
-        [ServiceFilter(typeof(ViewStatus))]
-        [Route("error/404")]
-        public IActionResult Error404()
-        {
-            return View();
-        }
-
-        [ServiceFilter(typeof(ViewStatus))]
-        [Route("error/500")]
-        public IActionResult Error500()
-        {
-            return View();
-        }
 
         #endregion
     }

@@ -93,7 +93,6 @@ namespace Wbtb.Core.Web
 
                     // app is ready to accept incoming requests
                     AppState.Ready = true;
-
                 }
                 catch (ConfigurationException ex)
                 {

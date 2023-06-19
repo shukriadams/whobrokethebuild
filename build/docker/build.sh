@@ -27,7 +27,7 @@ docker run \
     mcr.microsoft.com/dotnet/sdk:6.0 \
     sh -c "cd /tmp/wbtb && \
         dotnet restore Wbtb.Core.CLI && \
-        dotnet publish Wbtb.Core.CLI --configuration Release"
+        dotnet publish Wbtb.Core.CLI --configuration Release --runtime linux-x64"
 
 echo "Building web server ..."
 docker run \
@@ -67,7 +67,7 @@ if [ $SMOKETEST -eq 1 ]; then
     docker-compose -f docker-compose.yml down --remove-orphans
     docker-compose -f docker-compose.yml up -d 
     sleep 5  # wait a few seconds to make sure app in container has started
-    STATUS=$(curl -s -o /dev/null -w "%{http_code}" localhost:49022/NotReady) 
+    STATUS=$(curl -s -o /dev/null -w "%{http_code}" localhost:49022/error/notready) 
     docker-compose -f docker-compose.yml down 
     if [ "$STATUS" != "200" ]; then
         echo "test container returned unexpected value ${STATUS}. Container log is:"
