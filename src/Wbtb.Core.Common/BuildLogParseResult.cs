@@ -1,6 +1,6 @@
 ﻿namespace Wbtb.Core.Common
 {
-    public class BuildLogParseResult
+    public class BuildLogParseResult : ISignature
     {
         /// <summary>
         /// 
@@ -27,5 +27,15 @@
         /// Build logs can be parsed to retrieve meaningful content
         /// </summary>
         public string ParsedContent { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Blame Blame { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Signature { get; set; }
     }
 }

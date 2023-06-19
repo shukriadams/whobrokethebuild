@@ -19,7 +19,6 @@ namespace Wbtb.Core.Web
 
             return new ViewBuildInvolvement
             {
-                Blame = buildInvolvement.Blame,
                 BuildId = buildInvolvement.BuildId,
                 Comment = buildInvolvement.Comment,
                 IsIgnoredFromBreakHistory = buildInvolvement.IsIgnoredFromBreakHistory,

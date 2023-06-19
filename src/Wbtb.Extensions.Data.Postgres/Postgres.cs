@@ -1535,15 +1535,29 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO buildlogparseresult
-                    (buildid, logparserplugin, parsedcontent)
+                    (buildid, signaturelogparserplugin, blame, parsedcontent)
                 VALUES
-                    (@buildid, @logparserplugin, @parsedcontent)
+                    (@buildid, @signature, @logparserplugin, @blame, @parsedcontent)
                 RETURNING id";
+
+            string updateQuery = @"                    
+                UPDATE buildlogparseresult SET 
+                    buildid = @buildid, 
+                    signature = @new_signature,
+                    logparserplugin = @logparserplugin, 
+                    blame = @blame,
+                    parsedcontent = @parsedcontent
+                WHERE
+                    id = @id
+                    AND signature = @signature";
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             {
-                // note that buildlogparseresults cannot be updated
-                buildLog.Id = PostgresCommon.InsertWithId<BuildLogParseResult>(this.ContextPluginConfig, insertQuery, buildLog, new ParameterMapper<BuildLogParseResult>(BuildLogParseResultMapping.MapParameters), connection);
+                if (string.IsNullOrEmpty(buildLog.Id))
+                    buildLog.Id = PostgresCommon.InsertWithId<BuildLogParseResult>(this.ContextPluginConfig, insertQuery, buildLog, new ParameterMapper<BuildLogParseResult>(BuildLogParseResultMapping.MapParameters), connection);
+                else
+                    PostgresCommon.Update<BuildLogParseResult>(this.ContextPluginConfig, updateQuery, buildLog, new ParameterMapper<BuildLogParseResult>(BuildLogParseResultMapping.MapParameters), connection);
+
                 return buildLog;
             }
         }
@@ -1589,9 +1603,9 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO buildinvolvement
-                    (buildid, signature, revisioncode, revisionid, mappeduserid, isignoredfrombreakhistory, inferredrevisionlink, blame, comment, revisionlinkstatus, userlinkstatus)
+                    (buildid, signature, revisioncode, revisionid, mappeduserid, isignoredfrombreakhistory, inferredrevisionlink, comment, revisionlinkstatus, userlinkstatus)
                 VALUES
-                    (@buildid, @signature, @revisioncode, @revisionid, @mappeduserid, @isignoredfrombreakhistory, @inferredrevisionlink, @blame, @comment, @revisionlinkstatus, @userlinkstatus)
+                    (@buildid, @signature, @revisioncode, @revisionid, @mappeduserid, @isignoredfrombreakhistory, @inferredrevisionlink, @comment, @revisionlinkstatus, @userlinkstatus)
                 RETURNING id";
 
             string updateQuery = @"                    
@@ -1603,7 +1617,6 @@ namespace Wbtb.Extensions.Data.Postgres
                     mappeduserid = @mappeduserid, 
                     isignoredfrombreakhistory = @isignoredfrombreakhistory, 
                     inferredrevisionlink = @inferredrevisionlink,
-                    blame = @blame,
                     comment = @comment,
                     revisionlinkstatus = @revisionlinkstatus,
                     userlinkstatus = @userlinkstatus

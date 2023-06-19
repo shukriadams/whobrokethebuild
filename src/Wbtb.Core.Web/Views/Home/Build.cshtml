@@ -166,17 +166,8 @@
                                     <span class="bold">@involvement.Revision.Description</span>
                                 </text>
                             }
-
-                            @if (Model.Build.Status == BuildStatus.Failed)
-                            {
-                                <div class="quiet">
-                                    (@ViewHelpers.TranslateBuildInvolvement(involvement))
-                                </div>
-                            }
                         </x-column>
                     </x-columns>
-                    
-
 
 @if (involvement.Revision != null) {   
 <pre class="code">@if (involvement.Revision.Files.Any()) { 

@@ -382,7 +382,6 @@ CREATE TABLE public."buildinvolvement"
     isignoredfrombreakhistory boolean NOT NULL,
     revisionlinkstatus integer NOT NULL,
     userlinkstatus integer NOT NULL,
-    blame integer NOT NULL,
     inferredrevisionlink boolean NOT NULL,
     comment character varying(256) COLLATE pg_catalog."default",
     CONSTRAINT "buildInvolvement_pkey" PRIMARY KEY (id),
@@ -412,6 +411,7 @@ CREATE TABLE public."buildlogparseresult"
 (
     id integer NOT NULL DEFAULT nextval('"buildlogparseresult_id_seq"'::regclass),
     buildid integer NOT NULL,
+    blame integer NOT NULL,
     logparserplugin character varying(64) COLLATE pg_catalog."default" NOT NULL,
     parsedcontent text COLLATE pg_catalog."default",
     CONSTRAINT "buildLogparseresult_pkey" PRIMARY KEY (id),

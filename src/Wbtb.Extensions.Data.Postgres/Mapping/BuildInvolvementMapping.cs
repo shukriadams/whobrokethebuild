@@ -11,7 +11,6 @@ namespace Wbtb.Extensions.Data.Postgres
                 queryParameters.AddWithValue("id", int.Parse(record.Id));
 
             queryParameters.AddWithValue("signature", record.Signature);
-            queryParameters.AddWithValue("blame", (int)record.Blame);
             queryParameters.AddWithValue("buildid", int.Parse(record.BuildId));
             queryParameters.AddWithValue("comment", record.Comment == null ? (object)DBNull.Value : record.Comment);
             queryParameters.AddWithValue("isignoredfrombreakhistory", record.IsIgnoredFromBreakHistory);

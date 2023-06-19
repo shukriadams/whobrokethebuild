@@ -18,7 +18,6 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
             BuildInvolvement record = this.Postgres.SaveBuildInvolement(new BuildInvolvement
             {
-                Blame = Blame.Innocent,
                 BuildId = build.Id,
                 Comment = "mycomment",
                 IsIgnoredFromBreakHistory = true,
@@ -27,7 +26,6 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
             Assert.NotEqual("0", record.Id);
 
-            Assert.Equal(Blame.Innocent, record.Blame);
             Assert.Equal("mycomment", record.Comment);
             Assert.True(record.IsIgnoredFromBreakHistory);
             Assert.Equal("myrevision", record.RevisionCode);

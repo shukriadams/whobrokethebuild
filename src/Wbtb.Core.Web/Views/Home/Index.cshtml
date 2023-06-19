@@ -53,20 +53,6 @@
                                         </text>
                                     }
                                 }
-
-                                @foreach(BuildInvolvement inv in job.DeltaBuild.BuildInvolvements)
-                                {
-                                    @if (inv.Blame == Blame.Guilty)
-                                    {
-                                        @if (!string.IsNullOrEmpty(inv.MappedUserId))
-                                        { 
-                                            <text>
-                                                <a href="/user/@inv.MappedUserId">inv.MappedUserId</a>
-                                            </text>
-                                        } 
-                                    }
-                                }
-
                             </div>
                         }
 

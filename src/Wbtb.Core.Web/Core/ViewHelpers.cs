@@ -227,7 +227,7 @@ namespace Wbtb.Core.Web
             return duration.Humanize();
         }
 
-        public static string TranslateBuildInvolvement(BuildInvolvement involvement)
+        public static string TranslateBlame(BuildLogParseResult involvement)
         {
             switch(involvement.Blame)
             {

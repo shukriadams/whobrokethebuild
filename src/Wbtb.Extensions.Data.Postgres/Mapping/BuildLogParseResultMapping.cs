@@ -10,6 +10,8 @@ namespace Wbtb.Extensions.Data.Postgres
             if (!string.IsNullOrEmpty(record.Id))
                 collection.AddWithValue("id", int.Parse(record.Id));
 
+            collection.AddWithValue("signature", record.Signature);
+            collection.AddWithValue("blame", (int)record.Blame);
             collection.AddWithValue("buildid", int.Parse(record.BuildId));
             collection.AddWithValue("parsedcontent", string.IsNullOrEmpty(record.ParsedContent) ? (object)DBNull.Value : record.ParsedContent);
             collection.AddWithValue("logparserplugin", record.LogParserPlugin);

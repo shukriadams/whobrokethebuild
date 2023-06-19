@@ -152,7 +152,6 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
         {
             return new BuildInvolvement
             {
-                Blame = Blame.Innocent,
                 BuildId = "--REQUIRES-BUILDID-FOR-CONSTRAINT",
                 IsIgnoredFromBreakHistory = true,
                 Comment = RandomString(),
