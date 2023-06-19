@@ -10,13 +10,13 @@ namespace Wbtb.Core.Common
 
         private readonly MessageQueueHtppClient _messageQueueHtppClient;
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         #endregion
 
         #region CTORS
 
-        public PluginShellSender(MessageQueueHtppClient messageQueueHtppClient, Config config) 
+        public PluginShellSender(MessageQueueHtppClient messageQueueHtppClient, Configuration config) 
         {
             _messageQueueHtppClient = messageQueueHtppClient;
             _config = config;

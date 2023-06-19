@@ -48,7 +48,8 @@ namespace Wbtb.Core.Web
                     Wbtb.Core.Core core = new Wbtb.Core.Core();
                     core.Start();
 
-                    Config config = di.Resolve<Config>();
+
+                    Configuration config = di.Resolve<Configuration>();
 
                     string disableDaemonsLook = Environment.GetEnvironmentVariable("WBTB_ENABLE_DAEMONS");
                     bool disableDaemons = disableDaemonsLook == "0" || disableDaemonsLook == "false" || config.EnabledDaemons == false;
@@ -90,7 +91,9 @@ namespace Wbtb.Core.Web
                         }
                     }
 
+                    // app is ready to accept incoming requests
                     AppState.Ready = true;
+
                 }
                 catch (ConfigurationException ex)
                 {

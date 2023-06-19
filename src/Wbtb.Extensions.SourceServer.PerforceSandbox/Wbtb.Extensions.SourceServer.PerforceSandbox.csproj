@@ -6,6 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="JSON\Revisions\300.json" />
+    <None Remove="JSON\Revisions\301.json" />
+    <None Remove="JSON\Revisions\302.json" />
+    <None Remove="JSON\Revisions\303.json" />
+    <None Remove="JSON\Revisions\304.json" />
+    <None Remove="JSON\Revisions\305.json" />
+    <None Remove="JSON\Revisions\306.json" />
+    <None Remove="JSON\Revisions\307.json" />
+    <None Remove="JSON\Revisions\308.json" />
+    <None Remove="JSON\Revisions\309.json" />
+    <None Remove="JSON\Revisions\310.json" />
+    <None Remove="JSON\Revisions\311.json" />
+    <None Remove="JSON\Revisions\312.json" />
+    <None Remove="JSON\Revisions\45231.json" />
     <None Remove="JSON\Revisions\56330.json" />
     <None Remove="JSON\Revisions\56331.json" />
     <None Remove="JSON\Revisions\56332.json" />
@@ -15,6 +29,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="JSON\Revisions\302.json" />
+    <EmbeddedResource Include="JSON\Revisions\303.json" />
+    <EmbeddedResource Include="JSON\Revisions\304.json" />
+    <EmbeddedResource Include="JSON\Revisions\305.json" />
+    <EmbeddedResource Include="JSON\Revisions\306.json" />
+    <EmbeddedResource Include="JSON\Revisions\307.json" />
+    <EmbeddedResource Include="JSON\Revisions\308.json" />
+    <EmbeddedResource Include="JSON\Revisions\309.json" />
+    <EmbeddedResource Include="JSON\Revisions\310.json" />
+    <EmbeddedResource Include="JSON\Revisions\311.json" />
+    <EmbeddedResource Include="JSON\Revisions\312.json" />
+    <EmbeddedResource Include="JSON\Revisions\301.json" />
+    <EmbeddedResource Include="JSON\Revisions\300.json" />
+    <EmbeddedResource Include="JSON\Revisions\45231.json" />
     <EmbeddedResource Include="JSON\Revisions\56330.json" />
     <EmbeddedResource Include="JSON\Revisions\56332.json" />
     <EmbeddedResource Include="JSON\Revisions\56331.json" />

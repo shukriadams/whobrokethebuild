@@ -10,13 +10,13 @@ namespace Wbtb.Extensions.Data.Postgres
     {
         #region FIELDS
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         #endregion
 
         #region CTORS
 
-        public Postgres(Config config) 
+        public Postgres(Configuration config) 
         { 
             _config = config;
         }

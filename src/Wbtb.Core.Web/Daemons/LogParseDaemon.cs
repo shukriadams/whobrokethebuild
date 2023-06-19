@@ -19,7 +19,7 @@ namespace Wbtb.Core.Web
         
         private readonly PluginProvider _pluginProvider;
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         private readonly BuildLogParseResultHelper _buildLogParseResultHelper;
 
@@ -27,7 +27,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public LogParseDaemon(ILogger log, Config config, PluginProvider pluginProvider, BuildLogParseResultHelper buildLogParseResultHelper, IDaemonProcessRunner processRunner)
+        public LogParseDaemon(ILogger log, Configuration config, PluginProvider pluginProvider, BuildLogParseResultHelper buildLogParseResultHelper, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

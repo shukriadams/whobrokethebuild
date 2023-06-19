@@ -5,13 +5,23 @@ namespace Wbtb.Core.Common
 {
     public class PluginProvider
     {
-        private readonly Config _config;
-             
+        #region FIELDS
+
+        private readonly Configuration _config;
+
+        #endregion
+        
+        #region CTORS
+
         public PluginProvider() 
         {
             SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>(); 
+            _config = di.Resolve<Configuration>(); 
         }
+
+        #endregion
+
+        #region METHODS
 
         public T GetFirstForInterface<T>(bool expected = true)
         { 
@@ -80,5 +90,7 @@ namespace Wbtb.Core.Common
 
             return plugin;
         }
+
+        #endregion
     }
 }

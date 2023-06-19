@@ -12,17 +12,19 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
     {
         #region FIELDS
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         private readonly PluginProvider _pluginProvider;
 
         private readonly PersistPathHelper _persistPathHelper;
+
         private readonly SimpleDI _di;
+
         #endregion
 
         #region CTORS
 
-        public Jenkins(Config config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper) 
+        public Jenkins(Configuration config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper) 
         {
             _config = config;
             _pluginProvider = pluginProvider;
@@ -58,7 +60,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             if (!contextServer.Config.Any(c => c.Key == "Token"))
                 throw new ConfigurationException("Missing Config item \"Token\"");
 
-            Config config = _di.Resolve<Config>();
+            Configuration config = _di.Resolve<Configuration>();
 
             string persistDirectory = _persistPathHelper.EnsurePluginPersistDirectory(ContextPluginConfig);
 
@@ -235,8 +237,6 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         private IEnumerable<string> GetRevisionsInBuild(Job job, Build build)
         {
             IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
-
-
             string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, build.Identifier, "revisions.json");
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);

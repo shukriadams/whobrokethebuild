@@ -9,6 +9,9 @@ namespace Wbtb.Core.Web
 
         public ViewBuild Build { get; set; }
 
+        // user from MappedUserId. Null if not mapped.
+        public ViewUser MappedUser { get; set; }
+
         public static ViewBuildInvolvement Copy(BuildInvolvement buildInvolvement)
         {
             if (buildInvolvement == null)

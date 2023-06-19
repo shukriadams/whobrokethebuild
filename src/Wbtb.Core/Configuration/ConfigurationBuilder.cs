@@ -9,14 +9,14 @@ namespace Wbtb.Core
     {
         #region FIELDS
 
-        private readonly Config _config;
+        private readonly Configuration _config;
         private readonly PluginProvider _pluginProvider;
 
         #endregion
 
         #region CTORS
 
-        public ConfigurationBuilder(Config config, PluginProvider pluginProvider) 
+        public ConfigurationBuilder(Configuration config, PluginProvider pluginProvider) 
         {
             _config = config;
             _pluginProvider = pluginProvider;

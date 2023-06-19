@@ -12,14 +12,14 @@ namespace Wbtb.Core.Common
     /// </summary>
     public class PluginDirectSender : IPluginSender
     {
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         private readonly MessageQueueHtppClient _messageQueueHtppClient;
 
         public PluginDirectSender() 
         {
             SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>();
+            _config = di.Resolve<Configuration>();
             _messageQueueHtppClient = di.Resolve<MessageQueueHtppClient>();
         }
 

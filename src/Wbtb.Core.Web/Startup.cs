@@ -27,6 +27,8 @@ namespace Wbtb.Core.Web
             services.AddSignalR();
             services.AddHostedService<ServerStartService>();
             services.AddMemoryCache();
+
+            services.AddScoped<ViewStatus>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,29 +43,15 @@ namespace Wbtb.Core.Web
             }
             else
             {
-                app.UseExceptionHandler("/Error");
+                app.UseExceptionHandler("/error/500");
             }
 
             app.Use(async (context, next) =>
             {
-                if ((string)context.Request.Path == "/ConfigErrors" || (string)context.Request.Path == "/NotReady")
+                await next();
+                if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
                 {
-                    await next();
-                }
-                else 
-                {
-                    if (AppState.ConfigErrors)
-                    {
-                        context.Response.Redirect("/ConfigErrors");
-                        return;
-                    }
-
-                    if (!AppState.Ready)
-                    {
-                        context.Response.Redirect("/NotReady");
-                        return;
-                    }
-
+                    context.Request.Path = "/error/404";
                     await next();
                 }
             });

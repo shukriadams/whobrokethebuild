@@ -53,18 +53,19 @@
             <x-card-pad>
                 @if (Model.Build.Id == Model.Build.IncidentBuildId)
                 {
-                    <text>
+                    <x-badge class="--danger">
                         Build broke here.
-                    </text>
+                    </x-badge>
                 } 
                 else 
                 { 
                     <text>
-                        Break caused by @ViewHelpers.BuildLink(Model.Build.IncidentBuild)
+                        Break caused by build @ViewHelpers.BuildLink(Model.Build.IncidentBuild)
                     </text>
                 }
-                
-                Incident details : @ViewHelpers.IncidentLink(Model.Build.IncidentBuild)
+                <div>
+                    @ViewHelpers.IncidentLink(Model.Build.IncidentBuild, "View incident")
+                </div>
 
             </x-card-pad>
         }
@@ -130,13 +131,10 @@
                 <x-list-cell>
                     @buildFlag.Description
                 </x-list-cell>
-                <x-list-cell>
-                    @(buildFlag.Ignored ? "Is reset": "")
-                </x-list-cell>
-                @if (Model.IsAdmin && !buildFlag.Ignored)
+                @if (Model.IsAdmin)
                 { 
                     <x-list-cell>
-                        <a href="/buildflag/reset/@Model.Build.Id/@buildFlag.Flag">Reset</a>
+                        <a href="/buildflag/reset/@buildFlag.Id">Reset</a>
                     </x-list-cell>
                 }
             </x-list-row>
@@ -145,7 +143,7 @@
 }
         
 <h2>Changes</h2>
-<x-list class="build-changes">
+<x-list class="buildChanges">
 
     @if (Model.BuildInvolvements.Any())
     {
@@ -153,47 +151,41 @@
         { 
             <x-list-row>
                 <x-list-cell>
-                    <div>
-                        #@involvement.RevisionCode 
-                        @if (involvement.Revision != null)
-                        { 
-                            <text>
-                                - <span class="bold">@involvement.Revision.Description</span> 
-                            </text>
-                        }
+                    <x-columns class="buildChanges-row">
+                        <x-column class="buildChanges-avatar">
+                            @await Html.PartialAsync("UserAvatar", involvement.MappedUser)
+                        </x-column>
+                        <x-column class="buildChanges-revision">
+                            #@involvement.RevisionCode
+                        </x-column>
+                        <x-column>
+                            
+                            @if (involvement.Revision != null)
+                            {
+                                <text>
+                                    <span class="bold">@involvement.Revision.Description</span>
+                                </text>
+                            }
 
-                        by @ViewHelpers.BuildInvolvementUserLink(involvement)
+                            @if (Model.Build.Status == BuildStatus.Failed)
+                            {
+                                <div class="quiet">
+                                    (@ViewHelpers.TranslateBuildInvolvement(involvement))
+                                </div>
+                            }
+                        </x-column>
+                    </x-columns>
+                    
 
-                        @if (Model.Build.Status == BuildStatus.Failed) 
-                        {
-                            <text>
-                                Did they break this build? 
-                                @ViewHelpers.TranslateBuildInvolvement(involvement)
-                            </text>
-                        }
-                    </div>
 
-                    @if (involvement.Revision == null)
-                    {
-                        <text>
-                        </text>
-                    }
-                    else 
-                    {   
-<pre class="code">
-@if (involvement.Revision.Files.Any())
-{ 
-    @foreach(string file in involvement.Revision.Files)
-    { 
- <span class="build-revisionFile build-revisionFile--">@file</span>
-    }
-} else { 
-    <text>
-        No file changes found
-    </text>
+@if (involvement.Revision != null) {   
+<pre class="code">@if (involvement.Revision.Files.Any()) { 
+@foreach(string file in involvement.Revision.Files) { 
+<span class="build-revisionFile build-revisionFile--">@file</span>
 }
-</pre>
-                    }
+} else { 
+<text>No file changes found</text>}</pre>
+}
                 </x-list-cell>
             </x-list-row>
 
@@ -277,12 +269,7 @@ else
             } 
             else 
             { 
-            <pre class="code">
-                <h3>Parser: @parseResult.LogParserPlugin</h3>
-                <text>
-@ViewHelpers.String(parseResult.ParsedContent)
-                </text>
-            </pre>
+<pre class="code"><h4>Parser: @parseResult.LogParserPlugin</h4><text>@ViewHelpers.String(parseResult.ParsedContent)</text></pre>
             }
         }
     }

@@ -71,7 +71,7 @@ namespace Wbtb.Core.Common
             command.StandardInput.Flush();
             command.StandardInput.Close();
             command.BeginOutputReadLine();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            //if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 command.WaitForExit();
 
             return string.Join(string.Empty, StdOut);

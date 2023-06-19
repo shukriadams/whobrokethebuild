@@ -30,7 +30,8 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("job"))
             {
-                Console.WriteLine($"ERROR : \"job\" key required");
+                Console.WriteLine($"ERROR : \"--job\" <jobkey> required");
+                _consoleHelper.PrintJobs();
                 Environment.Exit(1);
                 return;
             }
@@ -43,7 +44,7 @@ namespace Wbtb.Core.CLI
             Job job = dataLayer.GetJobByKey(jobkey);
             if (job == null)
             {
-                Console.WriteLine($"ERROR : \"job\" key {jobkey} does not point to a valid job");
+                Console.WriteLine($"ERROR : \"--job\" key {jobkey} does not point to a valid job");
                 _consoleHelper.PrintJobs();
                 Environment.Exit(1);    
                 return;

@@ -15,7 +15,7 @@ namespace Wbtb.Core.Web.Controllers
     {
         #region FIELDS
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         private readonly PluginProvider _pluginProvider;
 
@@ -26,7 +26,7 @@ namespace Wbtb.Core.Web.Controllers
         public InvokeController() 
         {
             _di = new SimpleDI();
-            _config = _di.Resolve<Config>();
+            _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();  
         } 
 

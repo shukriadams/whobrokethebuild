@@ -12,7 +12,7 @@ namespace Wbtb.Core.Common
         public string Id { get; set; }
 
         /// <summary>
-        /// Config-defined unique id.
+        /// Config-defined unique id. required.
         /// </summary>
         public string Key { get; set; }
 
@@ -22,9 +22,19 @@ namespace Wbtb.Core.Common
         public string KeyPrev { get; set; }
 
         /// <summary>
-        /// Public name of user
+        /// human-friend name of user. Set to key if not set.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Human-friendly initials of user. Set to first three chars of name if not set.
+        /// </summary>
+        public string Initials { get; set; }
+
+		/// <summary>
+		/// Optional image url for user
+		/// </summary>
+		public string Image { get; set; }
 
         /// <summary>
         /// 
@@ -47,7 +57,7 @@ namespace Wbtb.Core.Common
         public IList<UserSourceIdentity> SourceServerIdentities { get; set; }
 
         /// <summary>
-        /// 
+        /// Methods to communicate with user
         /// </summary>
         public IList<MessageConfiguration> Message { get; set; }
 

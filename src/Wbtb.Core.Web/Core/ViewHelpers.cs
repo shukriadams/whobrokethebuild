@@ -72,6 +72,25 @@ namespace Wbtb.Core.Web
             return new HtmlString($"<span class=\"\">User not resolved</span>");
         }
 
+        public static HtmlString BuildInvolvementUserAvatar(BuildInvolvement involvement) 
+        {
+            if (involvement == null)
+                return new HtmlString(string.Empty);
+
+            SimpleDI di = new SimpleDI();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+
+            if (!string.IsNullOrEmpty(involvement.MappedUserId))
+            {
+                IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+                User user = dataLayer.GetUserById(involvement.MappedUserId);
+                string userImageUrl = user.Image;
+                return new HtmlString($"<x-avatar class=\"--round\"><a title=\"{user.Name}\" href=\"/user/{involvement.MappedUserId}\"><img src=\"{userImageUrl}\" /></a></x-avatar>");
+            }
+
+            return new HtmlString($"<x-avatar class=\"--round --disabled\"><img /></x-avatar>");
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -99,12 +118,15 @@ namespace Wbtb.Core.Web
         }
 
         
-        public static HtmlString IncidentLink(Build build)
+        public static HtmlString IncidentLink(Build build, string text = null)
         {
+            if (text == null)
+                text = build.Id; 
+
             if (build == null)
                 return new HtmlString(string.Empty);
 
-            return new HtmlString($"<a href=\"/incident/{build.Id}\">{build.Id}</a>");
+            return new HtmlString($"<a href=\"/incident/{build.Id}\">{text}</a>");
         }
 
         public static HtmlString BuildLink(Build build)
@@ -184,7 +206,7 @@ namespace Wbtb.Core.Web
             return $"{text.Substring(0, length)}{overflow}";
         }
 
-        public static HtmlString PagerBar<T>(string baseUrl, PageableData<T> data, Config config)
+        public static HtmlString PagerBar<T>(string baseUrl, PageableData<T> data, Configuration config)
         {
             Pager pager = new Pager();
             return new HtmlString(pager.Render(data, config.PagesPerPageGroup, baseUrl, "page"));
@@ -210,11 +232,11 @@ namespace Wbtb.Core.Web
             switch(involvement.Blame)
             {
                 case Blame.Innocent:
-                    return "Not responsible";
+                    return "Did not break build";
                 case Blame.Guilty:
                     return "Broke build";
                 default:
-                    return "Undetermined";
+                    return "Unknown if broke build";
             }
         }
     }

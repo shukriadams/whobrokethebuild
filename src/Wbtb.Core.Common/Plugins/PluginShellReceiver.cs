@@ -16,7 +16,7 @@ namespace Wbtb.Core.Common
     {
         #region METHODS
 
-        private void ProcessInterfaceCommand(string interfaceData, string[] args, Config config, TPlugin pluginInstance)
+        private void ProcessInterfaceCommand(string interfaceData, string[] args, Configuration config, TPlugin pluginInstance)
         {
             try 
             {
@@ -106,7 +106,7 @@ namespace Wbtb.Core.Common
             SimpleDI di = new SimpleDI();
 
             di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();
-            di.Register<ConfigBasic, ConfigBasic>();
+            di.Register<ConfigurationBasic, ConfigurationBasic>();
             di.Register<PluginDirectSender, PluginDirectSender>();
             di.Register<PluginCoreSender, PluginCoreSender>();
             di.Register<PersistPathHelper, PersistPathHelper>();
@@ -118,13 +118,13 @@ namespace Wbtb.Core.Common
             MessageQueueHtppClient client = di.Resolve<MessageQueueHtppClient>();
             
             // fetch config from messenger service
-            Config config = client.GetConfig();
+            Configuration config = client.GetConfig();
             if (config == null)
                 throw new Exception("Failed to get config from MessageQueue. Has config been initialized?");
                 
             config.IsCurrentContextProxyPlugin = true;
-            ConfigBasic configBasic = di.Resolve<ConfigBasic>();
-            di.RegisterSingleton<Config>(config);
+            ConfigurationBasic configBasic = di.Resolve<ConfigurationBasic>();
+            di.RegisterSingleton<Configuration>(config);
             
             // register this plugin as the type defined in this assembly
             di.Register(typeof(TPlugin), typeof(TPlugin));

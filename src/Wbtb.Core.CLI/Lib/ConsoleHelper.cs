@@ -19,7 +19,7 @@ namespace Wbtb.Core.CLI.Lib
             {
                 Console.WriteLine("Existing jobs are : ");
                 foreach (Job existingJob in jobs)
-                    Console.WriteLine($"{existingJob.Key}");
+                    Console.WriteLine($"Name:{existingJob.Name} Key:{existingJob.Key}");
             }
 
         }

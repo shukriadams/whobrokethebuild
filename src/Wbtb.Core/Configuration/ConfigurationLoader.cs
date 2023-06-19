@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
@@ -11,7 +12,7 @@ using Group = Wbtb.Core.Common.Group;
 
 namespace Wbtb.Core
 {
-    public class ConfigurationManager
+    public class ConfigurationLoader
     {
         #region METHODS
 
@@ -19,7 +20,7 @@ namespace Wbtb.Core
         /// Required first step for working with static config - set's the path config 
         /// </summary>
         /// <param name="path"></param>
-        public Config LoadUnsafeConfig(string path)
+        public Configuration LoadUnsafeConfig(string path)
         {
             if (string.IsNullOrEmpty(path))
                 throw new ConfigurationException("Config path cannot be an empty string");
@@ -34,46 +35,37 @@ namespace Wbtb.Core
             
             Console.WriteLine($"WBTB : Loaded config @ {path}");
 
+            // substitute templated {...} settings from env variables. this is a security feature so we can store sensitive data as 
+            // env vars instead of in config file
+            MatchCollection evnVarTokens = new Regex("\\{\\{env.(.*?)\\}\\}", RegexOptions.Multiline).Matches(rawYml);
+            foreach (Match evnVarToken in evnVarTokens)
+            {
+                string envVarValue = Environment.GetEnvironmentVariable(evnVarToken.Groups[1].Value);
+                if (envVarValue == null)
+                {
+                    throw new ConfigurationException($"Config  has a template value {{env"+ evnVarToken.Groups[1].Value + "}}, but not env var for this is set.");
+                }
+                else
+                {
+                    Console.WriteLine($"Replacing env var for value \"{evnVarToken.Groups[1].Value}\".");
+                    rawYml = rawYml.Replace("{{env." + evnVarToken.Groups[1].Value + "}}", envVarValue);
+                }
+            }
+
             IDeserializer deserializer = YmlHelper.GetDeserializer();
             Console.WriteLine("WBTB : initializing config");
 
-            ConfigValidationError validation = ValidateYmlFormat(rawYml);
+            ConfigurationValidationError validation = ValidateYmlFormat(rawYml);
             if (!validation.IsValid)
                 throw new ConfigurationException($"Application config yml is not properly formatted. See WBTB setup guide for details. {validation.Message}");
 
             // load raw yml config into strongly-typed object structure used internally by WBTB
-            Config tempConfig = deserializer.Deserialize<Config>(rawYml);
+            Configuration tempConfig = deserializer.Deserialize<Configuration>(rawYml);
 
             // load raw yml config into dynamic structure, this will be used to break up and parse fragments of config to specific plugins as JSON. This allows 
             // plugins to define their own config structure without requiring updates to WBTB's internal config structure.
             YamlNode rawConfig = ConfigurationHelper.RawConfigToDynamic(rawYml);
 
-            // substitute templated {...} settings from env variables. this is a security feature so we can store sensitive data as 
-            // env vars instead of in config file
-            System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex(@"^\{\{env.(.*)\}\}$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            foreach (PluginConfig pluginConfig in tempConfig.Plugins)
-            {
-                IList<KeyValuePair<string, object>> writeableConfig = pluginConfig.Config.ToList();
-
-                for (int i = 0; i < writeableConfig.Count; i++)
-                {
-                    KeyValuePair<string, object> item = pluginConfig.Config.ElementAt(i);
-                    string value = item.Value.ToString().Trim();
-                    System.Text.RegularExpressions.Match match = reg.Match(value);
-                    if (!match.Success)
-                        continue;
-
-                    string envArgName = match.Groups[1].Value;
-                    string envVarValue = Environment.GetEnvironmentVariable(envArgName);
-                    if (string.IsNullOrEmpty(envVarValue))
-                        throw new ConfigurationException($"plugin {pluginConfig.Key} has a config item {item.Key} requesting an env variable that is not set");
-
-                    writeableConfig[i] = new KeyValuePair<string, object>(item.Key, envVarValue);
-                    Console.WriteLine($"{pluginConfig.Key} config item {item.Key} value has been set from environment variable");
-                }
-
-                pluginConfig.Config = writeableConfig;
-            }
 
             // removes explicitly disabled data as quickly as possible, this way we don't have to constantly filter out plugins by enabled in following checks
             tempConfig.Plugins = tempConfig.Plugins.Where(p => p.Enable).ToList();
@@ -111,11 +103,11 @@ namespace Wbtb.Core
             return tempConfig;
         }
         
-        public void FinalizeConfig(Config unsafeConfig)
+        public void FinalizeConfig(Configuration unsafeConfig)
         {
             EnsureManifestLogicValid(unsafeConfig);
             SimpleDI di = new SimpleDI();
-            di.RegisterSingleton<Config>(unsafeConfig);
+            di.RegisterSingleton<Configuration>(unsafeConfig);
         }
 
 
@@ -123,7 +115,7 @@ namespace Wbtb.Core
         /// move this to independent class, no need to be ehre
         /// </summary>
         /// <param name="config"></param>
-        public bool FetchPlugins(Config config)
+        public bool FetchPlugins(Configuration config)
         {
             // ensure write permission
             bool updated = false;
@@ -193,7 +185,7 @@ namespace Wbtb.Core
         /// config needs to be in place first.
         /// </summary>
         /// <param name="config"></param>
-        private void EnsureNoneManifestLogicValid(Config config)
+        private void EnsureNoneManifestLogicValid(Configuration config)
         {
             EnsureIdPresentAndUnique(config.Plugins, "plugin");
             EnsureIdPresentAndUnique(config.BuildServers, "build server");
@@ -213,7 +205,7 @@ namespace Wbtb.Core
         /// application start. Does not change config structure
         /// </summary>
         /// <param name="config"></param>
-        private void EnsureManifestLogicValid(Config config)
+        private void EnsureManifestLogicValid(Configuration config)
         {
             CurrentVersion currentVersion = new CurrentVersion();
             currentVersion.Resolve();
@@ -487,7 +479,7 @@ namespace Wbtb.Core
             }
         }
 
-        private void ValidateProcessors<T>(Config config, Job job, IEnumerable<string> processors, string category) 
+        private void ValidateProcessors<T>(Configuration config, Job job, IEnumerable<string> processors, string category) 
         {
             foreach (string processorPlugin in processors)
             {
@@ -506,11 +498,22 @@ namespace Wbtb.Core
         /// Where possible fills out values which can be inferred. This changes the contents of the config object.
         /// </summary>
         /// <param name="config"></param>
-        private void AutofillOptionalValues(Config config)
+        private void AutofillOptionalValues(Configuration config)
         {
-            foreach (User user in config.Users)
+            foreach (User user in config.Users) 
+            { 
                 if (string.IsNullOrEmpty(user.Name))
                     user.Name = user.Key;
+
+                // take first three chars of name if intials not set.
+                if (string.IsNullOrEmpty(user.Initials)) 
+                {
+                    user.Initials = user.Name.ToUpper().Replace(" ", string.Empty);
+                    if (user.Initials.Length > 3)
+                        user.Initials = user.Initials.Substring(0, 3);
+                }
+                    
+            }
 
             foreach (Group group in config.Groups)
                 if (string.IsNullOrEmpty(group.Name))
@@ -555,18 +558,18 @@ namespace Wbtb.Core
         /// </summary>
         /// <param name="ymlText"></param>
         /// <returns></returns>
-        private ConfigValidationError ValidateYmlFormat(string ymlText)
+        private ConfigurationValidationError ValidateYmlFormat(string ymlText)
         {
             IDeserializer deserializer = YmlHelper.GetDeserializer();
 
             try
             {
-                deserializer.Deserialize<Config>(ymlText);
-                return new ConfigValidationError { IsValid = true};
+                deserializer.Deserialize<Configuration>(ymlText);
+                return new ConfigurationValidationError { IsValid = true};
             }
             catch(Exception ex) 
             { 
-                return new ConfigValidationError 
+                return new ConfigurationValidationError 
                 { 
                     IsValid = false,
                     Message = ex.Message,
@@ -581,7 +584,7 @@ namespace Wbtb.Core
         /// <returns></returns>
         public string GetBlank()
         {
-            Config testconfig = new Config();
+            Configuration testconfig = new Configuration();
             ISerializer serializer = new SerializerBuilder()
                 .Build();
 

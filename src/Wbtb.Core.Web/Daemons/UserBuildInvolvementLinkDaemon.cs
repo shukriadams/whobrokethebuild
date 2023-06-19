@@ -19,7 +19,7 @@ namespace Wbtb.Core.Web
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         #endregion
 
@@ -31,7 +31,7 @@ namespace Wbtb.Core.Web
             _processRunner = processRunner;
 
             SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Config>();
+            _config = di.Resolve<Configuration>();
             _pluginProvider = di.Resolve<PluginProvider>(); 
 
         }
@@ -68,10 +68,10 @@ namespace Wbtb.Core.Web
                 {
                     try
                     {
-                        Job job = dataLayer.GetJobByKey(cfgJob.Key);
-                        SourceServer sourceServer = dataLayer.GetSourceServerById(job.SourceServerId);
+                        Job jobInDatabase = dataLayer.GetJobByKey(cfgJob.Key);
+                        SourceServer sourceServer = dataLayer.GetSourceServerById(jobInDatabase.SourceServerId);
                         ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
-                        IEnumerable<BuildInvolvement> buildInvolvementsWithoutUser = dataLayer.GetBuildInvolvementsWithoutMappedUser(job.Id);
+                        IEnumerable<BuildInvolvement> buildInvolvementsWithoutUser = dataLayer.GetBuildInvolvementsWithoutMappedUser(jobInDatabase.Id);
 
                         foreach (BuildInvolvement buildInvolvementWithoutUser in buildInvolvementsWithoutUser)
                         {
@@ -86,11 +86,11 @@ namespace Wbtb.Core.Web
                                     .FirstOrDefault(r => r.SourceServerIdentities
                                         .Any(r => r.Name == revision.User));
 
-                                User user = null;
+                                User userInDatabase = null;
                                 if (matchingUser != null)
-                                    user = dataLayer.GetUserByKey(matchingUser.Key);
+                                    userInDatabase = dataLayer.GetUserByKey(matchingUser.Key);
 
-                                if (user == null)
+                                if (userInDatabase == null)
                                 {
                                     dataLayer.SaveBuildFlag(new BuildFlag { 
                                         BuildId = buildInvolvementWithoutUser.BuildId,
@@ -102,8 +102,8 @@ namespace Wbtb.Core.Web
                                 }
                                 else
                                 {
-                                    buildInvolvementWithoutUser.MappedUserId = user.Id;
-                                    Console.WriteLine($"Linked user \"{user.Key}\" to build \"{buildInvolvementWithoutUser.BuildId}\".");
+                                    buildInvolvementWithoutUser.MappedUserId = userInDatabase.Id;
+                                    Console.WriteLine($"Linked user \"{userInDatabase.Key}\" to build \"{buildInvolvementWithoutUser.BuildId}\".");
                                 }
 
                                 dataLayer.SaveBuildInvolement(buildInvolvementWithoutUser);

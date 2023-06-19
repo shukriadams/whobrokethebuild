@@ -10,108 +10,119 @@
 @await Html.PartialAsync("JobBanner", Model.Job)
 
 <x-content>
-    <x-card class="--stroke @ViewHelpers.BuildStatusToCSSClass(Model.Job.LatestBuild)">
-        <x-card-stroke class="--@ViewHelpers.BuildStatusToCSSClass(Model.Job.DeltaBuild)"></x-card-stroke>
-        <x-card-pad>
-            <x-columns class="--two-one">
+    <x-columns class="--two-one">
+        <x-card class="--stroke @ViewHelpers.BuildStatusToCSSClass(Model.Job.LatestBuild)">
+            <x-card-stroke class="--@ViewHelpers.BuildStatusToCSSClass(Model.Job.DeltaBuild)"></x-card-stroke>
+            <x-card-pad>
+                @if (!string.IsNullOrEmpty(Model.Job.Description))
+                {
+                    <div>
+                        @(Model.Job.Description)
+                    </div>
+                }
+
                 <div>
-                    @if (!string.IsNullOrEmpty(Model.Job.Description))
+                    @if (Model.Stats.JobDuration.HasValue)
                     {
-                        <div>
-                            @(Model.Job.Description)
-                        </div>
+                        <text>
+                            Has built over @Model.Stats.JobDuration.Value.Humanize(), from @Model.Stats.StartUtc.Value.ToShortDateString().Humanize() to @Model.Stats.LatestBuild.EndedUtc.Value.ToShortDateString().Humanize().
+                        </text>
+                    }
+                </div>
+
+                <div>
+                    @if (Model.Stats.LatestBreakingBuild != null)
+                    {
+                        <text>Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild), @Model.Stats.LatestBreakingBuild.EndedUtc.Humanize()</text>
                     }
 
+                    @if (Model.Stats.LatestBreakDuration.HasValue)
+                    {
+                        <text>,and that lasted @Model.Stats.LatestBreakDuration.Value.Humanize()</text>
+                    }
+                    .
+                </div>
+
+                @if (Model.Stats.TotalBuilds == 0)
+                {
                     <div>
-                        @if (Model.Stats.JobDuration.HasValue)
+                        Project hasn't built yet.
+                    </div>
+                }
+
+                @if (Model.Stats.TotalBuilds > 0)
+                {
+                    <div>
+                        Has built @(Model.Stats.TotalBuilds) times.
+                    </div>
+                    <div>
+                        @if (Model.Stats.FailRatePercent == 0)
                         {
                             <text>
-                                Has built over @Model.Stats.JobDuration.Value.Humanize(), from @Model.Stats.StartUtc.Value.ToShortDateString().Humanize() to @Model.Stats.LatestBuild.EndedUtc.Value.ToShortDateString().Humanize().
+                                No fails detected.
+                            </text>
+                        }
+
+                        @if (Model.Stats.FailRatePercent > 0)
+                        {
+                            <text>
+                                Fail rate is @(Model.Stats.FailRatePercent)%.
                             </text>
                         }
                     </div>
-
-                    <div>
-                        @if (Model.Stats.LatestBreakingBuild != null)
-                        {
-                            <text>Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild), @Model.Stats.LatestBreakingBuild.EndedUtc.Humanize()</text>
-                        }
-
-                        @if (Model.Stats.LatestBreakDuration.HasValue)
-                        {
-                            <text>,and that lasted @Model.Stats.LatestBreakDuration.Value.Humanize()</text>
-                        }
-                    </div>
-
-                    @if (Model.Stats.TotalBuilds == 0)
-                    {
-                        <div>
-                            Project hasn't built yet.
-                        </div>
-                    }
-
-                    @if (Model.Stats.TotalBuilds > 0)
-                    {
-                        <div>
-                            Has built @(Model.Stats.TotalBuilds) times.
-
-                            @if (Model.Stats.FailRatePercent == 0)
-                            {
-                                <text>
-                                    No fails detected.
-                                </text>
-                            }
-
-                            @if (Model.Stats.FailRatePercent > 0)
-                            {
-                                <text>
-                                    Fail rate is @(Model.Stats.FailRatePercent)%.
-                                </text>
-                            }
-                        </div>
-                    }
-
-                </div>
+                }
+            </x-card-pad>
+        </x-card>
+        <x-card>
+            <x-card-pad>
                 <div>
-                    <a href="/incidents/@Model.Job.Id">Incidents (@Model.Stats.Incidents)</a>
-                    @if (Model.Job.Message.Any())
+                    Incidents : 
+                    @if (Model.Stats.Incidents == 0)
                     {
                         <text>
-                            Alerts will be sent to :
-
-                            @foreach (MessageHandler message in Model.Job.Message)
-                            {
-                                <div>
-                                    @message.Group via @message.Plugin
-                                </div>
-                            }
+                            None
                         </text>
+                    } else {
+                        <a href="/incidents/@Model.Job.Id">@Model.Stats.Incidents</a>
                     }
+                </div>
+                
+                @if (Model.Job.Message.Any())
+                {
+                    <text>
+                        <h5>Alerts</h5>
+                        @foreach (MessageHandler message in Model.Job.Message)
+                        {
+                            <div>
+                                @message.Group via @message.Plugin
+                            </div>
+                        }
+                    </text>
+                }
 
-                    <h5>Log parsers</h5>
-                    @if (Model.Job.LogParserPlugins.Any())
-                    {
-                        <text>
-                            <ul>
+                <h5>Log parsers</h5>
+                @if (Model.Job.LogParserPlugins.Any())
+                {
+                    <text>
+                        <ul>
                             @foreach (string logParser in Model.Job.LogParserPlugins)
                             {
                                 <li>
                                     @logParser
                                 </li>
                             }
-                            </ul>
-                        </text>
-                    } 
-                    else
-                    {
-                        <text>
-                            none
-                        </text>   
-                    }
-                </div>
-            </x-columns>
-        </x-card-pad>
-    </x-card>
+                        </ul>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        none
+                    </text>
+                }
+            </x-card-pad>
+        </x-card>
+    </x-columns>
 </x-content>
 
 <x-content>

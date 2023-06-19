@@ -36,7 +36,20 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
 
         public IEnumerable<Revision> GetRevisionsBetween(Core.Common.SourceServer contextServer, string revisionStart, string revisionEnd)
         {
-            return new Revision[] {};
+            // cludge together an ugly way to do p4 range using saved json revision files. We assume revision nrs run in order etc etc
+            int startRevision = int.Parse(revisionStart);
+            int endRevision = int.Parse(revisionEnd);
+            int currentRevision = startRevision + 1;
+            List<Revision> revisions = new List<Revision>();
+            while (currentRevision < endRevision) 
+            {
+                string path = $"JSON.Revisions.{currentRevision}.json";
+                if (ResourceHelper.ResourceExists(this.GetType(), path))
+                    revisions.Add(this.GetRevision(contextServer, currentRevision.ToString()));
+
+                currentRevision++;
+            }
+            return revisions;
         }
 
         public Revision GetRevision(Core.Common.SourceServer contextServer, string revisionCode)

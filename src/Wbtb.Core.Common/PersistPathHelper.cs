@@ -6,13 +6,13 @@ namespace Wbtb.Core.Common
     {
         #region FIELDS
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         #endregion
 
         #region
 
-        public PersistPathHelper(Config config) 
+        public PersistPathHelper(Configuration config) 
         {
             _config = config;
         }

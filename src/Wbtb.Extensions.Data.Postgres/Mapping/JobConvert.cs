@@ -6,9 +6,9 @@ namespace Wbtb.Extensions.Data.Postgres
 {
     internal class JobConvert : IRecordConverter<Job>
     {
-        private readonly Config _config;
+        private readonly Configuration _config;
 
-        internal JobConvert(Config config) 
+        internal JobConvert(Configuration config) 
         {
             _config = config;
         }

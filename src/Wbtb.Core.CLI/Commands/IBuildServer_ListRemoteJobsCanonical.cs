@@ -10,7 +10,7 @@ namespace Wbtb.Core.CLI
         public void Process(CommandLineSwitches switches) 
         {
             SimpleDI di = new SimpleDI();
-            Config config = di.Resolve<Config>();
+            Configuration config = di.Resolve<Configuration>();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
 
             if (!switches.Contains("Key"))

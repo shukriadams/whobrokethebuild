@@ -1,0 +1,14 @@
+{
+    "Revision": "311",
+    "Workspace": "myworkspace",
+    "Date": "2022-01-01T12:11",
+    "User": "Mort",
+    "Description": "Things",
+    "Files": [
+        {
+            "File": "",
+            "Change": "add",
+            "Differences": [ ">> some line", "<< some other line" ]
+        }
+    ]
+}

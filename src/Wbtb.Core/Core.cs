@@ -23,7 +23,7 @@ namespace Wbtb.Core
             SimpleDI di = new SimpleDI();
 
             di.Register<UrlHelper, UrlHelper>();
-            di.Register<ConfigurationManager, ConfigurationManager>();
+            di.Register<ConfigurationLoader, ConfigurationLoader>();
             di.Register<CurrentVersion, CurrentVersion>();
             di.Register<LogHelper, LogHelper>();
             di.Register<PluginDirectSender, PluginDirectSender>();
@@ -31,8 +31,8 @@ namespace Wbtb.Core
             di.Register<PluginCoreSender, PluginCoreSender>();
             di.Register<PersistPathHelper, PersistPathHelper>();
             di.Register<MessageQueueHtppClient, MessageQueueHtppClient>();
-            di.Register<ConfigBasic, ConfigBasic>();
-            di.Register<ConfigBootstrapper, ConfigBootstrapper>();
+            di.Register<ConfigurationBasic, ConfigurationBasic>();
+            di.Register<ConfigurationBootstrapper, ConfigurationBootstrapper>();
             di.Register<GitHelper, GitHelper>();
             di.Register<BuildLogParseResultHelper, BuildLogParseResultHelper>();
             di.Register<ConfigurationBuilder, ConfigurationBuilder>();
@@ -43,17 +43,17 @@ namespace Wbtb.Core
             di.RegisterFactory<ILogger, LogProvider>();
             di.RegisterFactory<IPluginSender, PluginSenderFactory>();
 
-            ConfigBootstrapper configBootstrapper = di.Resolve<ConfigBootstrapper>();
+            ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
             CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
-            ConfigBasic configBasic = di.Resolve<ConfigBasic>();
+            ConfigurationBasic configBasic = di.Resolve<ConfigurationBasic>();
             customEnvironmentArgs.Apply();
             configBootstrapper.EnsureLatest();
 
-            ConfigurationManager configurationManager = di.Resolve<ConfigurationManager>();
+            ConfigurationLoader configurationManager = di.Resolve<ConfigurationLoader>();
 
             // first part of server start, tries to load config
             string configPath = configBasic.ConfigPath;
-            Config unsafeConfig = configurationManager.LoadUnsafeConfig(configPath);
+            Configuration unsafeConfig = configurationManager.LoadUnsafeConfig(configPath);
 
             // ensure directories, this requires that config is loaded
             Directory.CreateDirectory(unsafeConfig.DataDirectory);
@@ -76,7 +76,7 @@ namespace Wbtb.Core
                 Console.WriteLine("No plugins running in proxy mode, ignoring MessageQueue status.");
             }
 
-            Config config = di.Resolve<Config>();
+            Configuration config = di.Resolve<Configuration>();
 
             // register plugins using config
             foreach (PluginConfig plugin in config.Plugins.Where(p => p.Manifest.RuntimeParsed == Runtimes.dotnet))
@@ -114,14 +114,9 @@ namespace Wbtb.Core
                 foreach (string orphan in orphans)
                     Console.WriteLine(orphan);
 
-                if (config.FailOnOrphans == false)
-                    persistStateToDatabase = false;
-
-                if (orphans.Count() > 0)
+                if (config.FailOnOrphans && orphans.Count() > 0)
                     throw new ConfigurationException("Orphan records detected. Please merge or delete orphans. Disable this check with \"FailOnOrphans: false\" in config.");
-
             }
-
         }
     }
 }

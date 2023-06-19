@@ -6,16 +6,16 @@ namespace Wbtb.Core.Common
     {
         #region FIELDS
 
-        private readonly ConfigBasic _configBasic;
+        private readonly ConfigurationBasic _configBasic;
 
-        private readonly Config _config;
+        private readonly Configuration _config;
 
         private readonly SimpleDI _di;
         #endregion
 
         #region CTORS
 
-        public PluginSenderFactory(Config config, ConfigBasic configBasic) 
+        public PluginSenderFactory(Configuration config, ConfigurationBasic configBasic) 
         {
             _config = config;
             _configBasic = configBasic;

@@ -6,9 +6,9 @@ namespace Wbtb.Core
 {
     public class LogHelper
     {
-        private readonly Config _config;
+        private readonly Configuration _config;
 
-        public LogHelper(Config config) 
+        public LogHelper(Configuration config) 
         {
             _config = config;
         }

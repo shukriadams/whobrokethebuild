@@ -7,9 +7,9 @@ namespace Wbtb.Extensions.Data.Postgres
 {
     internal class UserConvert : IRecordConverter<User>
     {
-        private readonly Config _config;
+        private readonly Configuration _config;
 
-        internal UserConvert(Config config) 
+        internal UserConvert(Configuration config) 
         { 
             _config = config;
         }
@@ -30,6 +30,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 user.Message = config.Message;
                 user.Description = config.Description;
                 user.Enable = config.Enable;
+                user.Image = config.Image;
                 user.SourceServerIdentities = config.SourceServerIdentities;
                 user.AuthPlugin = config.AuthPlugin;
             }
