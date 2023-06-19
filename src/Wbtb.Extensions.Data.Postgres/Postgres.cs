@@ -6,7 +6,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
 {
-    public class Postgres : Plugin, IDataLayerPlugin
+    public class Postgres : Plugin, IDataPlugin
     {
         #region FIELDS
 
@@ -458,7 +458,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 stats.WeeklyBuildRate = (int)Math.Round((decimal)((decimal)stats.TotalBuilds / (decimal)stats.JobDuration.Value.TotalDays / 7));
 
             // longest uptime
-            IEnumerable<string> incidentBuildIds = ((IDataLayerPlugin)this).GetIncidentIdsForJob(job);
+            IEnumerable<string> incidentBuildIds = ((IDataPlugin)this).GetIncidentIdsForJob(job);
 
             // longest downtime
 

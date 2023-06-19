@@ -4,7 +4,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 {
-    public class JenkinsSelfFailing : Plugin, ILogParser
+    public class JenkinsSelfFailing : Plugin, ILogParserPlugin
     {
         public PluginInitResult InitializePlugin()
         {

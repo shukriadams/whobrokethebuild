@@ -158,9 +158,9 @@ namespace Wbtb.Core
             }
 
             // attempt to initialize datastores for all datalayer plugins
-            foreach (PluginConfig pluginConfig in _config.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name<IDataLayerPlugin>()))
+            foreach (PluginConfig pluginConfig in _config.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name<IDataPlugin>()))
             {
-                IDataLayerPlugin dataLayerPlugin = _pluginProvider.GetDistinct(pluginConfig) as IDataLayerPlugin;
+                IDataPlugin dataLayerPlugin = _pluginProvider.GetDistinct(pluginConfig) as IDataPlugin;
                 dataLayerPlugin.InitializeDatastore();
             }
 
@@ -218,15 +218,15 @@ namespace Wbtb.Core
                     foreach(string logParserKey in job.LogParserPlugins)
                     { 
                         PluginConfig logParserConfig = _config.Plugins.Single(p => p.Key == logParserKey);
-                        if (logParserConfig.Manifest.Interface != TypeHelper.Name(typeof(ILogParser)))
-                            throw new ConfigurationException($"Job {job.Key} defines a log parser plugin {logParserKey}, but this plugin does not implement the expected interface {typeof(ILogParser).Name}.");
+                        if (logParserConfig.Manifest.Interface != TypeHelper.Name(typeof(ILogParserPlugin)))
+                            throw new ConfigurationException($"Job {job.Key} defines a log parser plugin {logParserKey}, but this plugin does not implement the expected interface {typeof(ILogParserPlugin).Name}.");
                     }
 
                     foreach(MessageHandler alert in job.Message)
                     {
                         IPlugin plugin = _pluginProvider.GetByKey(alert.Plugin);
-                        if (!typeof (IMessaging).IsAssignableFrom(plugin.GetType()))
-                            throw new ConfigurationException($"Job \"{job.Key}\" defines an alert with plugin \"{alert.Plugin}\". This plugin exists, but does not impliment the interface {typeof(IMessaging).FullName}.");
+                        if (!typeof (IMessagingPlugin).IsAssignableFrom(plugin.GetType()))
+                            throw new ConfigurationException($"Job \"{job.Key}\" defines an alert with plugin \"{alert.Plugin}\". This plugin exists, but does not impliment the interface {typeof(IMessagingPlugin).FullName}.");
                     
                         int configCount = 0;
                         if (!string.IsNullOrEmpty(alert.User))
@@ -266,7 +266,7 @@ namespace Wbtb.Core
 
                         }
                         
-                        IMessaging messagingPlugin = plugin as IMessaging;
+                        IMessagingPlugin messagingPlugin = plugin as IMessagingPlugin;
 
                         try
                         {
@@ -297,7 +297,7 @@ namespace Wbtb.Core
         private void ValidateRuntimeState()
         {
             // validate soft config, ie, that there is 1 data layer etc et
-            if (!_config.Plugins.Any(plugin => plugin.Manifest.Interface == TypeHelper.Name<IDataLayerPlugin>()))
+            if (!_config.Plugins.Any(plugin => plugin.Manifest.Interface == TypeHelper.Name<IDataPlugin>()))
                 throw new ConfigurationException("ERROR : No active data plugin detected. Please ensure your application has a plugin of category 'data', and that it is enabled.");
         }
 
@@ -307,7 +307,7 @@ namespace Wbtb.Core
             ISerializer serializer = YmlHelper.GetSerializer();
             string serializedConfig = serializer.Serialize(_config);
             string configHash = Sha256.FromString(serializedConfig);
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             ConfigurationState latestConfigState = dataLayer.GetLatestConfigurationState();
             if (latestConfigState == null || latestConfigState.Hash != configHash)

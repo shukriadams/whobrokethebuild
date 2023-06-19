@@ -1,7 +1,7 @@
 ﻿Key: Wbtb.LogParsing.Unreal4LogParser
 Runtime: dotnet
 Main: Wbtb.Extensions.LogParsing.Unreal.dll
-Interface: Wbtb.Core.Common.ILogParser
+Interface: Wbtb.Core.Common.ILogParserPlugin
 Assembly: Wbtb.Extensions.LogParsing.Unreal
 Concrete: Wbtb.Extensions.LogParsing.Unreal.Unreal4
 Version: 0.0.1

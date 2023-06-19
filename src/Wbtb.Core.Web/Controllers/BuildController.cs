@@ -36,7 +36,7 @@ namespace Wbtb.Core.Web
         [HttpDelete("{buildid}")]
         public string BuildDelete(string buildid)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Build build = dataLayer.GetBuildById(buildid);
             if (build != null)
                 dataLayer.DeleteBuild(build);

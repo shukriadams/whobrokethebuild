@@ -4,7 +4,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.LogParsing.BasicErrors
 {
-    internal class BasicErrors : Plugin, ILogParser
+    internal class BasicErrors : Plugin, ILogParserPlugin
     {
         public PluginInitResult InitializePlugin()
         {

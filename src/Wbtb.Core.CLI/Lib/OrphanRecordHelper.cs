@@ -9,12 +9,12 @@ namespace Wbtb.Core.CLI
     {
         private readonly PluginProvider _pluginProvider;
 
-        private readonly IDataLayerPlugin _datalayer;
+        private readonly IDataPlugin _datalayer;
 
         public OrphanRecordHelper(PluginProvider pluginProvider) 
         {
             _pluginProvider = pluginProvider;
-            _datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            _datalayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
         }
 
         public void MergeSourceServers(string fromServerKey, string toServerKey)

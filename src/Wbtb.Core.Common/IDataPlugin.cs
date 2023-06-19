@@ -5,9 +5,9 @@ namespace Wbtb.Core.Common
     /// <summary>
     /// Describes a type which interacts with a persistent data store read/writes of data objects.
     /// </summary>
-    [PluginProxy(typeof(DataLayerPluginProxy))]
+    [PluginProxy(typeof(DataPluginProxy))]
     [PluginBehaviour(allowMultiple: false)]
-    public interface IDataLayerPlugin: IReachable, IPlugin 
+    public interface IDataPlugin: IReachable, IPlugin 
     {
         #region UTILITY
 

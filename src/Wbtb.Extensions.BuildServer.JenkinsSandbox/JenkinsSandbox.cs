@@ -44,7 +44,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         public void Diagnose() 
         {
-            IDataLayerPlugin data = _di.Resolve<IDataLayerPlugin>();
+            IDataPlugin data = _di.Resolve<IDataPlugin>();
             var records = data.GetBuildServers();
         }
 
@@ -132,7 +132,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         private IEnumerable<string> GetRevisionsInBuild(Job job, Build build)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             string filePath = $"./JSON/builds/{job.Key}/build_{build.Identifier}_revisions.json";
             string rawJson = null;
@@ -218,7 +218,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         private BuildImportSummary ImportBuildsInternal(Job job, IEnumerable<RawBuild> rawBuilds)
         {
             BuildImportSummary summary = new BuildImportSummary();
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             foreach (RawBuild rawBuild in rawBuilds)
             {
@@ -288,7 +288,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         public string GetEphemeralBuildLog(Build build)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             // persist path
             Job job = dataLayer.GetJobById(build.JobId);
@@ -299,7 +299,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         private string GetBuildLog(Build build)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             // persist path
             Job job = dataLayer.GetJobById(build.JobId);
@@ -323,7 +323,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         public IEnumerable<Build> ImportLogs(Job job)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<Build> buildsWithNoLog = dataLayer.GetBuildsWithNoLog(job);
             string logPath = string.Empty;
             IList<Build> processedBuilds = new List<Build>(); // not used - remove this

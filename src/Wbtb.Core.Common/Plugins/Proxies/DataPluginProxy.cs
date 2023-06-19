@@ -2,11 +2,11 @@
 
 namespace Wbtb.Core.Common
 {
-    public class DataLayerPluginProxy : PluginProxy, IDataLayerPlugin
+    public class DataPluginProxy : PluginProxy, IDataPlugin
     {
         private readonly IPluginSender _pluginSender;
 
-        public DataLayerPluginProxy(IPluginSender pluginSender) : base(pluginSender)
+        public DataPluginProxy(IPluginSender pluginSender) : base(pluginSender)
         {
             _pluginSender = pluginSender;
         }
@@ -42,7 +42,7 @@ namespace Wbtb.Core.Common
         #region STOREITEM
 
 
-        StoreItem IDataLayerPlugin.SaveStore(StoreItem storeItem)
+        StoreItem IDataPlugin.SaveStore(StoreItem storeItem)
         {
             return _pluginSender.InvokeMethod<StoreItem>(this, new PluginArgs
             {
@@ -53,7 +53,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        StoreItem IDataLayerPlugin.GetStoreItemByItem(string id)
+        StoreItem IDataPlugin.GetStoreItemByItem(string id)
         {
             return _pluginSender.InvokeMethod<StoreItem>(this, new PluginArgs
             {
@@ -64,7 +64,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        StoreItem IDataLayerPlugin.GetStoreItemByKey(string key)
+        StoreItem IDataPlugin.GetStoreItemByKey(string key)
         {
             return _pluginSender.InvokeMethod<StoreItem>(this, new PluginArgs
             {
@@ -75,7 +75,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteStoreItem(StoreItem record)
+        bool IDataPlugin.DeleteStoreItem(StoreItem record)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -90,7 +90,7 @@ namespace Wbtb.Core.Common
 
         #region BUILD SERVER
 
-        BuildServer IDataLayerPlugin.SaveBuildServer(BuildServer buildServer)
+        BuildServer IDataPlugin.SaveBuildServer(BuildServer buildServer)
         {
             return _pluginSender.InvokeMethod<BuildServer>(this, new PluginArgs
             {
@@ -101,7 +101,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        BuildServer IDataLayerPlugin.GetBuildServerById(string id)
+        BuildServer IDataPlugin.GetBuildServerById(string id)
         {
             return _pluginSender.InvokeMethod<BuildServer>(this, new PluginArgs
             {
@@ -112,7 +112,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        BuildServer IDataLayerPlugin.GetBuildServerByKey(string key)
+        BuildServer IDataPlugin.GetBuildServerByKey(string key)
         {
             return _pluginSender.InvokeMethod<BuildServer>(this, new PluginArgs
             {
@@ -123,7 +123,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<BuildServer> IDataLayerPlugin.GetBuildServers()
+        IEnumerable<BuildServer> IDataPlugin.GetBuildServers()
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildServer>>(this, new PluginArgs
             {
@@ -131,7 +131,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteBuildServer(BuildServer record)
+        bool IDataPlugin.DeleteBuildServer(BuildServer record)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -146,7 +146,7 @@ namespace Wbtb.Core.Common
 
         #region SOURCE SERVER
 
-        SourceServer IDataLayerPlugin.SaveSourceServer(SourceServer sourceServer)
+        SourceServer IDataPlugin.SaveSourceServer(SourceServer sourceServer)
         {
             return _pluginSender.InvokeMethod<SourceServer>(this, new PluginArgs
             {
@@ -157,7 +157,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        SourceServer IDataLayerPlugin.GetSourceServerById(string id)
+        SourceServer IDataPlugin.GetSourceServerById(string id)
         {
             return _pluginSender.InvokeMethod<SourceServer>(this, new PluginArgs
             {
@@ -168,7 +168,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        SourceServer IDataLayerPlugin.GetSourceServerByKey(string key)
+        SourceServer IDataPlugin.GetSourceServerByKey(string key)
         {
             return _pluginSender.InvokeMethod<SourceServer>(this, new PluginArgs
             {
@@ -179,7 +179,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<SourceServer> IDataLayerPlugin.GetSourceServers()
+        IEnumerable<SourceServer> IDataPlugin.GetSourceServers()
         {
             return _pluginSender.InvokeMethod<IEnumerable<SourceServer>>(this, new PluginArgs
             {
@@ -187,7 +187,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteSourceServer(SourceServer record)
+        bool IDataPlugin.DeleteSourceServer(SourceServer record)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -202,7 +202,7 @@ namespace Wbtb.Core.Common
 
         #region JOB
 
-        Job IDataLayerPlugin.SaveJob(Job job)
+        Job IDataPlugin.SaveJob(Job job)
         {
             return _pluginSender.InvokeMethod<Job>(this, new PluginArgs
             {
@@ -213,7 +213,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Job IDataLayerPlugin.GetJobById(string id)
+        Job IDataPlugin.GetJobById(string id)
         {
             return _pluginSender.InvokeMethod<Job>(this, new PluginArgs
             {
@@ -224,7 +224,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Job IDataLayerPlugin.GetJobByKey(string key)
+        Job IDataPlugin.GetJobByKey(string key)
         {
             return _pluginSender.InvokeMethod<Job>(this, new PluginArgs
             {
@@ -235,7 +235,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Job> IDataLayerPlugin.GetJobs()
+        IEnumerable<Job> IDataPlugin.GetJobs()
         {
             return _pluginSender.InvokeMethod<IEnumerable<Job>>(this, new PluginArgs
             {
@@ -243,7 +243,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Job> IDataLayerPlugin.GetJobsByBuildServerId(string buildServerId)
+        IEnumerable<Job> IDataPlugin.GetJobsByBuildServerId(string buildServerId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Job>>(this, new PluginArgs
             {
@@ -254,7 +254,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteJob(Job job)
+        bool IDataPlugin.DeleteJob(Job job)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -265,7 +265,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<string> IDataLayerPlugin.GetIncidentIdsForJob(Job job)
+        IEnumerable<string> IDataPlugin.GetIncidentIdsForJob(Job job)
         {
             return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
             {
@@ -277,7 +277,7 @@ namespace Wbtb.Core.Common
 
         }
 
-        JobStats IDataLayerPlugin.GetJobStats(Job job)
+        JobStats IDataPlugin.GetJobStats(Job job)
         {
             return _pluginSender.InvokeMethod<JobStats>(this, new PluginArgs
             {
@@ -289,7 +289,7 @@ namespace Wbtb.Core.Common
 
         }
 
-        int IDataLayerPlugin.ResetJob(string jobId, bool hard)
+        int IDataPlugin.ResetJob(string jobId, bool hard)
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
@@ -305,7 +305,7 @@ namespace Wbtb.Core.Common
 
         #region USER
 
-        User IDataLayerPlugin.GetUserById(string id)
+        User IDataPlugin.GetUserById(string id)
         {
             return _pluginSender.InvokeMethod<User>(this, new PluginArgs
             {
@@ -316,7 +316,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        User IDataLayerPlugin.GetUserByKey(string key)
+        User IDataPlugin.GetUserByKey(string key)
         {
             return _pluginSender.InvokeMethod<User>(this, new PluginArgs
             {
@@ -327,7 +327,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        User IDataLayerPlugin.SaveUser(User user)
+        User IDataPlugin.SaveUser(User user)
         {
             return _pluginSender.InvokeMethod<User>(this, new PluginArgs
             {
@@ -338,7 +338,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<User> IDataLayerPlugin.GetUsers()
+        IEnumerable<User> IDataPlugin.GetUsers()
         {
             return _pluginSender.InvokeMethod<IEnumerable<User>>(this, new PluginArgs
             {
@@ -346,7 +346,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        PageableData<User> IDataLayerPlugin.PageUsers(int index, int pageSize)
+        PageableData<User> IDataPlugin.PageUsers(int index, int pageSize)
         {
             return _pluginSender.InvokeMethod<PageableData<User>>(this, new PluginArgs
             {
@@ -358,7 +358,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteUser(User record)
+        bool IDataPlugin.DeleteUser(User record)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -373,7 +373,7 @@ namespace Wbtb.Core.Common
 
         #region BUILD
 
-        Build IDataLayerPlugin.SaveBuild(Build build)
+        Build IDataPlugin.SaveBuild(Build build)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
@@ -384,7 +384,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Build IDataLayerPlugin.GetBuildById(string id)
+        Build IDataPlugin.GetBuildById(string id)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
@@ -395,7 +395,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Build IDataLayerPlugin.GetBuildByKey(string jobId, string key)
+        Build IDataPlugin.GetBuildByKey(string jobId, string key)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
@@ -407,7 +407,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        PageableData<Build> IDataLayerPlugin.PageBuildsByJob(string jobId, int index, int pageSize)
+        PageableData<Build> IDataPlugin.PageBuildsByJob(string jobId, int index, int pageSize)
         {
             return _pluginSender.InvokeMethod<PageableData<Build>>(this, new PluginArgs
             {
@@ -420,7 +420,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        PageableData<Build> IDataLayerPlugin.PageIncidentsByJob(string jobId, int index, int pageSize)
+        PageableData<Build> IDataPlugin.PageIncidentsByJob(string jobId, int index, int pageSize)
         {
             return _pluginSender.InvokeMethod<PageableData<Build>>(this, new PluginArgs
             {
@@ -433,7 +433,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Build> IDataLayerPlugin.GetBuildsByIncident(string incidentId)
+        IEnumerable<Build> IDataPlugin.GetBuildsByIncident(string incidentId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
@@ -444,7 +444,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteBuild(Build record)
+        bool IDataPlugin.DeleteBuild(Build record)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -455,7 +455,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Build> IDataLayerPlugin.GetBuildsWithNoLog(Job job)
+        IEnumerable<Build> IDataPlugin.GetBuildsWithNoLog(Job job)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
@@ -466,7 +466,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Build> IDataLayerPlugin.GetFailingBuildsWithoutIncident(Job job)
+        IEnumerable<Build> IDataPlugin.GetFailingBuildsWithoutIncident(Job job)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
@@ -477,7 +477,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Build> IDataLayerPlugin.GetBuildsWithNoInvolvements(Job job)
+        IEnumerable<Build> IDataPlugin.GetBuildsWithNoInvolvements(Job job)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
@@ -488,7 +488,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Build IDataLayerPlugin.GetLatestBuildByJob(Job job)
+        Build IDataPlugin.GetLatestBuildByJob(Job job)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
@@ -499,7 +499,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Build IDataLayerPlugin.GetDeltaBuildAtBuild(Build build)
+        Build IDataPlugin.GetDeltaBuildAtBuild(Build build)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
@@ -510,7 +510,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Build IDataLayerPlugin.GetFirstPassingBuildAfterBuild(Build build)
+        Build IDataPlugin.GetFirstPassingBuildAfterBuild(Build build)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
@@ -521,7 +521,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Build IDataLayerPlugin.GetPreviousBuild(Build build)
+        Build IDataPlugin.GetPreviousBuild(Build build)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
@@ -532,7 +532,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Build IDataLayerPlugin.GetNextBuild(Build build)
+        Build IDataPlugin.GetNextBuild(Build build)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
@@ -543,7 +543,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Build> IDataLayerPlugin.GetUnparsedBuildLogs(Job job)
+        IEnumerable<Build> IDataPlugin.GetUnparsedBuildLogs(Job job)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
@@ -556,7 +556,7 @@ namespace Wbtb.Core.Common
 
 
 
-        PageableData<Build> IDataLayerPlugin.PageBuildsByBuildAgent(string hostname, int index, int pageSize)
+        PageableData<Build> IDataPlugin.PageBuildsByBuildAgent(string hostname, int index, int pageSize)
         {
             return _pluginSender.InvokeMethod<PageableData<Build>>(this, new PluginArgs
             {
@@ -569,7 +569,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        int IDataLayerPlugin.ResetBuild(string buildId, bool hard)
+        int IDataPlugin.ResetBuild(string buildId, bool hard)
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
@@ -581,7 +581,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Build> IDataLayerPlugin.GetBuildsForPostProcessing(string jobid, string processorKey, int limit)
+        IEnumerable<Build> IDataPlugin.GetBuildsForPostProcessing(string jobid, string processorKey, int limit)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
@@ -598,7 +598,7 @@ namespace Wbtb.Core.Common
 
         #region BUILDFLAG
 
-        BuildFlag IDataLayerPlugin.SaveBuildFlag(BuildFlag flag)
+        BuildFlag IDataPlugin.SaveBuildFlag(BuildFlag flag)
         {
             return _pluginSender.InvokeMethod<BuildFlag>(this, new PluginArgs
             {
@@ -609,7 +609,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        BuildFlag IDataLayerPlugin.GetBuildFlagById(string id)
+        BuildFlag IDataPlugin.GetBuildFlagById(string id)
         {
             return _pluginSender.InvokeMethod<BuildFlag>(this, new PluginArgs
             {
@@ -620,7 +620,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteBuildFlag(BuildFlag buildFlag)
+        bool IDataPlugin.DeleteBuildFlag(BuildFlag buildFlag)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -631,7 +631,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        int IDataLayerPlugin.IgnoreBuildFlagsForBuild(Build build, BuildFlags flag)
+        int IDataPlugin.IgnoreBuildFlagsForBuild(Build build, BuildFlags flag)
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
@@ -643,7 +643,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        int IDataLayerPlugin.DeleteBuildFlagsForBuild(Build build, BuildFlags flag)
+        int IDataPlugin.DeleteBuildFlagsForBuild(Build build, BuildFlags flag)
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
@@ -655,7 +655,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<BuildFlag> IDataLayerPlugin.GetBuildFlagsForBuild(Build build)
+        IEnumerable<BuildFlag> IDataPlugin.GetBuildFlagsForBuild(Build build)
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildFlag>>(this, new PluginArgs
             {
@@ -666,7 +666,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        PageableData<BuildFlag> IDataLayerPlugin.PageBuildFlags(int index, int pageSize)
+        PageableData<BuildFlag> IDataPlugin.PageBuildFlags(int index, int pageSize)
         {
             return _pluginSender.InvokeMethod<PageableData<BuildFlag>>(this, new PluginArgs
             {
@@ -682,7 +682,7 @@ namespace Wbtb.Core.Common
 
         #region BUILD LOG PARSE RESULT
 
-        BuildLogParseResult IDataLayerPlugin.SaveBuildLogParseResult(BuildLogParseResult buildLog)
+        BuildLogParseResult IDataPlugin.SaveBuildLogParseResult(BuildLogParseResult buildLog)
         {
             return _pluginSender.InvokeMethod<BuildLogParseResult>(this, new PluginArgs
             {
@@ -693,7 +693,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<BuildLogParseResult> IDataLayerPlugin.GetBuildLogParseResultsByBuildId(string buildId)
+        IEnumerable<BuildLogParseResult> IDataPlugin.GetBuildLogParseResultsByBuildId(string buildId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildLogParseResult>>(this, new PluginArgs
             {
@@ -704,7 +704,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteBuildLogParseResult(BuildLogParseResult result)
+        bool IDataPlugin.DeleteBuildLogParseResult(BuildLogParseResult result)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -719,7 +719,7 @@ namespace Wbtb.Core.Common
 
         #region BUILD INVOLVEMENT
 
-        BuildInvolvement IDataLayerPlugin.SaveBuildInvolement(BuildInvolvement buildInvolvement)
+        BuildInvolvement IDataPlugin.SaveBuildInvolement(BuildInvolvement buildInvolvement)
         {
             return _pluginSender.InvokeMethod<BuildInvolvement>(this, new PluginArgs
             {
@@ -730,7 +730,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        BuildInvolvement IDataLayerPlugin.GetBuildInvolvementById(string id)
+        BuildInvolvement IDataPlugin.GetBuildInvolvementById(string id)
         {
             return _pluginSender.InvokeMethod<BuildInvolvement>(this, new PluginArgs
             {
@@ -741,7 +741,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        BuildInvolvement IDataLayerPlugin.GetBuildInvolvementByRevisionCode(string buildid, string revisionCode)
+        BuildInvolvement IDataPlugin.GetBuildInvolvementByRevisionCode(string buildid, string revisionCode)
         {
             return _pluginSender.InvokeMethod<BuildInvolvement>(this, new PluginArgs
             {
@@ -753,7 +753,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteBuildInvolvement(BuildInvolvement record)
+        bool IDataPlugin.DeleteBuildInvolvement(BuildInvolvement record)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -764,7 +764,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<BuildInvolvement> IDataLayerPlugin.GetBuildInvolvementsByBuild(string buildId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsByBuild(string buildId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
             {
@@ -775,7 +775,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<BuildInvolvement> IDataLayerPlugin.GetBuildInvolvementsWithoutMappedUser(string jobId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedUser(string jobId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
             {
@@ -786,7 +786,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<BuildInvolvement> IDataLayerPlugin.GetBuildInvolvementsWithoutMappedRevisions(string jobId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedRevisions(string jobId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
             {
@@ -797,7 +797,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<BuildInvolvement> IDataLayerPlugin.GetBuildInvolvementByUserId(string userId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementByUserId(string userId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
             {
@@ -808,7 +808,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        PageableData<BuildInvolvement> IDataLayerPlugin.PageBuildInvolvementsByUserAndStatus(string userid, BuildStatus buildStatus, int index, int pageSize)
+        PageableData<BuildInvolvement> IDataPlugin.PageBuildInvolvementsByUserAndStatus(string userid, BuildStatus buildStatus, int index, int pageSize)
         {
             return _pluginSender.InvokeMethod<PageableData<BuildInvolvement>>(this, new PluginArgs
             {
@@ -826,7 +826,7 @@ namespace Wbtb.Core.Common
 
         #region BUILD PROCESSOR
 
-        BuildProcessor IDataLayerPlugin.GetBuildProcessorById(string id)
+        BuildProcessor IDataPlugin.GetBuildProcessorById(string id)
         {
             return _pluginSender.InvokeMethod<BuildProcessor>(this, new PluginArgs
             {
@@ -838,7 +838,7 @@ namespace Wbtb.Core.Common
         }
 
 
-        BuildProcessor IDataLayerPlugin.SaveBuildProcessor(BuildProcessor buildProcessor)
+        BuildProcessor IDataPlugin.SaveBuildProcessor(BuildProcessor buildProcessor)
         {
             return _pluginSender.InvokeMethod<BuildProcessor>(this, new PluginArgs
             {
@@ -849,7 +849,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<BuildProcessor> IDataLayerPlugin.GetBuildProcessorsByBuildId(string buildId)
+        IEnumerable<BuildProcessor> IDataPlugin.GetBuildProcessorsByBuildId(string buildId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildProcessor>>(this, new PluginArgs
             {
@@ -864,7 +864,7 @@ namespace Wbtb.Core.Common
 
         #region REVISION
 
-        Revision IDataLayerPlugin.SaveRevision(Revision revision)
+        Revision IDataPlugin.SaveRevision(Revision revision)
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
@@ -875,7 +875,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Revision IDataLayerPlugin.GetRevisionById(string id)
+        Revision IDataPlugin.GetRevisionById(string id)
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
@@ -886,7 +886,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Revision IDataLayerPlugin.GetRevisionByKey(string key)
+        Revision IDataPlugin.GetRevisionByKey(string key)
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
@@ -897,7 +897,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Revision IDataLayerPlugin.GetNewestRevisionForBuild(string buildId)
+        Revision IDataPlugin.GetNewestRevisionForBuild(string buildId)
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
@@ -908,7 +908,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Revision> IDataLayerPlugin.GetRevisionByBuild(string buildId)
+        IEnumerable<Revision> IDataPlugin.GetRevisionByBuild(string buildId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Revision>>(this, new PluginArgs
             {
@@ -919,7 +919,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Revision> IDataLayerPlugin.GetRevisionsBySourceServer(string sourceServerId)
+        IEnumerable<Revision> IDataPlugin.GetRevisionsBySourceServer(string sourceServerId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Revision>>(this, new PluginArgs
             {
@@ -930,7 +930,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteRevision(Revision revision)
+        bool IDataPlugin.DeleteRevision(Revision revision)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -945,7 +945,7 @@ namespace Wbtb.Core.Common
 
         #region SESSION
 
-        Session IDataLayerPlugin.SaveSession(Session session)
+        Session IDataPlugin.SaveSession(Session session)
         {
             return _pluginSender.InvokeMethod<Session>(this, new PluginArgs
             {
@@ -956,7 +956,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Session IDataLayerPlugin.GetSessionById(string id)
+        Session IDataPlugin.GetSessionById(string id)
         {
             return _pluginSender.InvokeMethod<Session>(this, new PluginArgs
             {
@@ -967,7 +967,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Session> IDataLayerPlugin.GetSessionByUserId(string userid)
+        IEnumerable<Session> IDataPlugin.GetSessionByUserId(string userid)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Session>>(this, new PluginArgs
             {
@@ -978,7 +978,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataLayerPlugin.DeleteSession(Session session)
+        bool IDataPlugin.DeleteSession(Session session)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
@@ -993,7 +993,7 @@ namespace Wbtb.Core.Common
 
         #region JOB DELTA
 
-        Build IDataLayerPlugin.GetLastJobDelta(string jobId)
+        Build IDataPlugin.GetLastJobDelta(string jobId)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
@@ -1004,7 +1004,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        void IDataLayerPlugin.SaveJobDelta(Build build)
+        void IDataPlugin.SaveJobDelta(Build build)
         {
             _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
@@ -1019,7 +1019,7 @@ namespace Wbtb.Core.Common
 
         #region CONFIGURATIONSETTING
 
-        ConfigurationState IDataLayerPlugin.AddConfigurationState(ConfigurationState configurationState)
+        ConfigurationState IDataPlugin.AddConfigurationState(ConfigurationState configurationState)
         {
             return _pluginSender.InvokeMethod<ConfigurationState>(this, new PluginArgs
             {

@@ -14,7 +14,7 @@ namespace Wbtb.Core.CLI
         {
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IDataLayerPlugin dataLayer = pluginProvider.GetDistinct<IDataLayerPlugin>();
+            IDataPlugin dataLayer = pluginProvider.GetDistinct<IDataPlugin>();
 
             if (!switches.Contains("Job"))
             {

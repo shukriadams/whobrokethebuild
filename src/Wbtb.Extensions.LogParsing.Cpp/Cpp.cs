@@ -6,7 +6,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.LogParsing.Cpp
 {
-    public class Cpp : Plugin, ILogParser
+    public class Cpp : Plugin, ILogParserPlugin
     {
 
         public PluginInitResult InitializePlugin()

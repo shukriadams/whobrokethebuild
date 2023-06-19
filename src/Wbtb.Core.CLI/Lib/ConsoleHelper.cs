@@ -7,10 +7,10 @@ namespace Wbtb.Core.CLI.Lib
 {
     internal class ConsoleHelper
     {
-        private readonly IDataLayerPlugin _datalayer;
+        private readonly IDataPlugin _datalayer;
         public ConsoleHelper(PluginProvider pluginProvider) 
         {
-            _datalayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            _datalayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
         }
         public void PrintJobs() 
         {

@@ -347,7 +347,7 @@ namespace Wbtb.Core
             }
 
             // confirm a datalayer plugin is active
-            IEnumerable<PluginConfig> dataLayers = config.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name(typeof(IDataLayerPlugin)) );
+            IEnumerable<PluginConfig> dataLayers = config.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name(typeof(IDataPlugin)) );
             if (dataLayers.Count() == 0)
                 throw new ConfigurationException("No datalayer plugin defined or enabled");
 
@@ -403,8 +403,8 @@ namespace Wbtb.Core
                     if (pluginConfig == null)
                         throw new ConfigurationException($"User \"{user.Key}\" defines an Alert with plugin \"{alertConfig.Plugin}\", but this plugin does not exist.");
 
-                    if (pluginConfig.Manifest.Interface != TypeHelper.Name(typeof(IMessaging)))
-                        throw new ConfigurationException($"User \"{user.Key}\" defines an Alert with plugin \"{alertConfig.Plugin}\", but this plugin enables interface \"{pluginConfig.Manifest.Interface}\" instead of \"{TypeHelper.Name(typeof(IMessaging))}\".");
+                    if (pluginConfig.Manifest.Interface != TypeHelper.Name(typeof(IMessagingPlugin)))
+                        throw new ConfigurationException($"User \"{user.Key}\" defines an Alert with plugin \"{alertConfig.Plugin}\", but this plugin enables interface \"{pluginConfig.Manifest.Interface}\" instead of \"{TypeHelper.Name(typeof(IMessagingPlugin))}\".");
                 }
             }
 
@@ -420,8 +420,8 @@ namespace Wbtb.Core
                         throw new ConfigurationException($"Group \"{group.Key}\" defines an Alert with plugin \"{alertConfig.Plugin}\", but this plugin does not exist.");
 
 
-                    if (pluginConfig.Manifest.Interface != TypeHelper.Name<IMessaging>())
-                        throw new ConfigurationException($"Group \"{group.Key}\" defines an Alert with plugin \"{alertConfig.Plugin}\", but this plugin enables interface \"{pluginConfig.Manifest.Interface}\" instead of \"{TypeHelper.Name<IMessaging>()}\".");
+                    if (pluginConfig.Manifest.Interface != TypeHelper.Name<IMessagingPlugin>())
+                        throw new ConfigurationException($"Group \"{group.Key}\" defines an Alert with plugin \"{alertConfig.Plugin}\", but this plugin enables interface \"{pluginConfig.Manifest.Interface}\" instead of \"{TypeHelper.Name<IMessagingPlugin>()}\".");
                 }
 
 
@@ -465,8 +465,8 @@ namespace Wbtb.Core
                             throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a log parser \"{logparserPluginKey}\", but no enabled plugin for this parser was found.");
 
                         Type pluginInterfaceType = TypeHelper.GetCommonType(logParserPlugin.Manifest.Interface);
-                        if (!typeof(ILogParser).IsAssignableFrom(pluginInterfaceType))
-                            throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a log parser \"{logparserPluginKey}\", but this plugin does not implement type {TypeHelper.Name<ILogParser>()}.");
+                        if (!typeof(ILogParserPlugin).IsAssignableFrom(pluginInterfaceType))
+                            throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a log parser \"{logparserPluginKey}\", but this plugin does not implement type {TypeHelper.Name<ILogParserPlugin>()}.");
                     }
 
                     // ensure each post processor implements required interface 

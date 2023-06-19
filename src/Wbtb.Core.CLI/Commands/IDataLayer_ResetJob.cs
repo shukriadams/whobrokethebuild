@@ -45,7 +45,7 @@ namespace Wbtb.Core.CLI
             bool hard = switches.Contains("hard");
 
             SimpleDI di = new SimpleDI();
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobByKey(jobkey);
             if (job == null)
             {

@@ -2,7 +2,7 @@
 
 namespace Wbtb.Extensions.Messaging.Sandbox
 {
-    internal class MessagingSandbox : Plugin, IMessaging
+    internal class MessagingSandbox : Plugin, IMessagingPlugin
     {
         public string AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
         {

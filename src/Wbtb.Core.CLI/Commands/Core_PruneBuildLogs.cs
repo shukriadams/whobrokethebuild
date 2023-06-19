@@ -16,7 +16,7 @@ namespace Wbtb.Core.CLI
         {
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IDataLayerPlugin dataLayer = pluginProvider.GetDistinct<IDataLayerPlugin>();
+            IDataPlugin dataLayer = pluginProvider.GetDistinct<IDataPlugin>();
             Configuration config = di.Resolve<Configuration>();
             IEnumerable<string> existingLogFiles = FileSystemHelper.GetFilesUnder(config.BuildLogsDirectory);
             IList<string> knownLogs = new List<string>();

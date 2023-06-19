@@ -1,6 +1,6 @@
 ﻿namespace Wbtb.Core.Common
 {
-    public class LogParserProxy : PluginProxy, ILogParser
+    public class LogParserPluginProxy : PluginProxy, ILogParserPlugin
     {
         private readonly IPluginSender _pluginSender;
 
@@ -12,7 +12,7 @@
             });
         }
 
-        public LogParserProxy(IPluginSender pluginSender) : base(pluginSender)
+        public LogParserPluginProxy(IPluginSender pluginSender) : base(pluginSender)
         {
             _pluginSender = pluginSender;
         }

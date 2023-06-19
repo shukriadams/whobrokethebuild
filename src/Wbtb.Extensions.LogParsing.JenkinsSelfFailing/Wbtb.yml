@@ -1,7 +1,7 @@
 ﻿Key: Wbtb.LogParsing.JenkinsSelfFailing
 Runtime: dotnet
 Main: Wbtb.Extensions.LogParsing.JenkinsSelfFailing.dll
-Interface: Wbtb.Core.Common.ILogParser
+Interface: Wbtb.Core.Common.ILogParserPlugin
 Assembly: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 Concrete: Wbtb.Extensions.LogParsing.JenkinsSelfFailing.JenkinsSelfFailing
 Version: 0.0.1

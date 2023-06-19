@@ -64,7 +64,7 @@ namespace Wbtb.Core.Web
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
 
             if (!string.IsNullOrEmpty(involvement.MappedUserId)){
-                IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+                IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
                 User user = dataLayer.GetUserById(involvement.MappedUserId);
                 return new HtmlString($"<a href=\"/user/{involvement.MappedUserId}\">{user.Name}</a>");
             }
@@ -82,7 +82,7 @@ namespace Wbtb.Core.Web
 
             if (!string.IsNullOrEmpty(involvement.MappedUserId))
             {
-                IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+                IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
                 User user = dataLayer.GetUserById(involvement.MappedUserId);
                 string userImageUrl = user.Image;
                 return new HtmlString($"<x-avatar class=\"--round\"><a title=\"{user.Name}\" href=\"/user/{involvement.MappedUserId}\"><img src=\"{userImageUrl}\" /></a></x-avatar>");
@@ -106,7 +106,7 @@ namespace Wbtb.Core.Web
 
             if (!string.IsNullOrEmpty(involvement.MappedUserId))
             {
-                IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+                IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
                 User user = dataLayer.GetUserById(involvement.MappedUserId);
                 return new HtmlString($"<a href=\"/user/{involvement.MappedUserId}\">{user.Name}</a>");
             }

@@ -37,8 +37,8 @@ namespace Wbtb.Core.CLI
 
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IMessaging messagingPlugin = pluginProvider.GetByKey(pluginKey) as IMessaging;
-            IDataLayerPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IMessagingPlugin messagingPlugin = pluginProvider.GetByKey(pluginKey) as IMessagingPlugin;
+            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             Configuration configuration = di.Resolve<Configuration>();
 
             if (messagingPlugin == null) 

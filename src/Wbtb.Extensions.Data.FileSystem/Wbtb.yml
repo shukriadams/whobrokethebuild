@@ -2,7 +2,7 @@
 Runtime: dotnet
 Assembly: Wbtb.Extensions.Data.FileSystem
 Main: Wbtb.Extensions.Data.FileSystem.dll
-Interface: Wbtb.Core.Common.IDataLayerPlugin
+Interface: Wbtb.Core.Common.IDataPlugin
 Concrete: Wbtb.Extensions.Data.FileSystem.FileSystem
 Version: 0.0.1
 APIVersion: 0.0.1

@@ -3,7 +3,7 @@
 
     [PluginProxy(typeof(MessagingPluginProxy))]
     [PluginBehaviour(allowMultiple: true)]
-    public interface IMessaging : IReachable, IPlugin
+    public interface IMessagingPlugin : IReachable, IPlugin
     {
         string TestHandler(MessageConfiguration alertHandler);
 

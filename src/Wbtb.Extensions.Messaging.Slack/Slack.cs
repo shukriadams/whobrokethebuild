@@ -15,7 +15,7 @@ namespace Wbtb.Extensions.Messaging.Slack
         public bool IsGroup { get;set; }
     }
 
-    public class Slack : Plugin, IMessaging
+    public class Slack : Plugin, IMessagingPlugin
     {
         #region FIELDS
 
@@ -139,7 +139,7 @@ namespace Wbtb.Extensions.Messaging.Slack
                 }
             }
 
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(incidentBuild.JobId);
             IEnumerable<BuildLogParseResult> parseResults = dataLayer.GetBuildLogParseResultsByBuildId(incidentBuild.Id);
 
@@ -288,7 +288,7 @@ namespace Wbtb.Extensions.Messaging.Slack
                 }
             }
 
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(fixingBuild.JobId);
 
             // get message transaction

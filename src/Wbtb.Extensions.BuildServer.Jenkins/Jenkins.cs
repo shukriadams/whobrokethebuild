@@ -125,7 +125,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         public string GetBuildUrl(Core.Common.BuildServer contextServer, Build build)
         {
             string host = contextServer.Config.First(r => r.Key == "Host").Value.ToString();
-            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = datalayer.GetJobById(build.JobId);
             KeyValuePair<string, object> remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
 
@@ -136,7 +136,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             try
             {
-                IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+                IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
                 Job job = dataLayer.GetJobById(build.JobId);
                 Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
                 KeyValuePair<string, object> remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
@@ -156,7 +156,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         private string GetAndStoreBuildLog(Build build)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             // persist path
             Job job = dataLayer.GetJobById(build.JobId);
 
@@ -236,7 +236,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         /// <returns></returns>
         private IEnumerable<string> GetRevisionsInBuild(Job job, Build build)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, build.Identifier, "revisions.json");
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
@@ -316,7 +316,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         public BuildImportSummary ImportBuilds(Job job, int take)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
             var remoteKey = job.Config.First(r => r.Key == "RemoteKey");
 
@@ -337,7 +337,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         private BuildImportSummary ImportBuildsInternal(Job job, IEnumerable<RawBuild> rawBuilds)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             BuildImportSummary summary = new BuildImportSummary();
 
             foreach (RawBuild rawBuild in rawBuilds)
@@ -393,7 +393,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         public IEnumerable<Build> ImportLogs(Job job)
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<Build> buildsWithNoLog = dataLayer.GetBuildsWithNoLog(job);
             string logPath = string.Empty;
             IList<Build> processedBuilds = new List<Build>(); // not used - remove this

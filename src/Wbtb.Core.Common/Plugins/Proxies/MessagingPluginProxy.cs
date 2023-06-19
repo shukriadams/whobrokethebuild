@@ -1,6 +1,6 @@
 ﻿namespace Wbtb.Core.Common 
 { 
-    public class MessagingPluginProxy : PluginProxy, IMessaging 
+    public class MessagingPluginProxy : PluginProxy, IMessagingPlugin 
     {
         private readonly IPluginSender _pluginSender;
 

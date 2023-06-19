@@ -5,7 +5,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.LogParsing.Unreal
 {
-    public class Unreal4 : Plugin, ILogParser
+    public class Unreal4 : Plugin, ILogParserPlugin
     {
         private static string Find(string text, string regexPattern, RegexOptions options = RegexOptions.None, string defaultValue = "")
         {

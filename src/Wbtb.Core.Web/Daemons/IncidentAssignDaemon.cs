@@ -57,7 +57,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             foreach (BuildServer cfgbuildServer in _config.BuildServers)
             {

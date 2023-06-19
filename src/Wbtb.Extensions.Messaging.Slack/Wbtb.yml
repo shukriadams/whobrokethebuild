@@ -1,7 +1,7 @@
 ﻿Key: Wbtb.Messaging.Slack
 Runtime: dotnet
 Main: Wbtb.Extensions.Messaging.Slack.dll
-Interface: Wbtb.Core.Common.IMessaging
+Interface: Wbtb.Core.Common.IMessagingPlugin
 Assembly: Wbtb.Extensions.Messaging.Slack
 Concrete: Wbtb.Extensions.Messaging.Slack.Slack
 Version: 0.0.1

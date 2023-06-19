@@ -1,8 +1,8 @@
 ﻿namespace Wbtb.Core.Common
 {
-    [PluginProxy(typeof(LogParserProxy))]
+    [PluginProxy(typeof(LogParserPluginProxy))]
     [PluginBehaviour(allowMultiple: true)]
-    public interface ILogParser : IPlugin
+    public interface ILogParserPlugin : IPlugin
     {
         /// <summary>
         /// Returns subsection of log that matches parser's lookup purpose. Subsection can be simple text, or can

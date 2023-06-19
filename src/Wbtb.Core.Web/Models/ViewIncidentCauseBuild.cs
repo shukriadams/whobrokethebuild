@@ -24,7 +24,7 @@ namespace Wbtb.Core.Web
 
             SimpleDI di = new SimpleDI();
             PluginProvider plugins = di.Resolve<PluginProvider>();
-            IDataLayerPlugin dataLayer = plugins.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = plugins.GetFirstForInterface<IDataPlugin>();
 
             IEnumerable<Build> involved = dataLayer.GetBuildsByIncident(build.Id);
 

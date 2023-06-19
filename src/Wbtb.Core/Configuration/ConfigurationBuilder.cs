@@ -28,7 +28,7 @@ namespace Wbtb.Core
 
         public IEnumerable<string> FindOrphans()
         {
-            IDataLayerPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IList<string> errors = new List<string>();
 
             // source servers
@@ -78,7 +78,7 @@ namespace Wbtb.Core
 
         public void InjectBuildServers()
         { 
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             List<string> errors = new List<string>();
 
@@ -154,7 +154,7 @@ namespace Wbtb.Core
 
         public void InjectUsers()
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             foreach (User userConfig in _config.Users)
             {
@@ -189,7 +189,7 @@ namespace Wbtb.Core
 
         public void InjectSourceServers()
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             foreach (SourceServer sourceServerConfig in _config.SourceServers)
             {

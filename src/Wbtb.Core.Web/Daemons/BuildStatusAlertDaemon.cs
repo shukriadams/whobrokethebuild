@@ -62,7 +62,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             // start daemons - this should be folded into start
             foreach (BuildServer cfgbuildServer in _config.BuildServers)
@@ -130,7 +130,7 @@ namespace Wbtb.Core.Web
                             _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaBuild);
                             foreach (MessageHandler alert in job.Message)
                             {
-                                IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
+                                IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
                                 messagePlugin.AlertBreaking(alert, deltaBuild);
                             }
 
@@ -151,7 +151,7 @@ namespace Wbtb.Core.Web
 
                             foreach (MessageHandler alert in job.Message)
                             {
-                                IMessaging messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessaging;
+                                IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
                                 messagePlugin.AlertPassing(alert, lastBreakingBuild, deltaBuild);
                             }
                         }

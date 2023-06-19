@@ -9,21 +9,21 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
     {
         #region FIELDS
 
-        protected IDataLayerPlugin Postgres {get;set; }
+        protected IDataPlugin Postgres {get;set; }
 
         #endregion
 
         public TestBase()
         {
             SimpleDI di = new SimpleDI();
-            di.Register<IDataLayerPlugin,Postgres>();
+            di.Register<IDataPlugin,Postgres>();
             di.Register<IAuthenticationPlugin, ActiveDirectory>();
 
             throw new NotImplementedException("fix this");
             //Core.Core.LoadConfig(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
             //Core.Core.LoadPlugins();
 
-            Postgres = di.Resolve<IDataLayerPlugin>();
+            Postgres = di.Resolve<IDataPlugin>();
             Configuration config = di.Resolve<Configuration>();
             Postgres.ContextPluginConfig = config.Plugins.First(p => p.Manifest.Concrete == TypeHelper.Name<Postgres>());
             PostgresCommon.ClearAllTables(Postgres.ContextPluginConfig);

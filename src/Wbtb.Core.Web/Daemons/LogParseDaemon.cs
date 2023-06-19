@@ -58,7 +58,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataLayerPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             // start daemons - this should be folded into start
             foreach (BuildServer cfgbuildServer in _config.BuildServers)
@@ -68,7 +68,7 @@ namespace Wbtb.Core.Web
                 if (buildServer == null)
                     continue;
 
-                IList<(Build, ILogParser)> buildsToProcess = new List<(Build, ILogParser)>();
+                IList<(Build, ILogParserPlugin)> buildsToProcess = new List<(Build, ILogParserPlugin)>();
                 foreach (Job job in buildServer.Jobs.Where(job => job.LogParserPlugins.Any()))
                 {
                     try
@@ -76,13 +76,13 @@ namespace Wbtb.Core.Web
                         Job thisjob = dataLayer.GetJobByKey(job.Key);
 
                         // get log parser plugins for job
-                        IList<ILogParser> logParsers = new List<ILogParser>();
+                        IList<ILogParserPlugin> logParsers = new List<ILogParserPlugin>();
                         foreach(string lopParserPlugin in thisjob.LogParserPlugins)
-                            logParsers.Add(_pluginProvider.GetByKey(lopParserPlugin) as ILogParser);
+                            logParsers.Add(_pluginProvider.GetByKey(lopParserPlugin) as ILogParserPlugin);
 
                         IEnumerable<Build> buildsWithUnparsedLogs = dataLayer.GetUnparsedBuildLogs(thisjob);
                         foreach (Build buildWithUnparsedLogs in buildsWithUnparsedLogs)
-                            foreach (ILogParser parser in logParsers)
+                            foreach (ILogParserPlugin parser in logParsers)
                                 buildsToProcess.Add((buildWithUnparsedLogs, parser));
                     }
                     catch (Exception ex)
@@ -91,7 +91,7 @@ namespace Wbtb.Core.Web
                     }
                 }
 
-                buildsToProcess.AsParallel().ForAll(delegate ((Build, ILogParser) buildToProcess) {
+                buildsToProcess.AsParallel().ForAll(delegate ((Build, ILogParserPlugin) buildToProcess) {
                     try 
                     {
                         _buildLogParseResultHelper.ProcessBuild(dataLayer, buildToProcess.Item1, buildToProcess.Item2, _log);

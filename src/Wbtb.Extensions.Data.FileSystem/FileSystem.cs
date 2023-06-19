@@ -2,7 +2,7 @@
 
 namespace Wbtb.Extensions.Data.FileSystem
 {
-    internal class FileSystem : Plugin, IDataLayerPlugin
+    internal class FileSystem : Plugin, IDataPlugin
     {
         public ConfigurationState AddConfigurationState(ConfigurationState configurationState)
         {

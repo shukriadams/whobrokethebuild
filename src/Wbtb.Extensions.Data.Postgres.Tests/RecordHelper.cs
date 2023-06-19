@@ -7,7 +7,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
     {
         #region BUILDSERVER
 
-        public static BuildServer CreateBuildServer(IDataLayerPlugin postgres)
+        public static BuildServer CreateBuildServer(IDataPlugin postgres)
         {
             BuildServer record = RandomBuildServer();
             return postgres.SaveBuildServer(record);
@@ -25,7 +25,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
         #region SOURCESERVER
 
-        public static SourceServer CreateSourceServer(IDataLayerPlugin postgres)
+        public static SourceServer CreateSourceServer(IDataPlugin postgres)
         {
             SourceServer record = RandomSourceServer();
             return postgres.SaveSourceServer(record);
@@ -43,7 +43,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
         #region JOB
 
-        public static Job CreateJob(IDataLayerPlugin postgres)
+        public static Job CreateJob(IDataPlugin postgres)
         {
             BuildServer buildserver = CreateBuildServer(postgres);
             SourceServer sourceserver = CreateSourceServer(postgres);
@@ -66,7 +66,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
         #region USER
 
-        public static User CreateUser(IDataLayerPlugin postgres)
+        public static User CreateUser(IDataPlugin postgres)
         {
             User user = RandomUser();
             return postgres.SaveUser(user);
@@ -84,7 +84,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
         #region SESSION
 
-        public static Session CreateSession(IDataLayerPlugin postgres)
+        public static Session CreateSession(IDataPlugin postgres)
         {
             Session session = RandomSession();
             User user = CreateUser(postgres);
@@ -120,7 +120,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
             };
         }
 
-        public static Build CreateBuild(IDataLayerPlugin postgres)
+        public static Build CreateBuild(IDataPlugin postgres)
         {
             Job job = CreateJob(postgres);
             Build build = RandomBuild();
@@ -132,7 +132,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
         #region BUILDLOG
 
-        public static BuildLogParseResult CreateBuildLog(IDataLayerPlugin postgres)
+        public static BuildLogParseResult CreateBuildLog(IDataPlugin postgres)
         {
             Build build = CreateBuild(postgres);
 
@@ -160,7 +160,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
             };
         }
 
-        public static BuildInvolvement CreateBuildInvolvement(IDataLayerPlugin postgres)
+        public static BuildInvolvement CreateBuildInvolvement(IDataPlugin postgres)
         {
             Build build = CreateBuild(postgres);
             BuildInvolvement bi = RandomBuildInvolvement();
@@ -172,7 +172,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
         #region REVISION
 
-        public static Revision CreateRevision(IDataLayerPlugin postgres)
+        public static Revision CreateRevision(IDataPlugin postgres)
         {
             SourceServer sourceServer = CreateSourceServer(postgres);
 

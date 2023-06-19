@@ -21,7 +21,7 @@ namespace Wbtb.Core.CLI
 
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IDataLayerPlugin dataLayerPlugin = pluginProvider.GetFirstForInterface<IDataLayerPlugin>();
+            IDataPlugin dataLayerPlugin = pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             int count = dataLayerPlugin.ClearAllTables();
             Console.WriteLine($"Tables cleared, {count} records removed.");
