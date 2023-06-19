@@ -61,14 +61,14 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public object InitializeDatastore()
+        public int InitializeDatastore()
         {
             return PostgresCommon.InitializeDatastore(this.ContextPluginConfig);
         }
 
-        public void ClearAllTable()
+        public int DestroyDatastore() 
         {
-            PostgresCommon.ClearAllTables(this.ContextPluginConfig);
+            return PostgresCommon.DestroyDatastore(this.ContextPluginConfig);
         }
 
         #endregion

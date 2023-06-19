@@ -324,9 +324,14 @@ namespace Wbtb.Extensions.Data.FileSystem
             return 0;
         }
 
-        public object InitializeDatastore()
+        public int InitializeDatastore()
         {
-            return null;
+            return 0;
+        }
+
+        public int DestroyDatastore()
+        {
+            return 0;
         }
 
         public PluginInitResult InitializePlugin()

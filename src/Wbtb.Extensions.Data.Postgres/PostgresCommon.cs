@@ -1,5 +1,6 @@
 ﻿using Npgsql;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
@@ -27,8 +28,23 @@ namespace Wbtb.Extensions.Data.Postgres
             return connection;
         }
 
-        public static object InitializeDatastore(PluginConfig contextPluginConfig)
+        public static int DestroyDatastore(PluginConfig contextPluginConfig) 
         {
+            int updatedCount = 0;
+
+            using (NpgsqlConnection connection = GetConnection(contextPluginConfig))
+            {
+                string createDbStructures = ResourceHelper.ReadResourceAsString(typeof(PostgresCommon), "sql.delete-structures.sql");
+                using (NpgsqlCommand cmd = new NpgsqlCommand(createDbStructures, connection))
+                    updatedCount = cmd.ExecuteNonQuery();
+            }
+
+            return updatedCount;
+        }
+
+        public static int InitializeDatastore(PluginConfig contextPluginConfig)
+        {
+            int updatedCount = 0;
             string query = @"SELECT EXISTS (
                 SELECT FROM 
                     information_schema.tables 
@@ -46,17 +62,14 @@ namespace Wbtb.Extensions.Data.Postgres
                 }
 
                 if (isInitialized)
-                    return null;
+                    return updatedCount;
 
                 string createDbStructures = ResourceHelper.ReadResourceAsString(typeof(PostgresCommon), "sql.create-structures.sql");
-                int updatedCount = 0;
                 using (NpgsqlCommand cmd = new NpgsqlCommand(createDbStructures, connection))
-                {
                     updatedCount = cmd.ExecuteNonQuery();
-                }
             }
 
-            return null;
+            return updatedCount;
         }
 
         /// <summary>

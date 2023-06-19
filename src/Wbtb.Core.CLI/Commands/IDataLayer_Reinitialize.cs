@@ -45,6 +45,11 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
+            IDataPlugin data = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            data.DestroyDatastore();
+            Console.WriteLine("Datastore destroyed");
+            data.InitializeDatastore();
+            Console.WriteLine("Datastore initialized");
         }
 
         #endregion

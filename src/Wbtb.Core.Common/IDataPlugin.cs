@@ -11,7 +11,11 @@ namespace Wbtb.Core.Common
     {
         #region UTILITY
 
-        object InitializeDatastore();
+        int InitializeDatastore();
+
+        int DestroyDatastore();
+
+        int ClearAllTables();
 
         #endregion
 
@@ -255,8 +259,6 @@ namespace Wbtb.Core.Common
         ConfigurationState GetLatestConfigurationState();
 
         PageableData<ConfigurationState> PageConfigurationStates(int index, int pageSize);
-
-        int ClearAllTables();
 
         #endregion
     }

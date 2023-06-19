@@ -29,11 +29,19 @@ namespace Wbtb.Core.Common
             });
         }
 
-        public object InitializeDatastore() 
+        public int InitializeDatastore() 
         {
-            return _pluginSender.InvokeMethod<object>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
                 FunctionName = "InitializeDatastore"
+            });
+        }
+
+        public int DestroyDatastore()
+        {
+            return _pluginSender.InvokeMethod<int>(this, new PluginArgs
+            {
+                FunctionName = "DestroyDatastore"
             });
         }
 
