@@ -725,6 +725,44 @@ namespace Wbtb.Core.Common
 
         #endregion
 
+        #region R_BuildLogParseResult_BuildInvolvement
+
+        string IDataPlugin.ConnectBuildLogParseResultAndBuildBuildInvolvement(string buildLogParseResultId, string buildInvolvementId)
+        {
+            return _pluginSender.InvokeMethod<string>(this, new PluginArgs
+            {
+                FunctionName = "ConnectBuildLogParseResultAndBuildBuildInvolvement",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "buildLogParseResultId", Value = buildLogParseResultId },
+                    new PluginFunctionParameter { Name = "buildInvolvementId", Value = buildInvolvementId }
+                }
+            });
+        }
+
+        bool IDataPlugin.SplitBuildLogParseResultAndBuildBuildInvolvement(string id)
+        {
+            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
+            {
+                FunctionName = "SplitBuildLogParseResultAndBuildBuildInvolvement",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "id", Value = id }
+                }
+            });
+        }
+
+        IEnumerable<string> IDataPlugin.GetBuildLogParseResultsForBuildInvolvement(string buildInvolvementId)
+        {
+            return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
+            {
+                FunctionName = "GetBuildLogParseResultsForBuildInvolvement",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "buildInvolvementId", Value = buildInvolvementId }
+                }
+            });
+        }
+
+        #endregion
+
         #region BUILD INVOLVEMENT
 
         BuildInvolvement IDataPlugin.SaveBuildInvolement(BuildInvolvement buildInvolvement)

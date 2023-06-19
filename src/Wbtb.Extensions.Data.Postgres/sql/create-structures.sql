@@ -199,8 +199,13 @@ CREATE SEQUENCE public."usr_id_seq"
     CACHE 1;
 ALTER SEQUENCE public."usr_id_seq" OWNER TO postgres;
 
-
-
+CREATE SEQUENCE public."r_buildLogParseResult_buildinvolvement_id_seq"
+    INCREMENT 1
+    START 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+ALTER SEQUENCE public."r_buildLogParseResult_buildinvolvement_id_seq" OWNER TO postgres;
 
 
 
@@ -423,6 +428,10 @@ TABLESPACE pg_default;
 ALTER TABLE public."buildlogparseresult" OWNER TO postgres;
 
 
+
+
+
+
 -- TABLE : buildprocessor
 CREATE TABLE public."buildprocessor"
 (
@@ -539,6 +548,29 @@ TABLESPACE pg_default;
 ALTER TABLE public."session" OWNER TO postgres;
 
 
+-- TABLE : r_buildLogParseResult_buildinvolvement
+CREATE TABLE public."r_buildlogparseresult_buildinvolvement"
+(
+    id integer NOT NULL DEFAULT nextval('"r_buildLogParseResult_buildinvolvement_id_seq"'::regclass),
+    buildlogparseresultid integer NOT NULL,
+    buildinvolvementid integer NOT NULL,
+    CONSTRAINT "r_buildlogparseresult_buildinvolvement_pkey" PRIMARY KEY (id),
+    CONSTRAINT "r_buildlogparseresult_buildinvolvement_compoundkey" UNIQUE (buildlogparseresultid, buildinvolvementid),
+    CONSTRAINT "r_buildlogparseresult_buildinvolvement_buildlogparseresultid_fk" FOREIGN KEY (buildlogparseresultid)
+        REFERENCES public."buildlogparseresult" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE,
+    CONSTRAINT "r_buildlogparseresult_buildinvolvement_buildinvolvementid_fk" FOREIGN KEY (buildinvolvementid)
+        REFERENCES public."buildinvolvement" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+ALTER TABLE public."r_buildlogparseresult_buildinvolvement" OWNER TO postgres;
+
 
 -- CREATE INDEXES
 CREATE INDEX "session_userid_fk"
@@ -599,4 +631,14 @@ CREATE INDEX "jobdelta_jobid_fk"
 CREATE INDEX "jobdelta_buildid_fk"
     ON public."jobdelta" USING btree
     (buildid)
+    TABLESPACE pg_default;
+
+CREATE INDEX "r_buildlogparseresult_buildinvolvement_buildlogparseresultid_fk"
+    ON public."r_buildlogparseresult_buildinvolvement" USING btree
+    (buildlogparseresultid)
+    TABLESPACE pg_default;
+
+CREATE INDEX "r_buildlogparseresult_buildinvolvement_buildinvolvementid_fk"
+    ON public."r_buildlogparseresult_buildinvolvement" USING btree
+    (buildinvolvementid)
     TABLESPACE pg_default;

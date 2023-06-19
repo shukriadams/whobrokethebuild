@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using Npgsql.PostgresTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1555,8 +1556,18 @@ namespace Wbtb.Extensions.Data.Postgres
         /// <returns></returns>
         public IEnumerable<BuildLogParseResult> GetBuildLogParseResultsByBuildId(string buildId)
         {
+            string query = @"
+                SELECT 
+                    BLPR.*,
+                    R.buildinvolvementid
+                FROM 
+                    buildlogparseresult BLPR 
+                    LEFT JOIN r_buildlogparseresult_buildinvolvement R ON R.buildlogparseresultid = BLPR.id
+                WHERE
+                    BLPR.buildid=@buildid";
+
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT * from buildlogparseresult where buildid=@buildid", connection))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
 
@@ -1808,7 +1819,67 @@ namespace Wbtb.Extensions.Data.Postgres
         }
 
         #endregion
-        
+
+        #region R_BuildLogParseResult_BuildInvolvement
+
+        public string ConnectBuildLogParseResultAndBuildBuildInvolvement(string buildLogParseResultId, string buildInvolvementId)
+        {
+            string insertQuery = @"
+                INSERT INTO r_buildLogParseResult_buildinvolvement
+                    (buildlogparseresultid, buildinvolvementid)
+                VALUES
+                    (@buildLogParseResultId, @buildInvolvementId)
+                RETURNING id";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            {
+                using (NpgsqlCommand cmd = new NpgsqlCommand(insertQuery, connection))
+                {
+                    cmd.Parameters.AddWithValue("buildLogParseResultId", int.Parse(buildLogParseResultId));
+                    cmd.Parameters.AddWithValue("buildInvolvementId", int.Parse(buildInvolvementId));
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        reader.Read();
+                        return reader.GetInt32(0).ToString();
+                    }
+                }
+            }
+        }
+
+        public bool SplitBuildLogParseResultAndBuildBuildInvolvement(string id)
+        {
+            return PostgresCommon.Delete(this.ContextPluginConfig, "r_buildLogParseResult_buildinvolvement", "id", id);
+        }
+
+        public IEnumerable<string> GetBuildLogParseResultsForBuildInvolvement(string buildInvolvementId) 
+        {
+            string query = @"
+                SELECT
+                    buildlogparseresultid
+                FROM
+                    r_buildLogParseResult_buildinvolvement
+                WHERE
+                    buildinvolvementid=@buildinvolvementid
+                ";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            {
+                cmd.Parameters.AddWithValue("buildinvolvementid", int.Parse(buildInvolvementId));
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader()) 
+                {
+                    IList<string> ids = new List<string>();
+                    while (reader.Read())
+                        ids.Add(reader["buildlogparseresultid"].ToString());
+
+                    return ids;
+                }
+            }
+        }
+
+        #endregion
+
         #region BUILD PROCESSOR
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using System;
 using System.Collections.Generic;
 using Wbtb.Core.Common;
 
@@ -13,7 +14,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 Id = reader["id"].ToString(),
                 ParsedContent = reader["parsedcontent"].ToString(),
                 BuildId = reader["buildid"].ToString(),
-                LogParserPlugin = reader["logparserplugin"].ToString()
+                LogParserPlugin = reader["logparserplugin"].ToString(),
+                BuildInvolvementId = reader["buildinvolvementid"] == DBNull.Value ? null : reader["buildinvolvementid"].ToString(),
             };
         }
 

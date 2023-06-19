@@ -11,24 +11,28 @@ DROP INDEX IF EXISTS public."build_incidentbuildid_fk";
 DROP INDEX IF EXISTS public."session_userid_fk";
 DROP INDEX IF EXISTS public."jobdelta_jobid_fk";
 DROP INDEX IF EXISTS public."jobdelta_buildid_fk";
+DROP INDEX IF EXISTS public."r_buildlogparseresult_buildinvolvement_buildlogparseresultid_fk";
+DROP INDEX IF EXISTS public."r_buildlogparseresult_buildinvolvement_buildinvolvementid_fk";
 
 -- DROP TABLES
-DROP TABLE IF EXISTS public."buildflag";
-DROP TABLE IF EXISTS public."buildprocessor";
-DROP TABLE IF EXISTS public."incident";
-DROP TABLE IF EXISTS public."buildlogparseresult";
-DROP TABLE IF EXISTS public."buildinvolvement";
-DROP TABLE IF EXISTS public."revision";
-DROP TABLE IF EXISTS public."version";
-DROP TABLE IF EXISTS public."jobdelta";
-DROP TABLE IF EXISTS public."build";
-DROP TABLE IF EXISTS public."job";
-DROP TABLE IF EXISTS public."session";
-DROP TABLE IF EXISTS public."buildserver";
-DROP TABLE IF EXISTS public."sourceserver";
-DROP TABLE IF EXISTS public."usr";
-DROP TABLE IF EXISTS public."configurationstate";
-DROP TABLE IF EXISTS public."store";
+DROP TABLE IF EXISTS public."r_buildlogparseresult_buildinvolvement" CASCADE;
+DROP TABLE IF EXISTS public."buildflag" CASCADE;
+DROP TABLE IF EXISTS public."buildprocessor" CASCADE;
+DROP TABLE IF EXISTS public."incident" CASCADE;
+DROP TABLE IF EXISTS public."buildlogparseresult" CASCADE;
+DROP TABLE IF EXISTS public."buildinvolvement" CASCADE;
+DROP TABLE IF EXISTS public."revision" CASCADE;
+DROP TABLE IF EXISTS public."version" CASCADE;
+DROP TABLE IF EXISTS public."jobdelta" CASCADE;
+DROP TABLE IF EXISTS public."build" CASCADE;
+DROP TABLE IF EXISTS public."job" CASCADE;
+DROP TABLE IF EXISTS public."session" CASCADE;
+DROP TABLE IF EXISTS public."buildserver" CASCADE;
+DROP TABLE IF EXISTS public."sourceserver" CASCADE;
+DROP TABLE IF EXISTS public."usr" CASCADE;
+DROP TABLE IF EXISTS public."configurationstate" CASCADE;
+DROP TABLE IF EXISTS public."store" CASCADE;
+
 
 -- DROP SEQUENCES
 DROP SEQUENCE IF EXISTS public."incident_id_seq";
@@ -56,3 +60,4 @@ DROP SEQUENCE IF EXISTS public."session_userid_seq";
 DROP SEQUENCE IF EXISTS public."configurationstate_id_seq";
 DROP SEQUENCE IF EXISTS public."jobdelta_id_seq";
 DROP SEQUENCE IF EXISTS public."store_id_seq";
+DROP SEQUENCE IF EXISTS public."r_buildLogParseResult_buildinvolvement_id_seq";

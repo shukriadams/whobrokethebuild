@@ -458,5 +458,24 @@ namespace Wbtb.Extensions.Data.FileSystem
         {
             return 0;
         }
+
+        #region R_BuildLogParseResult_BuildInvolvement
+
+        public string ConnectBuildLogParseResultAndBuildBuildInvolvement(string buildLogParseResultId, string buildInvolvementId)
+        {
+            return string.Empty;
+        }
+
+        public bool SplitBuildLogParseResultAndBuildBuildInvolvement(string id)
+        {
+            return false;
+        }
+
+        public IEnumerable<string> GetBuildLogParseResultsForBuildInvolvement(string buildInvolvementId)
+        {
+            return new string[] { };
+        }
+
+        #endregion
     }
 }

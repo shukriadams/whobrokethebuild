@@ -204,6 +204,16 @@ namespace Wbtb.Core.Common
 
         #endregion
 
+        #region R_BuildLogParseResult_BuildInvolvement
+
+        string ConnectBuildLogParseResultAndBuildBuildInvolvement(string buildLogParseResultId, string buildInvolvementId);
+
+        bool SplitBuildLogParseResultAndBuildBuildInvolvement(string id);
+
+        IEnumerable<string> GetBuildLogParseResultsForBuildInvolvement(string buildInvolvementId);
+
+        #endregion
+
         #region BUILD PROCESSOR
 
         BuildProcessor GetBuildProcessorById(string id);
