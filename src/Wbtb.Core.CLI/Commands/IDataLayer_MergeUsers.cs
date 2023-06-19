@@ -5,6 +5,11 @@ namespace Wbtb.Core.CLI.Commands
 {
     internal class IDataLayer_MergeUsers : ICommand
     {
+        public string Describe()
+        {
+            return @"Nigrate child records of an orphan user to another user. The orphan user is deleted in the process.";
+        }
+
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();

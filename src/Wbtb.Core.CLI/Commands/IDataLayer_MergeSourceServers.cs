@@ -5,6 +5,11 @@ namespace Wbtb.Core.CLI
 {
     internal class IDataLayer_MergeSourceServers : ICommand
     {
+        public string Describe()
+        {
+            return @"Nigrate child records of an orphan source server to another source server. The orphan source server is deleted in the process.";
+        }
+
         public void Process(CommandLineSwitches switches) 
         {
             SimpleDI di = new SimpleDI();

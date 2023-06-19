@@ -5,6 +5,11 @@ namespace Wbtb.Core.CLI
 {
     internal class Core_JobState: ICommand
     {
+        public string Describe() 
+        {
+            return @"Sets a job state to passing or failing. Use this to simulate build breaks/fixes. Failing builds can also be populated with logs from a known build, to test log handling.";
+        }
+
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();

@@ -7,6 +7,11 @@ namespace Wbtb.Core.CLI
 {
     internal class IDataLayer_DeleteJob : ICommand
     {
+        public string Describe()
+        {
+            return @"Deletes a job from database. This is meant for orphan cleanup";
+        }
+
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();

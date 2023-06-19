@@ -7,6 +7,11 @@ namespace Wbtb.Core.CLI
 {
     internal class Core_PruneBuildLogs : ICommand
     {
+        public string Describe()
+        {
+            return @"Deletes build logs that are no longer associated with a build.";
+        }
+
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();

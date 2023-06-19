@@ -6,6 +6,10 @@ namespace Wbtb.Core.CLI
 {
     internal class IMessaging_TestHandler : ICommand
     {
+        public string Describe()
+        {
+            return @"Sends a test message to a message handler. Use this to test integrations like email, slack etc.";
+        }
         public void Process(CommandLineSwitches switches)
         {
             if (!switches.Contains("user") && !switches.Contains("group"))

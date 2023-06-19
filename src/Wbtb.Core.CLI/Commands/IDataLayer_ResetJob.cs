@@ -26,6 +26,11 @@ namespace Wbtb.Core.CLI
 
         #region METHODS
 
+        public string Describe()
+        {
+            return @"Resets all error flags on a job, allowing linking, resolving, build log processing to run on all builds in that job. Alerts are not resent.";
+        }
+
         public void Process(CommandLineSwitches switches) 
         {
             if (!switches.Contains("job"))

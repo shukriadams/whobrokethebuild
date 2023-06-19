@@ -46,10 +46,14 @@ namespace Wbtb.Core.CLI
 
                     Console.WriteLine($"ERROR : key --\"command|c\" <COMMAND NAME> required");
                     Console.WriteLine("Available commands :");
-                    foreach (Type availableCommand in availableCommands)
-                        Console.WriteLine(availableCommand.Name);
+                    foreach (Type availableCommand in availableCommands) 
+                    {
+                        ICommand commandInstance = di.Resolve(availableCommand) as ICommand;
+                        Console.WriteLine($"Command: {availableCommand.Name} ({commandInstance.Describe()})");
+                    }
 
                     Environment.Exit(1);
+                    return;
                 }
 
                 string command_safe = command.Replace(".", "_");

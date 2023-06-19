@@ -5,6 +5,11 @@ namespace Wbtb.Core.CLI.Commands
 {
     internal class IDataLayer_DeleteBuildServer : ICommand
     {
+        public string Describe()
+        {
+            return @"Deletes a build server from database. This is meant for orphan cleanup";
+        }
+
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();

@@ -5,6 +5,11 @@ namespace Wbtb.Core.CLI.Commands
 {
     internal class IDataLayer_DeleteSourceServer : ICommand
     {
+        public string Describe()
+        {
+            return @"Deletes a source server from database. This is meant for orphan cleanup";
+        }
+
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();

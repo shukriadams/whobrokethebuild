@@ -5,6 +5,11 @@ namespace Wbtb.Core.CLI
 {
     internal class IDataLayer_MergeBuildServers : ICommand
     {
+        public string Describe()
+        {
+            return @"Nigrate child records of an orphan build server to another build server. The orphan build server is deleted in the process.";
+        }
+
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();

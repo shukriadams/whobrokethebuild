@@ -5,6 +5,11 @@ namespace Wbtb.Core.CLI
 {
     internal class IDataLayer_ClearAllTables : ICommand
     {
+        public string Describe()
+        {
+            return @"Deletes all data in all tables. This is a destructive reset";
+        }
+
         public void Process(CommandLineSwitches switches)
         {
             if (!switches.Contains("confirm"))

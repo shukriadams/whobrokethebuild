@@ -7,6 +7,11 @@ namespace Wbtb.Core.CLI
 {
     internal class IBuildServer_ListRemoteJobsCanonical : ICommand
     {
+        public string Describe()
+        {
+            return @"Lists all jobs on a remote build server. The job identifiers returned can be used for configuration.";
+        }
+
         public void Process(CommandLineSwitches switches) 
         {
             SimpleDI di = new SimpleDI();

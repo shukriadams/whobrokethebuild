@@ -5,6 +5,11 @@ namespace Wbtb.Core.CLI
 {
     internal class GetLatestConfig: ICommand
     {
+        public string Describe()
+        {
+            return @"Force gets the latest config from Git without restarting Wbtb.";
+        }
+
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();

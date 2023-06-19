@@ -6,6 +6,11 @@ namespace Wbtb.Core.CLI
 {
     internal class IDataLayer_ListOrphans : ICommand
     {
+        public string Describe()
+        {
+            return @"Lists orphan records in database. Orphans occur when record keys are changed abruptly without providing key renaming options in config.";
+        }
+
         public void Process(CommandLineSwitches switches) 
         {
             SimpleDI di = new SimpleDI();
