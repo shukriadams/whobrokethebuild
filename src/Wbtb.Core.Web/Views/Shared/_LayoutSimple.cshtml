@@ -1,0 +1,47 @@
+﻿@{
+    string bundleMode = "";
+}
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&family=Righteous&family=Roboto:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bundle@(bundleMode).css" type="text/css">
+    <link rel='shortcut icon' type='image/x-icon' href='/images/favicon.png' />
+    <meta http-equiv="content-type" name="description" content="">
+    <meta http-equiv="content-type" name="keywords" content="">
+    <title>Who Broke The Build?</title>
+</head>
+<body>
+
+    <header>
+        <x-header class="--sticky">
+            <x-header-logoContainer>
+                <a href="/">
+                    <x-header-logo>
+                        <a class="header-title" href="/">
+                            WBTB?
+                            <i class="icon icon-fingerprint"></i>
+                        </a>
+                    </x-header-logo>
+                </a>
+            </x-header-logoContainer>
+
+            <x-header-content>
+
+            </x-header-content>
+        </x-header>
+    </header>
+
+    <main>
+        @RenderBody()
+        <footer>
+            <div class="layout-scaffold">
+            </div>
+        </footer>
+    </main>
+
+    <script src="/js/bundle.js"></script>
+</body>
+</html>

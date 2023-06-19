@@ -27,8 +27,8 @@ namespace Wbtb.Core.Web
             return View();
         }
 
-        [Route("error/config")]
-        public IActionResult Config()
+        [Route("error/configuration")]
+        public IActionResult Configuration()
         {
             return View();
         }
