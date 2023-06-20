@@ -2,7 +2,6 @@
 
 .buildChanges {
     border: none; // remove the default border on bootstrip list
-
 }
 
 .buildChanges-row {
@@ -12,10 +11,14 @@
     column-gap: var(--bootstrip-layout-gutter);
     row-gap: var(--bootstrip-layout-gutter);
     margin-bottom: var(--bootstrip-layout-gutter);
-    grid-template-columns: 150px 100px auto;
+    grid-template-columns: 150px 200px auto;
 
     @media #{$mediaQuery-belowSmall} {
         grid-template-columns: 1fr;
+    }
+
+    > * {
+        align-self: flex-start;
     }
 }
 

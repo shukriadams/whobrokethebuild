@@ -157,19 +157,24 @@
                         </x-column>
                         <x-column class="buildChanges-revision">
                             #@involvement.RevisionCode
+                            @if (involvement.Revision != null)
+                            {
+                                <text>
+                                    @involvement.Revision.Created.Humanize()
+                                </text>
+                            }
                             @if(involvement.InferredRevisionLink)
                             {   
-                                <text>
+                                <span class="quiet">
                                     (inferred)
-                                </text>
+                                </span>
                             } else {
-                                <text>
+                                <span class="quiet">
                                     (confirmed)
-                                </text>
+                                </span>
                             }
                         </x-column>
                         <x-column>
-                            
                             @if (involvement.Revision != null)
                             {
                                 <text>
