@@ -268,7 +268,7 @@ namespace Madscience.Perforce
         public static string GetRawDescribe(string username, string password, string host, string trustFingerPrint, int revision)
         {
             string ticket =  GetTicket(username, password, host, trustFingerPrint);
-            string command = $"p4 -u {username} -p {host} -P {ticket} describe {revision}";
+            string command = $"p4 -u {username} -p {host} -P {ticket} describe -s {revision}";
 
             ShellResult result = Run(command);
 
@@ -486,9 +486,10 @@ namespace Madscience.Perforce
 
             while(!limitReached)
             {
-                string command = $"p4 -u {username} -p {host} -P {ticket} changes -m 100 -e {startRevision} -l {path}";
+                string command = $"p4 -u {username} -p {host} -P {ticket} changes -m 100 {startRevision} {path}";
                 ShellResult result = Run(command);
-                if (result.ExitCode != 0 || result.StdErr.Any())
+                // bizarrely, p4 changes returns both stdout and stderr for changes
+                if (result.ExitCode != 0 || (result.StdErr.Any() && !result.StdOut.Any()))
                     throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\\n", result.StdErr)}");
 
                 if (result.StdOut.Count() == 0)
@@ -504,6 +505,7 @@ namespace Madscience.Perforce
                         break;
                     }
 
+                    startRevision = revisionFound;
                     revisions.Add(revisionFound);
                 }
             }

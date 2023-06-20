@@ -157,6 +157,16 @@
                         </x-column>
                         <x-column class="buildChanges-revision">
                             #@involvement.RevisionCode
+                            @if(involvement.InferredRevisionLink)
+                            {   
+                                <text>
+                                    (inferred)
+                                </text>
+                            } else {
+                                <text>
+                                    (confirmed)
+                                </text>
+                            }
                         </x-column>
                         <x-column>
                             

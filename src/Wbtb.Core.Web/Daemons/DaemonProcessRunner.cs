@@ -16,6 +16,7 @@ namespace Wbtb.Core.Web
 
         public void Start(DaemonWork work, int tickInterval)
         {
+            // wrap start in a risk so they don't block calling thread
             Task.Run(() => {
                 while (_running)
                 {
@@ -26,7 +27,22 @@ namespace Wbtb.Core.Web
 
                         _busy = true;
 
-                        work();
+                        // do each work tick on its own thread
+                        ManualResetEvent resetEvent = new ManualResetEvent(false);
+                        new Thread(delegate ()
+                        {
+                            try
+                            {
+                                work();
+                            }
+                            finally
+                            {
+                                resetEvent.Set();
+                            }
+                        }).Start();
+
+                        // Wait for threads to finish
+                        resetEvent.WaitOne();
                     }
                     finally
                     {

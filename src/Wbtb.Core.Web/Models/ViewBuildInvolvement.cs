@@ -22,6 +22,7 @@ namespace Wbtb.Core.Web
                 BuildId = buildInvolvement.BuildId,
                 Comment = buildInvolvement.Comment,
                 IsIgnoredFromBreakHistory = buildInvolvement.IsIgnoredFromBreakHistory,
+                InferredRevisionLink = buildInvolvement.InferredRevisionLink,
                 MappedUserId = buildInvolvement.MappedUserId,
                 RevisionCode = buildInvolvement.RevisionCode,
                 RevisionId = buildInvolvement.RevisionId,

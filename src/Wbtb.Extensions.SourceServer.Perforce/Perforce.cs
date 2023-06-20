@@ -109,7 +109,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             if (contextServer.Config.Any(c => c.Key == "TrustFingerprint"))
                 trust = contextServer.Config.First(c => c.Key == "TrustFingerprint").Value.ToString().ToLower();
 
-            string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, "revisions", $"{revisionCode}.json");
+            string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, "revisions", $"{revisionCode}.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
             string describe = string.Empty;
 

@@ -51,8 +51,6 @@ namespace Wbtb.Core.Common
         /// </summary>
         public bool IsIgnoredFromBreakHistory { get; set; }
 
-
-
         /// <summary>
         /// 
         /// </summary>

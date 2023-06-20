@@ -152,6 +152,7 @@ namespace Wbtb.Core.Web
                                         BuildId = build.Id,
                                         RevisionCode = revision.Code,
                                         RevisionLinkStatus = LinkState.Completed,
+                                        InferredRevisionLink = revisionCode != revision.Code,
                                         RevisionId = revision.Id
                                     });
                                 }
