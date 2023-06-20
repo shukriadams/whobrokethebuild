@@ -414,6 +414,7 @@ CREATE TABLE public."buildlogparseresult"
     blame integer NOT NULL,
     logparserplugin character varying(64) COLLATE pg_catalog."default" NOT NULL,
     parsedcontent text COLLATE pg_catalog."default",
+    signature character varying(38) COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT "buildLogparseresult_pkey" PRIMARY KEY (id),
     CONSTRAINT "buildLogparseresult_compoundkey" UNIQUE (buildid, logparserplugin),
     CONSTRAINT "buildlogparseresult_buildid_fk" FOREIGN KEY (buildid)

@@ -1535,7 +1535,7 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO buildlogparseresult
-                    (buildid, signaturelogparserplugin, blame, parsedcontent)
+                    (buildid, signature, logparserplugin, blame, parsedcontent)
                 VALUES
                     (@buildid, @signature, @logparserplugin, @blame, @parsedcontent)
                 RETURNING id";

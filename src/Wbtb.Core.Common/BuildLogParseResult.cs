@@ -1,4 +1,6 @@
-﻿namespace Wbtb.Core.Common
+﻿using System;
+
+namespace Wbtb.Core.Common
 {
     public class BuildLogParseResult : ISignature
     {
@@ -37,5 +39,10 @@
         /// 
         /// </summary>
         public string Signature { get; set; }
+
+        public BuildLogParseResult()
+        {
+            this.Signature = Guid.NewGuid().ToString();
+        }
     }
 }
