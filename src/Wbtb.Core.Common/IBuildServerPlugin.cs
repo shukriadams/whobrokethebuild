@@ -54,6 +54,15 @@ namespace Wbtb.Core.Common
         BuildImportSummary ImportBuilds(Job job, int take);
 
         /// <summary>
+        /// Gets list of revision codes (from source control server) which are known to be in a build. This works
+        /// only if the given build on the build server logically supports this kind of query. Builds that are run
+        /// periodically typically don't, and will typically need to have their revisions inferred.
+        /// </summary>
+        /// <param name="build"></param>
+        /// <returns></returns>
+        IEnumerable<string> GetRevisionsInBuild(Build build);
+
+        /// <summary>
         /// Import all builds.
         /// </summary>
         /// <param name="job"></param>

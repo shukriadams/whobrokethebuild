@@ -11,10 +11,13 @@ DROP INDEX IF EXISTS public."build_incidentbuildid_fk";
 DROP INDEX IF EXISTS public."session_userid_fk";
 DROP INDEX IF EXISTS public."jobdelta_jobid_fk";
 DROP INDEX IF EXISTS public."jobdelta_buildid_fk";
+DROP INDEX IF EXISTS public."daemontask_buildid_fk";
+DROP INDEX IF EXISTS public."daemontask_buildinvolvementid_fk";
 DROP INDEX IF EXISTS public."r_buildlogparseresult_buildinvolvement_buildlogparseresultid_fk";
 DROP INDEX IF EXISTS public."r_buildlogparseresult_buildinvolvement_buildinvolvementid_fk";
 
 -- DROP TABLES
+DROP TABLE IF EXISTS public."daemontask" CASCADE;
 DROP TABLE IF EXISTS public."r_buildlogparseresult_buildinvolvement" CASCADE;
 DROP TABLE IF EXISTS public."buildflag" CASCADE;
 DROP TABLE IF EXISTS public."buildprocessor" CASCADE;
@@ -60,4 +63,5 @@ DROP SEQUENCE IF EXISTS public."session_userid_seq";
 DROP SEQUENCE IF EXISTS public."configurationstate_id_seq";
 DROP SEQUENCE IF EXISTS public."jobdelta_id_seq";
 DROP SEQUENCE IF EXISTS public."store_id_seq";
+DROP SEQUENCE IF EXISTS public."daemontask_id_seq";
 DROP SEQUENCE IF EXISTS public."r_buildLogParseResult_buildinvolvement_id_seq";

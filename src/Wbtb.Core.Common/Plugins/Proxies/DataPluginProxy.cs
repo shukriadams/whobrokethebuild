@@ -763,6 +763,54 @@ namespace Wbtb.Core.Common
 
         #endregion
 
+        #region DAEMONTASK
+
+        DaemonTask IDataPlugin.SaveDaemonTask(DaemonTask daemonTask)
+        {
+            return _pluginSender.InvokeMethod<DaemonTask>(this, new PluginArgs
+            {
+                FunctionName = "SaveDaemonTask",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "daemonTask", Value = daemonTask }
+                }
+            });
+        }
+
+        DaemonTask IDataPlugin.GetDaemonTaskById(string id)
+        {
+            return _pluginSender.InvokeMethod<DaemonTask>(this, new PluginArgs
+            {
+                FunctionName = "GetDaemonTaskById",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "id", Value = id }
+                }
+            });
+        }
+
+        bool IDataPlugin.DeleteDaemonTask(DaemonTask record)
+        {
+            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
+            {
+                FunctionName = "DeleteDaemonTask",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "record", Value = record }
+                }
+            });
+        }
+
+        IEnumerable<DaemonTask> IDataPlugin.GetDaemonTaskByBuild(string buildid)
+        {
+            return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
+            {
+                FunctionName = "GetDaemonTaskByBuild",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "buildid", Value = buildid }
+                }
+            });
+        }
+
+        #endregion
+
         #region BUILD INVOLVEMENT
 
         BuildInvolvement IDataPlugin.SaveBuildInvolement(BuildInvolvement buildInvolvement)

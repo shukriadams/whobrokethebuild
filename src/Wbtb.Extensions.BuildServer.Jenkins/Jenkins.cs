@@ -234,9 +234,10 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         /// <param name="job"></param>
         /// <param name="build"></param>
         /// <returns></returns>
-        private IEnumerable<string> GetRevisionsInBuild(Job job, Build build)
+        public IEnumerable<string> GetRevisionsInBuild(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(build.JobId);
             string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, build.Identifier, "revisions.json");
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
@@ -367,25 +368,6 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 }
 
                 build = dataLayer.SaveBuild(build);
-
-                IEnumerable<string> buildRevisions = GetRevisionsInBuild(job, build);
-
-                foreach (string buildRevision in buildRevisions)
-                {
-                    BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementByRevisionCode(build.Id, buildRevision);
-                    if (buildInvolvement == null)
-                    {
-                        buildInvolvement = new BuildInvolvement
-                        {
-                            BuildId = build.Id,
-                            RevisionCode = buildRevision
-                        };
-
-                        dataLayer.SaveBuildInvolement(buildInvolvement);
-
-                        Console.WriteLine($"Added build involvement revision \"{buildInvolvement.RevisionCode}\" to build \"{build.Identifier}\".");
-                    }
-                }
             }
 
             return summary;

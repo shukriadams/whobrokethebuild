@@ -111,29 +111,17 @@ No ioc in plugins, don't force or make assumptions about how plugins will be wri
 
 plugins get passed an instance of config which they must keep alive themselves
 
-## Build processing daemon order
+## Daemon order
 
-1) Build records are created or updated by the BuildImport daemon. This daemon sets status to pass/fail as part of update, and also sets delta on builds. If build revision can be read from build server, this is used to set up buildInvolvement records.
+Wbtb handles build logic with a series of daemons. Each daemon is a process that runs on its own thread and processes a "stage" in the lifecycle of a build. A given daemon will process a given build or a child record of a build by reading the database for DaemonTask records. Tasks are completed in order, and can be used to queue and track work.
 
-2) Build logs are imported some tom after build completion by the BuildLogImport daemon.
-
-3) Build servers don't always expose explicit information about which revisions are ina  build. The BuildRevisionFromLogDaemon calculates revision by polling logs from ongoing builds until build info can be read. This sets up buildInvolvement records.
-
-4) If a build fails, it can be assigned an incident code, which groups it with other failing builds. This is done by the IncidentAssignDaemon, and is done only after a build's status is set to failing, which is done by BuildImport's update cycle.
-
-5) Builds logs can be parsed, this done by the LogParser daemon, and only on builds that have already had their logs downloaded by the BuildLogImport daemon.
-
-6) BuildInvolvements can be linked to detailed revision data, this is done by the RevisionResolveDaemon, once a BuildInvolvement record is created.
-
-7) Buildinvolvements can be linked to detailed user data, this is done by the UserBuildInvolvementLinkDaemon, once a BuildInvolvement record is created.
-
-Based on the above sequence, it's quite clear that build state cannot be implicitly inferred on-the-fly, as the existence of a given record doesn't necessarily mean the record has been fully processed yet. Generally, users of the system will approach it with specific intent :
-
-- Is a job broken?
-- Did I break the job?
-- Is my revision in a commit that broken the job?
-- Did my revision fix a broken job?
-- What code change broken the job? (using logs)
-- Which revisions broke the job?
-
-Beyond that, developers will want to hook up to certain events, with the expectation that certain state is available to them. 
+- build update daemon > Task:BuildComplete. This daemon marks build as complete. Ensures that builds are forced abandoned if they time out from server. Creates revisopn resolve tasks if readrevfromlog not set on job. Creates buildinvolvements.
+- assign incident to build. Waits for build update.
+- log import > imports log from build server. waits for build to be marked complete. writes logprocesstask for each logprocessor on job
+- read revision in log > Task:ReadRevisionFromLog. Reads revision in log once log imported, create buildinvolvements for that revision + preceeding one. Waits for log to be imported. Used only on jobs with readrevfromlog enabled. Creates buildinvolvements. Creates revisionresolve tasks. 
+- resolve buildinvolvement revisions from source control > processes revision resolve tasks. Creates resolveuser tasks. modifies buildinvolvement.
+- resolve user on buildinvolvement. Waits for revision resolve. modifies buildinvolvement.
+- parse build log. waits for logprocesstask, logparsers can be run in parallel
+- blame daemon. waits for log to be parsed, incident to assigned, revision to be resolved. modifies buildinvolvement.
+- calculate current delta. waits for all incident on a job to be completed, delta set to latest incident on job
+- alert on delta. waits for all tasks for a job to be done, then alerts if delta different from last reported delta. 

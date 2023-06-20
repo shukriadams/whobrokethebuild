@@ -214,6 +214,25 @@ namespace Wbtb.Core.Common
 
         #endregion
 
+        #region DAEMONTASK
+
+        DaemonTask SaveDaemonTask(DaemonTask daemonTask);
+
+        DaemonTask GetDaemonTaskById(string id);
+
+        bool DeleteDaemonTask(DaemonTask record);
+
+        IEnumerable<DaemonTask> GetDaemonTaskByBuild(string buildid);
+
+        /// <summary>
+        /// Gets block of oldest pending tasks
+        /// </summary>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        IEnumerable<DaemonTask> GetPendingDaemonTasksByTask(string task);
+
+        #endregion
+
         #region BUILD PROCESSOR
 
         BuildProcessor GetBuildProcessorById(string id);

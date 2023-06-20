@@ -1833,6 +1833,101 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #endregion
 
+        #region DAEMONTASK
+        
+        public DaemonTask SaveDaemonTask(DaemonTask daemonTask)
+        {
+            string insertQuery = @"
+                INSERT INTO daemontask
+                    (buildid, signature, buildid, taskkey, buildinvolvementid, src, createdutc, processedutc, passed, result)
+                VALUES
+                    (@buildid, @signature, @buildid, @taskkey, @buildinvolvementid, @src, @createdutc, @processedutc, @passed, @result)
+                RETURNING id";
+
+            string updateQuery = @"                    
+                UPDATE daemontask SET 
+                    buildid = @buildid,
+                    signature = @new_signature,
+                    buildid = @buildid,
+                    taskkey = @taskkey, 
+                    buildinvolvementid = @buildinvolvementid, 
+                    src = @src, 
+                    createdutc = @createdutc,
+                    processedutc = @processedutc,
+                    passed = @passed,
+                    result = @result
+                WHERE
+                    id = @id
+                    AND signature = @signature";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            {
+                if (string.IsNullOrEmpty(daemonTask.Id))
+                    daemonTask.Id = PostgresCommon.InsertWithId<DaemonTask>(this.ContextPluginConfig, insertQuery, daemonTask, new ParameterMapper<DaemonTask>(DaemonTaskMapping.MapParameters), connection);
+                else
+                    PostgresCommon.Update<DaemonTask>(this.ContextPluginConfig, updateQuery, daemonTask, new ParameterMapper<DaemonTask>(DaemonTaskMapping.MapParameters), connection);
+
+                return daemonTask;
+            }
+        }
+
+        public DaemonTask GetDaemonTaskById(string id)
+        {
+            return PostgresCommon.GetById<DaemonTask>(this.ContextPluginConfig, id, "daemontask", new DaemonTaskConvert());
+        }
+
+        public bool DeleteDaemonTask(DaemonTask record)
+        {
+            return PostgresCommon.Delete(this.ContextPluginConfig, "daemontask", "id", record.Id);
+        }
+
+        public IEnumerable<DaemonTask> GetDaemonTaskByBuild(string buildid)
+        {
+            string sql = @"
+                SELECT
+                    *
+                FROM
+                    daemontask
+                WHERE
+                    buildid = @buildid";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            {
+                cmd.Parameters.AddWithValue("buildid", int.Parse(buildid));
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new DaemonTaskConvert().ToCommonList(reader);
+            }
+        }
+
+        public IEnumerable<DaemonTask> GetPendingDaemonTasksByTask(string task) 
+        {
+            string sql = @"
+                SELECT
+                    *
+                FROM
+                    daemontask
+                WHERE
+                    taskey = @task
+                    AND processedutc IS NULL
+                ORDER BY
+                    createdutc ASC
+                LIMIT 
+                    100";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            {
+                cmd.Parameters.AddWithValue("task", task);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new DaemonTaskConvert().ToCommonList(reader);
+            }
+        }
+
+        #endregion
+
         #region R_BuildLogParseResult_BuildInvolvement
 
         public string ConnectBuildLogParseResultAndBuildBuildInvolvement(string buildLogParseResultId, string buildInvolvementId)

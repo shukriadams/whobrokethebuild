@@ -207,10 +207,16 @@ CREATE SEQUENCE public."r_buildLogParseResult_buildinvolvement_id_seq"
     CACHE 1;
 ALTER SEQUENCE public."r_buildLogParseResult_buildinvolvement_id_seq" OWNER TO postgres;
 
+CREATE SEQUENCE public."daemontask_id_seq"
+    INCREMENT 1
+    START 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+ALTER SEQUENCE public."daemontask_id_seq" OWNER TO postgres;
 
 
 -- CREATE TABLES
--- TABLE : Store
 CREATE TABLE public."store"
 (
     id integer NOT NULL DEFAULT nextval('"store_id_seq"'::regclass),
@@ -573,6 +579,35 @@ TABLESPACE pg_default;
 ALTER TABLE public."r_buildlogparseresult_buildinvolvement" OWNER TO postgres;
 
 
+CREATE TABLE public."daemontask"
+(
+    id integer NOT NULL DEFAULT nextval('"daemontask_id_seq"'::regclass),
+    signature character varying(38) COLLATE pg_catalog."default" NOT NULL,
+    buildid integer NOT NULL,
+    taskkey character varying(256) COLLATE pg_catalog."default" NOT NULL,
+    buildinvolvementid integer,
+    src character varying(256) COLLATE pg_catalog."default",
+    createdutc timestamp(4) without time zone NOT NULL,
+    processedutc timestamp(4) without time zone,
+    passed boolean,
+    result text COLLATE pg_catalog."default",
+    CONSTRAINT "daemontask_compoundkey" UNIQUE (buildid, taskkey),
+    CONSTRAINT "daemontask_buildid_fk" FOREIGN KEY (buildid)
+        REFERENCES public."build" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE,
+    CONSTRAINT "daemontask_buildinvolvementid_fk" FOREIGN KEY (buildinvolvementid)
+        REFERENCES public."buildinvolvement" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+ALTER TABLE public."daemontask" OWNER TO postgres;
+
+
 -- CREATE INDEXES
 CREATE INDEX "session_userid_fk"
     ON public."session" USING btree
@@ -641,5 +676,15 @@ CREATE INDEX "r_buildlogparseresult_buildinvolvement_buildlogparseresultid_fk"
 
 CREATE INDEX "r_buildlogparseresult_buildinvolvement_buildinvolvementid_fk"
     ON public."r_buildlogparseresult_buildinvolvement" USING btree
+    (buildinvolvementid)
+    TABLESPACE pg_default;
+
+CREATE INDEX "daemontask_buildid_fk"
+    ON public."daemontask" USING btree
+    (buildid)
+    TABLESPACE pg_default;
+
+CREATE INDEX "daemontask_buildinvolvementid_fk"
+    ON public."daemontask" USING btree
     (buildinvolvementid)
     TABLESPACE pg_default;

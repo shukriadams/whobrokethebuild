@@ -477,5 +477,29 @@ namespace Wbtb.Extensions.Data.FileSystem
         }
 
         #endregion
+
+        #region DAEMONTASK
+
+        public DaemonTask SaveDaemonTask(DaemonTask daemonTask)
+        {
+            return new DaemonTask { };
+        }
+
+        public DaemonTask GetDaemonTaskById(string id)
+        {
+            return new DaemonTask { };
+        }
+
+        public bool DeleteDaemonTask(DaemonTask record)
+        {
+            return false;
+        }
+
+        public IEnumerable<DaemonTask> GetDaemonTaskByBuild(string buildid)
+        {
+            return new DaemonTask[] { };
+        }
+
+        #endregion
     }
 }
