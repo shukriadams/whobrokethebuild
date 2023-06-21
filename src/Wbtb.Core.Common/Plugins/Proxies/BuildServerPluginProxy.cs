@@ -53,7 +53,29 @@ namespace Wbtb.Core.Common
             });
         }
 
-         string IBuildServerPlugin.GetBuildUrl(BuildServer contextServer, Build build)
+        void IBuildServerPlugin.PollBuildsForJob(Job job) 
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = "PollBuildsForJob",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "job", Value = job }
+                }
+            });
+        }
+
+        Build IBuildServerPlugin.TryUpdateBuild(Build build) 
+        {
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            {
+                FunctionName = "TryUpdateBuild",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "build", Value = build }
+                }
+            });
+        }
+
+        string IBuildServerPlugin.GetBuildUrl(BuildServer contextServer, Build build)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
@@ -76,23 +98,11 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<User> IBuildServerPlugin.GetUsersInBuild(BuildServer buildServer, string remoteBuildId)
+        IEnumerable<Build> IBuildServerPlugin.GetLatesBuilds(Job job, int take)
         {
-            return _pluginSender.InvokeMethod<IEnumerable<User>>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
-                FunctionName = "GetUsersInBuild",
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "buildServer", Value = buildServer },
-                    new PluginFunctionParameter { Name = "remoteBuildId", Value = remoteBuildId }
-                }
-            });
-        }
-
-        BuildImportSummary IBuildServerPlugin.ImportBuilds(Job job, int take)
-        {
-            return _pluginSender.InvokeMethod<BuildImportSummary>(this, new PluginArgs
-            {
-                FunctionName = "ImportBuilds",
+                FunctionName = "GetLatesBuilds",
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job },
                     new PluginFunctionParameter { Name = "take", Value = take }
@@ -100,24 +110,24 @@ namespace Wbtb.Core.Common
             });
         }
 
-        BuildImportSummary IBuildServerPlugin.ImportAllCachedBuilds(Job job)
+        IEnumerable<Build> IBuildServerPlugin.GetAllCachedBuilds(Job job)
         {
-            return _pluginSender.InvokeMethod<BuildImportSummary>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
-                FunctionName = "ImportAllCachedBuilds",
+                FunctionName = "GetAllCachedBuilds",
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
             });
         }
         
-        IEnumerable<Build> IBuildServerPlugin.ImportLogs(Job job)
+        Build IBuildServerPlugin.ImportLog(Build build)
         {
-            return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "ImportLogs",
+                FunctionName = "ImportLog",
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "job", Value = job }
+                    new PluginFunctionParameter { Name = "build", Value = build }
                 }
             });
         }
@@ -132,5 +142,17 @@ namespace Wbtb.Core.Common
                 }
             });
         }
+
+        IEnumerable<string> IBuildServerPlugin.GetRevisionsInBuild(Build build)
+        {
+            return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
+            {
+                FunctionName = "GetRevisionsInBuild",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "build", Value = build }
+                }
+            });
+        }
+
     }
 }

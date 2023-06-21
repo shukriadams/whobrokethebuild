@@ -97,11 +97,6 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             }
         }
 
-        public IEnumerable<User> GetUsersInBuild(Core.Common.BuildServer contextServer, string remoteBuildId)
-        {
-            throw new NotImplementedException();
-        }
-
         private BuildStatus ConvertBuildStatus(string remoteResult)
         {
             switch (remoteResult)
@@ -130,13 +125,12 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             return dt.AddMilliseconds(Double.Parse(unixTimeStamp));
         }
 
-        private IEnumerable<string> GetRevisionsInBuild(Job job, Build build)
+        public IEnumerable<string> GetRevisionsInBuild(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-
+            Job job = dataLayer.GetJobById(build.JobId);
             string filePath = $"./JSON/builds/{job.Key}/build_{build.Identifier}_revisions.json";
             string rawJson = null;
-
             string persistPath = _persistPathHelper.GetPath(ContextPluginConfig, job.Key, build.Identifier, "revisions.json");
             
             if (File.Exists(persistPath)) 
@@ -164,118 +158,76 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             return rawRevisions.Select(r => r.commitId);
         }
 
-        public BuildImportSummary ImportBuilds(Job job, int take)
+        public IEnumerable<Build> GetLatesBuilds(Job job, int take)
         {
             string resourcePath = $"JSON.builds.{job.Key}.builds.json";
-            
+
             if (!ResourceHelper.ResourceExists(this.GetType(), resourcePath))
-            {
-                Console.WriteLine($"Failed to import builds, sandbox job {job.Key} does not exist in data store");
-                return new BuildImportSummary();
-            }
-                    
+                throw new Exception($"Failed to import builds, sandbox job {job.Key} does not exist in data store");
+
             string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), resourcePath);
             dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);
             IEnumerable<RawBuild> rawBuilds = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<RawBuild>>(response.allBuilds.ToString());
-            
-            // persist each rawbuild if necessary
-            foreach(RawBuild rawbuild in rawBuilds) 
-            {
-                string persistPath = _persistPathHelper.GetPath(ContextPluginConfig, job.Key, rawbuild.number, "raw.json");
-                if (!File.Exists(persistPath)) 
-                { 
-                    Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
-                    File.WriteAllText(persistPath, JsonConvert.SerializeObject(rawbuild));
-                }
-            }
 
-            if (take != 0)
-                rawBuilds = rawBuilds
-                    .Take(take);
-
-            return this.ImportBuildsInternal(job, rawBuilds);
-        }
-
-        public BuildImportSummary ImportAllCachedBuilds(Job job)
-        { 
-            IList<RawBuild> rawBuilds = new List<RawBuild>();
-            string cachePath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key);
-
-            if (Directory.Exists(cachePath))
-                foreach(string directory in Directory.GetDirectories(cachePath).Where(d => !string.IsNullOrEmpty(d)))
-                { 
-                    string rawBuildFile = Path.Combine(directory, "raw.json");
-                    if (File.Exists(rawBuildFile))
-                    {
-                        string rawJson = File.ReadAllText(rawBuildFile);
-                        rawBuilds.Add(JsonConvert.DeserializeObject<RawBuild>(rawJson));
-                    }
-                }
-
-            return this.ImportBuildsInternal(job, rawBuilds);
-        }
-
-        private BuildImportSummary ImportBuildsInternal(Job job, IEnumerable<RawBuild> rawBuilds)
-        {
-            BuildImportSummary summary = new BuildImportSummary();
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-
+            IList<Build> builds = new List<Build>();
             foreach (RawBuild rawBuild in rawBuilds)
+                builds.Add(new Build
+                {
+                    Identifier = rawBuild.number,
+                    Hostname = rawBuild.builtOn,
+                    StartedUtc = UnixTimeStampToDateTime(rawBuild.timestamp),
+                    Status = ConvertBuildStatus(rawBuild.result)
+                });
+
+            return builds;
+        }
+
+        private RawBuild LoadRawBuild(string path)
+        {
+            string fileContent;
+            try
             {
-                Build build = dataLayer.GetBuildByKey(job.Id, rawBuild.number);
-
-                if (build == null)
-                {
-                    // 
-                    build = new Build
-                    {
-                        Identifier = rawBuild.number,
-                        JobId = job.Id,
-                        Hostname = rawBuild.builtOn,
-                        StartedUtc = UnixTimeStampToDateTime(rawBuild.timestamp)
-                    };
-
-                    Console.WriteLine($"Imported build {build.Identifier}");
-                }
-
-                bool isChanged = false;
-                build.Status = ConvertBuildStatus(rawBuild.result);
-                if (!string.IsNullOrEmpty(rawBuild.duration) && !build.EndedUtc.HasValue){
-                    build.EndedUtc = build.StartedUtc.AddMilliseconds(int.Parse(rawBuild.duration));
-                    isChanged  = true;
-                }
-
-                bool isCreating = build.Id == null;
-                if (isCreating || isChanged)
-                    build = dataLayer.SaveBuild(build);
-                
-                if (isCreating)
-                    summary.Created.Add(build);
-            
-                if (isChanged)
-                    summary.Ended.Add(build);
-
-                IEnumerable<string> buildRevisions = GetRevisionsInBuild(job, build);
-
-                foreach (string buildRevision in buildRevisions)
-                {
-                    BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementByRevisionCode(build.Id, buildRevision);
-                    if (buildInvolvement == null)
-                    {
-                        buildInvolvement = new BuildInvolvement
-                        {
-                            BuildId = build.Id,
-                            RevisionCode = buildRevision
-                        };
-
-                        dataLayer.SaveBuildInvolement(buildInvolvement);
-
-                        Console.WriteLine($"Added build involvement revision \"{buildInvolvement.RevisionCode}\" to build \"{build.Identifier}\".");
-                    }
-                }
+                fileContent = File.ReadAllText(path);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not read content of file {path}", ex);
             }
 
-            return summary;
+            RawBuild rawBuild;
+
+            try
+            {
+                rawBuild = Newtonsoft.Json.JsonConvert.DeserializeObject<RawBuild>(fileContent);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Unable to parse contents of file {path} to {typeof(RawBuild).Name}.", ex);
+            }
+
+            return rawBuild;
+        }
+
+        public IEnumerable<Build> GetAllCachedBuilds(Job job)
+        {
+            IList<Build> builds = new List<Build>();
+            IEnumerable<string> completeBuildFiles = Directory.GetFiles(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete"));
+
+            foreach (string completeBuildFile in completeBuildFiles)
+            {
+                RawBuild rawBuild = this.LoadRawBuild(completeBuildFile);
+                DateTime started = UnixTimeStampToDateTime(rawBuild.timestamp);
+                builds.Add(new Build()
+                {
+                    Identifier = rawBuild.number,
+                    Hostname = rawBuild.builtOn,
+                    StartedUtc = started,
+                    Status = ConvertBuildStatus(rawBuild.result),
+                    EndedUtc = started.AddMilliseconds(int.Parse(rawBuild.duration))
+                });
+            }
+
+            return builds;
         }
 
         private static string GetRandom()
@@ -321,52 +273,51 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             }
         }
 
-        public IEnumerable<Build> ImportLogs(Job job)
+        public void PollBuildsForJob(Job job) 
+        {
+
+        }
+
+        public Build ImportLog(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(build.Id);
             IEnumerable<Build> buildsWithNoLog = dataLayer.GetBuildsWithNoLog(job);
-            string logPath = string.Empty;
-            IList<Build> processedBuilds = new List<Build>(); // not used - remove this
 
-            foreach (Build buildWithNoLog in buildsWithNoLog)
-            {
-                try
-                {
-                    if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{job.Key}.logs.{buildWithNoLog.Identifier}.txt"))
-                            continue;
+            if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{job.Key}.logs.{build.Identifier}.txt"))
+                return build;
 
-                    string logContent = GetBuildLog(buildWithNoLog);
-                    string logDirectory = Path.Combine(_config.BuildLogsDirectory, GetRandom(), GetRandom());
+            string logContent = GetBuildLog(build);
+            string logDirectory = Path.Combine(_config.BuildLogsDirectory, GetRandom(), GetRandom());
 
-                    Directory.CreateDirectory(logDirectory);
-                    logPath = Path.Combine(logDirectory, $"{Guid.NewGuid()}.txt");
-                    File.WriteAllText(logPath, logContent);
+            Directory.CreateDirectory(logDirectory);
+            string logPath = Path.Combine(logDirectory, $"{Guid.NewGuid()}.txt");
+            File.WriteAllText(logPath, logContent);
 
-                    buildWithNoLog.LogPath = logPath;
-                    dataLayer.SaveBuild(buildWithNoLog);
+            build.LogPath = logPath;
 
-                    processedBuilds.Add(buildWithNoLog);
-                    Console.WriteLine($"Imported log for build {buildWithNoLog.Id}");
-                }
-                catch (Exception ex)
-                {
-                    try
-                    {
-                        if (File.Exists(logPath))
-                            File.Delete(logPath);
-                    }
-                    catch (Exception exCleanup)
-                    {
-                        Console.WriteLine($"Unexpected error trying to rollback log @ {logPath}", exCleanup);
-                    }
+            return build;
+        }
 
-                    // yeah, what is going on here .....
-                    // ignore network errors
-                    Console.WriteLine($"Error fetching log for build {buildWithNoLog.Id}", ex);
-                }
-            }
+        public Build TryUpdateBuild(Build build)
+        {
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(build.JobId);
 
-            return processedBuilds;
+            string path = $"JSON.builds.{job.Key}.build_{build.Identifier}_revisions.json";
+            string rawJson;
+            if (ResourceHelper.ResourceExists(this.GetType(), path))
+                rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), path);
+            else
+                throw new Exception($"Failed to to read revisions for build {build.Identifier}, job {job.Name}. No data in sandbox");
+
+            dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);
+            IEnumerable<RawBuild> rawBuilds = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<RawBuild>>(response.allBuilds.ToString());
+            RawBuild rawBuild = rawBuilds.First(b => b.number == build.Identifier.ToString());
+            build.EndedUtc = build.StartedUtc.AddMilliseconds(int.Parse(rawBuild.duration));
+            build.Status = ConvertBuildStatus(rawBuild.result);
+
+            return build;
         }
 
         #endregion

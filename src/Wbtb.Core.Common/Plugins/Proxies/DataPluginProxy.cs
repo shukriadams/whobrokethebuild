@@ -809,6 +809,17 @@ namespace Wbtb.Core.Common
             });
         }
 
+        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByTask(string task)
+        {
+            return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
+            {
+                FunctionName = "GetPendingDaemonTasksByTask",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "task", Value = task }
+                }
+            });
+        }
+
         #endregion
 
         #region BUILD INVOLVEMENT

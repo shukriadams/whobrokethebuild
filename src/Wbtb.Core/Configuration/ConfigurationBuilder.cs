@@ -144,7 +144,9 @@ namespace Wbtb.Core
                     });
 
                     IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
-                    buildServerPlugin.ImportAllCachedBuilds(job);
+                    IEnumerable<Build> builds = buildServerPlugin.GetAllCachedBuilds(job);
+                    foreach (Build build in builds)
+                        dataLayer.SaveBuild(build);
 
                     Console.WriteLine($"WBTB : SETUP : Created Job {jobConfig.Key} under build server {buildServerConfig.Key}");
                 }

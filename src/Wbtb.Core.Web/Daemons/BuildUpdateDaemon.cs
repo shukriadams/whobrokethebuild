@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using Wbtb.Core.Common;
+using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -57,6 +59,17 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.BuildEnd.ToString());
+
+            foreach(DaemonTask task in tasks)
+            {
+                Build build = dataLayer.GetBuildById(task.BuildId);
+                Job job = dataLayer.GetJobById(build.JobId);
+                BuildServer buildserver = dataLayer.GetBuildServerById(job.BuildServerId);
+                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
+                //if (build.EndedUtc == null)
+                //    build = buildServerPlugin.TryUpdateBuild()
+            }
 
             // start daemons - this should be folded into start
             foreach (BuildServer cfgbuildServer in _config.BuildServers)

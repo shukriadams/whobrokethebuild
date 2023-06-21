@@ -500,6 +500,11 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new DaemonTask[] { };
         }
 
+        public IEnumerable<DaemonTask> GetPendingDaemonTasksByTask(string task)
+        {
+            return new DaemonTask[] { };
+        }
+
         #endregion
     }
 }
