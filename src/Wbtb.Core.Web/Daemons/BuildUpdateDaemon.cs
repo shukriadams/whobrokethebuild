@@ -102,6 +102,8 @@ namespace Wbtb.Core.Web
                         // other processes that would still have to be carried out
                         foreach (Build build in importSummary.Ended)
                             _buildLevelPluginHelper.InvokeEvents("OnBuildEnd", job.OnBuildEnd, build);
+
+
                     }
                     catch (Exception ex)
                     {

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -7,7 +9,7 @@ namespace Wbtb.Core.Web
     /// <summary>
     /// Runs import build and import log on build systems.
     /// </summary>
-    public class BuildImportDaemon : IWebDaemon
+    public class BuildCreateDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -26,7 +28,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildImportDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BuildCreateDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
@@ -61,25 +63,16 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
-            // start daemons - this should be folded into start
             foreach (BuildServer cfgbuildServer in _config.BuildServers)
             {
                 BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
-                // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
-                if (buildServer == null)
-                    continue;
-
                 IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                 ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-
-                int count = 100;
-                if (buildServer.ImportCount.HasValue)
-                    count = buildServer.ImportCount.Value;
 
                 if (!reach.Reachable)
                 {
                     _log.LogError($"Buildserver {buildServer.Key} not reachable, job import aborted {reach.Error}{reach.Exception}");
-                    return;
+                    continue;
                 }
 
                 foreach (Job job in buildServer.Jobs)
@@ -87,20 +80,26 @@ namespace Wbtb.Core.Web
                     try
                     {
                         Job thisjob = dataLayer.GetJobByKey(job.Key);
-                        if (thisjob.ImportCount.HasValue)
-                            count = thisjob.ImportCount.Value;
+                        IEnumerable<Build> latestBuilds = buildServerPlugin.GetLatesBuilds(thisjob, job.ImportCount);
+                        // get latest page of build for quick lookup
+                        IEnumerable<Build> existingBuilds = dataLayer.PageBuildsByJob(thisjob.Id, 0, job.ImportCount * 2).Items;
 
-                        BuildImportSummary importSummary = buildServerPlugin.ImportBuilds(thisjob, count);
+                        foreach (Build latestBuild in latestBuilds) 
+                        {
+                            // check if incoming build is in latest page, this will happen most frequently, and is a cheap check
+                            if (existingBuilds.FirstOrDefault(b => b.Identifier == latestBuild.Identifier) != null)
+                                continue;
 
-                        // fire events
-                        // fires when a build record is created, no guarantee of other data surrounding build record
-                        foreach (Build build in importSummary.Created)
-                            _buildLevelPluginHelper.InvokeEvents("OnBuildStart", job.OnBuildStart, build);
+                            // make certain build doesnt't exist in db
+                            if (dataLayer.GetBuildByKey(thisjob.Id, latestBuild.Identifier) != null)
+                                continue;
 
-                        // fires when a build record gets its end date, there is no guarantee of build log state or 
-                        // other processes that would still have to be carried out
-                        foreach (Build build in importSummary.Ended)
-                            _buildLevelPluginHelper.InvokeEvents("OnBuildEnd", job.OnBuildEnd, build);
+                            dataLayer.SaveBuild(latestBuild);
+
+                            _buildLevelPluginHelper.InvokeEvents("OnBuildStart", job.OnBuildStart, latestBuild);
+                            
+                            // create next task in chain
+                        }
                     }
                     catch (Exception ex)
                     {

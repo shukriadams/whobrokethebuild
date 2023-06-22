@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
+using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -75,8 +77,124 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AddBuildRevisionsFromBuildLog.ToString());
 
-            // start daemons - this should be folded into start
+            foreach (DaemonTask task in tasks)
+            {
+                Build build = dataLayer.GetBuildById(task.BuildId);
+                Job job = dataLayer.GetJobById(build.JobId);
+                BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
+                SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
+                ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
+                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+
+                if (!reach.Reachable)
+                {
+                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                    continue;
+                }
+
+                reach = sourceServerPlugin.AttemptReach(sourceServer);
+                if (!reach.Reachable)
+                {
+                    _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                    continue;
+                }
+
+                string logText;
+                string revisionCode;
+
+                try
+                {
+                    logText = File.ReadAllText(build.LogPath);
+                    revisionCode = GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
+
+                }
+                catch (Exception ex)
+                {
+                    task.Result = ex.ToString();
+                    task.ProcessedUtc = DateTime.UtcNow;
+                    task.HasPassed = false;
+                    dataLayer.SaveDaemonTask(task);
+                    continue;
+                }
+
+                try
+                {
+                    if (string.IsNullOrEmpty(revisionCode))
+                    {
+                        task.Result = "Failed to parse revision from log.";
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = false;
+                        dataLayer.SaveDaemonTask(task);
+                        continue;
+                    }
+
+                    Revision revisionAtBuildTime = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
+
+                    !!!
+
+                    if (revisionAtBuildTime == null)
+                        continue;
+
+                    IList<Revision> revisionsToLink = new List<Revision>();
+                    revisionsToLink.Add(revisionAtBuildTime);
+
+                    // get previous build and if it has any revision on it, span the gap with current build
+                    Build previousBuild = dataLayer.GetPreviousBuild(build);
+                    if (previousBuild != null)
+                    {
+                        Revision lastRevisionOnPreviousBuild = dataLayer.GetNewestRevisionForBuild(previousBuild.Id);
+
+                        if (lastRevisionOnPreviousBuild != null)
+                            revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(sourceServer, lastRevisionOnPreviousBuild.Code, revisionAtBuildTime.Code)).ToList();
+                    }
+
+                    foreach (Revision revision in revisionsToLink)
+                    {
+                        if (dataLayer.GetRevisionByKey(revision.Code) == null)
+                        {
+                            revision.SourceServerId = sourceServer.Id;
+                            dataLayer.SaveRevision(revision);
+                        }
+
+                        dataLayer.SaveBuildInvolement(new BuildInvolvement
+                        {
+                            BuildId = build.Id,
+                            RevisionCode = revision.Code,
+                            RevisionLinkStatus = LinkState.Completed,
+                            InferredRevisionLink = revisionCode != revision.Code,
+                            RevisionId = revision.Id
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    dataLayer.SaveBuildFlag(new BuildFlag
+                    {
+                        BuildId = build.Id,
+                        Flag = BuildFlags.LogHasNoRevision,
+                        Description = $"Log parse failed with ex : {ex}"
+                    });
+
+                    Console.WriteLine($"Log parse failed with ex : {ex}");
+                }
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
             foreach (BuildServer cfgbuildServer in _config.BuildServers)
             {
                 BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
@@ -97,77 +215,7 @@ namespace Wbtb.Core.Web
 
                         foreach (Build build in builds)
                         {
-                            try 
-                            {
-                                // check if there are unmapped revisions, if so, wait until revision mapping daemon has had a chance to process
-                                if (dataLayer.GetBuildInvolvementsWithoutMappedRevisions(jobInDatabase.Id).Any())
-                                    break;
 
-                                string logText = buildServerPlugin.GetEphemeralBuildLog(build);
-                                string revisionCode = GetRevisionFromLog(logText, jobInDatabase.RevisionAtBuildRegex);
-                                
-                                if (string.IsNullOrEmpty(revisionCode))
-                                { 
-                                    if (build.Status == BuildStatus.Aborted || build.Status == BuildStatus.Failed || build.Status == BuildStatus.Passed)
-                                    {
-                                        // if no revisioncode detected and build has already clearly finished, give up trying to read revision from build.
-                                        // Else, try again later.
-                                        dataLayer.SaveBuildFlag(new BuildFlag
-                                        {
-                                            BuildId = build.Id,
-                                            Flag = BuildFlags.LogHasNoRevision,
-                                            Description = "Log likely has no revision indicator in it, abandoning processing"
-                                        });
-                                        Console.WriteLine($"Cannot parse revision from log for build {build.Identifier}");
-                                    }
-
-                                    continue;
-                                }
-
-                                Revision revisionAtBuildTime = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
-
-                                if (revisionAtBuildTime == null)
-                                    continue;
-
-                                IList<Revision> revisionsToLink = new List<Revision>();
-                                revisionsToLink.Add(revisionAtBuildTime);
-
-                                // get previous build and if it has any revision on it, span the gap with current build
-                                Build previousBuild = dataLayer.GetPreviousBuild(build);
-                                if (previousBuild != null)
-                                {
-                                    Revision lastRevisionOnPreviousBuild = dataLayer.GetNewestRevisionForBuild(previousBuild.Id);
-
-                                    if (lastRevisionOnPreviousBuild != null)
-                                        revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(sourceServer, lastRevisionOnPreviousBuild.Code, revisionAtBuildTime.Code)).ToList();
-                                }
-
-                                foreach (Revision revision in revisionsToLink){
-                                    if (dataLayer.GetRevisionByKey(revision.Code) == null){
-                                        revision.SourceServerId = sourceServer.Id;
-                                        dataLayer.SaveRevision(revision);
-                                    }
-
-                                    dataLayer.SaveBuildInvolement(new BuildInvolvement{
-                                        BuildId = build.Id,
-                                        RevisionCode = revision.Code,
-                                        RevisionLinkStatus = LinkState.Completed,
-                                        InferredRevisionLink = revisionCode != revision.Code,
-                                        RevisionId = revision.Id
-                                    });
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                dataLayer.SaveBuildFlag(new BuildFlag
-                                {
-                                    BuildId = build.Id,
-                                    Flag = BuildFlags.LogHasNoRevision,
-                                    Description = $"Log parse failed with ex : {ex}"
-                                });
-
-                                Console.WriteLine($"Log parse failed with ex : {ex}");
-                            }
                         }
                     }
                     catch (Exception ex)

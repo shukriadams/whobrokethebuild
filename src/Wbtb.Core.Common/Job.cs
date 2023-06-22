@@ -59,7 +59,7 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// Number of builds to import for this job. Overrides count set at build server. If not set falls back to default. 
         /// </summary>
-        public int? ImportCount { get; set; }
+        public int ImportCount { get; set; }
 
         /// <summary>
         /// Optional. Keys of log parser plugins to use to process build logs for this job
@@ -130,6 +130,7 @@ namespace Wbtb.Core.Common
             this.OnFixed = new List<string>();
             this.OnBroken = new List<string>();
             this.Enable = true;
+            this.ImportCount = 20;
         }
 
         #endregion

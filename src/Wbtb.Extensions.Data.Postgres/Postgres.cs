@@ -1909,7 +1909,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 FROM
                     daemontask
                 WHERE
-                    taskey = @task
+                    taskkey = @task
                     AND processedutc IS NULL
                 ORDER BY
                     createdutc ASC

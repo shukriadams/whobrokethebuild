@@ -3,10 +3,10 @@
     public enum DaemonTaskTypes
     {
         BuildEnd,
-        AddBuildRevisions,
+        AddBuildRevisionsFromBuildServer,
         RetrieveLog,
         AssignIncident,
-        ResolveRevisions,
+        AddBuildRevisionsFromBuildLog,
         ResolveUsers,
         ParseLog,
         AssignBlame,

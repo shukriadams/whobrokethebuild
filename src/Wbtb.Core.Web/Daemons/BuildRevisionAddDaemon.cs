@@ -59,56 +59,48 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AddBuildRevisions.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AddBuildRevisionsFromBuildServer.ToString());
 
-            // start daemons - this should be folded into start
-            foreach (BuildServer cfgbuildServer in _config.BuildServers)
+            foreach(DaemonTask task in tasks)
             {
-                BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
+                Build build = dataLayer.GetBuildById(task.BuildId);
+                Job job = dataLayer.GetJobById(build.JobId);
+                BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
                 IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                 ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
-                int count = 100;
-                if (buildServer.ImportCount.HasValue)
-                    count = buildServer.ImportCount.Value;
-
                 if (!reach.Reachable)
                 {
-                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import aborted {reach.Error}{reach.Exception}");
-                    return;
+                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                    continue;
                 }
 
-                foreach (Job job in buildServer.Jobs)
+                IEnumerable<string> revisionCodes = buildServerPlugin.GetRevisionsInBuild(build);
+                foreach (string revisionCode in revisionCodes)
                 {
                     try
                     {
-                        Job thisjob = dataLayer.GetJobByKey(job.Key);
-
-                        IEnumerable<string> buildRevisions = buildServerPlugin.GetRevisionsInBuild(thisjob);
-                        
-                        foreach (string buildRevision in buildRevisions)
+                        dataLayer.SaveBuildInvolement(new BuildInvolvement
                         {
-                            BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementByRevisionCode(build.Id, buildRevision);
-                            if (buildInvolvement == null)
-                            {
-                                buildInvolvement = new BuildInvolvement
-                                {
-                                    BuildId = build.Id,
-                                    RevisionCode = buildRevision
-                                };
+                            BuildId = build.Id,
+                            RevisionCode = revisionCode
+                        });
 
-                                dataLayer.SaveBuildInvolement(buildInvolvement);
-
-                                Console.WriteLine($"Added build involvement revision \"{buildInvolvement.RevisionCode}\" to build \"{build.Identifier}\".");
-                            }
-                        }
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = true;
+                        dataLayer.SaveDaemonTask(task);
                     }
                     catch (Exception ex)
                     {
-                        _log.LogError($"Unexpected error trying to import builds for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = false;
+                        task.Result = ex.ToString();
+                        dataLayer.SaveDaemonTask(task);
                     }
                 }
+
             }
+
         }
 
         #endregion

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
+using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web.Core
 {
@@ -62,48 +63,48 @@ namespace Wbtb.Core.Web.Core
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-
-            // start daemons - this should be folded into start
-            foreach (BuildServer cfgbuildServer in _config.BuildServers)
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.RetrieveLog.ToString());
+            
+            foreach (DaemonTask task in tasks)
             {
-                BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
-                // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
-                if (buildServer == null)
-                    continue;
-
+                Build build = dataLayer.GetBuildById(task.BuildId);
+                Job job = dataLayer.GetJobById(build.JobId);
+                BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
                 IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                 ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
-                int count = 100;
-                if (buildServer.ImportCount.HasValue)
-                    count = buildServer.ImportCount.Value;
-
                 if (!reach.Reachable)
                 {
-                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import aborted {reach.Error}{reach.Exception}");
-                    return;
+                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                    continue;
                 }
 
-                foreach (Job job in buildServer.Jobs)
+                try
                 {
-                    try
+                    build = buildServerPlugin.ImportLog(build);
+                    if (string.IsNullOrEmpty(build.LogPath)) 
                     {
-                        Job thisjob = dataLayer.GetJobByKey(job.Key);
-                        if (thisjob.ImportCount.HasValue)
-                            count = thisjob.ImportCount.Value;
-
-                        IEnumerable<Build> processedBuilds = buildServerPlugin.ImportLogs(thisjob);
-                        _log.LogInformation($"Imported {processedBuilds.Count()} logs.");
-
-                        foreach (Build build in processedBuilds)
-                            _buildLevelPluginHelper.InvokeEvents("OnLogAvailable", job.OnLogAvailable, build);
+                        task.Result = "Log retrieve exited normally, but saved no log.";
+                        task.ProcessedUtc = DateTime.Now;
+                        task.HasPassed = false;
+                        dataLayer.SaveDaemonTask(task);  
+                        continue;
                     }
-                    catch (Exception ex)
-                    {
-                        _log.LogError($"Unexpected error trying to import jobs/logs for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
-                    }
+                    
+                    dataLayer.SaveBuild(build);
+                    task.ProcessedUtc = DateTime.Now;
+                    task.HasPassed = true;
+                    dataLayer.SaveDaemonTask(task);
+                }
+                catch (Exception ex)
+                {
+                    task.Result = ex.ToString();
+                    task.ProcessedUtc = DateTime.Now;
+                    task.HasPassed = false;
+                    dataLayer.SaveDaemonTask(task);
                 }
             }
+
         }
 
         #endregion
