@@ -131,35 +131,41 @@ namespace Wbtb.Core.Web
                         continue;
                     }
 
-                    Revision revisionAtBuildTime = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
-
-                    !!!
-
-                    if (revisionAtBuildTime == null)
+                    Revision revisionInLog = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
+                    if (revisionInLog == null)
+                    {
+                        task.Result = $"Unable to retrieve revision details for {revisionCode}.";
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = false;
+                        dataLayer.SaveDaemonTask(task);
                         continue;
+                    }
 
-                    IList<Revision> revisionsToLink = new List<Revision>();
-                    revisionsToLink.Add(revisionAtBuildTime);
+                    IList<Revision> revisionsToLink = new List<Revision>() { revisionInLog };
 
                     // get previous build and if it has any revision on it, span the gap with current build
                     Build previousBuild = dataLayer.GetPreviousBuild(build);
                     if (previousBuild != null)
                     {
+                        // note : assumes previous build's revisions have been successfully resolved so their date is available
                         Revision lastRevisionOnPreviousBuild = dataLayer.GetNewestRevisionForBuild(previousBuild.Id);
-
                         if (lastRevisionOnPreviousBuild != null)
-                            revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(sourceServer, lastRevisionOnPreviousBuild.Code, revisionAtBuildTime.Code)).ToList();
+                            revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(sourceServer, lastRevisionOnPreviousBuild.Code, revisionInLog.Code)).ToList();
                     }
 
                     foreach (Revision revision in revisionsToLink)
                     {
-                        if (dataLayer.GetRevisionByKey(revision.Code) == null)
+                        bool revisionNeedsResolving = false;
+                        // if revision doesn't exist in db, add it
+                        if (dataLayer.GetRevisionByKey(sourceServer.Id, revision.Code) == null)
                         {
                             revision.SourceServerId = sourceServer.Id;
                             dataLayer.SaveRevision(revision);
+                            revisionNeedsResolving = true;
                         }
 
-                        dataLayer.SaveBuildInvolement(new BuildInvolvement
+                        // create build involvement for this revision
+                        BuildInvolvement buildInvolvement = dataLayer.SaveBuildInvolement(new BuildInvolvement
                         {
                             BuildId = build.Id,
                             RevisionCode = revision.Code,
@@ -167,6 +173,15 @@ namespace Wbtb.Core.Web
                             InferredRevisionLink = revisionCode != revision.Code,
                             RevisionId = revision.Id
                         });
+
+                        if (revisionNeedsResolving)
+                            dataLayer.SaveDaemonTask(new DaemonTask
+                            {
+                                BuildInvolvementId = buildInvolvement.Id,
+                                CreatedUtc = DateTime.UtcNow,
+                                Src = this.GetType().Name,
+                                TaskKey = DaemonTaskTypes.ResolveRevision.ToString()
+                            });
                     }
                 }
                 catch (Exception ex)

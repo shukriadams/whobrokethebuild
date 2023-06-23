@@ -1,5 +1,4 @@
 ﻿using Npgsql;
-using Npgsql.PostgresTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -2109,7 +2108,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Revision GetRevisionByKey(string key)
+        public Revision GetRevisionByKey(string sourceServerId, string key)
         {
             string query = @"
                 SELECT 
@@ -2117,12 +2116,14 @@ namespace Wbtb.Extensions.Data.Postgres
                 FROM 
                     revision
                 WHERE 
-                    code = @id";
+                    code = @id
+                    AND sourceserverid=@sourceserverid";
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             {
                 cmd.Parameters.AddWithValue("id", key);
+                cmd.Parameters.AddWithValue("sourceserverid", sourceServerId);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new RevisionConvert().ToCommon(reader);

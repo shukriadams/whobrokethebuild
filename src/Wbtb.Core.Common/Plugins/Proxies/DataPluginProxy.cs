@@ -991,12 +991,13 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Revision IDataPlugin.GetRevisionByKey(string key)
+        Revision IDataPlugin.GetRevisionByKey(string sourceServerId, string key)
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
                 FunctionName = "GetRevisionByKey",
                 Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "sourceServerId", Value = sourceServerId },
                     new PluginFunctionParameter { Name = "key", Value = key }
                 }
             });

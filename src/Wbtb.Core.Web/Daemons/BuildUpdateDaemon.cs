@@ -67,49 +67,37 @@ namespace Wbtb.Core.Web
                 Job job = dataLayer.GetJobById(build.JobId);
                 BuildServer buildserver = dataLayer.GetBuildServerById(job.BuildServerId);
                 IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
-                //if (build.EndedUtc == null)
-                //    build = buildServerPlugin.TryUpdateBuild()
-            }
 
-            // start daemons - this should be folded into start
-            foreach (BuildServer cfgbuildServer in _config.BuildServers)
-            {
-                BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
-                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-
-                int count = 100;
-                if (buildServer.ImportCount.HasValue)
-                    count = buildServer.ImportCount.Value;
-
-                if (!reach.Reachable)
-                {
-                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import aborted {reach.Error}{reach.Exception}");
-                    return;
+                // build is already marked as done, this should not happen
+                if (build.EndedUtc != null) 
+                { 
+                    task.ProcessedUtc = build.EndedUtc;
+                    task.HasPassed = false;
+                    task.Result = "Already finished";
+                    dataLayer.SaveDaemonTask(task);
+                    continue;
                 }
 
-                foreach (Job job in buildServer.Jobs)
-                {
-                    try
-                    {
-                        Job thisjob = dataLayer.GetJobByKey(job.Key);
-                        if (thisjob.ImportCount.HasValue)
-                            count = thisjob.ImportCount.Value;
+                build = buildServerPlugin.TryUpdateBuild(build);
 
-                        BuildImportSummary importSummary = new BuildImportSummary{ }; //;buildServerPlugin.ImportBuilds(thisjob, count);
+                // build still not done
+                if (!build.EndedUtc.HasValue)
+                    continue;
 
-                        // fires when a build record gets its end date, there is no guarantee of build log state or 
-                        // other processes that would still have to be carried out
-                        foreach (Build build in importSummary.Ended)
-                            _buildLevelPluginHelper.InvokeEvents("OnBuildEnd", job.OnBuildEnd, build);
+                dataLayer.SaveBuild(build);
 
+                task.HasPassed = true;
+                task.ProcessedUtc = DateTime.UtcNow;
+                dataLayer.SaveDaemonTask(task);
 
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError($"Unexpected error trying to import builds for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
-                    }
-                }
+                // create tasks for next stage
+                if (build.Status == BuildStatus.Failed) 
+                    dataLayer.SaveDaemonTask(new DaemonTask { 
+                        BuildId = build.Id,
+                        Src = this.GetType().Name,
+                        TaskKey = DaemonTaskTypes.AssignIncident.ToString()
+                    });
+
             }
         }
 

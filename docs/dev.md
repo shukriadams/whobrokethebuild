@@ -125,3 +125,5 @@ Wbtb handles build logic with a series of daemons. Each daemon is a process that
 - blame daemon. waits for log to be parsed, incident to assigned, revision to be resolved. modifies buildinvolvement.
 - calculate current delta. waits for all incident on a job to be completed, delta set to latest incident on job
 - alert on delta. waits for all tasks for a job to be done, then alerts if delta different from last reported delta. 
+
+Because build data is interrelated and results from one build can affect subsequent builds, builds are processed in series, one at a time, oldest to newest, and an error in the processing of one build will block all processing. 

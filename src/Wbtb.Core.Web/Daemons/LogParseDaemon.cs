@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Wbtb.Core.Common;
+using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -59,49 +59,23 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-
-            // start daemons - this should be folded into start
-            foreach (BuildServer cfgbuildServer in _config.BuildServers)
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AssignIncident.ToString());
+            foreach (DaemonTask task in tasks)
             {
-                BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
-                // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
-                if (buildServer == null)
-                    continue;
+                Build build = dataLayer.GetBuildById(task.BuildId);
+                Job job = dataLayer.GetJobById(build.JobId);
 
-                IList<(Build, ILogParserPlugin)> buildsToProcess = new List<(Build, ILogParserPlugin)>();
-                foreach (Job job in buildServer.Jobs.Where(job => job.LogParserPlugins.Any()))
+                foreach (string lopParserPlugin in job.LogParserPlugins)
                 {
-                    try
-                    {
-                        Job thisjob = dataLayer.GetJobByKey(job.Key);
-
-                        // get log parser plugins for job
-                        IList<ILogParserPlugin> logParsers = new List<ILogParserPlugin>();
-                        foreach(string lopParserPlugin in thisjob.LogParserPlugins)
-                            logParsers.Add(_pluginProvider.GetByKey(lopParserPlugin) as ILogParserPlugin);
-
-                        IEnumerable<Build> buildsWithUnparsedLogs = dataLayer.GetUnparsedBuildLogs(thisjob);
-                        foreach (Build buildWithUnparsedLogs in buildsWithUnparsedLogs)
-                            foreach (ILogParserPlugin parser in logParsers)
-                                buildsToProcess.Add((buildWithUnparsedLogs, parser));
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError($"Unexpected error trying to index jobs/logs for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
-                    }
+                    ILogParserPlugin parsr = _pluginProvider.GetByKey(lopParserPlugin) as ILogParserPlugin;
+                    _buildLogParseResultHelper.ProcessBuild(dataLayer, build, parsr, _log);
                 }
 
-                buildsToProcess.AsParallel().ForAll(delegate ((Build, ILogParserPlugin) buildToProcess) {
-                    try 
-                    {
-                        _buildLogParseResultHelper.ProcessBuild(dataLayer, buildToProcess.Item1, buildToProcess.Item2, _log);
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError($"Unexpected error trying to process jobs/logs for build id \"{buildToProcess.Item1.Id}\" from buildserver \"{buildServer.Key}\" : {ex}");
-                    }
-                });
+                task.ProcessedUtc = DateTime.UtcNow;
+                task.HasPassed = true;
+                dataLayer.SaveDaemonTask(task);
             }
+            
         }
 
         #endregion

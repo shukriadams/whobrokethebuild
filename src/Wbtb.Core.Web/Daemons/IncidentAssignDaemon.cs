@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Wbtb.Core.Common;
+using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -58,71 +59,46 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AssignIncident.ToString());
 
-            foreach (BuildServer cfgbuildServer in _config.BuildServers)
+            foreach (DaemonTask task in tasks)
             {
-                BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
-                // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
-                if (buildServer == null)
+                Build build = dataLayer.GetBuildById(task.BuildId);
+
+                Build previousBuild = dataLayer.GetPreviousBuild(build);
+                string description = string.Empty;
+                if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
+                {
+                    // this build is either the very first build in job and has failed (way to start!) or is the first build of sequence to fail,
+                    // mark it as the incident build
+                    build.IncidentBuildId = build.Id;
+                    dataLayer.SaveBuild(build);
+
+                    task.HasPassed = true;
+                    task.ProcessedUtc = DateTime.UtcNow;
+                    dataLayer.SaveDaemonTask(task);
+
                     continue;
-
-                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-
-                int count = 100;
-                if (buildServer.ImportCount.HasValue)
-                    count = buildServer.ImportCount.Value;
-
-                if (!reach.Reachable)
-                {
-                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import aborted {reach.Error}{reach.Exception}");
-                    return;
                 }
 
-                foreach (Job job in buildServer.Jobs)
+                // build is part of a continuing incident
+                if (previousBuild != null && !string.IsNullOrEmpty(previousBuild.IncidentBuildId))
                 {
-                    try
-                    {
-                        Job thisjob = dataLayer.GetJobByKey(job.Key);
-                        IEnumerable<Build> buildsWithoutIncident = dataLayer.GetFailingBuildsWithoutIncident(thisjob);
-                        foreach(Build buildWithoutIncident in buildsWithoutIncident)
-                        {
-                            Build previousBuild = dataLayer.GetPreviousBuild(buildWithoutIncident);
-                            string description = string.Empty;
-                            if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
-                            {
-                                // this build is either the very first build in job and has failed (way to start!) or is the first build of sequence to fail,
-                                // mark it as the incident build
-                                buildWithoutIncident.IncidentBuildId = buildWithoutIncident.Id;
-                                dataLayer.SaveBuild(buildWithoutIncident);
-                                description = $"Build {buildWithoutIncident.Identifier} has been assigned as its own incidentbuild";
-                                Console.WriteLine(description);
-                                continue;
-                            }
-                            
-                            // build is part of a continuing incident
-                            if (previousBuild != null && !string.IsNullOrEmpty(previousBuild.IncidentBuildId)){
-                                buildWithoutIncident.IncidentBuildId = previousBuild.IncidentBuildId;
-                                dataLayer.SaveBuild(buildWithoutIncident);
-                                description = $"Build {buildWithoutIncident.Identifier} has been assigned to incident {previousBuild.IncidentBuildId}";
-                                Console.WriteLine(description);
-                                continue;
-                            }
+                    build.IncidentBuildId = previousBuild.IncidentBuildId;
+                    dataLayer.SaveBuild(build);
 
-                            // if reach here, incidentbuild could not be set, create a buildflag record that prevents build from being re-processed
-                            dataLayer.SaveBuildFlag(new BuildFlag{ 
-                                BuildId = buildWithoutIncident.Id,
-                                Description = description,
-                                Flag = BuildFlags.IncidentBuildLinkError
-                            });
-                            Console.WriteLine($"Build {buildWithoutIncident.Identifier} in job {job.Key} failed incident set");
-                        }                        
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError($"Unexpected error trying to resolve revisions for {job.Key} from buildserver {buildServer.Key}: {ex}");
-                    }
+                    task.HasPassed = true;
+                    task.ProcessedUtc = DateTime.UtcNow;
+                    dataLayer.SaveDaemonTask(task);
+
+                    continue;
                 }
+
+                // if reach here, incidentbuild could not be set, create a buildflag record that prevents build from being re-processed
+                task.HasPassed = false;
+                task.ProcessedUtc = DateTime.UtcNow;
+                task.Result = "Failed to assign incident";
+                dataLayer.SaveDaemonTask(task);
             }
         }
 

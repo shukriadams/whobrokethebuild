@@ -249,7 +249,7 @@ namespace Wbtb.Core.Common
 
         Revision GetRevisionById(string id);
 
-        Revision GetRevisionByKey(string id);
+        Revision GetRevisionByKey(string sourceServerId, string key);
 
         Revision GetNewestRevisionForBuild(string buildId);
 

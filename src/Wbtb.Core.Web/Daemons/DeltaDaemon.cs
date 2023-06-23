@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using Wbtb.Core.Common;
+using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -58,75 +58,43 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-
-            // start daemons - this should be folded into start
-            foreach (BuildServer cfgbuildServer in _config.BuildServers)
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.CalculateDelta.ToString());
+            foreach (DaemonTask task in tasks)
             {
-                BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
-                // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
-                if (buildServer == null)
+                Build build = dataLayer.GetBuildById(task.BuildId);
+                Job job = dataLayer.GetJobById(build.JobId);
+
+                // handle current state of game
+                Build latestBuild = dataLayer.GetLatestBuildByJob(job);
+                Build previousDeltaBuild = dataLayer.GetLastJobDelta(job.Id);
+
+                // no builds for this job yet
+                if (latestBuild == null)
                     continue;
 
-                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+                // ignore builds that don't have incidents yet, they need processing by the incident assign daemon first
+                if (latestBuild.Status == BuildStatus.Failed && latestBuild.IncidentBuildId == null)
+                    continue;
 
-                int count = 100;
-                if (buildServer.ImportCount.HasValue)
-                    count = buildServer.ImportCount.Value;
-
-                if (!reach.Reachable)
+                // this build is first, so it is the first delta
+                if (previousDeltaBuild == null)
                 {
-                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import aborted {reach.Error}{reach.Exception}");
-                    return;
+                    dataLayer.SaveJobDelta(latestBuild);
                 }
-
-                foreach (Job job in buildServer.Jobs)
+                else
                 {
-                    try
+                    if (latestBuild.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
                     {
-                        Job thisjob = dataLayer.GetJobByKey(job.Key);
-
-                        // handle current state of game
-                        Build latestBuild = dataLayer.GetLatestBuildByJob(thisjob);
-                        Build previousDeltaBuild = dataLayer.GetLastJobDelta(thisjob.Id);
-
-                        // no builds for this job yet
-                        if (latestBuild == null)
-                            continue;
-
-                        // ignore builds that don't have incidents yet, they need processing by the incident assign daemon first
-                        if (latestBuild.Status == BuildStatus.Failed && latestBuild.IncidentBuildId == null)
-                            continue;
-
-                        Build buildtoInformOn = previousDeltaBuild;
-                        if (buildtoInformOn == null)
-                            buildtoInformOn = latestBuild;
-
-                        // this build is first, so it is the first delta
-                        if (previousDeltaBuild == null)
-                        {
-                            dataLayer.SaveJobDelta(latestBuild);
-                        }
-                        else
-                        {
-                            if (latestBuild.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
-                            {
-                                // build has gone from passing to failing
-                                dataLayer.SaveJobDelta(latestBuild);
-                            }
-                            else if (latestBuild.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
-                            {
-                                // build has gone from failing to passing
-                                dataLayer.SaveJobDelta(latestBuild);
-                            }
-                        }
+                        // build has gone from passing to failing
+                        dataLayer.SaveJobDelta(latestBuild);
                     }
-                    catch (Exception ex)
+                    else if (latestBuild.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
                     {
-                        _log.LogError($"Unexpected error trying to import builds for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
+                        // build has gone from failing to passing
+                        dataLayer.SaveJobDelta(latestBuild);
                     }
-                } //foreach job
-            } // foreach buildserver
+                }
+            }
         }
 
         #endregion

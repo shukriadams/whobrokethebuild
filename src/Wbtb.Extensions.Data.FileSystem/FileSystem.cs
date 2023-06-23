@@ -254,7 +254,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Revision { };
         }
 
-        public Revision GetRevisionByKey(string key)
+        public Revision GetRevisionByKey(string sourceServerId, string key)
         {
             return new Revision { };
         }

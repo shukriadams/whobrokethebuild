@@ -591,7 +591,7 @@ CREATE TABLE public."daemontask"
     processedutc timestamp(4) without time zone,
     passed boolean,
     result text COLLATE pg_catalog."default",
-    CONSTRAINT "daemontask_compoundkey" UNIQUE (buildid, taskkey),
+    CONSTRAINT "daemontask_compoundkey" UNIQUE (buildid, buildinvolvementid, taskkey),
     CONSTRAINT "daemontask_buildid_fk" FOREIGN KEY (buildid)
         REFERENCES public."build" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
