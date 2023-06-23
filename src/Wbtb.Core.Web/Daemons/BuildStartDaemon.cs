@@ -3,13 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
+using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
     /// <summary>
     /// Runs import build and import log on build systems.
     /// </summary>
-    public class BuildCreateDaemon : IWebDaemon
+    public class BuildStartDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -28,7 +29,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildCreateDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BuildStartDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
@@ -79,10 +80,10 @@ namespace Wbtb.Core.Web
                 {
                     try
                     {
-                        Job thisjob = dataLayer.GetJobByKey(job.Key);
-                        IEnumerable<Build> latestBuilds = buildServerPlugin.GetLatesBuilds(thisjob, job.ImportCount);
+                        Job jobInDB = dataLayer.GetJobByKey(job.Key);
+                        IEnumerable<Build> latestBuilds = buildServerPlugin.GetLatesBuilds(jobInDB, job.ImportCount);
                         // get latest page of build for quick lookup
-                        IEnumerable<Build> existingBuilds = dataLayer.PageBuildsByJob(thisjob.Id, 0, job.ImportCount * 2).Items;
+                        IEnumerable<Build> existingBuilds = dataLayer.PageBuildsByJob(jobInDB.Id, 0, job.ImportCount * 2).Items;
 
                         foreach (Build latestBuild in latestBuilds) 
                         {
@@ -91,14 +92,21 @@ namespace Wbtb.Core.Web
                                 continue;
 
                             // make certain build doesnt't exist in db
-                            if (dataLayer.GetBuildByKey(thisjob.Id, latestBuild.Identifier) != null)
+                            if (dataLayer.GetBuildByKey(jobInDB.Id, latestBuild.Identifier) != null)
                                 continue;
 
-                            dataLayer.SaveBuild(latestBuild);
+                            latestBuild.JobId = jobInDB.Id;
+                            string buildId = dataLayer.SaveBuild(latestBuild).Id;
 
                             _buildLevelPluginHelper.InvokeEvents("OnBuildStart", job.OnBuildStart, latestBuild);
-                            
+
                             // create next task in chain
+                            dataLayer.SaveDaemonTask(new DaemonTask{
+                                TaskKey = DaemonTaskTypes.BuildEnd.ToString(),
+                                Order = 0,
+                                Src = this.GetType().Name,
+                                BuildId = buildId
+                            });
                         }
                     }
                     catch (Exception ex)

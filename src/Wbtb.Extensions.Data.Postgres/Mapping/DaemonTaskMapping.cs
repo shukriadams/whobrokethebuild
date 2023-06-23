@@ -12,6 +12,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
             collection.AddWithValue("signature", record.Signature);
             collection.AddWithValue("buildid", record.BuildId);
+            collection.AddWithValue("order", record.Order);
             collection.AddWithValue("taskkey", record.TaskKey);
             collection.AddWithValue("src", record.Src);
             collection.AddWithValue("buildinvolvevmentid", record.BuildInvolvementId == null ? (object)DBNull.Value : record.BuildInvolvementId);

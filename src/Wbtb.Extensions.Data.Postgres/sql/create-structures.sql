@@ -586,6 +586,7 @@ CREATE TABLE public."daemontask"
     buildid integer NOT NULL,
     taskkey character varying(256) COLLATE pg_catalog."default" NOT NULL,
     buildinvolvementid integer,
+    "order" integer NOT NULL,
     src character varying(256) COLLATE pg_catalog."default",
     createdutc timestamp(4) without time zone NOT NULL,
     processedutc timestamp(4) without time zone,

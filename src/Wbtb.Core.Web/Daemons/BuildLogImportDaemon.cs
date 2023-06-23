@@ -63,7 +63,7 @@ namespace Wbtb.Core.Web.Core
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.RetrieveLog.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.LogImport.ToString());
             
             foreach (DaemonTask task in tasks)
             {
@@ -95,6 +95,23 @@ namespace Wbtb.Core.Web.Core
                     task.ProcessedUtc = DateTime.Now;
                     task.HasPassed = true;
                     dataLayer.SaveDaemonTask(task);
+
+                    // create tasks for next stage
+                    dataLayer.SaveDaemonTask(new DaemonTask
+                    {
+                        BuildId = build.Id,
+                        Src = this.GetType().Name,
+                        Order = 3,
+                        TaskKey = DaemonTaskTypes.LogParse.ToString()
+                    });
+
+                    dataLayer.SaveDaemonTask(new DaemonTask
+                    {
+                        BuildId = build.Id,
+                        Src = this.GetType().Name,
+                        Order = 2,
+                        TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildLog.ToString()
+                    });
                 }
                 catch (Exception ex)
                 {

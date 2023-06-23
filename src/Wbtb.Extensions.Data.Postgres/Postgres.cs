@@ -340,8 +340,8 @@ namespace Wbtb.Extensions.Data.Postgres
             if (firstBuild != null)
                 stats.StartUtc = firstBuild.StartedUtc;
 
-            if (firstBuild != null && stats.LatestBuild != null)
-                stats.JobDuration = stats.LatestBuild.StartedUtc - firstBuild.StartedUtc;
+            if (firstBuild != null && stats.LatestBuild != null && stats.LatestBuild.EndedUtc != null)
+                stats.JobDuration = stats.LatestBuild.EndedUtc - firstBuild.StartedUtc;
 
             // latest broken build, this is a simply the last build with status = broken, not the build that broke the job
             string latestBrokenBuildQuery = @"
@@ -1922,6 +1922,28 @@ namespace Wbtb.Extensions.Data.Postgres
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new DaemonTaskConvert().ToCommonList(reader);
+            }
+        }
+
+        public bool HasTasksBelow(string buildId, int order)
+        {
+            string sql = @"
+                SELECT
+                    COUNT(id)
+                FROM
+                    daemontask
+                WHERE
+                    buildid = @buildid
+                    AND order < @order";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            {
+                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
+                cmd.Parameters.AddWithValue("order", order);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return reader.GetInt32(0) == 0;
             }
         }
 

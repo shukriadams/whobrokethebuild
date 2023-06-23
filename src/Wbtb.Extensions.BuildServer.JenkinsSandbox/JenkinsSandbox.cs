@@ -185,6 +185,9 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         private RawBuild LoadRawBuild(string path)
         {
             string fileContent;
+            if (!File.Exists(path))
+                throw new Exception($"expected raw build file {path} not found.");
+
             try
             {
                 fileContent = File.ReadAllText(path);
@@ -211,7 +214,11 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         public IEnumerable<Build> GetAllCachedBuilds(Job job)
         {
             IList<Build> builds = new List<Build>();
-            IEnumerable<string> completeBuildFiles = Directory.GetFiles(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete"));
+            string lookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete");
+            if (!Directory.Exists(lookupPath))
+                return new Build[] { };
+
+            IEnumerable<string> completeBuildFiles = Directory.GetFiles(lookupPath);
 
             foreach (string completeBuildFile in completeBuildFiles)
             {

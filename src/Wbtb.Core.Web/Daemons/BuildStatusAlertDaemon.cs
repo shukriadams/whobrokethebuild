@@ -64,7 +64,7 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.CalculateDelta.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.DeltaChangeAlert.ToString());
             foreach (DaemonTask task in tasks)
             {
                 Build build = dataLayer.GetBuildById(task.BuildId);

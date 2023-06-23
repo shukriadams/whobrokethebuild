@@ -504,6 +504,10 @@ namespace Wbtb.Extensions.Data.FileSystem
         {
             return new DaemonTask[] { };
         }
+        public bool HasTasksBelow(string buildId, int order)
+        {
+            return false;
+        }
 
         #endregion
     }

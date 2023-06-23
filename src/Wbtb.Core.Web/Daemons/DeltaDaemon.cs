@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
@@ -58,7 +59,7 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.CalculateDelta.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.DeltaCalculate.ToString());
             foreach (DaemonTask task in tasks)
             {
                 Build build = dataLayer.GetBuildById(task.BuildId);
@@ -94,6 +95,17 @@ namespace Wbtb.Core.Web
                         dataLayer.SaveJobDelta(latestBuild);
                     }
                 }
+
+                task.HasPassed = true;
+                task.ProcessedUtc = DateTime.UtcNow;
+                dataLayer.SaveDaemonTask(task);
+
+                dataLayer.SaveDaemonTask(new DaemonTask { 
+                    BuildId = build.Id,
+                    Src = this.GetType().Name,
+                    Order = 4,
+                    TaskKey = DaemonTaskTypes.DeltaChangeAlert.ToString()
+                });
             }
         }
 

@@ -820,6 +820,18 @@ namespace Wbtb.Core.Common
             });
         }
 
+        bool IDataPlugin.HasTasksBelow(string buildId, int order)
+        {
+            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
+            {
+                FunctionName = "TaskCountBelow",
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "buildId", Value = buildId },
+                    new PluginFunctionParameter { Name = "order", Value = order }
+                }
+            });
+        }
+
         #endregion
 
         #region BUILD INVOLVEMENT
@@ -1167,3 +1179,4 @@ namespace Wbtb.Core.Common
         #endregion
     }
 }
+

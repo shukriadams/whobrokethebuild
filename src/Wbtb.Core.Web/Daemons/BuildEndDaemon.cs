@@ -6,7 +6,7 @@ using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
-    public class BuildUpdateDaemon : IWebDaemon
+    public class BuildEndDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -25,7 +25,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildUpdateDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BuildEndDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
@@ -91,13 +91,29 @@ namespace Wbtb.Core.Web
                 dataLayer.SaveDaemonTask(task);
 
                 // create tasks for next stage
+                dataLayer.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = build.Id,
+                    Src = this.GetType().Name,
+                    Order = 1,
+                    TaskKey = DaemonTaskTypes.LogImport.ToString()
+                });
+
+                dataLayer.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = build.Id,
+                    Src = this.GetType().Name,
+                    Order = 4,
+                    TaskKey = DaemonTaskTypes.DeltaCalculate.ToString()
+                });
+
                 if (build.Status == BuildStatus.Failed) 
                     dataLayer.SaveDaemonTask(new DaemonTask { 
                         BuildId = build.Id,
                         Src = this.GetType().Name,
-                        TaskKey = DaemonTaskTypes.AssignIncident.ToString()
+                        Order = 1,
+                        TaskKey = DaemonTaskTypes.IncidentAssign.ToString()
                     });
-
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
 
@@ -59,23 +60,39 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AssignIncident.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.LogParse.ToString());
             foreach (DaemonTask task in tasks)
             {
-                Build build = dataLayer.GetBuildById(task.BuildId);
-                Job job = dataLayer.GetJobById(build.JobId);
-
-                foreach (string lopParserPlugin in job.LogParserPlugins)
+                try
                 {
-                    ILogParserPlugin parsr = _pluginProvider.GetByKey(lopParserPlugin) as ILogParserPlugin;
-                    _buildLogParseResultHelper.ProcessBuild(dataLayer, build, parsr, _log);
+                    Build build = dataLayer.GetBuildById(task.BuildId);
+                    Job job = dataLayer.GetJobById(build.JobId);
+
+                    job.LogParserPlugins.AsParallel().ForAll(delegate (string lopParserPlugin) {
+                        try
+                        {
+                            ILogParserPlugin parser = _pluginProvider.GetByKey(lopParserPlugin) as ILogParserPlugin;
+                            _buildLogParseResultHelper.ProcessBuild(dataLayer, build, parser, _log);
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.LogError($"Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin \"{lopParserPlugin}\" : {ex}");
+                        }
+                    });
+
+                    task.HasPassed = true;
+                }
+                catch (Exception ex)
+                {
+                    task.HasPassed = false;
+                    task.Result = ex.ToString();
                 }
 
                 task.ProcessedUtc = DateTime.UtcNow;
-                task.HasPassed = true;
                 dataLayer.SaveDaemonTask(task);
+
             }
-            
+
         }
 
         #endregion

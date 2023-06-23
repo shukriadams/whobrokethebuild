@@ -231,6 +231,8 @@ namespace Wbtb.Core.Common
         /// <returns></returns>
         IEnumerable<DaemonTask> GetPendingDaemonTasksByTask(string task);
 
+        bool HasTasksBelow(string buildId, int order);
+
         #endregion
 
         #region BUILD PROCESSOR

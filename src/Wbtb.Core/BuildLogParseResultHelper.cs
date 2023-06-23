@@ -30,7 +30,6 @@ namespace Wbtb.Core
                 if (buildWithUnparsedLogs.Status == BuildStatus.Failed)
                     logParserResult.ParsedContent = parser.Parse(rawLog);
 
-
                 dataLayer.SaveBuildLogParseResult(logParserResult);
                 Console.WriteLine($"Parsed log for build id {buildWithUnparsedLogs.Id} with plugin {logParserResult.LogParserPlugin}");
             }

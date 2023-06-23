@@ -4,14 +4,14 @@
     {
         BuildEnd,
         AddBuildRevisionsFromBuildServer,
-        RetrieveLog,
-        AssignIncident,
+        LogImport,
+        IncidentAssign,
         AddBuildRevisionsFromBuildLog,
-        ResolveUser,
-        ResolveRevision,
-        ParseLog,
+        UserResolve,
+        RevisionResolve,
+        LogParse,
         AssignBlame,
-        CalculateDelta,
-        AlertDeltaChange
+        DeltaCalculate,
+        DeltaChangeAlert
     }
 }

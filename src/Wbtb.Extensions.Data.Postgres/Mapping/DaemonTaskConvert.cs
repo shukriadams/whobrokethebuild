@@ -14,6 +14,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 Id = reader["id"].ToString(),
                 Signature = reader["signature"].ToString(),
                 BuildId = reader["buildid"].ToString(),
+                Order = int.Parse(reader["order"].ToString()),
                 BuildInvolvementId = reader["buildinvolvementid"] == DBNull.Value ? null : reader["buildinvolvementid"].ToString(),
                 CreatedUtc = DateTime.Parse(reader["createdutc"].ToString()),
                 ProcessedUtc = reader["processedutc"] == DBNull.Value ? null : DateTime.Parse(reader["processedutc"].ToString()),

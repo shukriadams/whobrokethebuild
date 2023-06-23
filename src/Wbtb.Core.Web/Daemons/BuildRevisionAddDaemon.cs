@@ -80,15 +80,23 @@ namespace Wbtb.Core.Web
                 {
                     try
                     {
-                        dataLayer.SaveBuildInvolement(new BuildInvolvement
+                        string biID = dataLayer.SaveBuildInvolement(new BuildInvolvement
                         {
                             BuildId = build.Id,
                             RevisionCode = revisionCode
-                        });
+                        }).Id;
 
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.HasPassed = true;
                         dataLayer.SaveDaemonTask(task);
+
+                        dataLayer.SaveDaemonTask(new DaemonTask { 
+                            TaskKey = DaemonTaskTypes.RevisionResolve.ToString(),
+                            BuildId = build.Id,
+                            BuildInvolvementId = biID,
+                            Src = this.GetType().Name,
+                            Order = 2,
+                        });
                     }
                     catch (Exception ex)
                     {

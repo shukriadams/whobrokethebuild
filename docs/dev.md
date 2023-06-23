@@ -114,16 +114,38 @@ plugins get passed an instance of config which they must keep alive themselves
 ## Daemon order
 
 Wbtb handles build logic with a series of daemons. Each daemon is a process that runs on its own thread and processes a "stage" in the lifecycle of a build. A given daemon will process a given build or a child record of a build by reading the database for DaemonTask records. Tasks are completed in order, and can be used to queue and track work.
+---------------------------------------------------------
+0
+- build create daemon > runs unrestricted, not tied to any daemontasks. polls build server for new builds, writes those builds to db. creates. OUT : BuildEnd.
 
-- build update daemon > Task:BuildComplete. This daemon marks build as complete. Ensures that builds are forced abandoned if they time out from server. Creates revisopn resolve tasks if readrevfromlog not set on job. Creates buildinvolvements.
-- assign incident to build. Waits for build update.
-- log import > imports log from build server. waits for build to be marked complete. writes logprocesstask for each logprocessor on job
+- build end daemon > IN:BuildEnd. This daemon marks build as complete. Ensures that builds are forced abandoned if they time out from server. Creates revisopn resolve tasks if readrevfromlog not set on job. Creates buildinvolvements. OUT : IncidentAssign, LogImport.
+---------------------------------------------------------
+1
+- assign incident to build. IN: IncidentAssign.
+
+- log import > imports log from build server. waits for build to be marked complete. writes logprocesstask for each logprocessor on job . OUT. LogParse, ReadRevisionFromLog
+
+---------------------------------------------------------
+2 
 - read revision in log > Task:ReadRevisionFromLog. Reads revision in log once log imported, create buildinvolvements for that revision + preceeding one. Waits for log to be imported. Used only on jobs with readrevfromlog enabled. Creates buildinvolvements. Creates revisionresolve tasks. 
+
 - resolve buildinvolvement revisions from source control > processes revision resolve tasks. Creates resolveuser tasks. modifies buildinvolvement.
+---------------------------------------------------------
+3
+- parse build log. IN : LogParse
+waits for logprocesstask, logparsers can be run in parallel
+
+- resolve revisions from source control
+
 - resolve user on buildinvolvement. Waits for revision resolve. modifies buildinvolvement.
-- parse build log. waits for logprocesstask, logparsers can be run in parallel
+---------------------------------------------------------
+4
 - blame daemon. waits for log to be parsed, incident to assigned, revision to be resolved. modifies buildinvolvement.
+
 - calculate current delta. waits for all incident on a job to be completed, delta set to latest incident on job
+
 - alert on delta. waits for all tasks for a job to be done, then alerts if delta different from last reported delta. 
+
+---------------------------------------------------------
 
 Because build data is interrelated and results from one build can affect subsequent builds, builds are processed in series, one at a time, oldest to newest, and an error in the processing of one build will block all processing. 

@@ -177,10 +177,11 @@ namespace Wbtb.Core.Web
                         if (revisionNeedsResolving)
                             dataLayer.SaveDaemonTask(new DaemonTask
                             {
+                                BuildId = build.Id,
                                 BuildInvolvementId = buildInvolvement.Id,
-                                CreatedUtc = DateTime.UtcNow,
                                 Src = this.GetType().Name,
-                                TaskKey = DaemonTaskTypes.ResolveRevision.ToString()
+                                TaskKey = DaemonTaskTypes.RevisionResolve.ToString(),
+                                Order = 3,
                             });
                     }
                 }
