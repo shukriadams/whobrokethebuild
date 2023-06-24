@@ -11,49 +11,41 @@ namespace Wbtb.Core.Common
             _pluginSender = pluginSender;
         }
 
-        public void Diagnose()
+        void IPlugin.Diagnose()
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "Diagnose"
+                FunctionName = nameof(IPlugin.Diagnose)
             });
         }
 
-        public string Verify()
-        {
-            return _pluginSender.InvokeMethod<string>(this, new PluginArgs
-            {
-                FunctionName = "Verify"
-            });
-        }
-
-        public void VerifySourceServerConfig(SourceServer contextServer)
+        void ISourceServerPlugin.VerifySourceServerConfig(SourceServer contextServer)
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "VerifySourceServerConfig",
+                FunctionName = nameof(ISourceServerPlugin.VerifySourceServerConfig),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "contextServer", Value = contextServer }
                 }
             });
         }
 
-        public ReachAttemptResult AttemptReach(SourceServer contextServer)
+        ReachAttemptResult ISourceServerPlugin.AttemptReach(SourceServer contextServer)
         {
             return _pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs
             {
-                FunctionName = "AttemptReach",
+                FunctionName = nameof(ISourceServerPlugin.AttemptReach),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "contextServer", Value = contextServer }
                 }
             });
         }
 
-        public IEnumerable<Revision> GetRevisionsBetween(SourceServer contextServer, string revisionStart, string revisionEnd)
+        IEnumerable<Revision> ISourceServerPlugin.GetRevisionsBetween(SourceServer contextServer, string revisionStart, string revisionEnd)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Revision>>(this, new PluginArgs
             {
-                FunctionName = "GetRevisionsBetween",
+                FunctionName = nameof(ISourceServerPlugin.GetRevisionsBetween),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "contextServer", Value = contextServer },
                     new PluginFunctionParameter { Name = "revisionStart", Value = revisionStart },
@@ -62,11 +54,11 @@ namespace Wbtb.Core.Common
             });
         }
 
-        public Revision GetRevision(SourceServer contextServer, string revisionCode)
+        Revision ISourceServerPlugin.GetRevision(SourceServer contextServer, string revisionCode)
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
-                FunctionName = "GetRevision",
+                FunctionName = nameof(ISourceServerPlugin.GetRevision),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "contextServer", Value = contextServer },
                     new PluginFunctionParameter { Name = "revisionCode", Value = revisionCode }

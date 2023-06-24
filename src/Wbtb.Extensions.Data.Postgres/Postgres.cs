@@ -468,9 +468,10 @@ namespace Wbtb.Extensions.Data.Postgres
         public int ResetJob(string jobId, bool hard)
         {
             int affected = 0;
-
-            // remove build involvements
-            string removeBuildInvolvements = @"
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig)) 
+            {
+                // remove build involvements
+                string removeBuildInvolvements = @"
                 DELETE FROM 
                     buildinvolvement 
                 USING 
@@ -479,15 +480,14 @@ namespace Wbtb.Extensions.Data.Postgres
                     build.id = buildinvolvement.buildid
                     AND build.jobid = @jobid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(removeBuildInvolvements, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                affected += cmd.ExecuteNonQuery();
-            }
+                using (NpgsqlCommand cmd = new NpgsqlCommand(removeBuildInvolvements, connection))
+                {
+                    cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                    affected += cmd.ExecuteNonQuery();
+                }
 
-            // reset build log parsed result
-            string logreset = @"
+                // reset build log parsed result
+                string logreset = @"
                 DELETE FROM
                     buildlogparseresult
                 USING
@@ -496,15 +496,14 @@ namespace Wbtb.Extensions.Data.Postgres
                     build.id = buildlogparseresult.buildid
                     AND build.jobid = @jobid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                affected += cmd.ExecuteNonQuery();
-            }
+                using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, connection))
+                {
+                    cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                    affected += cmd.ExecuteNonQuery();
+                }
 
-            // remove buildflags for job
-            string resetFlags = @"
+                // remove buildflags for job
+                string resetFlags = @"
                 DELETE FROM 
                     buildflag
                 USING
@@ -512,47 +511,59 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     build.jobid = @jobid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(resetFlags, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                affected += cmd.ExecuteNonQuery();
-            }
+                using (NpgsqlCommand cmd = new NpgsqlCommand(resetFlags, connection))
+                {
+                    cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                    affected += cmd.ExecuteNonQuery();
+                }
 
-            if (hard)
-            {
-                // delete all builds
-                string delete = @"
+                // remove buildflags for job
+                string deltaClear = @"
+                DELETE FROM 
+                    jobdelta
+                WHERE
+                    jobid = @jobid";
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(deltaClear, connection))
+                {
+                    cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                    affected += cmd.ExecuteNonQuery();
+                }
+
+                if (hard)
+                {
+                    // delete all builds
+                    string delete = @"
                     DELETE FROM 
                         build 
                     WHERE 
                         jobid = @jobid";
 
-                using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-                using (NpgsqlCommand cmd = new NpgsqlCommand(delete, connection))
-                {
-                    cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                    affected += cmd.ExecuteNonQuery();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(delete, connection))
+                    {
+                        cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                        affected += cmd.ExecuteNonQuery();
+                    }
                 }
-            }
-            else
-            {
-                // clear incident builds 
-                string incidentReset = @"
-                    UPDATE 
-                        build 
-                    SET
-                        incidentbuildid = NULL
-                    WHERE 
-                        jobid = @jobid";
+                else
+                {
+                    // clear incident builds 
+                    string incidentReset = @"
+                        UPDATE 
+                            build 
+                        SET
+                            incidentbuildid = NULL
+                        WHERE 
+                            jobid = @jobid";
 
-                using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReset, connection))
-                {
-                    cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                    affected += cmd.ExecuteNonQuery();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReset, connection))
+                    {
+                        cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                        affected += cmd.ExecuteNonQuery();
+                    }
                 }
             }
+
 
             return affected;
         }
@@ -1880,7 +1891,7 @@ namespace Wbtb.Extensions.Data.Postgres
             return PostgresCommon.Delete(this.ContextPluginConfig, "daemontask", "id", record.Id);
         }
 
-        public IEnumerable<DaemonTask> GetDaemonTaskByBuild(string buildid)
+        public IEnumerable<DaemonTask> GetDaemonsTaskByBuild(string buildid)
         {
             string sql = @"
                 SELECT
@@ -1925,7 +1936,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public bool HasTasksBelow(string buildId, int order)
+        public bool DaemonTasksBlocked(string buildId, int order)
         {
             string sql = @"
                 SELECT
@@ -1934,6 +1945,10 @@ namespace Wbtb.Extensions.Data.Postgres
                     daemontask
                 WHERE
                     buildid = @buildid
+                    AND (
+                        processedUtc is NULL
+                        OR passed = False
+                    )
                     AND order < @order";
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))

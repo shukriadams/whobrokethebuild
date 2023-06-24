@@ -44,7 +44,6 @@ namespace Wbtb.Core.CLI
             string jobkey = switches.Get("job");
             bool hard = switches.Contains("hard");
 
-            SimpleDI di = new SimpleDI();
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobByKey(jobkey);
             if (job == null)

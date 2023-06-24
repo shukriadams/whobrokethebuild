@@ -41,6 +41,8 @@ namespace Wbtb.Core.Web
 
         public IEnumerable<BuildFlag> BuildFlags { get; set; }
 
+        public IEnumerable<DaemonTask> DaemonTasks { get; set; }
+
         /// <summary>
         /// true if broken alerts for this build have been sent, and cane be retracted
         /// </summary>
@@ -66,6 +68,7 @@ namespace Wbtb.Core.Web
             this.BuildInvolvements = new List<ViewBuildInvolvement>();
             this.BuildFlags = new List<BuildFlag>();
             this.buildProcessors = new List<BuildProcessor>();
+            this.DaemonTasks = new List<DaemonTask>();
         }
     }
 }

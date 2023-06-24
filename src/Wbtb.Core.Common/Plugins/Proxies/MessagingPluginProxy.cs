@@ -9,30 +9,30 @@
             _pluginSender = pluginSender;
         }
 
-        public void Diagnose()
+        void IPlugin.Diagnose()
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "Diagnose"
+                FunctionName = nameof(IPlugin.Diagnose)
             });
         }
 
-        public string TestHandler(MessageConfiguration alertHandler)
+        string IMessagingPlugin.TestHandler(MessageConfiguration alertHandler)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
-                FunctionName = "TestHandler",
+                FunctionName = nameof(IMessagingPlugin.TestHandler),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "alertHandler", Value = alertHandler }
                 }
             });
         }
 
-        public string AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
+        string IMessagingPlugin.AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
-                FunctionName = "AlertBreaking",
+                FunctionName = nameof(IMessagingPlugin.AlertBreaking),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "alertHandler", Value = alertHandler },
                     new PluginFunctionParameter { Name = "incidentBuild", Value = incidentBuild }
@@ -40,11 +40,11 @@
             });
         }
 
-        public string AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
+        string IMessagingPlugin.AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
-                FunctionName = "AlertCustomPassing",
+                FunctionName = nameof(IMessagingPlugin.AlertPassing),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "alertHandler", Value = alertHandler },
                     new PluginFunctionParameter { Name = "incidentBuild", Value = incidentBuild },
@@ -53,22 +53,22 @@
             });
         }
 
-        public string DeleteAlert(object alertId)
+        string IMessagingPlugin.DeleteAlert(object alertId)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
-                FunctionName = "DeleteAlert",
+                FunctionName = nameof(IMessagingPlugin.DeleteAlert),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "alertId", Value = alertId }
                 }
             });
         }
 
-        public void ValidateAlertConfig(MessageConfiguration config)
+        void IMessagingPlugin.ValidateAlertConfig(MessageConfiguration config)
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "ValidateAlertConfig",
+                FunctionName = nameof(IMessagingPlugin.ValidateAlertConfig),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "config", Value = config }
                 }

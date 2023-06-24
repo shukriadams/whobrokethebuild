@@ -17,11 +17,11 @@
             });
         }
 
-        public void Process(Build build)
+        void IBuildLevelProcessor.Process(Build build)
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "Process",
+                FunctionName = nameof(IBuildLevelProcessor.Process),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }

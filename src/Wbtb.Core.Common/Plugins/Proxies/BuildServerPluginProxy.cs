@@ -15,7 +15,7 @@ namespace Wbtb.Core.Common
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "Diagnose"
+                FunctionName = nameof(this.Diagnose)
             });
         }
 
@@ -23,7 +23,7 @@ namespace Wbtb.Core.Common
         {
             _pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs
             {
-                FunctionName = "VerifyBuildServerConfig",
+                FunctionName = nameof(IBuildServerPlugin.VerifyBuildServerConfig),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildServer", Value = buildServer }
                 }
@@ -34,7 +34,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs
             {
-                FunctionName = "AttemptReach",
+                FunctionName = nameof(IBuildServerPlugin.AttemptReach),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "contextServer", Value = contextServer }
                 }
@@ -45,7 +45,7 @@ namespace Wbtb.Core.Common
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "AttemptReachJob",
+                FunctionName = nameof(IBuildServerPlugin.AttemptReachJob),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildServer", Value = buildServer },
                     new PluginFunctionParameter { Name = "job", Value = job }
@@ -57,7 +57,7 @@ namespace Wbtb.Core.Common
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "PollBuildsForJob",
+                FunctionName = nameof(IBuildServerPlugin.PollBuildsForJob),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -68,7 +68,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "TryUpdateBuild",
+                FunctionName = nameof(IBuildServerPlugin.TryUpdateBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }
@@ -79,7 +79,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
-                FunctionName = "GetBuildUrl",
+                FunctionName = nameof(IBuildServerPlugin.GetBuildUrl),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "contextServer", Value = contextServer },
                     new PluginFunctionParameter { Name = "build", Value = build }
@@ -91,7 +91,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
             {
-                FunctionName = "ListRemoteJobsCanonical",
+                FunctionName = nameof(IBuildServerPlugin.ListRemoteJobsCanonical),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildserver", Value = buildserver }
                 }
@@ -102,7 +102,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
-                FunctionName = "GetLatesBuilds",
+                FunctionName = nameof(IBuildServerPlugin.GetLatesBuilds),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job },
                     new PluginFunctionParameter { Name = "take", Value = take }
@@ -114,7 +114,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
-                FunctionName = "GetAllCachedBuilds",
+                FunctionName = nameof(IBuildServerPlugin.GetAllCachedBuilds),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -125,7 +125,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "ImportLog",
+                FunctionName = nameof(IBuildServerPlugin.ImportLog),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }
@@ -136,7 +136,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
-                FunctionName = "GetEphemeralBuildLog",
+                FunctionName = nameof(IBuildServerPlugin.GetEphemeralBuildLog),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }
@@ -147,7 +147,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
             {
-                FunctionName = "GetRevisionsInBuild",
+                FunctionName = nameof(IBuildServerPlugin.GetRevisionsInBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }

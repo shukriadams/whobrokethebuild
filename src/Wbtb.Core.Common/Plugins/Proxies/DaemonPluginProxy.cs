@@ -13,7 +13,7 @@
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "Diagnose"
+                FunctionName = nameof(this.Diagnose),
             });
         }
 
@@ -21,7 +21,7 @@
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "Tick"
+                FunctionName = nameof(this.Tick),
             });
         }
     }

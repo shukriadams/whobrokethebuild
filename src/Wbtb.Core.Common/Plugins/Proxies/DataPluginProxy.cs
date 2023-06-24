@@ -4,44 +4,44 @@ namespace Wbtb.Core.Common
 {
     public class DataPluginProxy : PluginProxy, IDataPlugin
     {
+        #region FIELDS
+
         private readonly IPluginSender _pluginSender;
+
+        #endregion
+
+        #region CTORS
 
         public DataPluginProxy(IPluginSender pluginSender) : base(pluginSender)
         {
             _pluginSender = pluginSender;
         }
 
+        #endregion
+
         #region UTIL
 
-        public void Diagnose()
+        void IPlugin.Diagnose()
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "Diagnose"
+                FunctionName = nameof(IPlugin.Diagnose)
             });
         }
 
-        public string Verify()
-        {
-            return _pluginSender.InvokeMethod<string>(this, new PluginArgs
-            {
-                FunctionName = "Verify"
-            });
-        }
-
-        public int InitializeDatastore() 
+        int IDataPlugin.InitializeDatastore() 
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
-                FunctionName = "InitializeDatastore"
+                FunctionName = nameof(IDataPlugin.InitializeDatastore)
             });
         }
 
-        public int DestroyDatastore()
+        int IDataPlugin.DestroyDatastore()
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
-                FunctionName = "DestroyDatastore"
+                FunctionName = nameof(IDataPlugin.DestroyDatastore)
             });
         }
 
@@ -54,7 +54,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<StoreItem>(this, new PluginArgs
             {
-                FunctionName = "SaveStore",
+                FunctionName = nameof(IDataPlugin.SaveStore),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "storeItem", Value = storeItem }
                 }
@@ -65,7 +65,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<StoreItem>(this, new PluginArgs
             {
-                FunctionName = "GetStoreItemByItem",
+                FunctionName = nameof(IDataPlugin.GetStoreItemByItem),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -76,7 +76,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<StoreItem>(this, new PluginArgs
             {
-                FunctionName = "GetStoreItemByKey",
+                FunctionName = nameof(IDataPlugin.GetStoreItemByKey),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "key", Value = key }
                 }
@@ -87,7 +87,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteStoreItem",
+                FunctionName = nameof(IDataPlugin.DeleteStoreItem),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "record", Value = record }
                 }
@@ -102,7 +102,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildServer>(this, new PluginArgs
             {
-                FunctionName = "SaveBuildServer",
+                FunctionName = nameof(IDataPlugin.SaveBuildServer),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildServer", Value = buildServer }
                 }
@@ -113,7 +113,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildServer>(this, new PluginArgs
             {
-                FunctionName = "GetBuildServerById",
+                FunctionName = nameof(IDataPlugin.GetBuildServerById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -124,7 +124,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildServer>(this, new PluginArgs
             {
-                FunctionName = "GetBuildServerByKey",
+                FunctionName = nameof(IDataPlugin.GetBuildServerByKey),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "key", Value = key }
                 }
@@ -135,7 +135,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildServer>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildServers"
+                FunctionName = nameof(IDataPlugin.GetBuildServers)
             });
         }
 
@@ -143,7 +143,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteBuildServer",
+                FunctionName = nameof(IDataPlugin.DeleteBuildServer),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "record", Value = record }
                 }
@@ -158,7 +158,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<SourceServer>(this, new PluginArgs
             {
-                FunctionName = "SaveSourceServer",
+                FunctionName = nameof(IDataPlugin.SaveSourceServer),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "sourceServer", Value = sourceServer }
                 }
@@ -169,7 +169,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<SourceServer>(this, new PluginArgs
             {
-                FunctionName = "GetSourceServerById",
+                FunctionName = nameof(IDataPlugin.GetSourceServerById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -180,7 +180,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<SourceServer>(this, new PluginArgs
             {
-                FunctionName = "GetSourceServerByKey",
+                FunctionName = nameof(IDataPlugin.GetSourceServerByKey),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "key", Value = key }
                 }
@@ -191,7 +191,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<SourceServer>>(this, new PluginArgs
             {
-                FunctionName = "GetSourceServers"
+                FunctionName = nameof(IDataPlugin.GetSourceServers)
             });
         }
 
@@ -199,7 +199,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteSourceServer",
+                FunctionName = nameof(IDataPlugin.DeleteSourceServer),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "record", Value = record }
                 }
@@ -214,7 +214,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Job>(this, new PluginArgs
             {
-                FunctionName = "SaveJob",
+                FunctionName = nameof(IDataPlugin.SaveJob),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -225,7 +225,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Job>(this, new PluginArgs
             {
-                FunctionName = "GetJobById",
+                FunctionName = nameof(IDataPlugin.GetJobById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -236,7 +236,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Job>(this, new PluginArgs
             {
-                FunctionName = "GetJobByKey",
+                FunctionName = nameof(IDataPlugin.GetJobByKey),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "key", Value = key }
                 }
@@ -247,7 +247,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Job>>(this, new PluginArgs
             {
-                FunctionName = "GetJobs"
+                FunctionName = nameof(IDataPlugin.GetJobs)
             });
         }
 
@@ -255,7 +255,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Job>>(this, new PluginArgs
             {
-                FunctionName = "GetJobsByBuildServerId",
+                FunctionName = nameof(IDataPlugin.GetJobsByBuildServerId),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildServerId", Value = buildServerId }
                 }
@@ -266,7 +266,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteJob",
+                FunctionName = nameof(IDataPlugin.DeleteJob),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -277,7 +277,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
             {
-                FunctionName = "GetIncidentIdsForJob",
+                FunctionName = nameof(IDataPlugin.GetIncidentIdsForJob),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -289,7 +289,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<JobStats>(this, new PluginArgs
             {
-                FunctionName = "GetJobStats",
+                FunctionName = nameof(IDataPlugin.GetJobStats),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -301,7 +301,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
-                FunctionName = "ResetJob",
+                FunctionName = nameof(IDataPlugin.ResetJob),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobId", Value = jobId },
                     new PluginFunctionParameter { Name = "hard", Value = hard }
@@ -317,7 +317,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<User>(this, new PluginArgs
             {
-                FunctionName = "GetUserById",
+                FunctionName = nameof(IDataPlugin.GetUserById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -328,7 +328,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<User>(this, new PluginArgs
             {
-                FunctionName = "GetUserByKey",
+                FunctionName = nameof(IDataPlugin.GetUserByKey),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "key", Value = key }
                 }
@@ -339,7 +339,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<User>(this, new PluginArgs
             {
-                FunctionName = "SaveUser",
+                FunctionName = nameof(IDataPlugin.SaveUser),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "user", Value = user }
                 }
@@ -350,7 +350,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<User>>(this, new PluginArgs
             {
-                FunctionName = "GetUsers"
+                FunctionName = nameof(IDataPlugin.GetUsers)
             });
         }
 
@@ -358,7 +358,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<PageableData<User>>(this, new PluginArgs
             {
-                FunctionName = "PageUsers",
+                FunctionName = nameof(IDataPlugin.PageUsers),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "index", Value = index },
                     new PluginFunctionParameter { Name = "pageSize", Value = pageSize }
@@ -370,7 +370,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteUser",
+                FunctionName = nameof(IDataPlugin.DeleteUser),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "record", Value = record }
                 }
@@ -385,7 +385,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "SaveBuild",
+                FunctionName = nameof(IDataPlugin.SaveBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }
@@ -396,7 +396,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "GetBuildById",
+                FunctionName = nameof(IDataPlugin.GetBuildById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -407,7 +407,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "GetBuildByKey",
+                FunctionName = nameof(IDataPlugin.GetBuildByKey),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobId", Value = jobId },
                     new PluginFunctionParameter { Name = "key", Value = key }
@@ -419,7 +419,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<PageableData<Build>>(this, new PluginArgs
             {
-                FunctionName = "PageBuildsByJob",
+                FunctionName = nameof(IDataPlugin.PageBuildsByJob),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobId", Value = jobId },
                     new PluginFunctionParameter { Name = "index", Value = index },
@@ -432,7 +432,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<PageableData<Build>>(this, new PluginArgs
             {
-                FunctionName = "PageIncidentsByJob",
+                FunctionName = nameof(IDataPlugin.PageIncidentsByJob),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobId", Value = jobId },
                     new PluginFunctionParameter { Name = "index", Value = index },
@@ -445,7 +445,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildsByIncident",
+                FunctionName = nameof(IDataPlugin.GetBuildsByIncident),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "incidentId", Value = incidentId }
                 }
@@ -456,7 +456,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteBuild",
+                FunctionName = nameof(IDataPlugin.DeleteBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "record", Value = record }
                 }
@@ -467,7 +467,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildsWithNoLog",
+                FunctionName = nameof(IDataPlugin.GetBuildsWithNoLog),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -478,7 +478,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
-                FunctionName = "GetFailingBuildsWithoutIncident",
+                FunctionName = nameof(IDataPlugin.GetFailingBuildsWithoutIncident),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -489,7 +489,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildsWithNoInvolvements",
+                FunctionName = nameof(IDataPlugin.GetBuildsWithNoInvolvements),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -500,7 +500,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "GetLatestBuildByJob",
+                FunctionName = nameof(IDataPlugin.GetLatestBuildByJob),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -511,7 +511,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "GetDeltaBuildAtBuild",
+                FunctionName = nameof(IDataPlugin.GetDeltaBuildAtBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }
@@ -522,7 +522,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "GetFirstPassingBuildAfterBuild",
+                FunctionName = nameof(IDataPlugin.GetFirstPassingBuildAfterBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }
@@ -533,7 +533,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "GetPreviousBuild",
+                FunctionName = nameof(IDataPlugin.GetPreviousBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }
@@ -544,7 +544,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "GetNextBuild",
+                FunctionName = nameof(IDataPlugin.GetNextBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }
@@ -555,7 +555,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
-                FunctionName = "GetUnparsedBuildLogs",
+                FunctionName = nameof(IDataPlugin.GetUnparsedBuildLogs),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
@@ -568,7 +568,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<PageableData<Build>>(this, new PluginArgs
             {
-                FunctionName = "PageBuildsByBuildAgent",
+                FunctionName = nameof(IDataPlugin.PageBuildsByBuildAgent),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "hostname", Value = hostname },
                     new PluginFunctionParameter { Name = "index", Value = index },
@@ -581,7 +581,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
-                FunctionName = "ResetBuild",
+                FunctionName = nameof(IDataPlugin.ResetBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId },
                     new PluginFunctionParameter { Name = "hard", Value = hard }
@@ -593,7 +593,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildsForPostProcessing",
+                FunctionName = nameof(IDataPlugin.GetBuildsForPostProcessing),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobid", Value = jobid },
                     new PluginFunctionParameter { Name = "processorKey", Value = processorKey },
@@ -610,7 +610,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildFlag>(this, new PluginArgs
             {
-                FunctionName = "SaveBuildFlag",
+                FunctionName = nameof(IDataPlugin.SaveBuildFlag),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "flag", Value = flag }
                 }
@@ -621,7 +621,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildFlag>(this, new PluginArgs
             {
-                FunctionName = "GetBuildFlagById",
+                FunctionName = nameof(IDataPlugin.GetBuildFlagById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -632,7 +632,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteBuildFlag",
+                FunctionName = nameof(IDataPlugin.DeleteBuildFlag),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildFlag", Value = buildFlag }
                 }
@@ -643,7 +643,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
-                FunctionName = "IgnoreBuildFlagsForBuild",
+                FunctionName = nameof(IDataPlugin.IgnoreBuildFlagsForBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build },
                     new PluginFunctionParameter { Name = "flag", Value = flag }
@@ -655,7 +655,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
-                FunctionName = "DeleteBuildFlagsForBuild",
+                FunctionName = nameof(IDataPlugin.DeleteBuildFlagsForBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build },
                     new PluginFunctionParameter { Name = "flag", Value = flag }
@@ -667,7 +667,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildFlag>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildFlagsForBuild",
+                FunctionName = nameof(IDataPlugin.GetBuildFlagsForBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }
@@ -678,7 +678,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<PageableData<BuildFlag>>(this, new PluginArgs
             {
-                FunctionName = "PageBuildFlags",
+                FunctionName = nameof(IDataPlugin.PageBuildFlags),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "index", Value = index },
                     new PluginFunctionParameter { Name = "pageSize", Value = pageSize }
@@ -694,7 +694,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildLogParseResult>(this, new PluginArgs
             {
-                FunctionName = "SaveBuildLogParseResult",
+                FunctionName = nameof(IDataPlugin.SaveBuildLogParseResult),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildLog", Value = buildLog }
                 }
@@ -705,7 +705,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildLogParseResult>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildLogParseResultsByBuildId",
+                FunctionName = nameof(IDataPlugin.GetBuildLogParseResultsByBuildId),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId }
                 }
@@ -716,7 +716,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteBuildLogParseResult",
+                FunctionName = nameof(IDataPlugin.DeleteBuildLogParseResult),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "result", Value = result }
                 }
@@ -731,7 +731,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
-                FunctionName = "ConnectBuildLogParseResultAndBuildBuildInvolvement",
+                FunctionName = nameof(IDataPlugin.ConnectBuildLogParseResultAndBuildBuildInvolvement),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildLogParseResultId", Value = buildLogParseResultId },
                     new PluginFunctionParameter { Name = "buildInvolvementId", Value = buildInvolvementId }
@@ -743,7 +743,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "SplitBuildLogParseResultAndBuildBuildInvolvement",
+                FunctionName = nameof(IDataPlugin.SplitBuildLogParseResultAndBuildBuildInvolvement),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -754,7 +754,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildLogParseResultsForBuildInvolvement",
+                FunctionName = nameof(IDataPlugin.GetBuildLogParseResultsForBuildInvolvement),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildInvolvementId", Value = buildInvolvementId }
                 }
@@ -769,7 +769,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<DaemonTask>(this, new PluginArgs
             {
-                FunctionName = "SaveDaemonTask",
+                FunctionName = nameof(IDataPlugin.SaveDaemonTask),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "daemonTask", Value = daemonTask }
                 }
@@ -780,7 +780,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<DaemonTask>(this, new PluginArgs
             {
-                FunctionName = "GetDaemonTaskById",
+                FunctionName = nameof(IDataPlugin.GetDaemonTaskById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -791,18 +791,18 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteDaemonTask",
+                FunctionName = nameof(IDataPlugin.DeleteDaemonTask),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "record", Value = record }
                 }
             });
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.GetDaemonTaskByBuild(string buildid)
+        IEnumerable<DaemonTask> IDataPlugin.GetDaemonsTaskByBuild(string buildid)
         {
             return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
             {
-                FunctionName = "GetDaemonTaskByBuild",
+                FunctionName = nameof(IDataPlugin.GetDaemonsTaskByBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildid", Value = buildid }
                 }
@@ -813,18 +813,18 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
             {
-                FunctionName = "GetPendingDaemonTasksByTask",
+                FunctionName = nameof(IDataPlugin.GetPendingDaemonTasksByTask),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "task", Value = task }
                 }
             });
         }
 
-        bool IDataPlugin.HasTasksBelow(string buildId, int order)
+        bool IDataPlugin.DaemonTasksBlocked(string buildId, int order)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "TaskCountBelow",
+                FunctionName = nameof(IDataPlugin.DaemonTasksBlocked),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId },
                     new PluginFunctionParameter { Name = "order", Value = order }
@@ -840,7 +840,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildInvolvement>(this, new PluginArgs
             {
-                FunctionName = "SaveBuildInvolement",
+                FunctionName = nameof(IDataPlugin.SaveBuildInvolement),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildInvolvement", Value = buildInvolvement }
                 }
@@ -851,7 +851,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildInvolvement>(this, new PluginArgs
             {
-                FunctionName = "GetBuildInvolvementById",
+                FunctionName = nameof(IDataPlugin.GetBuildInvolvementById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -862,7 +862,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildInvolvement>(this, new PluginArgs
             {
-                FunctionName = "GetBuildInvolvementByRevisionCode",
+                FunctionName = nameof(IDataPlugin.GetBuildInvolvementByRevisionCode),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildid", Value = buildid },
                     new PluginFunctionParameter { Name = "revisionCode", Value = revisionCode }
@@ -874,7 +874,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteBuildInvolvement",
+                FunctionName = nameof(IDataPlugin.DeleteBuildInvolvement),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "record", Value = record }
                 }
@@ -885,7 +885,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildInvolvementsByBuild",
+                FunctionName = nameof(IDataPlugin.GetBuildInvolvementsByBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId }
                 }
@@ -896,7 +896,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildInvolvementsWithoutMappedUser",
+                FunctionName = nameof(IDataPlugin.GetBuildInvolvementsWithoutMappedUser),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobId", Value = jobId }
                 }
@@ -907,7 +907,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildInvolvementsWithoutMappedRevisions",
+                FunctionName = nameof(IDataPlugin.GetBuildInvolvementsWithoutMappedRevisions),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobId", Value = jobId }
                 }
@@ -918,7 +918,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildInvolvementByUserId",
+                FunctionName = nameof(IDataPlugin.GetBuildInvolvementByUserId),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "userId", Value = userId }
                 }
@@ -929,7 +929,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<PageableData<BuildInvolvement>>(this, new PluginArgs
             {
-                FunctionName = "PageBuildInvolvementsByUserAndStatus",
+                FunctionName = nameof(IDataPlugin.PageBuildInvolvementsByUserAndStatus),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "userid", Value = userid },
                     new PluginFunctionParameter { Name = "buildStatus", Value = buildStatus },
@@ -947,7 +947,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildProcessor>(this, new PluginArgs
             {
-                FunctionName = "GetBuildProcessorById",
+                FunctionName = nameof(IDataPlugin.GetBuildProcessorById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -959,7 +959,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<BuildProcessor>(this, new PluginArgs
             {
-                FunctionName = "SaveBuildProcessor",
+                FunctionName = nameof(IDataPlugin.SaveBuildProcessor),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildProcessor", Value = buildProcessor }
                 }
@@ -970,7 +970,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildProcessor>>(this, new PluginArgs
             {
-                FunctionName = "GetBuildProcessorsByBuildId",
+                FunctionName = nameof(IDataPlugin.GetBuildProcessorsByBuildId),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId }
                 }
@@ -985,7 +985,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
-                FunctionName = "SaveRevision",
+                FunctionName = nameof(IDataPlugin.SaveRevision),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "revision", Value = revision }
                 }
@@ -996,7 +996,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
-                FunctionName = "GetRevisionById",
+                FunctionName = nameof(IDataPlugin.GetRevisionById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -1007,7 +1007,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
-                FunctionName = "GetRevisionByKey",
+                FunctionName = nameof(IDataPlugin.GetRevisionByKey),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "sourceServerId", Value = sourceServerId },
                     new PluginFunctionParameter { Name = "key", Value = key }
@@ -1019,7 +1019,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
             {
-                FunctionName = "GetNewestRevisionForBuild",
+                FunctionName = nameof(IDataPlugin.GetNewestRevisionForBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId }
                 }
@@ -1030,7 +1030,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Revision>>(this, new PluginArgs
             {
-                FunctionName = "GetRevisionByBuild",
+                FunctionName = nameof(IDataPlugin.GetRevisionByBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId }
                 }
@@ -1041,7 +1041,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Revision>>(this, new PluginArgs
             {
-                FunctionName = "GetRevisionsBySourceServer",
+                FunctionName = nameof(IDataPlugin.GetRevisionsBySourceServer),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "sourceServerId", Value = sourceServerId }
                 }
@@ -1052,7 +1052,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteRevision",
+                FunctionName = nameof(IDataPlugin.DeleteRevision),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "revision", Value = revision }
                 }
@@ -1067,7 +1067,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Session>(this, new PluginArgs
             {
-                FunctionName = "SaveSession",
+                FunctionName = nameof(IDataPlugin.SaveSession),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "session", Value = session }
                 }
@@ -1078,7 +1078,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Session>(this, new PluginArgs
             {
-                FunctionName = "GetSessionById",
+                FunctionName = nameof(IDataPlugin.GetSessionById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
@@ -1089,7 +1089,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<IEnumerable<Session>>(this, new PluginArgs
             {
-                FunctionName = "GetSessionByUserId",
+                FunctionName = nameof(IDataPlugin.GetSessionByUserId),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "userid", Value = userid }
                 }
@@ -1100,7 +1100,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = "DeleteSession",
+                FunctionName = nameof(IDataPlugin.DeleteSession),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "session", Value = session }
                 }
@@ -1115,7 +1115,7 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "GetLastJobDelta",
+                FunctionName = nameof(IDataPlugin.GetLastJobDelta),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobId", Value = jobId }
                 }
@@ -1126,7 +1126,7 @@ namespace Wbtb.Core.Common
         {
             _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = "SaveJobDelta",
+                FunctionName = nameof(IDataPlugin.SaveJobDelta),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }
@@ -1141,34 +1141,34 @@ namespace Wbtb.Core.Common
         {
             return _pluginSender.InvokeMethod<ConfigurationState>(this, new PluginArgs
             {
-                FunctionName = "AddConfigurationState",
+                FunctionName = nameof(IDataPlugin.AddConfigurationState),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "configurationState", Value = configurationState }
                 }
             });
         }
 
-        public int ClearAllTables() 
+        int IDataPlugin.ClearAllTables() 
         {
             return _pluginSender.InvokeMethod<int>(this, new PluginArgs
             {
-                FunctionName = "ClearAllTables"
+                FunctionName = nameof(IDataPlugin.ClearAllTables),
             });
         }
 
-        public ConfigurationState GetLatestConfigurationState()
+        ConfigurationState IDataPlugin.GetLatestConfigurationState()
         {
             return _pluginSender.InvokeMethod<ConfigurationState>(this, new PluginArgs
             {
-                FunctionName = "GetLatestConfigurationState"
+                FunctionName = nameof(IDataPlugin.GetLatestConfigurationState),
             });
         }
 
-        public PageableData<ConfigurationState> PageConfigurationStates(int index, int pageSize)
+        PageableData<ConfigurationState> IDataPlugin.PageConfigurationStates(int index, int pageSize)
         {
             return _pluginSender.InvokeMethod<PageableData<ConfigurationState>>(this, new PluginArgs
             {
-                FunctionName = "PageConfigurationStates",
+                FunctionName = nameof(IDataPlugin.PageConfigurationStates),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "index", Value = index },
                     new PluginFunctionParameter { Name = "pageSize", Value = pageSize }

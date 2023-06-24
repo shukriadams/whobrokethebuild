@@ -27,11 +27,11 @@
             });
         }
 
-        public AuthenticationResult RequestPasswordLogin(string username, string password)
+        AuthenticationResult IAuthenticationPlugin.RequestPasswordLogin(string username, string password)
         {
             return _pluginSender.InvokeMethod<AuthenticationResult>(this, new PluginArgs
             {
-                FunctionName = "RequestPasswordLogin",
+                FunctionName = nameof(IAuthenticationPlugin.RequestPasswordLogin),
                 Arguments = new PluginFunctionParameter[] { 
                     new PluginFunctionParameter { Name = "username", Value = username }, 
                     new PluginFunctionParameter { Name = "password", Value = password } 

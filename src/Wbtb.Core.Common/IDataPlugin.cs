@@ -222,7 +222,7 @@ namespace Wbtb.Core.Common
 
         bool DeleteDaemonTask(DaemonTask record);
 
-        IEnumerable<DaemonTask> GetDaemonTaskByBuild(string buildid);
+        IEnumerable<DaemonTask> GetDaemonsTaskByBuild(string buildid);
 
         /// <summary>
         /// Gets block of oldest pending tasks
@@ -231,7 +231,7 @@ namespace Wbtb.Core.Common
         /// <returns></returns>
         IEnumerable<DaemonTask> GetPendingDaemonTasksByTask(string task);
 
-        bool HasTasksBelow(string buildId, int order);
+        bool DaemonTasksBlocked(string buildId, int order);
 
         #endregion
 

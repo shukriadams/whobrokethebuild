@@ -495,7 +495,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return false;
         }
 
-        public IEnumerable<DaemonTask> GetDaemonTaskByBuild(string buildid)
+        public IEnumerable<DaemonTask> GetDaemonsTaskByBuild(string buildid)
         {
             return new DaemonTask[] { };
         }
@@ -504,7 +504,7 @@ namespace Wbtb.Extensions.Data.FileSystem
         {
             return new DaemonTask[] { };
         }
-        public bool HasTasksBelow(string buildId, int order)
+        public bool DaemonTasksBlocked(string buildId, int order)
         {
             return false;
         }

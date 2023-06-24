@@ -4,11 +4,11 @@
     {
         private readonly IPluginSender _pluginSender;
 
-        public void Diagnose()
+        void IPlugin.Diagnose()
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "Diagnose"
+                FunctionName = nameof(IPlugin.Diagnose)
             });
         }
 
@@ -17,11 +17,11 @@
             _pluginSender = pluginSender;
         }
 
-        public string Parse(string raw)
+        string ILogParserPlugin.Parse(string raw)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
-                FunctionName = "Parse",
+                FunctionName = nameof(ILogParserPlugin.Parse),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "raw", Value = raw }
                 }
