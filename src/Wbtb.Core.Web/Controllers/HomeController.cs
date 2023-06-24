@@ -269,9 +269,25 @@ namespace Wbtb.Core.Web.Controllers
             model.BuildParseResults = dataLayer.GetBuildLogParseResultsByBuildId(buildid);
             model.Build.IncidentBuild = string.IsNullOrEmpty(model.Build.IncidentBuildId) ? null : ViewBuild.Copy(dataLayer.GetBuildById(model.Build.IncidentBuildId));
             model.BuildFlags = dataLayer.GetBuildFlagsForBuild(model.Build);
-            model.DaemonTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id).OrderBy(t => t.Order);
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
             model.buildProcessors = dataLayer.GetBuildProcessorsByBuildId(model.Build.Id);
+            model.ProcessErrors = dataLayer.GetDaemonsTaskByBuild(model.Build.Id).Where(t => t.HasPassed.HasValue && t.HasPassed.Value == false).Any();
+
+            return View(model);
+        }
+
+        [ServiceFilter(typeof(ViewStatus))]
+        [Route("/BuildProcessLog/{buildid}")]
+        public IActionResult BuildProcessLog(string buildid)
+        {
+            BuildProcessPageModel model = new BuildProcessPageModel();
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            model.Build = ViewBuild.Copy(dataLayer.GetBuildById(buildid));
+            if (model.Build == null)
+                return Responses.NotFoundError($"build {buildid} does not exist");
+
+            model.DaemonTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id).OrderBy(t => t.Order);
 
             return View(model);
         }

@@ -1,0 +1,16 @@
+﻿.daemonTasks {
+    x-list-row > x-list-cell:nth-of-type(1) {
+        flex-basis: 200px;
+        max-width: 200px;
+    }
+
+    x-list-row > x-list-cell:nth-of-type(2) {
+        flex-basis: 200px;
+        max-width: 200px;
+    }
+
+    x-list-row > x-list-cell:nth-of-type(3) {
+        flex-basis: 200px;
+        max-width: 200px;
+    }
+}
