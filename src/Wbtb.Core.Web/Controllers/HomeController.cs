@@ -269,7 +269,7 @@ namespace Wbtb.Core.Web.Controllers
             model.BuildParseResults = dataLayer.GetBuildLogParseResultsByBuildId(buildid);
             model.Build.IncidentBuild = string.IsNullOrEmpty(model.Build.IncidentBuildId) ? null : ViewBuild.Copy(dataLayer.GetBuildById(model.Build.IncidentBuildId));
             model.BuildFlags = dataLayer.GetBuildFlagsForBuild(model.Build);
-            model.DaemonTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id);
+            model.DaemonTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id).OrderBy(t => t.Order);
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
             model.buildProcessors = dataLayer.GetBuildProcessorsByBuildId(model.Build.Id);
 

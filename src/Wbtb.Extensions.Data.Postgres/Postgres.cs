@@ -1849,19 +1849,19 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO daemontask
-                    (buildid, signature, buildid, taskkey, buildinvolvementid, src, createdutc, processedutc, passed, result)
+                    (buildid, signature, taskkey, buildinvolvementid, src, createdutc, processedutc, passed, result, ordr)
                 VALUES
-                    (@buildid, @signature, @buildid, @taskkey, @buildinvolvementid, @src, @createdutc, @processedutc, @passed, @result)
+                    (@buildid, @signature, @taskkey, @buildinvolvementid, @src, @createdutc, @processedutc, @passed, @result, @ordr)
                 RETURNING id";
 
             string updateQuery = @"                    
                 UPDATE daemontask SET 
                     buildid = @buildid,
                     signature = @new_signature,
-                    buildid = @buildid,
                     taskkey = @taskkey, 
                     buildinvolvementid = @buildinvolvementid, 
                     src = @src, 
+                    ordr = @ordr,
                     createdutc = @createdutc,
                     processedutc = @processedutc,
                     passed = @passed,
@@ -2160,7 +2160,7 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             {
                 cmd.Parameters.AddWithValue("id", key);
-                cmd.Parameters.AddWithValue("sourceserverid", sourceServerId);
+                cmd.Parameters.AddWithValue("sourceserverid", int.Parse(sourceServerId));
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new RevisionConvert().ToCommon(reader);

@@ -35,20 +35,20 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("job"))
             {
-                Console.WriteLine($"ERROR : \"--job\" <jobkey> required");
+                Console.WriteLine($"ERROR : \"--job\" <jobi> required");
                 _consoleHelper.PrintJobs();
                 Environment.Exit(1);
                 return;
             }
 
-            string jobkey = switches.Get("job");
+            string jobid = switches.Get("job");
             bool hard = switches.Contains("hard");
 
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Job job = dataLayer.GetJobByKey(jobkey);
+            Job job = dataLayer.GetJobById(jobid);
             if (job == null)
             {
-                Console.WriteLine($"ERROR : \"--job\" key {jobkey} does not point to a valid job");
+                Console.WriteLine($"ERROR : \"--job\" id {jobid} does not point to a valid job");
                 _consoleHelper.PrintJobs();
                 Environment.Exit(1);    
                 return;

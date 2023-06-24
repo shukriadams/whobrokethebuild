@@ -89,7 +89,7 @@ namespace Wbtb.Core.Web
                 if (deltaAlerted != null)
                 {
                     task.Result = $"Delta key {deltaAlertKey} has already been sent";
-                    task.HasPassed = false;
+                    task.HasPassed = true;
                     task.ProcessedUtc = DateTime.UtcNow;
                     dataLayer.SaveDaemonTask(task);
                     continue;

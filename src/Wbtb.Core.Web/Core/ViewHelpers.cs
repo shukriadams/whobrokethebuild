@@ -8,6 +8,12 @@ namespace Wbtb.Core.Web
 {
     public static class ViewHelpers
     {
+        public static HtmlString Ago(DateTime dateUtc) 
+        {
+            TimeSpan span = DateTime.UtcNow - dateUtc;
+            return new HtmlString(span.Humanize());
+        }
+
         public static HtmlString PreserveLineBreaks(string content)
         { 
             if (content == null)

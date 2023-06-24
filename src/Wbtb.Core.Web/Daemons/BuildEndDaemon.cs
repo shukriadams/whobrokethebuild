@@ -72,7 +72,7 @@ namespace Wbtb.Core.Web
                 if (build.EndedUtc != null) 
                 { 
                     task.ProcessedUtc = build.EndedUtc;
-                    task.HasPassed = false;
+                    task.HasPassed = true;
                     task.Result = "Already finished";
                     dataLayer.SaveDaemonTask(task);
                     continue;

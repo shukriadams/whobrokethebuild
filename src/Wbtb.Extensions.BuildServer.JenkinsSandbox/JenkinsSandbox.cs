@@ -288,7 +288,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         public Build ImportLog(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Job job = dataLayer.GetJobById(build.Id);
+            Job job = dataLayer.GetJobById(build.JobId);
             IEnumerable<Build> buildsWithNoLog = dataLayer.GetBuildsWithNoLog(job);
 
             if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{job.Key}.logs.{build.Identifier}.txt"))
@@ -311,7 +311,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
 
-            string path = $"JSON.builds.{job.Key}.build_{build.Identifier}_revisions.json";
+            string path = $"JSON.builds.{job.Key}.builds.json";
             string rawJson;
             if (ResourceHelper.ResourceExists(this.GetType(), path))
                 rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), path);

@@ -156,12 +156,19 @@ namespace Wbtb.Core.Web
                     foreach (Revision revision in revisionsToLink)
                     {
                         bool revisionNeedsResolving = false;
+                        string revisionId;
+
                         // if revision doesn't exist in db, add it
-                        if (dataLayer.GetRevisionByKey(sourceServer.Id, revision.Code) == null)
+                        Revision lookupRevision = dataLayer.GetRevisionByKey(sourceServer.Id, revision.Code);
+                        if (lookupRevision == null)
                         {
                             revision.SourceServerId = sourceServer.Id;
-                            dataLayer.SaveRevision(revision);
+                            revisionId = dataLayer.SaveRevision(revision).Id;
                             revisionNeedsResolving = true;
+                        }
+                        else 
+                        {
+                            revisionId = lookupRevision.Id;
                         }
 
                         // create build involvement for this revision
@@ -171,7 +178,7 @@ namespace Wbtb.Core.Web
                             RevisionCode = revision.Code,
                             RevisionLinkStatus = LinkState.Completed,
                             InferredRevisionLink = revisionCode != revision.Code,
-                            RevisionId = revision.Id
+                            RevisionId = revisionId
                         });
 
                         if (revisionNeedsResolving)
@@ -183,6 +190,10 @@ namespace Wbtb.Core.Web
                                 TaskKey = DaemonTaskTypes.RevisionResolve.ToString(),
                                 Order = 3,
                             });
+
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = true;
+                        dataLayer.SaveDaemonTask(task);
                     }
                 }
                 catch (Exception ex)

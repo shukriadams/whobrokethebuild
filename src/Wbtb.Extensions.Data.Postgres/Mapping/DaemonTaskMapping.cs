@@ -11,11 +11,11 @@ namespace Wbtb.Extensions.Data.Postgres
                 collection.AddWithValue("id", int.Parse(record.Id));
 
             collection.AddWithValue("signature", record.Signature);
-            collection.AddWithValue("buildid", record.BuildId);
-            collection.AddWithValue("order", record.Order);
+            collection.AddWithValue("buildid", int.Parse(record.BuildId));
+            collection.AddWithValue("ordr", record.Order);
             collection.AddWithValue("taskkey", record.TaskKey);
             collection.AddWithValue("src", record.Src);
-            collection.AddWithValue("buildinvolvevmentid", record.BuildInvolvementId == null ? (object)DBNull.Value : record.BuildInvolvementId);
+            collection.AddWithValue("buildinvolvementid", record.BuildInvolvementId == null ? (object)DBNull.Value : int.Parse(record.BuildInvolvementId));
             collection.AddWithValue("createdutc", record.CreatedUtc);
             collection.AddWithValue("result", record.Result == null ? (object)DBNull.Value : record.Result);
             collection.AddWithValue("processedutc", record.ProcessedUtc == null ? (object)DBNull.Value : record.ProcessedUtc.Value);

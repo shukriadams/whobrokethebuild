@@ -112,31 +112,61 @@
     </x-card>
 </x-columns>
 
-@if(Model.BuildFlags.Any())
+@if(Model.DaemonTasks.Any())
 {
-    <h2>Process issues</h2>
-    <p>
-        There were issues processing this build.
-    </p>
+    <h2>Processing</h2>
     <x-list>
-        @foreach(BuildFlag buildFlag in Model.BuildFlags)
+        <x-list-row>
+            <x-list-cell>
+                Created
+            </x-list-cell>
+            <x-list-cell>
+                Source
+            </x-list-cell>
+            <x-list-cell>
+                Key
+            </x-list-cell>
+            <x-list-cell>
+                Result
+            </x-list-cell>
+        </x-list-row>
+        @foreach (DaemonTask task in Model.DaemonTasks)
         { 
             <x-list-row>
                 <x-list-cell>
-                    @buildFlag.CreatedUtc.ToLocalTime().ToISOShort()
+                    @ViewHelpers.Ago(task.CreatedUtc) ago <div class="quiet">(@task.CreatedUtc.ToLocalTime().ToISOShort())</div>
                 </x-list-cell>
                 <x-list-cell>
-                    @buildFlag.Flag
+                    @task.Src
                 </x-list-cell>
                 <x-list-cell>
-                    @buildFlag.Description
+                    @task.TaskKey
                 </x-list-cell>
-                @if (Model.IsAdmin)
-                { 
-                    <x-list-cell>
-                        <a href="/buildflag/reset/@buildFlag.Id">Reset</a>
-                    </x-list-cell>
-                }
+                <x-list-cell>
+                    @if (task.ProcessedUtc.HasValue)
+                    {
+                        <text>Completed @task.ProcessedUtc.Value.ToLocalTime().Humanize()</text>
+                    } 
+                    else
+                    {
+                        <text>
+                            Pending
+                        </text>
+                    }
+
+                    @if (task.HasPassed.HasValue)
+                    {
+                        <text>
+                            Passed : @task.HasPassed.Value
+                            Errors : @task.Result
+                        </text>
+                    }
+
+                    @if (Model.IsAdmin)
+                    {
+                            <a href="/daemonFlag/reset/@task.Id">Reset</a>
+                    }
+                </x-list-cell>
             </x-list-row>
         }
     </x-list>
