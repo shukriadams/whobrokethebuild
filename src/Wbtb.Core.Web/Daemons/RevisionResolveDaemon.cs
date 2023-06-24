@@ -71,9 +71,9 @@ namespace Wbtb.Core.Web
                
                 if (revision != null)
                 {
-                    task.HasPassed = false;
+                    task.HasPassed = true;
                     task.ProcessedUtc = DateTime.UtcNow;
-                    task.Result = $"Revision {buildInvolvement.RevisionCode} already resolve";
+                    task.Result = $"Revision {buildInvolvement.RevisionCode} already resolved";
                     dataLayer.SaveDaemonTask(task);
                     continue;
                 }
@@ -104,13 +104,6 @@ namespace Wbtb.Core.Web
                 task.ProcessedUtc = DateTime.UtcNow;
                 dataLayer.SaveDaemonTask(task);
 
-                dataLayer.SaveDaemonTask(new DaemonTask { 
-                    BuildId = build.Id,
-                    Src = this.GetType().Name,
-                    BuildInvolvementId = buildInvolvement.Id,
-                    Order = 3,
-                    TaskKey = DaemonTaskTypes.UserResolve.ToString()
-                });
             }
         }
 

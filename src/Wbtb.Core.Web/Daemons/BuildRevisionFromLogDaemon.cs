@@ -155,7 +155,6 @@ namespace Wbtb.Core.Web
 
                     foreach (Revision revision in revisionsToLink)
                     {
-                        bool revisionNeedsResolving = false;
                         string revisionId;
 
                         // if revision doesn't exist in db, add it
@@ -164,7 +163,6 @@ namespace Wbtb.Core.Web
                         {
                             revision.SourceServerId = sourceServer.Id;
                             revisionId = dataLayer.SaveRevision(revision).Id;
-                            revisionNeedsResolving = true;
                         }
                         else 
                         {
@@ -181,15 +179,23 @@ namespace Wbtb.Core.Web
                             RevisionId = revisionId
                         });
 
-                        if (revisionNeedsResolving)
-                            dataLayer.SaveDaemonTask(new DaemonTask
-                            {
-                                BuildId = build.Id,
-                                BuildInvolvementId = buildInvolvement.Id,
-                                Src = this.GetType().Name,
-                                TaskKey = DaemonTaskTypes.RevisionResolve.ToString(),
-                                Order = 3,
-                            });
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            BuildId = build.Id,
+                            BuildInvolvementId = buildInvolvement.Id,
+                            Src = this.GetType().Name,
+                            TaskKey = DaemonTaskTypes.RevisionResolve.ToString(),
+                            Order = 3,
+                        });
+
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            BuildId = build.Id,
+                            Src = this.GetType().Name,
+                            BuildInvolvementId = buildInvolvement.Id,
+                            Order = 3,
+                            TaskKey = DaemonTaskTypes.UserResolve.ToString()
+                        });
 
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.HasPassed = true;

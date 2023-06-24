@@ -97,6 +97,15 @@ namespace Wbtb.Core.Web
                             Src = this.GetType().Name,
                             Order = 2,
                         });
+
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            TaskKey = DaemonTaskTypes.UserResolve.ToString(),
+                            BuildId = build.Id,
+                            BuildInvolvementId = biID,
+                            Src = this.GetType().Name,
+                            Order = 2,
+                        });
                     }
                     catch (Exception ex)
                     {
