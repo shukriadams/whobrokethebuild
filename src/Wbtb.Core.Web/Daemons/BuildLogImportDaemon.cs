@@ -104,7 +104,7 @@ namespace Wbtb.Core.Web.Core
                     });
 
                     // build revision requires source controld
-                    if (!string.IsNullOrEmpty(job.SourceServerId))
+                    if (!string.IsNullOrEmpty(job.RevisionAtBuildRegex) && !string.IsNullOrEmpty(job.SourceServerId))
                         dataLayer.SaveDaemonTask(new DaemonTask
                         {
                             BuildId = build.Id,

@@ -112,6 +112,9 @@ namespace Wbtb.Core.Web
 
                 try
                 {
+                    if (string.IsNullOrEmpty(job.RevisionAtBuildRegex))
+                        throw new Exception("RevisionAtBuildRegex) not set");
+
                     logText = File.ReadAllText(build.LogPath);
                     revisionCode = GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
 
