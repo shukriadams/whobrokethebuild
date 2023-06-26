@@ -220,48 +220,6 @@ namespace Wbtb.Core.Web
                 }
 
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-            foreach (BuildServer cfgbuildServer in _config.BuildServers)
-            {
-                BuildServer buildServer = dataLayer.GetBuildServerByKey(cfgbuildServer.Key);
-                // note : buildserver can be null if trying to run daemon before auto data injection has had time to run
-                if (buildServer == null)
-                    continue;
-
-                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                foreach (Job cfgJob in buildServer.Jobs.Where(j => !string.IsNullOrEmpty(j.SourceServer) && !string.IsNullOrEmpty(j.RevisionAtBuildRegex)))
-                {
-                    try
-                    {
-                        Job jobInDatabase = dataLayer.GetJobByKey(cfgJob.Key);
-                        SourceServer sourceServer = dataLayer.GetSourceServerById(jobInDatabase.SourceServerId);
-                        ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
-                        IEnumerable<Build> builds = dataLayer.GetBuildsWithNoInvolvements(jobInDatabase)
-                            .OrderBy(b => b.StartedUtc);
-
-                        foreach (Build build in builds)
-                        {
-
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.LogError($"Unexpected error trying to import jobs/logs for {cfgJob.Key} from buildserver {buildServer.Key}: {ex}");
-                    }
-                }
-            }
         }
 
         #endregion

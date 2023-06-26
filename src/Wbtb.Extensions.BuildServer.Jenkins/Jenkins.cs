@@ -160,7 +160,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             // persist path
             Job job = dataLayer.GetJobById(build.JobId);
 
-            string persistPath = Path.Combine(_config.PluginDataPersistDirectory, this.ContextPluginConfig.Key, job.Key, build.Identifier, "log.txt");
+            string persistPath = Path.Combine(_config.PluginDataPersistDirectory, this.ContextPluginConfig.Manifest.Key, job.Key, build.Identifier, "log.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
             if (File.Exists(persistPath))
                 return File.ReadAllText(persistPath);
@@ -328,7 +328,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 else
                 {
                     cleanupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete", $"{rawBuild.number}", "build.json");
-                    persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete", $"{rawBuild.number}", "build.json");
+                    persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, $"{rawBuild.number}", "build.json");
                 }
 
                 if (!File.Exists(persistPath))
@@ -401,7 +401,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            string completeBuildPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete", $"{build.Identifier}", "build.json");
+            string completeBuildPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, $"{build.Identifier}", "build.json");
             if (!File.Exists(completeBuildPath))
                 return build;
 
@@ -414,10 +414,8 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         public IEnumerable<Build> GetAllCachedBuilds(Job job)
         {
             IList<string> buildDirectories = new List<string>();
-            if (Directory.Exists(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete")))
-                buildDirectories = buildDirectories.Concat(Directory.GetDirectories(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete"))).ToList();
-            if (Directory.Exists(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete")))
-                buildDirectories = buildDirectories.Concat(Directory.GetDirectories(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete"))).ToList();
+            if (Directory.Exists(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key)))
+                buildDirectories = buildDirectories.Concat(Directory.GetDirectories(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key))).ToList();
 
             IList<Build> builds = new List<Build>();
 
@@ -436,7 +434,6 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                         Status = ConvertBuildStatus(rawBuild.result)
                     });
                 }
-                    
             }
 
             return builds;
