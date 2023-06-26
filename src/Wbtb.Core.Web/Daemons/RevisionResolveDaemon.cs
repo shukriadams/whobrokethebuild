@@ -22,6 +22,8 @@ namespace Wbtb.Core.Web
         
         private readonly PluginProvider _pluginProvider;
 
+        public static int TaskGroup = 2;
+
         #endregion
 
         #region CTORS
@@ -63,6 +65,9 @@ namespace Wbtb.Core.Web
             foreach (DaemonTask task in tasks)
             {
                 Build build = dataLayer.GetBuildById(task.BuildId);
+                if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                    continue;
+
                 Job job = dataLayer.GetJobById(build.JobId);
                 BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
                 SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);

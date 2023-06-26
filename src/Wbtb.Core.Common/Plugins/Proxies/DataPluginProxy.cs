@@ -832,6 +832,18 @@ namespace Wbtb.Core.Common
             });
         }
 
+        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize)
+        {
+            return _pluginSender.InvokeMethod<PageableData<DaemonTask>>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.PageDaemonTasks),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "index", Value = index },
+                    new PluginFunctionParameter { Name = "pageSize", Value = pageSize }
+                }
+            });
+        }
+
         #endregion
 
         #region BUILD INVOLVEMENT

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -787,6 +788,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         public PageableData<Build> PageIncidentsByJob(string jobId, int index, int pageSize)
         {
+            // TODO : refactor this out. Also, this query will fail 
             string pageQuery = @"
                 SELECT
                     *
@@ -1949,7 +1951,7 @@ namespace Wbtb.Extensions.Data.Postgres
                         processedUtc is NULL
                         OR passed = False
                     )
-                    AND order < @order";
+                    AND ordr < @order";
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
@@ -1957,8 +1959,61 @@ namespace Wbtb.Extensions.Data.Postgres
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                 cmd.Parameters.AddWithValue("order", order);
 
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return reader.GetInt32(0) == 0;
+                using (NpgsqlDataReader reader = cmd.ExecuteReader()) 
+                {
+                    reader.Read();
+                    return reader.GetInt32(0) > 0;
+                }
+                    
+            }
+        }
+
+        public PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize) 
+        {
+            string pageQuery = @"
+                SELECT
+                    *
+                FROM
+                    daemontask
+                ORDER BY
+                    createdutc DESC
+                LIMIT 
+                    @pagesize
+                OFFSET 
+                    @index";
+
+            string countQuery = @"
+                SELECT 
+                    COUNT(id)
+                FROM 
+                    daemontask";
+
+            long virtualItemCount = 0;
+            IEnumerable<DaemonTask> builds = null;
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            {
+                // get main records
+                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, connection))
+                {
+                    cmd.Parameters.AddWithValue("index", index * pageSize);
+                    cmd.Parameters.AddWithValue("pagesize", pageSize);
+
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                        builds = new DaemonTaskConvert().ToCommonList(reader);
+                }
+
+                // get count of total records possible
+                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, connection))
+                {
+
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        reader.Read();
+                        virtualItemCount = reader.GetInt64(0);
+                    }
+                }
+
+                return new PageableData<DaemonTask>(builds, index, pageSize, virtualItemCount);
             }
         }
 

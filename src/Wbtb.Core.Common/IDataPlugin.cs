@@ -233,6 +233,8 @@ namespace Wbtb.Core.Common
 
         bool DaemonTasksBlocked(string buildId, int order);
 
+        PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize);
+
         #endregion
 
         #region BUILD PROCESSOR

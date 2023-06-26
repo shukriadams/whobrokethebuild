@@ -238,7 +238,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, build.Identifier, "revisions.json");
+            string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "revisions", $"{build.Identifier}.json");
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
             string rawJson;
@@ -257,7 +257,6 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
                 Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
                 File.WriteAllText(persistPath, rawJson);
-
             }
 
             dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);
@@ -301,26 +300,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             return chars.Substring(position, 1);
         }
 
-        public IEnumerable<Build> GetAllCachedBuilds(Job job) 
-        {
-            IList<Build> builds = new List<Build>();
-            IEnumerable<string> completeBuildFiles = Directory.GetFiles(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete"));
 
-            foreach (string completeBuildFile in completeBuildFiles)
-            {
-                RawBuild rawBuild = this.LoadRawBuild(completeBuildFile);
-                DateTime started = UnixTimeStampToDateTime(rawBuild.timestamp);
-                builds.Add(new Build() {
-                    Identifier = rawBuild.number,
-                    Hostname = rawBuild.builtOn,
-                    StartedUtc = started,
-                    Status = ConvertBuildStatus(rawBuild.result),
-                    EndedUtc = started.AddMilliseconds(int.Parse(rawBuild.duration))
-                });
-            }
-
-            return builds;
-        }
 
         public void PollBuildsForJob(Job job) 
         {
@@ -343,16 +323,19 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
                 if (string.IsNullOrEmpty(rawBuild.duration))
                 {
-                    persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete", $"{rawBuild.number}.json", "revisions.json");
+                    persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete", $"{rawBuild.number}", "build.json");
                 }
                 else
                 {
-                    cleanupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete", $"{rawBuild.number}.json");
-                    persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete", $"{rawBuild.number}.json");
+                    cleanupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete", $"{rawBuild.number}", "build.json");
+                    persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete", $"{rawBuild.number}", "build.json");
                 }
 
                 if (!File.Exists(persistPath))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
                     File.WriteAllText(persistPath, JsonConvert.SerializeObject(rawBuild));
+                }
 
                 if (!string.IsNullOrEmpty(cleanupPath) && File.Exists(cleanupPath))
                     File.Delete(cleanupPath);
@@ -390,8 +373,10 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
             var remoteKey = job.Config.First(r => r.Key == "RemoteKey");
+            string lookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete");
+            Directory.CreateDirectory(lookupPath);
 
-            IEnumerable<string> incompleteBuildFiles = Directory.GetFiles(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete"))
+            IEnumerable<string> incompleteBuildFiles = Directory.GetFiles(lookupPath)
                 .OrderByDescending(f => f)
                 .Take(take);
 
@@ -416,7 +401,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            string completeBuildPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete", $"{build.Identifier}.json");
+            string completeBuildPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete", $"{build.Identifier}", "build.json");
             if (!File.Exists(completeBuildPath))
                 return build;
 
@@ -424,6 +409,37 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             build.EndedUtc = build.StartedUtc.AddMilliseconds(int.Parse(rawBuild.duration));
             build.Status = ConvertBuildStatus(rawBuild.result);
             return build;
+        }
+
+        public IEnumerable<Build> GetAllCachedBuilds(Job job)
+        {
+            IList<string> buildDirectories = new List<string>();
+            if (Directory.Exists(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete")))
+                buildDirectories = buildDirectories.Concat(Directory.GetDirectories(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete"))).ToList();
+            if (Directory.Exists(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete")))
+                buildDirectories = buildDirectories.Concat(Directory.GetDirectories(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete"))).ToList();
+
+            IList<Build> builds = new List<Build>();
+
+            foreach (string directory in buildDirectories)
+            {
+                string buildFile = Path.Combine(directory, "build.json");
+                if (File.Exists(buildFile))
+                {
+                    RawBuild rawBuild = JsonConvert.DeserializeObject<RawBuild>(File.ReadAllText(buildFile));
+                    DateTime started = UnixTimeStampToDateTime(rawBuild.timestamp);
+                    builds.Add(new Build {
+                        Identifier = rawBuild.number,
+                        Hostname = rawBuild.builtOn,
+                        StartedUtc = started,
+                        EndedUtc = string.IsNullOrEmpty(rawBuild.duration) ? null : started.AddMilliseconds(int.Parse(rawBuild.duration)),
+                        Status = ConvertBuildStatus(rawBuild.result)
+                    });
+                }
+                    
+            }
+
+            return builds;
         }
 
         public Build ImportLog(Build build)

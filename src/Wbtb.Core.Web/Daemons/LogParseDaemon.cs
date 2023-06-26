@@ -24,6 +24,8 @@ namespace Wbtb.Core.Web
 
         private readonly BuildLogParseResultHelper _buildLogParseResultHelper;
 
+        public static int TaskGroup = 3;
+
         #endregion
 
         #region CTORS
@@ -66,6 +68,9 @@ namespace Wbtb.Core.Web
                 try
                 {
                     Build build = dataLayer.GetBuildById(task.BuildId);
+                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                        continue;
+
                     Job job = dataLayer.GetJobById(build.JobId);
 
                     job.LogParserPlugins.AsParallel().ForAll(delegate (string lopParserPlugin) {

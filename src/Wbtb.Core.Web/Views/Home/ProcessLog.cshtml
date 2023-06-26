@@ -1,0 +1,87 @@
+﻿@using Wbtb.Core.Common;
+@using Wbtb.Core.Web;
+@using Humanizer;
+
+@model ProcessPageModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Process log</h1>
+
+@if (Model.DaemonTasks.Items.Any())
+{
+    <x-list class="daemonTasks --dense">
+
+        <x-list-row class="--header">
+            <x-list-cell>
+                Created
+            </x-list-cell>
+            <x-list-cell>
+                Completed
+            </x-list-cell>
+            <x-list-cell>
+                Build
+            </x-list-cell>
+            <x-list-cell>
+                Key
+                <div class="quiet">
+                    Source
+                </div>
+            </x-list-cell>
+            <x-list-cell>
+                Result
+            </x-list-cell>
+        </x-list-row>
+
+        @foreach (ViewDaemonTask task in Model.DaemonTasks.Items)
+        {
+            <x-list-row>
+                <x-list-cell>
+                    @ViewHelpers.Ago(task.CreatedUtc) ago <div class="quiet">(@task.CreatedUtc.ToLocalTime().ToISOShort())</div>
+                </x-list-cell>
+                <x-list-cell>
+                    @if (task.ProcessedUtc.HasValue)
+                    {
+                        @if (!task.HasPassed.Value)
+                        {
+                            <x-badge class="--danger">Failed</x-badge>
+                        }
+                        <text>
+                            @task.ProcessedUtc.Value.ToLocalTime().Humanize()
+                            <div class="quiet">(@task.ProcessedUtc.Value.ToLocalTime().ToISOShort())</div>
+                        </text>
+                    }
+                    else
+                    {
+                        <text>
+                            Pending
+                        </text>
+                    }
+                </x-list-cell>
+                <x-list-cell>
+                    @ViewHelpers.BuildLink(task.Build)
+                </x-list-cell>
+                <x-list-cell>
+                    @task.TaskKey
+                    <div class="quiet">
+                        @task.Src
+                    </div>
+                </x-list-cell>
+                <x-list-cell class="quiet">
+                    @task.Result
+                </x-list-cell>
+            </x-list-row>
+        }
+    </x-list>
+}
+else
+{
+    <text>
+        No tasks listed for this job
+    </text>
+
+}
+
+@ViewHelpers.PagerBar(Model.BaseUrl, Model.DaemonTasks, Model.Config)

@@ -81,6 +81,7 @@ namespace Wbtb.Core.Web
                     try
                     {
                         Job jobInDB = dataLayer.GetJobByKey(job.Key);
+                        buildServerPlugin.PollBuildsForJob(jobInDB);
                         IEnumerable<Build> latestBuilds = buildServerPlugin.GetLatesBuilds(jobInDB, job.ImportCount);
                         // get latest page of build for quick lookup
                         IEnumerable<Build> existingBuilds = dataLayer.PageBuildsByJob(jobInDB.Id, 0, job.ImportCount * 2).Items;
@@ -107,6 +108,15 @@ namespace Wbtb.Core.Web
                                 Src = this.GetType().Name,
                                 BuildId = buildId
                             });
+
+                            if (string.IsNullOrEmpty(job.SourceServerId) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
+                                dataLayer.SaveDaemonTask(new DaemonTask
+                                {
+                                    TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildServer.ToString(),
+                                    Order = 0,
+                                    Src = this.GetType().Name,
+                                    BuildId = buildId
+                                });
                         }
                     }
                     catch (Exception ex)

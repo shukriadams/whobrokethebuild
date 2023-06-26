@@ -26,6 +26,8 @@ namespace Wbtb.Core.Web
 
         private readonly SimpleDI _di;
 
+        public static int TaskGroup = 4;
+
         #endregion
 
         #region CTORS
@@ -68,6 +70,10 @@ namespace Wbtb.Core.Web
             foreach (DaemonTask task in tasks)
             {
                 Build build = dataLayer.GetBuildById(task.BuildId);
+
+                if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                    continue;
+
                 Job job = dataLayer.GetJobById(build.JobId);
 
                 // handle current state of game

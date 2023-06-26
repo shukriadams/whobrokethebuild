@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
 
@@ -20,11 +19,9 @@ namespace Wbtb.Core.Web.Core
         
         private readonly PluginProvider _pluginProvider;
 
-        private readonly BuildLevelPluginHelper _buildLevelPluginHelper;
-
-        private readonly Configuration _config;
-
         private readonly SimpleDI _di;
+
+        public static int TaskGroup = 1;
 
         #endregion
 
@@ -35,9 +32,7 @@ namespace Wbtb.Core.Web.Core
             _log = log;
             _processRunner = processRunner;
             _di = new SimpleDI();
-            _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
-            _buildLevelPluginHelper = _di.Resolve<BuildLevelPluginHelper>();
         }
 
         #endregion
@@ -79,6 +74,9 @@ namespace Wbtb.Core.Web.Core
                     continue;
                 }
 
+                if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                    continue;
+
                 try
                 {
                     build = buildServerPlugin.ImportLog(build);
@@ -105,13 +103,15 @@ namespace Wbtb.Core.Web.Core
                         TaskKey = DaemonTaskTypes.LogParse.ToString()
                     });
 
-                    dataLayer.SaveDaemonTask(new DaemonTask
-                    {
-                        BuildId = build.Id,
-                        Src = this.GetType().Name,
-                        Order = 2,
-                        TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildLog.ToString()
-                    });
+                    // build revision requires source controld
+                    if (!string.IsNullOrEmpty(job.SourceServerId))
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            BuildId = build.Id,
+                            Src = this.GetType().Name,
+                            Order = 2,
+                            TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildLog.ToString()
+                        });
                 }
                 catch (Exception ex)
                 {

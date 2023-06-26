@@ -21,6 +21,8 @@ namespace Wbtb.Core.Web
 
         private readonly Configuration _config;
 
+        public static int TaskGroup = 1;
+
         #endregion
 
         #region CTORS
@@ -64,6 +66,8 @@ namespace Wbtb.Core.Web
             foreach (DaemonTask task in tasks)
             {
                 Build build = dataLayer.GetBuildById(task.BuildId);
+                if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                    continue;
 
                 Build previousBuild = dataLayer.GetPreviousBuild(build);
                 string description = string.Empty;

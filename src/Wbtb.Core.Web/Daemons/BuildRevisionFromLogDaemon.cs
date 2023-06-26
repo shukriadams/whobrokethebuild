@@ -27,6 +27,8 @@ namespace Wbtb.Core.Web
 
         private readonly SimpleDI _di;
 
+        public static int TaskGroup = 2;
+
         #endregion
 
         #region CTORS
@@ -84,7 +86,7 @@ namespace Wbtb.Core.Web
                 Build build = dataLayer.GetBuildById(task.BuildId);
                 Job job = dataLayer.GetJobById(build.JobId);
                 BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
-                SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
+                SourceServer sourceServer = dataLayer.GetSourceServerById(job.SourceServerId);
                 ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
                 IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                 ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
@@ -94,6 +96,9 @@ namespace Wbtb.Core.Web
                     _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                     continue;
                 }
+
+                if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                    continue;
 
                 reach = sourceServerPlugin.AttemptReach(sourceServer);
                 if (!reach.Reachable)

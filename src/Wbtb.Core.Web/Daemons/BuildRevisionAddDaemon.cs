@@ -6,6 +6,10 @@ using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
+    /// <summary>
+    /// Adds revisions in build, assuming job supports revision-in-build lookup at build server. If not, must read revisions in build from 
+    /// log, which has its own daemon.
+    /// </summary>
     public class BuildRevisionAddDaemon : IWebDaemon
     {
         #region FIELDS
@@ -21,6 +25,9 @@ namespace Wbtb.Core.Web
         private readonly BuildLevelPluginHelper _buildLevelPluginHelper;
 
         private readonly SimpleDI _di;
+
+        public static int TaskGroup = 0;
+
         #endregion
 
         #region CTORS
@@ -74,6 +81,8 @@ namespace Wbtb.Core.Web
                     _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                     continue;
                 }
+
+                // no need check if blocked
 
                 IEnumerable<string> revisionCodes = buildServerPlugin.GetRevisionsInBuild(build);
                 foreach (string revisionCode in revisionCodes)

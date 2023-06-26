@@ -49,8 +49,10 @@ namespace Wbtb.Core.Common
             this.PageIndex = pageIndex;
             this.TotalItemCount = virtualItemCount;
 
-            this.TotalPages = this.TotalItemCount / this.PageSize;
-            if (this.TotalItemCount % this.PageSize != 0)
+            if (this.PageSize != 0)
+                this.TotalPages = this.TotalItemCount / this.PageSize;
+
+            if (this.PageSize != 0 && this.TotalItemCount % this.PageSize != 0)
                 this.TotalPages++;
         }
 

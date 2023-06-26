@@ -118,40 +118,52 @@ namespace Wbtb.Core
                 foreach (Job jobConfig in buildServerConfig.Jobs)
                 {
                     Job job = dataLayer.GetJobByKey(jobConfig.Key);
-                    if (job != null)
-                    {
-                        Console.WriteLine($"VERIFIED : job {job.Key} found");
-                        continue;
-                    }
-
-                    if (jobs.Count() == buildServerConfig.Jobs.Count())
-                    {
-                        errors.Add($"ERROR: job {jobConfig.Key} was not found, but expected number of job ({buildServerConfig.Jobs.Count()}) are present. If you changed config, please manually update the job record to match new config.");
-                        continue;
-                    }
-
                     SourceServer sourceServer = null;
                     if (!string.IsNullOrEmpty(jobConfig.SourceServer))
                         sourceServer = dataLayer.GetSourceServerByKey(jobConfig.SourceServer);
 
-                    job = dataLayer.SaveJob(new Job
+                    if (job == null)
                     {
-                        Key = jobConfig.Key,
-                        BuildServerId = buildserver.Id,
-                        SourceServerId = sourceServer == null ? null : sourceServer.Id,
-                        Name = string.IsNullOrEmpty(jobConfig.Name) ? jobConfig.Key : jobConfig.Name,
-                        Description = jobConfig.Description
-                    });
+                        job = dataLayer.SaveJob(new Job
+                        {
+                            Key = jobConfig.Key,
+                            BuildServerId = buildserver.Id,
+                            SourceServerId = sourceServer == null ? null : sourceServer.Id,
+                            Name = string.IsNullOrEmpty(jobConfig.Name) ? jobConfig.Key : jobConfig.Name,
+                            Description = jobConfig.Description
+                        });
+                        Console.WriteLine($"WBTB : SETUP : Created Job {jobConfig.Key} under build server {buildServerConfig.Key}");
+                    }
+                    else 
+                    {
+                        Console.WriteLine($"VERIFIED : job {job.Key} found");
+                    }
 
                     IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
                     IEnumerable<Build> builds = buildServerPlugin.GetAllCachedBuilds(job);
+
                     foreach (Build build in builds)
+                    {
+                        if (dataLayer.GetBuildByKey(job.Id, build.Identifier) != null)
+                            continue;
+
+                        build.JobId = job.Id;
+                        build.EndedUtc = null; // force end to null, let daemons process them
                         dataLayer.SaveBuild(build);
 
-                    Console.WriteLine($"WBTB : SETUP : Created Job {jobConfig.Key} under build server {buildServerConfig.Key}");
+                        // create process order for build
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            TaskKey = "BuildEnd",
+                            Order = 0,
+                            Src = this.GetType().Name,
+                            BuildId = build.Id
+                        });
+
+                        Console.WriteLine($"Imorted build {build.Identifier} under job {job.Name}");
+                    }
                 }
             }
-
         }
 
         public void InjectUsers()

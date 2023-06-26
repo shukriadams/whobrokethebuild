@@ -271,6 +271,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             try
             {
                 string log = GetEphemeralBuildLog(build);
+                Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
                 File.WriteAllText(persistPath, log);
                 return log;
             }
