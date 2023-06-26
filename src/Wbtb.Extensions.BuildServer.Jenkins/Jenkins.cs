@@ -321,7 +321,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 string persistPath = string.Empty;
                 string cleanupPath = string.Empty;
 
-                if (string.IsNullOrEmpty(rawBuild.duration))
+                if (rawBuild.result == null)
                 {
                     persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete", $"{rawBuild.number}", "build.json");
                 }
@@ -406,6 +406,9 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 return build;
 
             RawBuild rawBuild = this.LoadRawBuild(completeBuildPath);
+            if (rawBuild.result == null)
+                return build;
+
             build.EndedUtc = build.StartedUtc.AddMilliseconds(int.Parse(rawBuild.duration));
             build.Status = ConvertBuildStatus(rawBuild.result);
             return build;
@@ -430,7 +433,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                         Identifier = rawBuild.number,
                         Hostname = rawBuild.builtOn,
                         StartedUtc = started,
-                        EndedUtc = string.IsNullOrEmpty(rawBuild.duration) ? null : started.AddMilliseconds(int.Parse(rawBuild.duration)),
+                        EndedUtc = rawBuild.result == null ? null : started.AddMilliseconds(int.Parse(rawBuild.duration)),
                         Status = ConvertBuildStatus(rawBuild.result)
                     });
                 }
