@@ -26,7 +26,7 @@ namespace Wbtb.Core.CLI
                 int i = 0;
                 while (true) 
                 {
-                    PageableData<Build> builds = dataLayer.PageBuildsByJob(job.Id, i , 1000);
+                    PageableData<Build> builds = dataLayer.PageBuildsByJob(job.Id, i , 1000, false);
                     if (builds.Items.Count == 0)
                         break;
 

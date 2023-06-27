@@ -36,6 +36,7 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, LogParseDaemon>(null, true);
                     di.Register<IWebDaemon, UserBuildInvolvementLinkDaemon>(null, true);
                     di.Register<IWebDaemon, RevisionResolveDaemon>(null, true);
+                    di.RegisterSingleton(typeof(DaemonActiveProcesses), new DaemonActiveProcesses());
                     di.RegisterFactory<IHubContext, HubFactory>();
                     di.Register<BuildLevelPluginHelper, BuildLevelPluginHelper>();
 

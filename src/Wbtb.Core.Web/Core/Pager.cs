@@ -67,14 +67,14 @@ namespace Wbtb.Core.Web
         /// <param name="baseurl">Nullable. Use if the existing url already has query string arguments in it. Paging args will be appended to url preserving existing.</param>
         /// <param name="pageQueryStringArg">Name of page query string argument</param>
         /// <returns>Rendered Html of pager.</returns>
-        public string Render<T>(PageableData<T> page, int pagesPerGroup, string baseurl, string pageQueryStringArg, string hash = "")
+        public string Render<T>(PageableData<T> page, int pagesPerGroup, string baseurl, string queryStrings, string pageIndexName, string hash = "")
         {
             // force cast max items from long to int - we will never realistically page through that many items
             this.Calculate((int)page.TotalItemCount, page.PageIndex, page.PageSize, pagesPerGroup);
             if (this.NotEnoughDataToPage)
                 return string.Empty;
 
-            return this.RenderPageLinks(page.PageIndex, pagesPerGroup, baseurl, pageQueryStringArg, hash);
+            return this.RenderPageLinks(page.PageIndex, pagesPerGroup, baseurl, queryStrings, pageIndexName, hash);
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Wbtb.Core.Web
         /// <param name="baseurl"></param>
         /// <param name="pageIndexName"></param>
         /// <returns>Rendered Html of pager.</returns>
-        private string RenderPageLinks(int currentPage, int pagesPerGroup, string baseurl, string pageIndexName, string hash)
+        private string RenderPageLinks(int currentPage, int pagesPerGroup, string baseurl, string queryStrings, string pageIndexName, string hash)
         {
             StringBuilder s = new StringBuilder();
 
@@ -128,7 +128,7 @@ namespace Wbtb.Core.Web
             if (this.Currentgroup > 0)
             {
                 int back = ((this.Currentgroup * pagesPerGroup) - 1);
-                s.Append($"<li><a class='pager-anchor' href='{baseurl}/{pageIndexName}={back + 1}{hash}'>");
+                s.Append($"<li><a class='pager-anchor' href='{baseurl}/{pageIndexName}={back + 1}{hash}?{queryStrings}'>");
                 s.Append("..");
                 s.Append("</a></li>");
             }
@@ -144,7 +144,7 @@ namespace Wbtb.Core.Web
                 if (isActive)
                     s.Append($"<a class='pager-anchor --active'>");
                 else
-                    s.Append($"<a class='pager-anchor' href='{baseurl}/{c + 1}{hash}'>");
+                    s.Append($"<a class='pager-anchor' href='{baseurl}/{c + 1}{hash}?{queryStrings}'>");
 
                 s.Append(c + 1);
                 s.Append("</a></li>");
@@ -155,7 +155,7 @@ namespace Wbtb.Core.Web
             if (this.Currentgroup < this.TotalGroups - 1)
             {
                 int forward = (this.Currentgroup + 1) * pagesPerGroup;
-                s.Append($"<li><a class='pager-anchor' href='{baseurl}/{forward + 1}{hash}'>");
+                s.Append($"<li><a class='pager-anchor' href='{baseurl}/{forward + 1}{hash}?{queryStrings}'>");
                 s.Append("..");
                 s.Append("</a></li>");
             }

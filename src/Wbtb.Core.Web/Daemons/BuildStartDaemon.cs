@@ -84,7 +84,7 @@ namespace Wbtb.Core.Web
                         buildServerPlugin.PollBuildsForJob(jobInDB);
                         IEnumerable<Build> latestBuilds = buildServerPlugin.GetLatesBuilds(jobInDB, job.ImportCount);
                         // get latest page of build for quick lookup
-                        IEnumerable<Build> existingBuilds = dataLayer.PageBuildsByJob(jobInDB.Id, 0, job.ImportCount * 2).Items;
+                        IEnumerable<Build> existingBuilds = dataLayer.PageBuildsByJob(jobInDB.Id, 0, job.ImportCount * 2, false).Items;
 
                         foreach (Build latestBuild in latestBuilds) 
                         {

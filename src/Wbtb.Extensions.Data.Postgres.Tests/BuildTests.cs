@@ -93,7 +93,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
             Build record3 = this.Postgres.SaveBuild(new Build { JobId = job2.Key, Identifier = "c", TriggeringCodeChange = "a", TriggeringType = "a", Hostname = "a" });
 
 
-            PageableData<Build> page = this.Postgres.PageBuildsByJob(job1.Key, 0, 2);
+            PageableData<Build> page = this.Postgres.PageBuildsByJob(job1.Key, 0, 2, false);
             Assert.Equal(2, page.TotalItemCount);
             Assert.Equal(2, page.Items.Count());
             Assert.Contains(page.Items, r => r.Id == record1.Id);

@@ -9,5 +9,10 @@ namespace Wbtb.Core.Web
         public string BaseUrl { get; set; }
 
         public PageableData<ViewBuild> Builds { get; set; }
+
+        public BuildHostModel() 
+        {
+
+        }
     }
 }

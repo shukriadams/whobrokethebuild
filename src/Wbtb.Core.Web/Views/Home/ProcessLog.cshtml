@@ -10,6 +10,38 @@
 
 <h1>Process log</h1>
 
+
+@if (Model.ActiveProcesses.Any())
+{
+    <x-list class="daemonTasks --dense">
+    @foreach (DaemonActiveProcessItem item in Model.ActiveProcesses)
+    {
+        <x-list-row class="--header">
+            <x-list-cell>
+                @item.Daemon
+            </x-list-cell>
+            <x-list-cell>
+                @item.Description
+            </x-list-cell>
+            <x-list-cell>
+                @((DateTime.UtcNow - item.CreatedUtc).Humanize())
+            </x-list-cell>
+        </x-list-row>
+    }
+    </x-list>
+} 
+else
+{
+    <div>
+        No active processes
+    </div>
+}
+
+
+<div>
+    Filter by : <a href="@Model.BaseUrl?filterby=unprocessed">Unprocessed</a>  | <a href="@Model.BaseUrl?filterby=passed">Passed</a> | <a href="@Model.BaseUrl?filterby=failed">Failed</a> | <a href="@Model.BaseUrl?filterby=">Remove filters</a>
+</div>
+
 @if (Model.DaemonTasks.Items.Any())
 {
     <x-list class="daemonTasks --dense">
@@ -84,4 +116,4 @@ else
 
 }
 
-@ViewHelpers.PagerBar(Model.BaseUrl, Model.DaemonTasks, Model.Config)
+@ViewHelpers.PagerBar(Model.BaseUrl, Model.QueryStrings, Model.DaemonTasks, Model.Config)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
@@ -25,6 +26,8 @@ namespace Wbtb.Core.Web
         private readonly BuildLogParseResultHelper _buildLogParseResultHelper;
 
         public static int TaskGroup = 3;
+        
+        private readonly SimpleDI _di;
 
         #endregion
 
@@ -37,6 +40,7 @@ namespace Wbtb.Core.Web
             _buildLogParseResultHelper = buildLogParseResultHelper;
             _config = config;
             _pluginProvider = pluginProvider;
+            _di = new SimpleDI();
         }
 
         #endregion
@@ -63,41 +67,68 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.LogParse.ToString());
-            foreach (DaemonTask task in tasks)
+            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+
+            try
             {
-                try
+                foreach (DaemonTask task in tasks)
                 {
-                    Build build = dataLayer.GetBuildById(task.BuildId);
-                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
-                        continue;
+                    try
+                    {
+                        Build build = dataLayer.GetBuildById(task.BuildId);
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
-                    Job job = dataLayer.GetJobById(build.JobId);
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                            continue;
 
-                    job.LogParserPlugins.AsParallel().ForAll(delegate (string lopParserPlugin) {
-                        try
+                        Job job = dataLayer.GetJobById(build.JobId);
+
+                        task.HasPassed = true;
+                        job.LogParserPlugins.AsParallel().ForAll(delegate (string logParserPlugin)
                         {
-                            ILogParserPlugin parser = _pluginProvider.GetByKey(lopParserPlugin) as ILogParserPlugin;
-                            _buildLogParseResultHelper.ProcessBuild(dataLayer, build, parser, _log);
-                        }
-                        catch (Exception ex)
-                        {
-                            _log.LogError($"Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin \"{lopParserPlugin}\" : {ex}");
-                        }
-                    });
+                            try
+                            {
+                                ILogParserPlugin parser = _pluginProvider.GetByKey(logParserPlugin) as ILogParserPlugin;
 
-                    task.HasPassed = true;
+                                string rawLog = File.ReadAllText(build.LogPath);
+
+                                BuildLogParseResult logParserResult = new BuildLogParseResult();
+                                logParserResult.BuildId = build.Id;
+                                logParserResult.LogParserPlugin = parser.ContextPluginConfig.Key;
+                                logParserResult.ParsedContent = string.Empty;
+
+                                // for now, parse only failed logs.
+                                if (build.Status == BuildStatus.Failed)
+                                    logParserResult.ParsedContent = parser.Parse(rawLog);
+
+                                dataLayer.SaveBuildLogParseResult(logParserResult);
+                                Console.WriteLine($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}");
+                            }
+                            catch (Exception ex)
+                            {
+                                _log.LogError($"Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin \"{logParserPlugin}\" : {ex}");
+                                task.HasPassed = false;
+                                if (task.Result == null)
+                                    task.Result = string.Empty;
+
+                                task.Result = $"{task.Result}\n{ex}";
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        task.HasPassed = false;
+                        task.Result = ex.ToString();
+                    }
+
+                    task.ProcessedUtc = DateTime.UtcNow;
+                    dataLayer.SaveDaemonTask(task);
                 }
-                catch (Exception ex)
-                {
-                    task.HasPassed = false;
-                    task.Result = ex.ToString();
-                }
-
-                task.ProcessedUtc = DateTime.UtcNow;
-                dataLayer.SaveDaemonTask(task);
-
             }
-
+            finally
+            {
+                activeItems.Clear(this);
+            }
         }
 
         #endregion

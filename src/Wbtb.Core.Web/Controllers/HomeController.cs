@@ -176,7 +176,7 @@ namespace Wbtb.Core.Web.Controllers
             model.Job.DeltaBuild = ViewBuild.Copy(dataLayer.GetLastJobDelta(model.Job.Id));
             model.Stats = dataLayer.GetJobStats(model.Job);
             model.BaseUrl = $"/job/{jobid}";
-            model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByJob(jobid, pageIndex, config.StandardPageSize));
+            model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByJob(jobid, pageIndex, config.StandardPageSize, false));
             return View(model);
         }
 
@@ -316,17 +316,20 @@ namespace Wbtb.Core.Web.Controllers
 
         [ServiceFilter(typeof(ViewStatus))]
         [Route("/processlog/{page?}")]
-        public IActionResult ProcessLog(string hostname, int page)
+        public IActionResult ProcessLog(string hostname, int page, string filterby)
         {
             Configuration config = _di.Resolve<Configuration>();
             hostname = HttpUtility.UrlDecode(hostname);
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             ProcessPageModel model = new ProcessPageModel();
 
-            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize));
+            model.ActiveProcesses = activeItems.GetCurrent();
+            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, filterby));
             model.DaemonTasks.Items.ToList().ForEach(daemonTask => daemonTask.Build = ViewBuild.Copy(dataLayer.GetBuildById(daemonTask.BuildId)));
             model.BaseUrl = $"/processlog";
+            model.QueryStrings = $"filterby={filterby}";
 
             return View(model);
         }

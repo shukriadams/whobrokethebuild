@@ -17,8 +17,6 @@ namespace Wbtb.Core
         /// <param name="log"></param>
         public void ProcessBuild(IDataPlugin dataLayer, Build buildWithUnparsedLogs, ILogParserPlugin parser, ILogger log)
         {
-            try
-            {
                 string rawLog = File.ReadAllText(buildWithUnparsedLogs.LogPath);
 
                 BuildLogParseResult logParserResult = new BuildLogParseResult();
@@ -32,18 +30,6 @@ namespace Wbtb.Core
 
                 dataLayer.SaveBuildLogParseResult(logParserResult);
                 Console.WriteLine($"Parsed log for build id {buildWithUnparsedLogs.Id} with plugin {logParserResult.LogParserPlugin}");
-            }
-            catch (Exception ex)
-            {
-                log.LogError($"Unexpected error trying to parse logs for build \"{buildWithUnparsedLogs.Id}\" : {ex}");
-
-                dataLayer.SaveBuildFlag(new BuildFlag
-                {
-                    BuildId = buildWithUnparsedLogs.Id,
-                    Description = $"error parsing logs: {ex}",
-                    Flag = BuildFlags.LogParseFailed
-                });
-            }
         }
     }
 }

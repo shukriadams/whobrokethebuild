@@ -59,69 +59,78 @@ namespace Wbtb.Core.Web.Core
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.LogImport.ToString());
-            
-            foreach (DaemonTask task in tasks)
+            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+
+            try
             {
-                Build build = dataLayer.GetBuildById(task.BuildId);
-                Job job = dataLayer.GetJobById(build.JobId);
-                BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
-                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-
-                if (!reach.Reachable)
+                foreach (DaemonTask task in tasks)
                 {
-                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                    continue;
-                }
+                    Build build = dataLayer.GetBuildById(task.BuildId);
+                    Job job = dataLayer.GetJobById(build.JobId);
+                    BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
+                    IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                    ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
-                if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
-                    continue;
+                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
-                try
-                {
-                    build = buildServerPlugin.ImportLog(build);
-                    if (string.IsNullOrEmpty(build.LogPath)) 
+                    if (!reach.Reachable)
                     {
-                        task.Result = "Log retrieve exited normally, but saved no log.";
-                        task.ProcessedUtc = DateTime.Now;
-                        task.HasPassed = false;
-                        dataLayer.SaveDaemonTask(task);  
+                        _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                         continue;
                     }
-                    
-                    dataLayer.SaveBuild(build);
-                    task.ProcessedUtc = DateTime.Now;
-                    task.HasPassed = true;
-                    dataLayer.SaveDaemonTask(task);
 
-                    // create tasks for next stage
-                    dataLayer.SaveDaemonTask(new DaemonTask
+                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                        continue;
+
+                    try
                     {
-                        BuildId = build.Id,
-                        Src = this.GetType().Name,
-                        Order = 3,
-                        TaskKey = DaemonTaskTypes.LogParse.ToString()
-                    });
+                        build = buildServerPlugin.ImportLog(build);
+                        if (string.IsNullOrEmpty(build.LogPath))
+                        {
+                            task.Result = "Log retrieve exited normally, but saved no log.";
+                            task.ProcessedUtc = DateTime.Now;
+                            task.HasPassed = false;
+                            dataLayer.SaveDaemonTask(task);
+                            continue;
+                        }
 
-                    // build revision requires source controld
-                    if (!string.IsNullOrEmpty(job.RevisionAtBuildRegex) && !string.IsNullOrEmpty(job.SourceServerId))
+                        dataLayer.SaveBuild(build);
+                        task.ProcessedUtc = DateTime.Now;
+                        task.HasPassed = true;
+                        dataLayer.SaveDaemonTask(task);
+
+                        // create tasks for next stage
                         dataLayer.SaveDaemonTask(new DaemonTask
                         {
                             BuildId = build.Id,
                             Src = this.GetType().Name,
-                            Order = 2,
-                            TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildLog.ToString()
+                            Order = 3,
+                            TaskKey = DaemonTaskTypes.LogParse.ToString()
                         });
-                }
-                catch (Exception ex)
-                {
-                    task.Result = ex.ToString();
-                    task.ProcessedUtc = DateTime.Now;
-                    task.HasPassed = false;
-                    dataLayer.SaveDaemonTask(task);
+
+                        // build revision requires source controld
+                        if (!string.IsNullOrEmpty(job.RevisionAtBuildRegex) && !string.IsNullOrEmpty(job.SourceServerId))
+                            dataLayer.SaveDaemonTask(new DaemonTask
+                            {
+                                BuildId = build.Id,
+                                Src = this.GetType().Name,
+                                Order = 2,
+                                TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildLog.ToString()
+                            });
+                    }
+                    catch (Exception ex)
+                    {
+                        task.Result = ex.ToString();
+                        task.ProcessedUtc = DateTime.Now;
+                        task.HasPassed = false;
+                        dataLayer.SaveDaemonTask(task);
+                    }
                 }
             }
-
+            finally 
+            {
+                activeItems.Clear(this);
+            }
         }
 
         #endregion

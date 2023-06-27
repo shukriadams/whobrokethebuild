@@ -24,6 +24,8 @@ namespace Wbtb.Core.Web
 
         public static int TaskGroup = 2;
 
+        private readonly SimpleDI _di;
+
         #endregion
 
         #region CTORS
@@ -33,9 +35,9 @@ namespace Wbtb.Core.Web
             _log = log;
             _processRunner = processRunner;
 
-            SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Configuration>();
-            _pluginProvider = di.Resolve<PluginProvider>(); 
+            _di = new SimpleDI();
+            _config = _di.Resolve<Configuration>();
+            _pluginProvider = _di.Resolve<PluginProvider>(); 
 
         }
 
@@ -60,40 +62,51 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.UserResolve.ToString());
-            foreach (DaemonTask task in tasks)
+            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+
+            try
             {
-                Build build = dataLayer.GetBuildById(task.BuildId);
-                if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
-                    continue;
-
-                Job job = dataLayer.GetJobById(build.JobId);
-                BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
-                SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
-                Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
-
-                User matchingUser = _config.Users
-                    .FirstOrDefault(r => r.SourceServerIdentities
-                        .Any(r => r.Name == revision.User));
-
-                User userInDatabase = null;
-                if (matchingUser != null)
-                    userInDatabase = dataLayer.GetUserByKey(matchingUser.Key);
-
-                if (userInDatabase == null)
+                foreach (DaemonTask task in tasks)
                 {
+                    Build build = dataLayer.GetBuildById(task.BuildId);
+                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+
+                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                        continue;
+
+                    Job job = dataLayer.GetJobById(build.JobId);
+                    BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
+                    SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
+                    Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
+
+                    User matchingUser = _config.Users
+                        .FirstOrDefault(r => r.SourceServerIdentities
+                            .Any(r => r.Name == revision.User));
+
+                    User userInDatabase = null;
+                    if (matchingUser != null)
+                        userInDatabase = dataLayer.GetUserByKey(matchingUser.Key);
+
+                    if (userInDatabase == null)
+                    {
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.Result = $"User {revision.User} for buildinvolvement does not exist. Add user and rerun import";
+                        task.HasPassed = false;
+                        dataLayer.SaveDaemonTask(task);
+                        continue;
+                    }
+
+                    buildInvolvement.MappedUserId = userInDatabase.Id;
+                    dataLayer.SaveBuildInvolement(buildInvolvement);
+
                     task.ProcessedUtc = DateTime.UtcNow;
-                    task.Result = $"User {revision.User} for buildinvolvement does not exist. Add user and rerun import";
-                    task.HasPassed = false;
+                    task.HasPassed = true;
                     dataLayer.SaveDaemonTask(task);
-                    continue;
                 }
-
-                buildInvolvement.MappedUserId = userInDatabase.Id;
-                dataLayer.SaveBuildInvolement(buildInvolvement);
-
-                task.ProcessedUtc = DateTime.UtcNow;
-                task.HasPassed = true;
-                dataLayer.SaveDaemonTask(task);
+            }
+            finally
+            {
+                activeItems.Clear(this);
             }
         }
         #endregion

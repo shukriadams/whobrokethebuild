@@ -415,7 +415,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        PageableData<Build> IDataPlugin.PageBuildsByJob(string jobId, int index, int pageSize)
+        PageableData<Build> IDataPlugin.PageBuildsByJob(string jobId, int index, int pageSize, bool sortAscending)
         {
             return _pluginSender.InvokeMethod<PageableData<Build>>(this, new PluginArgs
             {
@@ -423,7 +423,8 @@ namespace Wbtb.Core.Common
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobId", Value = jobId },
                     new PluginFunctionParameter { Name = "index", Value = index },
-                    new PluginFunctionParameter { Name = "pageSize", Value = pageSize }
+                    new PluginFunctionParameter { Name = "pageSize", Value = pageSize },
+                    new PluginFunctionParameter { Name = "sortAscending", Value = sortAscending }
                 }
             });
         }
@@ -832,14 +833,15 @@ namespace Wbtb.Core.Common
             });
         }
 
-        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize)
+        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string filterBy = "")
         {
             return _pluginSender.InvokeMethod<PageableData<DaemonTask>>(this, new PluginArgs
             {
                 FunctionName = nameof(IDataPlugin.PageDaemonTasks),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "index", Value = index },
-                    new PluginFunctionParameter { Name = "pageSize", Value = pageSize }
+                    new PluginFunctionParameter { Name = "pageSize", Value = pageSize },
+                    new PluginFunctionParameter { Name = "filterBy", Value = filterBy }
                 }
             });
         }

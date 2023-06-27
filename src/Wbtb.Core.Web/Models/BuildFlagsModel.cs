@@ -7,7 +7,11 @@ namespace Wbtb.Core.Web
 
         public string BaseUrl { get; set;}
 
-
         public PageableData<ViewBuildFlag> BuildFlags{ get; set; }
+
+        public BuildFlagsModel() 
+        {
+
+        }
     }
 }

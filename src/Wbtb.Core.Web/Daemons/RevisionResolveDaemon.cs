@@ -23,6 +23,8 @@ namespace Wbtb.Core.Web
         private readonly PluginProvider _pluginProvider;
 
         public static int TaskGroup = 2;
+        
+        private readonly SimpleDI _di;
 
         #endregion
 
@@ -33,9 +35,9 @@ namespace Wbtb.Core.Web
             _log = log;
             _processRunner = processRunner;
 
-            SimpleDI di = new SimpleDI();
-            _config = di.Resolve<Configuration>();
-            _pluginProvider = di.Resolve<PluginProvider>();
+            _di = new SimpleDI();
+            _config = _di.Resolve<Configuration>();
+            _pluginProvider = _di.Resolve<PluginProvider>();
         }
 
         #endregion
@@ -62,53 +64,64 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.RevisionResolve.ToString());
-            foreach (DaemonTask task in tasks)
-            {
-                Build build = dataLayer.GetBuildById(task.BuildId);
-                if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
-                    continue;
+            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
 
-                Job job = dataLayer.GetJobById(build.JobId);
-                BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
-                SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
-                ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
-                Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
-               
-                if (revision != null)
+            try
+            {
+                foreach (DaemonTask task in tasks)
                 {
+                    Build build = dataLayer.GetBuildById(task.BuildId);
+                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+
+                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                        continue;
+
+                    Job job = dataLayer.GetJobById(build.JobId);
+                    BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
+                    SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
+                    ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
+                    Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
+
+                    if (revision != null)
+                    {
+                        task.HasPassed = true;
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.Result = $"Revision {buildInvolvement.RevisionCode} already resolved";
+                        dataLayer.SaveDaemonTask(task);
+                        continue;
+                    }
+
+                    if (!sourceServerPlugin.AttemptReach(sourceServer).Reachable)
+                    {
+                        Console.WriteLine($"unable to reach source server \"{sourceServer.Name}\", waiting for later.");
+                        continue;
+                    }
+
+                    revision = sourceServerPlugin.GetRevision(sourceServer, buildInvolvement.RevisionCode);
+                    if (revision == null)
+                    {
+                        task.HasPassed = false;
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.Result = $"Failed to resolve revision {buildInvolvement.RevisionCode} from source control server.";
+                        dataLayer.SaveDaemonTask(task);
+                        continue;
+                    }
+
+                    revision.SourceServerId = sourceServer.Id;
+                    revision = dataLayer.SaveRevision(revision);
+
+                    buildInvolvement.RevisionId = revision.Id;
+                    dataLayer.SaveBuildInvolement(buildInvolvement);
+
                     task.HasPassed = true;
                     task.ProcessedUtc = DateTime.UtcNow;
-                    task.Result = $"Revision {buildInvolvement.RevisionCode} already resolved";
                     dataLayer.SaveDaemonTask(task);
-                    continue;
+
                 }
-
-                if (!sourceServerPlugin.AttemptReach(sourceServer).Reachable) 
-                {
-                    Console.WriteLine($"unable to reach source server \"{sourceServer.Name}\", waiting for later.");
-                    continue;
-                }
-
-                revision = sourceServerPlugin.GetRevision(sourceServer, buildInvolvement.RevisionCode);
-                if (revision == null)
-                {
-                    task.HasPassed = false;
-                    task.ProcessedUtc = DateTime.UtcNow;
-                    task.Result = $"Failed to resolve revision {buildInvolvement.RevisionCode} from source control server.";
-                    dataLayer.SaveDaemonTask(task);
-                    continue;
-                }
-
-                revision.SourceServerId = sourceServer.Id;
-                revision =  dataLayer.SaveRevision(revision);
-
-                buildInvolvement.RevisionId = revision.Id;
-                dataLayer.SaveBuildInvolement(buildInvolvement);
-
-                task.HasPassed = true;
-                task.ProcessedUtc = DateTime.UtcNow;
-                dataLayer.SaveDaemonTask(task);
-
+            }
+            finally
+            {
+                activeItems.Clear(this);
             }
         }
 

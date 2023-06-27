@@ -59,61 +59,72 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.BuildEnd.ToString());
 
-            foreach(DaemonTask task in tasks)
+            try
             {
-                Build build = dataLayer.GetBuildById(task.BuildId);
-                Job job = dataLayer.GetJobById(build.JobId);
-                BuildServer buildserver = dataLayer.GetBuildServerById(job.BuildServerId);
-                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
+                foreach (DaemonTask task in tasks)
+                {
+                    Build build = dataLayer.GetBuildById(task.BuildId);
+                    Job job = dataLayer.GetJobById(build.JobId);
+                    BuildServer buildserver = dataLayer.GetBuildServerById(job.BuildServerId);
+                    IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
 
-                // build is already marked as done, this should not happen
-                if (build.EndedUtc != null) 
-                { 
-                    task.ProcessedUtc = build.EndedUtc;
+                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+
+                    // build is already marked as done, this should not happen
+                    if (build.EndedUtc != null)
+                    {
+                        task.ProcessedUtc = build.EndedUtc;
+                        task.HasPassed = true;
+                        task.Result = "Already finished";
+                        dataLayer.SaveDaemonTask(task);
+                        continue;
+                    }
+
+                    build = buildServerPlugin.TryUpdateBuild(build);
+
+                    // build still not done
+                    if (!build.EndedUtc.HasValue)
+                        continue;
+
+                    dataLayer.SaveBuild(build);
+
                     task.HasPassed = true;
-                    task.Result = "Already finished";
+                    task.ProcessedUtc = DateTime.UtcNow;
                     dataLayer.SaveDaemonTask(task);
-                    continue;
-                }
 
-                build = buildServerPlugin.TryUpdateBuild(build);
-
-                // build still not done
-                if (!build.EndedUtc.HasValue)
-                    continue;
-
-                dataLayer.SaveBuild(build);
-
-                task.HasPassed = true;
-                task.ProcessedUtc = DateTime.UtcNow;
-                dataLayer.SaveDaemonTask(task);
-
-                // create tasks for next stage
-                dataLayer.SaveDaemonTask(new DaemonTask
-                {
-                    BuildId = build.Id,
-                    Src = this.GetType().Name,
-                    Order = 1,
-                    TaskKey = DaemonTaskTypes.LogImport.ToString()
-                });
-
-                dataLayer.SaveDaemonTask(new DaemonTask
-                {
-                    BuildId = build.Id,
-                    Src = this.GetType().Name,
-                    Order = 4,
-                    TaskKey = DaemonTaskTypes.DeltaCalculate.ToString()
-                });
-
-                if (build.Status == BuildStatus.Failed) 
-                    dataLayer.SaveDaemonTask(new DaemonTask { 
+                    // create tasks for next stage
+                    dataLayer.SaveDaemonTask(new DaemonTask
+                    {
                         BuildId = build.Id,
                         Src = this.GetType().Name,
                         Order = 1,
-                        TaskKey = DaemonTaskTypes.IncidentAssign.ToString()
+                        TaskKey = DaemonTaskTypes.LogImport.ToString()
                     });
+
+                    dataLayer.SaveDaemonTask(new DaemonTask
+                    {
+                        BuildId = build.Id,
+                        Src = this.GetType().Name,
+                        Order = 4,
+                        TaskKey = DaemonTaskTypes.DeltaCalculate.ToString()
+                    });
+
+                    if (build.Status == BuildStatus.Failed)
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            BuildId = build.Id,
+                            Src = this.GetType().Name,
+                            Order = 1,
+                            TaskKey = DaemonTaskTypes.IncidentAssign.ToString()
+                        });
+                }
+            }
+            finally 
+            {
+                activeItems.Clear(this);
             }
         }
 

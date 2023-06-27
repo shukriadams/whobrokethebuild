@@ -115,7 +115,7 @@ namespace Wbtb.Core.Common
 
         Build GetBuildByKey(string jobId, string key);
 
-        PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize);
+        PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize, bool sortAscending);
 
         PageableData<Build> PageIncidentsByJob(string jobId, int index, int pageSize);
 
@@ -233,7 +233,7 @@ namespace Wbtb.Core.Common
 
         bool DaemonTasksBlocked(string buildId, int order);
 
-        PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize);
+        PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string filterBy = "");
 
         #endregion
 

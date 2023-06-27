@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -518,7 +517,22 @@ namespace Wbtb.Extensions.Data.Postgres
                     affected += cmd.ExecuteNonQuery();
                 }
 
-                // remove buildflags for job
+                string resetDaemonTasks = @"
+                DELETE FROM 
+                    daemontask
+                USING
+                    build
+                WHERE
+                    daemontask.buildid = build.id
+                    AND build.jobid = @jobid";
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(resetDaemonTasks, connection))
+                {
+                    cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                    affected += cmd.ExecuteNonQuery();
+                }
+
+                // 
                 string deltaClear = @"
                 DELETE FROM 
                     jobdelta
@@ -846,8 +860,12 @@ namespace Wbtb.Extensions.Data.Postgres
 
 
 
-        public PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize)
+        public PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize, bool sortAscending)
         {
+            string sortOrder = "";
+            if (!sortAscending)
+                sortOrder = "DESC";
+
             string pageQuery = @"
                 SELECT 
                     *
@@ -856,7 +874,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     jobid = @jobid
                 ORDER BY
-                    startedutc DESC
+                    startedutc "+ sortOrder  + @"
                 LIMIT 
                     @pagesize
                 OFFSET 
@@ -1964,17 +1982,35 @@ namespace Wbtb.Extensions.Data.Postgres
                     reader.Read();
                     return reader.GetInt32(0) > 0;
                 }
-                    
             }
         }
 
-        public PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize) 
+        public PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string filterBy = "") 
         {
+            /*
+                filterBy options : 
+                - unprocessed
+                - failed
+                - passed
+                
+             */
+
+            string where = string.Empty;
+            if (filterBy == "unprocessed")
+                where = " WHERE processedutc IS NULL ";
+
+            if (filterBy == "failed")
+                where = " WHERE passed = false ";
+
+            if (filterBy == "passed")
+                where = " WHERE passed = true";
+
             string pageQuery = @"
                 SELECT
                     *
                 FROM
                     daemontask
+                    "+where+@"
                 ORDER BY
                     createdutc DESC
                 LIMIT 
@@ -1986,7 +2022,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 SELECT 
                     COUNT(id)
                 FROM 
-                    daemontask";
+                    daemontask
+                "+where;
 
             long virtualItemCount = 0;
             IEnumerable<DaemonTask> builds = null;
@@ -2004,13 +2041,10 @@ namespace Wbtb.Extensions.Data.Postgres
 
                 // get count of total records possible
                 using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, connection))
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
-
-                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        reader.Read();
-                        virtualItemCount = reader.GetInt64(0);
-                    }
+                    reader.Read();
+                    virtualItemCount = reader.GetInt64(0);
                 }
 
                 return new PageableData<DaemonTask>(builds, index, pageSize, virtualItemCount);

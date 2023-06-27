@@ -359,7 +359,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Build[] { };
         }
 
-        public PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize)
+        public PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize, bool sortAscending)
         {
             return new PageableData<Build>(new Build[] { }, 0, 0, 0);
         }
@@ -509,7 +509,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return false;
         }
 
-        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize) 
+        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string filterBy = "") 
         {
             return new PageableData<DaemonTask>(new DaemonTask[] { }, 0, 0, 0);
         }

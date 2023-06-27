@@ -370,15 +370,25 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         public IEnumerable<Build> GetLatesBuilds(Job job, int take)
         {
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
-            var remoteKey = job.Config.First(r => r.Key == "RemoteKey");
-            string lookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete");
-            Directory.CreateDirectory(lookupPath);
 
-            IEnumerable<string> incompleteBuildFiles = Directory.GetFiles(lookupPath)
-                .OrderByDescending(f => f)
-                .Take(take);
+            string lookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete");
+            string completeLookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key);
+            
+            IList<string> incompleteBuildFiles = Directory.GetFiles(lookupPath).ToList();
+
+
+            Directory.CreateDirectory(lookupPath);
+            IEnumerable<string> completeBuildParents =  Directory.GetDirectories(completeLookupPath).OrderByDescending(f => f).Take(take);
+            foreach (string completeBuildParent in completeBuildParents)
+            { 
+                string filePath = Path.Combine(completeBuildParent, "build.json");
+                if (File.Exists(filePath))
+                    incompleteBuildFiles.Add(filePath);
+            }
+
+            incompleteBuildFiles = incompleteBuildFiles.OrderByDescending(f => f)
+                .Take(take)
+                .ToList();
 
             IList<Build> builds = new List<Build>();
             foreach (string incompleteBuildFilePath in incompleteBuildFiles) 
@@ -439,7 +449,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 }
             }
 
-            return builds;
+            return builds.OrderBy(b => b.StartedUtc);
         }
 
         public Build ImportLog(Build build)
