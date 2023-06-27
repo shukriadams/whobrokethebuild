@@ -27,6 +27,7 @@
     <ProjectReference Include="..\Wbtb.Extensions.Auth.ActiveDirectorySandbox\Wbtb.Extensions.Auth.ActiveDirectorySandbox.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.Auth.ActiveDirectory\Wbtb.Extensions.Auth.ActiveDirectory.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.Auth.Internal\Wbtb.Extensions.Auth.Internal.csproj" />
+    <ProjectReference Include="..\Wbtb.Extensions.Blame.AcmeGamesBlamer\Wbtb.Extensions.Blame.AcmeGamesBlamer.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.BuildServer.JenkinsSandbox\Wbtb.Extensions.BuildServer.JenkinsSandbox.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.BuildServer.Jenkins\Wbtb.Extensions.BuildServer.Jenkins.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.Data.FileSystem\Wbtb.Extensions.Data.FileSystem.csproj" />

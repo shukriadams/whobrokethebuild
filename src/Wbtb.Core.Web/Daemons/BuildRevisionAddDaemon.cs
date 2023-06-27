@@ -110,7 +110,7 @@ namespace Wbtb.Core.Web
                                 BuildId = build.Id,
                                 BuildInvolvementId = biID,
                                 Src = this.GetType().Name,
-                                Order = 2,
+                                Order = 3,
                             });
 
                             dataLayer.SaveDaemonTask(new DaemonTask
@@ -119,7 +119,7 @@ namespace Wbtb.Core.Web
                                 BuildId = build.Id,
                                 BuildInvolvementId = biID,
                                 Src = this.GetType().Name,
-                                Order = 2,
+                                Order = 3,
                             });
                         }
                         catch (Exception ex)

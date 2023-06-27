@@ -212,16 +212,8 @@ namespace Wbtb.Core
 
             // validate alert config against plugins - alerting is done by a specific plugin, that plugin can impose its own requirements.
             foreach (BuildServer buildserver in _config.BuildServers)
-                foreach (Job job in buildserver.Jobs){
-                    
-                    // ensure that declared log parsers actually declare log parser interfaces
-                    foreach(string logParserKey in job.LogParserPlugins)
-                    { 
-                        PluginConfig logParserConfig = _config.Plugins.Single(p => p.Key == logParserKey);
-                        if (logParserConfig.Manifest.Interface != TypeHelper.Name(typeof(ILogParserPlugin)))
-                            throw new ConfigurationException($"Job {job.Key} defines a log parser plugin {logParserKey}, but this plugin does not implement the expected interface {typeof(ILogParserPlugin).Name}.");
-                    }
-
+                foreach (Job job in buildserver.Jobs)
+                {
                     foreach(MessageHandler alert in job.Message)
                     {
                         IPlugin plugin = _pluginProvider.GetByKey(alert.Plugin);

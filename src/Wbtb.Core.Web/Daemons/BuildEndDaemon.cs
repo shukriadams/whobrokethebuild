@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
 
@@ -107,11 +108,12 @@ namespace Wbtb.Core.Web
                     {
                         BuildId = build.Id,
                         Src = this.GetType().Name,
-                        Order = 4,
+                        Order = 5,
                         TaskKey = DaemonTaskTypes.DeltaCalculate.ToString()
                     });
 
                     if (build.Status == BuildStatus.Failed)
+                    {
                         dataLayer.SaveDaemonTask(new DaemonTask
                         {
                             BuildId = build.Id,
@@ -119,6 +121,16 @@ namespace Wbtb.Core.Web
                             Order = 1,
                             TaskKey = DaemonTaskTypes.IncidentAssign.ToString()
                         });
+
+                        if (job.BlamePlugins.Any())
+                            dataLayer.SaveDaemonTask(new DaemonTask
+                            {
+                                BuildId = build.Id,
+                                Src = this.GetType().Name,
+                                Order = 4,
+                                TaskKey = DaemonTaskTypes.AssignBlame.ToString()
+                            });
+                    }
                 }
             }
             finally 

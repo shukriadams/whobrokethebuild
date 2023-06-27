@@ -22,7 +22,7 @@ namespace Wbtb.Core.Web
         
         private readonly PluginProvider _pluginProvider;
 
-        public static int TaskGroup = 2;
+        public static int TaskGroup = 3;
         
         private readonly SimpleDI _di;
 

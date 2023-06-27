@@ -38,6 +38,7 @@ namespace Wbtb.Extensions.Data.Postgres
                         job.Image = config.Image;
                         job.ImportCount = config.ImportCount;
                         job.LogParserPlugins = config.LogParserPlugins;
+                        job.BlamePlugins = config.BlamePlugins;
                         job.Name = config.Name;
                         job.SourceServer = config.SourceServer;
                         job.RevisionAtBuildRegex = config.RevisionAtBuildRegex;

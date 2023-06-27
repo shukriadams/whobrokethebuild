@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
-    public class DeltaDaemon : IWebDaemon
+    public class BlameAssignDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -22,13 +23,13 @@ namespace Wbtb.Core.Web
 
         private readonly SimpleDI _di;
 
-        public static int TaskGroup = 5;
+        public static int TaskGroup = 4;
 
         #endregion
 
         #region CTORS
 
-        public DeltaDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BlameAssignDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
@@ -62,69 +63,59 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.DeltaCalculate.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AssignBlame.ToString());
             DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
-            
+
             try
             {
-
                 foreach (DaemonTask task in tasks)
                 {
                     Build build = dataLayer.GetBuildById(task.BuildId);
-                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
                     if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
                         continue;
 
+                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
                     Job job = dataLayer.GetJobById(build.JobId);
 
-                    // handle current state of game
-                    Build latestBuild = dataLayer.GetLatestBuildByJob(job);
-                    Build previousDeltaBuild = dataLayer.GetLastJobDelta(job.Id);
-
-                    // no builds for this job yet
-                    if (latestBuild == null)
-                        continue;
-
-                    // ignore builds that don't have incidents yet, they need processing by the incident assign daemon first
-                    if (latestBuild.Status == BuildStatus.Failed && latestBuild.IncidentBuildId == null)
-                        continue;
-
-                    // this build is first, so it is the first delta
-                    if (previousDeltaBuild == null)
+                    // do work here
+                    if (build.IncidentBuildId != build.Id) 
                     {
-                        dataLayer.SaveJobDelta(latestBuild);
-                    }
-                    else
-                    {
-                        if (latestBuild.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
-                        {
-                            // build has gone from passing to failing
-                            dataLayer.SaveJobDelta(latestBuild);
-                        }
-                        else if (latestBuild.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
-                        {
-                            // build has gone from failing to passing
-                            dataLayer.SaveJobDelta(latestBuild);
-                        }
+                        task.HasPassed = true;
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.Result = "Build did not cause break, all involved free from blame.";
+                        dataLayer.SaveDaemonTask(task);
                     }
 
                     task.HasPassed = true;
+
+                    job.BlamePlugins.AsParallel().ForAll(delegate (string blamePlugin)
+                    {
+                        try
+                        {
+                            IBlamePlugin blame = _pluginProvider.GetByKey(blamePlugin) as IBlamePlugin;
+
+                            blame.BlameBuildFailure(build);
+
+                            Console.WriteLine($"Processed build id {build.Id} with plugin {blamePlugin}");
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.LogError($"Unexpected error trying to blame build id \"{build.Id}\" with blame \"{blamePlugin}\" : {ex}");
+                            task.HasPassed = false;
+                            if (task.Result == null)
+                                task.Result = string.Empty;
+
+                            task.Result = $"{task.Result}\n{ex}";
+                        }
+                    });
+
                     task.ProcessedUtc = DateTime.UtcNow;
                     dataLayer.SaveDaemonTask(task);
-
-                    dataLayer.SaveDaemonTask(new DaemonTask
-                    {
-                        BuildId = build.Id,
-                        Src = this.GetType().Name,
-                        Order = 6,
-                        TaskKey = DaemonTaskTypes.DeltaChangeAlert.ToString()
-                    });
                 }
             }
             finally
             {
-                activeItems.Clear(this);    
+                activeItems.Clear(this);
             }
 
         }

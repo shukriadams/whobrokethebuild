@@ -26,7 +26,7 @@ namespace Wbtb.Core.Web
 
         private readonly SimpleDI _di;
 
-        public static int TaskGroup = 4;
+        public static int TaskGroup = 6;
 
         #endregion
 

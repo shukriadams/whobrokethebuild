@@ -454,8 +454,8 @@ namespace Wbtb.Core
                     if (string.IsNullOrEmpty(jobConfig.Name))
                         jobConfig.Name = jobConfig.Key;
 
-                    // ensure each log parser exists as a plugin, and that plugin implements required interface
-                    foreach(string logparserPluginKey in jobConfig.LogParserPlugins)
+                    // ensure each logparsers exist as a plugins, and implement correct interface
+                    foreach (string logparserPluginKey in jobConfig.LogParserPlugins)
                     {
                         PluginConfig logParserPlugin = config.Plugins.FirstOrDefault(r => r.Key == logparserPluginKey);
                         if (logParserPlugin == null)
@@ -464,6 +464,18 @@ namespace Wbtb.Core
                         Type pluginInterfaceType = TypeHelper.GetCommonType(logParserPlugin.Manifest.Interface);
                         if (!typeof(ILogParserPlugin).IsAssignableFrom(pluginInterfaceType))
                             throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a log parser \"{logparserPluginKey}\", but this plugin does not implement type {TypeHelper.Name<ILogParserPlugin>()}.");
+                    }
+
+                    // ensure each blamers exist as a plugins, and implement correct interface
+                    foreach (string blamePluginKey in jobConfig.BlamePlugins)
+                    {
+                        PluginConfig blamePlugin = config.Plugins.FirstOrDefault(r => r.Key == blamePluginKey);
+                        if (blamePlugin == null)
+                            throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a blame plugin \"{blamePluginKey}\", but no enabled plugin for this parser was found.");
+
+                        Type pluginInterfaceType = TypeHelper.GetCommonType(blamePlugin.Manifest.Interface);
+                        if (!typeof(IBlamePlugin).IsAssignableFrom(pluginInterfaceType))
+                            throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a blame plugin \"{blamePluginKey}\", but this plugin does not implement type {TypeHelper.Name<IBlamePlugin>()}.");
                     }
 
                     // ensure each post processor implements required interface 
