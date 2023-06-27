@@ -94,6 +94,15 @@ namespace Wbtb.Core.Web
                         TaskKey = DaemonTaskTypes.LogImport.ToString()
                     });
 
+                    if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildServer.ToString(),
+                            Order = 0,
+                            Src = this.GetType().Name,
+                            BuildId = build.Id
+                        });
+
                     dataLayer.SaveDaemonTask(new DaemonTask
                     {
                         BuildId = build.Id,

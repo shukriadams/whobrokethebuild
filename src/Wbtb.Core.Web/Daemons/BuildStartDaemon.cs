@@ -108,15 +108,6 @@ namespace Wbtb.Core.Web
                                 Src = this.GetType().Name,
                                 BuildId = buildId
                             });
-
-                            if (string.IsNullOrEmpty(job.SourceServerId) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
-                                dataLayer.SaveDaemonTask(new DaemonTask
-                                {
-                                    TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildServer.ToString(),
-                                    Order = 0,
-                                    Src = this.GetType().Name,
-                                    BuildId = buildId
-                                });
                         }
                     }
                     catch (Exception ex)

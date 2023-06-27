@@ -146,15 +146,18 @@
                                     @involvement.Revision.Created.Humanize()
                                 </text>
                             }
+                            
                             @if(involvement.InferredRevisionLink)
-                            {   
-                                <span class="quiet">
+                            {
+                                <div class="quiet">
                                     (inferred)
-                                </span>
-                            } else {
-                                <span class="quiet">
+                                </div>
+                            } 
+                            else 
+                            {
+                                <div class="quiet">
                                     (confirmed)
-                                </span>
+                                </div>
                             }
                         </x-column>
                         <x-column>
@@ -181,10 +184,12 @@
         }
     }
     else
-    { 
-        <text>
-            No code change information available for this build.
-        </text>
+    {
+        <x-list-row>
+            <x-list-cell>
+                No code change information available for this build.
+            </x-list-cell>
+        </x-list-row>
     }
 
     @if (!Model.BuildInvolvements.Any())
