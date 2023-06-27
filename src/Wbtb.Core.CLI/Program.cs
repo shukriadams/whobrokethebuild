@@ -28,11 +28,6 @@ namespace Wbtb.Core.CLI
                 foreach(Type availableCommand in availableCommands)
                     di.Register(availableCommand, availableCommand);
 
-                Configuration config = di.Resolve<Configuration>();
-
-                ConfigurationBuilder configurationBuilder = di.Resolve<ConfigurationBuilder>();
-                OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
-                PluginProvider pluginProvider = di.Resolve<PluginProvider>();
                 CommandLineSwitches switches = new CommandLineSwitches(args);
 
                 string command = string.Empty;

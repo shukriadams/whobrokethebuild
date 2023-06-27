@@ -39,7 +39,7 @@ else
 
 
 <div>
-    Filter by : <a href="@Model.BaseUrl?filterby=unprocessed">Unprocessed</a>  | <a href="@Model.BaseUrl?filterby=passed">Passed</a> | <a href="@Model.BaseUrl?filterby=failed">Failed</a> | <a href="@Model.BaseUrl?filterby=">Remove filters</a>
+    Filter by : <a href="@Model.BaseUrl?filterby=unprocessed">Unprocessed</a>  | <a href="@Model.BaseUrl?filterby=passed">Passed</a> | <a href="@Model.BaseUrl?filterby=failed">Failed</a> | <a href="@Model.BaseUrl?filterby=">None (show all)</a>
 </div>
 
 @if (Model.DaemonTasks.Items.Any())
@@ -51,7 +51,7 @@ else
                 Created
             </x-list-cell>
             <x-list-cell>
-                Completed
+                Status
             </x-list-cell>
             <x-list-cell>
                 Build
@@ -111,7 +111,7 @@ else
 else
 {
     <text>
-        No tasks listed for this job
+        No tasks found.
     </text>
 
 }

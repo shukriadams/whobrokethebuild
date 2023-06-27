@@ -97,15 +97,12 @@ namespace Wbtb.Core
                     user.Message[i].RawJson = ConfigurationHelper.GetRawAlertConfigByIndex(rawConfig, "Users", user.Key, i);
 
             AutofillOptionalValues(tempConfig);
-
-            EnsureNoneManifestLogicValid(tempConfig);
-
             return tempConfig;
         }
         
         public void FinalizeConfig(Configuration unsafeConfig)
         {
-            EnsureManifestLogicValid(unsafeConfig);
+            
             SimpleDI di = new SimpleDI();
             di.RegisterSingleton<Configuration>(unsafeConfig);
         }
@@ -185,7 +182,7 @@ namespace Wbtb.Core
         /// config needs to be in place first.
         /// </summary>
         /// <param name="config"></param>
-        private void EnsureNoneManifestLogicValid(Configuration config)
+        public void EnsureNoneManifestLogicValid(Configuration config)
         {
             EnsureIdPresentAndUnique(config.Plugins, "plugin");
             EnsureIdPresentAndUnique(config.BuildServers, "build server");
@@ -205,7 +202,7 @@ namespace Wbtb.Core
         /// application start. Does not change config structure
         /// </summary>
         /// <param name="config"></param>
-        private void EnsureManifestLogicValid(Configuration config)
+        public void EnsureManifestLogicValid(Configuration config)
         {
             CurrentVersion currentVersion = new CurrentVersion();
             currentVersion.Resolve();

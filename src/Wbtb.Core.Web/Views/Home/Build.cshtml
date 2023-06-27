@@ -115,6 +115,10 @@
                 {
                     <x-badge class="--danger">ERRORS</x-badge>
                 }
+                @if (Model.ProcessesPending)
+                {
+                    <x-badge class="--warning">Pending</x-badge>
+                }
             </a>
         </x-card-pad>
     </x-card>

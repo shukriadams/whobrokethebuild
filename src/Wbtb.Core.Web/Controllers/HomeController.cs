@@ -271,7 +271,9 @@ namespace Wbtb.Core.Web.Controllers
             model.BuildFlags = dataLayer.GetBuildFlagsForBuild(model.Build);
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
             model.buildProcessors = dataLayer.GetBuildProcessorsByBuildId(model.Build.Id);
-            model.ProcessErrors = dataLayer.GetDaemonsTaskByBuild(model.Build.Id).Where(t => t.HasPassed.HasValue && t.HasPassed.Value == false).Any();
+            IEnumerable<DaemonTask> buildTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id);
+            model.ProcessErrors = buildTasks.Any(t => t.HasPassed.HasValue && t.HasPassed.Value == false);
+            model.ProcessesPending = buildTasks.Any(t => t.ProcessedUtc == null);
 
             return View(model);
         }

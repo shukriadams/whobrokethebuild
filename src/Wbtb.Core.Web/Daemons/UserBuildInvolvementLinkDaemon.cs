@@ -78,6 +78,13 @@ namespace Wbtb.Core.Web
                     BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
                     SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
                     Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
+                    if (revision == null) 
+                    {
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.Result = $"Expected revision {buildInvolvement.RevisionCode} has not been resolved";
+                        task.HasPassed = false;
+                        continue;
+                    }
 
                     User matchingUser = _config.Users
                         .FirstOrDefault(r => r.SourceServerIdentities

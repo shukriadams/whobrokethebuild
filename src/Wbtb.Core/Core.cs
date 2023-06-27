@@ -17,7 +17,7 @@ namespace Wbtb.Core
         /// <summary>
         /// Single-call wrapper to start server.
         /// </summary>
-        public void Start(bool persistStateToDatabase=true)
+        public void Start(bool persistStateToDatabase=true, bool validate=true)
         {
             // pre-start stuff
             SimpleDI di = new SimpleDI();
@@ -54,7 +54,10 @@ namespace Wbtb.Core
             // always resolve ConfigurationBasic after apply custom env args
             ConfigurationBasic configBasic = di.Resolve<ConfigurationBasic>(); 
             string configPath = configBasic.ConfigPath;
+            
             Configuration unsafeConfig = configurationManager.LoadUnsafeConfig(configPath);
+            if (validate)
+                configurationManager.EnsureNoneManifestLogicValid(unsafeConfig);
 
             // ensure directories, this requires that config is loaded
             Directory.CreateDirectory(unsafeConfig.DataDirectory);
@@ -63,6 +66,9 @@ namespace Wbtb.Core
             Directory.CreateDirectory(unsafeConfig.PluginDataPersistDirectory);
 
             configurationManager.FetchPlugins(unsafeConfig);
+            if (validate)
+                configurationManager.EnsureManifestLogicValid(unsafeConfig);
+
             configurationManager.FinalizeConfig(unsafeConfig);
 
             bool isAnyPluginProxying = unsafeConfig.Plugins.Where(p => p.Proxy).Any();

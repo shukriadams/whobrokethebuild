@@ -41,8 +41,6 @@ namespace Wbtb.Core.Web
 
         public IEnumerable<BuildFlag> BuildFlags { get; set; }
 
-
-
         /// <summary>
         /// true if broken alerts for this build have been sent, and cane be retracted
         /// </summary>
@@ -59,6 +57,8 @@ namespace Wbtb.Core.Web
         public IEnumerable<BuildLogParseResult> BuildParseResults { get; set; }
 
         public bool ProcessErrors { get; set; }
+
+        public bool ProcessesPending { get; set; }
 
         /// <summary>
         /// 

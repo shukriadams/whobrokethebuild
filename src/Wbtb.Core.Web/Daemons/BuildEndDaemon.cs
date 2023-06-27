@@ -73,19 +73,9 @@ namespace Wbtb.Core.Web
 
                     activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
-                    // build is already marked as done, this should not happen
-                    if (build.EndedUtc != null)
-                    {
-                        task.ProcessedUtc = build.EndedUtc;
-                        task.HasPassed = true;
-                        task.Result = "Already finished";
-                        dataLayer.SaveDaemonTask(task);
-                        continue;
-                    }
-
                     build = buildServerPlugin.TryUpdateBuild(build);
 
-                    // build still not done
+                    // build still not done, contine and wait. Todo : Add forced time out on build here.
                     if (!build.EndedUtc.HasValue)
                         continue;
 
