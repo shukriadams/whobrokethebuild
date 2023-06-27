@@ -217,14 +217,10 @@ namespace Wbtb.Core.Web
                     }
                     catch (Exception ex)
                     {
-                        dataLayer.SaveBuildFlag(new BuildFlag
-                        {
-                            BuildId = build.Id,
-                            Flag = BuildFlags.LogHasNoRevision,
-                            Description = $"Log parse failed with ex : {ex}"
-                        });
-
-                        Console.WriteLine($"Log parse failed with ex : {ex}");
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = false;
+                        task.Result = ex.ToString();
+                        dataLayer.SaveDaemonTask(task);
                     }
 
                 }
@@ -233,9 +229,6 @@ namespace Wbtb.Core.Web
             {
                 activeItems.Clear(this);
             }
-
-
-            
         }
 
         #endregion

@@ -82,15 +82,6 @@ namespace Wbtb.Core.Web
                     ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
                     Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
 
-                    if (revision != null)
-                    {
-                        task.HasPassed = true;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = $"Revision {buildInvolvement.RevisionCode} already resolved";
-                        dataLayer.SaveDaemonTask(task);
-                        continue;
-                    }
-
                     if (!sourceServerPlugin.AttemptReach(sourceServer).Reachable)
                     {
                         Console.WriteLine($"unable to reach source server \"{sourceServer.Name}\", waiting for later.");

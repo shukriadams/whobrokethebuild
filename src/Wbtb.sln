@@ -53,7 +53,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.Messaging.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.Messaging.SlackSandbox", "Wbtb.Extensions.Messaging.SlackSandbox\Wbtb.Extensions.Messaging.SlackSandbox.csproj", "{E5B3E281-EDE8-4A48-A159-6FDB97CFE4C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wbtb.Extensions.LogParsing.BasicErrors", "Wbtb.Extensions.LogParsing.BasicErrors\Wbtb.Extensions.LogParsing.BasicErrors.csproj", "{24B4D92A-0C25-405A-A32B-EC949624D0F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.LogParsing.BasicErrors", "Wbtb.Extensions.LogParsing.BasicErrors\Wbtb.Extensions.LogParsing.BasicErrors.csproj", "{24B4D92A-0C25-405A-A32B-EC949624D0F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wbtb.Extensions.Blame.AcmeGamesBlamer", "Wbtb.Extensions.Blame.AcmeGamesBlamer\Wbtb.Extensions.Blame.AcmeGamesBlamer.csproj", "{E3A4BD40-7FC6-414F-A82E-0A19563A0271}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -165,6 +167,10 @@ Global
 		{24B4D92A-0C25-405A-A32B-EC949624D0F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24B4D92A-0C25-405A-A32B-EC949624D0F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24B4D92A-0C25-405A-A32B-EC949624D0F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3A4BD40-7FC6-414F-A82E-0A19563A0271}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3A4BD40-7FC6-414F-A82E-0A19563A0271}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3A4BD40-7FC6-414F-A82E-0A19563A0271}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3A4BD40-7FC6-414F-A82E-0A19563A0271}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

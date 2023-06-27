@@ -19,11 +19,11 @@
 
         #region METHODS
 
-        public void Diagnose()
+        void IPlugin.Diagnose()
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
-                FunctionName = "Diagnose"
+                FunctionName = nameof(IPlugin.Diagnose)
             });
         }
 

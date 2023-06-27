@@ -1,0 +1,9 @@
+﻿Key: Wbtb.Extensions.Blame.AcmeGamesBlamer
+Description: Blames people whodunit.
+Runtime: dotnet
+Assembly: Wbtb.Extensions.Blame.AcmeGamesBlamer
+Main: Wbtb.Extensions.Blame.AcmeGamesBlamer.dll
+Interface: Wbtb.Core.Common.IBlamePlugin
+Concrete: Wbtb.Extensions.Blame.AcmeGamesBlamer.AcmeGamesBlamer
+Version: 0.0.1
+APIVersion: 0.0.1
