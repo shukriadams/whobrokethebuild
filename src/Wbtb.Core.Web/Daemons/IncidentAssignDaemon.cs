@@ -93,13 +93,11 @@ namespace Wbtb.Core.Web
                             continue;
                         }
 
-                        // previous build is a fail, but it's incident hasn't been assigned, this should not happen
+                        // previous build is a fail, but it's incident hasn't been assigned, wait
+                        // todo : add some kind of max-tries here, it needs to timeout 
                         if (previousBuild != null && previousBuild.Status == BuildStatus.Failed && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
                         {
-                            task.HasPassed = false;
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.Result = $"Previous build id {previousBuild.Id} did not have incident set.";
-                            dataLayer.SaveDaemonTask(task);
+                            Console.WriteLine($"Skipping task {task.Id} for buidl {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
                             continue;
                         }
 

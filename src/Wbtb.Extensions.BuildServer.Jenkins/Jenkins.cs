@@ -249,7 +249,33 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 string hostUrl = GetHostUrl(buildServer);
                 var remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
                 string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), build.Identifier, "api/json?pretty=true&tree=changeSet[items[commitId]]");
-                rawJson = webClient.DownloadString(url);
+                try 
+                {
+                    rawJson = webClient.DownloadString(url);
+                }
+                catch (WebException ex)
+                {
+                    if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                    {
+                        HttpWebResponse resp = (HttpWebResponse)ex.Response;
+                        if (resp.StatusCode == HttpStatusCode.NotFound)
+                        {
+                            // if reach here revisions listing has disappeared from jenkins, this is common issue, so fake empty response
+                            rawJson = @" { ""_class"": ""hudson.model.FreeStyleBuild"",
+                            ""changeSet"": { ""items"": [] } }";
+
+                            Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                        }
+                        else 
+                        {
+                            throw ex;
+                        }
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
+                }
 
                 Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
                 File.WriteAllText(persistPath, rawJson);
@@ -368,12 +394,11 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
 
             string lookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete");
+            Directory.CreateDirectory(lookupPath);
+
             string completeLookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key);
-            
             IList<string> incompleteBuildFiles = Directory.GetFiles(lookupPath).ToList();
 
-
-            Directory.CreateDirectory(lookupPath);
             IEnumerable<string> completeBuildParents =  Directory.GetDirectories(completeLookupPath).OrderByDescending(f => f).Take(take);
             foreach (string completeBuildParent in completeBuildParents)
             { 
@@ -445,7 +470,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 }
             }
 
-            return builds.OrderBy(b => b.StartedUtc);
+            return builds.OrderByDescending(b => b.StartedUtc);
         }
 
         Build IBuildServerPlugin.ImportLog(Build build)
