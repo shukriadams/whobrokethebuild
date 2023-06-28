@@ -270,7 +270,7 @@ namespace Wbtb.Core.Web.Controllers
 
         [ServiceFilter(typeof(ViewStatus))]
         [Route("/processlog/{page?}")]
-        public IActionResult ProcessLog(string hostname, int page, string filterby)
+        public IActionResult ProcessLog(string hostname, int page, string orderBy, string filterby)
         {
             Configuration config = _di.Resolve<Configuration>();
             hostname = HttpUtility.UrlDecode(hostname);
@@ -280,10 +280,12 @@ namespace Wbtb.Core.Web.Controllers
             ProcessPageModel model = new ProcessPageModel();
 
             model.ActiveProcesses = activeItems.GetCurrent();
-            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, filterby));
+            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, orderBy, filterby));
             model.DaemonTasks.Items.ToList().ForEach(daemonTask => daemonTask.Build = ViewBuild.Copy(dataLayer.GetBuildById(daemonTask.BuildId)));
             model.BaseUrl = $"/processlog";
-            model.QueryStrings = $"filterby={filterby}";
+            model.QueryStrings = $"filterby={filterby}&orderBy={orderBy}";
+            model.FilterBy = filterby;
+            model.OrderBy = orderBy;
 
             return View(model);
         }

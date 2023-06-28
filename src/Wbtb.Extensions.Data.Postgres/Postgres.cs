@@ -1573,7 +1573,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string filterBy = "") 
+        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "") 
         {
             /*
                 filterBy options : 
@@ -1593,6 +1593,16 @@ namespace Wbtb.Extensions.Data.Postgres
             if (filterBy == "passed")
                 where = " WHERE passed = true";
 
+            string sort = "createdutc DESC";
+            if (orderBy == "latestDone") 
+            {
+                sort = "processedUtc DESC";
+                where = "WHERE NOT processedUtc IS NULL";
+            }
+
+            if (orderBy == "oldest")
+                sort = "createdutc ASC";
+
             string pageQuery = @"
                 SELECT
                     *
@@ -1600,7 +1610,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     daemontask
                     "+where+@"
                 ORDER BY
-                    createdutc DESC
+                    "+sort+@"
                 LIMIT 
                     @pagesize
                 OFFSET 

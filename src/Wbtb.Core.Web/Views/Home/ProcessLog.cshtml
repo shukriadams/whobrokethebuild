@@ -39,8 +39,12 @@ else
 
 
 <div>
-    Filter by : <a href="@Model.BaseUrl?filterby=unprocessed">Unprocessed</a>  | <a href="@Model.BaseUrl?filterby=passed">Passed</a> | <a href="@Model.BaseUrl?filterby=failed">Failed</a> | <a href="@Model.BaseUrl?filterby=">None (show all)</a>
+    Filter by : <a href="@Model.BaseUrl?filterby=unprocessed&orderby=@Model.OrderBy">Unprocessed</a>  | <a href="@Model.BaseUrl?filterby=passed&orderby=@Model.OrderBy">Passed</a> | <a href="@Model.BaseUrl?filterby=failed">Failed</a> | <a href="@Model.BaseUrl?filterby=&orderby=@Model.OrderBy">None (show all)</a>
 </div>
+<div>
+    Order by : <a href="@Model.BaseUrl?filterby=@Model.FilterBy&orderby=oldest">Oldest</a> | <a href="@Model.BaseUrl?filterby=@Model.FilterBy&orderby=latestDone">Latest done</a> | <a href="@Model.BaseUrl?filterby=@Model.FilterBy&orderby=">Latest queued</a>
+</div>
+
 
 @if (Model.DaemonTasks.Items.Any())
 {

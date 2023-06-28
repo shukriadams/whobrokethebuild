@@ -9,10 +9,15 @@ namespace Wbtb.Core.Web
 
         public PageableData<ViewDaemonTask> DaemonTasks { get; set; }
 
-         public IEnumerable<DaemonActiveProcessItem> ActiveProcesses { get; set; }
+        public IEnumerable<DaemonActiveProcessItem> ActiveProcesses { get; set; }
+
         public string BaseUrl { get; set; }
 
         public string QueryStrings { get; set; }
+
+        public string FilterBy { get; set; }
+
+        public string OrderBy { get; set; }
 
         #endregion
 
@@ -23,6 +28,8 @@ namespace Wbtb.Core.Web
             this.DaemonTasks = new PageableData<ViewDaemonTask>(new ViewDaemonTask[] { }, 0, 0, 0);
             this.ActiveProcesses = new DaemonActiveProcessItem [] { };
             this.QueryStrings = string.Empty;
+            this.FilterBy = string.Empty;
+            this.OrderBy = string.Empty;
         }
 
         #endregion

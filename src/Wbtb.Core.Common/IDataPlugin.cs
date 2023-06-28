@@ -201,7 +201,7 @@ namespace Wbtb.Core.Common
 
         bool DaemonTasksBlocked(string buildId, int order);
 
-        PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string filterBy = "");
+        PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "");
 
         #endregion
 
