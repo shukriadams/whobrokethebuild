@@ -65,25 +65,25 @@ namespace Wbtb.Core.Web.Core
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    Build build = dataLayer.GetBuildById(task.BuildId);
-                    Job job = dataLayer.GetJobById(build.JobId);
-                    BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
-                    IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                    ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-
-                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
-                    if (!reach.Reachable)
-                    {
-                        _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                        continue;
-                    }
-
-                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
-                        continue;
-
                     try
                     {
+                        Build build = dataLayer.GetBuildById(task.BuildId);
+                        Job job = dataLayer.GetJobById(build.JobId);
+                        BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
+                        IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                        ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+
+                        if (!reach.Reachable)
+                        {
+                            _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            continue;
+                        }
+
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                            continue;
+
                         build = buildServerPlugin.ImportLog(build);
                         if (string.IsNullOrEmpty(build.LogPath))
                         {
@@ -121,10 +121,11 @@ namespace Wbtb.Core.Web.Core
                     catch (Exception ex)
                     {
                         task.Result = ex.ToString();
-                        task.ProcessedUtc = DateTime.Now;
+                        task.ProcessedUtc = DateTime.UtcNow;
                         task.HasPassed = false;
                         dataLayer.SaveDaemonTask(task);
                     }
+
                 }
             }
             finally 

@@ -67,69 +67,79 @@ namespace Wbtb.Core.Web
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    Build build = dataLayer.GetBuildById(task.BuildId);
-                    Job job = dataLayer.GetJobById(build.JobId);
-                    BuildServer buildserver = dataLayer.GetBuildServerById(job.BuildServerId);
-                    IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
-
-                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
-                    build = buildServerPlugin.TryUpdateBuild(build);
-
-                    // build still not done, contine and wait. Todo : Add forced time out on build here.
-                    if (!build.EndedUtc.HasValue)
-                        continue;
-
-                    dataLayer.SaveBuild(build);
-
-                    task.HasPassed = true;
-                    task.ProcessedUtc = DateTime.UtcNow;
-                    dataLayer.SaveDaemonTask(task);
-
-                    // create tasks for next stage
-                    dataLayer.SaveDaemonTask(new DaemonTask
+                    try
                     {
-                        BuildId = build.Id,
-                        Src = this.GetType().Name,
-                        Order = 1,
-                        TaskKey = DaemonTaskTypes.LogImport.ToString()
-                    });
+                        Build build = dataLayer.GetBuildById(task.BuildId);
+                        Job job = dataLayer.GetJobById(build.JobId);
+                        BuildServer buildserver = dataLayer.GetBuildServerById(job.BuildServerId);
+                        IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
 
-                    if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
-                        dataLayer.SaveDaemonTask(new DaemonTask
-                        {
-                            TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildServer.ToString(),
-                            Order = 0,
-                            Src = this.GetType().Name,
-                            BuildId = build.Id
-                        });
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
-                    dataLayer.SaveDaemonTask(new DaemonTask
-                    {
-                        BuildId = build.Id,
-                        Src = this.GetType().Name,
-                        Order = 5,
-                        TaskKey = DaemonTaskTypes.DeltaCalculate.ToString()
-                    });
+                        build = buildServerPlugin.TryUpdateBuild(build);
 
-                    if (build.Status == BuildStatus.Failed)
-                    {
+                        // build still not done, contine and wait. Todo : Add forced time out on build here.
+                        if (!build.EndedUtc.HasValue)
+                            continue;
+
+                        dataLayer.SaveBuild(build);
+
+                        task.HasPassed = true;
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        dataLayer.SaveDaemonTask(task);
+
+                        // create tasks for next stage
                         dataLayer.SaveDaemonTask(new DaemonTask
                         {
                             BuildId = build.Id,
                             Src = this.GetType().Name,
                             Order = 1,
-                            TaskKey = DaemonTaskTypes.IncidentAssign.ToString()
+                            TaskKey = DaemonTaskTypes.LogImport.ToString()
                         });
 
-                        if (job.BlamePlugins.Any())
+                        if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
+                            dataLayer.SaveDaemonTask(new DaemonTask
+                            {
+                                TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildServer.ToString(),
+                                Order = 0,
+                                Src = this.GetType().Name,
+                                BuildId = build.Id
+                            });
+
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            BuildId = build.Id,
+                            Src = this.GetType().Name,
+                            Order = 5,
+                            TaskKey = DaemonTaskTypes.DeltaCalculate.ToString()
+                        });
+
+                        if (build.Status == BuildStatus.Failed)
+                        {
                             dataLayer.SaveDaemonTask(new DaemonTask
                             {
                                 BuildId = build.Id,
                                 Src = this.GetType().Name,
-                                Order = 4,
-                                TaskKey = DaemonTaskTypes.AssignBlame.ToString()
+                                Order = 1,
+                                TaskKey = DaemonTaskTypes.IncidentAssign.ToString()
                             });
+
+                            if (job.BlamePlugins.Any())
+                                dataLayer.SaveDaemonTask(new DaemonTask
+                                {
+                                    BuildId = build.Id,
+                                    Src = this.GetType().Name,
+                                    Order = 4,
+                                    TaskKey = DaemonTaskTypes.AssignBlame.ToString()
+                                });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = false;
+                        task.Result = ex.ToString();
+                        dataLayer.SaveDaemonTask(task);
                     }
                 }
             }

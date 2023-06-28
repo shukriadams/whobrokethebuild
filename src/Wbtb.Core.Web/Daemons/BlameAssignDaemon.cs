@@ -70,56 +70,64 @@ namespace Wbtb.Core.Web
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    Build build = dataLayer.GetBuildById(task.BuildId);
-                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
-                        continue;
-
-                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-                    Job job = dataLayer.GetJobById(build.JobId);
-
-                    // do work here
-                    if (build.IncidentBuildId != build.Id) 
+                    try
                     {
+                        Build build = dataLayer.GetBuildById(task.BuildId);
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                            continue;
+
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        Job job = dataLayer.GetJobById(build.JobId);
+
+                        // do work here
+                        if (build.IncidentBuildId != build.Id)
+                        {
+                            task.HasPassed = true;
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            task.Result = "Build did not cause break, all involved free from blame.";
+                            dataLayer.SaveDaemonTask(task);
+                        }
+
                         task.HasPassed = true;
+
+                        job.BlamePlugins.AsParallel().ForAll(delegate (string blamePlugin)
+                        {
+                            try
+                            {
+                                IBlamePlugin blame = _pluginProvider.GetByKey(blamePlugin) as IBlamePlugin;
+
+                                blame.BlameBuildFailure(build);
+
+                                Console.WriteLine($"Processed build id {build.Id} with plugin {blamePlugin}");
+                            }
+                            catch (Exception ex)
+                            {
+                                _log.LogError($"Unexpected error trying to blame build id \"{build.Id}\" with blame \"{blamePlugin}\" : {ex}");
+                                task.HasPassed = false;
+                                if (task.Result == null)
+                                    task.Result = string.Empty;
+
+                                task.Result = $"{task.Result}\n{ex}";
+                            }
+                        });
+
                         task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = "Build did not cause break, all involved free from blame.";
                         dataLayer.SaveDaemonTask(task);
                     }
-
-                    task.HasPassed = true;
-
-                    job.BlamePlugins.AsParallel().ForAll(delegate (string blamePlugin)
+                    catch (Exception ex)
                     {
-                        try
-                        {
-                            IBlamePlugin blame = _pluginProvider.GetByKey(blamePlugin) as IBlamePlugin;
-
-                            blame.BlameBuildFailure(build);
-
-                            Console.WriteLine($"Processed build id {build.Id} with plugin {blamePlugin}");
-                        }
-                        catch (Exception ex)
-                        {
-                            _log.LogError($"Unexpected error trying to blame build id \"{build.Id}\" with blame \"{blamePlugin}\" : {ex}");
-                            task.HasPassed = false;
-                            if (task.Result == null)
-                                task.Result = string.Empty;
-
-                            task.Result = $"{task.Result}\n{ex}";
-                        }
-                    });
-
-                    task.ProcessedUtc = DateTime.UtcNow;
-                    dataLayer.SaveDaemonTask(task);
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = false;
+                        task.Result = ex.ToString();
+                        dataLayer.SaveDaemonTask(task);
+                    }
                 }
             }
             finally
             {
                 activeItems.Clear(this);
             }
-
         }
-
         #endregion
     }
 }

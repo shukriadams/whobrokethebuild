@@ -68,47 +68,57 @@ namespace Wbtb.Core.Web
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    Build build = dataLayer.GetBuildById(task.BuildId);
-                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
-                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
-                        continue;
-
-                    Job job = dataLayer.GetJobById(build.JobId);
-                    BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
-                    SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
-                    Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
-                    if (revision == null) 
+                    try 
                     {
+                        Build build = dataLayer.GetBuildById(task.BuildId);
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                            continue;
+
+                        Job job = dataLayer.GetJobById(build.JobId);
+                        BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
+                        SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
+                        Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
+                        if (revision == null)
+                        {
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            task.Result = $"Expected revision {buildInvolvement.RevisionCode} has not been resolved";
+                            task.HasPassed = false;
+                            continue;
+                        }
+
+                        User matchingUser = _config.Users
+                            .FirstOrDefault(r => r.SourceServerIdentities
+                                .Any(r => r.Name == revision.User));
+
+                        User userInDatabase = null;
+                        if (matchingUser != null)
+                            userInDatabase = dataLayer.GetUserByKey(matchingUser.Key);
+
+                        if (userInDatabase == null)
+                        {
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            task.Result = $"User {revision.User} for buildinvolvement does not exist. Add user and rerun import";
+                            task.HasPassed = false;
+                            dataLayer.SaveDaemonTask(task);
+                            continue;
+                        }
+
+                        buildInvolvement.MappedUserId = userInDatabase.Id;
+                        dataLayer.SaveBuildInvolement(buildInvolvement);
+
                         task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = $"Expected revision {buildInvolvement.RevisionCode} has not been resolved";
-                        task.HasPassed = false;
-                        continue;
-                    }
-
-                    User matchingUser = _config.Users
-                        .FirstOrDefault(r => r.SourceServerIdentities
-                            .Any(r => r.Name == revision.User));
-
-                    User userInDatabase = null;
-                    if (matchingUser != null)
-                        userInDatabase = dataLayer.GetUserByKey(matchingUser.Key);
-
-                    if (userInDatabase == null)
-                    {
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = $"User {revision.User} for buildinvolvement does not exist. Add user and rerun import";
-                        task.HasPassed = false;
+                        task.HasPassed = true;
                         dataLayer.SaveDaemonTask(task);
-                        continue;
                     }
-
-                    buildInvolvement.MappedUserId = userInDatabase.Id;
-                    dataLayer.SaveBuildInvolement(buildInvolvement);
-
-                    task.ProcessedUtc = DateTime.UtcNow;
-                    task.HasPassed = true;
-                    dataLayer.SaveDaemonTask(task);
+                    catch(Exception ex) 
+                    {
+                        task.HasPassed = false;
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.Result = ex.ToString();
+                        dataLayer.SaveDaemonTask(task);
+                    } 
                 }
             }
             finally

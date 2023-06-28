@@ -86,55 +86,43 @@ namespace Wbtb.Core.Web
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    Build build = dataLayer.GetBuildById(task.BuildId);
-                    Job job = dataLayer.GetJobById(build.JobId);
-                    BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
-                    SourceServer sourceServer = dataLayer.GetSourceServerById(job.SourceServerId);
-                    ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
-                    IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                    ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-                    
-                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
-                    if (!reach.Reachable)
-                    {
-                        _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                        continue;
-                    }
-
-                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
-                        continue;
-
-                    reach = sourceServerPlugin.AttemptReach(sourceServer);
-                    if (!reach.Reachable)
-                    {
-                        _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                        continue;
-                    }
-
-                    string logText;
-                    string revisionCode;
-
                     try
                     {
+                        Build build = dataLayer.GetBuildById(task.BuildId);
+                        Job job = dataLayer.GetJobById(build.JobId);
+                        BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
+                        SourceServer sourceServer = dataLayer.GetSourceServerById(job.SourceServerId);
+                        ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
+                        IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                        ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+                    
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+
+                        if (!reach.Reachable)
+                        {
+                            _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            continue;
+                        }
+
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                            continue;
+
+                        reach = sourceServerPlugin.AttemptReach(sourceServer);
+                        if (!reach.Reachable)
+                        {
+                            _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            continue;
+                        }
+
+                        string logText;
+                        string revisionCode;
+
                         if (string.IsNullOrEmpty(job.RevisionAtBuildRegex))
                             throw new Exception("RevisionAtBuildRegex) not set");
 
                         logText = File.ReadAllText(build.LogPath);
                         revisionCode = GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
 
-                    }
-                    catch (Exception ex)
-                    {
-                        task.Result = ex.ToString();
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.HasPassed = false;
-                        dataLayer.SaveDaemonTask(task);
-                        continue;
-                    }
-
-                    try
-                    {
                         if (string.IsNullOrEmpty(revisionCode))
                         {
                             task.Result = "Failed to parse revision from log.";
@@ -222,7 +210,6 @@ namespace Wbtb.Core.Web
                         task.Result = ex.ToString();
                         dataLayer.SaveDaemonTask(task);
                     }
-
                 }
             }
             finally

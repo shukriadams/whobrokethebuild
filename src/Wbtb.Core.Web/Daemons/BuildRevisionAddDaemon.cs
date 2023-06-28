@@ -73,26 +73,26 @@ namespace Wbtb.Core.Web
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    Build build = dataLayer.GetBuildById(task.BuildId);
-                    Job job = dataLayer.GetJobById(build.JobId);
-                    BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
-                    IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                    ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-
-                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
-                    if (!reach.Reachable)
+                    try
                     {
-                        _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                        continue;
-                    }
+                        Build build = dataLayer.GetBuildById(task.BuildId);
+                        Job job = dataLayer.GetJobById(build.JobId);
+                        BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
+                        IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                        ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
-                    // no need check if blocked
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
-                    IEnumerable<string> revisionCodes = buildServerPlugin.GetRevisionsInBuild(build);
-                    foreach (string revisionCode in revisionCodes)
-                    {
-                        try
+                        if (!reach.Reachable)
+                        {
+                            _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            continue;
+                        }
+
+                        // no need check if blocked
+
+                        IEnumerable<string> revisionCodes = buildServerPlugin.GetRevisionsInBuild(build);
+                        foreach (string revisionCode in revisionCodes)
                         {
                             string biID = dataLayer.SaveBuildInvolement(new BuildInvolvement
                             {
@@ -121,27 +121,23 @@ namespace Wbtb.Core.Web
                                 Src = this.GetType().Name,
                                 Order = 3,
                             });
-                        }
-                        catch (Exception ex)
-                        {
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.HasPassed = false;
-                            task.Result = ex.ToString();
-                            dataLayer.SaveDaemonTask(task);
+
                         }
                     }
-
+                    catch (Exception ex)
+                    {
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = false;
+                        task.Result = ex.ToString();
+                        dataLayer.SaveDaemonTask(task);
+                    }
                 }
             }
             finally
             {
                 activeItems.Clear(this);
             }
-
-            
-
         }
-
         #endregion
     }
 }

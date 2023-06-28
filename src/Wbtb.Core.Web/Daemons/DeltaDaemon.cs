@@ -67,68 +67,75 @@ namespace Wbtb.Core.Web
             
             try
             {
-
                 foreach (DaemonTask task in tasks)
                 {
-                    Build build = dataLayer.GetBuildById(task.BuildId);
-                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
-                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
-                        continue;
-
-                    Job job = dataLayer.GetJobById(build.JobId);
-
-                    // handle current state of game
-                    Build latestBuild = dataLayer.GetLatestBuildByJob(job);
-                    Build previousDeltaBuild = dataLayer.GetLastJobDelta(job.Id);
-
-                    // no builds for this job yet
-                    if (latestBuild == null)
-                        continue;
-
-                    // ignore builds that don't have incidents yet, they need processing by the incident assign daemon first
-                    if (latestBuild.Status == BuildStatus.Failed && latestBuild.IncidentBuildId == null)
-                        continue;
-
-                    // this build is first, so it is the first delta
-                    if (previousDeltaBuild == null)
+                    try
                     {
-                        dataLayer.SaveJobDelta(latestBuild);
-                    }
-                    else
-                    {
-                        if (latestBuild.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
+                        Build build = dataLayer.GetBuildById(task.BuildId);
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                            continue;
+
+                        Job job = dataLayer.GetJobById(build.JobId);
+
+                        // handle current state of game
+                        Build latestBuild = dataLayer.GetLatestBuildByJob(job);
+                        Build previousDeltaBuild = dataLayer.GetLastJobDelta(job.Id);
+
+                        // no builds for this job yet
+                        if (latestBuild == null)
+                            continue;
+
+                        // ignore builds that don't have incidents yet, they need processing by the incident assign daemon first
+                        if (latestBuild.Status == BuildStatus.Failed && latestBuild.IncidentBuildId == null)
+                            continue;
+
+                        // this build is first, so it is the first delta
+                        if (previousDeltaBuild == null)
                         {
-                            // build has gone from passing to failing
                             dataLayer.SaveJobDelta(latestBuild);
                         }
-                        else if (latestBuild.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
+                        else
                         {
-                            // build has gone from failing to passing
-                            dataLayer.SaveJobDelta(latestBuild);
+                            if (latestBuild.Status == BuildStatus.Failed && previousDeltaBuild.Status == BuildStatus.Passed)
+                            {
+                                // build has gone from passing to failing
+                                dataLayer.SaveJobDelta(latestBuild);
+                            }
+                            else if (latestBuild.Status == BuildStatus.Passed && previousDeltaBuild.Status == BuildStatus.Failed)
+                            {
+                                // build has gone from failing to passing
+                                dataLayer.SaveJobDelta(latestBuild);
+                            }
                         }
+
+                        task.HasPassed = true;
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        dataLayer.SaveDaemonTask(task);
+
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            BuildId = build.Id,
+                            Src = this.GetType().Name,
+                            Order = 6,
+                            TaskKey = DaemonTaskTypes.DeltaChangeAlert.ToString()
+                        });
                     }
-
-                    task.HasPassed = true;
-                    task.ProcessedUtc = DateTime.UtcNow;
-                    dataLayer.SaveDaemonTask(task);
-
-                    dataLayer.SaveDaemonTask(new DaemonTask
+                    catch (Exception ex)
                     {
-                        BuildId = build.Id,
-                        Src = this.GetType().Name,
-                        Order = 6,
-                        TaskKey = DaemonTaskTypes.DeltaChangeAlert.ToString()
-                    });
+                        task.HasPassed = false;
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.Result = ex.ToString();
+                        dataLayer.SaveDaemonTask(task);
+                    }
                 }
             }
             finally
             {
                 activeItems.Clear(this);    
             }
-
         }
-
         #endregion
     }
 }

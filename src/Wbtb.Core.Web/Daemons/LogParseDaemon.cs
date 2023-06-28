@@ -84,6 +84,8 @@ namespace Wbtb.Core.Web
                         Job job = dataLayer.GetJobById(build.JobId);
 
                         task.HasPassed = true;
+                        task.Result = string.Empty;
+
                         job.LogParserPlugins.AsParallel().ForAll(delegate (string logParserPlugin)
                         {
                             try
@@ -98,11 +100,17 @@ namespace Wbtb.Core.Web
                                 logParserResult.ParsedContent = string.Empty;
 
                                 // for now, parse only failed logs.
+                                DateTime startUtc = DateTime.UtcNow;
+                                string timestring = "log parse skipped";
                                 if (build.Status == BuildStatus.Failed)
+                                {
                                     logParserResult.ParsedContent = parser.Parse(rawLog);
+                                    timestring = $" took {(DateTime.UtcNow - startUtc).TotalSeconds} seconds.";
+                                }
 
                                 dataLayer.SaveBuildLogParseResult(logParserResult);
-                                Console.WriteLine($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}");
+                                _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timestring}");
+                                task.Result += $"{logParserResult.LogParserPlugin} {timestring}";
                             }
                             catch (Exception ex)
                             {

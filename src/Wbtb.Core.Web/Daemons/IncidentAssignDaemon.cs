@@ -70,61 +70,70 @@ namespace Wbtb.Core.Web
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    Build build = dataLayer.GetBuildById(task.BuildId);
-                    
-                    activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
-                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
-                        continue;
-
-                    Build previousBuild = dataLayer.GetPreviousBuild(build);
-                    if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
+                    try 
                     {
-                        // this build is either the very first build in job and has failed (way to start!) or is the first build of sequence to fail,
-                        // mark it as the incident build
-                        build.IncidentBuildId = build.Id;
-                        dataLayer.SaveBuild(build);
+                        Build build = dataLayer.GetBuildById(task.BuildId);
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
-                        task.HasPassed = true;
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                            continue;
+
+                        Build previousBuild = dataLayer.GetPreviousBuild(build);
+                        if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
+                        {
+                            // this build is either the very first build in job and has failed (way to start!) or is the first build of sequence to fail,
+                            // mark it as the incident build
+                            build.IncidentBuildId = build.Id;
+                            dataLayer.SaveBuild(build);
+
+                            task.HasPassed = true;
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            dataLayer.SaveDaemonTask(task);
+
+                            continue;
+                        }
+
+                        // previous build is a fail, but it's incident hasn't been assigned, this should not happen
+                        if (previousBuild != null && previousBuild.Status == BuildStatus.Failed && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
+                        {
+                            task.HasPassed = false;
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            task.Result = $"Previous build id {previousBuild.Id} did not have incident set.";
+                            dataLayer.SaveDaemonTask(task);
+                            continue;
+                        }
+
+                        // set incident to whatever previous build incident is, check above ensures that if prev failed, it has an incdidentid 
+                        if (previousBuild != null)
+                        {
+                            build.IncidentBuildId = previousBuild.IncidentBuildId;
+                            dataLayer.SaveBuild(build);
+
+                            task.HasPassed = true;
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            dataLayer.SaveDaemonTask(task);
+
+                            continue;
+                        }
+
+                        // if reach here, incidentbuild could not be set, create a buildflag record that prevents build from being re-processed
+                        task.HasPassed = false;
                         task.ProcessedUtc = DateTime.UtcNow;
+                        task.Result = "Failed to assign incident.";
+                        if (previousBuild == null)
+                            task.Result += "Previous build null";
+                        if (previousBuild != null && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
+                            task.Result += "Previous build null";
+
                         dataLayer.SaveDaemonTask(task);
-
-                        continue;
                     }
-
-                    // previous build is a fail, but it's incident hasn't been assigned, this should not happen
-                    if (previousBuild != null && previousBuild.Status == BuildStatus.Failed && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
+                    catch (Exception ex) 
                     {
                         task.HasPassed = false;
                         task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = $"Previous build id {previousBuild.Id} did not have incident set.";
+                        task.Result = ex.ToString();
                         dataLayer.SaveDaemonTask(task);
-                        continue;
                     }
-
-                    // set incident to whatever previous build incident is, check above ensures that if prev failed, it has an incdidentid 
-                    if (previousBuild != null)
-                    {
-                        build.IncidentBuildId = previousBuild.IncidentBuildId;
-                        dataLayer.SaveBuild(build);
-
-                        task.HasPassed = true;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        dataLayer.SaveDaemonTask(task);
-
-                        continue;
-                    }
-
-                    // if reach here, incidentbuild could not be set, create a buildflag record that prevents build from being re-processed
-                    task.HasPassed = false;
-                    task.ProcessedUtc = DateTime.UtcNow;
-                    task.Result = "Failed to assign incident.";
-                    if (previousBuild == null)
-                        task.Result += "Previous build null";
-                    if (previousBuild != null && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
-                        task.Result += "Previous build null";
-
-                    dataLayer.SaveDaemonTask(task);
                 }
             }
             finally
