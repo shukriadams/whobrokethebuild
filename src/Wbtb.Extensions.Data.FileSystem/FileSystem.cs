@@ -4,474 +4,439 @@ namespace Wbtb.Extensions.Data.FileSystem
 {
     internal class FileSystem : Plugin, IDataPlugin
     {
-        public ConfigurationState AddConfigurationState(ConfigurationState configurationState)
+        ConfigurationState IDataPlugin.AddConfigurationState(ConfigurationState configurationState)
         {
             return null;
         }
 
-        public ReachAttemptResult AttemptReach()
+        ReachAttemptResult IReachable.AttemptReach()
         {
             return new ReachAttemptResult {  Reachable = true };
         }
 
-        public bool DeleteBuild(Build record)
+        bool IDataPlugin.DeleteBuild(Build record)
         {
             return false;
         }
 
-        public bool DeleteBuildFlag(BuildFlag record)
+        bool IDataPlugin.DeleteBuildInvolvement(BuildInvolvement record)
         {
             return false;
         }
 
-        public int DeleteBuildFlagsForBuild(Build build, BuildFlags flag)
-        {
-            return 0;
-        }
-
-        public bool DeleteBuildInvolvement(BuildInvolvement record)
+        bool IDataPlugin.DeleteBuildLogParseResult(BuildLogParseResult record)
         {
             return false;
         }
 
-        public bool DeleteBuildLogParseResult(BuildLogParseResult record)
+        bool IDataPlugin.DeleteBuildServer(BuildServer record)
         {
             return false;
         }
 
-        public bool DeleteBuildServer(BuildServer record)
+        bool IDataPlugin.DeleteJob(Job record)
         {
             return false;
         }
 
-        public bool DeleteJob(Job record)
+        bool IDataPlugin.DeleteRevision(Revision record)
         {
             return false;
         }
 
-        public bool DeleteRevision(Revision record)
+        bool IDataPlugin.DeleteSession(Session record)
         {
             return false;
         }
 
-        public bool DeleteSession(Session record)
+        bool IDataPlugin.DeleteSourceServer(SourceServer record)
         {
             return false;
         }
 
-        public bool DeleteSourceServer(SourceServer record)
+        bool IDataPlugin.DeleteStoreItem(StoreItem record)
         {
             return false;
         }
 
-        public bool DeleteStoreItem(StoreItem record)
+        bool IDataPlugin.DeleteUser(User record)
         {
             return false;
         }
 
-        public bool DeleteUser(User record)
-        {
-            return false;
-        }
-
-        public Build GetBuildById(string id)
+        Build IDataPlugin.GetBuildById(string id)
         {
             return new Build { };
         }
 
-        public Build GetBuildByKey(string jobId, string key)
+        Build IDataPlugin.GetBuildByKey(string jobId, string key)
         {
             return new Build { };
         }
 
-        public BuildFlag GetBuildFlagById(string id)
-        {
-            return new BuildFlag { };
-        }
-
-        public IEnumerable<BuildFlag> GetBuildFlagsForBuild(Build build)
-        {
-            return new BuildFlag[] { };
-        }
-
-        public BuildInvolvement GetBuildInvolvementById(string id)
+        BuildInvolvement IDataPlugin.GetBuildInvolvementById(string id)
         {
             return new BuildInvolvement { };
         }
 
-        public BuildInvolvement GetBuildInvolvementByRevisionCode(string buildid, string revisionCode)
+        BuildInvolvement IDataPlugin.GetBuildInvolvementByRevisionCode(string buildid, string revisionCode)
         {
             return new BuildInvolvement { };
         }
 
-        public IEnumerable<BuildInvolvement> GetBuildInvolvementByUserId(string userId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementByUserId(string userId)
         {
             return new BuildInvolvement[] { };
         }
 
-        public IEnumerable<BuildInvolvement> GetBuildInvolvementsByBuild(string buildId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsByBuild(string buildId)
         {
             return new BuildInvolvement[] { };
         }
 
-        public IEnumerable<BuildInvolvement> GetBuildInvolvementsWithoutMappedRevisions(string jobId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedRevisions(string jobId)
         {
             return new BuildInvolvement[] { };
         }
 
-        public IEnumerable<BuildInvolvement> GetBuildInvolvementsWithoutMappedUser(string jobId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedUser(string jobId)
         {
             return new BuildInvolvement[] { };
         }
 
-        public IEnumerable<BuildLogParseResult> GetBuildLogParseResultsByBuildId(string buildId)
+        IEnumerable<BuildLogParseResult> IDataPlugin.GetBuildLogParseResultsByBuildId(string buildId)
         {
             return new BuildLogParseResult[] { };
         }
 
-        public BuildProcessor GetBuildProcessorById(string id)
+        BuildProcessor IDataPlugin.GetBuildProcessorById(string id)
         {
             return new BuildProcessor { };
         }
 
-        public IEnumerable<BuildProcessor> GetBuildProcessorsByBuildId(string buildId)
+        IEnumerable<BuildProcessor> IDataPlugin.GetBuildProcessorsByBuildId(string buildId)
         {
             return new BuildProcessor[] { };
         }
 
-        public BuildServer GetBuildServerById(string id)
+        BuildServer IDataPlugin.GetBuildServerById(string id)
         {
             return new BuildServer { };
         }
 
-        public BuildServer GetBuildServerByKey(string key)
+        BuildServer IDataPlugin.GetBuildServerByKey(string key)
         {
             return new BuildServer { };
         }
 
-        public IEnumerable<BuildServer> GetBuildServers()
+        IEnumerable<BuildServer> IDataPlugin.GetBuildServers()
         {
             return new BuildServer[] { };
         }
 
-        public IEnumerable<Build> GetBuildsForPostProcessing(string jobid, string processorKey, int limit)
+        IEnumerable<Build> IDataPlugin.GetBuildsForPostProcessing(string jobid, string processorKey, int limit)
         {
             return new Build[] { };
         }
 
-        public IEnumerable<Build> GetBuildsWithNoInvolvements(Job job)
+        IEnumerable<Build> IDataPlugin.GetBuildsWithNoInvolvements(Job job)
         {
             return new Build[] { };
         }
 
-        public IEnumerable<Build> GetBuildsWithNoLog(Job job)
+        IEnumerable<Build> IDataPlugin.GetBuildsWithNoLog(Job job)
         {
             return new Build[] { };
         }
 
-        public IEnumerable<Build> GetFailingBuildsWithoutIncident(Job job)
+        IEnumerable<Build> IDataPlugin.GetFailingBuildsWithoutIncident(Job job)
         {
             return new Build[] { };
         }
 
-        public Build GetFirstPassingBuildAfterBuild(Build build)
+        Build IDataPlugin.GetFirstPassingBuildAfterBuild(Build build)
         {
             return new Build { };
         }
 
-        public Build GetDeltaBuildAtBuild(Build build) 
+        Build IDataPlugin.GetDeltaBuildAtBuild(Build build) 
         {
             return new Build { };
         }
 
-        public IEnumerable<string> GetIncidentIdsForJob(Job job)
+        IEnumerable<string> IDataPlugin.GetIncidentIdsForJob(Job job)
         {
             return new string[] { };
         }
 
-        public Job GetJobById(string id)
+        Job IDataPlugin.GetJobById(string id)
         {
             return new Job { };
         }
 
-        public Job GetJobByKey(string key)
+        Job IDataPlugin.GetJobByKey(string key)
         {
             return new Job { };
         }
 
-        public IEnumerable<Job> GetJobs()
+        IEnumerable<Job> IDataPlugin.GetJobs()
         {
             return new Job[] { };
         }
 
-        public IEnumerable<Job> GetJobsByBuildServerId(string buildServerId)
+        IEnumerable<Job> IDataPlugin.GetJobsByBuildServerId(string buildServerId)
         {
             return new Job[] { };
         }
 
-        public JobStats GetJobStats(Job job)
+        JobStats IDataPlugin.GetJobStats(Job job)
         {
             return new JobStats { };
         }
 
-        public Build GetLastJobDelta(string jobId)
+        Build IDataPlugin.GetLastJobDelta(string jobId)
         {
             return new Build { };
         }
 
-        public Build GetLatestBuildByJob(Job job)
+        Build IDataPlugin.GetLatestBuildByJob(Job job)
         {
             return new Build { };
         }
 
-        public ConfigurationState GetLatestConfigurationState()
+        ConfigurationState IDataPlugin.GetLatestConfigurationState()
         {
             return new ConfigurationState { };
         }
 
-        public Revision GetNewestRevisionForBuild(string buildId)
+        Revision IDataPlugin.GetNewestRevisionForBuild(string buildId)
         {
             return new Revision { };
         }
 
-        public Build GetNextBuild(Build build)
+        Build IDataPlugin.GetNextBuild(Build build)
         {
             return new Build { };
         }
 
-        public Build GetPreviousBuild(Build build)
+        Build IDataPlugin.GetPreviousBuild(Build build)
         {
             return new Build { };
         }
 
-        public IEnumerable<Revision> GetRevisionByBuild(string buildId)
+        IEnumerable<Revision> IDataPlugin.GetRevisionByBuild(string buildId)
         {
             return new Revision[] { };
         }
 
-        public Revision GetRevisionById(string id)
+        Revision IDataPlugin.GetRevisionById(string id)
         {
             return new Revision { };
         }
 
-        public Revision GetRevisionByKey(string sourceServerId, string key)
+        Revision IDataPlugin.GetRevisionByKey(string sourceServerId, string key)
         {
             return new Revision { };
         }
 
-        public IEnumerable<Revision> GetRevisionsBySourceServer(string sourceServerId)
+        IEnumerable<Revision> IDataPlugin.GetRevisionsBySourceServer(string sourceServerId)
         {
             return new Revision[] { };
         }
 
-        public Session GetSessionById(string id)
+        Session IDataPlugin.GetSessionById(string id)
         {
             return new Session { };
         }
 
-        public IEnumerable<Session> GetSessionByUserId(string userid)
+        IEnumerable<Session> IDataPlugin.GetSessionByUserId(string userid)
         {
             return new Session[] { };
         }
 
-        public SourceServer GetSourceServerById(string id)
+        SourceServer IDataPlugin.GetSourceServerById(string id)
         {
             return new SourceServer { };
         }
 
-        public SourceServer GetSourceServerByKey(string key)
+        SourceServer IDataPlugin.GetSourceServerByKey(string key)
         {
             return new SourceServer { };
         }
 
-        public IEnumerable<SourceServer> GetSourceServers()
+        IEnumerable<SourceServer> IDataPlugin.GetSourceServers()
         {
             return new SourceServer[] { };
         }
 
-        public StoreItem GetStoreItemByItem(string id)
+        StoreItem IDataPlugin.GetStoreItemByItem(string id)
         {
             return new StoreItem { };
         }
 
-        public StoreItem GetStoreItemByKey(string key)
+        StoreItem IDataPlugin.GetStoreItemByKey(string key)
         {
             return new StoreItem { };
         }
 
-        public IEnumerable<Build> GetUnparsedBuildLogs(Job job)
+        IEnumerable<Build> IDataPlugin.GetUnparsedBuildLogs(Job job)
         {
             return new Build[] { };
         }
 
-        public User GetUserById(string id)
+        User IDataPlugin.GetUserById(string id)
         {
             return new User { };
         }
 
-        public User GetUserByKey(string key)
+        User IDataPlugin.GetUserByKey(string key)
         {
             return new User { };
         }
 
-        public IEnumerable<User> GetUsers()
+        IEnumerable<User> IDataPlugin.GetUsers()
         {
             return new User[] { };
         }
 
-        public int IgnoreBuildFlagsForBuild(Build build, BuildFlags flag)
+        int IDataPlugin.InitializeDatastore()
         {
             return 0;
         }
 
-        public int InitializeDatastore()
+        int IDataPlugin.DestroyDatastore()
         {
             return 0;
         }
 
-        public int DestroyDatastore()
-        {
-            return 0;
-        }
-
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult { Success = true };
         }
 
-        public PageableData<BuildFlag> PageBuildFlags(int index, int pageSize)
-        {
-            return new PageableData<BuildFlag>(new BuildFlag[] { }, 0, 0, 0);
-        }
-
-        public PageableData<BuildInvolvement> PageBuildInvolvementsByUserAndStatus(string userid, BuildStatus buildStatus, int index, int pageSize)
+        PageableData<BuildInvolvement> IDataPlugin.PageBuildInvolvementsByUserAndStatus(string userid, BuildStatus buildStatus, int index, int pageSize)
         {
             return new PageableData<BuildInvolvement>(new BuildInvolvement[] { }, 0, 0, 0);
         }
 
-        public PageableData<Build> PageBuildsByBuildAgent(string hostname, int index, int pageSize)
+        PageableData<Build> IDataPlugin.PageBuildsByBuildAgent(string hostname, int index, int pageSize)
         {
             return new PageableData<Build>(new Build[] { }, 0, 0, 0);
         }
 
-        public IEnumerable<Build> GetBuildsByIncident(string incidentId)
+        IEnumerable<Build> IDataPlugin.GetBuildsByIncident(string incidentId)
         {
             return new Build[] { };
         }
 
-        public PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize, bool sortAscending)
+        PageableData<Build> IDataPlugin.PageBuildsByJob(string jobId, int index, int pageSize, bool sortAscending)
         {
             return new PageableData<Build>(new Build[] { }, 0, 0, 0);
         }
 
-        public PageableData<ConfigurationState> PageConfigurationStates(int index, int pageSize)
+        PageableData<ConfigurationState> IDataPlugin.PageConfigurationStates(int index, int pageSize)
         {
             return new PageableData<ConfigurationState>(new ConfigurationState[] { }, 0, 0, 0);
         }
 
-        public PageableData<Build> PageIncidentsByJob(string jobId, int index, int pageSize)
+        PageableData<Build> IDataPlugin.PageIncidentsByJob(string jobId, int index, int pageSize)
         {
             return new PageableData<Build>(new Build[] { }, 0, 0, 0);
         }
 
-        public PageableData<User> PageUsers(int index, int pageSize)
+        PageableData<User> IDataPlugin.PageUsers(int index, int pageSize)
         {
             return new PageableData<User>(new User[] { }, 0, 0, 0);
         }
 
-        public int ResetBuild(string buildId, bool hard)
+        int IDataPlugin.ResetBuild(string buildId, bool hard)
         {
             return 0;
         }
 
-        public int ResetJob(string jobId, bool hard)
+        int IDataPlugin.ResetJob(string jobId, bool hard)
         {
             return 0;
         }
 
-        public Build SaveBuild(Build build)
+        Build IDataPlugin.SaveBuild(Build build)
         {
             return new Build { };
         }
 
-        public BuildFlag SaveBuildFlag(BuildFlag flag)
-        {
-            return new BuildFlag { };
-        }
-
-        public BuildInvolvement SaveBuildInvolement(BuildInvolvement buildInvolvement)
+        BuildInvolvement IDataPlugin.SaveBuildInvolement(BuildInvolvement buildInvolvement)
         {
             return new BuildInvolvement { };
         }
 
-        public BuildLogParseResult SaveBuildLogParseResult(BuildLogParseResult buildLog)
+        BuildLogParseResult IDataPlugin.SaveBuildLogParseResult(BuildLogParseResult buildLog)
         {
             return new BuildLogParseResult { };
         }
 
-        public BuildProcessor SaveBuildProcessor(BuildProcessor buildProcessor)
+        BuildProcessor IDataPlugin.SaveBuildProcessor(BuildProcessor buildProcessor)
         {
             return new BuildProcessor { };
         }
 
-        public BuildServer SaveBuildServer(BuildServer buildServer)
+        BuildServer IDataPlugin.SaveBuildServer(BuildServer buildServer)
         {
             return new BuildServer { };
         }
 
-        public Job SaveJob(Job job)
+        Job IDataPlugin.SaveJob(Job job)
         {
             return new Job { };
         }
 
-        public void SaveJobDelta(Build build)
+        void IDataPlugin.SaveJobDelta(Build build)
         {
             
         }
 
-        public Revision SaveRevision(Revision revision)
+        Revision IDataPlugin.SaveRevision(Revision revision)
         {
             return new Revision { };
         }
 
-        public Session SaveSession(Session session)
+        Session IDataPlugin.SaveSession(Session session)
         {
             return new Session { };
         }
 
-        public SourceServer SaveSourceServer(SourceServer sourceServer)
+        SourceServer IDataPlugin.SaveSourceServer(SourceServer sourceServer)
         {
             return new SourceServer { };
         }
 
-        public StoreItem SaveStore(StoreItem storeItem)
+        StoreItem IDataPlugin.SaveStore(StoreItem storeItem)
         {
             return new StoreItem { };
         }
 
-        public User SaveUser(User user)
+        User IDataPlugin.SaveUser(User user)
         {
             return new User { };
         }
 
-        public int ClearAllTables() 
+        int IDataPlugin.ClearAllTables() 
         {
             return 0;
         }
 
         #region R_BuildLogParseResult_BuildInvolvement
 
-        public string ConnectBuildLogParseResultAndBuildBuildInvolvement(string buildLogParseResultId, string buildInvolvementId)
+        string IDataPlugin.ConnectBuildLogParseResultAndBuildBuildInvolvement(string buildLogParseResultId, string buildInvolvementId)
         {
             return string.Empty;
         }
 
-        public bool SplitBuildLogParseResultAndBuildBuildInvolvement(string id)
+        bool IDataPlugin.SplitBuildLogParseResultAndBuildBuildInvolvement(string id)
         {
             return false;
         }
 
-        public IEnumerable<string> GetBuildLogParseResultsForBuildInvolvement(string buildInvolvementId)
+        IEnumerable<string> IDataPlugin.GetBuildLogParseResultsForBuildInvolvement(string buildInvolvementId)
         {
             return new string[] { };
         }
@@ -480,31 +445,31 @@ namespace Wbtb.Extensions.Data.FileSystem
 
         #region DAEMONTASK
 
-        public DaemonTask SaveDaemonTask(DaemonTask daemonTask)
+        DaemonTask IDataPlugin.SaveDaemonTask(DaemonTask daemonTask)
         {
             return new DaemonTask { };
         }
 
-        public DaemonTask GetDaemonTaskById(string id)
+        DaemonTask IDataPlugin.GetDaemonTaskById(string id)
         {
             return new DaemonTask { };
         }
 
-        public bool DeleteDaemonTask(DaemonTask record)
+        bool IDataPlugin.DeleteDaemonTask(DaemonTask record)
         {
             return false;
         }
 
-        public IEnumerable<DaemonTask> GetDaemonsTaskByBuild(string buildid)
+        IEnumerable<DaemonTask> IDataPlugin.GetDaemonsTaskByBuild(string buildid)
         {
             return new DaemonTask[] { };
         }
 
-        public IEnumerable<DaemonTask> GetPendingDaemonTasksByTask(string task)
+        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByTask(string task)
         {
             return new DaemonTask[] { };
         }
-        public bool DaemonTasksBlocked(string buildId, int order)
+        bool IDataPlugin.DaemonTasksBlocked(string buildId, int order)
         {
             return false;
         }

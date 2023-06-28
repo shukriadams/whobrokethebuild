@@ -269,17 +269,8 @@ else
     }
     else
     {
-        @if (Model.BuildFlags.Any()) 
-        { 
-            <text>
-                Log parsing not possible - resolve data/config issues first.
-            </text>
-        }
-        else
-        {
-            <text>
-                No log parse results.
-            </text>
-        }
+        <text>
+            No log parse results.
+        </text>
     }
 }

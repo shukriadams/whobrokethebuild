@@ -563,8 +563,6 @@ namespace Wbtb.Core.Common
             });
         }
 
-
-
         PageableData<Build> IDataPlugin.PageBuildsByBuildAgent(string hostname, int index, int pageSize)
         {
             return _pluginSender.InvokeMethod<PageableData<Build>>(this, new PluginArgs
@@ -599,90 +597,6 @@ namespace Wbtb.Core.Common
                     new PluginFunctionParameter { Name = "jobid", Value = jobid },
                     new PluginFunctionParameter { Name = "processorKey", Value = processorKey },
                     new PluginFunctionParameter { Name = "limit", Value = limit }
-                }
-            });
-        }
-
-        #endregion
-
-        #region BUILDFLAG
-
-        BuildFlag IDataPlugin.SaveBuildFlag(BuildFlag flag)
-        {
-            return _pluginSender.InvokeMethod<BuildFlag>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.SaveBuildFlag),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "flag", Value = flag }
-                }
-            });
-        }
-
-        BuildFlag IDataPlugin.GetBuildFlagById(string id)
-        {
-            return _pluginSender.InvokeMethod<BuildFlag>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetBuildFlagById),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "id", Value = id }
-                }
-            });
-        }
-
-        bool IDataPlugin.DeleteBuildFlag(BuildFlag buildFlag)
-        {
-            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.DeleteBuildFlag),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "buildFlag", Value = buildFlag }
-                }
-            });
-        }
-
-        int IDataPlugin.IgnoreBuildFlagsForBuild(Build build, BuildFlags flag)
-        {
-            return _pluginSender.InvokeMethod<int>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.IgnoreBuildFlagsForBuild),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "build", Value = build },
-                    new PluginFunctionParameter { Name = "flag", Value = flag }
-                }
-            });
-        }
-
-        int IDataPlugin.DeleteBuildFlagsForBuild(Build build, BuildFlags flag)
-        {
-            return _pluginSender.InvokeMethod<int>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.DeleteBuildFlagsForBuild),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "build", Value = build },
-                    new PluginFunctionParameter { Name = "flag", Value = flag }
-                }
-            });
-        }
-
-        IEnumerable<BuildFlag> IDataPlugin.GetBuildFlagsForBuild(Build build)
-        {
-            return _pluginSender.InvokeMethod<IEnumerable<BuildFlag>>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetBuildFlagsForBuild),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "build", Value = build }
-                }
-            });
-        }
-
-        PageableData<BuildFlag> IDataPlugin.PageBuildFlags(int index, int pageSize)
-        {
-            return _pluginSender.InvokeMethod<PageableData<BuildFlag>>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.PageBuildFlags),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "index", Value = index },
-                    new PluginFunctionParameter { Name = "pageSize", Value = pageSize }
                 }
             });
         }

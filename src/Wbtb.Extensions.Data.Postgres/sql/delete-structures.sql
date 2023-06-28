@@ -1,6 +1,5 @@
 ﻿-- DROP INDEXES
 DROP INDEX IF EXISTS public."buildlogparseresult_buildid_fk";
-DROP INDEX IF EXISTS public."buildflag_buildid_fk";
 DROP INDEX IF EXISTS public."buildprocessor_buildid_fk";
 DROP INDEX IF EXISTS public."buildinvolvement_buildid_fk";
 DROP INDEX IF EXISTS public."buildinvolvement_revisionid_fk";
@@ -19,7 +18,6 @@ DROP INDEX IF EXISTS public."r_buildlogparseresult_buildinvolvement_buildinvolve
 -- DROP TABLES
 DROP TABLE IF EXISTS public."daemontask" CASCADE;
 DROP TABLE IF EXISTS public."r_buildlogparseresult_buildinvolvement" CASCADE;
-DROP TABLE IF EXISTS public."buildflag" CASCADE;
 DROP TABLE IF EXISTS public."buildprocessor" CASCADE;
 DROP TABLE IF EXISTS public."incident" CASCADE;
 DROP TABLE IF EXISTS public."buildlogparseresult" CASCADE;
@@ -49,7 +47,6 @@ DROP SEQUENCE IF EXISTS public."build_id_seq";
 DROP SEQUENCE IF EXISTS public."build_jobid_seq";
 DROP SEQUENCE IF EXISTS public."build_incidentbuildid_seq";
 DROP SEQUENCE IF EXISTS public."buildlogparseresult_id_seq";
-DROP SEQUENCE IF EXISTS public."buildflag_id_seq";
 DROP SEQUENCE IF EXISTS public."buildprocessor_id_seq";
 DROP SEQUENCE IF EXISTS public."buildinvolvement_id_seq";
 DROP SEQUENCE IF EXISTS public."session_id_seq";

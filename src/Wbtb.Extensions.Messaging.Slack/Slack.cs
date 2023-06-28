@@ -198,9 +198,6 @@ namespace Wbtb.Extensions.Messaging.Slack
             else 
             {
                 // if no log parse results, check if log parse errors occurred
-                IEnumerable<BuildFlag> flags = dataLayer.GetBuildFlagsForBuild(incidentBuild);
-                if (flags.Where(f => f.Flag == BuildFlags.LogParseFailed).Any())
-                    errors = $"```Log parse failed due to errors, see WBTB log for more info.```";
             }
 
 

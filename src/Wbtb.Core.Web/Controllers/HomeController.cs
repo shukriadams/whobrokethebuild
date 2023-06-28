@@ -200,31 +200,6 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
-        [ServiceFilter(typeof(ViewStatus))]
-        [Route("/buildflag/reset/{buidflagdid}")]
-        public IActionResult BuildFlagReset(string buidflagdid)
-        {
-            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
-            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            BuildFlag flag = dataLayer.GetBuildFlagById(buidflagdid);
-            if (flag == null)
-                return Responses.NotFoundError($"buildflag {buidflagdid} does not exist");
-
-            bool deleted = dataLayer.DeleteBuildFlag(flag);
-            return Redirect($"/build/{flag.BuildId}");
-        }
-
-        [ServiceFilter(typeof(ViewStatus))]
-        [Route("/buildflag/delete/{buildflagid}")]
-        public string BuildFlagDelete(string buildflagid)
-        {
-            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
-            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            BuildFlag buildFlag = dataLayer.GetBuildFlagById(buildflagid);
-            dataLayer.DeleteBuildFlag(buildFlag);
-            return string.Empty;
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -268,7 +243,6 @@ namespace Wbtb.Core.Web.Controllers
             model.NextBuild = dataLayer.GetNextBuild(model.Build);
             model.BuildParseResults = dataLayer.GetBuildLogParseResultsByBuildId(buildid);
             model.Build.IncidentBuild = string.IsNullOrEmpty(model.Build.IncidentBuildId) ? null : ViewBuild.Copy(dataLayer.GetBuildById(model.Build.IncidentBuildId));
-            model.BuildFlags = dataLayer.GetBuildFlagsForBuild(model.Build);
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
             model.buildProcessors = dataLayer.GetBuildProcessorsByBuildId(model.Build.Id);
             IEnumerable<DaemonTask> buildTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id);
@@ -420,23 +394,6 @@ namespace Wbtb.Core.Web.Controllers
             ViewData["buildServer"] = buildServer;
 
             LayoutModel model = new LayoutModel();
-            return View(model);
-        }
-
-        [ServiceFilter(typeof(ViewStatus))]
-        [Route("/buildflags/{page?}")]
-        public IActionResult BuildFlags(int page)
-        {
-            Configuration config = _di.Resolve<Configuration>();
-            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
-            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            // force start-at-zero if value set, pager will never use 0
-            if (page > 0)
-                page--;
-
-            BuildFlagsModel model = new BuildFlagsModel();
-            model.BaseUrl = $"/buildflags";
-            model.BuildFlags = ViewBuildFlag.Copy(dataLayer.PageBuildFlags(page, config.StandardPageSize));
             return View(model);
         }
 

@@ -154,24 +154,6 @@ namespace Wbtb.Core.Common
 
         #endregion
 
-        #region BUILDFLAG
-
-        BuildFlag SaveBuildFlag(BuildFlag flag);
-
-        int IgnoreBuildFlagsForBuild(Build build, BuildFlags flag);
-
-        int DeleteBuildFlagsForBuild(Build build, BuildFlags flag);
-
-        IEnumerable<BuildFlag> GetBuildFlagsForBuild(Build build);
-
-        PageableData<BuildFlag> PageBuildFlags(int index, int pageSize);
-
-        BuildFlag GetBuildFlagById(string id);
-
-        bool DeleteBuildFlag(BuildFlag record);
-
-        #endregion
-
         #region BUILDLOG
 
         BuildLogParseResult SaveBuildLogParseResult(BuildLogParseResult buildLog);

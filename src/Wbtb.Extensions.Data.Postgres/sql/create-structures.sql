@@ -63,14 +63,6 @@ CREATE SEQUENCE public."incident_id_seq"
     CACHE 1;
 ALTER SEQUENCE public."incident_id_seq" OWNER TO postgres;
 
-CREATE SEQUENCE public."buildflag_id_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."buildflag_id_seq" OWNER TO postgres;
-
 CREATE SEQUENCE public."buildprocessor_id_seq"
     INCREMENT 1
     START 1
@@ -460,30 +452,6 @@ TABLESPACE pg_default;
 ALTER TABLE public."buildprocessor" OWNER TO postgres;
 
 
--- TABLE : buildflag
-CREATE TABLE public."buildflag"
-(
-    id integer NOT NULL DEFAULT nextval('"buildflag_id_seq"'::regclass),
-    buildid integer NOT NULL,
-    flag integer NOT NULL,
-    description text COLLATE pg_catalog."default",
-    createdutc timestamp(4) without time zone NOT NULL,
-    ignored boolean,
-    CONSTRAINT "buildflag_primary_key" PRIMARY KEY (id),
-    -- a flag should not appear more than once on a build, else there's a risk of it flooding table on repeating, unsolved errors
-    CONSTRAINT "buildflag_compoundkey" UNIQUE (buildid, flag),
-    CONSTRAINT "buildflag_buildid_fk" FOREIGN KEY (buildid)
-        REFERENCES public."build" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-ALTER TABLE public."buildflag" OWNER TO postgres;
-
-
 -- TABLE: jobdelta
 CREATE TABLE public."jobdelta"
 (
@@ -643,11 +611,6 @@ CREATE INDEX "buildinvolvement_buildid_fk"
 CREATE INDEX "buildinvolvement_revisionid_fk"
     ON public."buildinvolvement" USING btree
     (revisionid)
-    TABLESPACE pg_default;
-
-CREATE INDEX "buildflag_buildid_fk"
-    ON public."buildflag" USING btree
-    (buildid)
     TABLESPACE pg_default;
 
 CREATE INDEX "buildprocessor_buildid_fk"
