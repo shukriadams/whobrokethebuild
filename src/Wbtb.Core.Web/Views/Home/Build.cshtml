@@ -213,20 +213,6 @@
 
 </x-list>
 
-
-@if(Model.buildProcessors.Count() > 0)
-{ 
-    <h2>Build Processors</h2>
-    <div>
-        @foreach(BuildProcessor buildProcessor in Model.buildProcessors)
-        { 
-            <div>
-                @buildProcessor.ProcessorKey - @buildProcessor.Status <a href="/buildProcessorLog/@buildProcessor.Id">Log</a>
-            </div>
-        }
-    </div>
-}
-
 <h2>Log</h2>
 @if (Model.Build.LogPath == null)
 { 

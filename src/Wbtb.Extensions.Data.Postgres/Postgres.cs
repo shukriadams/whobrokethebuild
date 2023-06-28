@@ -502,21 +502,6 @@ namespace Wbtb.Extensions.Data.Postgres
                     affected += cmd.ExecuteNonQuery();
                 }
 
-                // remove buildflags for job
-                string resetFlags = @"
-                DELETE FROM 
-                    buildflag
-                USING
-                    build
-                WHERE
-                    build.jobid = @jobid";
-
-                using (NpgsqlCommand cmd = new NpgsqlCommand(resetFlags, connection))
-                {
-                    cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                    affected += cmd.ExecuteNonQuery();
-                }
-
                 string resetDaemonTasks = @"
                 DELETE FROM 
                     daemontask
@@ -999,76 +984,6 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        IEnumerable<Build> IDataPlugin.GetBuildsWithNoLog(Job job)
-        {
-            string query = @"
-                SELECT 
-                    *
-                FROM
-                    build B
-                WHERE
-                    B.jobid = @jobid
-                    AND B.logpath IS NULL
-                    AND
-                        (
-                            B.status = @build_failed
-                            OR B.status = @build_passed
-                        )
-                LIMIT 
-                    @limit";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
-                cmd.Parameters.AddWithValue("build_failed", (int)BuildStatus.Failed);
-                cmd.Parameters.AddWithValue("build_passed", (int)BuildStatus.Passed);
-                cmd.Parameters.AddWithValue("limit", 100); 
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildConvert().ToCommonList(reader);
-            }
-        }
-
-        IEnumerable<Build> IDataPlugin.GetBuildsWithNoInvolvements(Job job)
-        {
-            string query = @"
-                SELECT 
-                    B.*
-                FROM
-                    build B
-                WHERE 
-                    B.jobid = @jobid
-
-                    AND NOT EXISTS (
-                        SELECT FROM buildinvolvement BI
-                        WHERE B.id = BI.buildid
-                    ) 
-
-                    AND NOT EXISTS (
-                        SELECT FROM buildflag BF
-                        WHERE B.id = BF.buildid
-                            AND BF.flag = @logprocessabandoned
-                            AND BF.ignored IS NULL
-                    )
-
-                LIMIT 
-                    @limit";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
-                cmd.Parameters.AddWithValue("build_failed", (int)BuildStatus.Failed);
-                cmd.Parameters.AddWithValue("build_passed", (int)BuildStatus.Passed);
-                cmd.Parameters.AddWithValue("limit", 100);
-                cmd.Parameters.AddWithValue("logprocessabandoned", (int)BuildFlags.LogHasNoRevision);
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildConvert().ToCommonList(reader);
-            }
-        }
-
         bool IDataPlugin.DeleteBuild(Build record)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "build", "id", record.Id);
@@ -1221,115 +1136,6 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        IEnumerable<Build> IDataPlugin.GetFailingBuildsWithoutIncident(Job job)
-        {
-            string query = @"
-                SELECT 
-                    B.*
-                FROM
-                    build B 
-                    LEFT JOIN buildflag BF ON b.id = BF.buildid
-                WHERE 
-                    B.status = @build_failed
-                    AND B.jobid = @jobid
-                    AND B.incidentbuildid IS NULL
-                    AND NOT EXISTS (
-                        SELECT FROM buildflag BF
-                        WHERE B.id = BF.buildid
-                            AND BF.flag = @linkerror
-                            AND BF.ignored IS NULL
-                    )
-                ORDER BY
-                    B.startedutc
-                LIMIT 
-                    @limit";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
-                cmd.Parameters.AddWithValue("build_failed", (int)BuildStatus.Failed);
-                cmd.Parameters.AddWithValue("limit", 100); // todo : remove hardcoded value!
-                cmd.Parameters.AddWithValue("linkerror", (int)BuildFlags.IncidentBuildLinkError);
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildConvert().ToCommonList(reader);
-            }
-        }
-
-        IEnumerable<Build> IDataPlugin.GetUnparsedBuildLogs(Job job)
-        {
-            string query = @"
-                SELECT
-                    B.*
-                FROM
-                    build B
-                WHERE
-
-                    -- ignore any build that has any kind of log fail flag on it
-                    NOT EXISTS (
-                        SELECT FROM buildflag BF
-                        WHERE 
-                            B.id = BF.buildid
-                            AND BF.flag = @logparsefail
-                            AND BF.ignored IS NULL
-                
-                    -- ignore any build that has any processed log on it
-                    ) AND NOT EXISTS (
-                        SELECT FROM buildlogparseresult BLPR
-                        WHERE BLPR.buildid = b.id
-                    )
-
-                    AND B.jobid = @jobid
-                    AND NOT B.logpath IS NULL";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
-                cmd.Parameters.AddWithValue("logparsefail", (int)BuildFlags.LogParseFailed);
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildConvert().ToCommonList(reader);
-            }
-        }
-
-        IEnumerable<Build> IDataPlugin.GetBuildsForPostProcessing(string jobid, string processorKey, int limit)
-        {
-            string query = @"
-                SELECT
-                    *
-                FROM
-                    build 
-                WHERE
-                    jobid=@jobid
-
-                    -- find any buildprocessor record for build with given processor, if exists, ignore build
-                    AND NOT EXISTS (
-                        SELECT 
-                            BP.id 
-                        FROM
-                            buildprocessor BP
-                            JOIN build B on B.id = BP.buildid
-                        WHERE
-                            BP.processor=@processor
-                            AND B.jobid=@jobid
-                    )
-                LIMIT
-                    @limit";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-            {
-                cmd.Parameters.AddWithValue("limit", limit);
-                cmd.Parameters.AddWithValue("jobid", int.Parse(jobid));
-                cmd.Parameters.AddWithValue("processor", processorKey);
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildConvert().ToCommonList(reader);
-            }
-        }
-
         int IDataPlugin.ResetBuild(string buildId, bool hard)
         {
             // remove build involvements
@@ -1355,20 +1161,6 @@ namespace Wbtb.Extensions.Data.Postgres
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, connection))
-            {
-                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-                cmd.ExecuteNonQuery();
-            }
-
-            // remove buildflags for job
-            string resetFlags = @"
-                DELETE FROM 
-                    buildflag
-                WHERE
-                    buildid = @buildid";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(resetFlags, connection))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                 cmd.ExecuteNonQuery();
@@ -1568,67 +1360,6 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildInvolvementConvert().ToCommonList(reader);
-            }
-        }
-
-        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedUser(string jobId)
-        {
-            string sql = @"
-                SELECT 
-                    BI.* 
-                FROM 
-                    buildinvolvement BI
-                    JOIN build B ON B.id = BI.buildid
-                WHERE 
-                    B.jobid = @jobid
-                    AND BI.mappeduserid IS NULL
-                    AND NOT BI.revisionid IS NULL
-                    AND NOT EXISTS (
-                        SELECT FROM buildflag BF
-                        WHERE B.id = BF.buildid
-                            AND BF.flag = @usernotdefined
-                            AND BF.ignored IS NULL
-                    )";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                cmd.Parameters.AddWithValue("usernotdefined", (int)BuildFlags.BuildUserNotDefinedLocally);
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildInvolvementConvert().ToCommonList(reader);
-            }
-        }
-
-        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedRevisions(string jobId)
-        {
-            // ignore buildinvolvements that are associated with builds where revision mapping as already been marked as failing
-            string sql = @"
-                SELECT 
-                    BI.* 
-                FROM 
-                    buildinvolvement BI
-                    JOIN 
-                        build B ON B.id = BI.buildid
-					AND NOT EXISTS (
-                        SELECT FROM buildflag BF
-                        WHERE B.id = BF.buildid
-                            AND BF.flag = @revisionNotFound
-                            AND BF.ignored IS NULL
-                    )
-                WHERE 
-                    B.jobid = @jobid
-                    AND BI.revisionid IS NULL";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                cmd.Parameters.AddWithValue("revisionNotFound", (int)BuildFlags.RevisionNotFound);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new BuildInvolvementConvert().ToCommonList(reader);
@@ -1965,71 +1696,6 @@ namespace Wbtb.Extensions.Data.Postgres
 
                     return ids;
                 }
-            }
-        }
-
-        #endregion
-
-        #region BUILD PROCESSOR
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        BuildProcessor IDataPlugin.GetBuildProcessorById(string id)
-        {
-            return PostgresCommon.GetById<BuildProcessor>(this.ContextPluginConfig, id, "buildprocessor", new BuildProcessorConvert());
-        }
-
-        BuildProcessor IDataPlugin.SaveBuildProcessor(BuildProcessor buildProcessor)
-        {
-            string insertQuery = @"
-                INSERT INTO buildprocessor
-                    (buildid, signature, status, processor)
-                VALUES
-                    (@buildid, @signature, @status, @processor)
-                RETURNING id";
-
-            string updateQuery = @"                    
-                UPDATE buildprocessor SET 
-                    buildid = @buildid, 
-                    signature = @new_signature,
-                    status = @status, 
-                    processor = @processor
-                WHERE
-                    id = @id
-                    AND signature = @signature";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            {
-                if (string.IsNullOrEmpty(buildProcessor.Id))
-                    buildProcessor.Id = PostgresCommon.InsertWithId<BuildProcessor>(this.ContextPluginConfig, insertQuery, buildProcessor, new ParameterMapper<BuildProcessor>(BuildProcessorMapping.MapParameters), connection);
-                else
-                    PostgresCommon.Update<BuildProcessor>(this.ContextPluginConfig, updateQuery, buildProcessor, new ParameterMapper<BuildProcessor>(BuildProcessorMapping.MapParameters), connection);
-
-                return buildProcessor;
-            }
-        }
-
-        IEnumerable<BuildProcessor> IDataPlugin.GetBuildProcessorsByBuildId(string buildId)
-        {
-            string query = @"
-                SELECT
-                    *
-                FROM
-                    buildprocessor
-                WHERE
-                    buildid=@buildid
-                ";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-            {
-                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildProcessorConvert().ToCommonList(reader);
             }
         }
 

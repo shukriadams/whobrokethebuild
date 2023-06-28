@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Wbtb.Core.Common\Wbtb.Core.Common.csproj" />
+    <ProjectReference Include="..\Wbtb.Extensions.SourceServer.Perforce\Wbtb.Extensions.SourceServer.Perforce.csproj" />
   </ItemGroup>
 
 </Project>

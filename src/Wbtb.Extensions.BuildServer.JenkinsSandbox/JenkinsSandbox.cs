@@ -290,8 +290,6 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            IEnumerable<Build> buildsWithNoLog = dataLayer.GetBuildsWithNoLog(job);
-
             if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{job.Key}.logs.{build.Identifier}.txt"))
                 return build;
 

@@ -77,27 +77,6 @@ namespace Wbtb.Core.Web.Controllers
         }
 
         [ServiceFilter(typeof(ViewStatus))]
-        [Route("/buildprocessorlog/{buildprocessorid}")]
-        public IActionResult BuildProcessorLog(string buildProcessorId)
-        {
-            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
-            LogHelper loghelper = _di.Resolve<LogHelper>();
-
-            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-
-            BuildProcessorLogPageModel model = new BuildProcessorLogPageModel();
-            BuildProcessor buildProcessor = dataLayer.GetBuildProcessorById(buildProcessorId);
-            if (buildProcessor == null)
-                return Responses.NotFoundError($"BuildProcessor {buildProcessorId} does not exist");
-
-            model.Build = dataLayer.GetBuildById(buildProcessor.BuildId);
-            model.Log = loghelper.GetBuildProcessorLog(buildProcessor.BuildId, buildProcessor.Id);
-            model.BuildProcessor = buildProcessor;
-
-            return View(model);
-        }
-
-        [ServiceFilter(typeof(ViewStatus))]
         [Route("/incident/{incidentId}")]
         public IActionResult Incident(string incidentId)
         {
@@ -244,7 +223,6 @@ namespace Wbtb.Core.Web.Controllers
             model.BuildParseResults = dataLayer.GetBuildLogParseResultsByBuildId(buildid);
             model.Build.IncidentBuild = string.IsNullOrEmpty(model.Build.IncidentBuildId) ? null : ViewBuild.Copy(dataLayer.GetBuildById(model.Build.IncidentBuildId));
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
-            model.buildProcessors = dataLayer.GetBuildProcessorsByBuildId(model.Build.Id);
             IEnumerable<DaemonTask> buildTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id);
             model.ProcessErrors = buildTasks.Any(t => t.HasPassed.HasValue && t.HasPassed.Value == false);
             model.ProcessesPending = buildTasks.Any(t => t.ProcessedUtc == null);

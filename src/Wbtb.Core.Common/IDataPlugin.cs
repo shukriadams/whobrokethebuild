@@ -125,12 +125,6 @@ namespace Wbtb.Core.Common
 
         bool DeleteBuild(Build record);
 
-        IEnumerable<Build> GetBuildsWithNoLog(Job job);
-
-        IEnumerable<Build> GetBuildsWithNoInvolvements(Job job);
-
-        IEnumerable<Build> GetFailingBuildsWithoutIncident(Job job);
-
         /// <summary>
         /// Gets the build started the delta relative to a given build. Returns the given build if that build started the delta. 
         /// </summary>
@@ -146,11 +140,7 @@ namespace Wbtb.Core.Common
 
         Build GetNextBuild(Build build);
 
-        IEnumerable<Build> GetUnparsedBuildLogs(Job job);
-
         int ResetBuild(string buildId, bool hard);
-
-        IEnumerable<Build> GetBuildsForPostProcessing(string jobid, string processorKey, int limit);
 
         #endregion
 
@@ -175,10 +165,6 @@ namespace Wbtb.Core.Common
         bool DeleteBuildInvolvement(BuildInvolvement record);
 
         IEnumerable<BuildInvolvement> GetBuildInvolvementsByBuild(string buildId);
-
-        IEnumerable<BuildInvolvement> GetBuildInvolvementsWithoutMappedUser(string jobId);
-
-        IEnumerable<BuildInvolvement> GetBuildInvolvementsWithoutMappedRevisions(string jobId);
 
         PageableData<BuildInvolvement> PageBuildInvolvementsByUserAndStatus(string userid, BuildStatus buildStatus, int index, int pageSize);
 
@@ -216,16 +202,6 @@ namespace Wbtb.Core.Common
         bool DaemonTasksBlocked(string buildId, int order);
 
         PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string filterBy = "");
-
-        #endregion
-
-        #region BUILD PROCESSOR
-
-        BuildProcessor GetBuildProcessorById(string id);
-
-        BuildProcessor SaveBuildProcessor(BuildProcessor buildProcessor);
-
-        IEnumerable<BuildProcessor> GetBuildProcessorsByBuildId(string buildId);
 
         #endregion
 

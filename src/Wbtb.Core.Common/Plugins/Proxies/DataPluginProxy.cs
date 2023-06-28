@@ -464,39 +464,6 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Build> IDataPlugin.GetBuildsWithNoLog(Job job)
-        {
-            return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetBuildsWithNoLog),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "job", Value = job }
-                }
-            });
-        }
-
-        IEnumerable<Build> IDataPlugin.GetFailingBuildsWithoutIncident(Job job)
-        {
-            return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetFailingBuildsWithoutIncident),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "job", Value = job }
-                }
-            });
-        }
-
-        IEnumerable<Build> IDataPlugin.GetBuildsWithNoInvolvements(Job job)
-        {
-            return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetBuildsWithNoInvolvements),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "job", Value = job }
-                }
-            });
-        }
-
         Build IDataPlugin.GetLatestBuildByJob(Job job)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
@@ -552,17 +519,6 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Build> IDataPlugin.GetUnparsedBuildLogs(Job job)
-        {
-            return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetUnparsedBuildLogs),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "job", Value = job }
-                }
-            });
-        }
-
         PageableData<Build> IDataPlugin.PageBuildsByBuildAgent(string hostname, int index, int pageSize)
         {
             return _pluginSender.InvokeMethod<PageableData<Build>>(this, new PluginArgs
@@ -584,19 +540,6 @@ namespace Wbtb.Core.Common
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId },
                     new PluginFunctionParameter { Name = "hard", Value = hard }
-                }
-            });
-        }
-
-        IEnumerable<Build> IDataPlugin.GetBuildsForPostProcessing(string jobid, string processorKey, int limit)
-        {
-            return _pluginSender.InvokeMethod<IEnumerable<Build>>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetBuildsForPostProcessing),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "jobid", Value = jobid },
-                    new PluginFunctionParameter { Name = "processorKey", Value = processorKey },
-                    new PluginFunctionParameter { Name = "limit", Value = limit }
                 }
             });
         }
@@ -820,28 +763,6 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedUser(string jobId)
-        {
-            return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetBuildInvolvementsWithoutMappedUser),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "jobId", Value = jobId }
-                }
-            });
-        }
-
-        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedRevisions(string jobId)
-        {
-            return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetBuildInvolvementsWithoutMappedRevisions),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "jobId", Value = jobId }
-                }
-            });
-        }
-
         IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementByUserId(string userId)
         {
             return _pluginSender.InvokeMethod<IEnumerable<BuildInvolvement>>(this, new PluginArgs
@@ -863,44 +784,6 @@ namespace Wbtb.Core.Common
                     new PluginFunctionParameter { Name = "buildStatus", Value = buildStatus },
                     new PluginFunctionParameter { Name = "index", Value = index },
                     new PluginFunctionParameter { Name = "pageSize", Value = pageSize }
-                }
-            });
-        }
-
-        #endregion
-
-        #region BUILD PROCESSOR
-
-        BuildProcessor IDataPlugin.GetBuildProcessorById(string id)
-        {
-            return _pluginSender.InvokeMethod<BuildProcessor>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetBuildProcessorById),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "id", Value = id }
-                }
-            });
-        }
-
-
-        BuildProcessor IDataPlugin.SaveBuildProcessor(BuildProcessor buildProcessor)
-        {
-            return _pluginSender.InvokeMethod<BuildProcessor>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.SaveBuildProcessor),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "buildProcessor", Value = buildProcessor }
-                }
-            });
-        }
-
-        IEnumerable<BuildProcessor> IDataPlugin.GetBuildProcessorsByBuildId(string buildId)
-        {
-            return _pluginSender.InvokeMethod<IEnumerable<BuildProcessor>>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetBuildProcessorsByBuildId),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "buildId", Value = buildId }
                 }
             });
         }

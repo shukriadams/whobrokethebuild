@@ -31,8 +31,6 @@ namespace Wbtb.Core.Web
         /// </summary>
         public IEnumerable<User> BuildBreakers { get; set; }
 
-        public IEnumerable<BuildProcessor> buildProcessors { get; set; }
-
         public CommonModel Common { get;set; }
 
         public Build PreviousBuild { get; set; }
@@ -66,7 +64,6 @@ namespace Wbtb.Core.Web
             this.BuildBreakers = new List<User>();
             this.Common = new CommonModel();
             this.BuildInvolvements = new List<ViewBuildInvolvement>();
-            this.buildProcessors = new List<BuildProcessor>();
         }
     }
 }

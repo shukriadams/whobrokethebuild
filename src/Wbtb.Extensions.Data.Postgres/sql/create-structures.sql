@@ -63,14 +63,6 @@ CREATE SEQUENCE public."incident_id_seq"
     CACHE 1;
 ALTER SEQUENCE public."incident_id_seq" OWNER TO postgres;
 
-CREATE SEQUENCE public."buildprocessor_id_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."buildprocessor_id_seq" OWNER TO postgres;
-
 CREATE SEQUENCE public."buildlogparseresult_id_seq"
     INCREMENT 1
     START 1
@@ -428,30 +420,6 @@ ALTER TABLE public."buildlogparseresult" OWNER TO postgres;
 
 
 
-
-
-
--- TABLE : buildprocessor
-CREATE TABLE public."buildprocessor"
-(
-    id integer NOT NULL DEFAULT nextval('"buildprocessor_id_seq"'::regclass),
-    signature character varying(38) COLLATE pg_catalog."default" NOT NULL,
-    buildid integer NOT NULL,
-    status integer NOT NULL,
-    processor character varying(256) COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT "buildprocessor_primary_key" PRIMARY KEY (id),
-    CONSTRAINT "buildprocessor_buildid_fk" FOREIGN KEY (buildid)
-        REFERENCES public."build" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-ALTER TABLE public."buildprocessor" OWNER TO postgres;
-
-
 -- TABLE: jobdelta
 CREATE TABLE public."jobdelta"
 (
@@ -611,11 +579,6 @@ CREATE INDEX "buildinvolvement_buildid_fk"
 CREATE INDEX "buildinvolvement_revisionid_fk"
     ON public."buildinvolvement" USING btree
     (revisionid)
-    TABLESPACE pg_default;
-
-CREATE INDEX "buildprocessor_buildid_fk"
-    ON public."buildprocessor" USING btree
-    (buildid)
     TABLESPACE pg_default;
 
 CREATE INDEX "buildlogparseresult_buildid_fk"

@@ -94,29 +94,9 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new BuildInvolvement[] { };
         }
 
-        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedRevisions(string jobId)
-        {
-            return new BuildInvolvement[] { };
-        }
-
-        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedUser(string jobId)
-        {
-            return new BuildInvolvement[] { };
-        }
-
         IEnumerable<BuildLogParseResult> IDataPlugin.GetBuildLogParseResultsByBuildId(string buildId)
         {
             return new BuildLogParseResult[] { };
-        }
-
-        BuildProcessor IDataPlugin.GetBuildProcessorById(string id)
-        {
-            return new BuildProcessor { };
-        }
-
-        IEnumerable<BuildProcessor> IDataPlugin.GetBuildProcessorsByBuildId(string buildId)
-        {
-            return new BuildProcessor[] { };
         }
 
         BuildServer IDataPlugin.GetBuildServerById(string id)
@@ -132,26 +112,6 @@ namespace Wbtb.Extensions.Data.FileSystem
         IEnumerable<BuildServer> IDataPlugin.GetBuildServers()
         {
             return new BuildServer[] { };
-        }
-
-        IEnumerable<Build> IDataPlugin.GetBuildsForPostProcessing(string jobid, string processorKey, int limit)
-        {
-            return new Build[] { };
-        }
-
-        IEnumerable<Build> IDataPlugin.GetBuildsWithNoInvolvements(Job job)
-        {
-            return new Build[] { };
-        }
-
-        IEnumerable<Build> IDataPlugin.GetBuildsWithNoLog(Job job)
-        {
-            return new Build[] { };
-        }
-
-        IEnumerable<Build> IDataPlugin.GetFailingBuildsWithoutIncident(Job job)
-        {
-            return new Build[] { };
         }
 
         Build IDataPlugin.GetFirstPassingBuildAfterBuild(Build build)
@@ -279,11 +239,6 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new StoreItem { };
         }
 
-        IEnumerable<Build> IDataPlugin.GetUnparsedBuildLogs(Job job)
-        {
-            return new Build[] { };
-        }
-
         User IDataPlugin.GetUserById(string id)
         {
             return new User { };
@@ -372,11 +327,6 @@ namespace Wbtb.Extensions.Data.FileSystem
         BuildLogParseResult IDataPlugin.SaveBuildLogParseResult(BuildLogParseResult buildLog)
         {
             return new BuildLogParseResult { };
-        }
-
-        BuildProcessor IDataPlugin.SaveBuildProcessor(BuildProcessor buildProcessor)
-        {
-            return new BuildProcessor { };
         }
 
         BuildServer IDataPlugin.SaveBuildServer(BuildServer buildServer)
