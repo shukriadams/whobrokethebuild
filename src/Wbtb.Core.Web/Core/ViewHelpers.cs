@@ -26,6 +26,14 @@ namespace Wbtb.Core.Web
             return new HtmlString(content);
         }
 
+        public static HtmlString StyleImageUrl(string url) 
+        {
+            if (string.IsNullOrEmpty(url))
+                return new HtmlString("");
+
+            return new HtmlString("style=\"background-image: url(" + url +")\"");
+        }
+
         /// <summary>
         /// Converts build status to siumpler css classes. This is a soft conversation - it can handle null builds for less logic in view, and returns empty string in that case.
         /// </summary>

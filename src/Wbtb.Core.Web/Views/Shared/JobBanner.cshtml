@@ -2,7 +2,7 @@
 @model ViewJob
 
 <x-content>
-    <x-cover class="--rounded jobBanner-cover" style="background-image: url(@Model.Image)">
+    <x-cover class="--rounded jobBanner-cover" @ViewHelpers.StyleImageUrl(Model.Image)>
         <div class="jobBanner-coverMask"></div>
         <h1 class="jobBanner-coverTitle"><a href="/">Jobs</a> / @Model.Name</h1>
     </x-cover>

@@ -365,7 +365,7 @@ namespace Wbtb.Core.Web.Controllers
             BuildServer buildServer = dataLayer.GetBuildServerByKey(buildserverid);
 
             if (buildServer == null)
-                return Redirect("buildserver not found");
+                return Responses.NotFoundError("buildserver not found");
 
             IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
             IEnumerable<string> jobs = buildServerPlugin.ListRemoteJobsCanonical(buildServer);

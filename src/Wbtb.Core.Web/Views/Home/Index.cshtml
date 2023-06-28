@@ -16,7 +16,7 @@
             <x-card-stroke class="--@ViewHelpers.BuildStatusToCSSClass(job.LatestBuild)"></x-card-stroke>
             
             <a class="jobs-title" href="/job/@job.Id">
-                <x-cover class="jobs-image" style="background-image: url(@job.Image)"></x-cover>
+                <x-cover class="jobs-image" @ViewHelpers.StyleImageUrl(job.Image)></x-cover>
             </a>
 
             <x-card-pad>
