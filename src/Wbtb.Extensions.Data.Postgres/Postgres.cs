@@ -25,7 +25,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region UTIL
 
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             if (this.ContextPluginConfig.Config == null)
                 throw new ConfigurationException("Missing node \"Config\"");
@@ -48,7 +48,7 @@ namespace Wbtb.Extensions.Data.Postgres
             };
         }
 
-        public ReachAttemptResult AttemptReach()
+        ReachAttemptResult IReachable.AttemptReach()
         {
             try 
             {
@@ -61,12 +61,12 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public int InitializeDatastore()
+        int IDataPlugin.InitializeDatastore()
         {
             return PostgresCommon.InitializeDatastore(this.ContextPluginConfig);
         }
 
-        public int DestroyDatastore() 
+        int IDataPlugin.DestroyDatastore() 
         {
             return PostgresCommon.DestroyDatastore(this.ContextPluginConfig);
         }
@@ -75,7 +75,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region STORE
 
-        public StoreItem SaveStore(StoreItem storeItem)
+        StoreItem IDataPlugin.SaveStore(StoreItem storeItem)
         {
             string insertQuery = @"
                 INSERT INTO store
@@ -100,17 +100,18 @@ namespace Wbtb.Extensions.Data.Postgres
                 return storeItem;
             }
         }
-        public StoreItem GetStoreItemByItem(string id)
+        
+        StoreItem IDataPlugin.GetStoreItemByItem(string id)
         {
             return PostgresCommon.GetById(this.ContextPluginConfig, id, "store", new StoreItemConvert());
         }
 
-        public StoreItem GetStoreItemByKey(string key)
+        StoreItem IDataPlugin.GetStoreItemByKey(string key)
         {
             return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "store", new StoreItemConvert());
         }
 
-        public bool DeleteStoreItem(StoreItem record)
+        bool IDataPlugin.DeleteStoreItem(StoreItem record)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "store", "id", record.Id);
         }
@@ -119,7 +120,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region BUILD SERVER
 
-        public BuildServer SaveBuildServer(BuildServer buildServer)
+        BuildServer IDataPlugin.SaveBuildServer(BuildServer buildServer)
         {
             string insertQuery = @"
                 INSERT INTO buildserver
@@ -145,17 +146,17 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public BuildServer GetBuildServerById(string id)
+        BuildServer IDataPlugin.GetBuildServerById(string id)
         {
             return PostgresCommon.GetById(this.ContextPluginConfig, id, "buildserver", new BuildServerConvert(_config));
         }
 
-        public BuildServer GetBuildServerByKey(string key)
+        BuildServer IDataPlugin.GetBuildServerByKey(string key)
         {
             return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "buildserver", new BuildServerConvert(_config));
         }
 
-        public IEnumerable<BuildServer> GetBuildServers()
+        IEnumerable<BuildServer> IDataPlugin.GetBuildServers()
         {
             string query = @"
                     SELECT 
@@ -170,7 +171,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 return new BuildServerConvert(_config).ToCommonList(reader);
         }
 
-        public bool DeleteBuildServer(BuildServer record)
+        bool IDataPlugin.DeleteBuildServer(BuildServer record)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "buildserver", "id", record.Id);
         }
@@ -179,7 +180,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region SOURCE SERVER
 
-        public SourceServer SaveSourceServer(SourceServer sourceServer)
+        SourceServer IDataPlugin.SaveSourceServer(SourceServer sourceServer)
         {
             string insertQuery = @"
                 INSERT INTO sourceserver
@@ -205,17 +206,17 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public SourceServer GetSourceServerById(string id)
+        SourceServer IDataPlugin.GetSourceServerById(string id)
         {
             return PostgresCommon.GetById(this.ContextPluginConfig, id, "sourceserver", new SourceServerConvert(_config));
         }
 
-        public SourceServer GetSourceServerByKey(string key)
+        SourceServer IDataPlugin.GetSourceServerByKey(string key)
         {
             return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "sourceserver", new SourceServerConvert(_config));
         }
 
-        public IEnumerable<SourceServer> GetSourceServers()
+        IEnumerable<SourceServer> IDataPlugin.GetSourceServers()
         {
             string query = @"
                 SELECT 
@@ -230,7 +231,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 return new SourceServerConvert(_config).ToCommonList(reader);
         }
 
-        public bool DeleteSourceServer(SourceServer record)
+        bool IDataPlugin.DeleteSourceServer(SourceServer record)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "sourceserver", "id", record.Id);
         }
@@ -239,7 +240,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region JOB
         
-        public Job SaveJob(Job job)
+        Job IDataPlugin.SaveJob(Job job)
         {
             string insertQuery = @"
                 INSERT INTO job
@@ -267,17 +268,17 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Job GetJobById(string id)
+        Job IDataPlugin.GetJobById(string id)
         {
             return PostgresCommon.GetById<Job>(this.ContextPluginConfig, id, "job", new JobConvert(_config));
         }
 
-        public Job GetJobByKey(string key)
+        Job IDataPlugin.GetJobByKey(string key)
         {
             return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "job", new JobConvert(_config));
         }
 
-        public IEnumerable<Job> GetJobsByBuildServerId(string buildServerId)
+        IEnumerable<Job> IDataPlugin.GetJobsByBuildServerId(string buildServerId)
         {
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT * from job where buildserverid=@buildserverid", connection))
@@ -289,7 +290,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<Job> GetJobs()
+        IEnumerable<Job> IDataPlugin.GetJobs()
         {
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT * from job", connection))
@@ -299,12 +300,12 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public bool DeleteJob(Job job)
+        bool IDataPlugin.DeleteJob(Job job)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "job", "id", job.Id);
         }
 
-        public JobStats GetJobStats(Job job)
+        JobStats IDataPlugin.GetJobStats(Job job)
         {
             JobStats stats = new JobStats();
 
@@ -370,9 +371,9 @@ namespace Wbtb.Extensions.Data.Postgres
                     if (stats.LatestBrokenBuild.Id == stats.LatestBrokenBuild.IncidentBuildId)
                         stats.LatestBreakingBuild = stats.LatestBrokenBuild;
                     else 
-                        stats.LatestBreakingBuild = this.GetBuildById(stats.LatestBrokenBuild.IncidentBuildId);
+                        stats.LatestBreakingBuild = ((IDataPlugin)this).GetBuildById(stats.LatestBrokenBuild.IncidentBuildId);
 
-                    Build fixingBuild = this.GetFirstPassingBuildAfterBuild(stats.LatestBreakingBuild);
+                    Build fixingBuild = ((IDataPlugin)this).GetFirstPassingBuildAfterBuild(stats.LatestBreakingBuild);
                     if (fixingBuild != null && fixingBuild.EndedUtc.HasValue && stats.LatestBreakingBuild.EndedUtc.HasValue)
                         stats.LatestBreakDuration = fixingBuild.EndedUtc.Value - stats.LatestBreakingBuild.EndedUtc.Value;
                 }
@@ -425,7 +426,6 @@ namespace Wbtb.Extensions.Data.Postgres
                 }
             }
 
-
             // total incidents
             string incidentCountQuery = @"
                 SELECT COUNT(DISTINCT
@@ -465,7 +465,7 @@ namespace Wbtb.Extensions.Data.Postgres
             return stats;
         }
 
-        public int ResetJob(string jobId, bool hard)
+        int IDataPlugin.ResetJob(string jobId, bool hard)
         {
             int affected = 0;
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig)) 
@@ -583,7 +583,7 @@ namespace Wbtb.Extensions.Data.Postgres
             return affected;
         }
 
-        public IEnumerable<string> GetIncidentIdsForJob(Job job)
+        IEnumerable<string> IDataPlugin.GetIncidentIdsForJob(Job job)
         { 
             string query = @"
                 SELECT
@@ -619,7 +619,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region USER
 
-        public User SaveUser(User user)
+        User IDataPlugin.SaveUser(User user)
         {
             string insertQuery = @"
                 INSERT INTO usr
@@ -645,17 +645,17 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public User GetUserById(string id)
+        User IDataPlugin.GetUserById(string id)
         {
             return PostgresCommon.GetById<User>(this.ContextPluginConfig, id, "usr", new UserConvert(_config));
         }
 
-        public User GetUserByKey(string key)
+        User IDataPlugin.GetUserByKey(string key)
         {
             return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "usr", new UserConvert(_config));
         }
 
-        public IEnumerable<User> GetUsers()
+        IEnumerable<User> IDataPlugin.GetUsers()
         {
             string query = @"
                     SELECT 
@@ -670,7 +670,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 return new UserConvert(_config).ToCommonList(reader);
         }
 
-        public PageableData<User> PageUsers(int index, int pageSize)
+        PageableData<User> IDataPlugin.PageUsers(int index, int pageSize)
         {
             string pageQuery = @"
                 SELECT 
@@ -716,7 +716,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public bool DeleteUser(User record)
+        bool IDataPlugin.DeleteUser(User record)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "usr", "id", record.Id);
         }
@@ -730,7 +730,7 @@ namespace Wbtb.Extensions.Data.Postgres
         /// </summary>
         /// <param name="build"></param>
         /// <returns></returns>
-        public Build SaveBuild(Build build)
+        Build IDataPlugin.SaveBuild(Build build)
         {
             string insertQuery = @"
                 INSERT INTO build
@@ -772,12 +772,12 @@ namespace Wbtb.Extensions.Data.Postgres
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Build GetBuildById(string id)
+        Build IDataPlugin.GetBuildById(string id)
         {
             return PostgresCommon.GetById< Build>(this.ContextPluginConfig, id, "build", new BuildConvert());
         }
 
-        public Build GetBuildByKey(string jobId, string key)
+        Build IDataPlugin.GetBuildByKey(string jobId, string key)
         {
             string query = @"
                 SELECT 
@@ -800,7 +800,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public PageableData<Build> PageIncidentsByJob(string jobId, int index, int pageSize)
+        PageableData<Build> IDataPlugin.PageIncidentsByJob(string jobId, int index, int pageSize)
         {
             // TODO : refactor this out. Also, this query will fail 
             string pageQuery = @"
@@ -858,9 +858,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-
-
-        public PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize, bool sortAscending)
+        PageableData<Build> IDataPlugin.PageBuildsByJob(string jobId, int index, int pageSize, bool sortAscending)
         {
             string sortOrder = "";
             if (!sortAscending)
@@ -919,7 +917,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<Build> GetBuildsByIncident(string incidentId) 
+        IEnumerable<Build> IDataPlugin.GetBuildsByIncident(string incidentId) 
         {
             string query = @"
                 SELECT 
@@ -945,7 +943,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public PageableData<Build> PageBuildsByBuildAgent(string hostname, int index, int pageSize)
+        PageableData<Build> IDataPlugin.PageBuildsByBuildAgent(string hostname, int index, int pageSize)
         {
             string pageQuery = @"
                 SELECT 
@@ -1001,7 +999,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<Build> GetBuildsWithNoLog(Job job)
+        IEnumerable<Build> IDataPlugin.GetBuildsWithNoLog(Job job)
         {
             string query = @"
                 SELECT 
@@ -1032,7 +1030,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<Build> GetBuildsWithNoInvolvements(Job job)
+        IEnumerable<Build> IDataPlugin.GetBuildsWithNoInvolvements(Job job)
         {
             string query = @"
                 SELECT 
@@ -1071,12 +1069,12 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public bool DeleteBuild(Build record)
+        bool IDataPlugin.DeleteBuild(Build record)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "build", "id", record.Id);
         }
 
-        public Build GetLatestBuildByJob(Job job)
+        Build IDataPlugin.GetLatestBuildByJob(Job job)
         {
             string query = @"
                 SELECT 
@@ -1100,7 +1098,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Build GetDeltaBuildAtBuild(Build build)
+        Build IDataPlugin.GetDeltaBuildAtBuild(Build build)
         {
             // get first build in job that has the same status as referenceBuild
             string query = @"
@@ -1146,7 +1144,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Build GetFirstPassingBuildAfterBuild(Build build)
+        Build IDataPlugin.GetFirstPassingBuildAfterBuild(Build build)
         {
             string query = @"
                 SELECT                     
@@ -1173,7 +1171,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Build GetPreviousBuild(Build build)
+        Build IDataPlugin.GetPreviousBuild(Build build)
         {
             string query = @"
                 SELECT                     
@@ -1198,7 +1196,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Build GetNextBuild(Build build)
+        Build IDataPlugin.GetNextBuild(Build build)
         {
             string query = @"
                 SELECT                     
@@ -1223,7 +1221,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<Build> GetFailingBuildsWithoutIncident(Job job)
+        IEnumerable<Build> IDataPlugin.GetFailingBuildsWithoutIncident(Job job)
         {
             string query = @"
                 SELECT 
@@ -1259,7 +1257,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<Build> GetUnparsedBuildLogs(Job job)
+        IEnumerable<Build> IDataPlugin.GetUnparsedBuildLogs(Job job)
         {
             string query = @"
                 SELECT
@@ -1296,7 +1294,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<Build> GetBuildsForPostProcessing(string jobid, string processorKey, int limit)
+        IEnumerable<Build> IDataPlugin.GetBuildsForPostProcessing(string jobid, string processorKey, int limit)
         {
             string query = @"
                 SELECT
@@ -1332,8 +1330,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-
-        public int ResetBuild(string buildId, bool hard)
+        int IDataPlugin.ResetBuild(string buildId, bool hard)
         {
             // remove build involvements
             string removeBuildInvolvements = @"
@@ -1421,7 +1418,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region BUILDLOGPARSERESULT
 
-        public BuildLogParseResult SaveBuildLogParseResult(BuildLogParseResult buildLog)
+        BuildLogParseResult IDataPlugin.SaveBuildLogParseResult(BuildLogParseResult buildLog)
         {
             string insertQuery = @"
                 INSERT INTO buildlogparseresult
@@ -1458,7 +1455,7 @@ namespace Wbtb.Extensions.Data.Postgres
         /// </summary>
         /// <param name="buildId"></param>
         /// <returns></returns>
-        public IEnumerable<BuildLogParseResult> GetBuildLogParseResultsByBuildId(string buildId)
+        IEnumerable<BuildLogParseResult> IDataPlugin.GetBuildLogParseResultsByBuildId(string buildId)
         {
             string query = @"
                 SELECT 
@@ -1480,7 +1477,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public bool DeleteBuildLogParseResult(BuildLogParseResult result)
+        bool IDataPlugin.DeleteBuildLogParseResult(BuildLogParseResult result)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "buildlogparseresult", "id", result.Id);
         }
@@ -1489,7 +1486,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region BUILDINVOLVEMENT
 
-        public BuildInvolvement SaveBuildInvolement(BuildInvolvement buildInvolvement)
+        BuildInvolvement IDataPlugin.SaveBuildInvolement(BuildInvolvement buildInvolvement)
         {
             string insertQuery = @"
                 INSERT INTO buildinvolvement
@@ -1525,12 +1522,12 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public BuildInvolvement GetBuildInvolvementById(string id)
+        BuildInvolvement IDataPlugin.GetBuildInvolvementById(string id)
         {
             return PostgresCommon.GetById<BuildInvolvement>(this.ContextPluginConfig, id, "buildinvolvement", new BuildInvolvementConvert());
         }
 
-        public BuildInvolvement GetBuildInvolvementByRevisionCode(string buildid, string revisionCode)
+        BuildInvolvement IDataPlugin.GetBuildInvolvementByRevisionCode(string buildid, string revisionCode)
         {
             string sql = @"
                 SELECT
@@ -1552,12 +1549,12 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public bool DeleteBuildInvolvement(BuildInvolvement record)
+        bool IDataPlugin.DeleteBuildInvolvement(BuildInvolvement record)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "buildinvolvement", "id", record.Id);
         }
 
-        public IEnumerable<BuildInvolvement> GetBuildInvolvementsByBuild(string buildId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsByBuild(string buildId)
         {
             string sql = @"
                 SELECT 
@@ -1577,7 +1574,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<BuildInvolvement> GetBuildInvolvementsWithoutMappedUser(string jobId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedUser(string jobId)
         {
             string sql = @"
                 SELECT 
@@ -1607,7 +1604,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<BuildInvolvement> GetBuildInvolvementsWithoutMappedRevisions(string jobId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsWithoutMappedRevisions(string jobId)
         {
             // ignore buildinvolvements that are associated with builds where revision mapping as already been marked as failing
             string sql = @"
@@ -1638,7 +1635,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<BuildInvolvement> GetBuildInvolvementByUserId(string userId)
+        IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementByUserId(string userId)
         {
             string sql = @"
                 SELECT 
@@ -1658,7 +1655,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public PageableData<BuildInvolvement> PageBuildInvolvementsByUserAndStatus(string userid, BuildStatus buildStatus, int index, int pageSize)
+        PageableData<BuildInvolvement> IDataPlugin.PageBuildInvolvementsByUserAndStatus(string userid, BuildStatus buildStatus, int index, int pageSize)
         { 
             string sql = @"
                 SELECT
@@ -1725,7 +1722,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region DAEMONTASK
         
-        public DaemonTask SaveDaemonTask(DaemonTask daemonTask)
+        DaemonTask IDataPlugin.SaveDaemonTask(DaemonTask daemonTask)
         {
             string insertQuery = @"
                 INSERT INTO daemontask
@@ -1761,17 +1758,17 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public DaemonTask GetDaemonTaskById(string id)
+        DaemonTask IDataPlugin.GetDaemonTaskById(string id)
         {
             return PostgresCommon.GetById<DaemonTask>(this.ContextPluginConfig, id, "daemontask", new DaemonTaskConvert());
         }
 
-        public bool DeleteDaemonTask(DaemonTask record)
+        bool IDataPlugin.DeleteDaemonTask(DaemonTask record)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "daemontask", "id", record.Id);
         }
 
-        public IEnumerable<DaemonTask> GetDaemonsTaskByBuild(string buildid)
+        IEnumerable<DaemonTask> IDataPlugin.GetDaemonsTaskByBuild(string buildid)
         {
             string sql = @"
                 SELECT
@@ -1791,7 +1788,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<DaemonTask> GetPendingDaemonTasksByTask(string task) 
+        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByTask(string task) 
         {
             string sql = @"
                 SELECT
@@ -1816,7 +1813,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public bool DaemonTasksBlocked(string buildId, int order)
+        bool IDataPlugin.DaemonTasksBlocked(string buildId, int order)
         {
             string sql = @"
                 SELECT
@@ -1845,7 +1842,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string filterBy = "") 
+        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string filterBy = "") 
         {
             /*
                 filterBy options : 
@@ -1915,7 +1912,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region R_BuildLogParseResult_BuildInvolvement
 
-        public string ConnectBuildLogParseResultAndBuildBuildInvolvement(string buildLogParseResultId, string buildInvolvementId)
+        string IDataPlugin.ConnectBuildLogParseResultAndBuildBuildInvolvement(string buildLogParseResultId, string buildInvolvementId)
         {
             string insertQuery = @"
                 INSERT INTO r_buildLogParseResult_buildinvolvement
@@ -1939,12 +1936,12 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public bool SplitBuildLogParseResultAndBuildBuildInvolvement(string id)
+        bool IDataPlugin.SplitBuildLogParseResultAndBuildBuildInvolvement(string id)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "r_buildLogParseResult_buildinvolvement", "id", id);
         }
 
-        public IEnumerable<string> GetBuildLogParseResultsForBuildInvolvement(string buildInvolvementId) 
+        IEnumerable<string> IDataPlugin.GetBuildLogParseResultsForBuildInvolvement(string buildInvolvementId) 
         {
             string query = @"
                 SELECT
@@ -1980,12 +1977,12 @@ namespace Wbtb.Extensions.Data.Postgres
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public BuildProcessor GetBuildProcessorById(string id)
+        BuildProcessor IDataPlugin.GetBuildProcessorById(string id)
         {
             return PostgresCommon.GetById<BuildProcessor>(this.ContextPluginConfig, id, "buildprocessor", new BuildProcessorConvert());
         }
 
-        public BuildProcessor SaveBuildProcessor(BuildProcessor buildProcessor)
+        BuildProcessor IDataPlugin.SaveBuildProcessor(BuildProcessor buildProcessor)
         {
             string insertQuery = @"
                 INSERT INTO buildprocessor
@@ -2015,7 +2012,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<BuildProcessor> GetBuildProcessorsByBuildId(string buildId)
+        IEnumerable<BuildProcessor> IDataPlugin.GetBuildProcessorsByBuildId(string buildId)
         {
             string query = @"
                 SELECT
@@ -2036,12 +2033,11 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-
         #endregion
 
         #region REVISION
 
-        public Revision SaveRevision(Revision revision)
+        Revision IDataPlugin.SaveRevision(Revision revision)
         {
             string insertQuery = @"
                 INSERT INTO revision
@@ -2074,7 +2070,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Revision GetRevisionById(string id)
+        Revision IDataPlugin.GetRevisionById(string id)
         {
             string query = @"
                 SELECT 
@@ -2094,7 +2090,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Revision GetRevisionByKey(string sourceServerId, string key)
+        Revision IDataPlugin.GetRevisionByKey(string sourceServerId, string key)
         {
             string query = @"
                 SELECT 
@@ -2116,7 +2112,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Revision GetNewestRevisionForBuild(string buildId)
+        Revision IDataPlugin.GetNewestRevisionForBuild(string buildId)
         {
             string query = @"
                 SELECT 
@@ -2141,7 +2137,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<Revision> GetRevisionByBuild(string buildId)
+        IEnumerable<Revision> IDataPlugin.GetRevisionByBuild(string buildId)
         {
             string query = @"
                 SELECT 
@@ -2163,7 +2159,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public IEnumerable<Revision> GetRevisionsBySourceServer(string sourceServerId)
+        IEnumerable<Revision> IDataPlugin.GetRevisionsBySourceServer(string sourceServerId)
         {
             string query = @"
                 SELECT 
@@ -2183,7 +2179,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public bool DeleteRevision(Revision revision)
+        bool IDataPlugin.DeleteRevision(Revision revision)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "revision", "id", revision.Id);
         }
@@ -2192,7 +2188,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region SESSION
 
-        public Session SaveSession(Session session)
+        Session IDataPlugin.SaveSession(Session session)
         {
             string insertQuery = @"
                 INSERT INTO session
@@ -2221,12 +2217,12 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Session GetSessionById(string id)
+        Session IDataPlugin.GetSessionById(string id)
         {
             return PostgresCommon.GetById<Session>(this.ContextPluginConfig, id, "session", new SessionConvert());
         }
 
-        public IEnumerable<Session> GetSessionByUserId(string userid)
+        IEnumerable<Session> IDataPlugin.GetSessionByUserId(string userid)
         {
             string sql = @"SELECT * FROM session WHERE userid=@userid";
 
@@ -2240,7 +2236,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public bool DeleteSession(Session session)
+        bool IDataPlugin.DeleteSession(Session session)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "session", "id", session.Id);
         }
@@ -2249,7 +2245,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #region JOB DELTA
 
-        public Build GetLastJobDelta(string jobId)
+        Build IDataPlugin.GetLastJobDelta(string jobId)
         {
             string query = @"
                 SELECT 
@@ -2270,7 +2266,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public void SaveJobDelta(Build build)
+        void IDataPlugin.SaveJobDelta(Build build)
         {
             string sql = @"
                 DELETE FROM jobdelta WHERE jobid=@jobid;
@@ -2288,17 +2284,16 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-
         #endregion
 
         #region CONFIGURATIONSTATE
 
-        public int ClearAllTables() 
+        int IDataPlugin.ClearAllTables() 
         {
             return PostgresCommon.ClearAllTables(this.ContextPluginConfig);
         }
 
-        public ConfigurationState AddConfigurationState(ConfigurationState configurationState)
+        ConfigurationState IDataPlugin.AddConfigurationState(ConfigurationState configurationState)
         {
             string insertQuery = @"
                 INSERT INTO configurationstate
@@ -2314,8 +2309,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-
-        public ConfigurationState GetLatestConfigurationState()
+        ConfigurationState IDataPlugin.GetLatestConfigurationState()
         {
             string query = @"
                 SELECT 
@@ -2335,7 +2329,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public PageableData<ConfigurationState> PageConfigurationStates(int index, int pageSize)
+        PageableData<ConfigurationState> IDataPlugin.PageConfigurationStates(int index, int pageSize)
         {
             string pageQuery = @"
                 SELECT

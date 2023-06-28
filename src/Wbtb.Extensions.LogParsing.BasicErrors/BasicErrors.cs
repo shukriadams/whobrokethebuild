@@ -6,7 +6,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
 {
     internal class BasicErrors : Plugin, ILogParserPlugin
     {
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
             {
@@ -15,7 +15,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             };
         }
 
-        public string Parse(string raw)
+        string ILogParserPlugin.Parse(string raw)
         {
             if (string.IsNullOrEmpty(raw))
                 return string.Empty;

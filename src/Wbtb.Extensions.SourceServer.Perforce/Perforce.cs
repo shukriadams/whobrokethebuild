@@ -26,7 +26,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
         #region UTIL
 
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
             {
@@ -35,7 +35,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             };
         }
 
-        public void VerifySourceServerConfig(Core.Common.SourceServer contextServer)
+        void ISourceServerPlugin.VerifySourceServerConfig(Core.Common.SourceServer contextServer)
         {
             if (contextServer.Config == null)
                 throw new ConfigurationException("Missing item \"Config\"");
@@ -54,7 +54,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
                 throw new ConfigurationException("P4 servers with SSL enabled required a \"TrustFingerprint\".");
         }
 
-        public ReachAttemptResult AttemptReach(Core.Common.SourceServer contextServer)
+        ReachAttemptResult ISourceServerPlugin.AttemptReach(Core.Common.SourceServer contextServer)
         {
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();
@@ -83,7 +83,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
         #region METHODS
 
-        public IEnumerable<Revision> GetRevisionsBetween(Core.Common.SourceServer contextServer, string revisionStart, string revisionEnd)
+        IEnumerable<Revision> ISourceServerPlugin.GetRevisionsBetween(Core.Common.SourceServer contextServer, string revisionStart, string revisionEnd)
         {
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();
@@ -94,13 +94,14 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
             IEnumerable<string> revisionNumbers = PerforceUtils.GetRawChangesBetween(user, password, host, trust, int.Parse(revisionStart), int.Parse(revisionEnd));
             IList<Revision> changes = new List<Revision>();
+            ISourceServerPlugin _this = this;
             foreach (string revisionNumber in revisionNumbers)
-                changes.Add(GetRevision(contextServer, revisionNumber));
+                changes.Add(_this.GetRevision(contextServer, revisionNumber));
 
             return changes;
         }
 
-        public Revision GetRevision(Core.Common.SourceServer contextServer, string revisionCode)
+        Revision ISourceServerPlugin.GetRevision(Core.Common.SourceServer contextServer, string revisionCode)
         {
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();

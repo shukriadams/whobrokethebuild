@@ -5,7 +5,7 @@ namespace Wbtb.Extensions.PostProcessing.Test
 {
     public class Test : Plugin, IPostProcessor
     {
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
             {
@@ -14,7 +14,7 @@ namespace Wbtb.Extensions.PostProcessing.Test
             };
         }
 
-        public PostProcessResult Process()
+        PostProcessResult IPostProcessor.Process()
         { 
             return new PostProcessResult { 
                 Passed = true,

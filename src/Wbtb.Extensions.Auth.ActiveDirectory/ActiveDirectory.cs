@@ -25,7 +25,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
 
         #region METHODS
 
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             if (!this.ContextPluginConfig.Config.Any(c => c.Key == "Host"))
                 throw new ConfigurationException("Missing item \"Host\"");
@@ -49,7 +49,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
             };
         }
 
-        public ReachAttemptResult AttemptReach()
+        ReachAttemptResult IReachable.AttemptReach()
         {
             string host = ContextPluginConfig.Config.First(r => r.Key == "Host").Value.ToString();
             string username = ContextPluginConfig.Config.First(r => r.Key == "User").Value.ToString();
@@ -75,7 +75,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
             }
         }
 
-        public void ListUsers()
+        private void ListUsers()
         {
             string host = ContextPluginConfig.Config.First(r => r.Key == "Host").Value.ToString();
             string username = ContextPluginConfig.Config.First(r => r.Key == "User").Value.ToString();
@@ -113,7 +113,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
             }
         }
 
-        public AuthenticationResult RequestPasswordLogin(string username, string password)
+        AuthenticationResult IAuthenticationPlugin.RequestPasswordLogin(string username, string password)
         {
             string host = _config.Plugins.Single(r => r.Key == ContextPluginConfig.Key).Config.First(r => r.Key == "Host").Value.ToString();
 

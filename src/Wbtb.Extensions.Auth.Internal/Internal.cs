@@ -5,7 +5,7 @@ namespace Wbtb.Extensions.Auth.Internal
 {
     public class Internal : Plugin, IAuthenticationPlugin
     {
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
             {
@@ -14,14 +14,13 @@ namespace Wbtb.Extensions.Auth.Internal
             };
         }
 
-
-        public ReachAttemptResult AttemptReach()
+        ReachAttemptResult IReachable.AttemptReach()
         {
             // no check required, 
             return new ReachAttemptResult{ Reachable = true};
         }
 
-        public AuthenticationResult RequestPasswordLogin(string username, string password)
+        AuthenticationResult IAuthenticationPlugin.RequestPasswordLogin(string username, string password)
         {
             return new AuthenticationResult
             { 

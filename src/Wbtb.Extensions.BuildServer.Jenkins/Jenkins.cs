@@ -36,7 +36,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         #region UTIL
 
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
 
             return new PluginInitResult
@@ -46,7 +46,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             };
         }
 
-        public ReachAttemptResult AttemptReach(Core.Common.BuildServer contextServer)
+         ReachAttemptResult IBuildServerPlugin.AttemptReach(Core.Common.BuildServer contextServer)
         {
             if (contextServer.Config == null)
                 throw new ConfigurationException("Missing item \"Config\"");
@@ -93,7 +93,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             }
         }
 
-        public void AttemptReachJob(Core.Common.BuildServer buildServer, Job job)
+        void IBuildServerPlugin.AttemptReachJob(Core.Common.BuildServer buildServer, Job job)
         {
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
 
@@ -117,12 +117,12 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             return host;
         }
 
-        public void VerifyBuildServerConfig(Core.Common.BuildServer buildServer) 
+        void IBuildServerPlugin.VerifyBuildServerConfig(Core.Common.BuildServer buildServer) 
         { 
 
         }
 
-        public string GetBuildUrl(Core.Common.BuildServer contextServer, Build build)
+        string IBuildServerPlugin.GetBuildUrl(Core.Common.BuildServer contextServer, Build build)
         {
             string host = contextServer.Config.First(r => r.Key == "Host").Value.ToString();
             IDataPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
@@ -132,7 +132,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             return new Uri(new Uri(host), $"job/{remoteKey.Value}/{build.Identifier}").ToString();
         }
 
-        public string GetEphemeralBuildLog(Build build)
+        string IBuildServerPlugin.GetEphemeralBuildLog(Build build)
         {
             try
             {
@@ -167,7 +167,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             
             try
             {
-                string log = this.GetEphemeralBuildLog(build);
+                string log = ((IBuildServerPlugin)this).GetEphemeralBuildLog(build);
                 File.WriteAllText(persistPath, log);
                 return log;
             }
@@ -192,7 +192,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             return webClient;
         }
 
-        public IEnumerable<string> ListRemoteJobsCanonical(Core.Common.BuildServer buildServer)
+        IEnumerable<string> IBuildServerPlugin.ListRemoteJobsCanonical(Core.Common.BuildServer buildServer)
         {
             WebClient webClient = null;
             string rawJson = string.Empty;
@@ -222,10 +222,6 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             }
         }
 
-        public IEnumerable<User> GetUsersInBuild(Core.Common.BuildServer contextServer, string remoteBuildId)
-        {
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         /// Queries Jenkins to get confirmed revisions in build - this works only on builds where revision changes trigger builds, it will return nothing
@@ -234,7 +230,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         /// <param name="job"></param>
         /// <param name="build"></param>
         /// <returns></returns>
-        public IEnumerable<string> GetRevisionsInBuild(Build build)
+        IEnumerable<string> IBuildServerPlugin.GetRevisionsInBuild(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
@@ -302,7 +298,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
 
 
-        public void PollBuildsForJob(Job job) 
+        void IBuildServerPlugin.PollBuildsForJob(Job job) 
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
@@ -368,7 +364,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             return rawBuild;
         }
 
-        public IEnumerable<Build> GetLatesBuilds(Job job, int take)
+        IEnumerable<Build> IBuildServerPlugin.GetLatesBuilds(Job job, int take)
         {
 
             string lookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete");
@@ -407,7 +403,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             return builds;
         }
 
-        public Build TryUpdateBuild(Build build) 
+        Build IBuildServerPlugin.TryUpdateBuild(Build build) 
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
@@ -424,7 +420,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             return build;
         }
 
-        public IEnumerable<Build> GetAllCachedBuilds(Job job)
+        IEnumerable<Build> IBuildServerPlugin.GetAllCachedBuilds(Job job)
         {
             IList<string> buildDirectories = new List<string>();
             if (Directory.Exists(_persistPathHelper.GetPath(this.ContextPluginConfig, job.Key)))
@@ -452,7 +448,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             return builds.OrderBy(b => b.StartedUtc);
         }
 
-        public Build ImportLog(Build build)
+        Build IBuildServerPlugin.ImportLog(Build build)
         {
             string logPath = string.Empty;
 

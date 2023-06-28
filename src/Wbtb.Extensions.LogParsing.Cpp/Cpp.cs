@@ -8,8 +8,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
 {
     public class Cpp : Plugin, ILogParserPlugin
     {
-
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
             {
@@ -18,7 +17,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             };
         }
 
-        public string Parse(string raw)
+        string ILogParserPlugin.Parse(string raw)
         {
             if (string.IsNullOrEmpty(raw))
                 return string.Empty;

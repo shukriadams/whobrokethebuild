@@ -6,7 +6,7 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 {
     public class JenkinsSelfFailing : Plugin, ILogParserPlugin
     {
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult{ 
                 Success = true, 
@@ -14,7 +14,7 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             };
         }
 
-        public string Parse(string raw)
+        string ILogParserPlugin.Parse(string raw)
         {
             if (string.IsNullOrEmpty(raw))
                 return string.Empty;

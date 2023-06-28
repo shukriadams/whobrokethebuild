@@ -16,7 +16,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             return match.Groups[1].Value;
         }
 
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
             {
@@ -25,7 +25,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             };
         }
 
-        public string Parse(string raw)
+        string ILogParserPlugin.Parse(string raw)
         {
             // force unix things to standardize our processing
             IEnumerable<string> rawLines = raw

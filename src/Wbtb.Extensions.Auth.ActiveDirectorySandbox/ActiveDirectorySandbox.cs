@@ -8,7 +8,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectorySandbox
 
     public class ActiveDirectorySandbox : Plugin, IAuthenticationPlugin
     {
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             if (!this.ContextPluginConfig.Config.Any(c => c.Key == "Host"))
                 throw new ConfigurationException("Missing item \"Host\"");
@@ -32,12 +32,12 @@ namespace Wbtb.Extensions.Auth.ActiveDirectorySandbox
             };
         }
 
-        public ReachAttemptResult AttemptReach()
+        ReachAttemptResult IReachable.AttemptReach()
         {
             return new ReachAttemptResult { Reachable = true };
         }
 
-        public void ListUsers()
+        private void ListUsers()
         {
             string host = ContextPluginConfig.Config.First(r => r.Key == "Host").Value.ToString();
             string username = ContextPluginConfig.Config.First(r => r.Key == "User").Value.ToString();
@@ -51,7 +51,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectorySandbox
 
         }
 
-        public AuthenticationResult RequestPasswordLogin(string username, string password)
+        AuthenticationResult IAuthenticationPlugin.RequestPasswordLogin(string username, string password)
         {
             string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), "JSON.users.json");
             IEnumerable<ADUser> users = JsonConvert.DeserializeObject<IEnumerable<ADUser>>(rawJson);

@@ -5,7 +5,7 @@ namespace Wbtb.Extensions.PostProcessing.Test2
 {
     public class Test2 : Plugin, IPostProcessor
     {
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
             {
@@ -14,7 +14,7 @@ namespace Wbtb.Extensions.PostProcessing.Test2
             };
         }
 
-        public PostProcessResult Process()
+        PostProcessResult IPostProcessor.Process()
         {
             throw new Exception("it failed");
         }

@@ -10,7 +10,7 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
     {
         #region UTIL
 
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
             {
@@ -19,12 +19,12 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
             };
         }
 
-        public void VerifySourceServerConfig(Core.Common.SourceServer contextServer)
+        void ISourceServerPlugin.VerifySourceServerConfig(Core.Common.SourceServer contextServer)
         {
             // no config validation required
         }
 
-        public ReachAttemptResult AttemptReach(Core.Common.SourceServer contextServer)
+        ReachAttemptResult ISourceServerPlugin.AttemptReach(Core.Common.SourceServer contextServer)
         {
             // always succeed
             return new ReachAttemptResult { Reachable = true };
@@ -34,25 +34,27 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
 
         #region METHODS
 
-        public IEnumerable<Revision> GetRevisionsBetween(Core.Common.SourceServer contextServer, string revisionStart, string revisionEnd)
+        IEnumerable<Revision> ISourceServerPlugin.GetRevisionsBetween(Core.Common.SourceServer contextServer, string revisionStart, string revisionEnd)
         {
             // cludge together an ugly way to do p4 range using saved json revision files. We assume revision nrs run in order etc etc
             int startRevision = int.Parse(revisionStart);
             int endRevision = int.Parse(revisionEnd);
             int currentRevision = startRevision + 1;
             List<Revision> revisions = new List<Revision>();
+            ISourceServerPlugin _this = this;
+
             while (currentRevision < endRevision) 
             {
                 string path = $"JSON.Revisions.{currentRevision}.json";
                 if (ResourceHelper.ResourceExists(this.GetType(), path))
-                    revisions.Add(this.GetRevision(contextServer, currentRevision.ToString()));
+                    revisions.Add(_this.GetRevision(contextServer, currentRevision.ToString()));
 
                 currentRevision++;
             }
             return revisions;
         }
 
-        public Revision GetRevision(Core.Common.SourceServer contextServer, string revisionCode)
+        Revision ISourceServerPlugin.GetRevision(Core.Common.SourceServer contextServer, string revisionCode)
         {
             string raw = ResourceHelper.LoadFromLocalJsonOrLocalResourceAsString(this.GetType(), $"./JSON/Revisions/{revisionCode}.json", $"JSON.Revisions.{revisionCode}.json");
             if (raw == null)

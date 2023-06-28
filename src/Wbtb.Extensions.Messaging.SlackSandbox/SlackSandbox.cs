@@ -41,7 +41,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
         /// Attempt to reach slack to ensure config works
         /// </summary>
         /// <returns></returns>
-        public ReachAttemptResult AttemptReach()
+        ReachAttemptResult IReachable.AttemptReach()
         {
             NameValueCollection data = new NameValueCollection();
             data["token"] = this.ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
@@ -64,7 +64,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             }
         }
 
-        public PluginInitResult InitializePlugin()
+        PluginInitResult IPlugin.InitializePlugin()
         {
             if (!this.ContextPluginConfig.Config.Any(c => c.Key == "Token"))
                 throw new ConfigurationException("Missing item \"Token\"");
@@ -76,7 +76,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             };
         }
 
-        public void ValidateAlertConfig(MessageConfiguration alertConfig)
+        void IMessagingPlugin.ValidateAlertConfig(MessageConfiguration alertConfig)
         {
             if (string.IsNullOrEmpty(alertConfig.Plugin))
                 throw new ConfigurationException("Slack detected alert with no \"Plugin\" value.");
@@ -87,7 +87,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             return $"buildStatusAlert_slack_{slackChannelId}_job{jobId}_incident{incidentBuildId}";
         }
 
-        public string AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
+        string IMessagingPlugin.AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
@@ -229,7 +229,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             }
         }
 
-        public string AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
+        string IMessagingPlugin.AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
@@ -380,7 +380,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             throw new Exception($"Failed to get user channel for slack userid {slackUserId}", response);
         }
 
-        public string TestHandler(MessageConfiguration messageConfiguration)
+        string IMessagingPlugin.TestHandler(MessageConfiguration messageConfiguration)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
@@ -440,7 +440,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             }
         }
 
-        public void ListChannels()
+        private void ListChannels()
         {
             NameValueCollection data = new NameValueCollection();
             data["token"] = this.ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
@@ -456,7 +456,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
                 Console.WriteLine(channel);
         }
 
-        public string DeleteAlert(object alertIdentifier)
+        string IMessagingPlugin.DeleteAlert(object alertIdentifier)
         {
             return string.Empty;
         }

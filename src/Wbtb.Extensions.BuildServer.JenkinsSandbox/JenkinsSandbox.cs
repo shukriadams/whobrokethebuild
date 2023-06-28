@@ -63,7 +63,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         #region METHODS
 
-        public void VerifyBuildServerConfig(Core.Common.BuildServer buildServer)
+        void IBuildServerPlugin.VerifyBuildServerConfig(Core.Common.BuildServer buildServer)
         {
 
         }
@@ -74,13 +74,13 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             return null;
         }
 
-        public string GetBuildUrl(Core.Common.BuildServer contextServer, Build build)
+        string IBuildServerPlugin.GetBuildUrl(Core.Common.BuildServer contextServer, Build build)
         {
             return string.Empty;
         }
 
 
-        public IEnumerable<string> ListRemoteJobsCanonical(Core.Common.BuildServer buildServer)
+        IEnumerable<string> IBuildServerPlugin.ListRemoteJobsCanonical(Core.Common.BuildServer buildServer)
         {
             string filePath = "./JSON/jobs.json";
             string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), "JSON.jobs.json");
@@ -125,7 +125,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             return dt.AddMilliseconds(Double.Parse(unixTimeStamp));
         }
 
-        public IEnumerable<string> GetRevisionsInBuild(Build build)
+        IEnumerable<string> IBuildServerPlugin.GetRevisionsInBuild(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
@@ -158,7 +158,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             return rawRevisions.Select(r => r.commitId);
         }
 
-        public IEnumerable<Build> GetLatesBuilds(Job job, int take)
+        IEnumerable<Build> IBuildServerPlugin.GetLatesBuilds(Job job, int take)
         {
             string resourcePath = $"JSON.builds.{job.Key}.builds.json";
 
@@ -211,7 +211,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             return rawBuild;
         }
 
-        public IEnumerable<Build> GetAllCachedBuilds(Job job)
+        IEnumerable<Build> IBuildServerPlugin.GetAllCachedBuilds(Job job)
         {
             IList<Build> builds = new List<Build>();
             string lookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "complete");
@@ -245,7 +245,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             return chars.Substring(position, 1);
         }
 
-        public string GetEphemeralBuildLog(Build build)
+        string IBuildServerPlugin.GetEphemeralBuildLog(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
@@ -270,7 +270,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
             try
             {
-                string log = GetEphemeralBuildLog(build);
+                string log = ((IBuildServerPlugin)this).GetEphemeralBuildLog(build);
                 Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
                 File.WriteAllText(persistPath, log);
                 return log;
@@ -281,12 +281,12 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             }
         }
 
-        public void PollBuildsForJob(Job job) 
+        void IBuildServerPlugin.PollBuildsForJob(Job job) 
         {
 
         }
 
-        public Build ImportLog(Build build)
+        Build IBuildServerPlugin.ImportLog(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
@@ -307,7 +307,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             return build;
         }
 
-        public Build TryUpdateBuild(Build build)
+        Build IBuildServerPlugin.TryUpdateBuild(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
