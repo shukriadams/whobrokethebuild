@@ -11,7 +11,6 @@
         RevisionResolve,                    // 3
         LogParse,                           // 3
         AssignBlame,                        // 4
-        DeltaCalculate,                     // 5
         DeltaChangeAlert                    // 6
     }
 }

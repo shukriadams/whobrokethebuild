@@ -32,11 +32,11 @@
                                 
                         @if (@job.LatestBuild.EndedUtc.HasValue)
                         {
-                            <text>@job.LatestBuild.EndedUtc.Value.Humanize()</text>
+                            <text>@job.LatestBuild.EndedUtc.Ago() ago</text>
                         }
                         else 
                         {
-                            <text>started @job.LatestBuild.StartedUtc.Humanize()</text>
+                            <text>started @job.LatestBuild.StartedUtc.Ago() ago</text>
                         }
 
                         @if (job.DeltaBuild != null && job.DeltaBuild.Status == BuildStatus.Failed)
@@ -49,7 +49,7 @@
                                     @if(job.DeltaBuild.EndedUtc.HasValue)
                                     {
                                         <text>
-                                            @job.DeltaBuild.EndedUtc.Value.Humanize()
+                                            @job.DeltaBuild.EndedUtc.Ago() ago
                                         </text>
                                     }
                                 }

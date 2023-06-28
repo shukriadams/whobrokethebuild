@@ -239,8 +239,6 @@ namespace Wbtb.Core.Common
 
         Build GetLastJobDelta(string jobId);
 
-        void SaveJobDelta(Build build);
-
         #endregion
 
         #region CONFIGURATIONSTATE

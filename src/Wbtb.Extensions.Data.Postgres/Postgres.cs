@@ -762,6 +762,68 @@ namespace Wbtb.Extensions.Data.Postgres
             return PostgresCommon.GetById< Build>(this.ContextPluginConfig, id, "build", new BuildConvert());
         }
 
+        public Build GetCurrentBuildDelta(string jobId)
+        {
+            string query = @"
+                SELECT 
+	                *
+                FROM
+	                build B
+                WHERE
+	                B.jobid=1
+	                AND B.status = (
+		                -- get current passing or failing status of job 
+		                SELECT 
+			                status 
+		                FROM 
+			                build
+		                WHERE 
+			                status = 3
+			                OR status = 4
+		                ORDER BY 
+			                endedutc DESC
+		                LIMIT 1
+	                ) AND b.endedutc > (
+		                -- get endutc of last build of previous status
+		                SELECT 
+			                endedutc 
+		                FROM 
+			                build
+		                WHERE 
+			                NOT endedutc IS NULL
+		                    AND (status = @passing
+		                    OR status = @failing)
+			                AND NOT status = (
+		                        -- get current passing or failing status of job 
+		                        SELECT 
+			                        status 
+		                        FROM 
+			                        build
+		                        WHERE 
+			                        status = @passing
+			                        OR status = @failing
+		                        ORDER BY 
+			                        endedutc DESC
+		                        LIMIT 1)
+		                ORDER BY 
+			                endedutc DESC
+		                LIMIT 1)
+                ORDER BY 
+	                endedutc ASC
+                LIMIT 1";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            {
+                cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                cmd.Parameters.AddWithValue("passing", (int)BuildStatus.Passed);
+                cmd.Parameters.AddWithValue("failing", (int)BuildStatus.Failed);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new BuildConvert().ToCommon(reader);
+            }
+        }
+
         Build IDataPlugin.GetBuildByKey(string jobId, string key)
         {
             string query = @"
@@ -1925,38 +1987,70 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string query = @"
                 SELECT 
-                    B.* 
-                FROM 
-                    build B
-                    JOIN jobdelta JD ON B.id = JD.buildid
-                WHERE 
-                    JD.jobid = @jobid";
+	                *
+                FROM
+	                build B
+                WHERE
+	                B.jobid=@jobid
+	                AND B.status = (
+		                -- get current passing or failing status of job 
+		                SELECT 
+			                status 
+		                FROM 
+			                build
+		                WHERE
+                            jobid = @jobid
+			                AND (
+                                status = @passing
+			                    OR status = @failing
+                            )
+		                ORDER BY 
+			                endedutc DESC
+		                LIMIT 1
+	                ) AND b.endedutc > (
+		                -- get endutc of last build of previous status
+		                SELECT 
+			                endedutc 
+		                FROM 
+			                build
+		                WHERE 
+			                NOT endedutc IS NULL
+                            AND jobid = @jobid
+			                AND (
+                                status = @passing
+			                    OR status = @failing
+                            )
+			                AND NOT status = (
+		                        -- get current passing or failing status of job 
+		                        SELECT 
+			                        status 
+		                        FROM 
+			                        build
+		                        WHERE 
+                                    jobid = @jobid
+			                        AND (
+                                        status = @passing
+			                            OR status = @failing
+                                    )
+		                        ORDER BY 
+			                        endedutc DESC
+		                        LIMIT 1)
+		                ORDER BY 
+			                endedutc DESC
+		                LIMIT 1)
+                ORDER BY 
+	                endedutc ASC
+                LIMIT 1";
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                cmd.Parameters.AddWithValue("passing", (int)BuildStatus.Passed);
+                cmd.Parameters.AddWithValue("failing", (int)BuildStatus.Failed);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new BuildConvert().ToCommon(reader);
-            }
-        }
-
-        void IDataPlugin.SaveJobDelta(Build build)
-        {
-            string sql = @"
-                DELETE FROM jobdelta WHERE jobid=@jobid;
-                INSERT INTO jobdelta
-                    (jobid, buildid)
-                VALUES
-                    (@jobid, @buildid)";
-
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(build.JobId));
-                cmd.Parameters.AddWithValue("buildid", int.Parse(build.Id));
-                cmd.ExecuteReader();
             }
         }
 

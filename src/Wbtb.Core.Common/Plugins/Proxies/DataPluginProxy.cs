@@ -934,17 +934,6 @@ namespace Wbtb.Core.Common
             });
         }
 
-        void IDataPlugin.SaveJobDelta(Build build)
-        {
-            _pluginSender.InvokeMethod<Build>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.SaveJobDelta),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "build", Value = build }
-                }
-            });
-        }
-
         #endregion
 
         #region CONFIGURATIONSETTING

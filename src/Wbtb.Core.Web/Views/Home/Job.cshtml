@@ -25,7 +25,7 @@
                     @if (Model.Stats.JobDuration.HasValue)
                     {
                         <text>
-                            Has built over @Model.Stats.JobDuration.Value.Humanize(), from @Model.Stats.StartUtc.Value.ToShortDateString().Humanize() to @Model.Stats.LatestBuild.EndedUtc.Value.ToShortDateString().Humanize().
+                            Has built over @Model.Stats.JobDuration.Value.Humanize(), from @Model.Stats.StartUtc.ToShort() to @Model.Stats.LatestBuild.EndedUtc.ToShort()
                         </text>
                     }
                 </div>
@@ -33,14 +33,16 @@
                 <div>
                     @if (Model.Stats.LatestBreakingBuild != null)
                     {
-                        <text>Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild), @Model.Stats.LatestBreakingBuild.EndedUtc.Humanize()</text>
+                        <text>
+                            Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild) 
+                            @Model.Stats.LatestBreakingBuild.EndedUtc.ToShort()
+                        </text>
                     }
 
                     @if (Model.Stats.LatestBreakDuration.HasValue)
                     {
                         <text>,and that lasted @Model.Stats.LatestBreakDuration.Value.Humanize()</text>
                     }
-                    .
                 </div>
 
                 @if (Model.Stats.TotalBuilds == 0)
@@ -151,7 +153,7 @@
                             @ViewHelpers.TranslateBuildStatus(build) 
                         </div>
                         <div>
-                            @build.VisibleDateUtc.ToLocalTime().Humanize() (@build.VisibleDateUtc.ToLocalTime().ToISOShort())
+                            @build.VisibleDateUtc.Ago() (@build.VisibleDateUtc.ToLocalTime().ToISOShort())
                         </div>
                     </x-list-cell>    
 

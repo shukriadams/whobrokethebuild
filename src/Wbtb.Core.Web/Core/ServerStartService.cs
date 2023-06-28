@@ -31,7 +31,6 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, BuildRevisionAddDaemon>(null, true);
                     di.Register<IWebDaemon, BuildLogImportDaemon>(null, true);
                     di.Register<IWebDaemon, BuildStatusAlertDaemon>(null, true);
-                    di.Register<IWebDaemon, DeltaDaemon>(null, true);
                     di.Register<IWebDaemon, IncidentAssignDaemon>(null, true);
                     di.Register<IWebDaemon, LogParseDaemon>(null, true);
                     di.Register<IWebDaemon, UserBuildInvolvementLinkDaemon>(null, true);

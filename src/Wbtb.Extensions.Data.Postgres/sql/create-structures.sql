@@ -7,14 +7,6 @@ CREATE SEQUENCE public."store_id_seq"
     CACHE 1;
 ALTER SEQUENCE public."store_id_seq" OWNER TO postgres;
 
-CREATE SEQUENCE public."jobdelta_id_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."jobdelta_id_seq" OWNER TO postgres;
-
 CREATE SEQUENCE public."session_userid_seq"
     INCREMENT 1
     START 1
@@ -419,29 +411,6 @@ TABLESPACE pg_default;
 ALTER TABLE public."buildlogparseresult" OWNER TO postgres;
 
 
-
--- TABLE: jobdelta
-CREATE TABLE public."jobdelta"
-(
-    jobid integer NOT NULL,
-    buildid integer NOT NULL,
-    CONSTRAINT "jobdelta_jobid_unqiue" UNIQUE (jobid),
-    CONSTRAINT "jobdelta_jobid_fk" FOREIGN KEY (jobid)
-        REFERENCES public."job" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE,
-    CONSTRAINT "jobdelta_buildid_fk" FOREIGN KEY (buildid)
-        REFERENCES public."build" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-ALTER TABLE public."jobdelta" OWNER TO postgres;
-
-
 -- TABLE : INCIDENT
 CREATE TABLE public."incident"
 (
@@ -583,16 +552,6 @@ CREATE INDEX "buildinvolvement_revisionid_fk"
 
 CREATE INDEX "buildlogparseresult_buildid_fk"
     ON public."buildlogparseresult" USING btree
-    (buildid)
-    TABLESPACE pg_default;
-
-CREATE INDEX "jobdelta_jobid_fk"
-    ON public."jobdelta" USING btree
-    (jobid)
-    TABLESPACE pg_default;
-
-CREATE INDEX "jobdelta_buildid_fk"
-    ON public."jobdelta" USING btree
     (buildid)
     TABLESPACE pg_default;
 

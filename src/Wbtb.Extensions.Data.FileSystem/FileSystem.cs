@@ -339,11 +339,6 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Job { };
         }
 
-        void IDataPlugin.SaveJobDelta(Build build)
-        {
-            
-        }
-
         Revision IDataPlugin.SaveRevision(Revision revision)
         {
             return new Revision { };

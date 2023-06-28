@@ -111,7 +111,7 @@ namespace Wbtb.Core.Web
                             BuildId = build.Id,
                             Src = this.GetType().Name,
                             Order = 5,
-                            TaskKey = DaemonTaskTypes.DeltaCalculate.ToString()
+                            TaskKey = DaemonTaskTypes.DeltaChangeAlert.ToString()
                         });
 
                         if (build.Status == BuildStatus.Failed)
