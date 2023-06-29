@@ -3,7 +3,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.PostProcessing.Test
 {
-    public class Test : Plugin, IPostProcessor
+    public class Test : Plugin, IPostProcessorPlugin
     {
         PluginInitResult IPlugin.InitializePlugin()
         {
@@ -14,7 +14,7 @@ namespace Wbtb.Extensions.PostProcessing.Test
             };
         }
 
-        PostProcessResult IPostProcessor.Process()
+        PostProcessResult IPostProcessorPlugin.Process(Build build)
         { 
             return new PostProcessResult { 
                 Passed = true,

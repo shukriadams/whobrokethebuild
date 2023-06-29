@@ -19,7 +19,7 @@ namespace Wbtb.Core.Web
 
         private readonly Configuration _config;
 
-        private readonly BuildLevelPluginHelper _buildLevelPluginHelper;
+        private readonly BuildEventHandlerHelper _buildLevelPluginHelper;
 
         private readonly SimpleDI _di;
         #endregion
@@ -34,7 +34,7 @@ namespace Wbtb.Core.Web
             _di = new SimpleDI();
             _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
-            _buildLevelPluginHelper = _di.Resolve<BuildLevelPluginHelper>();
+            _buildLevelPluginHelper = _di.Resolve<BuildEventHandlerHelper>();
         }
 
         #endregion
@@ -124,13 +124,13 @@ namespace Wbtb.Core.Web
                                 TaskKey = DaemonTaskTypes.IncidentAssign.ToString()
                             });
 
-                            if (job.BlamePlugins.Any())
+                            if (job.PostProcessors.Any())
                                 dataLayer.SaveDaemonTask(new DaemonTask
                                 {
                                     BuildId = build.Id,
                                     Src = this.GetType().Name,
                                     Order = 4,
-                                    TaskKey = DaemonTaskTypes.AssignBlame.ToString()
+                                    TaskKey = DaemonTaskTypes.PostProcess.ToString()
                                 });
                         }
                     }

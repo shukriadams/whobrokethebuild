@@ -1,8 +1,8 @@
 ﻿namespace Wbtb.Core.Common
 {
-    [PluginProxy(typeof(BuildLevelProcessorProxy))]
+    [PluginProxy(typeof(PostProcessorPluginProxy))]
     [PluginBehaviour(allowMultiple: true)]
-    public interface IBuildLevelProcessor : IPlugin
+    public interface IBuildEventHandler : IPlugin
     {
         void Process(Build build);
     }

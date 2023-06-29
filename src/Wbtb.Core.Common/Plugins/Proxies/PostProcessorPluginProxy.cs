@@ -1,10 +1,10 @@
 ﻿namespace Wbtb.Core.Common
 {
-    public class BuildLevelProcessorProxy : PluginProxy, IBuildLevelProcessor
+    public class PostProcessorPluginProxy : PluginProxy, IPostProcessorPlugin
     {
         private readonly IPluginSender _pluginSender;
 
-        public BuildLevelProcessorProxy(IPluginSender pluginSender) : base(pluginSender)
+        public PostProcessorPluginProxy(IPluginSender pluginSender) : base(pluginSender)
         {
             _pluginSender = pluginSender;
         }
@@ -17,11 +17,11 @@
             });
         }
 
-        void IBuildLevelProcessor.Process(Build build)
+        PostProcessResult IPostProcessorPlugin.Process(Build build)
         {
-            _pluginSender.InvokeMethod(this, new PluginArgs
+            return _pluginSender.InvokeMethod<PostProcessResult>(this, new PluginArgs
             {
-                FunctionName = nameof(IBuildLevelProcessor.Process),
+                FunctionName = nameof(IPostProcessorPlugin.Process),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "build", Value = build }
                 }

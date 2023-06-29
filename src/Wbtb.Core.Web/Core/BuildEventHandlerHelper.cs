@@ -5,7 +5,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
 {
-    public class BuildLevelPluginHelper
+    public class BuildEventHandlerHelper
     {
         private readonly ILogger _logger;
 
@@ -13,25 +13,25 @@ namespace Wbtb.Core.Web
 
         private readonly SimpleDI _di;
 
-        public BuildLevelPluginHelper(PluginProvider pluginProvider, ILogger logger) 
+        public BuildEventHandlerHelper(PluginProvider pluginProvider, ILogger logger) 
         {
             _di = new SimpleDI();
             _pluginProvider = pluginProvider;
             _logger = logger;
         }
 
-        public void InvokeEvents(string eventCategory, IEnumerable<string> plugins, Build build)
+        public void InvokeEvents(string eventCategory, IEnumerable<string> eventHandlerPlugins, Build build)
         {
-            foreach (string plugin in plugins)
+            foreach (string eventHandlerPlugin in eventHandlerPlugins)
             {
                 try
                 {
-                    IBuildLevelProcessor postProcessor = _pluginProvider.GetByKey(plugin) as IBuildLevelProcessor;
-                    postProcessor.Process(build);
+                    IBuildEventHandler handler = _pluginProvider.GetByKey(eventHandlerPlugin) as IBuildEventHandler;
+                    handler.Process(build);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogInformation($"failed {eventCategory} hook {plugin } for {build.Id} : {ex}");
+                    _logger.LogInformation($"failed {eventCategory} hook {eventHandlerPlugin } for {build.Id} : {ex}");
                 }
             }
         }

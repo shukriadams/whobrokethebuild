@@ -25,7 +25,7 @@ namespace Wbtb.Core.Web
                     // register types defined in web project
                     di.Register<IDaemonProcessRunner, DaemonProcessRunner>();
                     di.Register<IWebDaemon, BuildStartDaemon>(null, true);
-                    di.Register<IWebDaemon, BlameAssignDaemon>(null, true);
+                    di.Register<IWebDaemon, PostProcessDaemon>(null, true);
                     di.Register<IWebDaemon, BuildEndDaemon>(null, true);
                     di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(null, true);
                     di.Register<IWebDaemon, BuildRevisionAddDaemon>(null, true);
@@ -37,7 +37,7 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, RevisionResolveDaemon>(null, true);
                     di.RegisterSingleton(typeof(DaemonActiveProcesses), new DaemonActiveProcesses());
                     di.RegisterFactory<IHubContext, HubFactory>();
-                    di.Register<BuildLevelPluginHelper, BuildLevelPluginHelper>();
+                    di.Register<BuildEventHandlerHelper, BuildEventHandlerHelper>();
 
 
                     string exitOnConfigErrorLook = Environment.GetEnvironmentVariable("WBTB_EXIT_ON_CONFIG_ERROR");

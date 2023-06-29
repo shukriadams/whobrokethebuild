@@ -1,6 +1,6 @@
 ﻿using Wbtb.Core.Common;
 
-namespace Wbtb.Extensions.Blame.AcmeGamesBlamer
+namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 {
     class Entry
     {

@@ -1,0 +1,9 @@
+﻿Key: Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
+Description: Blames people whodunit.
+Runtime: dotnet
+Assembly: Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
+Main: Wbtb.Extensions.PostProcessing.AcmeGamesBlamer.dll
+Interface: Wbtb.Core.Common.IPostProcessorPlugin
+Concrete: Wbtb.Extensions.PostProcessing.AcmeGamesBlamer.AcmeGamesBlamer
+Version: 0.0.1
+APIVersion: 0.0.1

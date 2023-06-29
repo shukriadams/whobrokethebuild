@@ -10,7 +10,7 @@
         UserResolve,                        // 3
         RevisionResolve,                    // 3
         LogParse,                           // 3
-        AssignBlame,                        // 4
+        PostProcess,                        // 4
         DeltaChangeAlert                    // 5
     }
 }

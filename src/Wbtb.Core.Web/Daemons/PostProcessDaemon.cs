@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
+using YamlDotNet.Serialization.TypeInspectors;
 
 namespace Wbtb.Core.Web
 {
-    public class BlameAssignDaemon : IWebDaemon
+    public class PostProcessDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -19,7 +20,7 @@ namespace Wbtb.Core.Web
 
         private readonly Configuration _config;
 
-        private readonly BuildLevelPluginHelper _buildLevelPluginHelper;
+        private readonly BuildEventHandlerHelper _buildLevelPluginHelper;
 
         private readonly SimpleDI _di;
 
@@ -29,7 +30,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BlameAssignDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public PostProcessDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
@@ -37,7 +38,7 @@ namespace Wbtb.Core.Web
             _di = new SimpleDI();
             _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
-            _buildLevelPluginHelper = _di.Resolve<BuildLevelPluginHelper>();
+            _buildLevelPluginHelper = _di.Resolve<BuildEventHandlerHelper>();
         }
 
         #endregion
@@ -63,7 +64,7 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AssignBlame.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.PostProcess.ToString());
             DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
 
             try
@@ -78,25 +79,20 @@ namespace Wbtb.Core.Web
 
                         activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
                         Job job = dataLayer.GetJobById(build.JobId);
-
-                        // do work here
-                        if (build.IncidentBuildId != build.Id)
-                        {
-                            task.HasPassed = true;
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.Result = "Build did not cause break, all involved free from blame.";
-                            dataLayer.SaveDaemonTask(task);
-                        }
-
+                        
                         task.HasPassed = true;
+                        task.Result = string.Empty;
 
-                        job.BlamePlugins.AsParallel().ForAll(delegate (string blamePlugin)
+                        job.PostProcessors.AsParallel().ForAll(delegate (string blamePlugin)
                         {
                             try
                             {
-                                IBlamePlugin blame = _pluginProvider.GetByKey(blamePlugin) as IBlamePlugin;
+                                IPostProcessorPlugin processor = _pluginProvider.GetByKey(blamePlugin) as IPostProcessorPlugin;
 
-                                blame.BlameBuildFailure(build);
+                                PostProcessResult result = processor.Process(build);
+                                task.Result += result.Result;
+                                if (!result.Passed)
+                                    task.HasPassed = false;
 
                                 Console.WriteLine($"Processed build id {build.Id} with plugin {blamePlugin}");
                             }

@@ -3,7 +3,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.PostProcessing.Test2
 {
-    public class Test2 : Plugin, IPostProcessor
+    public class Test2 : Plugin, IPostProcessorPlugin
     {
         PluginInitResult IPlugin.InitializePlugin()
         {
@@ -14,7 +14,7 @@ namespace Wbtb.Extensions.PostProcessing.Test2
             };
         }
 
-        PostProcessResult IPostProcessor.Process()
+        PostProcessResult IPostProcessorPlugin.Process(Build build)
         {
             throw new Exception("it failed");
         }

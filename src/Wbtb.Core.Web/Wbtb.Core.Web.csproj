@@ -27,7 +27,6 @@
     <ProjectReference Include="..\Wbtb.Extensions.Auth.ActiveDirectorySandbox\Wbtb.Extensions.Auth.ActiveDirectorySandbox.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.Auth.ActiveDirectory\Wbtb.Extensions.Auth.ActiveDirectory.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.Auth.Internal\Wbtb.Extensions.Auth.Internal.csproj" />
-    <ProjectReference Include="..\Wbtb.Extensions.Blame.AcmeGamesBlamer\Wbtb.Extensions.Blame.AcmeGamesBlamer.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.BuildServer.JenkinsSandbox\Wbtb.Extensions.BuildServer.JenkinsSandbox.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.BuildServer.Jenkins\Wbtb.Extensions.BuildServer.Jenkins.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.Data.FileSystem\Wbtb.Extensions.Data.FileSystem.csproj" />
@@ -39,6 +38,7 @@
     <ProjectReference Include="..\Wbtb.Extensions.Messaging.Sandbox\Wbtb.Extensions.Messaging.Sandbox.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.Messaging.SlackSandbox\Wbtb.Extensions.Messaging.SlackSandbox.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.Messaging.Slack\Wbtb.Extensions.Messaging.Slack.csproj" />
+    <ProjectReference Include="..\Wbtb.Extensions.PostProcessing.AcmeGamesBlamer\Wbtb.Extensions.PostProcessing.AcmeGamesBlamer.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.PostProcessing.Test2\Wbtb.Extensions.PostProcessing.Test2.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.PostProcessing.Test\Wbtb.Extensions.PostProcessing.Test.csproj" />
     <ProjectReference Include="..\Wbtb.Extensions.SourceServer.PerforceSandbox\Wbtb.Extensions.SourceServer.PerforceSandbox.csproj" />

@@ -466,24 +466,24 @@ namespace Wbtb.Core
                             throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a log parser \"{logparserPluginKey}\", but this plugin does not implement type {TypeHelper.Name<ILogParserPlugin>()}.");
                     }
 
-                    // ensure each blamers exist as a plugins, and implement correct interface
-                    foreach (string blamePluginKey in jobConfig.BlamePlugins)
+                    // ensure postprocessors exist as a plugins, and implement correct interface
+                    foreach (string postProcessorKey in jobConfig.PostProcessors)
                     {
-                        PluginConfig blamePlugin = config.Plugins.FirstOrDefault(r => r.Key == blamePluginKey);
-                        if (blamePlugin == null)
-                            throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a blame plugin \"{blamePluginKey}\", but no enabled plugin for this parser was found.");
+                        PluginConfig postProcessorPlugin = config.Plugins.FirstOrDefault(r => r.Key == postProcessorKey);
+                        if (postProcessorPlugin == null)
+                            throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a postProcessor plugin \"{postProcessorKey}\", but no enabled plugin for this parser was found.");
 
-                        Type pluginInterfaceType = TypeHelper.GetCommonType(blamePlugin.Manifest.Interface);
-                        if (!typeof(IBlamePlugin).IsAssignableFrom(pluginInterfaceType))
-                            throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a blame plugin \"{blamePluginKey}\", but this plugin does not implement type {TypeHelper.Name<IBlamePlugin>()}.");
+                        Type pluginInterfaceType = TypeHelper.GetCommonType(postProcessorPlugin.Manifest.Interface);
+                        if (!typeof(IPostProcessorPlugin).IsAssignableFrom(pluginInterfaceType))
+                            throw new ConfigurationException($"Job \"{jobConfig.Key}\" defines a postProcessor plugin \"{postProcessorKey}\", but this plugin does not implement type {TypeHelper.Name<IPostProcessorPlugin>()}.");
                     }
 
-                    // ensure each post processor implements required interface 
-                    ValidateProcessors<IBuildLevelProcessor>(config, jobConfig, jobConfig.OnBuildStart, "OnBuildStart");
-                    ValidateProcessors<IBuildLevelProcessor>(config, jobConfig, jobConfig.OnBuildEnd, "OnBuildEnd");
-                    ValidateProcessors<IBuildLevelProcessor>(config, jobConfig, jobConfig.OnBroken, "OnBroken");
-                    ValidateProcessors<IBuildLevelProcessor>(config, jobConfig, jobConfig.OnFixed, "OnFixed");
-                    ValidateProcessors<IBuildLevelProcessor>(config, jobConfig, jobConfig.OnLogAvailable, "OnLogAvailable");
+                    // ensure event handlers impliment correct interfaces
+                    ValidateProcessors<IBuildEventHandler>(config, jobConfig, jobConfig.OnBuildStart, "OnBuildStart");
+                    ValidateProcessors<IBuildEventHandler>(config, jobConfig, jobConfig.OnBuildEnd, "OnBuildEnd");
+                    ValidateProcessors<IBuildEventHandler>(config, jobConfig, jobConfig.OnBroken, "OnBroken");
+                    ValidateProcessors<IBuildEventHandler>(config, jobConfig, jobConfig.OnFixed, "OnFixed");
+                    ValidateProcessors<IBuildEventHandler>(config, jobConfig, jobConfig.OnLogAvailable, "OnLogAvailable");
                 }
             }
         }

@@ -67,9 +67,9 @@ namespace Wbtb.Core.Common
         public IEnumerable<string> LogParserPlugins { get; set; }
 
         /// <summary>
-        /// optional. Keys of blame plugins.
+        /// optional. Keys of postProcessor plugins.
         /// </summary>
-        public IEnumerable<string> BlamePlugins { get; set; }
+        public IEnumerable<string> PostProcessors { get; set; }
 
         /// <summary>
         /// Plugins to be invoked when a build record is created.
@@ -129,7 +129,7 @@ namespace Wbtb.Core.Common
         {
             this.Message = new List<MessageHandler>();
             this.LogParserPlugins = new List<string>();
-            this.BlamePlugins = new List<string>();
+            this.PostProcessors = new List<string>();
             this.OnBuildStart = new List<string>();
             this.OnBuildEnd = new List<string>();
             this.OnLogAvailable= new List<string>();

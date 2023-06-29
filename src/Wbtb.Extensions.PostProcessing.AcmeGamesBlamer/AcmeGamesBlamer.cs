@@ -1,8 +1,8 @@
 ﻿using Wbtb.Core.Common;
 
-namespace Wbtb.Extensions.Blame.AcmeGamesBlamer
+namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 {
-    internal class AcmeGamesBlamer : Plugin, IBlamePlugin
+    internal class AcmeGamesBlamer : Plugin, IPostProcessorPlugin
     {
         PluginInitResult IPlugin.InitializePlugin()
         {
@@ -13,9 +13,9 @@ namespace Wbtb.Extensions.Blame.AcmeGamesBlamer
             };
         }
 
-        void IBlamePlugin.BlameBuildFailure(Build failingBuild)
+        PostProcessResult IPostProcessorPlugin.Process(Build failingBuild)
         {
-            // do stuff here
+            return new PostProcessResult { };
         }
     }
 }

@@ -74,8 +74,8 @@ src/Wbtb.Extensions.Messaging.SlackSandbox/bin
 src/Wbtb.Extensions.Messaging.SlackSandbox/obj
 src/Wbtb.Extensions.LogParsing.BasicErrors/bin
 src/Wbtb.Extensions.LogParsing.BasicErrors/obj
-src/Wbtb.Extensions.Blame.AcmeGamesBlamer/bin
-src/Wbtb.Extensions.Blame.AcmeGamesBlamer/obj
+src/Wbtb.Extensions.PostProcessing.AcmeGamesBlamer/bin
+src/Wbtb.Extensions.PostProcessing.AcmeGamesBlamer/obj
 *.csproj.user
 
 
