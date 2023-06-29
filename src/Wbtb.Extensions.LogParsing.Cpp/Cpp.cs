@@ -40,19 +40,18 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             if (!matches.Any())
                 return string.Empty;
 
-            StringBuilder s = new StringBuilder();
+            BuildLogTextBuilder builder = new BuildLogTextBuilder("cpp");
 
             foreach (Match match in matches)
             {
-                s.Append("<x-logParseLine>");
-                s.Append($"<x-logParseItem>{match.Groups[1]}</x-logParseItem>");
-                s.Append($"<x-logParseItem>{match.Groups[2]}</x-logParseItem>");
-                s.Append($"<x-logParseItem>{match.Groups[3]}</x-logParseItem>");
-                s.Append($"<x-logParseItem>{match.Groups[4]}</x-logParseItem>");
-                s.Append("</x-logParseLine>");
+                builder.AddItem(match.Groups[1].Value, "path");
+                builder.AddItem(match.Groups[2].Value, "line_number");
+                builder.AddItem(match.Groups[3].Value, "error_code");
+                builder.AddItem(match.Groups[4].Value, "description");
+                builder.NewLine();
             }
 
-            return s.ToString();
+            return builder.GetText();
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
         PostProcessResult IPostProcessorPlugin.Process(Build build)
         {
             SimpleDI di = new SimpleDI();
+            Configuration config = di.Resolve<Configuration>();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
@@ -29,7 +30,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             // can we connect revision file path to c++ file
             foreach (BuildLogParseResult result in logParseResults) 
             { 
-
+                // PluginConfig pluginConfig = config.Plugins. result.LogParserPlugin
             }
 
             // if log parse results are blueprint

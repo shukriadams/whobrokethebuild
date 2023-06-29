@@ -162,18 +162,17 @@ namespace Wbtb.Extensions.Messaging.Slack
                     if (parseResult == null || string.IsNullOrEmpty(parseResult.ParsedContent))
                         continue;
 
-                    if (parseResult.ParsedContent.Contains("<x-logParseLine>"))
+                    if (parseResult.ParsedContent.Contains("<x-logParse"))
                     {
                         errors += "```";
-                        System.Text.RegularExpressions.MatchCollection linesLookup = new System.Text.RegularExpressions.Regex("<x-logParseLine>(.+?)<\\/x-logParseLine>", System.Text.RegularExpressions.RegexOptions.Multiline).Matches(parseResult.ParsedContent);
-                        foreach (System.Text.RegularExpressions.Match line in linesLookup)
+                        ParsedBuildLogText parsedLog = BuildLogTextParser.Parse(parseResult.ParsedContent);
+                        if (parsedLog != null) 
                         {
-                            System.Text.RegularExpressions.MatchCollection itemsLookup = new System.Text.RegularExpressions.Regex("<x-logParseItem>(.+?)<\\/x-logParseItem>", System.Text.RegularExpressions.RegexOptions.Multiline).Matches(line.Value);
-                            foreach (System.Text.RegularExpressions.Match item in itemsLookup)
-                                if (item.Groups.Count > 0)
-                                    errors += $"{item.Groups[1].Value}";
+                            if (!string.IsNullOrEmpty(parsedLog.Type))
+                                errors += $"type : {parsedLog.Type}\n";
 
-                            errors += "\n";
+                            foreach (var line in parsedLog.Items) 
+                                errors += $"{line.Items.Select(l => l.Content)}\n";
                         }
 
                         bool truncated = false;
