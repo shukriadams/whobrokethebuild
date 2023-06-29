@@ -47,14 +47,6 @@ CREATE SEQUENCE public."job_sourceserverid_seq"
     CACHE 1;
 ALTER SEQUENCE public."job_sourceserverid_seq" OWNER TO postgres;
 
-CREATE SEQUENCE public."incident_id_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."incident_id_seq" OWNER TO postgres;
-
 CREATE SEQUENCE public."buildlogparseresult_id_seq"
     INCREMENT 1
     START 1
@@ -409,20 +401,6 @@ WITH (
 )
 TABLESPACE pg_default;
 ALTER TABLE public."buildlogparseresult" OWNER TO postgres;
-
-
--- TABLE : INCIDENT
-CREATE TABLE public."incident"
-(
-    id integer NOT NULL DEFAULT nextval('"incident_id_seq"'::regclass),
-    status character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT "incident_pkey" PRIMARY KEY (id)
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-ALTER TABLE public."incident" OWNER TO postgres;
 
 
 -- TABLE : VERSION

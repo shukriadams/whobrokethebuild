@@ -15,7 +15,6 @@ DROP INDEX IF EXISTS public."r_buildlogparseresult_buildinvolvement_buildinvolve
 -- DROP TABLES
 DROP TABLE IF EXISTS public."daemontask" CASCADE;
 DROP TABLE IF EXISTS public."r_buildlogparseresult_buildinvolvement" CASCADE;
-DROP TABLE IF EXISTS public."incident" CASCADE;
 DROP TABLE IF EXISTS public."buildlogparseresult" CASCADE;
 DROP TABLE IF EXISTS public."buildinvolvement" CASCADE;
 DROP TABLE IF EXISTS public."revision" CASCADE;
@@ -31,7 +30,6 @@ DROP TABLE IF EXISTS public."store" CASCADE;
 
 
 -- DROP SEQUENCES
-DROP SEQUENCE IF EXISTS public."incident_id_seq";
 DROP SEQUENCE IF EXISTS public."buildlogparseresult_buildid_seq";
 DROP SEQUENCE IF EXISTS public."buildinvolvement_buildid_seq";
 DROP SEQUENCE IF EXISTS public."buildinvolvement_revisionid_seq";
