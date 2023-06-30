@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
@@ -29,8 +30,17 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             // at java
 
             MatchCollection matches = new Regex(@"\b(at org.jenkinsci.|at jenkins.|at hudson.)\b.*", RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
-            if (matches.Count > 0)
-                return $"Build failuire is likely an internal Jenkins error : \r\r{string.Join(string.Empty, matches)}";
+            if (matches.Any()) 
+            {
+                BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
+                foreach(Match match in matches) 
+                {
+                    builder.AddItem(match.Value);
+                    builder.NewLine();
+                }
+
+                return builder.GetText();
+            }
 
             return null;
         }

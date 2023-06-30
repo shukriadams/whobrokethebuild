@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using System.Text;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.LogParsing.BasicErrors
@@ -21,19 +20,18 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                 return string.Empty;
 
             MatchCollection matches = new Regex(@"^.*error:.*$", RegexOptions.IgnoreCase|RegexOptions.Multiline).Matches(raw);
-            StringBuilder s = new StringBuilder();
 
             if (!matches.Any())
                 return string.Empty;
 
+            BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
             foreach (Match match in matches)
             {
-                s.Append("<x-logParseLine>");
-                s.Append($"<x-logParseItem>{match.Value}</x-logParseItem>");
-                s.Append("</x-logParseLine>");
+                builder.AddItem(match.Value);
+                builder.NewLine();
             }
-
-            return s.ToString();
+    
+            return builder.GetText();
         }
     }
 }
