@@ -40,7 +40,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             if (!matches.Any())
                 return string.Empty;
 
-            BuildLogTextBuilder builder = new BuildLogTextBuilder("cpp");
+            BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
 
             foreach (Match match in matches)
             {

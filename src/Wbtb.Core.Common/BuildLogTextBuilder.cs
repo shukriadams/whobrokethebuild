@@ -16,6 +16,12 @@ namespace Wbtb.Core.Common
             _s.Append($"<x-logParse type='{type}'>");
         }
 
+        public BuildLogTextBuilder(PluginConfig parserPluginConfig)
+        {
+            _closed = false;
+            _s.Append($"<x-logParse type='{parserPluginConfig.Manifest.Key}' version='{parserPluginConfig.Manifest.Version}'>");
+        }
+
         public void AddItem(string content, string type = "") 
         {
             if (!_lineStarted)

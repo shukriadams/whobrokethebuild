@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace Wbtb.Core.Common
 {
@@ -23,9 +24,12 @@ namespace Wbtb.Core.Common
     {
         public IList<ParsedBuildLogTextLine> Items { get; set; }
         public string Type { get; set; }
-        public ParsedBuildLogText(string type = "")
+        public string Version { get; set; }
+
+        public ParsedBuildLogText()
         {
-            this.Type = type;
+            this.Type = string.Empty;
+            this.Version = string.Empty;
             this.Items = new List<ParsedBuildLogTextLine>();
         }
 
@@ -35,50 +39,37 @@ namespace Wbtb.Core.Common
     {
         public static ParsedBuildLogText Parse(string markup)
         {
-            Match contentLookup = new Regex(@"<x-logParse\s*(?:type='(.*?)')?>\s*(.*?)\s*<\/x-logParse>", RegexOptions.Multiline).Match(markup);
-            if (!contentLookup.Success)
-                return null;
+            XmlDocument xmlDoc = new XmlDocument();
 
-
-            string content = string.Empty;
-            string type = string.Empty;
-
-            if (contentLookup.Groups.Count == 2)
-                content = contentLookup.Groups[1].Value;
-
-            if (contentLookup.Groups.Count == 3) 
+            try
             {
-                type = contentLookup.Groups[1].Value;
-                content = contentLookup.Groups[2].Value;
+                xmlDoc.LoadXml(markup);
             }
-            ParsedBuildLogText result = new ParsedBuildLogText(type);
-
-            MatchCollection linesLookup = new Regex("<x-logParseLine>\\s*(.+?)\\s*<\\/x-logParseLine>", RegexOptions.Multiline).Matches(content);
-
-            foreach (Match line in linesLookup)
+            catch
             {
-                MatchCollection itemsLookup = new Regex("<x-logParseItem\\s*(?:type='(.*?)')?>(.+?)<\\/x-logParseItem>", RegexOptions.Multiline).Matches(line.Value);
+                return null;
+            }
+
+            string version = xmlDoc.DocumentElement.HasAttribute("version") ? xmlDoc.DocumentElement.GetAttribute("version") : string.Empty;
+            string type = xmlDoc.DocumentElement.HasAttribute("type") ? xmlDoc.DocumentElement.GetAttribute("type") : string.Empty;
+
+            ParsedBuildLogText result = new ParsedBuildLogText 
+            {
+                Version = version,
+                Type = type
+            };
+
+            foreach (XmlElement row in xmlDoc.DocumentElement.ChildNodes)
+            {
                 ParsedBuildLogTextLine outLine = new ParsedBuildLogTextLine();
                 result.Items.Add(outLine);
-                foreach (Match itemLookup in itemsLookup)
-                {
-                    string itemContent =string.Empty;
-                    string itemType = string.Empty;
-                    if (itemLookup.Groups.Count == 2)
-                        itemContent = itemLookup.Groups[1].Value;
 
-                    if (itemLookup.Groups.Count == 3)
+                foreach (XmlElement item in row.ChildNodes) 
+                    outLine.Items.Add(new ParsedBuildLogTextLineItem
                     {
-                        itemType = itemLookup.Groups[1].Value;
-                        itemContent = itemLookup.Groups[2].Value;
-                    }
-                    ParsedBuildLogTextLineItem outItem = new ParsedBuildLogTextLineItem {
-                        Content = itemContent,
-                        Type = itemType,
-                    };
-
-                    outLine.Items.Add(outItem);
-                }
+                        Content = item.InnerText,
+                        Type = item.HasAttribute("type") ? item.GetAttribute("type") : string.Empty,
+                    });
             }
 
             return result;
