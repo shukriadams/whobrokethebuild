@@ -123,6 +123,8 @@ namespace Wbtb.Core.Common
 
         IEnumerable<Build> GetBuildsByIncident(string incidentId);
 
+        Build GetLastJobDelta(string jobId);
+        
         bool DeleteBuild(Build record);
 
         /// <summary>
@@ -199,7 +201,15 @@ namespace Wbtb.Core.Common
         /// <returns></returns>
         IEnumerable<DaemonTask> GetPendingDaemonTasksByTask(string task);
 
+        /// <summary>
+        /// Returns true if there are queued daemontasks for a given build below a task group threshhold
+        /// </summary>
+        /// <param name="buildId"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
         bool DaemonTasksBlocked(string buildId, int order);
+
+        bool DaemonTasksBlockedForJob(string jobid, int order);
 
         PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "");
 
@@ -232,12 +242,6 @@ namespace Wbtb.Core.Common
         IEnumerable<Session> GetSessionByUserId(string userid);
 
         bool DeleteSession(Session record);
-
-        #endregion
-
-        #region JOB DELTA
-
-        Build GetLastJobDelta(string jobId);
 
         #endregion
 

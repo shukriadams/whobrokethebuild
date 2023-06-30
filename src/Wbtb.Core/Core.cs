@@ -40,6 +40,7 @@ namespace Wbtb.Core
             di.Register<PluginManager, PluginManager>();
             di.Register<FileSystemHelper, FileSystemHelper>();
             di.Register<CustomEnvironmentArgs, CustomEnvironmentArgs>();
+            di.Register<Cache, Cache>();
             di.RegisterFactory<ILogger, LogProvider>();
             di.RegisterFactory<IPluginSender, PluginSenderFactory>();
 
@@ -61,6 +62,7 @@ namespace Wbtb.Core
 
             // ensure directories, this requires that config is loaded
             Directory.CreateDirectory(unsafeConfig.DataDirectory);
+            Directory.CreateDirectory(unsafeConfig.CacheDirectory);
             Directory.CreateDirectory(unsafeConfig.BuildLogsDirectory);
             Directory.CreateDirectory(unsafeConfig.PluginsWorkingDirectory);
             Directory.CreateDirectory(unsafeConfig.PluginDataPersistDirectory);

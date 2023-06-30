@@ -26,7 +26,7 @@ namespace Wbtb.Core.Web
 
         private readonly SimpleDI _di;
 
-        public static int TaskGroup = 6;
+        public static int TaskGroup = 5;
 
         #endregion
 
@@ -76,13 +76,12 @@ namespace Wbtb.Core.Web
                     try
                     {
                         Build build = dataLayer.GetBuildById(task.BuildId);
+                        Job job = dataLayer.GetJobById(build.JobId);
 
                         activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                        if (dataLayer.DaemonTasksBlockedForJob(build.JobId, TaskGroup))
                             continue;
-
-                        Job job = dataLayer.GetJobById(build.JobId);
 
                         // handle current state of game
                         Build deltaBuild = dataLayer.GetLastJobDelta(job.Id);

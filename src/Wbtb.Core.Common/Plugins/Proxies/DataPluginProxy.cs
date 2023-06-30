@@ -403,6 +403,17 @@ namespace Wbtb.Core.Common
             });
         }
 
+        Build IDataPlugin.GetLastJobDelta(string jobId)
+        {
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetLastJobDelta),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "jobId", Value = jobId }
+                }
+            });
+        }
+
         Build IDataPlugin.GetBuildByKey(string jobId, string key)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
@@ -690,6 +701,19 @@ namespace Wbtb.Core.Common
             });
         }
 
+
+        bool IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order)
+        {
+            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.DaemonTasksBlockedForJob),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "jobid", Value = jobid },
+                    new PluginFunctionParameter { Name = "order", Value = order }
+                }
+            });
+        }
+
         PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "")
         {
             return _pluginSender.InvokeMethod<PageableData<DaemonTask>>(this, new PluginArgs
@@ -915,21 +939,6 @@ namespace Wbtb.Core.Common
                 FunctionName = nameof(IDataPlugin.DeleteSession),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "session", Value = session }
-                }
-            });
-        }
-
-        #endregion
-
-        #region JOB DELTA
-
-        Build IDataPlugin.GetLastJobDelta(string jobId)
-        {
-            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
-            {
-                FunctionName = nameof(IDataPlugin.GetLastJobDelta),
-                Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "jobId", Value = jobId }
                 }
             });
         }

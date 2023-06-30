@@ -414,7 +414,13 @@ namespace Wbtb.Extensions.Data.FileSystem
         {
             return new DaemonTask[] { };
         }
+
         bool IDataPlugin.DaemonTasksBlocked(string buildId, int order)
+        {
+            return false;
+        }
+
+        bool IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order)
         {
             return false;
         }

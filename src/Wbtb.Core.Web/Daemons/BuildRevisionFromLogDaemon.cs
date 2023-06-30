@@ -69,11 +69,25 @@ namespace Wbtb.Core.Web
         /// <returns></returns>
         public string GetRevisionFromLog(string logText, string regex)
         {
+            SimpleDI di = new SimpleDI();
+            Cache cache = di.Resolve<Cache>();
+            string hash = Sha256.FromString(regex + logText);
+            string cacheLookup = cache.Get(hash);
+            if (cacheLookup != null)
+                return cacheLookup;
+
             Match match = new Regex(regex, RegexOptions.IgnoreCase & RegexOptions.Multiline).Match(logText);
             if (!match.Success || match.Groups.Count < 2)
-                return string.Empty; 
+            {
+                cacheLookup = string.Empty;
+            }
+            else 
+            {
+                cacheLookup = match.Groups[1].Value;
+            }
 
-            return match.Groups[1].Value;
+            cache.Write(hash, cacheLookup);
+            return cacheLookup;
         }
 
         private void Work()

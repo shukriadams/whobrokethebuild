@@ -1635,6 +1635,36 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
+        bool IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order) 
+        {
+            string sql = @"
+                SELECT
+                    COUNT(DT.id)
+                FROM
+                    daemontask DT
+                    JOIN build B on B.id = DT.buildid
+                WHERE
+                    B.jobid = @jobid
+                    AND (
+                        DT.processedUtc is NULL
+                        OR DT.passed = False
+                    )
+                    AND DT.ordr < @order";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            {
+                cmd.Parameters.AddWithValue("jobid", int.Parse(jobid));
+                cmd.Parameters.AddWithValue("order", order);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                {
+                    reader.Read();
+                    return reader.GetInt32(0) > 0;
+                }
+            }
+        }
+
         PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "") 
         {
             /*

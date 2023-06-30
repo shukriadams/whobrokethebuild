@@ -21,6 +21,11 @@ namespace Wbtb.Core.Common
         public string DataDirectory { get; set; }
 
         /// <summary>
+        /// Location on disk data can be stored and retrieved by hash key
+        /// </summary>
+        public string CacheDirectory { get; set; }
+
+        /// <summary>
         /// Directory plugins can persist raw data to. Each plugin shoudl write to a sub dir names after itself
         /// </summary>
         public string PluginDataPersistDirectory { get; set; }
@@ -144,6 +149,7 @@ namespace Wbtb.Core.Common
             this.BuildLogsDirectory = Path.Join(this.DataDirectory, "BuildLogs");
             this.PluginDataPersistDirectory = Path.Join(this.DataDirectory, "PluginData");
             this.PluginsWorkingDirectory = Path.Join(this.DataDirectory, "PluginsWorking");
+            this.CacheDirectory = Path.Join(this.DataDirectory, "Cache");
             this.LiveConsoleSize = 500;
             this.DaemonInterval = 60;
             this.UnprocessedBuildProcessorLimit = 50;
