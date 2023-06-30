@@ -1,6 +1,5 @@
 ﻿@using Wbtb.Core.Common;
 @using Wbtb.Core.Web; 
-@using Humanizer;
 @model BuildPageModel
 
 @{
@@ -75,12 +74,12 @@
         <x-card-pad>
             <h5>Timeline</h5>
             <div>
-                Ran on @Model.Build.StartedUtc.ToLocalTime().ToISOShort() (@Model.Build.StartedUtc.Humanize())
+                Ran @Model.Build.StartedUtc.Ago() ago (@Model.Build.StartedUtc.ToHumanString())
             </div>
             @if (Model.Build.EndedUtc.HasValue)
             {
                 <div>
-                    Took @ViewHelpers.Duration(Model.Build) to complete
+                    Took @ViewHelpers.BuildDuration(Model.Build) to complete
                 </div>
             }
         </x-card-pad>
@@ -88,7 +87,7 @@
             @if (Model.PreviousBuild != null)
             {
                 <text>
-                    Previous build : <a href="/build/@Model.PreviousBuild.Id">@Model.PreviousBuild.Identifier </a> <span class="quiet">(@ViewHelpers.Duration(Model.Build.StartedUtc, Model.PreviousBuild.StartedUtc) before)</span>
+                    Previous build : <a href="/build/@Model.PreviousBuild.Id">@Model.PreviousBuild.Identifier </a> <span class="quiet">(@((Model.Build.StartedUtc - Model.PreviousBuild.StartedUtc).ToHumanString()) before)</span>
                 </text>
             }
         </x-card-pad>
@@ -96,7 +95,7 @@
             @if (Model.NextBuild != null)
             {
                 <text>
-                    Next  build : <a href="/build/@Model.NextBuild.Id">@Model.NextBuild.Identifier </a> <span class="quiet">(@ViewHelpers.Duration(Model.NextBuild.StartedUtc, Model.Build.StartedUtc) later)</span>
+                    Next  build : <a href="/build/@Model.NextBuild.Id">@Model.NextBuild.Identifier </a> <span class="quiet">(@((Model.NextBuild.StartedUtc - Model.Build.StartedUtc).ToHumanString()) later)</span>
                 </text>
             }
         </x-card-pad>
@@ -143,7 +142,7 @@
                             @if (involvement.Revision != null)
                             {
                                 <text>
-                                    @involvement.Revision.Created.Humanize()
+                                    @involvement.Revision.Created.ToHumanString()
                                 </text>
                             }
                             

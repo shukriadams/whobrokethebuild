@@ -1,9 +1,6 @@
 ﻿@using Wbtb.Core.Common;
 @using Wbtb.Core.Web;
-@using Humanizer;
-
 @model ProcessPageModel
-
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -24,7 +21,7 @@
                 @item.Description
             </x-list-cell>
             <x-list-cell>
-                @((DateTime.UtcNow - item.CreatedUtc).Humanize())
+                @item.CreatedUtc.Ago() ago
             </x-list-cell>
         </x-list-row>
     }
@@ -75,7 +72,7 @@ else
         {
             <x-list-row>
                 <x-list-cell>
-                    @ViewHelpers.Ago(task.CreatedUtc) ago <div class="quiet">(@task.CreatedUtc.ToLocalTime().ToISOShort())</div>
+                    @task.CreatedUtc.Ago() ago <div class="quiet">(@task.CreatedUtc.ToHumanString())</div>
                 </x-list-cell>
                 <x-list-cell>
                     @if (task.ProcessedUtc.HasValue)
@@ -85,8 +82,8 @@ else
                             <x-badge class="--danger">Failed</x-badge>
                         }
                         <text>
-                            @task.ProcessedUtc.Value.ToLocalTime().Humanize()
-                            <div class="quiet">(@task.ProcessedUtc.Value.ToLocalTime().ToISOShort())</div>
+                            @task.ProcessedUtc.Ago()
+                            <div class="quiet">(@task.ProcessedUtc.ToHumanString())</div>
                         </text>
                     }
                     else

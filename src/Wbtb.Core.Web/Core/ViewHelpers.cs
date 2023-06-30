@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using System;
 using System.Web;
 using Wbtb.Core.Common;
@@ -8,14 +7,8 @@ namespace Wbtb.Core.Web
 {
     public static class ViewHelpers
     {
-        public static HtmlString Ago(DateTime dateUtc) 
-        {
-            TimeSpan span = DateTime.UtcNow - dateUtc;
-            return new HtmlString(span.Humanize());
-        }
-
         public static HtmlString PreserveLineBreaks(string content)
-        { 
+        {
             if (content == null)
                 content = string.Empty;
 
@@ -24,6 +17,14 @@ namespace Wbtb.Core.Web
                 .Replace("\r", "<br/>");
 
             return new HtmlString(content);
+        }
+
+        public static HtmlString BuildDuration(Build build) 
+        {
+            if (!build.EndedUtc.HasValue)
+                return new HtmlString(string.Empty);
+
+            return new HtmlString((build.EndedUtc.Value - build.StartedUtc).ToHumanString());
         }
 
         public static HtmlString StyleImageUrl(string url) 
@@ -53,16 +54,6 @@ namespace Wbtb.Core.Web
             return "build";
         }
         
-        /// <summary>
-        /// Humanizer shorthand
-        /// </summary>
-        /// <param name="ts"></param>
-        /// <returns></returns>
-        public static string Hmz(TimeSpan? ts)
-        { 
-            return ts.HasValue ? ts.Value.Humanize() : string.Empty;
-        }
-
         /// <summary>
         /// Generates best possible user page link from build involveement. Involvement can contain no user info at all, a user string name from source control which isn't directly 
         /// associated with a known user, or a mapped user that is known.
@@ -224,21 +215,6 @@ namespace Wbtb.Core.Web
         {
             Pager pager = new Pager();
             return new HtmlString(pager.Render(data, config.PagesPerPageGroup, baseUrl, queryStrings, "page"));
-        }
-
-        public static string Duration(Build build)
-        { 
-            if (!build.EndedUtc.HasValue)
-                return string.Empty;
-            
-            TimeSpan duration = build.EndedUtc.Value - build.StartedUtc;
-            return duration.Humanize();
-        }
-
-        public static string Duration(DateTime after, DateTime before)
-        {
-            TimeSpan duration = before - after;
-            return duration.Humanize();
         }
 
         public static string TranslateBlame(BuildLogParseResult involvement)

@@ -1,8 +1,6 @@
 ﻿@using Wbtb.Core.Common;
 @using Wbtb.Core.Web; 
-@using Humanizer;
 @model JobPageModel
-
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -25,7 +23,7 @@
                     @if (Model.Stats.JobDuration.HasValue)
                     {
                         <text>
-                            Has built over @Model.Stats.JobDuration.Value.Humanize(), from @Model.Stats.StartUtc.ToShort() to @Model.Stats.LatestBuild.EndedUtc.ToShort()
+                            Has built over @Model.Stats.JobDuration.ToHumanString(), from @Model.Stats.StartUtc.ToHumanString() to @Model.Stats.LatestBuild.EndedUtc.ToHumanString()
                         </text>
                     }
                 </div>
@@ -34,41 +32,41 @@
                     @if (Model.Stats.LatestBreakingBuild != null)
                     {
                         <text>
-                            Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild) 
-                            @Model.Stats.LatestBreakingBuild.EndedUtc.ToShort()
+                            Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild)
+                            @Model.Stats.LatestBreakingBuild.EndedUtc.Ago() ago (@Model.Stats.LatestBreakingBuild.EndedUtc.ToHumanString())
                         </text>
                     }
 
                     @if (Model.Stats.LatestBreakDuration.HasValue)
                     {
-                        <text>,and that lasted @Model.Stats.LatestBreakDuration.Value.Humanize()</text>
+                        <text>,and that lasted @Model.Stats.LatestBreakDuration.ToHumanString()</text>
                     }
                 </div>
 
                 @if (Model.Stats.TotalBuilds == 0)
                 {
                     <div>
-                        Project hasn't built yet.
+                        Project hasn't built yet
                     </div>
                 }
 
                 @if (Model.Stats.TotalBuilds > 0)
                 {
                     <div>
-                        Has built @(Model.Stats.TotalBuilds) times.
+                        Has built @(Model.Stats.TotalBuilds) times
                     </div>
                     <div>
                         @if (Model.Stats.FailRatePercent == 0)
                         {
                             <text>
-                                No fails detected.
+                                No fails detected
                             </text>
                         }
 
                         @if (Model.Stats.FailRatePercent > 0)
                         {
                             <text>
-                                Fail rate is @(Model.Stats.FailRatePercent)%.
+                                Fail rate is @(Model.Stats.FailRatePercent)%
                             </text>
                         }
                     </div>
@@ -153,7 +151,7 @@
                             @ViewHelpers.TranslateBuildStatus(build) 
                         </div>
                         <div>
-                            @build.VisibleDateUtc.Ago() (@build.VisibleDateUtc.ToLocalTime().ToISOShort())
+                            @build.VisibleDateUtc.Ago() ago (@build.VisibleDateUtc.ToHumanString())
                         </div>
                     </x-list-cell>    
 

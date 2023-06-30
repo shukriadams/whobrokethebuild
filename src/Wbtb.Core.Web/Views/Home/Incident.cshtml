@@ -1,8 +1,6 @@
-﻿@using Humanizer;
-@using Wbtb.Core.Common;
+﻿@using Wbtb.Core.Common;
 @using Wbtb.Core.Web;
 @model IncidentPageModel
-
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -20,8 +18,8 @@
     @if (Model.IsActive)
     {
         <div>
-            Incident is ongoing as of @Model.IncidentBuild.EndedUtc.Value.ToLocalTime(),
-            build has been broken for @((DateTime.UtcNow - Model.IncidentBuild.EndedUtc.Value).Humanize()).
+            Incident is ongoing as of @Model.IncidentBuild.EndedUtc.ToHumanString(),
+            build broken @Model.IncidentBuild.EndedUtc.Ago()
         </div>        
     }
 

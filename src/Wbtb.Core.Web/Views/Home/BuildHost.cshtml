@@ -1,6 +1,5 @@
 ﻿@using Wbtb.Core.Common;
 @using Wbtb.Core.Web; 
-@using Humanizer; 
 @model BuildHostModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -31,7 +30,7 @@
                         @ViewHelpers.TranslateBuildStatus(build) 
                     </div>
                     <div>
-                        @build.StartedUtc.Humanize() @build.StartedUtc.ToShortTimeString().Humanize()
+                        @build.StartedUtc.Ago() ago (@build.StartedUtc.ToHumanString())
                     </div>
                 </x-list-cell>    
 

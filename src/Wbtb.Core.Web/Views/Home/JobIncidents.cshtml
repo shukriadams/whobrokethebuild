@@ -1,6 +1,5 @@
 ﻿@using Wbtb.Core.Common;
 @using Wbtb.Core.Web; 
-@using Humanizer;
 @model JobIncidentsModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -26,24 +25,26 @@
                 Builds
             </x-list-cell>
         </x-list-row>
+
         @foreach (ViewIncidentCauseBuild build in Model.Builds.Items)
         {
-        <x-list-row>
-            <x-list-cell>
-                @ViewHelpers.BuildLink(build)
-            </x-list-cell>
-            <x-list-cell>
-                @build.StartedUtc.ToLocalTime().Humanize() (@build.StartedUtc.ToLocalTime().ToISOShort()))
-            </x-list-cell>
-            <x-list-cell>
-                @foreach(Build involved in build.InvolvedBuilds)
-                {
-                    <div>
-                        @ViewHelpers.BuildLink(involved)
-                    </div>
-                }
-            </x-list-cell>
-        </x-list-row>
-    }
+            <x-list-row>
+                <x-list-cell>
+                    @ViewHelpers.BuildLink(build)
+                </x-list-cell>
+                <x-list-cell>
+                        @build.StartedUtc.Ago() ago (@build.StartedUtc.ToHumanString()))
+                </x-list-cell>
+                <x-list-cell>
+                    @foreach(Build involved in build.InvolvedBuilds)
+                    {
+                        <div>
+                            @ViewHelpers.BuildLink(involved)
+                        </div>
+                    }
+                </x-list-cell>
+            </x-list-row>
+        }
+
     </x-list>
 </div>
