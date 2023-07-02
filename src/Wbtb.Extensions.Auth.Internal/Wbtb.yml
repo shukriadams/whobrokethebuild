@@ -1,4 +1,4 @@
-﻿Key: Wbtb.Auth.Interal
+﻿Key: Wbtb.Extensions.Auth.Interal
 Runtime: dotnet
 Assembly: Wbtb.Extensions.Auth.Internal
 Main: Wbtb.Extensions.Auth.Internal.dll

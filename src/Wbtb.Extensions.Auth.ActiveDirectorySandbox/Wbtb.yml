@@ -1,4 +1,4 @@
-﻿Key: Wbtb.Auth.ActiveDirectorySandbox
+﻿Key: Wbtb.Extensions.Auth.ActiveDirectorySandbox
 Runtime: dotnet
 Main: Wbtb.Extensions.Auth.ActiveDirectorySandbox.dll
 Interface: Wbtb.Core.Common.IAuthenticationPlugin

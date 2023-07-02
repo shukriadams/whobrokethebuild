@@ -1,4 +1,4 @@
-﻿Key: Wbtb.BuildServer.JenkinsSandbox
+﻿Key: Wbtb.Extensions.BuildServer.JenkinsSandbox
 Description: An alternative to real Jenkins - add this to your project to spoof a Jenkins server
 Runtime: dotnet
 Assembly: Wbtb.Extensions.BuildServer.JenkinsSandbox

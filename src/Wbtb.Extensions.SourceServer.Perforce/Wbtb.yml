@@ -1,4 +1,4 @@
-﻿Key: Wbtb.SourceServer.Perforce
+﻿Key: Wbtb.Extensions.SourceServer.Perforce
 Runtime: dotnet
 Assembly: Wbtb.Extensions.SourceServer.Perforce
 Main: Wbtb.Extensions.SourceServer.Perforce.dll

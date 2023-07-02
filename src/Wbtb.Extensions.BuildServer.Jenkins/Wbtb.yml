@@ -1,4 +1,4 @@
-﻿Key: Wbtb.BuildServer.Jenkins
+﻿Key: Wbtb.Extensions.BuildServer.Jenkins
 Runtime: dotnet
 Main: Wbtb.Extensions.BuildServer.Jenkins.dll
 Interface: Wbtb.Core.Common.IBuildServerPlugin

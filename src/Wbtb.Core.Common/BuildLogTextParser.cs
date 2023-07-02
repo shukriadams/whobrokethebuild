@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -45,8 +46,9 @@ namespace Wbtb.Core.Common
             {
                 xmlDoc.LoadXml(markup);
             }
-            catch
+            catch(Exception ex)
             {
+                Console.WriteLine(ex);
                 return null;
             }
 

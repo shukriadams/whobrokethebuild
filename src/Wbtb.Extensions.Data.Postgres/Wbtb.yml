@@ -1,4 +1,4 @@
-﻿Key: Wbtb.Data.Postgres
+﻿Key: Wbtb.Extensions.Data.Postgres
 Runtime: dotnet
 Assembly: Wbtb.Extensions.Data.Postgres
 Main: Wbtb.Extensions.Data.Postgres.dll

@@ -1,4 +1,4 @@
-﻿Key: Wbtb.SourceServer.PerforceSandbox
+﻿Key: Wbtb.Extensions.SourceServer.PerforceSandbox
 Runtime: dotnet
 Assembly: Wbtb.Extensions.SourceServer.PerforceSandbox
 Main: Wbtb.Extensions.SourceServer.PerforceSandbox.dll

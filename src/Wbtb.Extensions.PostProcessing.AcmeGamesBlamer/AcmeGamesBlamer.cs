@@ -2,7 +2,7 @@
 
 namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 {
-    internal class AcmeGamesBlamer : Plugin, IPostProcessorPlugin
+    public class AcmeGamesBlamer : Plugin, IPostProcessorPlugin
     {
         PluginInitResult IPlugin.InitializePlugin()
         {
@@ -19,19 +19,56 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             Configuration config = di.Resolve<Configuration>();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
-            IEnumerable<BuildInvolvement> buildInvolvements = data.GetBuildInvolvementsByBuild(build.Id);
+            Job job = data.GetJobById(build.JobId);
+            SourceServer sourceServer = null;
+            if (!string.IsNullOrEmpty(job.SourceServerId))
+                sourceServer = data.GetSourceServerById(job.SourceServerId);
+            
+            PluginConfig sourceServerPlugin = null;
+            if (sourceServer != null)
+                sourceServerPlugin = config.Plugins.FirstOrDefault(p => p.Key == sourceServer.Plugin);
 
-            // blame works at buildinvolvement level.
+            bool isPerforce = sourceServerPlugin != null && (sourceServerPlugin.Manifest.Key == "Wbtb.Extensions.SourceServer.Perforce" || sourceServerPlugin.Manifest.Key == "Wbtb.Extensions.SourceServer.PerforceSandbox");
+
+            IEnumerable < BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
+            IEnumerable<BuildInvolvement> buildInvolvements = data.GetBuildInvolvementsByBuild(build.Id);
+            IList<Revision> revisions = new List<Revision>();
+
+            foreach (BuildInvolvement buildInvolvement in buildInvolvements.Where(bi => !string.IsNullOrEmpty(bi.RevisionId)))
+                revisions.Add(data.GetRevisionById(buildInvolvement.RevisionId));
+
+            if (build.Status != BuildStatus.Failed)
+                return new PostProcessResult
+                {
+                    Passed = true,
+                    Result = "Ignoring non-failed build"
+                };
 
             // if log parse results are c++
             // ensure current source control is perforce
             // foreach file in buildinvolvements revisions
             // can we connect revision file path to c++ file
-            foreach (BuildLogParseResult result in logParseResults) 
-            { 
-                // PluginConfig pluginConfig = config.Plugins. result.LogParserPlugin
+            if (isPerforce) 
+            {
+                foreach (BuildLogParseResult result in logParseResults)
+                {
+                    ParsedBuildLogText parsedText = BuildLogTextParser.Parse(result.ParsedContent);
+                    if (parsedText == null)
+                        continue;
+
+                    if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
+                        continue;
+
+                    foreach (var line in parsedText.Items)
+                        foreach (var item in line.Items.Where(l => l.Type == "path"))
+                            foreach (Revision revision in revisions)
+                                if (revision.Files.Contains(item.Content)) 
+                                {
+                                    Console.WriteLine("matc foudn");
+                                }
+                }
             }
+
 
             // if log parse results are blueprint
             // can we parse blueprint file path out of error message

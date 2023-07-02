@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Wbtb.Core.Common
 {
@@ -13,13 +16,13 @@ namespace Wbtb.Core.Common
         public BuildLogTextBuilder(string type = "") 
         {
             _closed = false;
-            _s.Append($"<x-logParse type='{type}'>");
+            _s.Append($"<x-logParse type='{esc(type)}'>");
         }
 
         public BuildLogTextBuilder(PluginConfig parserPluginConfig)
         {
             _closed = false;
-            _s.Append($"<x-logParse type='{parserPluginConfig.Manifest.Key}' version='{parserPluginConfig.Manifest.Version}'>");
+            _s.Append($"<x-logParse type='{esc(parserPluginConfig.Manifest.Key)}' version='{esc(parserPluginConfig.Manifest.Version)}'>");
         }
 
         public void AddItem(string content, string type = "") 
@@ -27,9 +30,17 @@ namespace Wbtb.Core.Common
             if (!_lineStarted)
                 this.NewLine();
 
-            _s.Append($"<x-logParseItem type='{type}'>{content}</x-logParseItem>");
+            _s.Append($"<x-logParseItem type='{esc(type)}'>{esc(content)}</x-logParseItem>");
         }
 
+        private string esc(string s) 
+        {
+            // gee C#, all I want do is escape an xml string
+            XmlDocument doc = new XmlDocument();
+            XmlElement element = doc.CreateElement("tag");
+            element.InnerText = s;
+            return element.InnerXml;
+        }
         public void NewLine() 
         {
             if (_lineStarted) 
@@ -39,7 +50,6 @@ namespace Wbtb.Core.Common
             _s.Append("<x-logParseLine>");
 
             _lineStarted = true;
-
         }
 
         public string GetText()
