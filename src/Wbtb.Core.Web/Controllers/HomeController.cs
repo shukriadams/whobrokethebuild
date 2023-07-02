@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -242,6 +243,16 @@ namespace Wbtb.Core.Web.Controllers
                 return Responses.NotFoundError($"build {buildid} does not exist");
 
             model.DaemonTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id).OrderBy(t => t.Order);
+            model.IsComplete = !model.DaemonTasks.Any(t => t.ProcessedUtc == null);
+            model.HasErrors = model.DaemonTasks.Any(t => t.HasPassed == false);
+
+            if (model.DaemonTasks.Any()) 
+            {
+                if (model.IsComplete)
+                    model.QueueTime = model.DaemonTasks.OrderByDescending(t => t.CreatedUtc).First().ProcessedUtc.Value - model.DaemonTasks.OrderBy(t => t.CreatedUtc).First().CreatedUtc;
+                else
+                    model.QueueTime = DateTime.UtcNow - model.DaemonTasks.OrderBy(t => t.CreatedUtc).First().CreatedUtc;
+            }
 
             return View(model);
         }

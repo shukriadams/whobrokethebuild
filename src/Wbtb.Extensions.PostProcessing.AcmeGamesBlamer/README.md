@@ -12,5 +12,5 @@ Register plugin, then add to a job under the `LogParserPlugins` node.
 
     Jobs:
     -   Key: MyJob
-        PostProcessing: 
+        PostProcessors: 
         -   MyCppParser

@@ -37,7 +37,10 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             // can we parse blueprint file path out of error message
             // foreach file in buildinvolvements revisions
             // can we connect revision file path to blueprint file path
-            return new PostProcessResult { };
+            return new PostProcessResult {
+                Passed = true,
+                Result = "not implemented yet"
+            };
 
             // if log parse results are jenkins
             // mark all users as not involved
