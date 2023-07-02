@@ -31,7 +31,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             // try for cache
             string hash = Sha256.FromString(regex + fullErrorLog);
             Cache cache = di.Resolve<Cache>();
-            string resultLookup = cache.Get(hash);
+            string resultLookup = cache.Get(this, hash);
             if (resultLookup != null)
                 return resultLookup;
 
@@ -67,7 +67,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
                 resultLookup = string.Empty;
             }
 
-            cache.Write(hash, resultLookup);
+            cache.Write(this, hash, resultLookup);
             return resultLookup;
         }
     }

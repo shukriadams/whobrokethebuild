@@ -9,7 +9,7 @@ namespace Wbtb.Core.Web
     /// <summary>
     /// Sets incidentbuild on build records, this ties builds together when an incident occurs
     /// </summary>
-    public class IncidentAssignDaemon : IWebDaemon
+    public class BuildIncidentAssignDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -29,7 +29,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public IncidentAssignDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BuildIncidentAssignDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

@@ -47,15 +47,17 @@
                             <x-badge class="--danger">Failed</x-badge>
                         }
                         <text>
-                            @task.ProcessedUtc.Ago()
-                            <div class="quiet">(@task.ProcessedUtc.Value.ToHumanString())</div>
+                            @task.ProcessedUtc.Ago() ago
+                            <div class="quiet">(@task.ProcessedUtc.ToHumanString())</div>
                         </text>
+                        <div class="quiet">Queued for @((task.ProcessedUtc - task.CreatedUtc).ToHumanString(shorten: true))</div>
                     }
                     else
                     {
                         <text>
                             Pending
                         </text>
+                        <div class="quiet">Queued for @((DateTime.UtcNow - task.CreatedUtc).ToHumanString(shorten: true))</div>
                     }
                 </x-list-cell>
                 <x-list-cell>

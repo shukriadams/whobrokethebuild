@@ -1,10 +1,10 @@
-﻿# CPP log parser
+# Jenkins self failing
 
 Parses build logs for CPP errors
 
 ## Setup
 
-Register plugin, then add to a job under the `LogParserPlugins` node.
+Register plugin, then add to a job under the `LogParsers` node.
 
     Plugins:
     -   Key: MyCppParser

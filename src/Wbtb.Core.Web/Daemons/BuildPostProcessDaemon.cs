@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
-using YamlDotNet.Serialization.TypeInspectors;
 
 namespace Wbtb.Core.Web
 {
-    public class PostProcessDaemon : IWebDaemon
+    public class BuildPostProcessDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -30,7 +29,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public PostProcessDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BuildPostProcessDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

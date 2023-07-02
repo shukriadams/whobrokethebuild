@@ -11,7 +11,7 @@ namespace Wbtb.Core.Web
     /// <summary>
     /// Parses build logs to try to find error lines, as well as link these errors to revisions and users where possible.
     /// </summary>
-    public class LogParseDaemon : IWebDaemon
+    public class BuildLogParseDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -33,7 +33,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public LogParseDaemon(ILogger log, Configuration config, PluginProvider pluginProvider, BuildLogParseResultHelper buildLogParseResultHelper, IDaemonProcessRunner processRunner)
+        public BuildLogParseDaemon(ILogger log, Configuration config, PluginProvider pluginProvider, BuildLogParseResultHelper buildLogParseResultHelper, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
@@ -86,7 +86,7 @@ namespace Wbtb.Core.Web
                         task.HasPassed = true;
                         task.Result = string.Empty;
 
-                        job.LogParserPlugins.AsParallel().ForAll(delegate (string logParserPlugin)
+                        job.LogParsers.AsParallel().ForAll(delegate (string logParserPlugin)
                         {
                             try
                             {
@@ -101,16 +101,12 @@ namespace Wbtb.Core.Web
 
                                 // for now, parse only failed logs.
                                 DateTime startUtc = DateTime.UtcNow;
-                                string timestring = "log parse skipped";
-                                if (build.Status == BuildStatus.Failed)
-                                {
-                                    logParserResult.ParsedContent = parser.Parse(rawLog);
-                                    timestring = $" took {(DateTime.UtcNow - startUtc).TotalSeconds} seconds.";
-                                }
+                                logParserResult.ParsedContent = parser.Parse(rawLog);
+                                string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten:true)}";
 
                                 dataLayer.SaveBuildLogParseResult(logParserResult);
                                 _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timestring}");
-                                task.Result += $"{logParserResult.LogParserPlugin} {timestring}";
+                                task.Result += $"{logParserResult.LogParserPlugin} {timestring}. ";
                             }
                             catch (Exception ex)
                             {

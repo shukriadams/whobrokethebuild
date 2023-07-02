@@ -72,7 +72,7 @@ namespace Wbtb.Core.Web
             SimpleDI di = new SimpleDI();
             Cache cache = di.Resolve<Cache>();
             string hash = Sha256.FromString(regex + logText);
-            string cacheLookup = cache.Get(hash);
+            string cacheLookup = cache.Get(this.GetType().Name, hash);
             if (cacheLookup != null)
                 return cacheLookup;
 
@@ -86,7 +86,7 @@ namespace Wbtb.Core.Web
                 cacheLookup = match.Groups[1].Value;
             }
 
-            cache.Write(hash, cacheLookup);
+            cache.Write(this.GetType().Name, hash, cacheLookup);
             return cacheLookup;
         }
 

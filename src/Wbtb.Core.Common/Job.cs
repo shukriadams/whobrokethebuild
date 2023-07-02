@@ -64,7 +64,7 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// Optional. Keys of log parser plugins to use to process build logs for this job
         /// </summary>
-        public IEnumerable<string> LogParserPlugins { get; set; }
+        public IEnumerable<string> LogParsers { get; set; }
 
         /// <summary>
         /// optional. Keys of postProcessor plugins.
@@ -128,7 +128,7 @@ namespace Wbtb.Core.Common
         public Job()
         {
             this.Message = new List<MessageHandler>();
-            this.LogParserPlugins = new List<string>();
+            this.LogParsers = new List<string>();
             this.PostProcessors = new List<string>();
             this.OnBuildStart = new List<string>();
             this.OnBuildEnd = new List<string>();

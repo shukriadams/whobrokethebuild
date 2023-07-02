@@ -10,7 +10,7 @@ namespace Wbtb.Core.Web
     /// Imports full revision objects from source control system, creates them in DB, and links them to buildinvolvements
     /// where applicable.
     /// </summary>
-    public class RevisionResolveDaemon : IWebDaemon
+    public class BuildInvolvementRevisionResolveDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -30,7 +30,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public RevisionResolveDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BuildInvolvementRevisionResolveDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

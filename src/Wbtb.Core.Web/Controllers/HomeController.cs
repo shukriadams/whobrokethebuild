@@ -388,7 +388,7 @@ namespace Wbtb.Core.Web.Controllers
             List<ILogParserPlugin> logParsers = new List<ILogParserPlugin>();
             SimpleDI di = new SimpleDI();
             BuildLogParseResultHelper buildLogParseResultHelper = di.Resolve<BuildLogParseResultHelper>();
-            foreach (string logParserName in job.LogParserPlugins)
+            foreach (string logParserName in job.LogParsers)
                 logParsers.Add(pluginProvider.GetByKey(logParserName) as ILogParserPlugin);
 
             // delete existing log processes

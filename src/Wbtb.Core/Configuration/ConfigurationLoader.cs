@@ -455,7 +455,7 @@ namespace Wbtb.Core
                         jobConfig.Name = jobConfig.Key;
 
                     // ensure each logparsers exist as a plugins, and implement correct interface
-                    foreach (string logparserPluginKey in jobConfig.LogParserPlugins)
+                    foreach (string logparserPluginKey in jobConfig.LogParsers)
                     {
                         PluginConfig logParserPlugin = config.Plugins.FirstOrDefault(r => r.Key == logparserPluginKey);
                         if (logParserPlugin == null)

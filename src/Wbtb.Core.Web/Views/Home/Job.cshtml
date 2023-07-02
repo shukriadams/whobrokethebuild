@@ -101,11 +101,11 @@
                 }
 
                 <h5>Log parsers</h5>
-                @if (Model.Job.LogParserPlugins.Any())
+                @if (Model.Job.LogParsers.Any())
                 {
                     <text>
                         <ul>
-                            @foreach (string logParser in Model.Job.LogParserPlugins)
+                            @foreach (string logParser in Model.Job.LogParsers)
                             {
                                 <li>
                                     @logParser

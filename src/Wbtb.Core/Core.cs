@@ -62,7 +62,6 @@ namespace Wbtb.Core
 
             // ensure directories, this requires that config is loaded
             Directory.CreateDirectory(unsafeConfig.DataDirectory);
-            Directory.CreateDirectory(unsafeConfig.CacheDirectory);
             Directory.CreateDirectory(unsafeConfig.BuildLogsDirectory);
             Directory.CreateDirectory(unsafeConfig.PluginsWorkingDirectory);
             Directory.CreateDirectory(unsafeConfig.PluginDataPersistDirectory);

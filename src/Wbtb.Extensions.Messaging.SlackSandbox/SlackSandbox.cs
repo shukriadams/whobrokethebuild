@@ -144,7 +144,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             if (parseResults.Any())
             {
                 // get parse results in order log parsers are defined, exit on first that has produced result
-                foreach (string parserKey in job.LogParserPlugins)
+                foreach (string parserKey in job.LogParsers)
                 {
                     BuildLogParseResult parseResult = parseResults.Where(p => p.LogParserPlugin == parserKey).FirstOrDefault();
                     if (parseResult == null || string.IsNullOrEmpty(parseResult.ParsedContent))

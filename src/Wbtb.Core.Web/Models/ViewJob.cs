@@ -28,7 +28,7 @@ namespace Wbtb.Core.Web
                 Key = job.Key,
                 Image = job.Image,
                 ImportCount = job.ImportCount,
-                LogParserPlugins = job.LogParserPlugins,
+                LogParsers = job.LogParsers,
                 Name = job.Name,
                 SourceServer = job.SourceServer,
                 BuildServerId = job.BuildServerId,

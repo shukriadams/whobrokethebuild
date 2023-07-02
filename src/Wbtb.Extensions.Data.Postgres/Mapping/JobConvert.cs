@@ -37,7 +37,7 @@ namespace Wbtb.Extensions.Data.Postgres
                         job.HistoryLimit = config.HistoryLimit;
                         job.Image = config.Image;
                         job.ImportCount = config.ImportCount;
-                        job.LogParserPlugins = config.LogParserPlugins;
+                        job.LogParsers = config.LogParsers;
                         job.PostProcessors = config.PostProcessors;
                         job.Name = config.Name;
                         job.SourceServer = config.SourceServer;

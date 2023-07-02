@@ -24,7 +24,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             // try for cache
             string hash = Sha256.FromString(regex + raw);
             Cache cache = di.Resolve<Cache>();
-            string lookup = cache.Get(hash);
+            string lookup = cache.Get(this, hash);
             if (lookup != null)
                 return lookup;
 
@@ -46,7 +46,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                 lookup = string.Empty;
             }
 
-            cache.Write(hash, lookup);
+            cache.Write(this,hash, lookup);
             return lookup;
         }
     }

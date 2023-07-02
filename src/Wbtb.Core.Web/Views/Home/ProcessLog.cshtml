@@ -82,14 +82,16 @@ else
                             <x-badge class="--danger">Failed</x-badge>
                         }
                         <text>
-                            @task.ProcessedUtc.Ago()
+                            @task.ProcessedUtc.Ago() ago
                             <div class="quiet">(@task.ProcessedUtc.ToHumanString())</div>
+                            <div class="quiet">Queued for @((task.ProcessedUtc - task.CreatedUtc).ToHumanString(shorten: true))</div>
                         </text>
                     }
                     else
                     {
                         <text>
                             Pending
+                            <div class="quiet">Queued for @((DateTime.UtcNow - task.CreatedUtc).ToHumanString(shorten: true))</div>
                         </text>
                     }
                 </x-list-cell>

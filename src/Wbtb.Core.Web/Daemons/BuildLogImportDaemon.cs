@@ -88,14 +88,14 @@ namespace Wbtb.Core.Web.Core
                         if (string.IsNullOrEmpty(build.LogPath))
                         {
                             task.Result = "Log retrieve exited normally, but saved no log.";
-                            task.ProcessedUtc = DateTime.Now;
+                            task.ProcessedUtc = DateTime.UtcNow;
                             task.HasPassed = false;
                             dataLayer.SaveDaemonTask(task);
                             continue;
                         }
 
                         dataLayer.SaveBuild(build);
-                        task.ProcessedUtc = DateTime.Now;
+                        task.ProcessedUtc = DateTime.UtcNow;
                         task.HasPassed = true;
                         dataLayer.SaveDaemonTask(task);
 
