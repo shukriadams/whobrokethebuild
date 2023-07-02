@@ -19,19 +19,35 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             if (string.IsNullOrEmpty(raw))
                 return string.Empty;
 
-            MatchCollection matches = new Regex(@"^.*error:.*$", RegexOptions.IgnoreCase|RegexOptions.Multiline).Matches(raw);
+            SimpleDI di = new SimpleDI();
+            string regex = @"^.*error:.*$";
+            // try for cache
+            string hash = Sha256.FromString(regex + raw);
+            Cache cache = di.Resolve<Cache>();
+            string lookup = cache.Get(hash);
+            if (lookup != null)
+                return lookup;
 
-            if (!matches.Any())
-                return string.Empty;
+            MatchCollection matches = new Regex(regex, RegexOptions.IgnoreCase|RegexOptions.Multiline).Matches(raw);
 
-            BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
-            foreach (Match match in matches)
+            if (matches.Any())
             {
-                builder.AddItem(match.Value);
-                builder.NewLine();
+                BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
+                foreach (Match match in matches)
+                {
+                    builder.AddItem(match.Value);
+                    builder.NewLine();
+                }
+
+                lookup = builder.GetText();
             }
-    
-            return builder.GetText();
+            else 
+            {
+                lookup = string.Empty;
+            }
+
+            cache.Write(hash, lookup);
+            return lookup;
         }
     }
 }

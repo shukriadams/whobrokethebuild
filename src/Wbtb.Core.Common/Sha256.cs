@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Wbtb.Core
+namespace Wbtb.Core.Common
 {
     public class Sha256 
     {

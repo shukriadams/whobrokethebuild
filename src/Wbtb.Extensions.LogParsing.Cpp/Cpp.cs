@@ -27,11 +27,13 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             string fullErrorLog = raw.Replace("\\", "/");
 
             string regex = @"(.*?)(\(\d+,\d+\)): error\s?([A-Z]{1,2}[0-9]+):(.*)";
+
+            // try for cache
             string hash = Sha256.FromString(regex + fullErrorLog);
             Cache cache = di.Resolve<Cache>();
-            string resuleLookup = cache.Get(hash);
-            if (resuleLookup != null)
-                return resuleLookup;
+            string resultLookup = cache.Get(hash);
+            if (resultLookup != null)
+                return resultLookup;
 
             // try to parse out C++ compile errors from log, these errors have the form like
             // D:\some\path\file.h(41,12): error C2143: syntax error: missing ';' before '*'
@@ -58,15 +60,15 @@ namespace Wbtb.Extensions.LogParsing.Cpp
                     builder.NewLine();
                 }
 
-                resuleLookup = builder.GetText();
+                resultLookup = builder.GetText();
             }
             else 
             {
-                resuleLookup = string.Empty;
+                resultLookup = string.Empty;
             }
 
-            cache.Write(hash, resuleLookup);
-            return resuleLookup;
+            cache.Write(hash, resultLookup);
+            return resultLookup;
         }
     }
 }
