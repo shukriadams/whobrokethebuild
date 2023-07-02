@@ -1,19 +1,19 @@
 ﻿{
-  "Revision": "56333",
-  "Workspace": "Ug's workspace",
-  "Date": "2022-01-01T12:00",
-  "User": "Ug",
-  "Description": "some changes",
-  "Files": [
-    {
-      "File": "//somedepot/mystream/PS5/Source/Programs/UnrealBuildTool/PS5ToolChain.cs",
-      "Change": "add",
-      "Differences": [ ">> some line", "<< some other line" ]
-    },
-    {
-      "File": "//depot/path/text3.txt",
-      "Change": "edit",
-      "Differences": [ ">> a line", "line 2", "line 3" ]
-    }
-  ]
+    "Revision": "56333",
+    "Workspace": "ugs_workspace",
+    "Date": "2022-01-01T12:00",
+    "User": "Ug",
+    "Description": "some changes",
+    "Files": [
+        {
+            "File": "//mydepot/main/core/PSD/Source/Programs/BuildTool/PSDToolChain.cs",
+            "Change": "add",
+            "Differences": [ ">> some line", "<< some other line" ]
+        },
+        {
+            "File": "//somedepot/path/text3.txt",
+            "Change": "edit",
+            "Differences": [ ">> a line", "line 2", "line 3" ]
+        }
+    ]
 }

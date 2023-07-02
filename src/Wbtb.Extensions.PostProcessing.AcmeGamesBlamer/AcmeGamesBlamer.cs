@@ -62,10 +62,9 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     foreach (var line in parsedText.Items)
                         foreach (var item in line.Items.Where(l => l.Type == "path"))
                             foreach (Revision revision in revisions)
-                                if (revision.Files.Contains(item.Content)) 
-                                {
-                                    Console.WriteLine("matc foudn");
-                                }
+                            {
+                                Console.WriteLine("matc foudn");
+                            }
                 }
             }
 

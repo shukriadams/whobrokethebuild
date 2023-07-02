@@ -1,7 +1,5 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Xml;
-using System.Xml.Linq;
 
 namespace Wbtb.Core.Common
 {
@@ -41,6 +39,7 @@ namespace Wbtb.Core.Common
             element.InnerText = s;
             return element.InnerXml;
         }
+
         public void NewLine() 
         {
             if (_lineStarted) 

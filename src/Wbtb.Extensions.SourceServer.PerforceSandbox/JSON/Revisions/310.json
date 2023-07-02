@@ -1,6 +1,6 @@
 {
     "Revision": "310",
-    "Workspace": "myworkspace",
+    "Workspace": "ugs_workspace",
     "Date": "2022-01-01T12:10",
     "User": "Ug",
     "Description": "Things",
@@ -8,7 +8,7 @@
         {
             "File": "",
             "Change": "add",
-            "Differences": [ ">> some line", "<< some other line"]
+            "Differences": [ ">> some line", "<< some other line" ]
         }
     ]
 }

@@ -22,7 +22,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
                 Description = "description123",
                 Created = new DateTime(2001,1,1),
                 SourceServerId = sourceserver.Key,
-                Files = new string[]{ "a/file", "another/file" },
+                Files = new RevisionFile[]{ new RevisionFile { Path = "a/file" }, new RevisionFile {  Path = "another/file" } },
                 User = "myuser"
             });
 
@@ -56,15 +56,15 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
             // retrieve then update
             Revision get = this.Postgres.GetRevisionById(record.Id);
-            get.Files = new string[]{ "file1", "file2", "file3" };
+            get.Files = new RevisionFile[]{ new RevisionFile { Path = "file1" }, new RevisionFile { Path = "file2" }, new RevisionFile { Path = "file3" } };
             this.Postgres.SaveRevision(get);
 
             // retrieve again and ensure update succeeded
             get = this.Postgres.GetRevisionById(record.Id);
             Assert.Equal(3, get.Files.Count());
-            Assert.Contains("file1", get.Files);
-            Assert.Contains("file2", get.Files);
-            Assert.Contains("file3", get.Files);
+            Assert.Contains(new RevisionFile { Path = "file1" }, get.Files);
+            Assert.Contains(new RevisionFile { Path = "file2" }, get.Files);
+            Assert.Contains(new RevisionFile { Path = "file3" }, get.Files);
         }
 
         [Fact]

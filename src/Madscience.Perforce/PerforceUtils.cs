@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -20,7 +21,22 @@ namespace Madscience.Perforce
         edit,
         delete
     }
+    public class ClientView 
+    {
+        public string Remote { get; set; }
+        public string Local { get; set; }
+    }
+    public class Client 
+    {
+        public string Name { get; set; }
+        public string Root { get; set; }
+        public IEnumerable<ClientView> Views { get; set; }
 
+        public Client() 
+        {
+            this.Views = new ClientView[] { };
+        } 
+    }
 
     /// <summary>
     /// 
@@ -204,7 +220,7 @@ namespace Madscience.Perforce
         /// <returns></returns>
         private static string StandardizeLineEndings(string input)
         {
-            return input.Replace("/\r\n", "\n");
+            return Regex.Replace(input, @"\r\n", "\n");
         }
 
 
@@ -287,6 +303,90 @@ namespace Madscience.Perforce
             return string.Join("\\n", result.StdOut);
         }
 
+
+
+        public static string GetRawClient(string username, string password, string host, string trustFingerPrint, string clientname) 
+        {
+
+            
+            string ticket = GetTicket(username, password, host, trustFingerPrint);
+            string command = $"p4 -u {username} -p {host} -P {ticket} client -o {clientname}";
+
+            ShellResult result = Run(command);
+
+            if (result.ExitCode != 0 || result.StdErr.Any())
+            {
+                string stderr = string.Join("\r\n", result.StdErr);
+
+                // todo : how to detect invalid clientname ??
+
+                if (stderr.Contains("'p4 trust' command"))
+                    Console.WriteLine("Note that you can force p4 trust by adding Trust: true to your source server's Config: block");
+
+                throw new Exception($"P4 command {command} exited with code {result.ExitCode}, error : {stderr}");
+            }
+
+            return string.Join("\\n", result.StdOut);
+        }
+
+        public static Client ParseClient(string rawClient) 
+        {
+            /*
+            
+            Expected rawClient is :
+
+                Client: myclient
+                Access: 2020/04/12 10:18:31
+                Owner:  myuser
+                Host:   mypcname
+                Description:
+                        Created by myuser etc etc.
+                Root:   D:\path\to\my\workspace
+                Options:        noallwrite noclobber nocompress unlocked nomodtime normdir
+                SubmitOptions:  submitunchanged
+                LineEnd:        local
+                Stream: //mydepot/mystream
+                View:
+                        //mydepot/mystream/mydir/%%1 //myclient/%%1
+                        //mydepot/mystream/some/path/... //myclient/path/...
+                        //mydepot/mystream/some/other/path/... //myclient/path2/...
+
+
+            Note:
+                first line in View remaps the files in mydir to the root directtory of the workspace
+                
+             */
+            // convert all windows linebreaks to unix 
+            rawClient = StandardizeLineEndings(rawClient);
+            string[] commentStrip = rawClient.Split("\n");
+            rawClient = string.Join("\n", commentStrip.Where(r => !r.StartsWith("#")));
+            string name = Find(rawClient, @"Client:\s*(.*?)\n", RegexOptions.IgnoreCase);
+            string root = Find(rawClient, @"Root:\s*(.*?)\n", RegexOptions.IgnoreCase);
+            string viewItemsRaw = Find(rawClient, @"View:\n([\s\S]*.*?)", RegexOptions.Multiline);
+            string[] viewItems = viewItemsRaw.Split("\n");
+            IList <ClientView> views = new List<ClientView>();
+
+            for (int i = 0; i < viewItems.Length; i++)
+            {
+                viewItems[i] = viewItems[i].Trim();
+                if (viewItems[i].Length == 0)
+                    continue;
+
+                views.Add(new ClientView { 
+                    Remote = Find(viewItems[i], @"(.*?)\s"),
+                    Local = Find(viewItems[i], @"\s(.*?)$")
+                });
+            }
+
+            
+
+            return new Client 
+            {
+                Root = root,
+                Name = name,
+                Views = views
+            };
+        }
 
         /// <summary>
         /// 

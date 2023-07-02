@@ -139,12 +139,18 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             if (change == null)
                 return null;
 
+            IList<RevisionFile> files = new List<RevisionFile>();
+            foreach (ChangeFile file in change.Files)
+                files.Add(new RevisionFile {
+                    Path = file.File
+                });
+
             return new Revision
             {
                 Code = change.Revision.ToString(),
                 Created = change.Date,
                 Description = change.Description,
-                Files = change.Files.Select(r => r.File),
+                Files = files,
                 User = change.User
             };
         }

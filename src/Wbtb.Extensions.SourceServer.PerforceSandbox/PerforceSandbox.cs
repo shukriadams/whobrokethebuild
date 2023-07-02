@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.SourceServer.PerforceSandbox
@@ -56,12 +57,43 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
 
         Revision ISourceServerPlugin.GetRevision(Core.Common.SourceServer contextServer, string revisionCode)
         {
-            string raw = ResourceHelper.LoadFromLocalJsonOrLocalResourceAsString(this.GetType(), $"./JSON/Revisions/{revisionCode}.json", $"JSON.Revisions.{revisionCode}.json");
-            if (raw == null)
+            string rawChange = ResourceHelper.LoadFromLocalJsonOrLocalResourceAsString(this.GetType(), $"./JSON/Revisions/{revisionCode}.json", $"JSON.Revisions.{revisionCode}.json");
+            if (rawChange == null)
                 return null;
 
-            Change c = JsonConvert.DeserializeObject<Change>(raw);
-            return FromChange(c);
+            Change change = JsonConvert.DeserializeObject<Change>(rawChange);
+            Revision revision = FromChange(change);
+
+            // try to get workspace
+            string rawClient = ResourceHelper.LoadFromLocalJsonOrLocalResourceAsString(this.GetType(), $"./JSON/clients/{change.Workspace}.txt", $"JSON.Clients.{change.Workspace}.txt");
+            if (rawClient != null) 
+            {
+                Client client = PerforceUtils.ParseClient(rawClient);
+                if (client != null) 
+                {
+                    // try to map remote files to local
+                    foreach (ChangeFile changefile in change.Files) 
+                    {
+                        string localPath = string.Empty;
+                        foreach (ClientView view in client.Views) 
+                        {
+                            string remoteFragment = view.Remote.Replace("...", "");
+                            string localFragment  = view.Local.Replace("...", "");
+                            localFragment = localFragment.Replace($"//{client.Name}", client.Root);
+                            if (changefile.File.StartsWith(remoteFragment)) 
+                            {
+                                localPath = changefile.File.Replace(remoteFragment, localFragment + "/");
+                                localPath = Regex.Replace(localPath, @"\\", "/"); // force unix paths on all for sanity
+
+                                RevisionFile rfile = revision.Files.Single(f => f.Path == changefile.File);
+                                rfile.LocalPath = localPath;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return revision;
         }
 
         private static Revision FromChange(Change change)
@@ -69,12 +101,21 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
             if (change == null)
                 return null;
 
+
+            IList<RevisionFile> files = new List<RevisionFile>();
+            foreach (ChangeFile file in change.Files)
+                files.Add(new RevisionFile
+                {
+                    Path = file.File
+                });
+
+
             return new Revision
             {
                 Code = change.Revision.ToString(),
                 Created = change.Date,
                 Description = change.Description,
-                Files = change.Files.Select(r => r.File),
+                Files = files,
                 User = change.User
             };
         }

@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="JSON\Clients\morts_workspace.txt" />
+    <None Remove="JSON\Clients\ugs_workspace.txt" />
     <None Remove="JSON\Revisions\300.json" />
     <None Remove="JSON\Revisions\301.json" />
     <None Remove="JSON\Revisions\302.json" />
@@ -29,6 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="JSON\Clients\morts_workspace.txt" />
+    <EmbeddedResource Include="JSON\Clients\ugs_workspace.txt" />
     <EmbeddedResource Include="JSON\Revisions\302.json" />
     <EmbeddedResource Include="JSON\Revisions\303.json" />
     <EmbeddedResource Include="JSON\Revisions\304.json" />
