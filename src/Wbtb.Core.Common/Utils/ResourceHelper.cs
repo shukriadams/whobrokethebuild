@@ -33,29 +33,20 @@ namespace Wbtb.Core.Common
             return ReadResourceAsString(assembly, resourceName);
         }
 
-        public static string LoadFromLocalJsonOrLocalResourceAsString(Type callerType, string diskPath, string resourcePath)
+        public static string LoadFromLocalJsonOrLocalResourceAsString(Type callerType, string resourcePath)
         {
-            string rawJson = null;
-
-            if (File.Exists(diskPath))
-                rawJson = File.ReadAllText(diskPath);
-            else
+            if (!ResourceHelper.ResourceExists(callerType, resourcePath))
             {
-                if (!ResourceHelper.ResourceExists(callerType, resourcePath))
-                {
-                    Console.WriteLine($"Did not find embedded resource {resourcePath} in assembly defined by type {callerType}");
-                    return null;
-                }
-
-                rawJson = ResourceHelper.ReadResourceAsString(callerType, resourcePath);
+                Console.WriteLine($"Did not find embedded resource {resourcePath} in assembly defined by type {callerType}");
+                return null;
             }
 
-            return rawJson;
+            return ResourceHelper.ReadResourceAsString(callerType, resourcePath);
         }
 
-        public static dynamic LoadFromLocalJsonOrLocalResource(Type callerType, string diskPath, string resourcePath) 
+        public static dynamic LoadFromLocalJsonOrLocalResource(Type callerType, string resourcePath) 
         {
-            string rawJson = LoadFromLocalJsonOrLocalResourceAsString(callerType, diskPath, resourcePath);
+            string rawJson = LoadFromLocalJsonOrLocalResourceAsString(callerType, resourcePath);
             if (rawJson == null)
                 return null;
 

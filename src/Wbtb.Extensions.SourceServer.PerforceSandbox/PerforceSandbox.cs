@@ -52,12 +52,13 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
 
                 currentRevision++;
             }
+
             return revisions;
         }
 
         Revision ISourceServerPlugin.GetRevision(Core.Common.SourceServer contextServer, string revisionCode)
         {
-            string rawChange = ResourceHelper.LoadFromLocalJsonOrLocalResourceAsString(this.GetType(), $"./JSON/Revisions/{revisionCode}.json", $"JSON.Revisions.{revisionCode}.json");
+            string rawChange = ResourceHelper.LoadFromLocalJsonOrLocalResourceAsString(this.GetType(), $"JSON.Revisions.{revisionCode}.json");
             if (rawChange == null)
                 return null;
 
@@ -65,13 +66,14 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
             Revision revision = FromChange(change);
 
             // try to get workspace
-            string rawClient = ResourceHelper.LoadFromLocalJsonOrLocalResourceAsString(this.GetType(), $"./JSON/clients/{change.Workspace}.txt", $"JSON.Clients.{change.Workspace}.txt");
+            string rawClient = ResourceHelper.LoadFromLocalJsonOrLocalResourceAsString(this.GetType(), $"JSON.Clients.{change.Workspace}.txt");
             if (rawClient != null) 
             {
                 Client client = PerforceUtils.ParseClient(rawClient);
                 if (client != null) 
                 {
-                    // try to map remote files to local
+                    // try to calculate localpPath of file based on stream mapping. NOTE! This assumes that workspace setup in which the revision 
+                    // was created is the same as the workspace setup in which the code was built.
                     foreach (ChangeFile changefile in change.Files) 
                     {
                         string localPath = string.Empty;
@@ -82,8 +84,8 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
                             localFragment = localFragment.Replace($"//{client.Name}", client.Root);
                             if (changefile.File.StartsWith(remoteFragment)) 
                             {
-                                localPath = changefile.File.Replace(remoteFragment, localFragment + "/");
-                                localPath = Regex.Replace(localPath, @"\\", "/"); // force unix paths on all for sanity
+                                localPath = changefile.File.Replace(remoteFragment, string.Empty); // clip off everything above workspace root, we don't care about that.
+                                localPath = Regex.Replace(localPath, @"\\", "/"); // force local path to unix format so we have to worry about one path format 
 
                                 RevisionFile rfile = revision.Files.Single(f => f.Path == changefile.File);
                                 rfile.LocalPath = localPath;
@@ -101,14 +103,12 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
             if (change == null)
                 return null;
 
-
             IList<RevisionFile> files = new List<RevisionFile>();
             foreach (ChangeFile file in change.Files)
                 files.Add(new RevisionFile
                 {
                     Path = file.File
                 });
-
 
             return new Revision
             {

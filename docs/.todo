@@ -1,1 +1,3 @@
-- show config-out-of-sync warning on UI
+- show when jobs are blocked by errors
+- expose errors via influx-compatible api
+- p4 blame 

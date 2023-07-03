@@ -356,8 +356,10 @@ namespace Madscience.Perforce
                 first line in View remaps the files in mydir to the root directtory of the workspace
                 
              */
+            
             // convert all windows linebreaks to unix 
             rawClient = StandardizeLineEndings(rawClient);
+
             string[] commentStrip = rawClient.Split("\n");
             rawClient = string.Join("\n", commentStrip.Where(r => !r.StartsWith("#")));
             string name = Find(rawClient, @"Client:\s*(.*?)\n", RegexOptions.IgnoreCase);
@@ -369,16 +371,16 @@ namespace Madscience.Perforce
             for (int i = 0; i < viewItems.Length; i++)
             {
                 viewItems[i] = viewItems[i].Trim();
+                // there will be empty string after trim, ignore these
                 if (viewItems[i].Length == 0)
                     continue;
 
                 views.Add(new ClientView { 
+                    // everything before the space is the remote part of the view, everything after the local remap
                     Remote = Find(viewItems[i], @"(.*?)\s"),
                     Local = Find(viewItems[i], @"\s(.*?)$")
                 });
             }
-
-            
 
             return new Client 
             {
