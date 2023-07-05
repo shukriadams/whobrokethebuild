@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
 
@@ -73,7 +74,7 @@ namespace Wbtb.Core.Web.Core
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                         ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        activeItems.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
                         if (!reach.Reachable)
                         {
@@ -81,7 +82,7 @@ namespace Wbtb.Core.Web.Core
                             continue;
                         }
 
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
                             continue;
 
                         build = buildServerPlugin.ImportLog(build);

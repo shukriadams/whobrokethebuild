@@ -10,7 +10,7 @@ namespace Wbtb.Core.Web
     /// <summary>
     /// Runs import build and import log on build systems.
     /// </summary>
-    public class BuildStatusAlertDaemon : IWebDaemon
+    public class BuildDeltaAlertDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -32,7 +32,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildStatusAlertDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BuildDeltaAlertDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
@@ -66,21 +66,16 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.DeltaChangeAlert.ToString());
             DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
 
             try
             {
-                foreach (DaemonTask task in tasks)
+                foreach (Job job in dataLayer.GetJobs())
                 {
                     try
                     {
-                        Build build = dataLayer.GetBuildById(task.BuildId);
-                        Job job = dataLayer.GetJobById(build.JobId);
-
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
-                        if (dataLayer.DaemonTasksBlockedForJob(build.JobId, TaskGroup))
+                        // scan on implausably high taskgroup we're more-or-less guaranteed to to see other tasks for job
+                        if (dataLayer.DaemonTasksBlockedForJob(job.Id, 99999).Any())
                             continue;
 
                         // handle current state of game
@@ -94,13 +89,7 @@ namespace Wbtb.Core.Web
                         string deltaAlertKey = $"deltaAlert_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
                         StoreItem deltaAlerted = dataLayer.GetStoreItemByKey(deltaAlertKey);
                         if (deltaAlerted != null)
-                        {
-                            task.Result = $"Delta key {deltaAlertKey} has already been sent";
-                            task.HasPassed = true;
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            dataLayer.SaveDaemonTask(task);
                             continue;
-                        }
 
                         if (deltaBuild.Status == BuildStatus.Failed)
                         {
@@ -141,17 +130,10 @@ namespace Wbtb.Core.Web
                             Key = deltaAlertKey,
                             Plugin = this.GetType().Name
                         });
-
-                        task.HasPassed = true;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        dataLayer.SaveDaemonTask(task);
                     }
                     catch (Exception ex)
                     {
-                        task.HasPassed = false;
-                        task.Result = ex.ToString();
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        dataLayer.SaveDaemonTask(task);
+                        _log.LogError($"Unexpected error on job {job.Name}.", ex);
                     }
                 }
             }

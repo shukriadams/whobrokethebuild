@@ -134,24 +134,18 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         string IBuildServerPlugin.GetEphemeralBuildLog(Build build)
         {
-            try
-            {
-                IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-                Job job = dataLayer.GetJobById(build.JobId);
-                Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
-                KeyValuePair<string, object> remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
+            // do not try/catch this, caller should handle errors directly
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(build.JobId);
+            Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
+            KeyValuePair<string, object> remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
 
-                WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
+            WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
 
-                string hostUrl = GetHostUrl(buildServer);
-                string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), build.Identifier, "consoleText");
-                string log = webClient.DownloadString(url);
-                return log;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed to download log for build {build.Id}, external id {build.Identifier}", ex);
-            }
+            string hostUrl = GetHostUrl(buildServer);
+            string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), build.Identifier, "consoleText");
+            string log = webClient.DownloadString(url);
+            return log;
         }
 
         private string GetAndStoreBuildLog(Build build)
@@ -171,7 +165,29 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 File.WriteAllText(persistPath, log);
                 return log;
             }
-            catch(Exception ex)
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                {
+                    HttpWebResponse resp = (HttpWebResponse)ex.Response;
+                    if (resp.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        string placeholdertext = "Log no longer available on Jenkins.";
+                        File.WriteAllText(persistPath, placeholdertext);
+                        Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                        return placeholdertext;
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
+                }
+                else
+                {
+                    throw ex;
+                }
+            }
+            catch (Exception ex)
             { 
                 throw new Exception($"Failed to download log for build {build.Id}, external id {build.Identifier}", ex);
             }
@@ -475,9 +491,12 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         Build IBuildServerPlugin.ImportLog(Build build)
         {
+            if (!string.IsNullOrEmpty(build.LogPath))
+                return build;
+
             string logPath = string.Empty;
 
-            try 
+            try
             {
                 string logContent = GetAndStoreBuildLog(build);
                 string logDirectory = Path.Combine(_config.BuildLogsDirectory, GetRandom(), GetRandom());
@@ -487,27 +506,6 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 File.WriteAllText(logPath, logContent);
 
                 build.LogPath = logPath;
-            }
-            catch (WebException ex)
-            {
-                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
-                {
-                    HttpWebResponse resp = (HttpWebResponse)ex.Response;
-                    if (resp.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        build.LogPath = logPath;
-                        File.WriteAllText(logPath, "Log no longer available on Jenkins.");
-                        Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
-                    }
-                    else
-                    {
-                        throw ex;
-                    }
-                }
-                else
-                {
-                    throw ex;
-                }
             }
             catch (Exception ex)
             { 

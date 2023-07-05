@@ -110,7 +110,7 @@ namespace Wbtb.Core.Web
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                         ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
                     
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        activeItems.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
                         if (!reach.Reachable)
                         {
@@ -118,7 +118,7 @@ namespace Wbtb.Core.Web
                             continue;
                         }
 
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
                             continue;
 
                         reach = sourceServerPlugin.AttemptReach(sourceServer);

@@ -415,14 +415,14 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new DaemonTask[] { };
         }
 
-        bool IDataPlugin.DaemonTasksBlocked(string buildId, int order)
+        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlocked(string buildId, int order)
         {
-            return false;
+            return new DaemonTask[] { };
         }
 
-        bool IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order)
+        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order)
         {
-            return false;
+            return new DaemonTask[] { };
         }
 
         PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string soryBy = "", string filterBy = "", string jobid = "") 

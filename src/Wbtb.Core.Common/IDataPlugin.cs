@@ -207,9 +207,9 @@ namespace Wbtb.Core.Common
         /// <param name="buildId"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        bool DaemonTasksBlocked(string buildId, int order);
+        IEnumerable<DaemonTask> DaemonTasksBlocked(string buildId, int order);
 
-        bool DaemonTasksBlockedForJob(string jobid, int order);
+        IEnumerable<DaemonTask> DaemonTasksBlockedForJob(string jobid, int order);
 
         PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobid= "");
 

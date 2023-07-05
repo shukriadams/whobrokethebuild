@@ -689,9 +689,9 @@ namespace Wbtb.Core.Common
             });
         }
 
-        bool IDataPlugin.DaemonTasksBlocked(string buildId, int order)
+        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlocked(string buildId, int order)
         {
-            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
             {
                 FunctionName = nameof(IDataPlugin.DaemonTasksBlocked),
                 Arguments = new PluginFunctionParameter[] {
@@ -702,9 +702,9 @@ namespace Wbtb.Core.Common
         }
 
 
-        bool IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order)
+        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order)
         {
-            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
             {
                 FunctionName = nameof(IDataPlugin.DaemonTasksBlockedForJob),
                 Arguments = new PluginFunctionParameter[] {

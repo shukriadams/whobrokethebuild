@@ -6,47 +6,64 @@ namespace Wbtb.Core.Web
     public class DaemonActiveProcessItem 
     {
         public DateTime CreatedUtc { get; set; }
+        
         public string Description { get; set; }
+
+        public string Daemon { get; set; }
+    }
+
+    public class DaemonBlockedProcessItem
+    {
+        public DateTime CreatedUtc { get; set; }
+
+        public string BlockedBuildId { get; set; }
+
+        public string BlockingBuildId { get; set; }
+
+        public int TaskGroup { get; set; }
 
         public string Daemon { get; set; }
     }
 
     public class DaemonActiveProcesses
     {
-        IDictionary<string, DaemonActiveProcessItem> _processes = new Dictionary<string, DaemonActiveProcessItem>();
+        /// <summary>
+        /// key string is daemonName. This shows whatever process a given daemon is currently processing
+        /// </summary>
+        IDictionary<string, DaemonActiveProcessItem> _activePrrocesses = new Dictionary<string, DaemonActiveProcessItem>();
 
-        public void Add(IWebDaemon daemon, string description) 
+        public void AddActive(IWebDaemon daemon, string description) 
         {
-            lock (_processes)
+            lock (_activePrrocesses)
             {
-                string name = daemon.GetType().Name;
+                string daemonName = daemon.GetType().Name;
 
-                if (_processes.ContainsKey(name))
-                    _processes.Remove(name);
+                if (_activePrrocesses.ContainsKey(daemonName))
+                    _activePrrocesses.Remove(daemonName);
 
 
-                _processes.Add(name, new DaemonActiveProcessItem
+                _activePrrocesses.Add(daemonName, new DaemonActiveProcessItem
                 {
                     Description= description,
                     CreatedUtc = DateTime.UtcNow,
-                    Daemon = name
+                    Daemon = daemonName
                 });
             }
         }
 
         public void Clear(IWebDaemon daemon) 
         {
-            lock (_processes)
+            lock (_activePrrocesses)
             {
                 string name = daemon.GetType().Name;
-                if (_processes.ContainsKey(name))
-                    _processes.Remove(name);
+                if (_activePrrocesses.ContainsKey(name))
+                    _activePrrocesses.Remove(name);
             }
         }
 
         public IEnumerable<DaemonActiveProcessItem> GetCurrent() 
         { 
-            return _processes.Values;
+            return _activePrrocesses.Values;
         }
     }
 }

@@ -95,6 +95,7 @@ else
             <x-list-row>
                 <x-list-cell>
                     @task.CreatedUtc.Ago() ago <div class="quiet">(@task.CreatedUtc.ToHumanString())</div>
+                    <span class="quiet">Id:@task.Id</span>
                 </x-list-cell>
                 <x-list-cell>
                     @if (task.ProcessedUtc.HasValue)

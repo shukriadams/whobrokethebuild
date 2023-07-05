@@ -74,7 +74,7 @@ namespace Wbtb.Core.Web
                         BuildServer buildserver = dataLayer.GetBuildServerById(job.BuildServerId);
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
 
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        activeItems.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
                         build = buildServerPlugin.TryUpdateBuild(build);
 
@@ -105,14 +105,6 @@ namespace Wbtb.Core.Web
                                 Src = this.GetType().Name,
                                 BuildId = build.Id
                             });
-
-                        dataLayer.SaveDaemonTask(new DaemonTask
-                        {
-                            BuildId = build.Id,
-                            Src = this.GetType().Name,
-                            Order = 5,
-                            TaskKey = DaemonTaskTypes.DeltaChangeAlert.ToString()
-                        });
 
                         if (build.Status == BuildStatus.Failed)
                         {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
 
@@ -64,7 +65,7 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.IncidentAssign.ToString());
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+            DaemonActiveProcesses activeProcesses = _di.Resolve<DaemonActiveProcesses>();
 
             try
             {
@@ -73,11 +74,11 @@ namespace Wbtb.Core.Web
                     try 
                     {
                         Build build = dataLayer.GetBuildById(task.BuildId);
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
                             continue;
 
+                        activeProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
                         Build previousBuild = dataLayer.GetPreviousBuild(build);
                         if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
                         {
@@ -136,7 +137,7 @@ namespace Wbtb.Core.Web
             }
             finally
             {
-                activeItems.Clear(this);
+                activeProcesses.Clear(this);
             }
         }
 

@@ -30,7 +30,7 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, BuildRevisionFromLogDaemon>(null, true);
                     di.Register<IWebDaemon, BuildRevisionAddDaemon>(null, true);
                     di.Register<IWebDaemon, BuildLogImportDaemon>(null, true);
-                    di.Register<IWebDaemon, BuildStatusAlertDaemon>(null, true);
+                    di.Register<IWebDaemon, BuildDeltaAlertDaemon>(null, true);
                     di.Register<IWebDaemon, BuildIncidentAssignDaemon>(null, true);
                     di.Register<IWebDaemon, BuildLogParseDaemon>(null, true);
                     di.Register<IWebDaemon, BuildInvolvementUserLinkDaemon>(null, true);

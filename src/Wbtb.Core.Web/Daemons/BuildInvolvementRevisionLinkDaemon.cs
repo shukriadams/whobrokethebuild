@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
 
@@ -73,9 +74,9 @@ namespace Wbtb.Core.Web
                     try 
                     {
                         Build build = dataLayer.GetBuildById(task.BuildId);
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        activeItems.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup))
+                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
                             continue;
 
                         Job job = dataLayer.GetJobById(build.JobId);

@@ -222,20 +222,18 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             int deleted = 0;
 
-            deleted += ClearTable(contextPluginConfig, "buildflag");
-            deleted += ClearTable(contextPluginConfig, "buildprocessor");
-            deleted += ClearTable(contextPluginConfig, "buildlogparseresult");
-            deleted += ClearTable(contextPluginConfig, "buildinvolvement");
-            deleted += ClearTable(contextPluginConfig, "revision");
-            deleted += ClearTable(contextPluginConfig, "version");
             deleted += ClearTable(contextPluginConfig, "build");
+            deleted += ClearTable(contextPluginConfig, "buildinvolvement");
+            deleted += ClearTable(contextPluginConfig, "buildlogparseresult");
+            deleted += ClearTable(contextPluginConfig, "buildserver");
+            deleted += ClearTable(contextPluginConfig, "revision");
             deleted += ClearTable(contextPluginConfig, "job");
             deleted += ClearTable(contextPluginConfig, "session");
-            deleted += ClearTable(contextPluginConfig, "buildserver");
             deleted += ClearTable(contextPluginConfig, "sourceserver");
             deleted += ClearTable(contextPluginConfig, "usr");
             deleted += ClearTable(contextPluginConfig, "configurationstate");
             deleted += ClearTable(contextPluginConfig, "store");
+            deleted += ClearTable(contextPluginConfig, "version");
 
             return deleted;
         }

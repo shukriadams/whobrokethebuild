@@ -1593,11 +1593,11 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        bool IDataPlugin.DaemonTasksBlocked(string buildId, int order)
+        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlocked(string buildId, int order)
         {
             string sql = @"
                 SELECT
-                    COUNT(id)
+                    *
                 FROM
                     daemontask
                 WHERE
@@ -1606,7 +1606,10 @@ namespace Wbtb.Extensions.Data.Postgres
                         processedUtc is NULL
                         OR passed = False
                     )
-                    AND ordr < @order";
+                    AND ordr < @order
+                LIMIT 100";
+
+            // note the hard limit, this call scales badly, and generally we don't care about the specifics of blocks once we have too many, as that's a symptom of bigger problems
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
@@ -1615,18 +1618,15 @@ namespace Wbtb.Extensions.Data.Postgres
                 cmd.Parameters.AddWithValue("order", order);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader()) 
-                {
-                    reader.Read();
-                    return reader.GetInt32(0) > 0;
-                }
+                    return new DaemonTaskConvert().ToCommonList(reader);
             }
         }
 
-        bool IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order) 
+        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order) 
         {
             string sql = @"
                 SELECT
-                    COUNT(DT.id)
+                    DT.*
                 FROM
                     daemontask DT
                     JOIN build B on B.id = DT.buildid
@@ -1636,7 +1636,10 @@ namespace Wbtb.Extensions.Data.Postgres
                         DT.processedUtc is NULL
                         OR DT.passed = False
                     )
-                    AND DT.ordr < @order";
+                    AND DT.ordr < @order
+                LIMIT 100";
+
+            // note the hard limit, this call scales badly, and generally we don't care about the specifics of blocks once we have too many, as that's a symptom of bigger problems
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
@@ -1645,10 +1648,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 cmd.Parameters.AddWithValue("order", order);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                {
-                    reader.Read();
-                    return reader.GetInt32(0) > 0;
-                }
+                    return new DaemonTaskConvert().ToCommonList(reader);
             }
         }
 
