@@ -88,13 +88,7 @@ namespace Wbtb.Core.Web
 
                         // if delta not yet calculated, ignore alerts for this job
                         if (deltaBuild == null)
-                        {
-                            task.Result = $"Delta not found job {job.Name}";
-                            task.HasPassed = false;
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            dataLayer.SaveDaemonTask(task);
                             continue;
-                        }
 
                         // check if delta has already been alerted on
                         string deltaAlertKey = $"deltaAlert_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";

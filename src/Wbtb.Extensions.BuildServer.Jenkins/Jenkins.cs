@@ -488,7 +488,28 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
                 build.LogPath = logPath;
             }
-            catch(Exception ex)
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                {
+                    HttpWebResponse resp = (HttpWebResponse)ex.Response;
+                    if (resp.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        build.LogPath = logPath;
+                        File.WriteAllText(logPath, "Log no longer available on Jenkins.");
+                        Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
+                }
+                else
+                {
+                    throw ex;
+                }
+            }
+            catch (Exception ex)
             { 
                 try 
                 {

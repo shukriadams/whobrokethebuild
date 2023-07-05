@@ -714,7 +714,7 @@ namespace Wbtb.Core.Common
             });
         }
 
-        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "")
+        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobid = "")
         {
             return _pluginSender.InvokeMethod<PageableData<DaemonTask>>(this, new PluginArgs
             {
@@ -723,7 +723,8 @@ namespace Wbtb.Core.Common
                     new PluginFunctionParameter { Name = "index", Value = index },
                     new PluginFunctionParameter { Name = "pageSize", Value = pageSize },
                     new PluginFunctionParameter { Name = "orderBy", Value = orderBy },
-                    new PluginFunctionParameter { Name = "filterBy", Value = filterBy }
+                    new PluginFunctionParameter { Name = "filterBy", Value = filterBy },
+                    new PluginFunctionParameter { Name = "jobid", Value = jobid }
                 }
             });
         }

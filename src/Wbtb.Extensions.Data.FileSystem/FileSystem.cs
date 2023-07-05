@@ -425,7 +425,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return false;
         }
 
-        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string soryBy = "", string filterBy = "") 
+        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string soryBy = "", string filterBy = "", string jobid = "") 
         {
             return new PageableData<DaemonTask>(new DaemonTask[] { }, 0, 0, 0);
         }

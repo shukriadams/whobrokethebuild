@@ -517,19 +517,6 @@ namespace Wbtb.Extensions.Data.Postgres
                     affected += cmd.ExecuteNonQuery();
                 }
 
-                // 
-                string deltaClear = @"
-                DELETE FROM 
-                    jobdelta
-                WHERE
-                    jobid = @jobid";
-
-                using (NpgsqlCommand cmd = new NpgsqlCommand(deltaClear, connection))
-                {
-                    cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                    affected += cmd.ExecuteNonQuery();
-                }
-
                 if (hard)
                 {
                     // delete all builds
@@ -1665,7 +1652,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "") 
+        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobid = "") 
         {
             /*
                 filterBy options : 
@@ -1676,20 +1663,39 @@ namespace Wbtb.Extensions.Data.Postgres
              */
 
             string where = string.Empty;
+            bool compountWhere = false;
             if (filterBy == "unprocessed")
-                where = " WHERE processedutc IS NULL ";
+            {
+                where = " WHERE DT.processedutc IS NULL ";
+                compountWhere = true;
+            }
 
             if (filterBy == "failed")
-                where = " WHERE passed = false ";
+            {
+                where = " WHERE DT.passed = false ";
+                compountWhere = true;
+            }
 
             if (filterBy == "passed")
-                where = " WHERE passed = true";
+            {
+                where = " WHERE DT.passed = true";
+                compountWhere = true;
+            }
 
-            string sort = "createdutc DESC";
+            string sort = "DT.createdutc DESC";
             if (orderBy == "latestDone") 
             {
-                sort = "processedUtc DESC";
-                where = "WHERE NOT processedUtc IS NULL";
+                sort = "DT.processedUtc DESC";
+                where = "WHERE NOT DT.processedUtc IS NULL";
+                compountWhere = true;
+            }
+
+            if (!string.IsNullOrEmpty(jobid)) 
+            {
+                if (compountWhere) 
+                    where = $" {where} AND B.jobid={jobid} ";
+                else
+                    where = $" WHERE B.jobid={jobid} ";
             }
 
             if (orderBy == "oldest")
@@ -1697,10 +1703,11 @@ namespace Wbtb.Extensions.Data.Postgres
 
             string pageQuery = @"
                 SELECT
-                    *
+                    DT.*
                 FROM
-                    daemontask
-                    "+where+@"
+                    daemontask DT
+                    LEFT JOIN build B on B.id = DT.buildid
+                    " + where+@"
                 ORDER BY
                     "+sort+@"
                 LIMIT 
@@ -1710,10 +1717,11 @@ namespace Wbtb.Extensions.Data.Postgres
 
             string countQuery = @"
                 SELECT 
-                    COUNT(id)
+                    COUNT(DT.id)
                 FROM 
-                    daemontask
-                "+where;
+                    daemontask DT
+                    LEFT JOIN build B on B.id = DT.buildid
+                " + where;
 
             long virtualItemCount = 0;
             IEnumerable<DaemonTask> builds = null;

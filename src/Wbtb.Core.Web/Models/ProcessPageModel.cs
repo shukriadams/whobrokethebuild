@@ -19,6 +19,10 @@ namespace Wbtb.Core.Web
 
         public string OrderBy { get; set; }
 
+        public string JobId { get; set; }
+
+        public IEnumerable<Job> Jobs { get; set; }
+
         #endregion
 
         #region CTORS
@@ -30,6 +34,7 @@ namespace Wbtb.Core.Web
             this.QueryStrings = string.Empty;
             this.FilterBy = string.Empty;
             this.OrderBy = string.Empty;
+            this.Jobs = new Job[] { };
         }
 
         #endregion

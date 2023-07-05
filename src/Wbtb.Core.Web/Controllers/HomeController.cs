@@ -231,6 +231,7 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+
         [ServiceFilter(typeof(ViewStatus))]
         [Route("/BuildProcessLog/{buildid}")]
         public IActionResult BuildProcessLog(string buildid)
@@ -257,6 +258,7 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+
         [ServiceFilter(typeof(ViewStatus))]
         [Route("/build/log/{buildid}")]
         public IActionResult BuildLog(string buildid)
@@ -281,7 +283,7 @@ namespace Wbtb.Core.Web.Controllers
 
         [ServiceFilter(typeof(ViewStatus))]
         [Route("/processlog/{page?}")]
-        public IActionResult ProcessLog(string hostname, int page, string orderBy, string filterby)
+        public IActionResult ProcessLog(string hostname, int page, string orderBy, string filterby, string jobid)
         {
             Configuration config = _di.Resolve<Configuration>();
             hostname = HttpUtility.UrlDecode(hostname);
@@ -291,12 +293,14 @@ namespace Wbtb.Core.Web.Controllers
             ProcessPageModel model = new ProcessPageModel();
 
             model.ActiveProcesses = activeItems.GetCurrent();
-            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, orderBy, filterby));
+            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, orderBy, filterby, jobid));
             model.DaemonTasks.Items.ToList().ForEach(daemonTask => daemonTask.Build = ViewBuild.Copy(dataLayer.GetBuildById(daemonTask.BuildId)));
             model.BaseUrl = $"/processlog";
-            model.QueryStrings = $"filterby={filterby}&orderBy={orderBy}";
+            model.QueryStrings = $"filterby={filterby}&orderBy={orderBy}&jobid={jobid}";
             model.FilterBy = filterby;
             model.OrderBy = orderBy;
+            model.JobId = jobid;
+            model.Jobs = dataLayer.GetJobs().OrderBy(j => j.Name );
 
             return View(model);
         }

@@ -36,10 +36,32 @@ else
 
 
 <div>
-    Filter by : <a href="@Model.BaseUrl?filterby=unprocessed&orderby=@Model.OrderBy">Unprocessed</a>  | <a href="@Model.BaseUrl?filterby=passed&orderby=@Model.OrderBy">Passed</a> | <a href="@Model.BaseUrl?filterby=failed">Failed</a> | <a href="@Model.BaseUrl?filterby=&orderby=@Model.OrderBy">None (show all)</a>
+    Filter by : <a href="@Model.BaseUrl?filterby=unprocessed&jobid=@Model.JobId&orderby=@Model.OrderBy">Unprocessed</a>  | <a href="@Model.BaseUrl?filterby=passed&jobid=@Model.JobId&orderby=@Model.OrderBy">Passed</a> | <a href="@Model.BaseUrl?filterby=failed&jobid=@Model.JobId">Failed</a> | <a href="@Model.BaseUrl?filterby=&jobid=@Model.JobId&orderby=@Model.OrderBy">None (show all)</a>
 </div>
 <div>
-    Order by : <a href="@Model.BaseUrl?filterby=@Model.FilterBy&orderby=oldest">Oldest</a> | <a href="@Model.BaseUrl?filterby=@Model.FilterBy&orderby=latestDone">Latest done</a> | <a href="@Model.BaseUrl?filterby=@Model.FilterBy&orderby=">Latest queued</a>
+    Order by : <a href="@Model.BaseUrl?filterby=@Model.FilterBy&jobid=@Model.JobId&orderby=oldest">Oldest</a> | <a href="@Model.BaseUrl?filterby=@Model.FilterBy&jobid=@Model.JobId&orderby=latestDone">Latest done</a> | <a href="@Model.BaseUrl?filterby=@Model.FilterBy&jobid=@Model.JobId&orderby=">Latest queued</a>
+</div>
+<div>
+    Show for job
+    <select class="processLog_jobsFilter">
+        <option value="">All jobs</option>
+        @foreach(Job job in Model.Jobs)
+        {
+            <option value="@job.Id" @(job.Id == Model.JobId ? "selected":"")>@job.Name</option>    
+        }
+    </select>
+    <script>
+        (()=>{
+            const jobsMenu = document.querySelector('.processLog_jobsFilter')
+            jobsMenu.addEventListener('change', function () {
+                
+                const url = new URL(window.location.href)
+                url.searchParams.set('jobid', jobsMenu.value)
+                window.location = url
+
+            }, false);
+        })()
+    </script>
 </div>
 
 
