@@ -52,7 +52,7 @@ namespace Wbtb.Core.Common
         /// </summary>
         /// <param name="build"></param>
         /// <returns></returns>
-        IEnumerable<string> GetRevisionsInBuild(Build build);
+        BuildRevisionsRetrieveResult GetRevisionsInBuild(Build build);
 
         /// <summary>
         /// Imports logs for builds within a job. Logs are retrieved from the build system and permanently stored on the local filesystem.
@@ -60,7 +60,7 @@ namespace Wbtb.Core.Common
         /// </summary>
         /// <param name="job"></param>
         /// <returns></returns>
-        Build ImportLog(Build build);
+        BuildLogRetrieveResult ImportLog(Build build);
 
         string GetEphemeralBuildLog(Build build);
     }

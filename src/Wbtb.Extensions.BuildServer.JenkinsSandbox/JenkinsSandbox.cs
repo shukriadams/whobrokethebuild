@@ -125,23 +125,23 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             return dt.AddMilliseconds(Double.Parse(unixTimeStamp));
         }
 
-        IEnumerable<string> IBuildServerPlugin.GetRevisionsInBuild(Build build)
+        BuildRevisionsRetrieveResult IBuildServerPlugin.GetRevisionsInBuild(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
             string filePath = $"./JSON/builds/{job.Key}/build_{build.Identifier}_revisions.json";
             string rawJson = null;
             string persistPath = _persistPathHelper.GetPath(ContextPluginConfig, job.Key, build.Identifier, "revisions.json");
-            
-            if (File.Exists(persistPath)) 
+
+            if (File.Exists(persistPath))
             {
                 rawJson = File.ReadAllText(persistPath);
             }
-            else 
+            else
             {
                 string path = $"JSON.builds.{job.Key}.build_{build.Identifier}_revisions.json";
-                if (ResourceHelper.ResourceExists(this.GetType(), path)) 
-                { 
+                if (ResourceHelper.ResourceExists(this.GetType(), path))
+                {
                     rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), path);
                     Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
                     File.WriteAllText(persistPath, rawJson);
@@ -151,11 +151,11 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             }
             
             if (rawJson == null)
-                return new string[] { };
+                return new BuildRevisionsRetrieveResult { Result = "revisions not available in sandbox" };
 
             dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);
             IEnumerable<RawRevision> rawRevisions = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<RawRevision>>(response.changeSet.items.ToString());
-            return rawRevisions.Select(r => r.commitId);
+            return new BuildRevisionsRetrieveResult { Revisions = rawRevisions.Select(r => r.commitId) , Success = true };
         }
 
         IEnumerable<Build> IBuildServerPlugin.GetLatesBuilds(Job job, int take)
@@ -286,12 +286,12 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         }
 
-        Build IBuildServerPlugin.ImportLog(Build build)
+        BuildLogRetrieveResult IBuildServerPlugin.ImportLog(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
             if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{job.Key}.logs.{build.Identifier}.txt"))
-                return build;
+                return new BuildLogRetrieveResult { Result = "Build log does not exist" };
 
             string logContent = GetBuildLog(build);
             string logDirectory = Path.Combine(_config.BuildLogsDirectory, GetRandom(), GetRandom());
@@ -300,9 +300,8 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             string logPath = Path.Combine(logDirectory, $"{Guid.NewGuid()}.txt");
             File.WriteAllText(logPath, logContent);
 
-            build.LogPath = logPath;
 
-            return build;
+            return new BuildLogRetrieveResult { Success = true, BuildLogPath = logPath};
         }
 
         Build IBuildServerPlugin.TryUpdateBuild(Build build)

@@ -89,20 +89,14 @@ namespace Wbtb.Core.Web
                             continue;
                         }
 
-                        // no need check if blocked
-
-                        IEnumerable<string> revisionCodes = buildServerPlugin.GetRevisionsInBuild(build);
-                        foreach (string revisionCode in revisionCodes)
+                        BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
+                        foreach (string revisionCode in result.Revisions)
                         {
                             string biID = dataLayer.SaveBuildInvolement(new BuildInvolvement
                             {
                                 BuildId = build.Id,
                                 RevisionCode = revisionCode
                             }).Id;
-
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.HasPassed = true;
-                            dataLayer.SaveDaemonTask(task);
 
                             dataLayer.SaveDaemonTask(new DaemonTask
                             {
@@ -121,8 +115,13 @@ namespace Wbtb.Core.Web
                                 Src = this.GetType().Name,
                                 Order = 3,
                             });
-
                         }
+
+                        task.HasPassed = result.Success;
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.Result = result.Result;
+                        dataLayer.SaveDaemonTask(task);
+
                     }
                     catch (Exception ex)
                     {

@@ -246,7 +246,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         /// <param name="job"></param>
         /// <param name="build"></param>
         /// <returns></returns>
-        IEnumerable<string> IBuildServerPlugin.GetRevisionsInBuild(Build build)
+        BuildRevisionsRetrieveResult IBuildServerPlugin.GetRevisionsInBuild(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
@@ -265,6 +265,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 string hostUrl = GetHostUrl(buildServer);
                 var remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
                 string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), build.Identifier, "api/json?pretty=true&tree=changeSet[items[commitId]]");
+                
                 try 
                 {
                     rawJson = webClient.DownloadString(url);
@@ -276,11 +277,8 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                         HttpWebResponse resp = (HttpWebResponse)ex.Response;
                         if (resp.StatusCode == HttpStatusCode.NotFound)
                         {
-                            // if reach here revisions listing has disappeared from jenkins, this is common issue, so fake empty response
-                            rawJson = @" { ""_class"": ""hudson.model.FreeStyleBuild"",
-                            ""changeSet"": { ""items"": [] } }";
-
                             Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                            return new BuildRevisionsRetrieveResult { Result = "Revisions no longer available on server <WBTB_BUILDSERVER_HISTORY_EXPIRED>.", Success = true };
                         }
                         else 
                         {
@@ -299,7 +297,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
             dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);
             IEnumerable<RawRevision> rawRevisions = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<RawRevision>>(response.changeSet.items.ToString());
-            return rawRevisions.Select(r => r.commitId); 
+            return new BuildRevisionsRetrieveResult { Revisions = rawRevisions.Select(r => r.commitId), Success = true }; 
         }
 
         private BuildStatus ConvertBuildStatus(string remoteResult)
@@ -489,23 +487,45 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             return builds.OrderByDescending(b => b.StartedUtc);
         }
 
-        Build IBuildServerPlugin.ImportLog(Build build)
+        BuildLogRetrieveResult IBuildServerPlugin.ImportLog(Build build)
         {
-            if (!string.IsNullOrEmpty(build.LogPath))
-                return build;
-
-            string logPath = string.Empty;
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(build.JobId);
+            string logPath = Path.Combine(_config.BuildLogsDirectory, job.Key, build.Identifier, $"log.txt");
 
             try
             {
-                string logContent = GetAndStoreBuildLog(build);
-                string logDirectory = Path.Combine(_config.BuildLogsDirectory, GetRandom(), GetRandom());
+                if (File.Exists(logPath))
+                    return new BuildLogRetrieveResult { Success = true, BuildLogPath = logPath, Result = "Log already imported" };
 
-                Directory.CreateDirectory(logDirectory);
-                logPath = Path.Combine(logDirectory, $"{Guid.NewGuid()}.txt");
+                Directory.CreateDirectory(Path.GetDirectoryName(logPath));
+
+                string logContent = ((IBuildServerPlugin)this).GetEphemeralBuildLog(build);
                 File.WriteAllText(logPath, logContent);
 
-                build.LogPath = logPath;
+                return new BuildLogRetrieveResult { Success = true, BuildLogPath = logPath };
+            }
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                {
+                    HttpWebResponse resp = (HttpWebResponse)ex.Response;
+                    if (resp.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        string placeholdertext = "Log no longer available on server <WBTB_BUILDSERVER_HISTORY_EXPIRED>.";
+                        File.WriteAllText(logPath, placeholdertext);
+                        Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                        return new BuildLogRetrieveResult { Success = true, BuildLogPath = logPath, Result = placeholdertext };
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
+                }
+                else
+                {
+                    throw ex;
+                }
             }
             catch (Exception ex)
             { 
@@ -522,9 +542,9 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 // yeah, what is going on here .....
                 // ignore network errors
                 Console.WriteLine($"Error fetching log for build {build.Id}", ex);
+                return new BuildLogRetrieveResult { Result = $"Error fetching log for build {build.Id}, {ex}" };
             }
 
-            return build;
         }
 
         #endregion

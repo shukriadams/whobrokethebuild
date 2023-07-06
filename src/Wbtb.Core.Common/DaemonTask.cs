@@ -34,6 +34,9 @@ namespace Wbtb.Core.Common
 
         public string Result { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int Order { get; set; }
 
         /// <summary>

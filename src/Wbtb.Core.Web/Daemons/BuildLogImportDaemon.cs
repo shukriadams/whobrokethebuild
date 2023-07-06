@@ -85,18 +85,20 @@ namespace Wbtb.Core.Web.Core
                         if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
                             continue;
 
-                        build = buildServerPlugin.ImportLog(build);
-                        if (string.IsNullOrEmpty(build.LogPath))
+                        BuildLogRetrieveResult result = buildServerPlugin.ImportLog(build);
+                        task.Result = result.Result;
+                        task.ProcessedUtc = DateTime.UtcNow;
+
+                        if (!result.Success)
                         {
-                            task.Result = "Log retrieve exited normally, but saved no log.";
-                            task.ProcessedUtc = DateTime.UtcNow;
                             task.HasPassed = false;
                             dataLayer.SaveDaemonTask(task);
                             continue;
                         }
 
+                        build.LogPath = result.BuildLogPath;
                         dataLayer.SaveBuild(build);
-                        task.ProcessedUtc = DateTime.UtcNow;
+
                         task.HasPassed = true;
                         dataLayer.SaveDaemonTask(task);
 

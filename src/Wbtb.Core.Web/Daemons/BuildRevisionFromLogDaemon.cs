@@ -139,9 +139,9 @@ namespace Wbtb.Core.Web
 
                         if (string.IsNullOrEmpty(revisionCode))
                         {
-                            task.Result = "Failed to parse revision from log.";
+                            task.Result = $"Could not read a revision code from log content. This might be due to an error with your revision regex {job.RevisionAtBuildRegex}, but it could be that the revision string was not written to the log.";
                             task.ProcessedUtc = DateTime.UtcNow;
-                            task.HasPassed = false;
+                            task.HasPassed = true;
                             dataLayer.SaveDaemonTask(task);
                             continue;
                         }

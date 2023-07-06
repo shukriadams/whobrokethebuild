@@ -120,10 +120,10 @@ namespace Wbtb.Core.Common
                 }
             });
         }
-        
-        Build IBuildServerPlugin.ImportLog(Build build)
+
+        BuildLogRetrieveResult IBuildServerPlugin.ImportLog(Build build)
         {
-            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<BuildLogRetrieveResult>(this, new PluginArgs
             {
                 FunctionName = nameof(IBuildServerPlugin.ImportLog),
                 Arguments = new PluginFunctionParameter[] {
@@ -143,9 +143,9 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<string> IBuildServerPlugin.GetRevisionsInBuild(Build build)
+        BuildRevisionsRetrieveResult IBuildServerPlugin.GetRevisionsInBuild(Build build)
         {
-            return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<BuildRevisionsRetrieveResult>(this, new PluginArgs
             {
                 FunctionName = nameof(IBuildServerPlugin.GetRevisionsInBuild),
                 Arguments = new PluginFunctionParameter[] {
