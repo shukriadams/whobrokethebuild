@@ -27,5 +27,16 @@
                 }
             });
         }
+
+        string ILogParserPlugin.ParseAndCache(string raw)
+        {
+            return _pluginSender.InvokeMethod<string>(this, new PluginArgs
+            {
+                FunctionName = nameof(ILogParserPlugin.ParseAndCache),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "raw", Value = raw }
+                }
+            });
+        }
     }
 }

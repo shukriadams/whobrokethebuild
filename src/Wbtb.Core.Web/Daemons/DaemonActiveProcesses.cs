@@ -32,7 +32,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         IDictionary<string, DaemonActiveProcessItem> _activePrrocesses = new Dictionary<string, DaemonActiveProcessItem>();
 
-        public void AddActive(IWebDaemon daemon, string description) 
+        public void Add(IWebDaemon daemon, string description) 
         {
             lock (_activePrrocesses)
             {
@@ -41,13 +41,20 @@ namespace Wbtb.Core.Web
                 if (_activePrrocesses.ContainsKey(daemonName))
                     _activePrrocesses.Remove(daemonName);
 
-
                 _activePrrocesses.Add(daemonName, new DaemonActiveProcessItem
                 {
                     Description= description,
                     CreatedUtc = DateTime.UtcNow,
                     Daemon = daemonName
                 });
+            }
+        }
+
+        public bool Has(string key)
+        {
+            lock (_activePrrocesses)
+            {
+                return _activePrrocesses.ContainsKey(key);
             }
         }
 

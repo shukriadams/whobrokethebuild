@@ -5,6 +5,8 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
 {
     internal class BasicErrors : Plugin, ILogParserPlugin
     {
+        private readonly string Regex = @"^.*error:.*$";
+
         PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
@@ -14,21 +16,28 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             };
         }
 
-        string ILogParserPlugin.Parse(string raw)
+        string ILogParserPlugin.ParseAndCache(string raw)
         {
             if (string.IsNullOrEmpty(raw))
                 return string.Empty;
 
             SimpleDI di = new SimpleDI();
-            string regex = @"^.*error:.*$";
+            
             // try for cache
-            string hash = Sha256.FromString(regex + raw);
+            string hash = Sha256.FromString(Regex + raw);
             Cache cache = di.Resolve<Cache>();
             string lookup = cache.Get(this, hash);
             if (lookup != null)
                 return lookup;
 
-            MatchCollection matches = new Regex(regex, RegexOptions.IgnoreCase|RegexOptions.Multiline).Matches(raw);
+            lookup = ((ILogParserPlugin)this).Parse(raw);
+            cache.Write(this, hash, lookup);
+            return lookup;
+        }
+
+        string ILogParserPlugin.Parse(string raw)
+        {
+            MatchCollection matches = new Regex(Regex, RegexOptions.IgnoreCase|RegexOptions.Multiline).Matches(raw);
 
             if (matches.Any())
             {
@@ -39,15 +48,12 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                     builder.NewLine();
                 }
 
-                lookup = builder.GetText();
+                return builder.GetText();
             }
             else 
             {
-                lookup = string.Empty;
+                return string.Empty;
             }
-
-            cache.Write(this,hash, lookup);
-            return lookup;
         }
     }
 }

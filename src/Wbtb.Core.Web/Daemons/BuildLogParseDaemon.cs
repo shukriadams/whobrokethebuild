@@ -76,7 +76,7 @@ namespace Wbtb.Core.Web
                     try
                     {
                         Build build = dataLayer.GetBuildById(task.BuildId);
-                        activeItems.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
                         if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
                             continue;
@@ -86,7 +86,7 @@ namespace Wbtb.Core.Web
                         task.HasPassed = true;
                         task.Result = string.Empty;
 
-                        job.LogParsers.AsParallel().ForAll(delegate (string logParserPlugin)
+                        foreach (string logParserPlugin in job.LogParsers) 
                         {
                             try
                             {
@@ -99,7 +99,6 @@ namespace Wbtb.Core.Web
                                 logParserResult.LogParserPlugin = parser.ContextPluginConfig.Key;
                                 logParserResult.ParsedContent = string.Empty;
 
-                                // for now, parse only failed logs.
                                 DateTime startUtc = DateTime.UtcNow;
                                 logParserResult.ParsedContent = parser.Parse(rawLog);
                                 string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten:true)}";
@@ -117,7 +116,7 @@ namespace Wbtb.Core.Web
 
                                 task.Result = $"{task.Result}\n{ex}";
                             }
-                        });
+                        };
                     }
                     catch (Exception ex)
                     {
