@@ -41,7 +41,6 @@ namespace Wbtb.Core.Web
                 if (_activePrrocesses.ContainsKey(daemonName))
                     _activePrrocesses.Remove(daemonName);
 
-
                 _activePrrocesses.Add(daemonName, new DaemonActiveProcessItem
                 {
                     Description= description,

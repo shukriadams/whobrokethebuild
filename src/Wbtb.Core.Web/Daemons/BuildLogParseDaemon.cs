@@ -112,7 +112,7 @@ namespace Wbtb.Core.Web
                         task.HasPassed = true;
                         task.Result = string.Empty;
 
-                        job.LogParsers.AsParallel().ForAll(delegate (string logParserPlugin)
+                        foreach (string logParserPlugin in job.LogParsers) 
                         {
                             try
                             {
@@ -125,7 +125,6 @@ namespace Wbtb.Core.Web
                                 logParserResult.LogParserPlugin = parser.ContextPluginConfig.Key;
                                 logParserResult.ParsedContent = string.Empty;
 
-                                // for now, parse only failed logs.
                                 DateTime startUtc = DateTime.UtcNow;
                                 logParserResult.ParsedContent = parser.Parse(rawLog);
                                 string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten: true)}";
@@ -143,7 +142,7 @@ namespace Wbtb.Core.Web
 
                                 task.Result = $"{task.Result}\n Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin \"{logParserPlugin}\": {ex.Message}";
                             }
-                        });
+                        };
                     }
                     catch (Exception ex)
                     {

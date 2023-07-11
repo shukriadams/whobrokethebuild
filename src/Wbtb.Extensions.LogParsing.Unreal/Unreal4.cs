@@ -25,15 +25,20 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             };
         }
 
+        string ILogParserPlugin.ParseAndCache(string raw)
+        {
+            return string.Empty;
+        }
+
         string ILogParserPlugin.Parse(string raw)
         {
+            return string.Empty;
+
             // force unix things to standardize our processing
             IEnumerable<string> rawLines = raw
                 .Replace("/\\/ g", "/")
                 .Replace("/\r\n / g", "\n")
                 .Split("\n");
-
-
 
             return null;
         }
