@@ -16,12 +16,9 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
                 SessionId = Guid.NewGuid().ToString()
             };
         }
-        
-        string ILogParserPlugin.ParseAndCache(string raw)
-        {
-            if (string.IsNullOrEmpty(raw))
-                return string.Empty;
 
+        LogParsePickupResult ILogParserPlugin.Pickup(string raw)
+        {
             SimpleDI di = new SimpleDI();
 
             // force unix paths on log, this helps reduce noise when getting distinct lines
@@ -32,19 +29,17 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             Cache cache = di.Resolve<Cache>();
             string resultLookup = cache.Get(this, hash);
             if (resultLookup != null)
-                return resultLookup;
+                return new LogParsePickupResult
+                {
+                    Result = resultLookup,
+                    Found = true
+                };
 
-
-            resultLookup = ((ILogParserPlugin)this).Parse(raw);
-            cache.Write(this, hash, resultLookup);
-            return resultLookup;
+            return new LogParsePickupResult();
         }
 
-        string ILogParserPlugin.Parse(string raw)
+        void ILogParserPlugin.Parse(string raw)
         {
-            if (string.IsNullOrEmpty(raw))
-                return string.Empty;
-            
             // force unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
 
@@ -55,6 +50,7 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             // at java
 
             MatchCollection matches = new Regex(RegexPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
+            string result = string.Empty;
             if (matches.Any()) 
             {
                 BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
@@ -64,10 +60,13 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
                     builder.NewLine();
                 }
 
-                return builder.GetText();
+                result =  builder.GetText();
             }
 
-            return null;
+            SimpleDI di = new SimpleDI();
+            Cache cache = di.Resolve<Cache>();
+            string hash = Sha256.FromString(RegexPattern + raw);
+            cache.Write(this, hash, result);
         }
     }
 }

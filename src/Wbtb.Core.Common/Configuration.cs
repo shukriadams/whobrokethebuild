@@ -124,6 +124,8 @@ namespace Wbtb.Core.Common
 
         public bool EnabledSockets { get; set; }
 
+        public int MaxThreads { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -150,7 +152,7 @@ namespace Wbtb.Core.Common
             this.Port = 5000;
             this.EnabledDaemons = true;
             this.EnabledSockets = true;
-
+            this.MaxThreads = 2;
 
             this.Plugins = new List<PluginConfig>();
             this.BuildServers = new List<BuildServer>();

@@ -34,7 +34,6 @@ namespace Wbtb.Core
             di.Register<ConfigurationBasic, ConfigurationBasic>();
             di.Register<ConfigurationBootstrapper, ConfigurationBootstrapper>();
             di.Register<GitHelper, GitHelper>();
-            di.Register<BuildLogParseResultHelper, BuildLogParseResultHelper>();
             di.Register<ConfigurationBuilder, ConfigurationBuilder>();
             di.Register<PluginProvider, PluginProvider>();
             di.Register<PluginManager, PluginManager>();

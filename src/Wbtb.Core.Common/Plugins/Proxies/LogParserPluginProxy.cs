@@ -17,9 +17,9 @@
             _pluginSender = pluginSender;
         }
 
-        string ILogParserPlugin.Parse(string raw)
+        void ILogParserPlugin.Parse(string raw)
         {
-            return _pluginSender.InvokeMethod<string>(this, new PluginArgs
+            _pluginSender.InvokeMethod(this, new PluginArgs
             {
                 FunctionName = nameof(ILogParserPlugin.Parse),
                 Arguments = new PluginFunctionParameter[] {
@@ -28,11 +28,11 @@
             });
         }
 
-        string ILogParserPlugin.ParseAndCache(string raw)
+        LogParsePickupResult ILogParserPlugin.Pickup(string raw)
         {
-            return _pluginSender.InvokeMethod<string>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<LogParsePickupResult>(this, new PluginArgs
             {
-                FunctionName = nameof(ILogParserPlugin.ParseAndCache),
+                FunctionName = nameof(ILogParserPlugin.Pickup),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "raw", Value = raw }
                 }

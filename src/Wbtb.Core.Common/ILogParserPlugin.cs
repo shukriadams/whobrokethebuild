@@ -16,13 +16,13 @@
         /// </summary>
         /// <param name="raw"></param>
         /// <returns></returns>
-        string Parse(string raw);
+        void Parse(string raw);
 
         /// <summary>
         /// Parses a log, caches the result locally. Result can be retrieved when Parse() is called. This method is meant for
         /// multithreaded "burst" parse runs.
         /// </summary>
         /// <param name="raw"></param>
-        string ParseAndCache(string raw);
+        LogParsePickupResult Pickup(string raw);
     }
 }

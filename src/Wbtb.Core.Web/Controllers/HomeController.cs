@@ -392,31 +392,6 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
-        [ServiceFilter(typeof(ViewStatus))]
-        [Route("/build/reprocesslog/{buildid}")]
-        public string ReprocessLog(string buildid)
-        {
-            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
-            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Build build = dataLayer.GetBuildById(buildid);
-            Job job = dataLayer.GetJobById(build.JobId);
-            List<ILogParserPlugin> logParsers = new List<ILogParserPlugin>();
-            SimpleDI di = new SimpleDI();
-            BuildLogParseResultHelper buildLogParseResultHelper = di.Resolve<BuildLogParseResultHelper>();
-            foreach (string logParserName in job.LogParsers)
-                logParsers.Add(pluginProvider.GetByKey(logParserName) as ILogParserPlugin);
-
-            // delete existing log processes
-            foreach(BuildLogParseResult logParseResult in dataLayer.GetBuildLogParseResultsByBuildId(buildid))
-                dataLayer.DeleteBuildLogParseResult(logParseResult);
-
-            foreach (ILogParserPlugin logParser in logParsers)
-                buildLogParseResultHelper.ProcessBuild(dataLayer, build, logParser, _log);
-
-            return string.Empty;
-        }
-
-
         #endregion
     }
 }

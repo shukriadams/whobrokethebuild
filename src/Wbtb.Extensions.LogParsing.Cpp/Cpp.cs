@@ -18,11 +18,8 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             };
         }
 
-        string ILogParserPlugin.ParseAndCache(string raw)
+        LogParsePickupResult ILogParserPlugin.Pickup(string raw)
         {
-            if (string.IsNullOrEmpty(raw))
-                return string.Empty;
-
             SimpleDI di = new SimpleDI();
 
             // force unix paths on log, this helps reduce noise when getting distinct lines
@@ -33,15 +30,15 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             Cache cache = di.Resolve<Cache>();
             string resultLookup = cache.Get(this, hash);
             if (resultLookup != null)
-                return resultLookup;
+                return new LogParsePickupResult 
+                { 
+                    Result = resultLookup, Found = true
+                };
 
-
-            resultLookup = ((ILogParserPlugin)this).Parse(raw);
-            cache.Write(this, hash, resultLookup);
-            return resultLookup;
+            return new LogParsePickupResult();
         }
 
-        string ILogParserPlugin.Parse(string raw)
+        void ILogParserPlugin.Parse(string raw)
         {
             // force unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
@@ -58,6 +55,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             // 4 : description
             MatchCollection matches = new Regex(Regex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
 
+            string result = string.Empty;
             if (matches.Any())
             {
                 BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
@@ -71,12 +69,13 @@ namespace Wbtb.Extensions.LogParsing.Cpp
                     builder.NewLine();
                 }
 
-                return builder.GetText();
+                result = builder.GetText();
             }
-            else 
-            {
-                return string.Empty;
-            }
+
+            SimpleDI di = new SimpleDI();
+            Cache cache = di.Resolve<Cache>();
+            string hash = Sha256.FromString(Regex + raw);
+            cache.Write(this, hash, result);
         }
     }
 }

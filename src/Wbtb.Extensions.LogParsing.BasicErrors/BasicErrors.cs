@@ -16,11 +16,8 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             };
         }
 
-        string ILogParserPlugin.ParseAndCache(string raw)
+        LogParsePickupResult ILogParserPlugin.Pickup(string raw)
         {
-            if (string.IsNullOrEmpty(raw))
-                return string.Empty;
-
             SimpleDI di = new SimpleDI();
             
             // try for cache
@@ -28,17 +25,20 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             Cache cache = di.Resolve<Cache>();
             string lookup = cache.Get(this, hash);
             if (lookup != null)
-                return lookup;
+                return new LogParsePickupResult
+                {
+                    Result = lookup,
+                    Found = true
+                };
 
-            lookup = ((ILogParserPlugin)this).Parse(raw);
-            cache.Write(this, hash, lookup);
-            return lookup;
+            return new LogParsePickupResult();
         }
 
-        string ILogParserPlugin.Parse(string raw)
+        void ILogParserPlugin.Parse(string raw)
         {
             MatchCollection matches = new Regex(Regex, RegexOptions.IgnoreCase|RegexOptions.Multiline).Matches(raw);
 
+            string result = string.Empty;
             if (matches.Any())
             {
                 BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
@@ -48,12 +48,13 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                     builder.NewLine();
                 }
 
-                return builder.GetText();
+                result = builder.GetText();
             }
-            else 
-            {
-                return string.Empty;
-            }
+
+            SimpleDI di = new SimpleDI();
+            Cache cache = di.Resolve<Cache>();
+            string hash = Sha256.FromString(Regex + raw);
+            cache.Write(this, hash, result);
         }
     }
 }
