@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
 
@@ -70,110 +69,52 @@ namespace Wbtb.Core.Web
             try
             {
                 // start as many parallel parses as we're allowed, on bg threads
-                int activeTaskCount = 0;
-                foreach (DaemonTask task in tasks) 
+                // foreach (DaemonTask task in tasks) 
+                tasks.AsParallel().ForAll(delegate (DaemonTask task)
                 {
                     Build build = dataLayer.GetBuildById(task.BuildId);
                     if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
-                        continue;
+                        return;
 
                     Job job = dataLayer.GetJobById(build.JobId);
-                    foreach (string logParser in job.LogParsers) 
-                    {
-                        string key = $"{logParser}_{build.Id}";
-                        if (activeItems.Has(key) || activeTaskCount > _config.MaxThreads)
-                            continue;
-
-                        activeItems.Add(key, $"Parsing build {build.Identifier}, job {job.Name} with {logParser}");
-                        ILogParserPlugin parserPlugin = _pluginProvider.GetByKey(logParser) as ILogParserPlugin;
-
-                            new Thread(() =>
-                            {
-                                Thread.CurrentThread.IsBackground = true;
-                                try
-                                {
-                                    lock(this)
-                                        activeTaskCount++;
-
-                                    string rawLog = File.ReadAllText(build.LogPath);
-                                    parserPlugin.Pickup(rawLog);
-                                }
-                                catch (Exception ex)
-                                {
-                                    _log.LogError($"Unexpected error parsing build {build.Identifier}, job {job.Name} with {logParser}", ex);
-                                }
-                                finally 
-                                {
-                                    activeItems.Add(key, $"Parsing build {build.Identifier}, job {job.Name} with {logParser}");
-                                    lock (this)
-                                        activeTaskCount--;
-                                }
-                            }).Start();
-                    }
-                }
-
-                // rescan all queued parse jobs, check how many are finsihed
-                //tasks.AsParallel().ForAll(delegate (DaemonTask task)
-                foreach(DaemonTask task in tasks)
-                {
                     try
                     {
-                        Build build = dataLayer.GetBuildById(task.BuildId);
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
-                            return;
-
-                        Job job = dataLayer.GetJobById(build.JobId);
-
-                        task.HasPassed = true;
-                        task.Result = string.Empty;
-
-                        foreach (string logParserPlugin in job.LogParsers) 
+                        ILogParserPlugin parser = _pluginProvider.GetByKey(task.Args) as ILogParserPlugin;
+                        if (parser == null)
                         {
-                            try
-                            {
-                                ILogParserPlugin parser = _pluginProvider.GetByKey(logParserPlugin) as ILogParserPlugin;
+                            task.HasPassed = false;
+                            task.Result += $"Log parser {task.Args} was not found.";
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            dataLayer.SaveDaemonTask(task);
+                        }
 
-                                string rawLog = File.ReadAllText(build.LogPath);
+                        // todo : optimize, have to reread log just to hash is a major performance issue
+                        string rawLog = File.ReadAllText(build.LogPath);
+                        DateTime startUtc = DateTime.UtcNow;
+                        string result = parser.Parse(rawLog);
 
-                                BuildLogParseResult logParserResult = new BuildLogParseResult();
-                                logParserResult.BuildId = build.Id;
-                                logParserResult.LogParserPlugin = parser.ContextPluginConfig.Key;
-                                logParserResult.ParsedContent = string.Empty;
+                        BuildLogParseResult logParserResult = new BuildLogParseResult();
+                        logParserResult.BuildId = build.Id;
+                        logParserResult.LogParserPlugin = parser.ContextPluginConfig.Key;
+                        logParserResult.ParsedContent = result;
+                        dataLayer.SaveBuildLogParseResult(logParserResult);
 
-                                DateTime startUtc = DateTime.UtcNow;
-                                LogParsePickupResult pickup = parser.Pickup(rawLog);
-                                if (!pickup.Found)
-                                    continue;
-
-                                logParserResult.ParsedContent = pickup.Result;
-                                string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten: true)}";
-
-                                dataLayer.SaveBuildLogParseResult(logParserResult);
-                                _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timestring}");
-                                task.Result += $"{logParserResult.LogParserPlugin} {timestring}. ";
-                            }
-                            catch (Exception ex)
-                            {
-                                _log.LogError($"Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin \"{logParserPlugin}\" : {ex}");
-                                task.HasPassed = false;
-                                if (task.Result == null)
-                                    task.Result = string.Empty;
-
-                                task.Result = $"{task.Result}\n Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin \"{logParserPlugin}\": {ex.Message}";
-                            }
-                        };
+                        string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten: true)}";
+                        _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timestring}");
+                        task.Result = $"{logParserResult.LogParserPlugin} {timestring}. ";
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = true;
+                        dataLayer.SaveDaemonTask(task);
                     }
                     catch (Exception ex)
                     {
+                        _log.LogError($"Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin : {ex}");
                         task.HasPassed = false;
-                        task.Result = ex.ToString();
+                        task.Result = $"{task.Result}\n Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin: {ex.Message}";
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        dataLayer.SaveDaemonTask(task);
                     }
-
-                    task.ProcessedUtc = DateTime.UtcNow;
-                    dataLayer.SaveDaemonTask(task);
-                }
+                });
             }
             finally
             {

@@ -16,26 +16,17 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             };
         }
 
-        LogParsePickupResult ILogParserPlugin.Pickup(string raw)
+        string ILogParserPlugin.Parse(string raw)
         {
             SimpleDI di = new SimpleDI();
-            
+
             // try for cache
             string hash = Sha256.FromString(Regex + raw);
             Cache cache = di.Resolve<Cache>();
             string lookup = cache.Get(this, hash);
             if (lookup != null)
-                return new LogParsePickupResult
-                {
-                    Result = lookup,
-                    Found = true
-                };
+                return lookup;
 
-            return new LogParsePickupResult();
-        }
-
-        void ILogParserPlugin.Parse(string raw)
-        {
             MatchCollection matches = new Regex(Regex, RegexOptions.IgnoreCase|RegexOptions.Multiline).Matches(raw);
 
             string result = string.Empty;
@@ -51,10 +42,8 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                 result = builder.GetText();
             }
 
-            SimpleDI di = new SimpleDI();
-            Cache cache = di.Resolve<Cache>();
-            string hash = Sha256.FromString(Regex + raw);
             cache.Write(this, hash, result);
+            return result;
         }
     }
 }

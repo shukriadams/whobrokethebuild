@@ -103,13 +103,15 @@ namespace Wbtb.Core.Web.Core
                         dataLayer.SaveDaemonTask(task);
 
                         // create tasks for next stage
-                        dataLayer.SaveDaemonTask(new DaemonTask
-                        {
-                            BuildId = build.Id,
-                            Src = this.GetType().Name,
-                            Order = 3,
-                            TaskKey = DaemonTaskTypes.LogParse.ToString()
-                        });
+                        foreach(string logparser in job.LogParsers)
+                            dataLayer.SaveDaemonTask(new DaemonTask
+                            {
+                                BuildId = build.Id,
+                                Src = this.GetType().Name,
+                                Args = logparser,
+                                Order = 3,
+                                TaskKey = DaemonTaskTypes.LogParse.ToString()
+                            });
 
                         // build revision requires source controld
                         if (!string.IsNullOrEmpty(job.RevisionAtBuildRegex) && !string.IsNullOrEmpty(job.SourceServerId))

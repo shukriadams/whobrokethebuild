@@ -18,6 +18,7 @@ namespace Wbtb.Extensions.Data.Postgres
             collection.AddWithValue("buildinvolvementid", record.BuildInvolvementId == null ? (object)DBNull.Value : int.Parse(record.BuildInvolvementId));
             collection.AddWithValue("createdutc", record.CreatedUtc);
             collection.AddWithValue("result", record.Result == null ? (object)DBNull.Value : record.Result);
+            collection.AddWithValue("args", record.Args == null ? (object)DBNull.Value : record.Args);
             collection.AddWithValue("processedutc", record.ProcessedUtc == null ? (object)DBNull.Value : record.ProcessedUtc.Value);
             collection.AddWithValue("passed", record.HasPassed == null ? (object)DBNull.Value : record.HasPassed.Value);
         }

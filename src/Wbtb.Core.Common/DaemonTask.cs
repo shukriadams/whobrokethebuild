@@ -21,6 +21,8 @@ namespace Wbtb.Core.Common
         /// </summary>
         public string TaskKey { get; set; }
 
+        public string Args { get; set; }
+
         /// <summary>
         /// Daemon that wrote the task
         /// </summary>

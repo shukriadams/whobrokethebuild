@@ -16,13 +16,6 @@
         /// </summary>
         /// <param name="raw"></param>
         /// <returns></returns>
-        void Parse(string raw);
-
-        /// <summary>
-        /// Parses a log, caches the result locally. Result can be retrieved when Parse() is called. This method is meant for
-        /// multithreaded "burst" parse runs.
-        /// </summary>
-        /// <param name="raw"></param>
-        LogParsePickupResult Pickup(string raw);
+        string Parse(string raw);
     }
 }

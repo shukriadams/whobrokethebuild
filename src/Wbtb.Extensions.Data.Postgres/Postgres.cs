@@ -1506,9 +1506,9 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO daemontask
-                    (buildid, signature, taskkey, buildinvolvementid, src, createdutc, processedutc, passed, result, ordr)
+                    (buildid, signature, taskkey, buildinvolvementid, src, createdutc, processedutc, passed, args, result, ordr)
                 VALUES
-                    (@buildid, @signature, @taskkey, @buildinvolvementid, @src, @createdutc, @processedutc, @passed, @result, @ordr)
+                    (@buildid, @signature, @taskkey, @buildinvolvementid, @src, @createdutc, @processedutc, @passed, @args, @result, @ordr)
                 RETURNING id";
 
             string updateQuery = @"                    
@@ -1522,6 +1522,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     createdutc = @createdutc,
                     processedutc = @processedutc,
                     passed = @passed,
+                    args = @args,
                     result = @result
                 WHERE
                     id = @id

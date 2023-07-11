@@ -18,7 +18,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             };
         }
 
-        LogParsePickupResult ILogParserPlugin.Pickup(string raw)
+        string ILogParserPlugin.Parse(string raw)
         {
             SimpleDI di = new SimpleDI();
 
@@ -30,18 +30,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             Cache cache = di.Resolve<Cache>();
             string resultLookup = cache.Get(this, hash);
             if (resultLookup != null)
-                return new LogParsePickupResult 
-                { 
-                    Result = resultLookup, Found = true
-                };
-
-            return new LogParsePickupResult();
-        }
-
-        void ILogParserPlugin.Parse(string raw)
-        {
-            // force unix paths on log, this helps reduce noise when getting distinct lines
-            string fullErrorLog = raw.Replace("\\", "/");
+                return resultLookup;
 
             // try to parse out C++ compile errors from log, these errors have the form like
             // D:\some\path\file.h(41,12): error C2143: syntax error: missing ';' before '*'
@@ -72,10 +61,8 @@ namespace Wbtb.Extensions.LogParsing.Cpp
                 result = builder.GetText();
             }
 
-            SimpleDI di = new SimpleDI();
-            Cache cache = di.Resolve<Cache>();
-            string hash = Sha256.FromString(Regex + raw);
             cache.Write(this, hash, result);
+            return result;
         }
     }
 }

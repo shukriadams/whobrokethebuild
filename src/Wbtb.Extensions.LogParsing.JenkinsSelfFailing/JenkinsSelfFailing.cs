@@ -17,7 +17,7 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             };
         }
 
-        LogParsePickupResult ILogParserPlugin.Pickup(string raw)
+        string ILogParserPlugin.Parse(string raw)
         {
             SimpleDI di = new SimpleDI();
 
@@ -29,19 +29,7 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             Cache cache = di.Resolve<Cache>();
             string resultLookup = cache.Get(this, hash);
             if (resultLookup != null)
-                return new LogParsePickupResult
-                {
-                    Result = resultLookup,
-                    Found = true
-                };
-
-            return new LogParsePickupResult();
-        }
-
-        void ILogParserPlugin.Parse(string raw)
-        {
-            // force unix paths on log, this helps reduce noise when getting distinct lines
-            string fullErrorLog = raw.Replace("\\", "/");
+                return resultLookup;
 
             // look for following matches
             // at org.jenkinsci
@@ -63,10 +51,8 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
                 result =  builder.GetText();
             }
 
-            SimpleDI di = new SimpleDI();
-            Cache cache = di.Resolve<Cache>();
-            string hash = Sha256.FromString(RegexPattern + raw);
             cache.Write(this, hash, result);
+            return result;
         }
     }
 }

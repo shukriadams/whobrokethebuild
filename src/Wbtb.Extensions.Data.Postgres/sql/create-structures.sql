@@ -474,6 +474,7 @@ CREATE TABLE public."daemontask"
     createdutc timestamp(4) without time zone NOT NULL,
     processedutc timestamp(4) without time zone,
     passed boolean,
+    args text COLLATE pg_catalog."default",
     result text COLLATE pg_catalog."default",
     CONSTRAINT "daemontask_compoundkey" UNIQUE (buildid, buildinvolvementid, taskkey),
     CONSTRAINT "daemontask_buildid_fk" FOREIGN KEY (buildid)

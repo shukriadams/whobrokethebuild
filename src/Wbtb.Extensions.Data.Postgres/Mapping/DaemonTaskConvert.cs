@@ -20,6 +20,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 ProcessedUtc = reader["processedutc"] == DBNull.Value ? null : DateTime.Parse(reader["processedutc"].ToString()),
                 HasPassed = reader["passed"] == DBNull.Value ? null : bool.Parse(reader["passed"].ToString()),
                 Result = reader["result"] == DBNull.Value ? null : reader["result"].ToString(),
+                Args = reader["args"] == DBNull.Value ? null : reader["args"].ToString(),
                 Src = reader["src"].ToString(),
                 TaskKey = reader["taskkey"].ToString()
             };

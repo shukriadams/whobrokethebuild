@@ -39,7 +39,7 @@ namespace Wbtb.Core.Common
         public IPlugin GetByKey(string key)
         {
             if (string.IsNullOrEmpty(key))
-                throw new Exception("Attemtping to get plugin ById, but id is empty. Error likely caused by upstream data error");
+                throw new Exception("Attemtping to get plugin by key, but key is empty. Error likely caused by upstream data error");
 
             PluginConfig config = _config.Plugins.FirstOrDefault(c => c.Key == key);
 

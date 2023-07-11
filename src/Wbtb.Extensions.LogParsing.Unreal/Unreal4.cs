@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
@@ -25,14 +24,9 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             };
         }
 
-        LogParsePickupResult ILogParserPlugin.Pickup(string raw)
+        string ILogParserPlugin.Parse(string raw)
         {
-            return new LogParsePickupResult();
-        }
-
-        void ILogParserPlugin.Parse(string raw)
-        {
-
+            return string.Empty;
         }
     }
 }
