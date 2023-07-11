@@ -74,7 +74,7 @@ namespace Wbtb.Core.Web
                         BuildServer buildserver = dataLayer.GetBuildServerById(job.BuildServerId);
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
 
-                        activeItems.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
                         build = buildServerPlugin.TryUpdateBuild(build);
 

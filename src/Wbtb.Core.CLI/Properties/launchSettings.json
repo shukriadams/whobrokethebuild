@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Wbtb.Core.CLI": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "--c Core_ResolveRevisionFromLog --build 122"
     }
   }
 }

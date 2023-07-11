@@ -78,7 +78,7 @@ namespace Wbtb.Core.Web
                         if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
                             continue;
 
-                        activeProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+                        activeProcesses.Add(this, $"Task : {task.Id}, Build {build.Id}");
                         Build previousBuild = dataLayer.GetPreviousBuild(build);
                         if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
                         {

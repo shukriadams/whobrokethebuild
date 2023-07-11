@@ -69,17 +69,43 @@ namespace Wbtb.Core.Web
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.LogParse.ToString());
             DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
 
+
+            tasks = tasks.Take(_config.MaxThreads); // to threads at a time
+
             try
             {
-                foreach (DaemonTask task in tasks)
+                foreach (DaemonTask task in tasks) 
+                {
+                    Build build = dataLayer.GetBuildById(task.BuildId);
+                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
+                        continue;
+
+                    Job job = dataLayer.GetJobById(build.JobId);
+                    foreach (string logParser in job.LogParsers) 
+                    {
+                        string key = $"{logParser}_{build.Id}";
+                        if (activeItems.Has(key))
+                            continue;
+
+                        activeItems.Add(key, $"Parsing build {build.Identifier}, job {job.Name} with {logParser}");
+                        ILogParserPlugin parserPlugin = _pluginProvider.GetByKey(logParser) as ILogParserPlugin;
+
+                        string rawLog = File.ReadAllText(build.LogPath);
+                        parserPlugin.ParseAndCache(rawLog);
+                    }
+
+                }
+
+                //foreach (DaemonTask task in tasks)
+                tasks.AsParallel().ForAll(delegate (DaemonTask task)
                 {
                     try
                     {
                         Build build = dataLayer.GetBuildById(task.BuildId);
-                        activeItems.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
                         if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
-                            continue;
+                            return;
 
                         Job job = dataLayer.GetJobById(build.JobId);
 
@@ -102,7 +128,7 @@ namespace Wbtb.Core.Web
                                 // for now, parse only failed logs.
                                 DateTime startUtc = DateTime.UtcNow;
                                 logParserResult.ParsedContent = parser.Parse(rawLog);
-                                string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten:true)}";
+                                string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten: true)}";
 
                                 dataLayer.SaveBuildLogParseResult(logParserResult);
                                 _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timestring}");
@@ -115,7 +141,7 @@ namespace Wbtb.Core.Web
                                 if (task.Result == null)
                                     task.Result = string.Empty;
 
-                                task.Result = $"{task.Result}\n{ex}";
+                                task.Result = $"{task.Result}\n Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin \"{logParserPlugin}\": {ex.Message}";
                             }
                         });
                     }
@@ -127,7 +153,7 @@ namespace Wbtb.Core.Web
 
                     task.ProcessedUtc = DateTime.UtcNow;
                     dataLayer.SaveDaemonTask(task);
-                }
+                });
             }
             finally
             {

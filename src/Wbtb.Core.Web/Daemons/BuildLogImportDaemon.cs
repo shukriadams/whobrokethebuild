@@ -74,7 +74,7 @@ namespace Wbtb.Core.Web.Core
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                         ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
-                        activeItems.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
 
                         if (!reach.Reachable)
                         {

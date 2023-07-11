@@ -76,7 +76,7 @@ namespace Wbtb.Core.Web
                         if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
                             continue;
 
-                        activeItems.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
                         Job job = dataLayer.GetJobById(build.JobId);
                         
                         task.HasPassed = true;
