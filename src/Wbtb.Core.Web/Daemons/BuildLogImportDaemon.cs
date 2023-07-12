@@ -60,7 +60,7 @@ namespace Wbtb.Core.Web.Core
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.LogImport.ToString());
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
@@ -74,16 +74,21 @@ namespace Wbtb.Core.Web.Core
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                         ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
                         if (!reach.Reachable)
                         {
                             _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            daemonProcesses.TaskBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                             continue;
                         }
 
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
+                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, TaskGroup);
+                        if (blocking.Any()) 
+                        {
+                            daemonProcesses.TaskBlocked(task, this, blocking);
                             continue;
+                        }
 
                         BuildLogRetrieveResult result = buildServerPlugin.ImportLog(build);
                         task.Result = result.Result;
@@ -93,6 +98,7 @@ namespace Wbtb.Core.Web.Core
                         {
                             task.HasPassed = false;
                             dataLayer.SaveDaemonTask(task);
+                            daemonProcesses.TaskDone(task);
                             continue;
                         }
 
@@ -101,9 +107,10 @@ namespace Wbtb.Core.Web.Core
 
                         task.HasPassed = true;
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
 
                         // create tasks for next stage
-                        foreach(string logparser in job.LogParsers)
+                        foreach (string logparser in job.LogParsers)
                             dataLayer.SaveDaemonTask(new DaemonTask
                             {
                                 BuildId = build.Id,
@@ -129,13 +136,13 @@ namespace Wbtb.Core.Web.Core
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.HasPassed = false;
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
-
                 }
             }
             finally 
             {
-                activeItems.Clear(this);
+                daemonProcesses.ClearActive(this);
             }
         }
 

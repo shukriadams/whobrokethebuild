@@ -64,7 +64,7 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.PostProcess.ToString());
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
@@ -73,10 +73,15 @@ namespace Wbtb.Core.Web
                     try
                     {
                         Build build = dataLayer.GetBuildById(task.BuildId);
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
-                            continue;
 
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, TaskGroup);
+                        if (blocking.Any())
+                        {
+                            daemonProcesses.TaskBlocked(task, this, blocking);
+                            continue;
+                        }
+
+                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
                         Job job = dataLayer.GetJobById(build.JobId);
                         
                         task.HasPassed = true;
@@ -108,6 +113,7 @@ namespace Wbtb.Core.Web
 
                         task.ProcessedUtc = DateTime.UtcNow;
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                     catch (Exception ex)
                     {
@@ -115,12 +121,13 @@ namespace Wbtb.Core.Web
                         task.HasPassed = false;
                         task.Result = ex.ToString();
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                 }
             }
             finally
             {
-                activeItems.Clear(this);
+                daemonProcesses.ClearActive(this);
             }
         }
         #endregion

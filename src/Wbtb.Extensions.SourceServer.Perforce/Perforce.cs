@@ -54,6 +54,15 @@ namespace Wbtb.Extensions.SourceServer.Perforce
                 throw new ConfigurationException("P4 servers with SSL enabled required a \"TrustFingerprint\".");
         }
 
+        void ISourceServerPlugin.VerifyJobConfig(Job job) 
+        {
+            if (job.Config == null)
+                throw new ConfigurationException("Job Missing item \"Config\"");
+
+            if (!job.Config.Any(c => c.Key == "p4depotRoot"))
+                throw new ConfigurationException($"Plug {this.ContextPluginConfig.Manifest.Key} requires each job have aconfig item \"p4depotRoot\". This should be the depot + stream root for this job, followed with /..., example \"//mydepot/mystream/...\".  ");
+        }
+
         ReachAttemptResult ISourceServerPlugin.AttemptReach(Core.Common.SourceServer contextServer)
         {
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
@@ -83,8 +92,14 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
         #region METHODS
 
-        IEnumerable<Revision> ISourceServerPlugin.GetRevisionsBetween(Core.Common.SourceServer contextServer, string revisionStart, string revisionEnd)
+        IEnumerable<Revision> ISourceServerPlugin.GetRevisionsBetween(Job job, string revisionStart, string revisionEnd)
         {
+            SimpleDI di = new SimpleDI();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+            IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Core.Common.SourceServer contextServer = data.GetSourceServerById(job.SourceServerId);
+
+
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();
             string password = contextServer.Config.First(c => c.Key == "Password").Value.ToString();
@@ -92,7 +107,9 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             if (contextServer.Config.Any(c => c.Key == "TrustFingerprint"))
                 trust = contextServer.Config.First(c => c.Key == "TrustFingerprint").Value.ToString().ToLower();
 
-            IEnumerable<string> revisionNumbers = PerforceUtils.GetRawChangesBetween(user, password, host, trust, int.Parse(revisionStart), int.Parse(revisionEnd));
+            string depotRoot = job.Config.First(c => c.Key == "p4depotRoot").Value.ToString();
+
+            IEnumerable<string> revisionNumbers = PerforceUtils.GetRawChangesBetween(user, password, host, trust, int.Parse(revisionStart), int.Parse(revisionEnd), depotRoot);
             IList<Revision> changes = new List<Revision>();
             ISourceServerPlugin _this = this;
             foreach (string revisionNumber in revisionNumbers)

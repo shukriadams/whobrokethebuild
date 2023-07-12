@@ -25,6 +25,11 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
             // no config validation required
         }
 
+        void ISourceServerPlugin.VerifyJobConfig(Job job)
+        {
+            // no config validation required
+        }
+
         ReachAttemptResult ISourceServerPlugin.AttemptReach(Core.Common.SourceServer contextServer)
         {
             // always succeed
@@ -35,12 +40,16 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
 
         #region METHODS
 
-        IEnumerable<Revision> ISourceServerPlugin.GetRevisionsBetween(Core.Common.SourceServer contextServer, string revisionStart, string revisionEnd)
+        IEnumerable<Revision> ISourceServerPlugin.GetRevisionsBetween(Job job, string revisionStart, string revisionEnd)
         {
             // cludge together an ugly way to do p4 range using saved json revision files. We assume revision nrs run in order etc etc
             int startRevision = int.Parse(revisionStart);
             int endRevision = int.Parse(revisionEnd);
             int currentRevision = startRevision + 1;
+            SimpleDI di = new SimpleDI();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+            IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Core.Common.SourceServer sourceServer = data.GetSourceServerById(job.SourceServerId);
             List<Revision> revisions = new List<Revision>();
             ISourceServerPlugin _this = this;
 
@@ -48,7 +57,7 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
             {
                 string path = $"JSON.Revisions.{currentRevision}.json";
                 if (ResourceHelper.ResourceExists(this.GetType(), path))
-                    revisions.Add(_this.GetRevision(contextServer, currentRevision.ToString()));
+                    revisions.Add(_this.GetRevision(sourceServer, currentRevision.ToString()));
 
                 currentRevision++;
             }

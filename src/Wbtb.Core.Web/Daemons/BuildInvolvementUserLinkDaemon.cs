@@ -62,7 +62,7 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.UserResolve.ToString());
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
@@ -71,20 +71,27 @@ namespace Wbtb.Core.Web
                     try 
                     {
                         Build build = dataLayer.GetBuildById(task.BuildId);
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
+                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, TaskGroup);
+                        if (blocking.Any()) 
+                        {
+                            daemonProcesses.TaskBlocked(task, this, blocking);
                             continue;
+                        }
 
                         Job job = dataLayer.GetJobById(build.JobId);
                         BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
                         SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
                         Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
+                        
                         if (revision == null)
                         {
                             task.ProcessedUtc = DateTime.UtcNow;
-                            task.Result = $"Expected revision {buildInvolvement.RevisionCode} has not been resolved";
+                            task.Result = $"Expected revision {buildInvolvement.RevisionCode} has not yet been resolved";
                             task.HasPassed = false;
+
+                            daemonProcesses.TaskBlocked(task, task.Result);
                             continue;
                         }
 
@@ -102,6 +109,7 @@ namespace Wbtb.Core.Web
                             task.Result = $"User {revision.User} for buildinvolvement does not exist. Add user and rerun import";
                             task.HasPassed = false;
                             dataLayer.SaveDaemonTask(task);
+                            daemonProcesses.TaskDone(task);
                             continue;
                         }
 
@@ -111,6 +119,7 @@ namespace Wbtb.Core.Web
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.HasPassed = true;
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                     catch(Exception ex) 
                     {
@@ -118,12 +127,13 @@ namespace Wbtb.Core.Web
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.Result = ex.ToString();
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     } 
                 }
             }
             finally
             {
-                activeItems.Clear(this);
+                daemonProcesses.ClearActive(this);
             }
         }
         #endregion

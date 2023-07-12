@@ -11,6 +11,8 @@ namespace Wbtb.Core.Web
 
         public IEnumerable<DaemonActiveProcessItem> ActiveProcesses { get; set; }
 
+        public IList<DaemonBlockedProcessItem> BlockedProcesses { get; set; }
+
         public string BaseUrl { get; set; }
 
         public string QueryStrings { get; set; }
@@ -31,6 +33,7 @@ namespace Wbtb.Core.Web
         {
             this.DaemonTasks = new PageableData<ViewDaemonTask>(new ViewDaemonTask[] { }, 0, 0, 0);
             this.ActiveProcesses = new DaemonActiveProcessItem [] { };
+            this.BlockedProcesses = new DaemonBlockedProcessItem[] { };
             this.QueryStrings = string.Empty;
             this.FilterBy = string.Empty;
             this.OrderBy = string.Empty;

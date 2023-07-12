@@ -66,7 +66,7 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
@@ -139,7 +139,7 @@ namespace Wbtb.Core.Web
             }
             finally
             {
-                activeItems.Clear(this);
+                daemonProcesses.ClearActive(this);
             }
 
             

@@ -76,7 +76,7 @@ namespace Wbtb.Core.Web
             if (cacheLookup != null)
                 return cacheLookup;
 
-            Match match = new Regex(regex, RegexOptions.IgnoreCase & RegexOptions.Multiline).Match(logText);
+            Match match = new Regex(regex, RegexOptions.Singleline & RegexOptions.Compiled).Match(logText);
             if (!match.Success || match.Groups.Count < 2)
             {
                 cacheLookup = string.Empty;
@@ -93,143 +93,154 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AddBuildRevisionsFromBuildLog.ToString());
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
-            
-            try
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AddBuildRevisionsFromBuildLog.ToString()).Take(_config.MaxThreads);
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
+
+            tasks.AsParallel().ForAll(delegate (DaemonTask task)
             {
-                foreach (DaemonTask task in tasks)
+                string processKey = string.Empty;
+
+                try
                 {
-                    try
+                    Build build = dataLayer.GetBuildById(task.BuildId);
+                    Job job = dataLayer.GetJobById(build.JobId);
+                    BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
+                    SourceServer sourceServer = dataLayer.GetSourceServerById(job.SourceServerId);
+                    ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
+                    IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                    ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+
+                    processKey = $"{this.GetType().Name}_{task.Id}";
+
+                    daemonProcesses.AddActive(processKey, $"Task : {task.Id}, Build {build.Id}");
+
+                    if (!reach.Reachable)
                     {
-                        Build build = dataLayer.GetBuildById(task.BuildId);
-                        Job job = dataLayer.GetJobById(build.JobId);
-                        BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
-                        SourceServer sourceServer = dataLayer.GetSourceServerById(job.SourceServerId);
-                        ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
-                        IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                        ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-                    
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
-
-                        if (!reach.Reachable)
-                        {
-                            _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            continue;
-                        }
-
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
-                            continue;
-
-                        reach = sourceServerPlugin.AttemptReach(sourceServer);
-                        if (!reach.Reachable)
-                        {
-                            _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            continue;
-                        }
-
-                        string logText;
-                        string revisionCode;
-
-                        if (string.IsNullOrEmpty(job.RevisionAtBuildRegex))
-                            throw new Exception("RevisionAtBuildRegex) not set");
-
-                        logText = File.ReadAllText(build.LogPath);
-                        revisionCode = GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
-
-                        if (string.IsNullOrEmpty(revisionCode))
-                        {
-                            task.Result = $"Could not read a revision code from log content. This might be due to an error with your revision regex {job.RevisionAtBuildRegex}, but it could be that the revision string was not written to the log.";
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.HasPassed = true;
-                            dataLayer.SaveDaemonTask(task);
-                            continue;
-                        }
-
-                        Revision revisionInLog = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
-                        if (revisionInLog == null)
-                        {
-                            task.Result = $"Unable to retrieve revision details for {revisionCode}.";
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.HasPassed = false;
-                            dataLayer.SaveDaemonTask(task);
-                            continue;
-                        }
-
-                        IList<Revision> revisionsToLink = new List<Revision>() { revisionInLog };
-
-                        // get previous build and if it has any revision on it, span the gap with current build
-                        Build previousBuild = dataLayer.GetPreviousBuild(build);
-                        if (previousBuild != null)
-                        {
-                            // note : assumes previous build's revisions have been successfully resolved so their date is available
-                            Revision lastRevisionOnPreviousBuild = dataLayer.GetNewestRevisionForBuild(previousBuild.Id);
-                            if (lastRevisionOnPreviousBuild != null)
-                                revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(sourceServer, lastRevisionOnPreviousBuild.Code, revisionInLog.Code)).ToList();
-                        }
-
-                        foreach (Revision revision in revisionsToLink)
-                        {
-                            string revisionId;
-
-                            // if revision doesn't exist in db, add it
-                            Revision lookupRevision = dataLayer.GetRevisionByKey(sourceServer.Id, revision.Code);
-                            if (lookupRevision == null)
-                            {
-                                revision.SourceServerId = sourceServer.Id;
-                                revisionId = dataLayer.SaveRevision(revision).Id;
-                            }
-                            else
-                            {
-                                revisionId = lookupRevision.Id;
-                            }
-
-                            // create build involvement for this revision
-                            BuildInvolvement buildInvolvement = dataLayer.SaveBuildInvolement(new BuildInvolvement
-                            {
-                                BuildId = build.Id,
-                                RevisionCode = revision.Code,
-                                RevisionLinkStatus = LinkState.Completed,
-                                InferredRevisionLink = revisionCode != revision.Code,
-                                RevisionId = revisionId
-                            });
-
-                            dataLayer.SaveDaemonTask(new DaemonTask
-                            {
-                                BuildId = build.Id,
-                                BuildInvolvementId = buildInvolvement.Id,
-                                Src = this.GetType().Name,
-                                TaskKey = DaemonTaskTypes.RevisionResolve.ToString(),
-                                Order = 3,
-                            });
-
-                            dataLayer.SaveDaemonTask(new DaemonTask
-                            {
-                                BuildId = build.Id,
-                                Src = this.GetType().Name,
-                                BuildInvolvementId = buildInvolvement.Id,
-                                Order = 3,
-                                TaskKey = DaemonTaskTypes.UserResolve.ToString()
-                            });
-
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.HasPassed = true;
-                            dataLayer.SaveDaemonTask(task);
-                        }
+                        _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                        daemonProcesses.TaskBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                        return;
                     }
-                    catch (Exception ex)
+                    
+                    IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, TaskGroup);
+                    if (blocking.Any()) 
                     {
+                        daemonProcesses.TaskBlocked(task, this, blocking);
+                        return;
+                    }
+
+                    reach = sourceServerPlugin.AttemptReach(sourceServer);
+                    if (!reach.Reachable)
+                    {
+                        _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                        daemonProcesses.TaskBlocked(task, $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                        return;
+                    }
+
+                    string logText;
+                    string revisionCode;
+
+                    if (string.IsNullOrEmpty(job.RevisionAtBuildRegex))
+                        throw new Exception("RevisionAtBuildRegex) not set");
+
+                    logText = File.ReadAllText(build.LogPath);
+                    revisionCode = GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
+
+                    if (string.IsNullOrEmpty(revisionCode))
+                    {
+                        task.Result = $"Could not read a revision code from log content. This might be due to an error with your revision regex {job.RevisionAtBuildRegex}, but it could be that the revision string was not written to the log.";
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = true;
+                        dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
+                        return;
+                    }
+
+                    Revision revisionInLog = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
+                    if (revisionInLog == null)
+                    {
+                        task.Result = $"Unable to retrieve revision details for {revisionCode}.";
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.HasPassed = false;
-                        task.Result = ex.ToString();
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
+                        return;
+                    }
+
+                    IList<Revision> revisionsToLink = new List<Revision>() { revisionInLog };
+
+                    // get previous build and if it has any revision on it, span the gap with current build
+                    Build previousBuild = dataLayer.GetPreviousBuild(build);
+                    if (previousBuild != null)
+                    {
+                        // note : assumes previous build's revisions have been successfully resolved so their date is available
+                        Revision lastRevisionOnPreviousBuild = dataLayer.GetNewestRevisionForBuild(previousBuild.Id);
+                        if (lastRevisionOnPreviousBuild != null)
+                            revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(job, lastRevisionOnPreviousBuild.Code, revisionInLog.Code)).ToList();
+                    }
+
+                    foreach (Revision revision in revisionsToLink)
+                    {
+                        string revisionId;
+
+                        // if revision doesn't exist in db, add it
+                        Revision lookupRevision = dataLayer.GetRevisionByKey(sourceServer.Id, revision.Code);
+                        if (lookupRevision == null)
+                        {
+                            revision.SourceServerId = sourceServer.Id;
+                            revisionId = dataLayer.SaveRevision(revision).Id;
+                        }
+                        else
+                        {
+                            revisionId = lookupRevision.Id;
+                        }
+
+                        // create build involvement for this revision
+                        BuildInvolvement buildInvolvement = dataLayer.SaveBuildInvolement(new BuildInvolvement
+                        {
+                            BuildId = build.Id,
+                            RevisionCode = revision.Code,
+                            RevisionLinkStatus = LinkState.Completed,
+                            InferredRevisionLink = revisionCode != revision.Code,
+                            RevisionId = revisionId
+                        });
+
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            BuildId = build.Id,
+                            BuildInvolvementId = buildInvolvement.Id,
+                            Src = this.GetType().Name,
+                            TaskKey = DaemonTaskTypes.RevisionResolve.ToString(),
+                            Order = 3,
+                        });
+
+                        dataLayer.SaveDaemonTask(new DaemonTask
+                        {
+                            BuildId = build.Id,
+                            Src = this.GetType().Name,
+                            BuildInvolvementId = buildInvolvement.Id,
+                            Order = 3,
+                            TaskKey = DaemonTaskTypes.UserResolve.ToString()
+                        });
+
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = true;
+                        dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                 }
-            }
-            finally
-            {
-                activeItems.Clear(this);
-            }
+                catch (Exception ex)
+                {
+                    task.ProcessedUtc = DateTime.UtcNow;
+                    task.HasPassed = false;
+                    task.Result = ex.ToString();
+                    dataLayer.SaveDaemonTask(task);
+                    daemonProcesses.TaskDone(task);
+                }
+                finally 
+                {
+                    daemonProcesses.ClearActive(processKey);
+                }
+            });
         }
 
         #endregion

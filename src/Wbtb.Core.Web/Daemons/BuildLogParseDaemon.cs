@@ -63,8 +63,8 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.LogParse.ToString());
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.LogParse.ToString()).Take(_config.MaxThreads);
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
@@ -72,9 +72,15 @@ namespace Wbtb.Core.Web
                 // foreach (DaemonTask task in tasks) 
                 tasks.AsParallel().ForAll(delegate (DaemonTask task)
                 {
+                    string processKey = string.Empty;
+
                     Build build = dataLayer.GetBuildById(task.BuildId);
-                    if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
+                    IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, TaskGroup);
+                    if (blocking.Any()) 
+                    {
+                        daemonProcesses.TaskBlocked(task, this, blocking);
                         return;
+                    }
 
                     Job job = dataLayer.GetJobById(build.JobId);
                     try
@@ -86,7 +92,11 @@ namespace Wbtb.Core.Web
                             task.Result += $"Log parser {task.Args} was not found.";
                             task.ProcessedUtc = DateTime.UtcNow;
                             dataLayer.SaveDaemonTask(task);
+                            daemonProcesses.TaskDone(task);
                         }
+                        
+                        processKey = $"{this.GetType().Name}_{task.Id}_{parser.ContextPluginConfig.Manifest.Key}";
+                        daemonProcesses.AddActive(processKey, $"Task {task.Id}, build {build.Identifier}, parser {parser.ContextPluginConfig.Manifest.Key}");
 
                         // todo : optimize, have to reread log just to hash is a major performance issue
                         string rawLog = File.ReadAllText(build.LogPath);
@@ -105,6 +115,7 @@ namespace Wbtb.Core.Web
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.HasPassed = true;
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                     catch (Exception ex)
                     {
@@ -113,12 +124,17 @@ namespace Wbtb.Core.Web
                         task.Result = $"{task.Result}\n Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin: {ex.Message}";
                         task.ProcessedUtc = DateTime.UtcNow;
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
+                    }
+                    finally 
+                    {
+                        daemonProcesses.ClearActive(processKey);
                     }
                 });
             }
             finally
             {
-                activeItems.Clear(this);
+                daemonProcesses.ClearActive(this);
             }
         }
 

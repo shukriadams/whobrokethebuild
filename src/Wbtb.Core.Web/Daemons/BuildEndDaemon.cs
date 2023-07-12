@@ -60,7 +60,7 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.BuildEnd.ToString());
 
             try
@@ -74,19 +74,23 @@ namespace Wbtb.Core.Web
                         BuildServer buildserver = dataLayer.GetBuildServerById(job.BuildServerId);
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
 
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
                         build = buildServerPlugin.TryUpdateBuild(build);
 
                         // build still not done, contine and wait. Todo : Add forced time out on build here.
-                        if (!build.EndedUtc.HasValue)
+                        if (!build.EndedUtc.HasValue) 
+                        {
+                            daemonProcesses.TaskBlocked(task, "Build not complete yet");
                             continue;
+                        }
 
                         dataLayer.SaveBuild(build);
 
                         task.HasPassed = true;
                         task.ProcessedUtc = DateTime.UtcNow;
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
 
                         // create tasks for next stage
                         dataLayer.SaveDaemonTask(new DaemonTask
@@ -132,12 +136,13 @@ namespace Wbtb.Core.Web
                         task.HasPassed = false;
                         task.Result = ex.ToString();
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                 }
             }
             finally 
             {
-                activeItems.Clear(this);
+                daemonProcesses.ClearActive(this);
             }
         }
 

@@ -583,36 +583,26 @@ namespace Madscience.Perforce
         public static IEnumerable<string> GetRawChangesBetween(string username, string password, string host, string trustFingerPrint, int startRevision, int endRevision, string path = "//...")
         {
             string ticket = GetTicket(username, password, host, trustFingerPrint);
-            IList<int> revisions = new List<int>();
+            IList<string> revisions = new List<string>();
             bool limitReached = false;
 
-            while(!limitReached)
-            {
-                string command = $"p4 -u {username} -p {host} -P {ticket} changes -m 100 {startRevision} {path}";
-                ShellResult result = Run(command);
-                // bizarrely, p4 changes returns both stdout and stderr for changes
-                if (result.ExitCode != 0 || (result.StdErr.Any() && !result.StdOut.Any()))
-                    throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\\n", result.StdErr)}");
+            string command = $"p4 -u {username} -p {host} -P {ticket} changes {path}@{startRevision},@{endRevision} ";
+            ShellResult result = Run(command);
+            // bizarrely, p4 changes returns both stdout and stderr for changes
+            if (result.ExitCode != 0 || (result.StdErr.Any() && !result.StdOut.Any()))
+                throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\\n", result.StdErr)}");
 
-                if (result.StdOut.Count() == 0)
-                    break;
-
-                foreach (string line in result.StdOut){
+            if (result.StdOut.Any()) 
+                foreach (string line in result.StdOut)
+                {
                     if (!line.StartsWith("Change "))
                         continue;
 
-                    int revisionFound = int.Parse(Find(line, @"change (\d*?) ", RegexOptions.IgnoreCase));
-                    if (revisionFound == endRevision){
-                        limitReached = true;
-                        break;
-                    }
-
-                    startRevision = revisionFound;
+                    string revisionFound = Find(line, @"change (\d*?) ", RegexOptions.IgnoreCase);
                     revisions.Add(revisionFound);
                 }
-            }
 
-            return revisions.Select(rev => rev.ToString());
+            return revisions;
         }
 
         /// <summary>

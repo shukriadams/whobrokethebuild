@@ -10,7 +10,8 @@
 
 @if (Model.ActiveProcesses.Any())
 {
-    <x-list class="daemonTasks --dense">
+    <h3>Active Processes</h3>
+    <x-list class="--dense">
     @foreach (DaemonActiveProcessItem item in Model.ActiveProcesses)
     {
         <x-list-row class="--header">
@@ -33,6 +34,8 @@ else
         No active processes
     </div>
 }
+
+
 
 
 <div>
@@ -133,6 +136,14 @@ else
                 <x-list-cell class="quiet">
                     @task.Result
                 </x-list-cell>
+                @if(task.Block != null)
+                {
+                    <x-list-cell>
+                        BLOCKED: 
+                        @task.Block.Reason
+                        for @task.Block.CreatedUtc.Ago()
+                    </x-list-cell>
+                }
             </x-list-row>
         }
     </x-list>
@@ -146,3 +157,4 @@ else
 }
 
 @ViewHelpers.PagerBar(Model.BaseUrl, Model.QueryStrings, Model.DaemonTasks, Model.Config)
+

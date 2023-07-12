@@ -67,7 +67,7 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AddBuildRevisionsFromBuildServer.ToString());
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
@@ -81,13 +81,16 @@ namespace Wbtb.Core.Web
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                         ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
                         if (!reach.Reachable)
                         {
                             _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            daemonProcesses.TaskBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                             continue;
                         }
+
+                        // this daemon's tasks are not blocked by preceeding tasks
 
                         BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
                         foreach (string revisionCode in result.Revisions)
@@ -121,7 +124,7 @@ namespace Wbtb.Core.Web
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.Result = result.Result;
                         dataLayer.SaveDaemonTask(task);
-
+                        daemonProcesses.TaskDone(task);
                     }
                     catch (Exception ex)
                     {
@@ -129,12 +132,13 @@ namespace Wbtb.Core.Web
                         task.HasPassed = false;
                         task.Result = ex.ToString();
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                 }
             }
             finally
             {
-                activeItems.Clear(this);
+                daemonProcesses.ClearActive(this);
             }
         }
         #endregion

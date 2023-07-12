@@ -30,6 +30,17 @@ namespace Wbtb.Core.Common
             });
         }
 
+        void ISourceServerPlugin.VerifyJobConfig(Job job)
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = nameof(ISourceServerPlugin.VerifyJobConfig),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "job", Value = job }
+                }
+            });
+        }
+
         ReachAttemptResult ISourceServerPlugin.AttemptReach(SourceServer contextServer)
         {
             return _pluginSender.InvokeMethod<ReachAttemptResult>(this, new PluginArgs
@@ -41,13 +52,13 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<Revision> ISourceServerPlugin.GetRevisionsBetween(SourceServer contextServer, string revisionStart, string revisionEnd)
+        IEnumerable<Revision> ISourceServerPlugin.GetRevisionsBetween(Job job, string revisionStart, string revisionEnd)
         {
             return _pluginSender.InvokeMethod<IEnumerable<Revision>>(this, new PluginArgs
             {
                 FunctionName = nameof(ISourceServerPlugin.GetRevisionsBetween),
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "contextServer", Value = contextServer },
+                    new PluginFunctionParameter { Name = "job", Value = job },
                     new PluginFunctionParameter { Name = "revisionStart", Value = revisionStart },
                     new PluginFunctionParameter { Name = "revisionEnd", Value = revisionEnd }
                 }

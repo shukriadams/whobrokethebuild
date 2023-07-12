@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
+using YamlDotNet.Core.Tokens;
 
 namespace Wbtb.Core.Web
 {
@@ -65,7 +66,7 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.RevisionResolve.ToString());
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
@@ -74,10 +75,14 @@ namespace Wbtb.Core.Web
                     try 
                     {
                         Build build = dataLayer.GetBuildById(task.BuildId);
-                        activeItems.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
+                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, TaskGroup);
+                        if (blocking.Any())
+                        {
+                            daemonProcesses.TaskBlocked(task, this, blocking);
                             continue;
+                        }
 
                         Job job = dataLayer.GetJobById(build.JobId);
                         BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
@@ -88,6 +93,7 @@ namespace Wbtb.Core.Web
                         if (!sourceServerPlugin.AttemptReach(sourceServer).Reachable)
                         {
                             Console.WriteLine($"unable to reach source server \"{sourceServer.Name}\", waiting for later.");
+                            daemonProcesses.TaskBlocked(task, "source server down");
                             continue;
                         }
 
@@ -98,6 +104,7 @@ namespace Wbtb.Core.Web
                             task.ProcessedUtc = DateTime.UtcNow;
                             task.Result = $"Failed to resolve revision {buildInvolvement.RevisionCode} from source control server.";
                             dataLayer.SaveDaemonTask(task);
+                            daemonProcesses.TaskDone(task);
                             continue;
                         }
 
@@ -110,6 +117,7 @@ namespace Wbtb.Core.Web
                         task.HasPassed = true;
                         task.ProcessedUtc = DateTime.UtcNow;
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                     catch (Exception ex) 
                     {
@@ -117,12 +125,13 @@ namespace Wbtb.Core.Web
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.Result = ex.ToString();
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                 }
             }
             finally
             {
-                activeItems.Clear(this);
+                daemonProcesses.ClearActive(this);
             }
         }
 

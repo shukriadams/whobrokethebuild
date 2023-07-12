@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Daemons;
 
@@ -65,7 +66,7 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.IncidentAssign.ToString());
-            DaemonActiveProcesses activeProcesses = _di.Resolve<DaemonActiveProcesses>();
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
@@ -75,10 +76,14 @@ namespace Wbtb.Core.Web
                     {
                         Build build = dataLayer.GetBuildById(task.BuildId);
 
-                        if (dataLayer.DaemonTasksBlocked(build.Id, TaskGroup).Any())
+                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, TaskGroup);
+                        if (blocking.Any()) 
+                        {
+                            daemonProcesses.TaskBlocked(task, this, blocking);
                             continue;
+                        }
 
-                        activeProcesses.Add(this, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
                         Build previousBuild = dataLayer.GetPreviousBuild(build);
                         if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
                         {
@@ -90,7 +95,7 @@ namespace Wbtb.Core.Web
                             task.HasPassed = true;
                             task.ProcessedUtc = DateTime.UtcNow;
                             dataLayer.SaveDaemonTask(task);
-
+                            daemonProcesses.TaskDone(task);
                             continue;
                         }
 
@@ -98,7 +103,8 @@ namespace Wbtb.Core.Web
                         // todo : add some kind of max-tries here, it needs to timeout 
                         if (previousBuild != null && previousBuild.Status == BuildStatus.Failed && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
                         {
-                            Console.WriteLine($"Skipping task {task.Id} for buidl {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
+                            Console.WriteLine($"Skipping task {task.Id} for build {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
+                            daemonProcesses.TaskBlocked(task, "Previous build waiting for incident assignment");
                             continue;
                         }
 
@@ -111,7 +117,7 @@ namespace Wbtb.Core.Web
                             task.HasPassed = true;
                             task.ProcessedUtc = DateTime.UtcNow;
                             dataLayer.SaveDaemonTask(task);
-
+                            daemonProcesses.TaskDone(task);
                             continue;
                         }
 
@@ -125,6 +131,7 @@ namespace Wbtb.Core.Web
                             task.Result += "Previous build null";
 
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                     catch (Exception ex) 
                     {
@@ -132,12 +139,13 @@ namespace Wbtb.Core.Web
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.Result = ex.ToString();
                         dataLayer.SaveDaemonTask(task);
+                        daemonProcesses.TaskDone(task);
                     }
                 }
             }
             finally
             {
-                activeProcesses.Clear(this);
+                daemonProcesses.ClearActive(this);
             }
         }
 

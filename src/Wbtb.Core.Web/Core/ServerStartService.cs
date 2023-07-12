@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -35,7 +36,7 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, BuildLogParseDaemon>(null, true);
                     di.Register<IWebDaemon, BuildInvolvementUserLinkDaemon>(null, true);
                     di.Register<IWebDaemon, BuildInvolvementRevisionResolveDaemon>(null, true);
-                    di.RegisterSingleton(typeof(DaemonActiveProcesses), new DaemonActiveProcesses());
+                    di.RegisterSingleton(typeof(TaskDaemonProcesses), new TaskDaemonProcesses());
                     di.RegisterFactory<IHubContext, HubFactory>();
                     di.Register<BuildEventHandlerHelper, BuildEventHandlerHelper>();
 
@@ -58,6 +59,11 @@ namespace Wbtb.Core.Web
                     bool disableDaemons = disableDaemonsLook == "0" || disableDaemonsLook == "false" || config.EnabledDaemons == false;
                     string disableSocketsLook = Environment.GetEnvironmentVariable("WBTB_ENABLE_SOCKETS");
                     bool disableSockets = disableSocketsLook == "0" || disableSocketsLook == "false" || config.EnabledSockets == false;
+
+                    //string logText = System.IO.File.ReadAllText("D:\\log.txt");
+                    //string regex = @"<p4-changes........>\n*Change (\d+) on.*?\n*<p4-changes........>";
+                    //string hash = Sha256.FromString(regex + logText);
+                    //Match match = new Regex(regex, RegexOptions.Singleline & RegexOptions.Compiled).Match(logText);
 
 
                     using (IServiceScope scope = serviceProvider.CreateScope())

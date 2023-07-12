@@ -288,12 +288,25 @@ namespace Wbtb.Core.Web.Controllers
             Configuration config = _di.Resolve<Configuration>();
             hostname = HttpUtility.UrlDecode(hostname);
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
-            DaemonActiveProcesses activeItems = _di.Resolve<DaemonActiveProcesses>();
+            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             ProcessPageModel model = new ProcessPageModel();
 
-            model.ActiveProcesses = activeItems.GetCurrent();
+            model.ActiveProcesses = daemonProcesses.GetActive();
+            model.BlockedProcesses = daemonProcesses.GetBlocked().OrderByDescending(p => p.CreatedUtc).ToList();
+
+            // try to assign blocks to acitve processses to make it easier 
             model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, orderBy, filterby, jobid));
+            foreach (ViewDaemonTask task in model.DaemonTasks.Items) 
+            {
+                DaemonBlockedProcessItem block = model.BlockedProcesses.FirstOrDefault(b => b.TaskId == task.Id);
+                if (block == null)
+                    continue;
+
+                model.BlockedProcesses.Remove(block);
+                task.Block = block;
+            }
+
             model.DaemonTasks.Items.ToList().ForEach(daemonTask => daemonTask.Build = ViewBuild.Copy(dataLayer.GetBuildById(daemonTask.BuildId)));
             model.BaseUrl = $"/processlog";
             model.QueryStrings = $"filterby={filterby}&orderBy={orderBy}&jobid={jobid}";
