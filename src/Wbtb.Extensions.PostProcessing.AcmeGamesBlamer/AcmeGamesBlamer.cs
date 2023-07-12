@@ -50,6 +50,10 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             // can we connect revision file path to c++ file
             if (isPerforce) 
             {
+                // parse out clientspec from log
+
+                // if clientspec not found, give up blame, we can't link errors in build workspace to changes in revision
+
                 foreach (BuildLogParseResult result in logParseResults)
                 {
                     ParsedBuildLogText parsedText = BuildLogTextParser.Parse(result.ParsedContent);
@@ -59,11 +63,11 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
                         continue;
 
-                    foreach (var line in parsedText.Items)
-                        foreach (var item in line.Items.Where(l => l.Type == "path"))
+                    foreach (ParsedBuildLogTextLine line in parsedText.Items)
+                        foreach (ParsedBuildLogTextLineItem item in line.Items.Where(l => l.Type == "path"))
                             foreach (Revision revision in revisions)
                             {
-                                Console.WriteLine("matc foudn");
+                                Console.WriteLine("match found");
                             }
                 }
             }
