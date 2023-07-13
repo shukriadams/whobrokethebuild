@@ -3,7 +3,7 @@ random text
 random text
 random text
 random text
-<current-revision>300</current-revision>
+<current-revision>300<current-revision>
 random text
 random text
 random text

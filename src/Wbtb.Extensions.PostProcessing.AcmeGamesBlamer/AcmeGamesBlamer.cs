@@ -92,11 +92,23 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                         continue;
 
                     foreach (ParsedBuildLogTextLine line in parsedText.Items)
-                        foreach (ParsedBuildLogTextLineItem item in line.Items.Where(l => l.Type == "path"))
-                            foreach (Revision revision in revisions)
+                        foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
+                        {
+                            string localFile = localPathItem.Content.Replace("\\", "/");
+                            string clientRoot = client.Root.Replace("\\", "/");
+                            // force unitpaths
+                            if (localFile.ToLower().StartsWith(clientRoot.ToLower()))
                             {
-                                Console.WriteLine("match found");
+                                localFile = localFile.Substring(clientRoot.Length);
                             }
+
+                            foreach (Revision revision in revisions)
+                                foreach (RevisionFile revisionFile in revision.Files)
+                                {
+
+                                }
+
+                        }
                 }
             }
 

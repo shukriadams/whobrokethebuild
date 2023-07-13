@@ -22,6 +22,7 @@ View:
         //mydepot/main/core/PSD/... //ugs_workspace/PSD/...
 
 <p4-cient-state>
+<current-revision>56334<current-revision>
 
 Random text
 Random text
