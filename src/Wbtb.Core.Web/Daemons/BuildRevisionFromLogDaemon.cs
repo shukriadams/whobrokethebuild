@@ -194,33 +194,44 @@ namespace Wbtb.Core.Web
                             revisionId = lookupRevision.Id;
                         }
 
+                        // check if revision involvement already exists
+                        BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementsByBuild(build.Id).FirstOrDefault(bi => bi.RevisionCode == revision.Code);
+
                         // create build involvement for this revision
-                        BuildInvolvement buildInvolvement = dataLayer.SaveBuildInvolement(new BuildInvolvement
+                        if (buildInvolvement == null)
                         {
-                            BuildId = build.Id,
-                            RevisionCode = revision.Code,
-                            RevisionLinkStatus = LinkState.Completed,
-                            InferredRevisionLink = revisionCode != revision.Code,
-                            RevisionId = revisionId
-                        });
+                            buildInvolvement = dataLayer.SaveBuildInvolement(new BuildInvolvement
+                            {
+                                BuildId = build.Id,
+                                RevisionCode = revision.Code,
+                                RevisionLinkStatus = LinkState.Completed,
+                                InferredRevisionLink = revisionCode != revision.Code,
+                                RevisionId = revisionId
+                            });
 
-                        dataLayer.SaveDaemonTask(new DaemonTask
-                        {
-                            BuildId = build.Id,
-                            BuildInvolvementId = buildInvolvement.Id,
-                            Src = this.GetType().Name,
-                            TaskKey = DaemonTaskTypes.RevisionResolve.ToString(),
-                            Order = 3,
-                        });
+                            dataLayer.SaveDaemonTask(new DaemonTask
+                            {
+                                BuildId = build.Id,
+                                BuildInvolvementId = buildInvolvement.Id,
+                                Src = this.GetType().Name,
+                                TaskKey = DaemonTaskTypes.RevisionResolve.ToString(),
+                                Order = 3,
+                            });
 
-                        dataLayer.SaveDaemonTask(new DaemonTask
+                            dataLayer.SaveDaemonTask(new DaemonTask
+                            {
+                                BuildId = build.Id,
+                                Src = this.GetType().Name,
+                                BuildInvolvementId = buildInvolvement.Id,
+                                Order = 3,
+                                TaskKey = DaemonTaskTypes.UserResolve.ToString()
+                            });
+
+                        }
+                        else 
                         {
-                            BuildId = build.Id,
-                            Src = this.GetType().Name,
-                            BuildInvolvementId = buildInvolvement.Id,
-                            Order = 3,
-                            TaskKey = DaemonTaskTypes.UserResolve.ToString()
-                        });
+                            task.Result = $"Build involvement id {buildInvolvement.Id} already existed.";
+                        }
 
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.HasPassed = true;

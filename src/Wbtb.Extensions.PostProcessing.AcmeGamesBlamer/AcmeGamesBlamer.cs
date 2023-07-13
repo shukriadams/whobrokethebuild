@@ -1,7 +1,13 @@
-﻿using Wbtb.Core.Common;
+﻿using System.Text.RegularExpressions;
+using Wbtb.Core.Common;
+using Madscience.Perforce;
 
 namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 {
+    /// <summary>
+    /// Does Perforce + C++ + Unreal Blueprint error checking.
+    /// Requires that p4 clientspec is outputted in build log, wrapped between <p4-cient-state>...<p4-cient-state> tags.
+    /// </summary>
     public class AcmeGamesBlamer : Plugin, IPostProcessorPlugin
     {
         PluginInitResult IPlugin.InitializePlugin()
@@ -37,12 +43,15 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             foreach (BuildInvolvement buildInvolvement in buildInvolvements.Where(bi => !string.IsNullOrEmpty(bi.RevisionId)))
                 revisions.Add(data.GetRevisionById(buildInvolvement.RevisionId));
 
+            /*
+            // IGNORE FOR NOW; RE-ENABLE
             if (build.Status != BuildStatus.Failed)
                 return new PostProcessResult
                 {
                     Passed = true,
                     Result = "Ignoring non-failed build"
                 };
+            */
 
             // if log parse results are c++
             // ensure current source control is perforce
@@ -51,8 +60,23 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             if (isPerforce) 
             {
                 // parse out clientspec from log
+                string rawLog = File.ReadAllText(build.LogPath);
+                string regex = @"<p4-cient-state>([\s\S]*?)<p4-cient-state>";
+                string hash = Sha256.FromString(regex + rawLog);
+                Cache cache = di.Resolve<Cache>();
+                string resultLookup = cache.Get(this, hash);
+                
+                if (resultLookup == null) 
+                {
+                    Match match = new Regex(regex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Match(rawLog);
+                    if (match.Success) 
+                    {
+                        resultLookup = match.Groups[1].Value.Trim();
+                        cache.Write(this, hash, resultLookup);
+                    }
+                }
 
-                // if clientspec not found, give up blame, we can't link errors in build workspace to changes in revision
+                Client client = PerforceUtils.ParseClient(resultLookup);
 
                 foreach (BuildLogParseResult result in logParseResults)
                 {

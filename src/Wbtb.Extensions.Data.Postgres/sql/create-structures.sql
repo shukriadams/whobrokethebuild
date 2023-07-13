@@ -359,7 +359,7 @@ CREATE TABLE public."buildinvolvement"
     inferredrevisionlink boolean NOT NULL,
     comment character varying(256) COLLATE pg_catalog."default",
     CONSTRAINT "buildInvolvement_pkey" PRIMARY KEY (id),
-    CONSTRAINT "buildInvolvement_primary_key" UNIQUE (buildid, revisioncode),
+    CONSTRAINT "buildInvolvement_unique_key" UNIQUE (buildid, revisioncode),
     CONSTRAINT "buildinvolvement_buildid_fk" FOREIGN KEY (buildid)
         REFERENCES public."build" (id) MATCH SIMPLE
         ON UPDATE NO ACTION

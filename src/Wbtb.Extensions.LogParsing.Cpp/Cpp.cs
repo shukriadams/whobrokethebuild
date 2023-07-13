@@ -42,7 +42,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             // 2 : line nr in file
             // 3 : error code
             // 4 : description
-            MatchCollection matches = new Regex(Regex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
+            MatchCollection matches = new Regex(Regex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);
 
             string result = string.Empty;
             if (matches.Any())

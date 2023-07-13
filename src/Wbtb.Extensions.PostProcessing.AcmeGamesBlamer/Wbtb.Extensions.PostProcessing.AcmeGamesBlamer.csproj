@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Madscience.Perforce\Madscience.Perforce.csproj" />
     <ProjectReference Include="..\Wbtb.Core.Common\Wbtb.Core.Common.csproj" />
   </ItemGroup>
 
