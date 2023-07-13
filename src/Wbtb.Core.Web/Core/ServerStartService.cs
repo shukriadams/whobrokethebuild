@@ -71,7 +71,7 @@ namespace Wbtb.Core.Web
                     PluginProvider pluginProvider = di.Resolve<PluginProvider>();
                     IPostProcessorPlugin blamer = pluginProvider.GetByKey("Blamer") as IPostProcessorPlugin;
                     IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
-                    Build build = data.GetBuildById("4872");
+                    Build build = data.GetBuildById("11");
                     if (build != null)
                         blamer.Process(build);
 

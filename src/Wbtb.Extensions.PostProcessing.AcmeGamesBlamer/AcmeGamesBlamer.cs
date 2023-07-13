@@ -69,10 +69,14 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 if (resultLookup == null) 
                 {
                     Match match = new Regex(regex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Match(rawLog);
-                    if (match.Success) 
+                    if (match.Success)
                     {
                         resultLookup = match.Groups[1].Value.Trim();
                         cache.Write(this, hash, resultLookup);
+                    }
+                    else 
+                    {
+                        resultLookup = string.Empty;
                     }
                 }
 
