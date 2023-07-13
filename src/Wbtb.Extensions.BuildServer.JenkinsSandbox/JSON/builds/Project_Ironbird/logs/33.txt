@@ -1,5 +1,28 @@
 ﻿Example of a C++ build error
 
+<p4-cient-state>
+Note : this is reusing the clientspec from the developer's workspace, this isn't an error, but it would be more correct for the clientspec to be 
+for a build machie, and to have its own view mapping
+
+Client: ugs_workspace
+Update: 2020/01/05 13:39:16
+Access: 2023/04/12 10:18:31
+Owner:  Ug
+Host:   ugs_pc
+Description:
+        Created by ug.
+
+Root:   C:\work\p4stuff
+Options:        noallwrite noclobber nocompress unlocked nomodtime normdir
+SubmitOptions:  submitunchanged
+LineEnd:        local
+Stream: //mydepot/main
+View:
+        //somedepot/main/important/%%1 //ugs_workspace/%%1
+        //mydepot/main/core/PSD/... //ugs_workspace/PSD/...
+
+<p4-cient-state>
+
 Random text
 Random text
 Random text
@@ -19,10 +42,10 @@ C:\work\p4stuff\PSX\Source\Programs\BuildTool\XSXProjectGenerator.cs(18,46): err
 Random text
 
 Random text
-D:\workspace\Engine\Platforms\PS5\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(62,3): error CS0246: The type or namespace name 'FileReference' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
+D:\workspace\Engine\Platforms\DS2\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(62,3): error CS0246: The type or namespace name 'FileReference' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
 Random text
 Random text
-D:\workspace\Engine\Platforms\PS5\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(63,3): error CS0246: The type or namespace name 'FileReference' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
+D:\workspace\Engine\Platforms\DS2\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(63,3): error CS0246: The type or namespace name 'FileReference' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
 D:\workspace\Engine\Platforms\XSX\Source\Programs\UnrealBuildTool\XSXToolChain.cs(50,60): error CS0246: The type or namespace name 'DirectoryReference' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-D:\workspace\Engine\Platforms\PS4\Source\Programs\UnrealBuildTool\UEBuildPS4.cs(89,4): error CS0616: 'CommandLine' is not an attribute class [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
+D:\workspace\Engine\Platforms\DS1\Source\Programs\UnrealBuildTool\UEBuildPS4.cs(89,4): error CS0616: 'CommandLine' is not an attribute class [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
 Random text

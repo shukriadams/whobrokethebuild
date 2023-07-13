@@ -51,19 +51,13 @@ BuildServers:
     Plugin: jenkinsSandbox
     Jobs:
     -   Key: Project_Ironbird
+        RevisionAtBuildRegex : "<current-revision>([\s\S]*?)<\/current-revision>"
         SourceServer: myperforce
-        LogParserPlugins: 
+        LogParsers: 
         -   CppParser
         -   BasicErrors
-        Message:
-        -   Plugin: myslack
-            Group: mygroup
-    -   Key: Project_Skunkwords
-        SourceServer: myperforce
-        RevisionAtBuildRegex : "<current-revision>(.*)<\/current-revision>"
-        LogParserPlugins: 
-        -   CppParser
-        -   BasicErrors
+        PostProcessors:
+        -   Blamer
         Message:
         -   Plugin: myslack
             Group: mygroup

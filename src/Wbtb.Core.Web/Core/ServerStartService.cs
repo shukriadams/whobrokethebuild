@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Core;
+using Wbtb.Extensions.PostProcessing.AcmeGamesBlamer;
 
 namespace Wbtb.Core.Web
 {
@@ -65,6 +67,13 @@ namespace Wbtb.Core.Web
                     //string hash = Sha256.FromString(regex + logText);
                     //Match match = new Regex(regex, RegexOptions.Singleline & RegexOptions.Compiled).Match(logText);
 
+                    // 4872
+                    PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+                    IPostProcessorPlugin blamer = pluginProvider.GetByKey("Blamer") as IPostProcessorPlugin;
+                    IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
+                    Build build = data.GetBuildById("4872");
+                    if (build != null)
+                        blamer.Process(build);
 
                     using (IServiceScope scope = serviceProvider.CreateScope())
                     {
