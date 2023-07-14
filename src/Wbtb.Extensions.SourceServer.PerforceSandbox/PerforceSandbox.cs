@@ -72,39 +72,7 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
                 return null;
 
             Change change = JsonConvert.DeserializeObject<Change>(rawChange);
-            Revision revision = FromChange(change);
-
-            // try to get workspace
-            string rawClient = ResourceHelper.LoadFromLocalJsonOrLocalResourceAsString(this.GetType(), $"JSON.Clients.{change.Workspace}.txt");
-            if (rawClient != null) 
-            {
-                Client client = PerforceUtils.ParseClient(rawClient);
-                if (client != null) 
-                {
-                    // try to calculate localpPath of file based on stream mapping. NOTE! This assumes that workspace setup in which the revision 
-                    // was created is the same as the workspace setup in which the code was built.
-                    foreach (ChangeFile changefile in change.Files) 
-                    {
-                        string localPath = string.Empty;
-                        foreach (ClientView view in client.Views) 
-                        {
-                            string remoteFragment = view.Remote.Replace("...", "");
-                            string localFragment  = view.Local.Replace("...", "");
-                            localFragment = localFragment.Replace($"//{client.Name}", client.Root);
-                            if (changefile.File.StartsWith(remoteFragment)) 
-                            {
-                                localPath = changefile.File.Replace(remoteFragment, string.Empty); // clip off everything above workspace root, we don't care about that.
-                                localPath = Regex.Replace(localPath, @"\\", "/"); // force local path to unix format so we have to worry about one path format 
-
-                                RevisionFile rfile = revision.Files.Single(f => f.Path == changefile.File);
-                                rfile.LocalPath = localPath;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return revision;
+            return FromChange(change);
         }
 
         private static Revision FromChange(Change change)
@@ -112,12 +80,9 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
             if (change == null)
                 return null;
 
-            IList<RevisionFile> files = new List<RevisionFile>();
+            IList<string> files = new List<string>();
             foreach (ChangeFile file in change.Files)
-                files.Add(new RevisionFile
-                {
-                    Path = file.File
-                });
+                files.Add(file.File);
 
             return new Revision
             {

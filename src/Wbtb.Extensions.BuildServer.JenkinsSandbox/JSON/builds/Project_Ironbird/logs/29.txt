@@ -1,4 +1,6 @@
-﻿this build log contains a simulated internal jenkins agent error. Agent's network adaptor was reset during a build. 
+﻿<current-revision>56332<current-revision>
+
+this build log contains a simulated internal jenkins agent error. Agent's network adaptor was reset during a build. 
 
 FATAL: command execution failed
 java.nio.channels.ClosedChannelException
@@ -10,6 +12,7 @@ java.nio.channels.ClosedChannelException
 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
 	at java.lang.Thread.run(Thread.java:748)
+
 
 Random text
 D:\workspace\Engine\Platforms\PS5\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(63,3): error CS0246: The type or namespace name 'FileReference' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]

@@ -3,8 +3,13 @@ using System.IO;
 
 namespace Wbtb.Core.Common
 {
+    /// <summary>
+    /// Writes/ reads things from disk cache. Thread-safe because cross thread collisions are common under load.
+    /// </summary>
     public class Cache
     {
+        private static object Lock = new object();
+        
         public void Write(IPlugin source, string index, string data)
         {
             Write(source.ContextPluginConfig.Manifest.Key, index, data);
@@ -18,8 +23,12 @@ namespace Wbtb.Core.Common
             SimpleDI di = new SimpleDI();
             Configuration config = di.Resolve<Configuration>();
             string writePath = Path.Combine(config.PluginDataPersistDirectory, source, "__cache", index.Substring(0, 1), index.Substring(1, 1));
-            Directory.CreateDirectory(writePath);
-            File.WriteAllText(Path.Combine(writePath, index), data);
+            
+            lock(Lock)
+            {
+                Directory.CreateDirectory(writePath);
+                File.WriteAllText(Path.Combine(writePath, index), data);
+            }
         }
 
         public string Get(IPlugin plugin, string index)
@@ -35,11 +44,14 @@ namespace Wbtb.Core.Common
             SimpleDI di = new SimpleDI();
             Configuration config = di.Resolve<Configuration>();
             string cachePath = Path.Combine(config.PluginDataPersistDirectory, source, "__cache", index.Substring(0, 1), index.Substring(1, 1), index);
-            if (!File.Exists(cachePath))
-                return null;
 
-            return File.ReadAllText(cachePath);
+            lock (Lock)
+            {
+                if (!File.Exists(cachePath))
+                    return null;
 
+                return File.ReadAllText(cachePath);
+            }
         }
     }
 }

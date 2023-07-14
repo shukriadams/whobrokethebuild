@@ -296,10 +296,13 @@ namespace Wbtb.Core.Common
             ConstructorInfo ctor = registration.Implementation.GetConstructors().First();
             CompiledConstructor compiledConstructor = null;
 
-            if (!_constructors.TryGetValue(registration.Implementation, out compiledConstructor)) 
+            lock (_constructors)
             {
-                compiledConstructor = BuildConstructor(ctor);
-                _constructors.Add(registration.Implementation, compiledConstructor);
+                if (!_constructors.TryGetValue(registration.Implementation, out compiledConstructor))
+                {
+                    compiledConstructor = BuildConstructor(ctor);
+                    _constructors.Add(registration.Implementation, compiledConstructor);
+                }
             }
 
             IList<object> args = new List<object>();

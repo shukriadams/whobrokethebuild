@@ -57,6 +57,11 @@ namespace Wbtb.Core.Common
         public string Comment { get; set; }
 
         /// <summary>
+        /// Score from 0 (innocent to 100, guaranteed blame. Everything in between is arbitrary.
+        /// </summary>
+        public int BlameScore { get; set; }
+
+        /// <summary>
         /// 
         /// </summary>
         public string Signature { get; set; }

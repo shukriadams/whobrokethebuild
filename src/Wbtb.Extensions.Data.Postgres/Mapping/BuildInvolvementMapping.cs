@@ -12,6 +12,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
             queryParameters.AddWithValue("signature", record.Signature);
             queryParameters.AddWithValue("buildid", int.Parse(record.BuildId));
+            queryParameters.AddWithValue("blamescore", record.BlameScore);
             queryParameters.AddWithValue("comment", record.Comment == null ? (object)DBNull.Value : record.Comment);
             queryParameters.AddWithValue("isignoredfrombreakhistory", record.IsIgnoredFromBreakHistory);
             queryParameters.AddWithValue("inferredrevisionlink", record.InferredRevisionLink);

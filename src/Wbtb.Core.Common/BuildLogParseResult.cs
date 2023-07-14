@@ -33,11 +33,6 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// 
         /// </summary>
-        public Blame Blame { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
         public string Signature { get; set; }
 
         public BuildLogParseResult()

@@ -16,13 +16,13 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
         {
             // create
             SourceServer sourceserver = RecordHelper.CreateSourceServer(this.Postgres);
-            Core.Common.Revision record = this.Postgres.SaveRevision(new Core.Common.Revision
+            Revision record = this.Postgres.SaveRevision(new Revision
             {
                 Code = "code123",
                 Description = "description123",
                 Created = new DateTime(2001,1,1),
                 SourceServerId = sourceserver.Key,
-                Files = new RevisionFile[]{ new RevisionFile { Path = "a/file" }, new RevisionFile {  Path = "another/file" } },
+                Files = new string[]{ "a/file", "another/file" },
                 User = "myuser"
             });
 
@@ -40,10 +40,10 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
         public void Get()
         {
             // create
-            Core.Common.Revision record = RecordHelper.CreateRevision(this.Postgres);
+            Revision record = RecordHelper.CreateRevision(this.Postgres);
 
             // retrieve
-            Core.Common.Revision get = this.Postgres.GetRevisionById(record.Id);
+            Revision get = this.Postgres.GetRevisionById(record.Id);
             Assert.NotNull(get);
         }
 
@@ -56,15 +56,15 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
 
             // retrieve then update
             Revision get = this.Postgres.GetRevisionById(record.Id);
-            get.Files = new RevisionFile[]{ new RevisionFile { Path = "file1" }, new RevisionFile { Path = "file2" }, new RevisionFile { Path = "file3" } };
+            get.Files = new string[]{ "file1" , "file2", "file3" };
             this.Postgres.SaveRevision(get);
 
             // retrieve again and ensure update succeeded
             get = this.Postgres.GetRevisionById(record.Id);
             Assert.Equal(3, get.Files.Count());
-            Assert.Contains(new RevisionFile { Path = "file1" }, get.Files);
-            Assert.Contains(new RevisionFile { Path = "file2" }, get.Files);
-            Assert.Contains(new RevisionFile { Path = "file3" }, get.Files);
+            Assert.Contains("file1", get.Files);
+            Assert.Contains("file2", get.Files);
+            Assert.Contains("file3", get.Files);
         }
 
         [Fact]
@@ -97,13 +97,13 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
         public void Delete()
         {
             // create
-            Core.Common.Revision record = RecordHelper.CreateRevision(this.Postgres);
+            Revision record = RecordHelper.CreateRevision(this.Postgres);
 
             // delete
             this.Postgres.DeleteRevision(record);
 
             // ensure delete succeeded
-            Core.Common.Revision get = this.Postgres.GetRevisionById(record.Id);
+            Revision get = this.Postgres.GetRevisionById(record.Id);
             Assert.Null(get);
         }
 

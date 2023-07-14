@@ -16,7 +16,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 Code = reader["code"].ToString(),
                 Created = DateTime.Parse(reader["created"].ToString()),
                 Description = reader["description"].ToString(),
-                Files = JsonConvert.DeserializeObject<IEnumerable<RevisionFile>>(reader["files"].ToString()),
+                Files = JsonConvert.DeserializeObject<IEnumerable<string>>(reader["files"].ToString()),
                 SourceServerId = reader["sourceserverid"].ToString(),
                 User = reader["usr"].ToString(),
             };

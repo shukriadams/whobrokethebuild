@@ -51,7 +51,7 @@ BuildServers:
     Plugin: jenkinsSandbox
     Jobs:
     -   Key: Project_Ironbird
-        RevisionAtBuildRegex : "<current-revision>([\s\S]*?)<\/current-revision>"
+        RevisionAtBuildRegex : <current-revision>([\s\S]*?)<current-revision>
         SourceServer: myperforce
         LogParsers: 
         -   CppParser

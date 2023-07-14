@@ -43,7 +43,7 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// file names in revision
         /// </summary>
-        public IEnumerable<RevisionFile> Files { get; set; }
+        public IEnumerable<string> Files { get; set; }
 
         /// <summary>
         /// 
@@ -52,7 +52,7 @@ namespace Wbtb.Core.Common
 
         public Revision()
         { 
-            this.Files = new List<RevisionFile>();
+            this.Files = new List<string>();
             this.Signature = Guid.NewGuid().ToString();
         }
     }

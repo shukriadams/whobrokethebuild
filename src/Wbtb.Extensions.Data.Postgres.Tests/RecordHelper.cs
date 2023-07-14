@@ -180,7 +180,7 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
                 Code = RandomString(),
                 Created = new DateTime(2001, 1, 1),
                 Description = RandomString(),
-                Files = new RevisionFile[]{ },
+                Files = new string[]{ },
                 SourceServerId = sourceServer.Key,
                 User = RandomString()
             });

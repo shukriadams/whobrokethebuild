@@ -15,7 +15,6 @@ namespace Wbtb.Extensions.Data.Postgres
                 Signature = reader["signature"].ToString(),
                 ParsedContent = reader["parsedcontent"].ToString(),
                 BuildId = reader["buildid"].ToString(),
-                Blame = (Blame)reader["blame"],
                 LogParserPlugin = reader["logparserplugin"].ToString(),
                 BuildInvolvementId = reader["buildinvolvementid"] == DBNull.Value ? null : reader["buildinvolvementid"].ToString(),
             };

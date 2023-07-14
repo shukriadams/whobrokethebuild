@@ -217,17 +217,5 @@ namespace Wbtb.Core.Web
             return new HtmlString(pager.Render(data, config.PagesPerPageGroup, baseUrl, queryStrings, "page"));
         }
 
-        public static string TranslateBlame(BuildLogParseResult involvement)
-        {
-            switch(involvement.Blame)
-            {
-                case Blame.Innocent:
-                    return "Did not break build";
-                case Blame.Guilty:
-                    return "Broke build";
-                default:
-                    return "Unknown if broke build";
-            }
-        }
     }
 }

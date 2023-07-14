@@ -156,11 +156,9 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             if (change == null)
                 return null;
 
-            IList<RevisionFile> files = new List<RevisionFile>();
+            IList<string> files = new List<string>();
             foreach (ChangeFile file in change.Files)
-                files.Add(new RevisionFile {
-                    Path = file.File
-                });
+                files.Add(file.File);
 
             return new Revision
             {

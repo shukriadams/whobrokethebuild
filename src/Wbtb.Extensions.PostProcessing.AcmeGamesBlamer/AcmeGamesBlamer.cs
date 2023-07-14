@@ -57,70 +57,90 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             // ensure current source control is perforce
             // foreach file in buildinvolvements revisions
             // can we connect revision file path to c++ file
-            if (isPerforce) 
-            {
-                // parse out clientspec from log
-                string rawLog = File.ReadAllText(build.LogPath);
-                string regex = @"<p4-cient-state>([\s\S]*?)<p4-cient-state>";
-                string hash = Sha256.FromString(regex + rawLog);
-                Cache cache = di.Resolve<Cache>();
-                string resultLookup = cache.Get(this, hash);
+            if (!isPerforce)
+                return new PostProcessResult
+                {
+                    Passed = true,
+                    Result = "Build not covered by perforce, ignoring."
+                };
+
+            // parse out clientspec from log
+            string rawLog = File.ReadAllText(build.LogPath);
+            string regex = @"<p4-cient-state>([\s\S]*?)<p4-cient-state>";
+            string hash = Sha256.FromString(regex + rawLog);
+            Cache cache = di.Resolve<Cache>();
+            string resultLookup = cache.Get(this, hash);
                 
-                if (resultLookup == null) 
+            if (resultLookup == null) 
+            {
+                Match match = new Regex(regex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Match(rawLog);
+                if (match.Success)
                 {
-                    Match match = new Regex(regex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Match(rawLog);
-                    if (match.Success)
-                    {
-                        resultLookup = match.Groups[1].Value.Trim();
-                        cache.Write(this, hash, resultLookup);
-                    }
-                    else 
-                    {
-                        resultLookup = string.Empty;
-                    }
+                    resultLookup = match.Groups[1].Value.Trim();
+                    cache.Write(this, hash, resultLookup);
                 }
-
-                Client client = PerforceUtils.ParseClient(resultLookup);
-
-                foreach (BuildLogParseResult result in logParseResults)
+                else 
                 {
-                    ParsedBuildLogText parsedText = BuildLogTextParser.Parse(result.ParsedContent);
-                    if (parsedText == null)
-                        continue;
-
-                    if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
-                        continue;
-
-                    foreach (ParsedBuildLogTextLine line in parsedText.Items)
-                        foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
-                        {
-                            string localFile = localPathItem.Content.Replace("\\", "/");
-                            string clientRoot = client.Root.Replace("\\", "/");
-                            // force unitpaths
-                            if (localFile.ToLower().StartsWith(clientRoot.ToLower()))
-                            {
-                                localFile = localFile.Substring(clientRoot.Length);
-                            }
-
-                            foreach (Revision revision in revisions)
-                                foreach (RevisionFile revisionFile in revision.Files)
-                                {
-
-                                }
-
-                        }
+                    resultLookup = string.Empty;
                 }
             }
 
+            string resultText = string.Empty;
+            Client client = PerforceUtils.ParseClient(resultLookup);
+            bool causeFound = false;
+            foreach (BuildLogParseResult result in logParseResults)
+            {
+                ParsedBuildLogText parsedText = BuildLogTextParser.Parse(result.ParsedContent);
+                if (parsedText == null)
+                    continue;
+
+                if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
+                    continue;
+
+                foreach (ParsedBuildLogTextLine line in parsedText.Items)
+                    foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
+                    {
+                        // force unitpaths, p4 uses these
+                        string localFile = localPathItem.Content.Replace("\\", "/");
+                        string clientRoot = client.Root.Replace("\\", "/");
+
+                        foreach (Revision revision in revisions)
+                            foreach (string revisionFile in revision.Files)
+                            {
+                                // is revisionFile in log?
+                                foreach (ClientView clientView in client.Views) 
+                                {
+                                    // currently support only standard mapping
+                                    if (!clientView.Local.EndsWith("/..."))
+                                        continue;
+
+                                    string root = clientView.Local.Substring(0, clientView.Local.Length - 4); // clip off trailing /...;
+                                        
+                                    string localFileWithoutRoot = string.Join("/", localFile.Replace(clientRoot, string.Empty).Split("/", StringSplitOptions.RemoveEmptyEntries).ToArray());
+                                    localFileWithoutRoot = clientView.Remote.Substring(0, clientView.Local.Length - 4) + "/" + localFileWithoutRoot;
+                                    //string test = localFile.Replace(clientRoot, root);
+                                    if (localFileWithoutRoot == revisionFile) 
+                                    {
+                                        BuildInvolvement bi = buildInvolvements.First(bi => bi.Id == result.BuildInvolvementId);
+                                        bi.BlameScore = 100;
+                                        data.SaveBuildInvolement(bi);
+                                        resultText += $"File ${revisionFile} from revision {revision.Code} impplicated in break.\n";
+                                        causeFound = true;
+                                    }
+                                }
+                            }
+                    }
+            }
 
             // if log parse results are blueprint
             // can we parse blueprint file path out of error message
             // foreach file in buildinvolvements revisions
             // can we connect revision file path to blueprint file path
-            return new PostProcessResult {
-                Passed = true,
-                Result = "not implemented yet"
-            };
+            if (causeFound)
+                return new PostProcessResult {
+                    Passed = true,
+                    Result = $"Found error in P4 revision. {resultText}."
+                };
 
             // if log parse results are jenkins
             // mark all users as not involved
@@ -129,15 +149,21 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
             // if reach here, need to start guessing
             // if build involvement files are all gfx assets, mark user as unlikely to have caused issue
-            
+
             // for build involvements
             // if revision contains cpp changes and error log is cpp, mark user as _possibly_ involved
-            
+
             // note that alert will construct alerts based on blame level
             // if user definitely or possibly blamed, will alert user with logparse results related to that blame
             // will post public alert messages based on log parse results + blamed user
 
             // if no blames, will construct error message from all log parse results and send a public alert, but nothing to individual users
+            return new PostProcessResult
+            {
+                Passed = true,
+                Result = "No blame found"
+            };
+
         }
     }
 }

@@ -171,8 +171,8 @@
 
 @if (involvement.Revision != null) {   
 <pre class="code">@if (involvement.Revision.Files.Any()) { 
-@foreach(RevisionFile file in involvement.Revision.Files) { 
-<span class="build-revisionFile build-revisionFile--">@file.Path</span>
+@foreach(string file in involvement.Revision.Files) { 
+<span class="build-revisionFile build-revisionFile--">@file</span>
 }
 } else { 
 <text>No file changes found</text>}</pre>
