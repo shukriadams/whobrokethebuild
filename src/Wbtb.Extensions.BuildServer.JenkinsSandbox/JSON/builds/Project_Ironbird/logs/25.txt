@@ -1,28 +1,21 @@
-﻿Example of a C++ build error
+﻿Example of Unreal blueprint error
 
-Random text
-Random text
-Random text
-D:\workspace\Engine\Platforms\PS5\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(620,51): error CS0246: The type or namespace name 'FileItem' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-Random text
-D:\workspace\Engine\Platforms\PS5\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(620,31): error CS0246: The type or namespace name 'FileItem' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-Random text
-Random text
-D:\workspace\Engine\Platforms\PS5\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(51,8): error CS0534: 'PS5ToolChain' does not implement inherited abstract member 'UEToolChain.CompileCPPFiles(CppCompileEnvironment, List<FileItem>, DirectoryReference, string, IActionGraphBuilder)' [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-Random text
-Random text
-D:\workspace\Engine\Platforms\PS5\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(61,3): error CS0246: The type or namespace name 'FileReference' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-Random text
-D:\workspace\Engine\Platforms\XSX\Source\Programs\UnrealBuildTool\XSXProjectGenerator.cs(18,4): error CS0616: 'CommandLine' is not an attribute class [D:\buildpipeline_gsdev\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-Random text
-D:\workspace\Engine\Platforms\XSX\Source\Programs\UnrealBuildTool\XSXProjectGenerator.cs(18,46): error CS0246: The type or namespace name 'Value' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-Random text
-
-Random text
-D:\workspace\Engine\Platforms\PS5\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(62,3): error CS0246: The type or namespace name 'FileReference' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-Random text
-Random text
-D:\workspace\Engine\Platforms\PS5\Source\Programs\UnrealBuildTool\PS5ToolChain.cs(63,3): error CS0246: The type or namespace name 'FileReference' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-D:\workspace\Engine\Platforms\XSX\Source\Programs\UnrealBuildTool\XSXToolChain.cs(50,60): error CS0246: The type or namespace name 'DirectoryReference' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-D:\workspace\Engine\Platforms\PS4\Source\Programs\UnrealBuildTool\UEBuildPS4.cs(89,4): error CS0616: 'CommandLine' is not an attribute class [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
-Random text
+some thing 
+some thing 
+some thing 
+some thing 
+some thing 
+========== Starting: Check Blueprints ==========
+ERROR: PDBuildException: Task failed with the following errors
+       Blueprint failed to compile: /Game/Devs/Ug/BP_MyWidget.BP_MyWidget
+       
+       while executing task <FailOnFileContent Filename="c:\build\ws/ourproject/Saved/errors.txt" />
+       at D:\build\ws\ourproject\Build\Graph\config.xml(23)
+       (see D:\build\ws\Engine\Programs\AutomationTool\Saved\Logs\Log.txt for full exception trace)
+AutomationTool executed for 0h 0m 20s
+AutomationTool exiting with ExitCode=1 (Error_Unknown)
+BUILD FAILED
+some thing 
+some thing 
+some thing 
+some thing 

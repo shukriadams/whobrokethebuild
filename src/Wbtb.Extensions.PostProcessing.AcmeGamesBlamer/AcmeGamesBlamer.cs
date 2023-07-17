@@ -21,42 +21,51 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
         PostProcessResult IPostProcessorPlugin.Process(Build build)
         {
-            SimpleDI di = new SimpleDI();
-            Configuration config = di.Resolve<Configuration>();
-            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Job job = data.GetJobById(build.JobId);
-            SourceServer sourceServer = null;
-            if (!string.IsNullOrEmpty(job.SourceServerId))
-                sourceServer = data.GetSourceServerById(job.SourceServerId);
-            
-            PluginConfig sourceServerPlugin = null;
-            if (sourceServer != null)
-                sourceServerPlugin = config.Plugins.FirstOrDefault(p => p.Key == sourceServer.Plugin);
-
-            bool isPerforce = sourceServerPlugin != null && (sourceServerPlugin.Manifest.Key == "Wbtb.Extensions.SourceServer.Perforce" || sourceServerPlugin.Manifest.Key == "Wbtb.Extensions.SourceServer.PerforceSandbox");
-
-            IEnumerable < BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
-            IEnumerable<BuildInvolvement> buildInvolvements = data.GetBuildInvolvementsByBuild(build.Id);
-            IList<Revision> revisions = new List<Revision>();
-
-            foreach (BuildInvolvement buildInvolvement in buildInvolvements.Where(bi => !string.IsNullOrEmpty(bi.RevisionId)))
-                revisions.Add(data.GetRevisionById(buildInvolvement.RevisionId));
-
-            /*
-            // IGNORE FOR NOW; RE-ENABLE
             if (build.Status != BuildStatus.Failed)
                 return new PostProcessResult
                 {
                     Passed = true,
                     Result = "Ignoring non-failed build"
                 };
-            */
+
+            SimpleDI di = new SimpleDI();
+            Configuration config = di.Resolve<Configuration>();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+            IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = data.GetJobById(build.JobId);
+
+            if (string.IsNullOrEmpty(job.SourceServerId))
+                return new PostProcessResult
+                {
+                    Passed = true,
+                    Result = "Job has no source control server defined. A Perforce server is required"
+                };
+
+            SourceServer sourceServer = data.GetSourceServerById(job.SourceServerId);
+            PluginConfig sourceServerPlugin = config.Plugins.FirstOrDefault(p => p.Key == sourceServer.Plugin);
+
+            IEnumerable < BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
+            IEnumerable<BuildInvolvement> buildInvolvements = data.GetBuildInvolvementsByBuild(build.Id);
+
+
+            // get all revisions associated with this build
+            IList<Revision> revisionsLinkedToBuild = new List<Revision>();
+            foreach (BuildInvolvement buildInvolvement in buildInvolvements.Where(bi => !string.IsNullOrEmpty(bi.RevisionId)))
+                revisionsLinkedToBuild.Add(data.GetRevisionById(buildInvolvement.RevisionId));
+
+            if (!revisionsLinkedToBuild.Any())
+                return new PostProcessResult
+                {
+                    Passed = true,
+                    Result = "No revisions linked to this build"
+                };
 
             // if log parse results are c++
+
             // ensure current source control is perforce
             // foreach file in buildinvolvements revisions
             // can we connect revision file path to c++ file
+            bool isPerforce = sourceServerPlugin != null && (sourceServerPlugin.Manifest.Key == "Wbtb.Extensions.SourceServer.Perforce" || sourceServerPlugin.Manifest.Key == "Wbtb.Extensions.SourceServer.PerforceSandbox");
             if (!isPerforce)
                 return new PostProcessResult
                 {
@@ -64,7 +73,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     Result = "Build not covered by perforce, ignoring."
                 };
 
-            // parse out clientspec from log
+            // parse out clientspec from log : note the mandatory <p4-cient-state> wrapper required for clientspec in buildlog
             string rawLog = File.ReadAllText(build.LogPath);
             string regex = @"<p4-cient-state>([\s\S]*?)<p4-cient-state>";
             string hash = Sha256.FromString(regex + rawLog);
@@ -81,13 +90,19 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 }
                 else 
                 {
-                    resultLookup = string.Empty;
+                    return new PostProcessResult
+                    {
+                        Passed = true,
+                        Result = "No P4 client spec found in buildlog. To use this blame pugin, p4 clientspec must be emitted in build log, wrapped in <p4-cient-state>. See plugin docs for more."
+                    };
                 }
             }
 
             string resultText = string.Empty;
             Client client = PerforceUtils.ParseClient(resultLookup);
             bool causeFound = false;
+            bool cppFound = false;
+
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
                 ParsedBuildLogText parsedText = BuildLogTextParser.Parse(buildLogParseResult.ParsedContent);
@@ -97,6 +112,8 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
                     continue;
 
+                cppFound = true;
+
                 foreach (ParsedBuildLogTextLine line in parsedText.Items)
                     foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
                     {
@@ -104,10 +121,10 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                         string localFile = localPathItem.Content.Replace("\\", "/");
                         string clientRoot = client.Root.Replace("\\", "/");
 
-                        foreach (Revision revision in revisions)
+                        foreach (Revision revision in revisionsLinkedToBuild)
                             foreach (string revisionFile in revision.Files)
                             {
-                                // is revisionFile in log?
+                                // is revisionFile mentioned in a log error?
                                 foreach (ClientView clientView in client.Views) 
                                 {
                                     // currently support only standard mapping
@@ -115,10 +132,10 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                         continue;
 
                                     string root = clientView.Local.Substring(0, clientView.Local.Length - 4); // clip off trailing /...;
-                                    string localFileWithoutRoot = string.Join("/", localFile.Replace(clientRoot, string.Empty).Split("/", StringSplitOptions.RemoveEmptyEntries).ToArray());
-                                    localFileWithoutRoot = clientView.Remote.Substring(0, clientView.Local.Length - 4) + "/" + localFileWithoutRoot;
+                                    string localFileMappedToRemote = string.Join("/", localFile.Replace(clientRoot, string.Empty).Split("/", StringSplitOptions.RemoveEmptyEntries).ToArray());
+                                    localFileMappedToRemote = clientView.Remote.Substring(0, clientView.Local.Length - 4) + "/" + localFileMappedToRemote;
 
-                                    if (localFileWithoutRoot == revisionFile) 
+                                    if (localFileMappedToRemote == revisionFile) 
                                     {
                                         BuildInvolvement bi = buildInvolvements.FirstOrDefault(bi => bi.RevisionCode == revision.Code);
                                         if (bi == null) 
@@ -137,6 +154,13 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                             }
                     }
             }
+
+            if (!cppFound)
+                return new PostProcessResult
+                {
+                    Passed = true,
+                    Result = $"No CPP parse resuls found."
+                };
 
             // if log parse results are blueprint
             // can we parse blueprint file path out of error message

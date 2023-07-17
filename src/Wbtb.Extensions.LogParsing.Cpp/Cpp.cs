@@ -22,15 +22,15 @@ namespace Wbtb.Extensions.LogParsing.Cpp
         {
             SimpleDI di = new SimpleDI();
 
-            // force unix paths on log, this helps reduce noise when getting distinct lines
-            string fullErrorLog = raw.Replace("\\", "/");
-
             // try for cache
-            string hash = Sha256.FromString(Regex + fullErrorLog);
+            string hash = Sha256.FromString(Regex + raw);
             Cache cache = di.Resolve<Cache>();
             string resultLookup = cache.Get(this, hash);
             if (resultLookup != null)
                 return resultLookup;
+
+            // force unix paths on log, this helps reduce noise when getting distinct lines
+            string fullErrorLog = raw.Replace("\\", "/");
 
             // try to parse out C++ compile errors from log, these errors have the form like
             // D:\some\path\file.h(41,12): error C2143: syntax error: missing ';' before '*'

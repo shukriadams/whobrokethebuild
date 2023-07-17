@@ -96,6 +96,7 @@ namespace Madscience.Perforce
         public DateTime Date { get; set; }
         public string User { get; set; }
         public string Description { get; set; }
+        public int ChangeFilesCount { get; set; }
         public IEnumerable<ChangeFile> Files { get; set; }
 
         public Change()
@@ -432,7 +433,8 @@ namespace Madscience.Perforce
 
             IEnumerable<string> differences = differencesRaw.Split(@"\\n==== ");
 
-            foreach (string affectedFile in affectedFiles)
+            // note that we cap max nr of files, we don't care about file details on very large commits
+            foreach (string affectedFile in affectedFiles.Take(100))
             {
                 Match match = new Regex(@"... (.*)#[\d]+ (delete|add|edit)$", RegexOptions.IgnoreCase).Match(affectedFile);
                 if (!match.Success || match.Groups.Count < 2)
@@ -463,6 +465,7 @@ namespace Madscience.Perforce
             return new Change
             {
                 Revision = revision,
+                ChangeFilesCount = affectedFiles.Count(),
                 Workspace = Find(rawDescribe, @"change [\d]+ by.+@(.*?) on ", RegexOptions.IgnoreCase),
                 Date = DateTime.Parse(Find(rawDescribe, @"change [\d]+ by.+? on (.*?)\\n", RegexOptions.IgnoreCase)),
                 User = Find(rawDescribe, @"change [\d]+ by (.*?)@", RegexOptions.IgnoreCase),
