@@ -88,9 +88,9 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             string resultText = string.Empty;
             Client client = PerforceUtils.ParseClient(resultLookup);
             bool causeFound = false;
-            foreach (BuildLogParseResult result in logParseResults)
+            foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
-                ParsedBuildLogText parsedText = BuildLogTextParser.Parse(result.ParsedContent);
+                ParsedBuildLogText parsedText = BuildLogTextParser.Parse(buildLogParseResult.ParsedContent);
                 if (parsedText == null)
                     continue;
 
@@ -115,13 +115,19 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                         continue;
 
                                     string root = clientView.Local.Substring(0, clientView.Local.Length - 4); // clip off trailing /...;
-                                        
                                     string localFileWithoutRoot = string.Join("/", localFile.Replace(clientRoot, string.Empty).Split("/", StringSplitOptions.RemoveEmptyEntries).ToArray());
                                     localFileWithoutRoot = clientView.Remote.Substring(0, clientView.Local.Length - 4) + "/" + localFileWithoutRoot;
-                                    //string test = localFile.Replace(clientRoot, root);
+
                                     if (localFileWithoutRoot == revisionFile) 
                                     {
-                                        BuildInvolvement bi = buildInvolvements.First(bi => bi.Id == result.BuildInvolvementId);
+                                        BuildInvolvement bi = buildInvolvements.FirstOrDefault(bi => bi.RevisionCode == revision.Code);
+                                        if (bi == null) 
+                                            return new PostProcessResult
+                                            {
+                                                Passed = false,
+                                                Result = $"Could not find a buildinvolvement for revision {revision.Code} in this build."
+                                            };
+
                                         bi.BlameScore = 100;
                                         data.SaveBuildInvolement(bi);
                                         resultText += $"File ${revisionFile} from revision {revision.Code} impplicated in break.\n";

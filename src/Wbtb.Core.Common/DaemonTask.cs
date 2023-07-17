@@ -16,11 +16,6 @@ namespace Wbtb.Core.Common
         /// </summary>
         public string BuildInvolvementId { get; set; }
 
-        /// <summary>
-        /// Identifier used by daemons to pick up tasks
-        /// </summary>
-        public string TaskKey { get; set; }
-
         public string Args { get; set; }
 
         /// <summary>
@@ -39,7 +34,7 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// 
         /// </summary>
-        public int Order { get; set; }
+        public int Stage { get; set; }
 
         /// <summary>
         /// 

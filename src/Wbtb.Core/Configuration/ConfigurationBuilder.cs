@@ -154,8 +154,7 @@ namespace Wbtb.Core
                         // create process order for build
                         dataLayer.SaveDaemonTask(new DaemonTask
                         {
-                            TaskKey = "BuildEnd",
-                            Order = 0,
+                            Stage = 0, // BuildEnd
                             Src = this.GetType().Name,
                             BuildId = build.Id
                         });

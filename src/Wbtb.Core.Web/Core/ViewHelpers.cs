@@ -35,6 +35,18 @@ namespace Wbtb.Core.Web
             return new HtmlString("style=\"background-image: url(" + url +")\"");
         }
 
+        public static HtmlString BlameScoreToColor(int blameScore) 
+        {
+            string color = "initial";
+            if (blameScore > 0) 
+            {
+                color = ColorHelper.HexBetween(blameScore/100, new Rgb { R= 212, G= 207, B= 58}, new Rgb { R= 99, G= 33 , B= 33});
+            }
+                            
+
+            return new HtmlString(color);
+        }
+
         /// <summary>
         /// Converts build status to siumpler css classes. This is a soft conversation - it can handle null builds for less logic in view, and returns empty string in that case.
         /// </summary>

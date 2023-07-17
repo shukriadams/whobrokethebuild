@@ -21,12 +21,11 @@ namespace Wbtb.Core.Web
                 CreatedUtc = daemonTask.CreatedUtc,
                 HasPassed = daemonTask.HasPassed,
                 Id = daemonTask.Id,
-                Order = daemonTask.Order,
+                Stage = daemonTask.Stage,
                 ProcessedUtc = daemonTask.ProcessedUtc,
                 Result = daemonTask.Result,
                 Signature = daemonTask.Signature,
-                Src = daemonTask.Src,
-                TaskKey = daemonTask.TaskKey
+                Src = daemonTask.Src
             };
         }
 

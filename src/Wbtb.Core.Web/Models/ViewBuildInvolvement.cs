@@ -25,6 +25,7 @@ namespace Wbtb.Core.Web
                 InferredRevisionLink = buildInvolvement.InferredRevisionLink,
                 MappedUserId = buildInvolvement.MappedUserId,
                 RevisionCode = buildInvolvement.RevisionCode,
+                BlameScore = buildInvolvement.BlameScore,
                 RevisionId = buildInvolvement.RevisionId,
                 Id = buildInvolvement.Id
             };

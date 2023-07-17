@@ -678,13 +678,13 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByTask(string task)
+        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByTask(int stage)
         {
             return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
             {
                 FunctionName = nameof(IDataPlugin.GetPendingDaemonTasksByTask),
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "task", Value = task }
+                    new PluginFunctionParameter { Name = "stage", Value = stage }
                 }
             });
         }

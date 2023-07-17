@@ -467,16 +467,15 @@ CREATE TABLE public."daemontask"
     id integer NOT NULL DEFAULT nextval('"daemontask_id_seq"'::regclass),
     signature character varying(38) COLLATE pg_catalog."default" NOT NULL,
     buildid integer NOT NULL,
-    taskkey character varying(256) COLLATE pg_catalog."default" NOT NULL,
     buildinvolvementid integer,
-    ordr integer NOT NULL,
+    stage integer NOT NULL,
     src character varying(256) COLLATE pg_catalog."default",
     createdutc timestamp(4) without time zone NOT NULL,
     processedutc timestamp(4) without time zone,
     passed boolean,
     args text COLLATE pg_catalog."default",
     result text COLLATE pg_catalog."default",
-    CONSTRAINT "daemontask_compoundkey" UNIQUE (buildid, buildinvolvementid, taskkey),
+    CONSTRAINT "daemontask_compoundkey" UNIQUE (buildid, buildinvolvementid, stage),
     CONSTRAINT "daemontask_buildid_fk" FOREIGN KEY (buildid)
         REFERENCES public."build" (id) MATCH SIMPLE
         ON UPDATE NO ACTION

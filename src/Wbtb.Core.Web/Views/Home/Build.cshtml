@@ -130,8 +130,8 @@
     @if (Model.BuildInvolvements.Any())
     {
         @foreach(ViewBuildInvolvement involvement in this.Model.BuildInvolvements)
-        { 
-            <x-list-row>
+        {
+            <x-list-row style="background-color: @ViewHelpers.BlameScoreToColor(involvement.BlameScore)">
                 <x-list-cell>
                     <x-columns class="buildChanges-row">
                         <x-column class="buildChanges-avatar">
@@ -167,6 +167,7 @@
                                 </text>
                             }
                         </x-column>
+
                     </x-columns>
 
 @if (involvement.Revision != null) {   
@@ -180,6 +181,19 @@
                 </x-list-cell>
             </x-list-row>
 
+            <x-list-row style="background-color: @ViewHelpers.BlameScoreToColor(involvement.BlameScore)">
+                <x-list-cell>
+                    @if (involvement.BlameScore > 0 && involvement.BlameScore < 0)
+                    {
+                        <text>This change has a @involvement.BlameScore% chance of having broken the build</text>
+                    }
+
+                    @if (involvement.BlameScore == 100)
+                    {
+                        <text>This change broke the build</text>
+                    }
+                </x-list-cell>
+            </x-list-row>
         }
     }
     else

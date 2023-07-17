@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
-using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -25,8 +23,6 @@ namespace Wbtb.Core.Web
         private readonly BuildEventHandlerHelper _buildLevelPluginHelper;
 
         private readonly SimpleDI _di;
-
-        public static int TaskGroup = 5;
 
         #endregion
 

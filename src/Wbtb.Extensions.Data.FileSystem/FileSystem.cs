@@ -410,7 +410,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new DaemonTask[] { };
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByTask(string task)
+        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByTask(int stage)
         {
             return new DaemonTask[] { };
         }

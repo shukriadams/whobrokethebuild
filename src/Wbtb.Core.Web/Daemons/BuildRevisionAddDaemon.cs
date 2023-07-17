@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using Wbtb.Core.Common;
-using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -22,11 +21,7 @@ namespace Wbtb.Core.Web
 
         private readonly Configuration _config;
 
-        private readonly BuildEventHandlerHelper _buildLevelPluginHelper;
-
         private readonly SimpleDI _di;
-
-        public static int TaskGroup = 0;
 
         #endregion
 
@@ -40,7 +35,6 @@ namespace Wbtb.Core.Web
             _di = new SimpleDI();
             _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
-            _buildLevelPluginHelper = _di.Resolve<BuildEventHandlerHelper>();
         }
 
         #endregion
@@ -66,7 +60,7 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.AddBuildRevisionsFromBuildServer.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.RevisionFromBuildServer);
             TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
@@ -103,20 +97,18 @@ namespace Wbtb.Core.Web
 
                             dataLayer.SaveDaemonTask(new DaemonTask
                             {
-                                TaskKey = DaemonTaskTypes.RevisionResolve.ToString(),
+                                Stage = (int)DaemonTaskTypes.RevisionLink,
                                 BuildId = build.Id,
                                 BuildInvolvementId = biID,
-                                Src = this.GetType().Name,
-                                Order = 3,
+                                Src = this.GetType().Name
                             });
 
                             dataLayer.SaveDaemonTask(new DaemonTask
                             {
-                                TaskKey = DaemonTaskTypes.UserResolve.ToString(),
+                                Stage = (int)DaemonTaskTypes.UserLink,
                                 BuildId = build.Id,
                                 BuildInvolvementId = biID,
-                                Src = this.GetType().Name,
-                                Order = 3,
+                                Src = this.GetType().Name
                             });
                         }
 

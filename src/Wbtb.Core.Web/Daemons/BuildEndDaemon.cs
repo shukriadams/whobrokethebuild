@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
-using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -17,11 +16,8 @@ namespace Wbtb.Core.Web
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly Configuration _config;
-
-        private readonly BuildEventHandlerHelper _buildLevelPluginHelper;
-
         private readonly SimpleDI _di;
+
         #endregion
 
         #region CTORS
@@ -32,9 +28,7 @@ namespace Wbtb.Core.Web
             _processRunner = processRunner;
 
             _di = new SimpleDI();
-            _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
-            _buildLevelPluginHelper = _di.Resolve<BuildEventHandlerHelper>();
         }
 
         #endregion
@@ -61,7 +55,7 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.BuildEnd.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.BuildEnd);
 
             try
             {
@@ -97,15 +91,13 @@ namespace Wbtb.Core.Web
                         {
                             BuildId = build.Id,
                             Src = this.GetType().Name,
-                            Order = 1,
-                            TaskKey = DaemonTaskTypes.LogImport.ToString()
+                            Stage = (int)DaemonTaskTypes.LogImport,
                         });
 
                         if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
                             dataLayer.SaveDaemonTask(new DaemonTask
                             {
-                                TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildServer.ToString(),
-                                Order = 0,
+                                Stage = (int)DaemonTaskTypes.RevisionFromBuildServer,
                                 Src = this.GetType().Name,
                                 BuildId = build.Id
                             });
@@ -116,8 +108,7 @@ namespace Wbtb.Core.Web
                             {
                                 BuildId = build.Id,
                                 Src = this.GetType().Name,
-                                Order = 1,
-                                TaskKey = DaemonTaskTypes.IncidentAssign.ToString()
+                                Stage = (int)DaemonTaskTypes.IncidentAssign
                             });
 
                             if (job.PostProcessors.Any())
@@ -125,8 +116,7 @@ namespace Wbtb.Core.Web
                                 {
                                     BuildId = build.Id,
                                     Src = this.GetType().Name,
-                                    Order = 4,
-                                    TaskKey = DaemonTaskTypes.PostProcess.ToString()
+                                    Stage = (int)DaemonTaskTypes.PostProcess
                                 });
                         }
                     }

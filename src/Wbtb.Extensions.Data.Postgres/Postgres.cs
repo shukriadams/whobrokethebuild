@@ -1263,9 +1263,9 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO buildlogparseresult
-                    (buildid, signature, logparserplugin, blame, parsedcontent)
+                    (buildid, signature, logparserplugin, parsedcontent)
                 VALUES
-                    (@buildid, @signature, @logparserplugin, @blame, @parsedcontent)
+                    (@buildid, @signature, @logparserplugin, @parsedcontent)
                 RETURNING id";
 
             string updateQuery = @"                    
@@ -1273,7 +1273,6 @@ namespace Wbtb.Extensions.Data.Postgres
                     buildid = @buildid, 
                     signature = @new_signature,
                     logparserplugin = @logparserplugin, 
-                    blame = @blame,
                     parsedcontent = @parsedcontent
                 WHERE
                     id = @id
@@ -1331,9 +1330,9 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO buildinvolvement
-                    (buildid, signature, revisioncode, revisionid, mappeduserid, isignoredfrombreakhistory, inferredrevisionlink, comment, revisionlinkstatus, userlinkstatus)
+                    (buildid, signature, revisioncode, revisionid, mappeduserid, isignoredfrombreakhistory, inferredrevisionlink, comment, revisionlinkstatus, userlinkstatus, blamescore)
                 VALUES
-                    (@buildid, @signature, @revisioncode, @revisionid, @mappeduserid, @isignoredfrombreakhistory, @inferredrevisionlink, @comment, @revisionlinkstatus, @userlinkstatus)
+                    (@buildid, @signature, @revisioncode, @revisionid, @mappeduserid, @isignoredfrombreakhistory, @inferredrevisionlink, @comment, @revisionlinkstatus, @userlinkstatus, @blamescore)
                 RETURNING id";
 
             string updateQuery = @"                    
@@ -1347,6 +1346,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     inferredrevisionlink = @inferredrevisionlink,
                     comment = @comment,
                     revisionlinkstatus = @revisionlinkstatus,
+                    blamescore = @blamescore,
                     userlinkstatus = @userlinkstatus
                 WHERE
                     id = @id
@@ -1506,19 +1506,18 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO daemontask
-                    (buildid, signature, taskkey, buildinvolvementid, src, createdutc, processedutc, passed, args, result, ordr)
+                    (buildid, signature, buildinvolvementid, src, createdutc, processedutc, passed, args, result, stage)
                 VALUES
-                    (@buildid, @signature, @taskkey, @buildinvolvementid, @src, @createdutc, @processedutc, @passed, @args, @result, @ordr)
+                    (@buildid, @signature,  @buildinvolvementid, @src, @createdutc, @processedutc, @passed, @args, @result, @stage)
                 RETURNING id";
 
             string updateQuery = @"                    
                 UPDATE daemontask SET 
                     buildid = @buildid,
                     signature = @new_signature,
-                    taskkey = @taskkey, 
                     buildinvolvementid = @buildinvolvementid, 
                     src = @src, 
-                    ordr = @ordr,
+                    stage = @stage,
                     createdutc = @createdutc,
                     processedutc = @processedutc,
                     passed = @passed,
@@ -1569,7 +1568,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByTask(string task) 
+        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByTask(int stage) 
         {
             string sql = @"
                 SELECT
@@ -1577,7 +1576,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 FROM
                     daemontask
                 WHERE
-                    taskkey = @task
+                    stage = @stage
                     AND processedutc IS NULL
                 ORDER BY
                     createdutc ASC
@@ -1587,7 +1586,7 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
             {
-                cmd.Parameters.AddWithValue("task", task);
+                cmd.Parameters.AddWithValue("stage", stage);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new DaemonTaskConvert().ToCommonList(reader);
@@ -1607,7 +1606,7 @@ namespace Wbtb.Extensions.Data.Postgres
                         processedUtc is NULL
                         OR passed = False
                     )
-                    AND ordr < @order
+                    AND stage < @order
                 LIMIT 100";
 
             // note the hard limit, this call scales badly, and generally we don't care about the specifics of blocks once we have too many, as that's a symptom of bigger problems
@@ -1637,7 +1636,7 @@ namespace Wbtb.Extensions.Data.Postgres
                         DT.processedUtc is NULL
                         OR DT.passed = False
                     )
-                    AND DT.ordr < @order
+                    AND DT.stage < @order
                 LIMIT 100";
 
             // note the hard limit, this call scales badly, and generally we don't care about the specifics of blocks once we have too many, as that's a symptom of bigger problems

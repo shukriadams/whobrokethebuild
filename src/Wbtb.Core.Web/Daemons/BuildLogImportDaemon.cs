@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
-using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web.Core
 {
@@ -21,8 +20,6 @@ namespace Wbtb.Core.Web.Core
         private readonly PluginProvider _pluginProvider;
 
         private readonly SimpleDI _di;
-
-        public static int TaskGroup = 1;
 
         #endregion
 
@@ -59,7 +56,7 @@ namespace Wbtb.Core.Web.Core
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.LogImport.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.LogImport);
             TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
@@ -83,7 +80,7 @@ namespace Wbtb.Core.Web.Core
                             continue;
                         }
 
-                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, TaskGroup);
+                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.LogImport);
                         if (blocking.Any()) 
                         {
                             daemonProcesses.TaskBlocked(task, this, blocking);
@@ -116,8 +113,7 @@ namespace Wbtb.Core.Web.Core
                                 BuildId = build.Id,
                                 Src = this.GetType().Name,
                                 Args = logparser,
-                                Order = 3,
-                                TaskKey = DaemonTaskTypes.LogParse.ToString()
+                                Stage = (int)DaemonTaskTypes.LogParse
                             });
 
                         // build revision requires source controld
@@ -126,8 +122,7 @@ namespace Wbtb.Core.Web.Core
                             {
                                 BuildId = build.Id,
                                 Src = this.GetType().Name,
-                                Order = 2,
-                                TaskKey = DaemonTaskTypes.AddBuildRevisionsFromBuildLog.ToString()
+                                Stage = (int)DaemonTaskTypes.RevisionFromLog
                             });
                     }
                     catch (Exception ex)

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
-using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -22,8 +21,6 @@ namespace Wbtb.Core.Web
         private readonly BuildEventHandlerHelper _buildLevelPluginHelper;
 
         private readonly SimpleDI _di;
-
-        public static int TaskGroup = 4;
 
         #endregion
 
@@ -63,7 +60,7 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask(DaemonTaskTypes.PostProcess.ToString());
+            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.PostProcess);
             TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
@@ -74,7 +71,7 @@ namespace Wbtb.Core.Web
                     {
                         Build build = dataLayer.GetBuildById(task.BuildId);
 
-                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, TaskGroup);
+                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.PostProcess);
                         if (blocking.Any())
                         {
                             daemonProcesses.TaskBlocked(task, this, blocking);

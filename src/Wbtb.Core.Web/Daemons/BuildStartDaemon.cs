@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
-using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -103,8 +102,7 @@ namespace Wbtb.Core.Web
 
                             // create next task in chain
                             dataLayer.SaveDaemonTask(new DaemonTask{
-                                TaskKey = DaemonTaskTypes.BuildEnd.ToString(),
-                                Order = 0,
+                                Stage = (int)DaemonTaskTypes.BuildEnd,
                                 Src = this.GetType().Name,
                                 BuildId = buildId
                             });
