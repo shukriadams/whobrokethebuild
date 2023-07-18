@@ -20,9 +20,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 InferredRevisionLink = bool.Parse(reader["inferredrevisionlink"].ToString()),
                 MappedUserId = reader["mappeduserid"] == DBNull.Value ? null : reader["mappeduserid"].ToString(),
                 RevisionId = reader["revisionid"] == DBNull.Value ? null : reader["revisionid"].ToString(),
-                RevisionCode = reader["revisioncode"].ToString(),
-                RevisionLinkStatus = (LinkState)reader["revisionlinkstatus"],
-                UserLinkStatus = (LinkState)reader["userlinkstatus"],
+                RevisionCode = reader["revisioncode"].ToString()
             };
         }
 

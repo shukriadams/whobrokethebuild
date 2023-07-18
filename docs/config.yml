@@ -24,7 +24,9 @@ Plugins:
     -   Token: mytoken
 -   Key: Blamer
     Path: Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
-    
+-   Key: UnrealParser
+    Path: Wbtb.Extensions.LogParsing.Unreal
+   
 Users:
 -   Key: Ug
     SourceServerIdentities:
@@ -54,6 +56,7 @@ BuildServers:
         RevisionAtBuildRegex : <current-revision>([\s\S]*?)<current-revision>
         SourceServer: myperforce
         LogParsers: 
+        -   UnrealParser
         -   CppParser
         -   BasicErrors
         PostProcessors:

@@ -131,78 +131,74 @@
     {
         @foreach(ViewBuildInvolvement involvement in this.Model.BuildInvolvements)
         {
-            <x-list-row style="background-color: @ViewHelpers.BlameScoreToColor(involvement.BlameScore)">
-                <x-list-cell>
-                    <x-columns class="buildChanges-row">
-                        <x-column class="buildChanges-avatar">
-                            @await Html.PartialAsync("UserAvatar", involvement.MappedUser)
-                        </x-column>
-                        <x-column class="buildChanges-revision">
-                            #@involvement.RevisionCode
-                            @if (involvement.Revision != null)
+            <div style="background-color: @ViewHelpers.BlameScoreToColor(involvement.BlameScore)">
+                <x-list-row>
+                    <x-list-cell>
+                        <x-columns class="buildChanges-row">
+                            <x-column class="buildChanges-avatar">
+                                @await Html.PartialAsync("UserAvatar", involvement.MappedUser)
+                            </x-column>
+                            <x-column class="buildChanges-revision">
+                                #@involvement.RevisionCode
+                                @if (involvement.Revision != null)
+                                {
+                                    <div class="quiet">
+                                        @involvement.Revision.Created.ToHumanString()
+                                    </div>
+                                }
+                            </x-column>
+                            <x-column>
+                                @if (involvement.Revision != null)
+                                {
+                                    <text>
+                                        <span class="bold">@involvement.Revision.Description</span>
+                                    </text>
+                                }
+                            </x-column>
+                        </x-columns>
+                    </x-list-cell>
+                </x-list-row>
+
+                @if (involvement.Revision != null)
+                {
+                    <x-list-row>
+                    <div class="code">
+                        @if (involvement.Revision.Files.Any())
+                        {
+                            @foreach (string file in involvement.Revision.Files)
                             {
-                                <text>
-                                    @involvement.Revision.Created.ToHumanString()
-                                </text>
+                                <div classs="build-revisionFile build-revisionFile--">@file</div>
                             }
-                            
-                            @if(involvement.InferredRevisionLink)
-                            {
-                                <div class="quiet">
-                                    (inferred)
-                                </div>
-                            } 
-                            else 
-                            {
-                                <div class="quiet">
-                                    (confirmed)
-                                </div>
-                            }
-                        </x-column>
-                        <x-column>
-                            @if (involvement.Revision != null)
-                            {
-                                <text>
-                                    <span class="bold">@involvement.Revision.Description</span>
-                                </text>
-                            }
-                        </x-column>
+                        }
+                        else
+                        {
+                            <text>No file changes found</text>
+                        }
+                    </div>
+                    </x-list-row>
+                }
 
-                    </x-columns>
+                <x-list-row>
+                    <x-list-cell>
+                        @if (involvement.BlameScore > 0 && involvement.BlameScore < 0)
+                        {
+                            <text>This change has a @involvement.BlameScore% chance of having broken the build</text>
+                        }
 
-@if (involvement.Revision != null) {   
-<pre class="code">@if (involvement.Revision.Files.Any()) { 
-@foreach(string file in involvement.Revision.Files) { 
-<span class="build-revisionFile build-revisionFile--">@file</span>
-}
-} else { 
-<text>No file changes found</text>}</pre>
-}
-                </x-list-cell>
-            </x-list-row>
-
-            <x-list-row style="background-color: @ViewHelpers.BlameScoreToColor(involvement.BlameScore)">
-                <x-list-cell>
-                    @if (involvement.BlameScore > 0 && involvement.BlameScore < 0)
-                    {
-                        <text>This change has a @involvement.BlameScore% chance of having broken the build</text>
-                    }
-
-                    @if (involvement.BlameScore == 100)
-                    {
-                        <text>This change broke the build</text>
-                    }
-                </x-list-cell>
-            </x-list-row>
+                        @if (involvement.BlameScore == 100)
+                        {
+                            <text>This change broke the build</text>
+                        }
+                    </x-list-cell>
+                </x-list-row>
+            </div>
         }
     }
     else
     {
-        <x-list-row>
-            <x-list-cell>
-                No code change information available for this build.
-            </x-list-cell>
-        </x-list-row>
+        <div>
+            No code change information available for this build.
+        </div>
     }
 
     @if (!Model.BuildInvolvements.Any())
@@ -227,19 +223,6 @@
 </x-list>
 
 <h2>Log</h2>
-@if (Model.Build.LogPath == null)
-{ 
-    <div>
-        Build log has not yet been retrieved.
-    </div>
-} 
-else 
-{
-    <div>
-        <a href="/build/log/@Model.Build.Id">View full build log</a>
-    </div>
-}
-
 
 @if (!Model.Build.Job.LogParsers.Any())
 { 
@@ -256,13 +239,21 @@ else
         {
             @if(string.IsNullOrEmpty(parseResult.ParsedContent))
             {
-                <div>
-                    @parseResult.LogParserPlugin found no results
+                <div class="code">
+                    <h4>Parser: @parseResult.LogParserPlugin</h4>
+                    <p>
+                        No matches.
+                    </p>
                 </div>
             } 
             else 
             { 
-<pre class="code"><h4>Parser: @parseResult.LogParserPlugin</h4><text>@ViewHelpers.String(parseResult.ParsedContent)</text></pre>
+                <div class="code">
+                    <h4>Parser: @parseResult.LogParserPlugin</h4>
+                    <p>
+                        @ViewHelpers.String(parseResult.ParsedContent)
+                    </p>
+                </div>
             }
         }
     }
@@ -273,3 +264,17 @@ else
         </text>
     }
 }
+
+@if (string.IsNullOrEmpty(Model.Build.LogPath))
+{
+    <div>
+        Build log has not yet been retrieved.
+    </div>
+}
+else
+{
+    <div>
+        <a href="/build/log/@Model.Build.Id">View full build log</a>
+    </div>
+}
+      

@@ -19,8 +19,6 @@ namespace Wbtb.Extensions.Data.Postgres
             queryParameters.AddWithValue("mappeduserid", record.MappedUserId == null ? (object)DBNull.Value : int.Parse(record.MappedUserId));
             queryParameters.AddWithValue("revisioncode", record.RevisionCode);
             queryParameters.AddWithValue("revisionid", record.RevisionId == null ? (object)DBNull.Value : int.Parse(record.RevisionId));
-            queryParameters.AddWithValue("revisionlinkstatus", (int)record.RevisionLinkStatus);
-            queryParameters.AddWithValue("userlinkstatus", (int)record.UserLinkStatus);
         }
     }
 }

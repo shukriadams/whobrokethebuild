@@ -90,9 +90,11 @@ Jobs are tied to a build server. A job must have a unique `Key`, as well as vali
     Regex useed to parse revision at time of build. Use for jobs that are not triggered by commits.
     Requires that your build script writes the build out to log using a format can be parsed back with the given regex. For example, have your build script get current revision nr on the code base being built, then echo this out to log with echo "<current-revision>1234</current-revision>". Then set add 
 
-        `RevisionAtBuildRegex : "<current-revision>(.*)<\/current-revision>"`
+        RevisionAtBuildRegex : <current-revision>(.*)<current-revision>
 
     to your config. Wbtb will parse out `1234` from your build log and assign that revision to your build.
+
+    It is highly recommended you avoid characters YML sensitive characters like # and slashes in your log demarkaters, egs, use `<revision>...<revision>` instead of `<revision>...</revision>` or `#revision#...#revision#`. This is due to the multiple levels of escaping required to get that to function, as characters will need to be escaped in YML, Regex and C#, which can sometimes result in conflicts.
 
 ### Optional Job properties
 

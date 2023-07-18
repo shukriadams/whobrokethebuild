@@ -31,16 +31,6 @@ namespace Wbtb.Core.Common
         public string RevisionId { get; set; }
 
         /// <summary>
-        /// First link - uses revisionCode to look up revision from source control. Updates "User" field on this record.
-        /// </summary>
-        public LinkState RevisionLinkStatus { get;set; }
-
-        /// <summary>
-        /// Second link - uses "User" field on this object to try to link build involvement with a User record.
-        /// </summary>
-        public LinkState UserLinkStatus { get; set; }
-
-        /// <summary>
         /// Id of user if mapped locally. null if not. Calculated by resolving revision object using RevisionCode, then resolving user
         /// from username in that revision.
         /// </summary>

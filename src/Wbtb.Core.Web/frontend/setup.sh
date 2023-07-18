@@ -4,7 +4,7 @@ set -e
 
 mkdir -p  ./components/bootstrip
 
-VERSION="0.0.19"
+VERSION="0.0.20"
 
 curl -L https://github.com/shukriadams/bootstrip/releases/download/$VERSION/bootstrip.js --output ./components/bootstrip/bootstrip.js
 curl -L https://github.com/shukriadams/bootstrip/releases/download/$VERSION/bootstrip.css --output ./components/bootstrip/bootstrip.scss

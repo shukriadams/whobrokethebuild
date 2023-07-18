@@ -1330,9 +1330,9 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO buildinvolvement
-                    (buildid, signature, revisioncode, revisionid, mappeduserid, isignoredfrombreakhistory, inferredrevisionlink, comment, revisionlinkstatus, userlinkstatus, blamescore)
+                    (buildid, signature, revisioncode, revisionid, mappeduserid, isignoredfrombreakhistory, inferredrevisionlink, comment, blamescore)
                 VALUES
-                    (@buildid, @signature, @revisioncode, @revisionid, @mappeduserid, @isignoredfrombreakhistory, @inferredrevisionlink, @comment, @revisionlinkstatus, @userlinkstatus, @blamescore)
+                    (@buildid, @signature, @revisioncode, @revisionid, @mappeduserid, @isignoredfrombreakhistory, @inferredrevisionlink, @comment, @blamescore)
                 RETURNING id";
 
             string updateQuery = @"                    
@@ -1345,9 +1345,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     isignoredfrombreakhistory = @isignoredfrombreakhistory, 
                     inferredrevisionlink = @inferredrevisionlink,
                     comment = @comment,
-                    revisionlinkstatus = @revisionlinkstatus,
-                    blamescore = @blamescore,
-                    userlinkstatus = @userlinkstatus
+                    blamescore = @blamescore
                 WHERE
                     id = @id
                     AND signature = @signature";

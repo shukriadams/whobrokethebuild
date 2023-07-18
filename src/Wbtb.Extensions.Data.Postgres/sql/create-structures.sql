@@ -354,8 +354,6 @@ CREATE TABLE public."buildinvolvement"
     revisionid integer DEFAULT nextval('"buildinvolvement_revisionid_seq"'::regclass),
     mappeduserid integer DEFAULT nextval('"buildinvolvement_mappeduserid_seq"'::regclass),
     isignoredfrombreakhistory boolean NOT NULL,
-    revisionlinkstatus integer NOT NULL,
-    userlinkstatus integer NOT NULL,
     blamescore integer NOT NULL,
     inferredrevisionlink boolean NOT NULL,
     comment character varying(256) COLLATE pg_catalog."default",

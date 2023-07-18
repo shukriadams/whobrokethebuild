@@ -1,14 +1,24 @@
 ﻿{
-  "Revision": "56334",
-  "Workspace": "ugs_workspace",
-  "Date": "2022-01-01T12:00",
-  "User": "Ug",
-  "Description": "some changes",
-  "Files": [
-    {
-      "File": "text3.txt",
-      "Change": "add",
-      "Differences": [ ">> some line", "<< some other line" ]
-    }
-  ]
+    "Revision": "56334",
+    "Workspace": "ugs_workspace",
+    "Date": "2022-01-01T12:00",
+    "User": "Ug",
+    "Description": "This is a longer commit message. Use this to test the ability of the layout to handle an overly-verbose commit description. For added effect, this message will now repeat. This is a longer commit message. Use this to test the ability of the layout to handle an overly-verbose commit description. For added effect, this message will now repeat.",
+    "Files": [
+        {
+            "File": "//mydepot/main/core/PSD/Source/Programs/Rader/GeographicalRecombiner.cs",
+            "Change": "add",
+            "Differences": [ ">> some line", "<< some other line" ]
+        },
+        {
+            "File": "//mydepot/main/core/ASP/ThirdParty/Extras/Blackole/Corridors.cs",
+            "Change": "edit",
+            "Differences": [ ">> some line", "<< some other line" ]
+        },
+        {
+            "File": "//mydepot/main/core/ASP/ThirdParty/Extras/Blackole/Wombats/Nested/Deep/In/Unnecessary/Sub/Directory/Data.cs",
+            "Change": "edit",
+            "Differences": [ ">> some line", "<< some other line" ]
+        }
+    ]
 }

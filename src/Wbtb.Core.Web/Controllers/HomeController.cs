@@ -213,7 +213,7 @@ namespace Wbtb.Core.Web.Controllers
                     bi.MappedUser = ViewUser.Copy(dataLayer.GetUserById(bi.MappedUserId));
             }
 
-            // sorty invovlvements by revision date so they look ordered
+            // sort invovlvements by revision date so they look ordered
             if (!model.BuildInvolvements.Where(bi => bi.Revision == null).Any())
                 model.BuildInvolvements = model.BuildInvolvements.OrderByDescending(bi => bi.Revision.Created);
 
