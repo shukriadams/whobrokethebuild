@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Html;
-using System;
 using System.Web;
 using Wbtb.Core.Common;
 
@@ -7,6 +6,19 @@ namespace Wbtb.Core.Web
 {
     public static class ViewHelpers
     {
+        public static HtmlString BadgeClassFromBuildStatus(BuildStatus status) 
+        {
+            string cssClass = string.Empty;
+
+            if (status == BuildStatus.Failed)
+                cssClass = "danger";
+
+            if (status == BuildStatus.Passed)
+                cssClass = "success";
+
+            return new HtmlString(cssClass);
+        }
+
         public static HtmlString PreserveLineBreaks(string content)
         {
             if (content == null)

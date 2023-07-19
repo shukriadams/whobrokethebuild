@@ -4,6 +4,11 @@
     border: none; // remove the default border on bootstrip list
 }
 
+
+.buildChanges x-columns {
+    margin-bottom: 0; // reset bootstrip margin for better data density
+}
+
 .buildChanges-row {
     align-items: center;
     display: grid;

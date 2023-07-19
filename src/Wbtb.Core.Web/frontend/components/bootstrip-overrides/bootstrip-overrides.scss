@@ -36,6 +36,10 @@ x-header-logoContainer {
     width: var(--layout-sideMenu-width);
 }
 
+x-badge {
+    width: fit-content; // can remove this once upstream is merged in
+}
+
 x-card {
     border: none;
 }

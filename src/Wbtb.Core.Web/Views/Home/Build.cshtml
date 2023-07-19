@@ -1,7 +1,6 @@
 ﻿@using Wbtb.Core.Common;
 @using Wbtb.Core.Web; 
 @model BuildPageModel
-
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -14,115 +13,121 @@
     <x-card class="--stroke --top">
         <x-card-stroke class="--@ViewHelpers.BuildStatusToCSSClass(Model.Build)"></x-card-stroke>
         <x-card-pad>
-            Status : @ViewHelpers.TranslateBuildStatus(Model.Build)
-            @if(Model.IncidentCausalBuild != null)
-            {
-                <text>
-                    Broken by <a href="/build/@Model.IncidentCausalBuild.Id">@Model.IncidentCausalBuild.Identifier</a>
-                </text>
-            }
+            <wbtb-labels>
 
-            @if (Model.BuildBreakers.Any())
-            {
-                <div>
-                    Broken by :
-                    @foreach(User user in Model.BuildBreakers)
-                    { 
-                        <a href="/user/@user.Id">@user.Name</a>
-                    }
-                </div>
-            }
+                <wbtb-label>Job</wbtb-label>
+                <div><a href="/job/@Model.Build.Job.Id">@Model.Build.Job.Name</a></div>
 
-        </x-card-pad>
-        <x-card-pad>
-            Job : <a href="/job/@Model.Build.Job.Id">@Model.Build.Job.Name</a>
-        </x-card-pad>
-        <x-card-pad>
-            Built on : @ViewHelpers.BuildHostLink(Model.Build)
-        </x-card-pad>
-        <x-card-pad>
-            @if (!string.IsNullOrEmpty(Model.UrlOnBuildServer))
-            {
-                <a href="@Model.UrlOnBuildServer">View on @Model.BuildServer.Name</a>
-            }
-        </x-card-pad>
+                <wbtb-label>Status </wbtb-label>
+                <x-badge class="--@ViewHelpers.BadgeClassFromBuildStatus(Model.Build.Status)" >@ViewHelpers.TranslateBuildStatus(Model.Build)</x-badge>
 
-        @if(Model.Build.IncidentBuild != null)
-        { 
-            <x-card-pad>
-                @if (Model.Build.Id == Model.Build.IncidentBuildId)
+                <wbtb-label>Built on </wbtb-label>
+                <div>@ViewHelpers.BuildHostLink(Model.Build)</div>
+
+                @if(Model.IncidentCausalBuild != null)
                 {
-                    <x-badge class="--danger">
-                        Build broke here.
-                    </x-badge>
-                } 
-                else 
-                { 
-                    <text>
-                        Break caused by build @ViewHelpers.BuildLink(Model.Build.IncidentBuild)
-                    </text>
+                    <wbtb-label>Breaking build</wbtb-label>
+                    <div><a href="/build/@Model.IncidentCausalBuild.Id">@Model.IncidentCausalBuild.Identifier</a></div>
                 }
-                <div>
-                    @ViewHelpers.IncidentLink(Model.Build.IncidentBuild, "View incident")
-                </div>
 
-            </x-card-pad>
-        }
+                @if (Model.Build.IncidentBuild != null)
+                {
+                    <wbtb-label>Broke at</wbtb-label>
+                    @if (Model.Build.Id == Model.Build.IncidentBuildId)
+                    {
+                        <div>here</div>
+                    }
+                    else
+                    {
+                        <div>
+                            @ViewHelpers.BuildLink(Model.Build.IncidentBuild)
+                        </div>
+                    }
 
+                    <wbtb-label>Incident</wbtb-label>
+                    <div>
+                        @ViewHelpers.IncidentLink(Model.Build.IncidentBuild, "View incident")
+                    </div>
+                }
+
+                @if (Model.BuildBreakers.Any())
+                {
+                    <wbtb-label>Broken by</wbtb-label>
+                    <div>
+                        @foreach(User user in Model.BuildBreakers)
+                        { 
+                            <a href="/user/@user.Id">@user.Name</a>
+                        }
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.UrlOnBuildServer))
+                {
+                    <wbtb-label>View on</wbtb-label>
+                    <div><a href="@Model.UrlOnBuildServer">@Model.BuildServer.Name</a></div>
+                }
+            </wbtb-labels>
+
+        </x-card-pad>
     </x-card>
+
     <x-card class="--top">
         <x-card-pad>
-            <h5>Timeline</h5>
-            <div>
-                Ran @Model.Build.StartedUtc.Ago() ago (@Model.Build.StartedUtc.ToHumanString())
-            </div>
-            @if (Model.Build.EndedUtc.HasValue)
-            {
+            <wbtb-labels>
+
+                <wbtb-label>Ran</wbtb-label>
+                <div>@Model.Build.StartedUtc.ToHumanString() <span class="quiet">@Model.Build.StartedUtc.Ago() ago</span></div>
+
+                @if (Model.Build.EndedUtc.HasValue)
+                {
+                    <wbtb-label>Took</wbtb-label>
+                    <div>@ViewHelpers.BuildDuration(Model.Build) to complete</div>
+                }
+
+                @if (Model.PreviousBuild != null)
+                {
+                    <wbtb-label>Prev build</wbtb-label>
+                    <div><a href="/build/@Model.PreviousBuild.Id">@Model.PreviousBuild.Identifier </a> <span class="quiet">@((Model.Build.StartedUtc - Model.PreviousBuild.StartedUtc).ToHumanString()) earlier</span></div>
+                }
+
+                @if (Model.NextBuild != null)
+                {
+                    <wbtb-label>Next build</wbtb-label>
+                    <div><a href="/build/@Model.NextBuild.Id">@Model.NextBuild.Identifier </a> <span class="quiet">@((Model.NextBuild.StartedUtc - Model.Build.StartedUtc).ToHumanString()) later</span></div>
+                }
+
+                <wbtb-label>Process log</wbtb-label>
                 <div>
-                    Took @ViewHelpers.BuildDuration(Model.Build) to complete
+                    <a href="/buildProcessLog/@Model.Build.Id">
+
+                        @if (Model.ProcessErrors)
+                        {
+                            <x-badge class="--danger">ERRORS</x-badge>
+                        }else if (Model.ProcessesPending)
+                        {
+                            <x-badge class="--warning">Pending</x-badge>
+                        }else
+                        {
+                            <text>View</text>
+                        }
+                    </a>
+
                 </div>
-            }
+
+            </wbtb-labels>
         </x-card-pad>
-        <x-card-pad>
-            @if (Model.PreviousBuild != null)
-            {
-                <text>
-                    Previous build : <a href="/build/@Model.PreviousBuild.Id">@Model.PreviousBuild.Identifier </a> <span class="quiet">(@((Model.Build.StartedUtc - Model.PreviousBuild.StartedUtc).ToHumanString()) before)</span>
-                </text>
-            }
-        </x-card-pad>
-        <x-card-pad>
-            @if (Model.NextBuild != null)
-            {
-                <text>
-                    Next  build : <a href="/build/@Model.NextBuild.Id">@Model.NextBuild.Identifier </a> <span class="quiet">(@((Model.NextBuild.StartedUtc - Model.Build.StartedUtc).ToHumanString()) later)</span>
-                </text>
-            }
-        </x-card-pad>
-        <x-card-pad>
-            @if (Model.Common.IsAdmin && Model.IsAlertRetractable)
-            {
-                <button class="button --warning" data-undoAlerts="@Model.Build.Id">Delete alerts</button>    
+        @if (Model.Common.IsAdmin && Model.IsAlertRetractable)
+        {
+            <x-card-pad>
+                <h4>Admin</h4>
+                <button class="button --warning" data-undoAlerts="@Model.Build.Id">Delete alerts</button>
                 <p class="quiet">
                     Public alerts have already been sent out for this build. You can delete them here.
                 </p>
-            }
-        </x-card-pad>
-        <x-card-pad>
-            <a href="/buildProcessLog/@Model.Build.Id">Process log 
-                @if (Model.ProcessErrors)
-                {
-                    <x-badge class="--danger">ERRORS</x-badge>
-                }
-                @if (Model.ProcessesPending)
-                {
-                    <x-badge class="--warning">Pending</x-badge>
-                }
-            </a>
-        </x-card-pad>
+            </x-card-pad>
+        }
     </x-card>
 </x-columns>
-
         
 <h2>Changes</h2>
 <x-list class="buildChanges">
@@ -131,55 +136,32 @@
     {
         @foreach(ViewBuildInvolvement involvement in this.Model.BuildInvolvements)
         {
-            <div style="background-color: @ViewHelpers.BlameScoreToColor(involvement.BlameScore)">
-                <x-list-row>
-                    <x-list-cell>
-                        <x-columns class="buildChanges-row">
-                            <x-column class="buildChanges-avatar">
-                                @await Html.PartialAsync("UserAvatar", involvement.MappedUser)
-                            </x-column>
-                            <x-column class="buildChanges-revision">
-                                #@involvement.RevisionCode
-                                @if (involvement.Revision != null)
-                                {
-                                    <div class="quiet">
-                                        @involvement.Revision.Created.ToHumanString()
-                                    </div>
-                                }
-                            </x-column>
-                            <x-column>
-                                @if (involvement.Revision != null)
-                                {
-                                    <text>
-                                        <span class="bold">@involvement.Revision.Description</span>
-                                    </text>
-                                }
-                            </x-column>
-                        </x-columns>
-                    </x-list-cell>
-                </x-list-row>
-
-                @if (involvement.Revision != null)
-                {
-                    <x-list-row>
-                    <div class="code">
-                        @if (involvement.Revision.Files.Any())
-                        {
-                            @foreach (string file in involvement.Revision.Files)
+            <x-list-rowlayout style="background-color:@ViewHelpers.BlameScoreToColor(involvement.BlameScore)">
+                <x-list-cell>
+                    <x-columns class="buildChanges-row">
+                        <x-column class="buildChanges-avatar">
+                            @await Html.PartialAsync("UserAvatar", involvement.MappedUser)
+                        </x-column>
+                        <x-column class="buildChanges-revision">
+                            #@involvement.RevisionCode
+                            @if (involvement.Revision != null)
                             {
-                                <div classs="build-revisionFile build-revisionFile--">@file</div>
+                                <div class="quiet">
+                                    @involvement.Revision.Created.ToHumanString()
+                                </div>
                             }
-                        }
-                        else
-                        {
-                            <text>No file changes found</text>
-                        }
-                    </div>
-                    </x-list-row>
-                }
+                        </x-column>
+                        <x-column>
+                            @if (involvement.Revision != null)
+                            {
+                                <text>
+                                    <span class="bold">@involvement.Revision.Description</span>
+                                </text>
+                            }
+                        </x-column>
+                    </x-columns>
 
-                <x-list-row>
-                    <x-list-cell>
+                    <x-columns>
                         @if (involvement.BlameScore > 0 && involvement.BlameScore < 0)
                         {
                             <text>This change has a @involvement.BlameScore% chance of having broken the build</text>
@@ -189,9 +171,31 @@
                         {
                             <text>This change broke the build</text>
                         }
-                    </x-list-cell>
-                </x-list-row>
-            </div>
+                    </x-columns>
+
+
+                    @if (involvement.Revision != null)
+                    {
+                        <x-columns>
+                            <div class="code">
+                                @if (involvement.Revision.Files.Any())
+                                {
+                                    @foreach (string file in involvement.Revision.Files)
+                                    {
+                                        <div classs="build-revisionFile build-revisionFile--">@file</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <text>No file changes found</text>
+                                }
+                            </div>
+                        </x-columns>
+                    }
+
+
+                </x-list-cell>
+            </x-list-rowlayout>
         }
     }
     else
