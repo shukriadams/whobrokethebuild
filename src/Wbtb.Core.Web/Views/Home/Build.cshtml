@@ -84,16 +84,16 @@
                     <div>@ViewHelpers.BuildDuration(Model.Build) to complete</div>
                 }
 
-                @if (Model.PreviousBuild != null)
-                {
-                    <wbtb-label>Prev build</wbtb-label>
-                    <div><a href="/build/@Model.PreviousBuild.Id">@Model.PreviousBuild.Identifier </a> <span class="quiet">@((Model.Build.StartedUtc - Model.PreviousBuild.StartedUtc).ToHumanString()) earlier</span></div>
-                }
-
                 @if (Model.NextBuild != null)
                 {
                     <wbtb-label>Next build</wbtb-label>
                     <div><a href="/build/@Model.NextBuild.Id">@Model.NextBuild.Identifier </a> <span class="quiet">@((Model.NextBuild.StartedUtc - Model.Build.StartedUtc).ToHumanString()) later</span></div>
+                }
+
+                @if (Model.PreviousBuild != null)
+                {
+                    <wbtb-label>Prev build</wbtb-label>
+                    <div><a href="/build/@Model.PreviousBuild.Id">@Model.PreviousBuild.Identifier </a> <span class="quiet">@((Model.Build.StartedUtc - Model.PreviousBuild.StartedUtc).ToHumanString()) earlier</span></div>
                 }
 
                 <wbtb-label>Process log</wbtb-label>
@@ -169,7 +169,7 @@
 
                         @if (involvement.BlameScore == 100)
                         {
-                            <text>This change broke the build</text>
+                            <text>This interaction broke the build</text>
                         }
                     </x-columns>
 
@@ -193,6 +193,11 @@
                         </x-columns>
                     }
 
+                    @if (!string.IsNullOrEmpty(involvement.Comment))
+                    {
+                        <div class="code">@involvement.Comment</div>
+                    }
+
 
                 </x-list-cell>
             </x-list-rowlayout>
@@ -200,14 +205,14 @@
     }
     else
     {
-        <div>
+        <x-list-rowlayout>
             No code change information available for this build.
-        </div>
+        </x-list-rowlayout>
     }
 
     @if (!Model.BuildInvolvements.Any())
     {
-        <x-list-row>
+        <x-list-rowlayout>
             @if (Model.RevisionsLinkedFromLog)
             {
                 <text>
@@ -221,7 +226,7 @@
                 </text>
             }
 
-            </x-list-row>
+        </x-list-rowlayout>
     }
 
 </x-list>

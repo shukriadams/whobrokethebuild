@@ -50,7 +50,16 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         public ReachAttemptResult AttemptReach(Core.Common.BuildServer contextServer)
         {
-            // sandbox should by default always be reachable. Change at dev time to simulate failures.
+            // each job should have RemoteKey config item
+            foreach (Job job in contextServer.Jobs)
+            {
+                if (job.Config == null)
+                    throw new ConfigurationException($"Job {job.Key} on buildServer {contextServer.Key} is missing Config node");
+
+                if (!job.Config.Any(c => c.Key == "RemoteKey"))
+                    throw new ConfigurationException($"Job {job.Key} on buildServer {contextServer.Key} is missing Config \"RemoteKey\"");
+            }
+
             return new ReachAttemptResult { Reachable = true };
         }
 
@@ -129,26 +138,21 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            string filePath = $"./JSON/builds/{job.Key}/build_{build.Identifier}_revisions.json";
+            var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
+
+            string filePath = $"./JSON/builds/{remotekey.Value}/build_{build.Identifier}_revisions.json";
             string rawJson = null;
             string persistPath = _persistPathHelper.GetPath(ContextPluginConfig, job.Key, build.Identifier, "revisions.json");
 
-            if (File.Exists(persistPath))
+            string path = $"JSON.builds.{remotekey.Value}.build_{build.Identifier}_revisions.json";
+            if (ResourceHelper.ResourceExists(this.GetType(), path))
             {
-                rawJson = File.ReadAllText(persistPath);
+                rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), path);
+                Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
+                File.WriteAllText(persistPath, rawJson);
             }
             else
-            {
-                string path = $"JSON.builds.{job.Key}.build_{build.Identifier}_revisions.json";
-                if (ResourceHelper.ResourceExists(this.GetType(), path))
-                {
-                    rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), path);
-                    Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
-                    File.WriteAllText(persistPath, rawJson);
-                }
-                else
-                    Console.WriteLine($"Failed to to read revisions for build {build.Identifier}, job {job.Name}. No data in sandbox");
-            }
+                Console.WriteLine($"Failed to to read revisions for build {build.Identifier}, job {remotekey.Value}. No data in sandbox");
             
             if (rawJson == null)
                 return new BuildRevisionsRetrieveResult { Result = "revisions not available in sandbox" };
@@ -160,10 +164,11 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         IEnumerable<Build> IBuildServerPlugin.GetLatesBuilds(Job job, int take)
         {
-            string resourcePath = $"JSON.builds.{job.Key}.builds.json";
+            var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
+            string resourcePath = $"JSON.builds.{remotekey.Value}.builds.json";
 
             if (!ResourceHelper.ResourceExists(this.GetType(), resourcePath))
-                throw new Exception($"Failed to import builds, sandbox job {job.Key} does not exist in data store");
+                throw new Exception($"Failed to import builds, sandbox job {remotekey.Value} does not exist in data store");
 
             string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), resourcePath);
             dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);
@@ -251,8 +256,9 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
             // persist path
             Job job = dataLayer.GetJobById(build.JobId);
+            var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
 
-            string log = ResourceHelper.ReadResourceAsString(this.GetType(), $"JSON.builds.{job.Key}.logs.{build.Identifier}.txt");
+            string log = ResourceHelper.ReadResourceAsString(this.GetType(), $"JSON.builds.{remotekey.Value}.logs.{build.Identifier}.txt");
             return log;
         }
 
@@ -290,7 +296,9 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{job.Key}.logs.{build.Identifier}.txt"))
+            var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
+
+            if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{remotekey.Value}.logs.{build.Identifier}.txt"))
                 return new BuildLogRetrieveResult { Result = "Build log does not exist" };
 
             string logContent = GetBuildLog(build);
@@ -308,8 +316,10 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
+            var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
 
-            string path = $"JSON.builds.{job.Key}.builds.json";
+
+            string path = $"JSON.builds.{remotekey.Value}.builds.json";
             string rawJson;
             if (ResourceHelper.ResourceExists(this.GetType(), path))
                 rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), path);

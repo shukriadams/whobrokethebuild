@@ -47,18 +47,12 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             IEnumerable < BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
             IEnumerable<BuildInvolvement> buildInvolvements = data.GetBuildInvolvementsByBuild(build.Id);
 
+            
 
             // get all revisions associated with this build
             IList<Revision> revisionsLinkedToBuild = new List<Revision>();
             foreach (BuildInvolvement buildInvolvement in buildInvolvements.Where(bi => !string.IsNullOrEmpty(bi.RevisionId)))
                 revisionsLinkedToBuild.Add(data.GetRevisionById(buildInvolvement.RevisionId));
-
-            if (!revisionsLinkedToBuild.Any())
-                return new PostProcessResult
-                {
-                    Passed = true,
-                    Result = "No revisions linked to this build"
-                };
 
             // if log parse results are c++
 
@@ -78,30 +72,26 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             string regex = @"<p4-cient-state>([\s\S]*?)<p4-cient-state>";
             string hash = Sha256.FromString(regex + rawLog);
             Cache cache = di.Resolve<Cache>();
-            string resultLookup = cache.Get(this, hash);
+            string clientLookup = cache.Get(this, hash);
                 
-            if (resultLookup == null) 
+            if (clientLookup == null) 
             {
                 Match match = new Regex(regex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Match(rawLog);
                 if (match.Success)
                 {
-                    resultLookup = match.Groups[1].Value.Trim();
-                    cache.Write(this, hash, resultLookup);
-                }
-                else 
-                {
-                    return new PostProcessResult
-                    {
-                        Passed = true,
-                        Result = "No P4 client spec found in buildlog. To use this blame pugin, p4 clientspec must be emitted in build log, wrapped in <p4-cient-state>. See plugin docs for more."
-                    };
+                    clientLookup = match.Groups[1].Value.Trim();
+                    cache.Write(this, hash, clientLookup);
                 }
             }
 
             string resultText = string.Empty;
-            Client client = PerforceUtils.ParseClient(resultLookup);
+            Client client = null;
+            if (clientLookup != null)
+                client = PerforceUtils.ParseClient(clientLookup);
+
             bool causeFound = false;
             bool cppFound = false;
+            bool jenkinsErrorFound = false;
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
@@ -109,10 +99,20 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 if (parsedText == null)
                     continue;
 
+                if (parsedText.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing")
+                {
+                    jenkinsErrorFound = true;
+                    continue;
+                }
+
                 if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
                     continue;
 
+                // from here on, only CPP errors are handled
                 cppFound = true;
+
+                if (client == null)
+                    continue;
 
                 foreach (ParsedBuildLogTextLine line in parsedText.Items)
                     foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
@@ -155,11 +155,35 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     }
             }
 
+            if (jenkinsErrorFound) 
+            {
+                data.SaveBuildInvolement(new BuildInvolvement
+                {
+                    BlameScore = 100,
+                    BuildId = build.Id,
+                    RevisionCode = "Jenkins", // value cannot be null, and will never be traced
+                    Comment = "Build break caused by internal Jenkins error"
+                });
+
+                return new PostProcessResult
+                {
+                    Passed = true,
+                    Result = $"Jenkins error found."
+                };
+            }
+
             if (!cppFound)
                 return new PostProcessResult
                 {
                     Passed = true,
                     Result = $"No CPP parse resuls found."
+                };
+
+            if (client == null)
+                return new PostProcessResult
+                {
+                    Passed = true,
+                    Result = $"Could not parse out p4 clientspec from log."
                 };
 
             // if log parse results are blueprint

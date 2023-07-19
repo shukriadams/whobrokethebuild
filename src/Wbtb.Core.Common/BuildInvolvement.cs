@@ -2,9 +2,13 @@
 
 namespace Wbtb.Core.Common
 {
-
+    /// <summary>
+    /// Some kind of even that affects a build's outcome. Normally a revision created by a user, but can also be an interaction with a system, such as a build agent crashing.
+    /// </summary>
     public class BuildInvolvement : ISignature
     {
+        #region PROPERTIES
+
         /// <summary>
         /// Database primary key index of record.
         /// </summary>
@@ -56,9 +60,15 @@ namespace Wbtb.Core.Common
         /// </summary>
         public string Signature { get; set; }
 
+        #endregion
+
+        #region CTORS
+
         public BuildInvolvement()
         {
             this.Signature = Guid.NewGuid().ToString();
         }
+
+        #endregion
     }
 }

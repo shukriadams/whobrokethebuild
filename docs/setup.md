@@ -46,7 +46,7 @@ Users can also be grouped together to make it easier to send alerts to everyone 
 
 ## Keys
 
-All objects defined in Wbtb static config have unique `Key` values. Keys should not be changed once config is defined and loaded, as they are written to database. You can use whatever strng you want for keys, as long as they make sense to you, though we recommend you use anonymous IDs such as GUIDs, and use `Name` properties for human-friendly labels.
+All objects defined in Wbtb static config have unique `Key` values. Keys should not be changed once config is defined and loaded, as they are written to database. You can use whatever string you want for keys, as long as they make sense to you, though in the case of values that can change at their source, we recommend anonymous IDs such as GUIDs, and use `Name` properties for human-friendly labels. 
 
 ### Changing keys
 

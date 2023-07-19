@@ -26,6 +26,8 @@ Plugins:
     Path: Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 -   Key: UnrealParser
     Path: Wbtb.Extensions.LogParsing.Unreal
+-   Key: JenkinsSelfFailing
+    Path: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
    
 Users:
 -   Key: Ug
@@ -52,12 +54,32 @@ BuildServers:
 -   Key: MyJenkins
     Plugin: jenkinsSandbox
     Jobs:
-    -   Key: Project_Ironbird
+    -   Key: 248445e2
+        Name: Ironbird
+        RevisionAtBuildRegex: <current-revision>([\s\S]*?)<current-revision>
+        SourceServer: myperforce
+        Config: 
+        -   RemoteKey: Project_Ironbird
+        LogParsers: 
+        -   UnrealParser 
+        -   CppParser
+        -   JenkinsSelfFailing
+        -   BasicErrors
+        PostProcessors:
+        -   Blamer
+        Message:
+        -   Plugin: myslack
+            Group: mygroup
+    -   Key: a967dfaaf967
+        Name : SkunkWords
         RevisionAtBuildRegex : <current-revision>([\s\S]*?)<current-revision>
         SourceServer: myperforce
+        Config: 
+        -   RemoteKey: Project_Skunkwords
         LogParsers: 
         -   UnrealParser
         -   CppParser
+        -   JenkinsSelfFailing
         -   BasicErrors
         PostProcessors:
         -   Blamer
