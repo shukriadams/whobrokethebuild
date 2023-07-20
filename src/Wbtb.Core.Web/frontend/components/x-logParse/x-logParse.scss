@@ -8,3 +8,14 @@ x-logParseItem {
     padding-right: 4px;
     font-size: 14px;
 }
+
+x-logparseitem[type=path]{
+
+}
+
+x-logparseitem[type=description] {
+    color: cadetblue;
+}
+x-logparseitem[type=error_code] {
+
+}

@@ -197,6 +197,7 @@ namespace Wbtb.Core.Web.Controllers
                 return Responses.NotFoundError($"build {buildid} does not exist");
 
             model.Build.Job = ViewJob.Copy(dataLayer.GetJobById(model.Build.JobId));
+            IEnumerable<DaemonTask> buildTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id);
 
             BuildServer buildServer = dataLayer.GetBuildServerById(model.Build.Job.BuildServerId);
             IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
@@ -221,10 +222,9 @@ namespace Wbtb.Core.Web.Controllers
             model.BuildServer = buildServer;
             model.PreviousBuild = dataLayer.GetPreviousBuild(model.Build);
             model.NextBuild = dataLayer.GetNextBuild(model.Build);
-            model.BuildParseResults = dataLayer.GetBuildLogParseResultsByBuildId(buildid);
+            model.BuildParseResults = dataLayer.GetBuildLogParseResultsByBuildId(buildid).OrderBy(r => string.IsNullOrEmpty(r.ParsedContent));
             model.Build.IncidentBuild = string.IsNullOrEmpty(model.Build.IncidentBuildId) ? null : ViewBuild.Copy(dataLayer.GetBuildById(model.Build.IncidentBuildId));
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
-            IEnumerable<DaemonTask> buildTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id);
             model.ProcessErrors = buildTasks.Any(t => t.HasPassed.HasValue && t.HasPassed.Value == false);
             model.ProcessesPending = buildTasks.Any(t => t.ProcessedUtc == null);
 

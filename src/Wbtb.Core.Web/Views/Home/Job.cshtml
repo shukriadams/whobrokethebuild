@@ -18,108 +18,116 @@
                         @(Model.Job.Description)
                     </div>
                 }
-
-                <div>
+                <wbtb-labels>
                     @if (Model.Stats.JobDuration.HasValue)
                     {
-                        <text>
-                            Has built over @Model.Stats.JobDuration.ToHumanString(), from @Model.Stats.StartUtc.ToHumanString() to @Model.Stats.LatestBuild.EndedUtc.ToHumanString()
-                        </text>
+                        <wbtb-label>Lifespan</wbtb-label>
+                        <div>
+                            @Model.Stats.JobDuration.ToHumanString(), from @Model.Stats.StartUtc.ToHumanString() to @Model.Stats.LatestBuild.EndedUtc.ToHumanString()
+                        </div>
                     }
-                </div>
 
-                <div>
                     @if (Model.Stats.LatestBreakingBuild != null)
                     {
-                        <text>
-                            Last incident was @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild)
-                            @Model.Stats.LatestBreakingBuild.EndedUtc.Ago() ago (@Model.Stats.LatestBreakingBuild.EndedUtc.ToHumanString())
-                        </text>
+                        <wbtb-label>Last incident</wbtb-label>
+                        <div>
+                            @ViewHelpers.BuildLink(Model.Stats.LatestBreakingBuild)
+                            @Model.Stats.LatestBreakingBuild.EndedUtc.ToHumanString() <span class="quiet">@Model.Stats.LatestBreakingBuild.EndedUtc.Ago() ago</span>
+                            @if (Model.Stats.LatestBreakDuration.HasValue)
+                            {
+                                <text>, which lasted @Model.Stats.LatestBreakDuration.ToHumanString()</text>
+                            }
+                        </div>
                     }
 
-                    @if (Model.Stats.LatestBreakDuration.HasValue)
+                    @if (Model.Stats.TotalBuilds == 0)
                     {
-                        <text>,and that lasted @Model.Stats.LatestBreakDuration.ToHumanString()</text>
+                        <wbtb-label>Build count</wbtb-label>
+                        <div>
+                            Project hasn't built yet
+                        </div>
                     }
-                </div>
 
-                @if (Model.Stats.TotalBuilds == 0)
-                {
-                    <div>
-                        Project hasn't built yet
-                    </div>
-                }
+                    @if (Model.Stats.TotalBuilds > 0)
+                    {
+                        <wbtb-label>Build count</wbtb-label>
+                        <div>
+                            @(Model.Stats.TotalBuilds) times
+                        </div>
 
-                @if (Model.Stats.TotalBuilds > 0)
-                {
-                    <div>
-                        Has built @(Model.Stats.TotalBuilds) times
-                    </div>
-                    <div>
-                        @if (Model.Stats.FailRatePercent == 0)
-                        {
-                            <text>
-                                No fails detected
-                            </text>
-                        }
+                        <wbtb-label>Fail rate</wbtb-label>
+                        <div>
+                            @if (Model.Stats.FailRatePercent == 0)
+                            {
+                                <text>
+                                    No fails detected
+                                </text>
+                            }
 
-                        @if (Model.Stats.FailRatePercent > 0)
-                        {
-                            <text>
-                                Fail rate is @(Model.Stats.FailRatePercent)%
-                            </text>
-                        }
-                    </div>
-                }
+                            @if (Model.Stats.FailRatePercent > 0)
+                            {
+                                <text>
+                                    @(Model.Stats.FailRatePercent)%
+                                </text>
+                            }
+                        </div>
+                    }
+
+                </wbtb-labels>
             </x-card-pad>
         </x-card>
         <x-card>
             <x-card-pad>
-                <div>
-                    Incidents : 
-                    @if (Model.Stats.Incidents == 0)
-                    {
-                        <text>
-                            None
-                        </text>
-                    } else {
-                        <a href="/incidents/@Model.Job.Id">@Model.Stats.Incidents</a>
-                    }
-                </div>
-                
-                @if (Model.Job.Message.Any())
-                {
-                    <text>
-                        <h5>Alerts</h5>
-                        @foreach (MessageHandler message in Model.Job.Message)
-                        {
-                            <div>
-                                @message.Group via @message.Plugin
-                            </div>
-                        }
-                    </text>
-                }
+                <wbtb-labels>
 
-                <h5>Log parsers</h5>
-                @if (Model.Job.LogParsers.Any())
-                {
-                    <text>
-                        <ul>
-                            @foreach (string logParser in Model.Job.LogParsers)
+                    <wbtb-label>Incidents</wbtb-label>
+                    <div>
+                        @if (Model.Stats.Incidents == 0)
+                        {
+                            <text>
+                                None
+                            </text>
+                        }
+                        else
+                        {
+                            <a href="/incidents/@Model.Job.Id">@Model.Stats.Incidents</a>
+                        }
+                    </div>
+
+                    @if (Model.Job.Message.Any())
+                    {
+                        <wbtb-label>Alerts</wbtb-label>
+                        <div>
+                            @foreach (MessageHandler message in Model.Job.Message)
                             {
-                                <li>
-                                    @logParser
-                                </li>
+                                <div>
+                                    @message.Group via @message.Plugin
+                                </div>
                             }
-                        </ul>
-                    </text>
-                }
-                else
-                {
-                    <text>
-                        none
-                    </text>
-                }
+                        </div>
+                    }
+
+                    <wbtb-label>Log parsers</wbtb-label>
+                    <div>
+                        @if (Model.Job.LogParsers.Any())
+                        {
+                            <ul>
+                                @foreach (string logParser in Model.Job.LogParsers)
+                                {
+                                    <li>
+                                        @logParser
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <text>
+                                none
+                            </text>
+                        }
+                    </div>
+                </wbtb-labels>
             </x-card-pad>
         </x-card>
     </x-columns>
@@ -151,7 +159,7 @@
                             @ViewHelpers.TranslateBuildStatus(build) 
                         </div>
                         <div>
-                            @build.VisibleDateUtc.Ago() ago (@build.VisibleDateUtc.ToHumanString())
+                            @build.VisibleDateUtc.ToHumanString() <span class="quiet">@build.VisibleDateUtc.Ago() ago</span>
                         </div>
                     </x-list-cell>    
 

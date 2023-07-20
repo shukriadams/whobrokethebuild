@@ -169,7 +169,7 @@
 
                         @if (involvement.BlameScore == 100)
                         {
-                            <text>This interaction broke the build</text>
+                            <text>Broke the build</text>
                         }
                     </x-columns>
 
@@ -197,7 +197,6 @@
                     {
                         <div class="code">@involvement.Comment</div>
                     }
-
 
                 </x-list-cell>
             </x-list-rowlayout>
@@ -241,29 +240,25 @@
 } 
 else
 {
-
     @if (Model.BuildParseResults.Any())
     {
         @foreach(BuildLogParseResult parseResult in Model.BuildParseResults)
         {
-            @if(string.IsNullOrEmpty(parseResult.ParsedContent))
-            {
-                <div class="code">
-                    <h4>Parser: @parseResult.LogParserPlugin</h4>
-                    <p>
-                        No matches.
-                    </p>
-                </div>
-            } 
-            else 
-            { 
-                <div class="code">
-                    <h4>Parser: @parseResult.LogParserPlugin</h4>
-                    <p>
+            <div class="code">
+                <h4>@parseResult.LogParserPlugin</h4>
+                <p>
+                    @if (string.IsNullOrEmpty(parseResult.ParsedContent))
+                    {
+                        <text>
+                            No matches.
+                        </text>
+                    }
+                    else
+                    {
                         @ViewHelpers.String(parseResult.ParsedContent)
-                    </p>
-                </div>
-            }
+                    }
+                </p>
+            </div>
         }
     }
     else

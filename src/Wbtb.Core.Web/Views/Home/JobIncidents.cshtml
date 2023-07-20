@@ -22,7 +22,7 @@
                 Date
             </x-list-cell>
             <x-list-cell class="--header">
-                Builds
+                Other builds
             </x-list-cell>
         </x-list-row>
 
@@ -33,7 +33,7 @@
                     @ViewHelpers.BuildLink(build)
                 </x-list-cell>
                 <x-list-cell>
-                        @build.StartedUtc.Ago() ago (@build.StartedUtc.ToHumanString()))
+                    @build.StartedUtc.ToHumanString() <span class="quiet">@build.StartedUtc.Ago() ago</span>
                 </x-list-cell>
                 <x-list-cell>
                     @foreach(Build involved in build.InvolvedBuilds)
