@@ -731,6 +731,54 @@ namespace Wbtb.Core.Common
 
         #endregion
 
+        #region INCIDENTSUMMARY
+
+        IncidentSummary IDataPlugin.SaveIncidentSummary(IncidentSummary incidentSummary) 
+        {
+            return _pluginSender.InvokeMethod<IncidentSummary>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.SaveIncidentSummary),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "incidentSummary", Value = incidentSummary }
+                }
+            });
+        }
+
+        IEnumerable<IncidentSummary> IDataPlugin.GetIncidentSummariesForBuild(int buildId)
+        {
+            return _pluginSender.InvokeMethod<IEnumerable<IncidentSummary>>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetIncidentSummariesForBuild),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "buildId", Value = buildId }
+                }
+            });
+        }
+
+        IncidentSummary IDataPlugin.GetIncidentSummaryById(string id)
+        {
+            return _pluginSender.InvokeMethod<IncidentSummary>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetIncidentSummaryById),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "id", Value = id }
+                }
+            });
+        }
+
+        bool IDataPlugin.DeleteIncidentSummary(IncidentSummary record)
+        {
+            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.DeleteIncidentSummary),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "record", Value = record }
+                }
+            });
+        }
+
+        #endregion
+
         #region BUILD INVOLVEMENT
 
         BuildInvolvement IDataPlugin.SaveBuildInvolement(BuildInvolvement buildInvolvement)

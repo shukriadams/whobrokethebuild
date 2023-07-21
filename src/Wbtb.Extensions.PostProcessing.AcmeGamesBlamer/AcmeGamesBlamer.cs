@@ -47,8 +47,6 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             IEnumerable < BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
             IEnumerable<BuildInvolvement> buildInvolvements = data.GetBuildInvolvementsByBuild(build.Id);
 
-            
-
             // get all revisions associated with this build
             IList<Revision> revisionsLinkedToBuild = new List<Revision>();
             foreach (BuildInvolvement buildInvolvement in buildInvolvements.Where(bi => !string.IsNullOrEmpty(bi.RevisionId)))

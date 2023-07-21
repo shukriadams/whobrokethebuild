@@ -5,21 +5,21 @@ namespace Wbtb.Extensions.Data.Postgres
 {
     internal class DaemonTaskMapping
     {
-        public static void MapParameters(Core.Common.DaemonTask record, NpgsqlParameterCollection collection)
+        public static void MapParameters(Core.Common.DaemonTask record, NpgsqlParameterCollection queryParameters)
         {
             if (!string.IsNullOrEmpty(record.Id))
-                collection.AddWithValue("id", int.Parse(record.Id));
+                queryParameters.AddWithValue("id", int.Parse(record.Id));
 
-            collection.AddWithValue("signature", record.Signature);
-            collection.AddWithValue("buildid", int.Parse(record.BuildId));
-            collection.AddWithValue("stage", record.Stage);
-            collection.AddWithValue("src", record.Src);
-            collection.AddWithValue("buildinvolvementid", record.BuildInvolvementId == null ? (object)DBNull.Value : int.Parse(record.BuildInvolvementId));
-            collection.AddWithValue("createdutc", record.CreatedUtc);
-            collection.AddWithValue("result", record.Result == null ? (object)DBNull.Value : record.Result);
-            collection.AddWithValue("args", record.Args == null ? (object)DBNull.Value : record.Args);
-            collection.AddWithValue("processedutc", record.ProcessedUtc == null ? (object)DBNull.Value : record.ProcessedUtc.Value);
-            collection.AddWithValue("passed", record.HasPassed == null ? (object)DBNull.Value : record.HasPassed.Value);
+            queryParameters.AddWithValue("signature", record.Signature);
+            queryParameters.AddWithValue("buildid", int.Parse(record.BuildId));
+            queryParameters.AddWithValue("stage", record.Stage);
+            queryParameters.AddWithValue("src", record.Src);
+            queryParameters.AddWithValue("buildinvolvementid", record.BuildInvolvementId == null ? (object)DBNull.Value : int.Parse(record.BuildInvolvementId));
+            queryParameters.AddWithValue("createdutc", record.CreatedUtc);
+            queryParameters.AddWithValue("result", record.Result == null ? (object)DBNull.Value : record.Result);
+            queryParameters.AddWithValue("args", record.Args == null ? (object)DBNull.Value : record.Args);
+            queryParameters.AddWithValue("processedutc", record.ProcessedUtc == null ? (object)DBNull.Value : record.ProcessedUtc.Value);
+            queryParameters.AddWithValue("passed", record.HasPassed == null ? (object)DBNull.Value : record.HasPassed.Value);
         }
     }
 }

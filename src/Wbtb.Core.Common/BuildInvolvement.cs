@@ -53,7 +53,7 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// Score from 0 (innocent to 100, guaranteed blame. Everything in between is arbitrary.
         /// </summary>
-        public int BlameScore { get; set; }
+        public int? BlameScore { get; set; }
 
         /// <summary>
         /// 

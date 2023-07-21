@@ -431,5 +431,29 @@ namespace Wbtb.Extensions.Data.FileSystem
         }
 
         #endregion
+
+        #region INCIDENTSUMMARY
+
+        IncidentSummary IDataPlugin.SaveIncidentSummary(IncidentSummary incidentSummary)
+        {
+            return new IncidentSummary { };
+        }
+
+        IEnumerable<IncidentSummary> IDataPlugin.GetIncidentSummariesForBuild(int buildId) 
+        {
+            return new IncidentSummary[] { };
+        }
+
+        IncidentSummary IDataPlugin.GetIncidentSummaryById(string id)
+        {
+            return new IncidentSummary { };
+        }
+
+        bool IDataPlugin.DeleteIncidentSummary(IncidentSummary record)
+        {
+            return true;
+        }
+
+        #endregion
     }
 }

@@ -14,7 +14,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 Id = reader["id"].ToString(),
                 Signature = reader["signature"].ToString(),
                 BuildId = reader["buildid"].ToString(),
-                BlameScore = int.Parse(reader["blamescore"].ToString()),
+                BlameScore = reader["blamescore"] == DBNull.Value ? null : int.Parse(reader["blamescore"].ToString()),
                 Comment = reader["comment"] == DBNull.Value ? null : reader["comment"].ToString(),
                 IsIgnoredFromBreakHistory = bool.Parse(reader["isignoredfrombreakhistory"].ToString()),
                 InferredRevisionLink = bool.Parse(reader["inferredrevisionlink"].ToString()),
