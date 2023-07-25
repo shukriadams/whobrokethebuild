@@ -5,11 +5,11 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
 {
-    internal class IncidentSummaryConvert : IRecordConverter<IncidentSummary>
+    internal class IncidentReportConvert : IRecordConverter<IncidentReport>
     {
-        private IncidentSummary ToCommonSingle(NpgsqlDataReader reader)
+        private IncidentReport ToCommonSingle(NpgsqlDataReader reader)
         {
-            return new IncidentSummary
+            return new IncidentReport
             {
                 Id = reader["id"].ToString(),
                 Signature = reader["signature"].ToString(),
@@ -22,7 +22,7 @@ namespace Wbtb.Extensions.Data.Postgres
             };
         }
 
-        public IncidentSummary ToCommon(NpgsqlDataReader reader)
+        public IncidentReport ToCommon(NpgsqlDataReader reader)
         {
             if (!reader.HasRows)
                 return null;
@@ -31,9 +31,9 @@ namespace Wbtb.Extensions.Data.Postgres
             return ToCommonSingle(reader);
         }
 
-        public IEnumerable<IncidentSummary> ToCommonList(NpgsqlDataReader reader)
+        public IEnumerable<IncidentReport> ToCommonList(NpgsqlDataReader reader)
         {
-            IList<IncidentSummary> list = new List<IncidentSummary>();
+            IList<IncidentReport> list = new List<IncidentReport>();
             while (reader.Read())
                 list.Add(this.ToCommonSingle(reader));
 

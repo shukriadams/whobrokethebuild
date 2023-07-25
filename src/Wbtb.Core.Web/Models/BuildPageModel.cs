@@ -52,6 +52,8 @@ namespace Wbtb.Core.Web
         /// </summary>
         public IEnumerable<BuildLogParseResult> BuildParseResults { get; set; }
 
+        public IncidentReport IncidentReport { get; set; }
+
         public bool ProcessErrors { get; set; }
 
         public bool ProcessesPending { get; set; }

@@ -3,9 +3,9 @@ using System;
 
 namespace Wbtb.Extensions.Data.Postgres
 {
-    internal class IncidentSummaryMapping
+    internal class IncidentReportMapping
     {
-        public static void MapParameters(Core.Common.IncidentSummary record, NpgsqlParameterCollection queryParameters)
+        public static void MapParameters(Core.Common.IncidentReport record, NpgsqlParameterCollection queryParameters)
         {
             if (!string.IsNullOrEmpty(record.Id))
                 queryParameters.AddWithValue("id", int.Parse(record.Id));

@@ -175,6 +175,14 @@
                                 }
                             </li>
                         }
+
+                        @if (build.IncidentReport != null)
+                        {
+                            <span class="jobsList-incidentReport">
+                                @build.IncidentReport.Summary
+                            </span>
+                        }
+
                     </x-list-cell>
                 </x-list-row>
             }

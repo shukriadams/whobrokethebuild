@@ -215,15 +215,17 @@ namespace Wbtb.Core.Common
 
         #endregion
 
-        #region INCIDENTSUMMARY
+        #region INCIDENTREPORT
 
-        IncidentSummary SaveIncidentSummary(IncidentSummary incidentSummary);
+        IncidentReport SaveIncidentReport(IncidentReport incidentSummary);
 
-        IEnumerable<IncidentSummary> GetIncidentSummariesForBuild(int buildId);
+        IEnumerable<IncidentReport> GetIncidentReportsForBuild(string buildId);
 
-        IncidentSummary GetIncidentSummaryById(string id);
+        IncidentReport GetIncidentReportByMutation(string buildId);
 
-        bool DeleteIncidentSummary(IncidentSummary record);
+        IncidentReport GetIncidentReportById(string id);
+
+        bool DeleteIncidentReport(IncidentReport record);
 
         #endregion
 

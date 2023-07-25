@@ -2,7 +2,7 @@
 
 namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 {
-    public class JenkinsSelfBlaming : Plugin, IPostProcessorPlugin
+    public class JenkinsSelfBlame : Plugin, IPostProcessorPlugin
     {
         PluginInitResult IPlugin.InitializePlugin()
         {
@@ -28,25 +28,18 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 
                 if (parsedText.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing")
                 {
-                    data.SaveBuildInvolement(new BuildInvolvement
-                    {
-                        BlameScore = 100,
-                        BuildId = build.Id,
-                        Comment = "Build break caused by internal Jenkins error"
-                    });
-
                     string summary = string.Empty;
                     foreach (var item in parsedText.Items)
                         foreach (var item2 in item.Items)
                             summary += $"{item2.Content}";
 
-                    data.SaveIncidentSummary(new IncidentSummary
+                    data.SaveIncidentReport(new IncidentReport
                     {
                         IncidentId = build.IncidentBuildId,
                         MutationId = build.Id,
-                        Description = $"Jenkins internal error broke build",
+                        Description = summary,
                         Processor = this.GetType().Name,
-                        Summary = summary,
+                        Summary = $"Build broken by internal Jenkins error",
                         Status = "Break"
                     });
 

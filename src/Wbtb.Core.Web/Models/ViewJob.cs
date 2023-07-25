@@ -14,6 +14,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         public ViewBuild DeltaBuild { get; set; }
 
+
         public static ViewJob Copy(Job job)
         {
             if (job == null)

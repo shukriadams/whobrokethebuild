@@ -157,6 +157,10 @@ namespace Wbtb.Core.Web.Controllers
             model.Stats = dataLayer.GetJobStats(model.Job);
             model.BaseUrl = $"/job/{jobid}";
             model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByJob(jobid, pageIndex, config.StandardPageSize, false));
+            
+            foreach(ViewBuild build in model.Builds.Items)
+                build.IncidentReport = dataLayer.GetIncidentReportByMutation(build.Id);
+
             return View(model);
         }
 
@@ -227,6 +231,7 @@ namespace Wbtb.Core.Web.Controllers
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
             model.ProcessErrors = buildTasks.Any(t => t.HasPassed.HasValue && t.HasPassed.Value == false);
             model.ProcessesPending = buildTasks.Any(t => t.ProcessedUtc == null);
+            model.IncidentReport = dataLayer.GetIncidentReportByMutation(model.Build.Id);
 
             return View(model);
         }

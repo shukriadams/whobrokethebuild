@@ -82,15 +82,9 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 }
             }
 
-            string resultText = string.Empty;
             Client client = null;
             if (clientLookup != null)
                 client = PerforceUtils.ParseClient(clientLookup);
-
-            bool causeFound = false;
-            bool cppFound = false;
-            string blamedUserName = null;
-            User blamedUser = null;
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
@@ -100,9 +94,6 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
                 if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
                     continue;
-
-                // from here on, only CPP errors are handled
-                cppFound = true;
 
                 if (client == null)
                     continue;
@@ -132,63 +123,39 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                         continue;
 
                                     BuildInvolvement bi = buildInvolvements.FirstOrDefault(bi => bi.RevisionCode == revision.Code);
-                                    if (bi == null) 
-                                        return new PostProcessResult
-                                        {
-                                            Passed = false,
-                                            Result = $"Could not find a buildinvolvement for revision {revision.Code} in this build."
-                                        };
 
-                                    blamedUserName = revision.User;
-                                    blamedUser = data.GetUserById(bi.MappedUserId);
+                                    string blamedUserName = revision.User;
+                                    User blamedUser = data.GetUserById(bi.MappedUserId);
+                                    if (blamedUser != null)
+                                        blamedUserName = blamedUser.Name;
 
                                     bi.BlameScore = 100;
                                     data.SaveBuildInvolement(bi);
-                                    resultText += $"File ${revisionFile} from revision {revision.Code} impplicated in break.\n";
-                                    causeFound = true;
+
+                                    data.SaveIncidentReport(new IncidentReport
+                                    {
+                                        IncidentId = build.IncidentBuildId,
+                                        MutationId = build.Id,
+                                        Processor = this.GetType().Name,
+                                        Summary = $"Build broken by {blamedUserName}",
+                                        Status = "Break",
+                                        Description = $"Found error in P4 revision file {revisionFile}, revision {revision.Code}, user {blamedUserName} : {string.Join(" ", line.Items.Select(i => i.Content))}"
+                                    });
+
+                                    return new PostProcessResult
+                                    {
+                                        Passed = true,
+                                        Result = $"Found error in P4 revision. File ${revisionFile} from revision {revision.Code} impplicated in break.\n."
+                                    };
                                 }
                             }
                     }
             }
 
-
-
-            if (!cppFound)
-                return new PostProcessResult
-                {
-                    Passed = true,
-                    Result = $"No CPP parse resuls found."
-                };
-
-            if (client == null)
-                return new PostProcessResult
-                {
-                    Passed = true,
-                    Result = $"Could not parse out p4 clientspec from log."
-                };
-
             // if log parse results are blueprint
             // can we parse blueprint file path out of error message
             // foreach file in buildinvolvements revisions
             // can we connect revision file path to blueprint file path
-            if (causeFound) 
-            {
-                data.SaveIncidentSummary(new IncidentSummary
-                {
-                    IncidentId = build.IncidentBuildId,
-                    MutationId = build.Id,
-                    Description = $"Found error in P4 revision. {resultText}.",
-                    Processor = this.GetType().Name,
-                    Summary = "Build broken by p4 change by X",
-                    Status = "Break"
-                });
-
-                return new PostProcessResult
-                {
-                    Passed = true,
-                    Result = $"Found error in P4 revision. {resultText}."
-                };
-            }
 
             // if log parse results are jenkins
             // mark all users as not involved
@@ -206,10 +173,15 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             // will post public alert messages based on log parse results + blamed user
 
             // if no blames, will construct error message from all log parse results and send a public alert, but nothing to individual users
+            string processSummary = "No matching errors found";
+
+            if (client == null)
+                processSummary = $"Could not parse out p4 clientspec from log.";
+
             return new PostProcessResult
             {
                 Passed = true,
-                Result = "No blame found"
+                Result = processSummary
             };
 
         }

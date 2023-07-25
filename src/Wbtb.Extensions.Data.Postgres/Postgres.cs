@@ -1749,19 +1749,24 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #endregion
 
-        #region INCIDENTSUMMARY
+        #region INCIDENTREPORT
 
-        IncidentSummary IDataPlugin.SaveIncidentSummary(IncidentSummary incidentSummary)
+        IncidentReport IDataPlugin.SaveIncidentReport(IncidentReport incidentReport)
         {
+            // enforce string lengths
+            incidentReport.Processor = incidentReport.Processor.Length > 256 ? incidentReport.Processor.Substring(0, 256) : incidentReport.Processor;
+            incidentReport.Summary = incidentReport.Summary.Length > 256 ? incidentReport.Summary.Substring(0, 256) : incidentReport.Summary;
+            incidentReport.Status = incidentReport.Status.Length > 64 ? incidentReport.Status.Substring(0, 64) : incidentReport.Status;
+
             string insertQuery = @"
-                INSERT INTO incidentsummary
+                INSERT INTO incidentreport
                     (incidentid, mutationid, signature, createdutc, status, summary, description, processor)
                 VALUES
                     (@incidentid, @mutationid, @signature, @createdutc, @status, @summary, @description, @processor)
                 RETURNING id";
 
             string updateQuery = @"                    
-                UPDATE incidentsummary SET 
+                UPDATE incidentreport SET 
                     signature = @new_signature,
                     incidentid = @incidentid,
                     mutationid = @mutationid,
@@ -1777,32 +1782,55 @@ namespace Wbtb.Extensions.Data.Postgres
 
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             {
-                if (string.IsNullOrEmpty(incidentSummary.Id))
-                    incidentSummary.Id = PostgresCommon.InsertWithId<IncidentSummary>(this.ContextPluginConfig, insertQuery, incidentSummary, new ParameterMapper<IncidentSummary>(IncidentSummaryMapping.MapParameters), connection);
+                if (string.IsNullOrEmpty(incidentReport.Id))
+                    incidentReport.Id = PostgresCommon.InsertWithId<IncidentReport>(this.ContextPluginConfig, insertQuery, incidentReport, new ParameterMapper<IncidentReport>(IncidentReportMapping.MapParameters), connection);
                 else
-                    PostgresCommon.Update<IncidentSummary>(this.ContextPluginConfig, updateQuery, incidentSummary, new ParameterMapper<IncidentSummary>(IncidentSummaryMapping.MapParameters), connection);
+                    PostgresCommon.Update<IncidentReport>(this.ContextPluginConfig, updateQuery, incidentReport, new ParameterMapper<IncidentReport>(IncidentReportMapping.MapParameters), connection);
 
-                return incidentSummary;
+                return incidentReport;
             }
         }
 
-        IncidentSummary IDataPlugin.GetIncidentSummaryById(string id)
-        {
-            return PostgresCommon.GetById<IncidentSummary>(this.ContextPluginConfig, id, "incidentsummary", new IncidentSummaryConvert());
-        }
-
-        bool IDataPlugin.DeleteIncidentSummary(IncidentSummary record)
-        {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "incidentsummary", "id", record.Id);
-        }
-
-        IEnumerable<IncidentSummary> IDataPlugin.GetIncidentSummariesForBuild(int buildId)
+        IncidentReport IDataPlugin.GetIncidentReportByMutation(string buildId) 
         {
             string sql = @"
                 SELECT
                     *
                 FROM
-                    incidentsummary
+                    incidentreport
+                WHERE
+                    mutationid = @buildid
+                ORDER BY
+                    createdutc DESC
+                LIMIT 1";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            {
+                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new IncidentReportConvert().ToCommon(reader);
+            }
+        }
+
+        IncidentReport IDataPlugin.GetIncidentReportById(string id)
+        {
+            return PostgresCommon.GetById<IncidentReport>(this.ContextPluginConfig, id, "incidentreport", new IncidentReportConvert());
+        }
+
+        bool IDataPlugin.DeleteIncidentReport(IncidentReport record)
+        {
+            return PostgresCommon.Delete(this.ContextPluginConfig, "incidentreport", "id", record.Id);
+        }
+
+        IEnumerable<IncidentReport> IDataPlugin.GetIncidentReportsForBuild(string buildId)
+        {
+            string sql = @"
+                SELECT
+                    *
+                FROM
+                    incidentreport
                 WHERE
                     incidentId = @buildid
                 ORDER BY
@@ -1811,10 +1839,10 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
             using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
             {
-                cmd.Parameters.AddWithValue("buildid", buildId);
+                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new IncidentSummaryConvert().ToCommonList(reader);
+                    return new IncidentReportConvert().ToCommonList(reader);
             }
         }
 

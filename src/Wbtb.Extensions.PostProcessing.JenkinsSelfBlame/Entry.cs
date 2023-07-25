@@ -1,12 +1,12 @@
 ﻿using Wbtb.Core.Common;
 
-namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlaming
+namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 {
     class Entry
     {
         static void Main(string[] args)
         {
-            new PluginShellReceiver<AcmeGamesBlamer>().Process(args);
+            new PluginShellReceiver<JenkinsSelfBlame>().Process(args);
         }
     }
 }

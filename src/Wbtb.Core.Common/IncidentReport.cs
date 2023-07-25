@@ -2,7 +2,7 @@
 
 namespace Wbtb.Core.Common
 {
-    public class IncidentSummary : ISignature
+    public class IncidentReport : ISignature
     {
         #region PROPERTIES
 
@@ -55,7 +55,7 @@ namespace Wbtb.Core.Common
 
         #region CTORS
 
-        public IncidentSummary()
+        public IncidentReport()
         {
             this.Signature = Guid.NewGuid().ToString();
             this.CreatedUtc = DateTime.UtcNow;

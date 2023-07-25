@@ -128,7 +128,21 @@
         }
     </x-card>
 </x-columns>
-        
+
+@if (Model.IncidentReport != null)
+{
+    <x-card class="buildIncidentReport">
+        <x-card-pad>
+            <strong>
+                @Model.IncidentReport.Summary
+            </strong>
+            <p>
+                @Model.IncidentReport.Description
+            </p>
+        </x-card-pad>
+    </x-card>
+}
+
 <h2>Changes</h2>
 <x-list class="buildChanges">
 

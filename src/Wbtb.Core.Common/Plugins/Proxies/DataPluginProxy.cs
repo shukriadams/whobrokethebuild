@@ -733,44 +733,55 @@ namespace Wbtb.Core.Common
 
         #region INCIDENTSUMMARY
 
-        IncidentSummary IDataPlugin.SaveIncidentSummary(IncidentSummary incidentSummary) 
+        IncidentReport IDataPlugin.SaveIncidentReport(IncidentReport incidentSummary) 
         {
-            return _pluginSender.InvokeMethod<IncidentSummary>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<IncidentReport>(this, new PluginArgs
             {
-                FunctionName = nameof(IDataPlugin.SaveIncidentSummary),
+                FunctionName = nameof(IDataPlugin.SaveIncidentReport),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "incidentSummary", Value = incidentSummary }
                 }
             });
         }
 
-        IEnumerable<IncidentSummary> IDataPlugin.GetIncidentSummariesForBuild(int buildId)
+        IEnumerable<IncidentReport> IDataPlugin.GetIncidentReportsForBuild(string buildId)
         {
-            return _pluginSender.InvokeMethod<IEnumerable<IncidentSummary>>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<IEnumerable<IncidentReport>>(this, new PluginArgs
             {
-                FunctionName = nameof(IDataPlugin.GetIncidentSummariesForBuild),
+                FunctionName = nameof(IDataPlugin.GetIncidentReportsForBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId }
                 }
             });
         }
 
-        IncidentSummary IDataPlugin.GetIncidentSummaryById(string id)
+        IncidentReport IDataPlugin.GetIncidentReportByMutation(string buildId)
         {
-            return _pluginSender.InvokeMethod<IncidentSummary>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<IncidentReport>(this, new PluginArgs
             {
-                FunctionName = nameof(IDataPlugin.GetIncidentSummaryById),
+                FunctionName = nameof(IDataPlugin.GetIncidentReportByMutation),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "buildId", Value = buildId }
+                }
+            });
+        }
+
+        IncidentReport IDataPlugin.GetIncidentReportById(string id)
+        {
+            return _pluginSender.InvokeMethod<IncidentReport>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetIncidentReportById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
                 }
             });
         }
 
-        bool IDataPlugin.DeleteIncidentSummary(IncidentSummary record)
+        bool IDataPlugin.DeleteIncidentReport(IncidentReport record)
         {
             return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
             {
-                FunctionName = nameof(IDataPlugin.DeleteIncidentSummary),
+                FunctionName = nameof(IDataPlugin.DeleteIncidentReport),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "record", Value = record }
                 }
