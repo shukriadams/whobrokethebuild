@@ -6,7 +6,7 @@
     "Description": "Reverted the revert",
     "Files": [
         {
-            "File": "some/file",
+            "File": "//mydepot/main/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf()",
             "Change": "add",
             "Differences": [ ">> some line", "<< some other line" ]
         }

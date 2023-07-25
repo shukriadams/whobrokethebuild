@@ -92,11 +92,11 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 if (parsedText == null)
                     continue;
 
-                if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
-                    continue;
 
                 if (client == null)
                     continue;
+
+
 
                 foreach (ParsedBuildLogTextLine line in parsedText.Items)
                     foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
@@ -104,6 +104,9 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                         // force unitpaths, p4 uses these
                         string localFile = localPathItem.Content.Replace("\\", "/");
                         string clientRoot = client.Root.Replace("\\", "/");
+
+                        if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
+                            continue;
 
                         foreach (Revision revision in revisionsLinkedToBuild)
                             foreach (string revisionFile in revision.Files)
@@ -128,9 +131,6 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                     User blamedUser = data.GetUserById(bi.MappedUserId);
                                     if (blamedUser != null)
                                         blamedUserName = blamedUser.Name;
-
-                                    bi.BlameScore = 100;
-                                    data.SaveBuildInvolement(bi);
 
                                     data.SaveIncidentReport(new IncidentReport
                                     {

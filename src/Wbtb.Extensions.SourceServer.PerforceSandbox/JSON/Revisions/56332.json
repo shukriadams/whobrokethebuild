@@ -6,7 +6,7 @@
     "Description": "Things",
     "Files": [
         {
-            "File": "",
+            "File": "file.txt",
             "Change": "add",
             "Differences": [ ">> some line", "<< some other line" ]
         }

@@ -13,6 +13,10 @@ namespace Wbtb.Extensions.LogParsing.Unreal
     /// 
     /// In this case the file path is <workspace>/Game/content/some/dir/BP_somefile.uasset
     /// 
+    /// Shader paths are also straight forward - the shader path in the error log corresponds to the actual file path. We identifiy shader extensions from the .usf extension.
+    /// 
+    /// 
+    /// 
     /// </summary>
     public class Unreal4 : Plugin, ILogParserPlugin
     {
