@@ -85,7 +85,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             Client client = null;
             if (clientLookup != null)
                 client = PerforceUtils.ParseClient(clientLookup);
-
+            string[] allowedParsers = { "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp" };
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
                 ParsedBuildLogText parsedText = BuildLogTextParser.Parse(buildLogParseResult.ParsedContent);
@@ -105,7 +105,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                         string localFile = localPathItem.Content.Replace("\\", "/");
                         string clientRoot = client.Root.Replace("\\", "/");
 
-                        if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
+                        if (!allowedParsers.Contains(parsedText.Type))
                             continue;
 
                         foreach (Revision revision in revisionsLinkedToBuild)

@@ -587,11 +587,11 @@ CREATE INDEX "daemontask_buildinvolvementid_fk"
     TABLESPACE pg_default;
 
 CREATE INDEX "incidentreport_incidentid_fk"
-    ON public."incident" USING btree
+    ON public."incidentreport" USING btree
     (incidentid)
     TABLESPACE pg_default;
 
 CREATE INDEX "incidentreport_mutationid_fk"
-    ON public."incident" USING btree
+    ON public."incidentreport" USING btree
     (mutationid)
     TABLESPACE pg_default;

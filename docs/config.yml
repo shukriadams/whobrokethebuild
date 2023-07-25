@@ -27,7 +27,7 @@ Plugins:
 -   Key: JenkinsSelfFailing
     Path: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 -   Key: JenkinsBlamer
-    Path: Wbtb.Extensions.PostProcessing.JenkinsSelfFailing
+    Path: Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 -   Key: Blamer
     Path: Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
