@@ -76,6 +76,9 @@ src/Wbtb.Extensions.LogParsing.BasicErrors/bin
 src/Wbtb.Extensions.LogParsing.BasicErrors/obj
 src/Wbtb.Extensions.PostProcessing.AcmeGamesBlamer/bin
 src/Wbtb.Extensions.PostProcessing.AcmeGamesBlamer/obj
+src/Wbtb.Extensions.PostProcessing.JenkinsSelfBlame/bin
+src/Wbtb.Extensions.PostProcessing.JenkinsSelfBlame/obj
 *.csproj.user
+
 
 

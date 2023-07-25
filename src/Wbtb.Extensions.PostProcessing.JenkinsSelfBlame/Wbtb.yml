@@ -1,0 +1,9 @@
+﻿Key: Wbtb.Extensions.PostProcessing.JenkinsSelfBlaming
+Description: Blames Jenkins when Jenkins broke the build.
+Runtime: dotnet
+Assembly: Wbtb.Extensions.PostProcessing.JenkinsSelfBlaming
+Main: Wbtb.Extensions.PostProcessing.JenkinsSelfBlaming.dll
+Interface: Wbtb.Core.Common.IPostProcessorPlugin
+Concrete: Wbtb.Extensions.PostProcessing.JenkinsSelfBlaming.JenkinsSelfBlaming
+Version: 0.0.1
+APIVersion: 0.0.1

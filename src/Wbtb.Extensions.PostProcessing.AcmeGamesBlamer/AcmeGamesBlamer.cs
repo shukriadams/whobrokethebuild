@@ -44,7 +44,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             SourceServer sourceServer = data.GetSourceServerById(job.SourceServerId);
             PluginConfig sourceServerPlugin = config.Plugins.FirstOrDefault(p => p.Key == sourceServer.Plugin);
 
-            IEnumerable < BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
+            IEnumerable<BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
             IEnumerable<BuildInvolvement> buildInvolvements = data.GetBuildInvolvementsByBuild(build.Id);
 
             // get all revisions associated with this build
@@ -89,19 +89,14 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
             bool causeFound = false;
             bool cppFound = false;
-            bool jenkinsErrorFound = false;
+            string blamedUserName = null;
+            User blamedUser = null;
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
                 ParsedBuildLogText parsedText = BuildLogTextParser.Parse(buildLogParseResult.ParsedContent);
                 if (parsedText == null)
                     continue;
-
-                if (parsedText.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing")
-                {
-                    jenkinsErrorFound = true;
-                    continue;
-                }
 
                 if (parsedText.Type != "Wbtb.Extensions.LogParsing.Cpp")
                     continue;
@@ -133,42 +128,30 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                     string localFileMappedToRemote = string.Join("/", localFile.Replace(clientRoot, string.Empty).Split("/", StringSplitOptions.RemoveEmptyEntries).ToArray());
                                     localFileMappedToRemote = clientView.Remote.Substring(0, clientView.Local.Length - 4) + "/" + localFileMappedToRemote;
 
-                                    if (localFileMappedToRemote == revisionFile) 
-                                    {
-                                        BuildInvolvement bi = buildInvolvements.FirstOrDefault(bi => bi.RevisionCode == revision.Code);
-                                        if (bi == null) 
-                                            return new PostProcessResult
-                                            {
-                                                Passed = false,
-                                                Result = $"Could not find a buildinvolvement for revision {revision.Code} in this build."
-                                            };
+                                    if (localFileMappedToRemote != revisionFile)
+                                        continue;
 
-                                        bi.BlameScore = 100;
-                                        data.SaveBuildInvolement(bi);
-                                        resultText += $"File ${revisionFile} from revision {revision.Code} impplicated in break.\n";
-                                        causeFound = true;
-                                    }
+                                    BuildInvolvement bi = buildInvolvements.FirstOrDefault(bi => bi.RevisionCode == revision.Code);
+                                    if (bi == null) 
+                                        return new PostProcessResult
+                                        {
+                                            Passed = false,
+                                            Result = $"Could not find a buildinvolvement for revision {revision.Code} in this build."
+                                        };
+
+                                    blamedUserName = revision.User;
+                                    blamedUser = data.GetUserById(bi.MappedUserId);
+
+                                    bi.BlameScore = 100;
+                                    data.SaveBuildInvolement(bi);
+                                    resultText += $"File ${revisionFile} from revision {revision.Code} impplicated in break.\n";
+                                    causeFound = true;
                                 }
                             }
                     }
             }
 
-            if (jenkinsErrorFound) 
-            {
-                data.SaveBuildInvolement(new BuildInvolvement
-                {
-                    BlameScore = 100,
-                    BuildId = build.Id,
-                    RevisionCode = "Jenkins", // value cannot be null, and will never be traced
-                    Comment = "Build break caused by internal Jenkins error"
-                });
 
-                return new PostProcessResult
-                {
-                    Passed = true,
-                    Result = $"Jenkins error found."
-                };
-            }
 
             if (!cppFound)
                 return new PostProcessResult
@@ -188,11 +171,24 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             // can we parse blueprint file path out of error message
             // foreach file in buildinvolvements revisions
             // can we connect revision file path to blueprint file path
-            if (causeFound)
-                return new PostProcessResult {
+            if (causeFound) 
+            {
+                data.SaveIncidentSummary(new IncidentSummary
+                {
+                    IncidentId = build.IncidentBuildId,
+                    MutationId = build.Id,
+                    Description = $"Found error in P4 revision. {resultText}.",
+                    Processor = this.GetType().Name,
+                    Summary = "Build broken by p4 change by X",
+                    Status = "Break"
+                });
+
+                return new PostProcessResult
+                {
                     Passed = true,
                     Result = $"Found error in P4 revision. {resultText}."
                 };
+            }
 
             // if log parse results are jenkins
             // mark all users as not involved

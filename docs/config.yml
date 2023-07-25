@@ -22,13 +22,15 @@ Plugins:
     Path: Wbtb.Extensions.Messaging.SlackSandbox
     Config:
     -   Token: mytoken
--   Key: Blamer
-    Path: Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 -   Key: UnrealParser
     Path: Wbtb.Extensions.LogParsing.Unreal
 -   Key: JenkinsSelfFailing
     Path: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
-   
+-   Key: JenkinsBlamer
+    Path: Wbtb.Extensions.PostProcessing.JenkinsSelfFailing
+-   Key: Blamer
+    Path: Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
+
 Users:
 -   Key: Ug
     SourceServerIdentities:
@@ -38,7 +40,6 @@ Users:
     SourceServerIdentities:
     -   SourceServerKey: myperforce
         Name: Mort
-
 Groups:
   - Key: mygroup
     Message:
@@ -67,6 +68,7 @@ BuildServers:
         -   BasicErrors
         PostProcessors:
         -   Blamer
+        -   JenkinsBlamer
         Message:
         -   Plugin: myslack
             Group: mygroup
@@ -83,6 +85,7 @@ BuildServers:
         -   BasicErrors
         PostProcessors:
         -   Blamer
+        -   JenkinsBlamer
         Message:
         -   Plugin: myslack
             Group: mygroup
