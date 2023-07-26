@@ -69,7 +69,6 @@ namespace Wbtb.Core.CLI
             });
 
             Console.Write($"Build {build.Id} reset. {deleted} records deleted.");
-
         }
 
         #endregion

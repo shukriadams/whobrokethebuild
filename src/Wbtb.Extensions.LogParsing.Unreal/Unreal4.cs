@@ -66,6 +66,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                         builder.NewLine();
                     }
 
+                    builder.AddItem("blueprint", "flag");
                     bluePrintMatch = builder.GetText();
                 }
 
@@ -92,6 +93,8 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                         builder.NewLine();
                     }
 
+                    builder.AddItem("shader", "flag");
+                    
                     shaderMatch = builder.GetText();
                 }
 

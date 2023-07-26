@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -1187,6 +1188,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         int IDataPlugin.ResetBuild(string buildId, bool hard)
         {
+            int affected = 0;
             // remove build involvements
             string removeBuildInvolvements = @"
                 DELETE FROM 
@@ -1198,7 +1200,23 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlCommand cmd = new NpgsqlCommand(removeBuildInvolvements, connection))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-                cmd.ExecuteNonQuery();
+                affected += cmd.ExecuteNonQuery();
+            }
+
+            string resetDaemonTasks = @"
+                DELETE FROM 
+                    daemontask
+                USING
+                    build
+                WHERE
+                    daemontask.buildid = build.id
+                    AND build.id = @buildid";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(resetDaemonTasks, connection))
+            {
+                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
+                affected += cmd.ExecuteNonQuery();
             }
 
             // reset build log parsed result
@@ -1212,7 +1230,7 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, connection))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-                cmd.ExecuteNonQuery();
+                affected += cmd.ExecuteNonQuery();
             }
 
             if (hard)
@@ -1228,7 +1246,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 using (NpgsqlCommand cmd = new NpgsqlCommand(delete, connection))
                 {
                     cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-                    cmd.ExecuteNonQuery();
+                    affected += cmd.ExecuteNonQuery();
                 }
 
             }
@@ -1247,12 +1265,11 @@ namespace Wbtb.Extensions.Data.Postgres
                 using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReset, connection))
                 {
                     cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-                    cmd.ExecuteNonQuery();
+                    affected += cmd.ExecuteNonQuery();
                 }
             }
 
-            // number meaningless, drop it
-            return 0;
+            return affected;
         }
 
         #endregion

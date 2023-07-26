@@ -85,20 +85,35 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             Client client = null;
             if (clientLookup != null)
                 client = PerforceUtils.ParseClient(clientLookup);
+
+            string breakExtraFlag = string.Empty;
+            bool isShaderError = false;
+            bool isBluePrintError = false;
+            bool isCPPError = false;
+            string blamedUserName = string.Empty;
             string[] allowedParsers = { "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp" };
+            bool errorFound = false;
+            string fileCausingBreak = string.Empty;
+            string revisionCausingBreak = string.Empty;
+            string errorLineFromLog = string.Empty;
+
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
                 ParsedBuildLogText parsedText = BuildLogTextParser.Parse(buildLogParseResult.ParsedContent);
                 if (parsedText == null)
                     continue;
 
-
                 if (client == null)
                     continue;
 
-
-
                 foreach (ParsedBuildLogTextLine line in parsedText.Items)
+                {
+                    if (line.Items.Any(l => l.Type == "flag" && l.Content == "shader"))
+                        isShaderError = true;
+
+                    if (line.Items.Any(l => l.Type == "flag" && l.Content == "blueprint"))
+                        isBluePrintError = true;
+
                     foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
                     {
                         // force unitpaths, p4 uses these
@@ -107,6 +122,8 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
                         if (!allowedParsers.Contains(parsedText.Type))
                             continue;
+
+                        isCPPError = parsedText.Type == "Wbtb.Extensions.LogParsing.Cpp";
 
                         foreach (Revision revision in revisionsLinkedToBuild)
                             foreach (string revisionFile in revision.Files)
@@ -118,38 +135,65 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                     if (!clientView.Local.EndsWith("/..."))
                                         continue;
 
-                                    string root = clientView.Local.Substring(0, clientView.Local.Length - 4); // clip off trailing /...;
-                                    string localFileMappedToRemote = string.Join("/", localFile.Replace(clientRoot, string.Empty).Split("/", StringSplitOptions.RemoveEmptyEntries).ToArray());
-                                    localFileMappedToRemote = clientView.Remote.Substring(0, clientView.Local.Length - 4) + "/" + localFileMappedToRemote;
+                                    errorFound = true;
+
+                                    // clip off trailing /... from client mapping
+                                    string root = clientView.Local.Substring(0, clientView.Local.Length - 4);
+
+                                    // remove root of local path,  by replacing the known client root with empty string
+                                    IList<string> pathfragments = localFile.Replace(clientRoot, string.Empty).Split("/", StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                                    // remove first item in path, this will always overlap with the p4 remap map, also ensure we have no padded or emptry items in path
+                                    pathfragments = pathfragments.Select(r => r.Trim()).Where(r => r.Length > 0).Skip(1).ToList();
+
+                                    string localFileMappedToRemote = string.Join("/", pathfragments);
+
+                                    // add the remote map root to local path, so our local path should now be fully mapped to its remote equivalent
+                                    localFileMappedToRemote = clientView.Remote.Substring(0, clientView.Remote.Length - 4) + "/" + localFileMappedToRemote;
 
                                     if (localFileMappedToRemote != revisionFile)
                                         continue;
 
                                     BuildInvolvement bi = buildInvolvements.FirstOrDefault(bi => bi.RevisionCode == revision.Code);
 
-                                    string blamedUserName = revision.User;
+                                    blamedUserName = revision.User;
                                     User blamedUser = data.GetUserById(bi.MappedUserId);
                                     if (blamedUser != null)
                                         blamedUserName = blamedUser.Name;
 
-                                    data.SaveIncidentReport(new IncidentReport
-                                    {
-                                        IncidentId = build.IncidentBuildId,
-                                        MutationId = build.Id,
-                                        Processor = this.GetType().Name,
-                                        Summary = $"Build broken by {blamedUserName}",
-                                        Status = "Break",
-                                        Description = $"Found error in P4 revision file {revisionFile}, revision {revision.Code}, user {blamedUserName} : {string.Join(" ", line.Items.Select(i => i.Content))}"
-                                    });
-
-                                    return new PostProcessResult
-                                    {
-                                        Passed = true,
-                                        Result = $"Found error in P4 revision. File ${revisionFile} from revision {revision.Code} impplicated in break.\n."
-                                    };
+                                    fileCausingBreak = revisionFile;
+                                    revisionCausingBreak = revision.Code;
+                                    errorLineFromLog += $"{string.Join(" ", line.Items.Select(i => i.Content))} ";
                                 }
                             }
                     }
+                }
+            }
+            
+            if (errorFound)
+            {
+                if (isBluePrintError)
+                    breakExtraFlag = " (blueprint)";
+                if (isShaderError)
+                    breakExtraFlag = " (shader)";
+                if (isCPPError)
+                    breakExtraFlag = " (C++)";
+
+                data.SaveIncidentReport(new IncidentReport
+                {
+                    IncidentId = build.IncidentBuildId,
+                    MutationId = build.Id,
+                    Processor = this.GetType().Name,
+                    Summary = $"Build broken by {blamedUserName}{breakExtraFlag}",
+                    Status = "Break",
+                    Description = $"Found error in P4 revision file {fileCausingBreak}, revision {revisionCausingBreak}, user {blamedUserName} : {errorLineFromLog}"
+                });
+
+                return new PostProcessResult
+                {
+                    Passed = true,
+                    Result = $"Found error in P4 revision. File ${fileCausingBreak} from revision {revisionCausingBreak} implicated in break.\n."
+                };
             }
 
             // if log parse results are blueprint

@@ -28,75 +28,75 @@ LogCook: Display: Compiling global changed shaders for platform 'Windows'
 LogShaderCompilers: Display: Current jobs: 56, Batch size: 5, Num Already Dispatched: 0
 LogShaderCompilers: Display: Current jobs: 56, Batch size: 5, Num Already Dispatched: 0
 LogShaderCompilers: Warning: 18 Shader compiler errors compiling global shaders for platform PCD3D_SM6:
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 13, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 13, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/13:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 13
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 17, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 17, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/17:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 17
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 26, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 26, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/26:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 26
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 16, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 16, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/16:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 16
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 27, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 27, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/27:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 27
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 22, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 22, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/22:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 22
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 25, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 25, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/25:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 25
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 12, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 12, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/12:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 12
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 24, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 24, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/24:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 24
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 7, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 7, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/7:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 7
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 3, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 3, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/3:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 3
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 20, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 20, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/20:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 20
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 1, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 1, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/1:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 1
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 29, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 29, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/29:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 29
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 21, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 21, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/21:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 21
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 18, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 18, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/18:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 18
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 11, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 11, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/11:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 11
 
-LogShaderCompilers: Warning: C:/work/p4stuff/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 6, VF None:
+LogShaderCompilers: Warning: C:\work\p4stuff\PSD\Source\Programs\BuildTool\granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 6, VF None:
 	Internal Error!
 	Global/RgranulesTotalCallsNuffRefsCS/6:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 6
 
