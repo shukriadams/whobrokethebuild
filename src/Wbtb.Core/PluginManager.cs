@@ -201,8 +201,15 @@ namespace Wbtb.Core
                 try
                 {
                     sourceServerPlugin.AttemptReach(sourceServer);
-                    sourceServerPlugin.VerifySourceServerConfig(sourceServer);
                     Console.WriteLine($"{sourceServer.Name} is contactable");
+            
+                    // verify config
+                    sourceServerPlugin.VerifySourceServerConfig(sourceServer);
+
+                    foreach (BuildServer buildServer in _config.BuildServers)
+                        foreach (Job job in buildServer.Jobs)
+                            sourceServerPlugin.VerifyJobConfig(job);
+                            
                 }
                 catch (Exception ex)
                 {
@@ -279,6 +286,15 @@ namespace Wbtb.Core
                         }
                     }
                 }
+
+            // validate post processor config
+            foreach (BuildServer buildserver in _config.BuildServers)
+                foreach (Job job in buildserver.Jobs)
+                    foreach (string postProcessor in job.PostProcessors) 
+                    {
+                        IPostProcessorPlugin postProcessorPlugin = _pluginProvider.GetByKey(postProcessor) as IPostProcessorPlugin;
+                        postProcessorPlugin.VerifyJobConfig(job);
+                    }
 
             ValidateRuntimeState();
 

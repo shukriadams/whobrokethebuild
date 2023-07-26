@@ -61,6 +61,7 @@ BuildServers:
         SourceServer: myperforce
         Config: 
         -   RemoteKey: Project_Ironbird
+        -   GameRoot: //mydepot/main/core/PSD/Game
         LogParsers: 
         -   UnrealParser 
         -   CppParser
@@ -78,6 +79,7 @@ BuildServers:
         SourceServer: myperforce
         Config: 
         -   RemoteKey: Project_Skunkwords
+        -   GameRoot: //mydepot/main/core/PSD/Game
         LogParsers: 
         -   UnrealParser
         -   CppParser

@@ -1233,6 +1233,21 @@ namespace Wbtb.Extensions.Data.Postgres
                 affected += cmd.ExecuteNonQuery();
             }
 
+            string incidentReportReset = @"
+                DELETE FROM
+                    incidentreport
+                WHERE
+                    incidentid = @buildid
+                    OR mutationid = @buildid";
+
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReportReset, connection))
+            {
+                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
+                affected += cmd.ExecuteNonQuery();
+            }
+
+
             if (hard)
             {
                 // delete all builds

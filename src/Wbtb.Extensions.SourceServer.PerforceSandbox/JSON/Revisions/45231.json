@@ -1,12 +1,12 @@
 {
     "Revision": "45231",
-    "Workspace": "bobs_workspace",
+    "Workspace": "morts_workspace",
     "Date": "2022-01-01T11:54",
-    "User": "Bob",
-    "Description": "Things",
+    "User": "Mort",
+    "Description": "Lets try blueprint shall we?",
     "Files": [
         {
-            "File": "",
+            "File": "//mydepot/main/core/PSD/Game/Content/Devs/Mort/BP_MyWidget.bp",
             "Change": "add",
             "Differences": [ ">> some line", "<< some other line" ]
         }

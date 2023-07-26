@@ -17,6 +17,17 @@
             });
         }
 
+        void IPostProcessorPlugin.VerifyJobConfig(Job job)
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = nameof(IPostProcessorPlugin.VerifyJobConfig),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "job", Value = job }
+                }
+            });
+        }
+
         PostProcessResult IPostProcessorPlugin.Process(Build build)
         {
             return _pluginSender.InvokeMethod<PostProcessResult>(this, new PluginArgs

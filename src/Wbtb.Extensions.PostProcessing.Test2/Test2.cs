@@ -14,6 +14,11 @@ namespace Wbtb.Extensions.PostProcessing.Test2
             };
         }
 
+        void IPostProcessorPlugin.VerifyJobConfig(Job job)
+        {
+
+        }
+
         PostProcessResult IPostProcessorPlugin.Process(Build build)
         {
             throw new Exception("it failed");

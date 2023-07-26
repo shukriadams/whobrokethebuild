@@ -1,4 +1,28 @@
-﻿Example of Unreal blueprint error
+﻿<current-revision>45231<current-revision>
+<p4-cient-state>
+Note : this is reusing the clientspec from the developer's workspace, this isn't an error, but it would be more correct for the clientspec to be 
+for a build machie, and to have its own view mapping
+
+Client: morts_workspace
+Update: 2020/01/05 13:39:16
+Access: 2023/04/12 10:18:31
+Owner:  Mort
+Host:   morts_pc
+Description:
+        Created by Mort.
+
+Root:   C:\work\p4stuff
+Options:        noallwrite noclobber nocompress unlocked nomodtime normdir
+SubmitOptions:  submitunchanged
+LineEnd:        local
+Stream: //mydepot/main
+View:
+        //somedepot/main/important/%%1 //morts_workspace/%%1
+        //mydepot/main/core/PSD/... //morts_workspace/PSD/...
+
+<p4-cient-state>
+
+Example of Unreal blueprint error
 
 some thing 
 some thing 
@@ -7,7 +31,7 @@ some thing
 some thing 
 ========== Starting: Check Blueprints ==========
 ERROR: PDBuildException: Task failed with the following errors
-       Blueprint failed to compile: /Game/Devs/Ug/BP_MyWidget.BP_MyWidget
+       Blueprint failed to compile: /Game/Devs/Mort/BP_MyWidget.BP_MyWidget
        
        while executing task <FailOnFileContent Filename="c:\build\ws/ourproject/Saved/errors.txt" />
        at D:\build\ws\ourproject\Build\Graph\config.xml(23)

@@ -14,6 +14,11 @@ namespace Wbtb.Extensions.PostProcessing.Test
             };
         }
 
+        void IPostProcessorPlugin.VerifyJobConfig(Job job)
+        {
+
+        }
+
         PostProcessResult IPostProcessorPlugin.Process(Build build)
         { 
             return new PostProcessResult { 

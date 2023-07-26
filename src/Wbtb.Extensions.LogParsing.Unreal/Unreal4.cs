@@ -60,13 +60,15 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                 {
                     BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
 
+                    // always add flag at start of log data
+                    builder.AddItem("blueprint", "flag");
+
                     foreach (Match match in matches)
                     {
                         builder.AddItem(match.Groups[1].Value, "path");
                         builder.NewLine();
                     }
 
-                    builder.AddItem("blueprint", "flag");
                     bluePrintMatch = builder.GetText();
                 }
 
@@ -86,14 +88,15 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                 {
                     BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
 
+                    // always add flag at start of log data
+                    builder.AddItem("shader", "flag");
+
                     foreach (Match match in matches)
                     {
                         builder.AddItem(match.Groups[1].Value, "path");
                         builder.AddItem(match.Groups[1].Value, "shader");
                         builder.NewLine();
                     }
-
-                    builder.AddItem("shader", "flag");
                     
                     shaderMatch = builder.GetText();
                 }

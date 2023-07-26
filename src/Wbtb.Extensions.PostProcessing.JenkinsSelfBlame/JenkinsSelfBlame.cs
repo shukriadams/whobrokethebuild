@@ -13,6 +13,11 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
             };
         }
 
+        void IPostProcessorPlugin.VerifyJobConfig(Job job)
+        {
+
+        }
+
         PostProcessResult IPostProcessorPlugin.Process(Build build)
         {
             SimpleDI di = new SimpleDI();

@@ -18,6 +18,15 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 Success = true
             };
         }
+        
+        void IPostProcessorPlugin.VerifyJobConfig(Job job) 
+        {
+            if (job.Config == null)
+                throw new ConfigurationException($"Job {job.Name} missing \"Config\" node.");
+
+            if (!job.Config.Any(c => c.Key == "GameRoot"))
+                throw new ConfigurationException($"Job {job.Name} missing \"Config\" item \"GameRoot\".");
+        }
 
         PostProcessResult IPostProcessorPlugin.Process(Build build)
         {
@@ -33,6 +42,9 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = data.GetJobById(build.JobId);
+
+            // for example :     //mydepot/main/core/PSD/Game
+            string gameRemoteRoot = job.Config.First(c => c.Key == "GameRoot").Value.ToString();
 
             if (string.IsNullOrEmpty(job.SourceServerId))
                 return new PostProcessResult
@@ -151,7 +163,40 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                     // add the remote map root to local path, so our local path should now be fully mapped to its remote equivalent
                                     localFileMappedToRemote = clientView.Remote.Substring(0, clientView.Remote.Length - 4) + "/" + localFileMappedToRemote;
 
-                                    if (localFileMappedToRemote != revisionFile)
+                                    string revisionFileRemapped = revisionFile;
+
+                                    if (isBluePrintError)
+                                    {
+                                        // blueprint errors always rooted in /<game>/Content, and instead of a file extension they list the blue print name, so need to remap that here
+                                        // remove root of local path,  by replacing the known client root with empty string
+
+                                        // remove evertything after last ".", this is the blue print name
+                                        localFile = Regex.Replace(localFile, "[^.]*$", string.Empty);
+                                        // remove trailing . too
+                                        if (localFile.EndsWith("."))
+                                            localFile = localFile.Substring(0, localFile.Length - 1);
+
+                                        localFileMappedToRemote = localFile;
+                                    
+                                        
+                                        string gameDoorDirectory = gameRemoteRoot.Split("/").Last();
+                                        
+                                        // if the revision file is in the game directory of project, remap it so it looks like a blue print file
+                                        if (revisionFileRemapped.Contains(gameRemoteRoot + "/Content")) 
+                                        {
+                                            // remove bp extension + "." 
+                                            revisionFileRemapped = Regex.Replace(revisionFileRemapped, "[^.]*$", string.Empty);
+                                            if (revisionFileRemapped.EndsWith("."))
+                                                revisionFileRemapped = revisionFileRemapped.Substring(0, revisionFileRemapped.Length - 1);
+
+
+                                            revisionFileRemapped = revisionFileRemapped.Replace(gameRemoteRoot + "/Content", string.Empty);
+                                            revisionFileRemapped = $"/{gameDoorDirectory}{revisionFileRemapped}";
+                                        }
+                                            
+                                    }
+
+                                    if (localFileMappedToRemote != revisionFileRemapped)
                                         continue;
 
                                     BuildInvolvement bi = buildInvolvements.FirstOrDefault(bi => bi.RevisionCode == revision.Code);
