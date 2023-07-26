@@ -141,7 +141,6 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(incidentBuild.JobId);
-            IEnumerable<BuildLogParseResult> parseResults = dataLayer.GetBuildLogParseResultsByBuildId(incidentBuild.Id);
 
             // check if alert has already been sent
             string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
@@ -149,62 +148,17 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (storeItem != null)
                 return null;
 
-            string message = $"Build broke at #{incidentBuild.Identifier}.";
-            
-            // try to create an error message from log parser results
-            string errors = string.Empty;
-            if (parseResults.Any())
+            IncidentReport incidentReport = dataLayer.GetIncidentReportByMutation(incidentBuild.Id);
+            if (incidentReport == null)
             {
-                // get parse results in order log parsers are defined, exit on first that has produced result
-                foreach (string parserKey in job.LogParsers)
-                {
-                    BuildLogParseResult parseResult = parseResults.Where(p => p.LogParserPlugin == parserKey).FirstOrDefault();
-                    if (parseResult == null || string.IsNullOrEmpty(parseResult.ParsedContent))
-                        continue;
-
-                    if (parseResult.ParsedContent.Contains("<x-logParse"))
-                    {
-                        errors += "```";
-                        ParsedBuildLogText parsedLog = BuildLogTextParser.Parse(parseResult.ParsedContent);
-                        if (parsedLog != null) 
-                        {
-                            if (!string.IsNullOrEmpty(parsedLog.Type))
-                                errors += $"type : {parsedLog.Type}\n";
-
-                            foreach (var line in parsedLog.Items) 
-                                errors += $"{line.Items.Select(l => l.Content)}\n";
-                        }
-
-                        bool truncated = false;
-                        if (errors.Length > MAX_ALERT_LENGTH)
-                        {
-                            errors = errors.Substring(0, MAX_ALERT_LENGTH);
-                            truncated = true;
-                        }
-
-                        errors += "```";
-                        if (truncated)
-                            errors = $"{errors}...\n\ntruncated, click link for full";
-                    }
-                    else
-                    {
-                        errors += $"```{parseResult.ParsedContent}```";
-                    }
-
-                    break;
-                }
+                return $"Incident report not found for mutationid {incidentBuild.Id}";
             }
-            else 
-            {
-                // if no log parse results, check if log parse errors occurred
-            }
-
 
             dynamic attachment = new JObject();
-            attachment.title = $"{job.Name} is DOWN";
+            attachment.title = incidentReport.Summary;
             attachment.fallback = " ";
             attachment.color = "#D92424";
-            attachment.text = message+errors;
+            attachment.text = incidentReport.Description;
             attachment.title_link = _urlHelper.Build(incidentBuild);
 
             var attachments = new JArray(1);

@@ -129,7 +129,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
 
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(incidentBuild.JobId);
-            IEnumerable<BuildLogParseResult> parseResults = dataLayer.GetBuildLogParseResultsByBuildId(incidentBuild.Id);
+
 
             // check if alert has already been sent
             string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
@@ -137,51 +137,17 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             if (storeItem != null) 
                 return null;
 
-            string message = $"Build broke at #{incidentBuild.Identifier}.";
-
-            // try to create an error message from log parser results
-            string errors = string.Empty;
-            if (parseResults.Any())
+            IncidentReport incidentReport = dataLayer.GetIncidentReportByMutation(incidentBuild.Id);
+            if (incidentReport == null)
             {
-                // get parse results in order log parsers are defined, exit on first that has produced result
-                foreach (string parserKey in job.LogParsers)
-                {
-                    BuildLogParseResult parseResult = parseResults.Where(p => p.LogParserPlugin == parserKey).FirstOrDefault();
-                    if (parseResult == null || string.IsNullOrEmpty(parseResult.ParsedContent))
-                        continue;
-
-                    if (parseResult.ParsedContent.Contains("<x-logParseLine>"))
-                    {
-                        errors += "```";
-                        System.Text.RegularExpressions.MatchCollection linesLookup = new System.Text.RegularExpressions.Regex("<x-logParseLine>(.+?)<\\/x-logParseLine>", System.Text.RegularExpressions.RegexOptions.Multiline).Matches(parseResult.ParsedContent);
-                        foreach (System.Text.RegularExpressions.Match line in linesLookup)
-                        {
-                            System.Text.RegularExpressions.MatchCollection itemsLookup = new System.Text.RegularExpressions.Regex("<x-logParseItem>(.+?)<\\/x-logParseItem>", System.Text.RegularExpressions.RegexOptions.Multiline).Matches(line.Value);
-                            foreach (System.Text.RegularExpressions.Match item in itemsLookup)
-                                if (item.Groups.Count > 0)
-                                    errors += $"{item.Groups[1].Value}";
-
-                            errors += "\n";
-                        }
-                        errors += "```";
-                    }
-                    else
-                    {
-                        errors += $"```{parseResult.ParsedContent}```";
-                    }
-
-                    break;
-                }
+                return $"Incident report not found for mutationid {incidentBuild.Id}";
             }
 
-            if (errors.Length > 200)
-                errors = $"{errors.Substring(0, 200)}...\n\ntruncated, click link for full";
-
             dynamic attachment = new JObject();
-            attachment.title = $"{job.Name} is DOWN";
+            attachment.title = incidentReport.Summary;
             attachment.fallback = " ";
             attachment.color = "#D92424";
-            attachment.text = message + errors;
+            attachment.text = incidentReport.Description;
             attachment.title_link = _urlHelper.Build(incidentBuild);
 
             var attachments = new JArray(1);
