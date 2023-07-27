@@ -77,9 +77,6 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (!this.ContextPluginConfig.Config.Any(c => c.Key == "Token"))
                 throw new ConfigurationException("Missing Config item \"Token\"");
 
-           // if (!this.ContextPluginConfig.Config.Any(c => c.Key == "Secret"))
-           //     throw new ConfigurationException("Missing Config item \"Secret\"");
-
             if (string.IsNullOrEmpty(_config.Address))
                 throw new ConfigurationException("Slack alerts require WBTB Core \"Address\" to be set, these are used to generate links.");
 
@@ -203,7 +200,6 @@ namespace Wbtb.Extensions.Messaging.Slack
         string IMessagingPlugin.AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
-            //string secret = ContextPluginConfig.Config.First(r => r.Key == "Secret").Value.ToString();
 
             NameValueCollection data = new NameValueCollection();
             MessageConfiguration targetSlackConfig = null;

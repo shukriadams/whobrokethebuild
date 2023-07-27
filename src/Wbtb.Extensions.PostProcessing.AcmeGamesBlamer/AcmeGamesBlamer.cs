@@ -24,8 +24,8 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             if (job.Config == null)
                 throw new ConfigurationException($"Job {job.Name} missing \"Config\" node.");
 
-            if (!job.Config.Any(c => c.Key == "GameRoot"))
-                throw new ConfigurationException($"Job {job.Name} missing \"Config\" item \"GameRoot\".");
+            if (!job.Config.Any(c => c.Key == "GameRoot") && job.PostProcessors.Contains(this.ContextPluginConfig.Key))
+                throw new ConfigurationException($"Job {job.Name} missing \"Config\" item \"GameRoot\", required by plugin \"{this.ContextPluginConfig.Key}\".");
         }
 
         PostProcessResult IPostProcessorPlugin.Process(Build build)

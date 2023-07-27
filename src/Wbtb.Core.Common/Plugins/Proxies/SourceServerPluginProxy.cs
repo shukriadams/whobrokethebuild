@@ -30,13 +30,14 @@ namespace Wbtb.Core.Common
             });
         }
 
-        void ISourceServerPlugin.VerifyJobConfig(Job job)
+        void ISourceServerPlugin.VerifyJobConfig(Job job, SourceServer contextServer)
         {
             _pluginSender.InvokeMethod(this, new PluginArgs
             {
                 FunctionName = nameof(ISourceServerPlugin.VerifyJobConfig),
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "job", Value = job }
+                    new PluginFunctionParameter { Name = "job", Value = job },
+                    new PluginFunctionParameter { Name = "contextServer", Value = contextServer }
                 }
             });
         }

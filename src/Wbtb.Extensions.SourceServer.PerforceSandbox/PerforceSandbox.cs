@@ -1,8 +1,6 @@
 ﻿using Madscience.Perforce;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.SourceServer.PerforceSandbox
@@ -25,7 +23,7 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
             // no config validation required
         }
 
-        void ISourceServerPlugin.VerifyJobConfig(Job job)
+        void ISourceServerPlugin.VerifyJobConfig(Job job, Core.Common.SourceServer contextServer)
         {
             // no config validation required
         }

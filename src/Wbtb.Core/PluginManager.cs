@@ -208,7 +208,7 @@ namespace Wbtb.Core
 
                     foreach (BuildServer buildServer in _config.BuildServers)
                         foreach (Job job in buildServer.Jobs)
-                            sourceServerPlugin.VerifyJobConfig(job);
+                            sourceServerPlugin.VerifyJobConfig(job, sourceServer);
                             
                 }
                 catch (Exception ex)

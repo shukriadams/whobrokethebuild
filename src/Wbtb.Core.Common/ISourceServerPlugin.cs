@@ -14,7 +14,7 @@ namespace Wbtb.Core.Common
         /// <param name="contextServer"></param>
         void VerifySourceServerConfig(SourceServer contextServer);
 
-        void VerifyJobConfig(Job job);
+        void VerifyJobConfig(Job job, SourceServer contextServer);
 
         IEnumerable<Revision> GetRevisionsBetween(Job job, string revisionStart, string revisionEnd);
 

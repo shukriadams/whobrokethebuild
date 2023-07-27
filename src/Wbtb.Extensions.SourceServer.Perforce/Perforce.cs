@@ -54,13 +54,13 @@ namespace Wbtb.Extensions.SourceServer.Perforce
                 throw new ConfigurationException("P4 servers with SSL enabled required a \"TrustFingerprint\".");
         }
 
-        void ISourceServerPlugin.VerifyJobConfig(Job job) 
+        void ISourceServerPlugin.VerifyJobConfig(Job job, Core.Common.SourceServer contextServer) 
         {
             if (job.Config == null)
                 throw new ConfigurationException("Job Missing item \"Config\"");
 
-            if (!job.Config.Any(c => c.Key == "p4depotRoot"))
-                throw new ConfigurationException($"Plug {this.ContextPluginConfig.Manifest.Key} requires each job have aconfig item \"p4depotRoot\". This should be the depot + stream root for this job, followed with /..., example \"//mydepot/mystream/...\".  ");
+            if (!job.Config.Any(c => c.Key == "p4depotRoot") && job.SourceServer == contextServer.Key)
+                throw new ConfigurationException($"Plugin {this.ContextPluginConfig.Manifest.Key} requires each job it is linked to have a config item \"p4depotRoot\". Job \"{job.Name}\" does not. The value should be the depot + stream root for this job, followed with /..., example \"//mydepot/mystream/...\".  ");
         }
 
         ReachAttemptResult ISourceServerPlugin.AttemptReach(Core.Common.SourceServer contextServer)
