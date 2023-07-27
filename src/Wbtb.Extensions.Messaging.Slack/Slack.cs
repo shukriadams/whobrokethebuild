@@ -27,17 +27,20 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         private readonly PluginProvider _pluginProvider;
 
+        private readonly Cache _cache;
+
         private readonly UrlHelper _urlHelper;
 
         #endregion
 
         #region CTORS
 
-        public Slack(Configuration config, UrlHelper urlHelper, PluginProvider pluginProvider) 
+        public Slack(Configuration config, Cache cache, UrlHelper urlHelper, PluginProvider pluginProvider) 
         {
             _config = config;
             _urlHelper = urlHelper;
             _pluginProvider = pluginProvider;
+            _cache = cache;
         }
 
         #endregion
@@ -144,21 +147,18 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             // check if alert has already been sent
             string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
-            StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
-            if (storeItem != null)
+            if (_cache.Get(this, key) != null)
                 return null;
 
             IncidentReport incidentReport = dataLayer.GetIncidentReportByMutation(incidentBuild.Id);
             if (incidentReport == null)
-            {
                 return $"Incident report not found for mutationid {incidentBuild.Id}";
-            }
 
             dynamic attachment = new JObject();
-            attachment.title = incidentReport.Summary;
+            attachment.title = $"{job.Name} - {incidentReport.Summary}";
             attachment.fallback = " ";
             attachment.color = "#D92424";
-            attachment.text = incidentReport.Description;
+            attachment.text = $"```{incidentReport.Description}```";
             attachment.title_link = _urlHelper.Build(incidentBuild);
 
             var attachments = new JArray(1);
@@ -173,11 +173,15 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             if (response.ok.Value)
             {
+                // write 
+                _cache.Write(this, key, "sent");
+
                 // store message info and proof of sending
+                dataLayer.DeleteStoreItemWithKey(key);
                 dataLayer.SaveStore(new StoreItem
                 {
                     Plugin = this.ContextPluginConfig.Manifest.Key,
-                    Key = $"buildStatusAlert_slack_{slackId}_job{job.Id}_incident{incidentBuild.IncidentBuildId}",
+                    Key = key,
                     Content = JsonConvert.SerializeObject(new
                     {
                         ts = response.ts.Value,
@@ -245,8 +249,8 @@ namespace Wbtb.Extensions.Messaging.Slack
             string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
             StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
 
+            // no alert for this build was sent, ignore it
             if (storeItem == null)
-                // no alert for this build was sent, ignore it
                 return null;
 
             dynamic storeItemPayload = Newtonsoft.Json.JsonConvert.DeserializeObject(storeItem.Content);
@@ -262,7 +266,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             attachment.text = message;
             attachment["title_link"] = _urlHelper.Build(fixingBuild);
 
-            var attachments = new JArray(1);
+            JArray attachments = new JArray(1);
             attachments[0] = attachment;
 
             data["token"] = token;
@@ -330,7 +334,6 @@ namespace Wbtb.Extensions.Messaging.Slack
             SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(messageConfiguration.RawJson);
             string slackId = config.SlackId;
 
-
             // if user, we need to get user channel id from user slack id, and post to this
             if (!config.IsGroup)
             {
@@ -354,10 +357,8 @@ namespace Wbtb.Extensions.Messaging.Slack
             attachment.text = message;
             attachment.title_link = _config.Address;
 
-            var attachments = new JArray(1);
+            JArray attachments = new JArray(1);
             attachments[0] = attachment;
-
-
 
             data["token"] = token;
             data["channel"] = slackId;

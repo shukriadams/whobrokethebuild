@@ -20,6 +20,8 @@ namespace Wbtb.Core.Web
 
         private readonly Configuration _config;
 
+        private readonly Cache _cache;
+
         private readonly BuildEventHandlerHelper _buildLevelPluginHelper;
 
         private readonly SimpleDI _di;
@@ -36,6 +38,7 @@ namespace Wbtb.Core.Web
             _di = new SimpleDI();
             _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
+            _cache = _di.Resolve<Cache>();
             _buildLevelPluginHelper = _di.Resolve<BuildEventHandlerHelper>();
         }
 
@@ -82,9 +85,10 @@ namespace Wbtb.Core.Web
                             continue;
 
                         // check if delta has already been alerted on
-                        string deltaAlertKey = $"deltaAlert_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
+                        string deltaAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
                         StoreItem deltaAlerted = dataLayer.GetStoreItemByKey(deltaAlertKey);
-                        if (deltaAlerted != null)
+                        
+                        if (_cache.Get(TypeHelper.Name(this), deltaAlertKey) != null)
                             continue;
 
                         if (deltaBuild.Status == BuildStatus.Failed)
@@ -120,6 +124,8 @@ namespace Wbtb.Core.Web
                                 messagePlugin.AlertPassing(alert, lastBreakingBuild, deltaBuild);
                             }
                         }
+
+                        _cache.Write(TypeHelper.Name(this), deltaAlertKey, "sent");
 
                         dataLayer.SaveStore(new StoreItem
                         {

@@ -29,6 +29,8 @@ namespace Wbtb.Core.Common
 
         bool DeleteStoreItem(StoreItem record);
 
+        bool DeleteStoreItemWithKey(string key);
+
         #endregion
 
         #region BUILD SERVERS

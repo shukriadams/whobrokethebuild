@@ -59,6 +59,11 @@ namespace Wbtb.Extensions.Data.FileSystem
             return false;
         }
 
+        bool IDataPlugin.DeleteStoreItemWithKey(string key)
+        {
+            return false;
+        }
+
         bool IDataPlugin.DeleteUser(User record)
         {
             return false;

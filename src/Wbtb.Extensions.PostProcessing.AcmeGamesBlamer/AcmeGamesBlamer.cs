@@ -229,7 +229,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     IncidentId = build.IncidentBuildId,
                     MutationId = build.Id,
                     Processor = this.GetType().Name,
-                    Summary = $"Build broken by {blamedUserName}{breakExtraFlag}",
+                    Summary = $"Broken by {blamedUserName}{breakExtraFlag}",
                     Status = "Break",
                     Description = $"Found error in P4 revision file {fileCausingBreak}, revision {revisionCausingBreak}, user {blamedUserName} : {errorLineFromLog}"
                 });

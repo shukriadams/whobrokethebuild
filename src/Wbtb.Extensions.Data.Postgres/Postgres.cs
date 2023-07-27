@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -115,6 +114,24 @@ namespace Wbtb.Extensions.Data.Postgres
         bool IDataPlugin.DeleteStoreItem(StoreItem record)
         {
             return PostgresCommon.Delete(this.ContextPluginConfig, "store", "id", record.Id);
+        }
+
+        bool IDataPlugin.DeleteStoreItemWithKey(string key)
+        {
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            {
+                string query = @"
+                DELETE FROM 
+                    store 
+                WHERE
+                    key = @key";
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("key", key);
+                    return cmd.ExecuteNonQuery() != 0;
+                }
+            }
         }
 
         #endregion
@@ -513,6 +530,22 @@ namespace Wbtb.Extensions.Data.Postgres
                     AND build.jobid = @jobid";
 
                 using (NpgsqlCommand cmd = new NpgsqlCommand(resetDaemonTasks, connection))
+                {
+                    cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+                    affected += cmd.ExecuteNonQuery();
+                }
+
+                string incidentReportReset = @"
+                DELETE FROM
+                    incidentreport
+                USING
+                    build
+                WHERE
+                    (incidentreport.incidentid = build.id
+                    OR incidentreport.mutationid = build.id)
+                    AND build.jobid = @jobid";
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReportReset, connection))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                     affected += cmd.ExecuteNonQuery();
@@ -1189,21 +1222,22 @@ namespace Wbtb.Extensions.Data.Postgres
         int IDataPlugin.ResetBuild(string buildId, bool hard)
         {
             int affected = 0;
-            // remove build involvements
-            string removeBuildInvolvements = @"
+            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig)) 
+            {
+                // remove build involvements
+                string removeBuildInvolvements = @"
                 DELETE FROM 
                     buildinvolvement 
                 WHERE
                     buildid = @buildid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(removeBuildInvolvements, connection))
-            {
-                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-                affected += cmd.ExecuteNonQuery();
-            }
+                using (NpgsqlCommand cmd = new NpgsqlCommand(removeBuildInvolvements, connection))
+                {
+                    cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
+                    affected += cmd.ExecuteNonQuery();
+                }
 
-            string resetDaemonTasks = @"
+                string resetDaemonTasks = @"
                 DELETE FROM 
                     daemontask
                 USING
@@ -1212,63 +1246,59 @@ namespace Wbtb.Extensions.Data.Postgres
                     daemontask.buildid = build.id
                     AND build.id = @buildid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(resetDaemonTasks, connection))
-            {
-                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-                affected += cmd.ExecuteNonQuery();
-            }
+                using (NpgsqlCommand cmd = new NpgsqlCommand(resetDaemonTasks, connection))
+                {
+                    cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
+                    affected += cmd.ExecuteNonQuery();
+                }
 
-            // reset build log parsed result
-            string logreset = @"
+                // reset build log parsed result
+                string logreset = @"
                 DELETE FROM
                     buildlogparseresult
                 WHERE
                     buildid = @buildid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, connection))
-            {
-                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-                affected += cmd.ExecuteNonQuery();
-            }
+                using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, connection))
+                {
+                    cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
+                    affected += cmd.ExecuteNonQuery();
+                }
 
-            string incidentReportReset = @"
+                string incidentReportReset = @"
                 DELETE FROM
                     incidentreport
                 WHERE
                     incidentid = @buildid
                     OR mutationid = @buildid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReportReset, connection))
-            {
-                cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-                affected += cmd.ExecuteNonQuery();
-            }
-
-
-            if (hard)
-            {
-                // delete all builds
-                string delete = @"
-                DELETE FROM 
-                    build 
-                WHERE 
-                    id = @buildid";
-
-                using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-                using (NpgsqlCommand cmd = new NpgsqlCommand(delete, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReportReset, connection))
                 {
                     cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                     affected += cmd.ExecuteNonQuery();
                 }
 
-            }
-            else
-            {
-                // remove incident builds from other builds
-                string incidentReset = @"
+
+                if (hard)
+                {
+                    // delete all builds
+                    string delete = @"
+                DELETE FROM 
+                    build 
+                WHERE 
+                    id = @buildid";
+
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(delete, connection))
+                    {
+                        cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
+                        affected += cmd.ExecuteNonQuery();
+                    }
+
+                }
+                else
+                {
+                    // remove incident builds from other builds
+                    string incidentReset = @"
                 UPDATE 
                     build 
                 SET
@@ -1276,11 +1306,11 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE 
                     id = @buildid";
 
-                using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReset, connection))
-                {
-                    cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
-                    affected += cmd.ExecuteNonQuery();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReset, connection))
+                    {
+                        cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
+                        affected += cmd.ExecuteNonQuery();
+                    }
                 }
             }
 

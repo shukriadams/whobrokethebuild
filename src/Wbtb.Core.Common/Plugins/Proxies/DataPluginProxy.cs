@@ -94,6 +94,17 @@ namespace Wbtb.Core.Common
             });
         }
 
+        bool IDataPlugin.DeleteStoreItemWithKey(string key)
+        {
+            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.DeleteStoreItemWithKey),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "key", Value = key }
+                }
+            });
+        }
+
         #endregion
 
         #region BUILD SERVER
