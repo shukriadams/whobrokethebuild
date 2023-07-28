@@ -53,81 +53,96 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.BuildEnd);
+            IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.BuildEnd);
 
             try
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    try
+                    using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>())
                     {
-                        Build build = dataLayer.GetBuildById(task.BuildId);
-                        Job job = dataLayer.GetJobById(build.JobId);
-                        BuildServer buildserver = dataLayer.GetBuildServerById(job.BuildServerId);
-                        IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
-
-                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
-
-                        build = buildServerPlugin.TryUpdateBuild(build);
-
-                        // build still not done, contine and wait. Todo : Add forced time out on build here.
-                        if (!build.EndedUtc.HasValue) 
+                        try
                         {
-                            daemonProcesses.TaskBlocked(task, "Build not complete yet");
-                            continue;
-                        }
 
-                        dataLayer.SaveBuild(build);
+                            Build build = dataRead.GetBuildById(task.BuildId);
+                            Job job = dataRead.GetJobById(build.JobId);
+                            BuildServer buildserver = dataRead.GetBuildServerById(job.BuildServerId);
+                            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
 
-                        task.HasPassed = true;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
+                            daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
-                        // create tasks for next stage
-                        dataLayer.SaveDaemonTask(new DaemonTask
-                        {
-                            BuildId = build.Id,
-                            Src = this.GetType().Name,
-                            Stage = (int)DaemonTaskTypes.LogImport,
-                        });
+                            build = buildServerPlugin.TryUpdateBuild(build);
 
-                        if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
-                            dataLayer.SaveDaemonTask(new DaemonTask
+                            // build still not done, contine and wait. Todo : Add forced time out on build here.
+                            if (!build.EndedUtc.HasValue)
                             {
-                                Stage = (int)DaemonTaskTypes.RevisionFromBuildServer,
-                                Src = this.GetType().Name,
-                                BuildId = build.Id
-                            });
+                                daemonProcesses.TaskBlocked(task, "Build not complete yet");
+                                continue;
+                            }
 
-                        if (build.Status == BuildStatus.Failed)
-                        {
-                            dataLayer.SaveDaemonTask(new DaemonTask
+                            dataWrite.TransactionStart();
+                            dataWrite.SaveBuild(build);
+
+                            task.HasPassed = true;
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            dataWrite.SaveDaemonTask(task);
+                            daemonProcesses.TaskDone(task);
+
+                            // create tasks for next stage
+                            dataWrite.SaveDaemonTask(new DaemonTask
                             {
                                 BuildId = build.Id,
                                 Src = this.GetType().Name,
-                                Stage = (int)DaemonTaskTypes.IncidentAssign
+                                Stage = (int)DaemonTaskTypes.LogImport,
                             });
 
-                            if (job.PostProcessors.Any())
-                                dataLayer.SaveDaemonTask(new DaemonTask
+                            if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
+                                dataWrite.SaveDaemonTask(new DaemonTask
+                                {
+                                    Stage = (int)DaemonTaskTypes.RevisionFromBuildServer,
+                                    Src = this.GetType().Name,
+                                    BuildId = build.Id
+                                });
+
+                            if (build.Status == BuildStatus.Failed)
+                            {
+                                dataWrite.SaveDaemonTask(new DaemonTask
                                 {
                                     BuildId = build.Id,
                                     Src = this.GetType().Name,
-                                    Stage = (int)DaemonTaskTypes.PostProcess
+                                    Stage = (int)DaemonTaskTypes.IncidentAssign
                                 });
+
+                                if (job.PostProcessors.Any())
+                                    dataWrite.SaveDaemonTask(new DaemonTask
+                                    {
+                                        BuildId = build.Id,
+                                        Src = this.GetType().Name,
+                                        Stage = (int)DaemonTaskTypes.PostProcess
+                                    });
+                            }
+
+                            dataWrite.TransactionCommit();
+                        }
+                        catch (WriteCollisionException ex) 
+                        {
+                            dataWrite.TransactionCancel();
+                            _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
+                        }
+                        catch (Exception ex)
+                        {
+                            dataWrite.TransactionCancel();
+
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            task.HasPassed = false;
+                            task.Result = ex.ToString();
+                            dataWrite.SaveDaemonTask(task);
+                            daemonProcesses.TaskDone(task);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.HasPassed = false;
-                        task.Result = ex.ToString();
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
-                    }
+
                 }
             }
             finally 

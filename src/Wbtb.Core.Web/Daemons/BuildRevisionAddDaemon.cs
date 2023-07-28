@@ -59,72 +59,85 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.RevisionFromBuildServer);
+            IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.RevisionFromBuildServer);
             TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    try
+                    using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>()) 
                     {
-                        Build build = dataLayer.GetBuildById(task.BuildId);
-                        Job job = dataLayer.GetJobById(build.JobId);
-                        BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
-                        IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                        ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-
-                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
-
-                        if (!reach.Reachable)
+                        try
                         {
-                            _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            daemonProcesses.TaskBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            continue;
+                            Build build = dataRead.GetBuildById(task.BuildId);
+                            Job job = dataRead.GetJobById(build.JobId);
+                            BuildServer buildServer = dataRead.GetBuildServerByKey(job.BuildServer);
+                            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                            ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+
+                            daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+
+                            if (!reach.Reachable)
+                            {
+                                _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                                daemonProcesses.TaskBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                                continue;
+                            }
+
+                            // this daemon's tasks are not blocked by preceeding tasks
+
+                            dataWrite.TransactionStart();
+
+                            BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
+                            foreach (string revisionCode in result.Revisions)
+                            {
+                                string biID = dataWrite.SaveBuildInvolement(new BuildInvolvement
+                                {
+                                    BuildId = build.Id,
+                                    RevisionCode = revisionCode
+                                }).Id;
+
+                                dataWrite.SaveDaemonTask(new DaemonTask
+                                {
+                                    Stage = (int)DaemonTaskTypes.RevisionLink,
+                                    BuildId = build.Id,
+                                    BuildInvolvementId = biID,
+                                    Src = this.GetType().Name
+                                });
+
+                                dataWrite.SaveDaemonTask(new DaemonTask
+                                {
+                                    Stage = (int)DaemonTaskTypes.UserLink,
+                                    BuildId = build.Id,
+                                    BuildInvolvementId = biID,
+                                    Src = this.GetType().Name
+                                });
+                            }
+
+                            task.HasPassed = result.Success;
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            task.Result = result.Result;
+                            dataWrite.SaveDaemonTask(task);
+                            dataWrite.TransactionCommit();
+                            daemonProcesses.TaskDone(task);
                         }
-
-                        // this daemon's tasks are not blocked by preceeding tasks
-
-                        BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
-                        foreach (string revisionCode in result.Revisions)
+                        catch (WriteCollisionException ex)
                         {
-                            string biID = dataLayer.SaveBuildInvolement(new BuildInvolvement
-                            {
-                                BuildId = build.Id,
-                                RevisionCode = revisionCode
-                            }).Id;
-
-                            dataLayer.SaveDaemonTask(new DaemonTask
-                            {
-                                Stage = (int)DaemonTaskTypes.RevisionLink,
-                                BuildId = build.Id,
-                                BuildInvolvementId = biID,
-                                Src = this.GetType().Name
-                            });
-
-                            dataLayer.SaveDaemonTask(new DaemonTask
-                            {
-                                Stage = (int)DaemonTaskTypes.UserLink,
-                                BuildId = build.Id,
-                                BuildInvolvementId = biID,
-                                Src = this.GetType().Name
-                            });
+                            dataWrite.TransactionCancel();
+                            _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
                         }
+                        catch (Exception ex)
+                        {
+                            dataWrite.TransactionCancel();
 
-                        task.HasPassed = result.Success;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = result.Result;
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
-                    }
-                    catch (Exception ex)
-                    {
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.HasPassed = false;
-                        task.Result = ex.ToString();
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            task.HasPassed = false;
+                            task.Result = ex.ToString();
+                            dataWrite.SaveDaemonTask(task);
+                            daemonProcesses.TaskDone(task);
+                        }
                     }
                 }
             }

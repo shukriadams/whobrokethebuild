@@ -59,66 +59,78 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.PostProcess);
+            IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.PostProcess);
             TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    try
+                    using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>()) 
                     {
-                        Build build = dataLayer.GetBuildById(task.BuildId);
-
-                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.PostProcess);
-                        if (blocking.Any())
+                        try
                         {
-                            daemonProcesses.TaskBlocked(task, this, blocking);
-                            continue;
-                        }
+                            Build build = dataRead.GetBuildById(task.BuildId);
 
-                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
-                        Job job = dataLayer.GetJobById(build.JobId);
-                        
-                        task.HasPassed = true;
-                        task.Result = string.Empty;
-
-                        job.PostProcessors.AsParallel().ForAll(delegate (string blamePlugin)
-                        {
-                            try
+                            IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.PostProcess);
+                            if (blocking.Any())
                             {
-                                IPostProcessorPlugin processor = _pluginProvider.GetByKey(blamePlugin) as IPostProcessorPlugin;
+                                daemonProcesses.TaskBlocked(task, this, blocking);
+                                continue;
+                            }
 
-                                PostProcessResult result = processor.Process(build);
-                                task.Result += result.Result;
-                                if (!result.Passed)
+                            daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+                            Job job = dataRead.GetJobById(build.JobId);
+
+                            task.HasPassed = true;
+                            task.Result = string.Empty;
+
+                            job.PostProcessors.AsParallel().ForAll(delegate (string blamePlugin)
+                            {
+                                try
+                                {
+                                    IPostProcessorPlugin processor = _pluginProvider.GetByKey(blamePlugin) as IPostProcessorPlugin;
+
+                                    PostProcessResult result = processor.Process(build);
+                                    task.Result += result.Result;
+                                    if (!result.Passed)
+                                        task.HasPassed = false;
+
+                                    Console.WriteLine($"Processed build id {build.Id} with plugin {blamePlugin}");
+                                }
+                                catch (Exception ex)
+                                {
+                                    _log.LogError($"Unexpected error trying to blame build id \"{build.Id}\" with blame \"{blamePlugin}\" : {ex}");
                                     task.HasPassed = false;
+                                    if (task.Result == null)
+                                        task.Result = string.Empty;
 
-                                Console.WriteLine($"Processed build id {build.Id} with plugin {blamePlugin}");
-                            }
-                            catch (Exception ex)
-                            {
-                                _log.LogError($"Unexpected error trying to blame build id \"{build.Id}\" with blame \"{blamePlugin}\" : {ex}");
-                                task.HasPassed = false;
-                                if (task.Result == null)
-                                    task.Result = string.Empty;
+                                    task.Result = $"{task.Result}\n{ex}";
+                                }
+                            });
 
-                                task.Result = $"{task.Result}\n{ex}";
-                            }
-                        });
+                            dataWrite.TransactionStart();
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            dataWrite.SaveDaemonTask(task);
+                            dataWrite.TransactionCommit();
+                            daemonProcesses.TaskDone(task);
+                        }
+                        catch (WriteCollisionException ex)
+                        {
+                            dataWrite.TransactionCancel();
+                            _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
+                        }
+                        catch (Exception ex)
+                        {
+                            dataWrite.TransactionCancel();
 
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
-                    }
-                    catch (Exception ex)
-                    {
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.HasPassed = false;
-                        task.Result = ex.ToString();
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            task.HasPassed = false;
+                            task.Result = ex.ToString();
+                            dataWrite.SaveDaemonTask(task);
+                            daemonProcesses.TaskDone(task);
+                        }
                     }
                 }
             }

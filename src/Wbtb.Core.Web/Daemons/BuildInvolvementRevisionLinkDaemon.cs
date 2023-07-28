@@ -60,68 +60,82 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.RevisionLink);
+            IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.RevisionLink);
             TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    try 
+                    using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>())
                     {
-                        Build build = dataLayer.GetBuildById(task.BuildId);
-                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
-
-                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.RevisionLink);
-                        if (blocking.Any())
+                        try
                         {
-                            daemonProcesses.TaskBlocked(task, this, blocking);
-                            continue;
+                            Build build = dataRead.GetBuildById(task.BuildId);
+                            daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+
+                            IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.RevisionLink);
+                            if (blocking.Any())
+                            {
+                                daemonProcesses.TaskBlocked(task, this, blocking);
+                                continue;
+                            }
+
+                            Job job = dataRead.GetJobById(build.JobId);
+                            BuildInvolvement buildInvolvement = dataRead.GetBuildInvolvementById(task.BuildInvolvementId);
+                            SourceServer sourceServer = dataRead.GetSourceServerByKey(job.SourceServer);
+                            ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
+                            Revision revision = dataRead.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
+
+                            if (!sourceServerPlugin.AttemptReach(sourceServer).Reachable)
+                            {
+                                Console.WriteLine($"unable to reach source server \"{sourceServer.Name}\", waiting for later.");
+                                daemonProcesses.TaskBlocked(task, "source server down");
+                                continue;
+                            }
+
+                            dataWrite.TransactionStart();
+
+                            revision = sourceServerPlugin.GetRevision(sourceServer, buildInvolvement.RevisionCode);
+                            if (revision == null)
+                            {
+                                task.HasPassed = false;
+                                task.ProcessedUtc = DateTime.UtcNow;
+                                task.Result = $"Failed to resolve revision {buildInvolvement.RevisionCode} from source control server.";
+                                dataWrite.SaveDaemonTask(task);
+                                dataWrite.TransactionCommit();
+                                daemonProcesses.TaskDone(task);
+                                continue;
+                            }
+
+                            revision.SourceServerId = sourceServer.Id;
+                            revision = dataWrite.SaveRevision(revision);
+
+                            buildInvolvement.RevisionId = revision.Id;
+                            dataWrite.SaveBuildInvolement(buildInvolvement);
+
+                            task.HasPassed = true;
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            dataWrite.SaveDaemonTask(task);
+                            dataWrite.TransactionCommit();
+                            daemonProcesses.TaskDone(task);
                         }
-
-                        Job job = dataLayer.GetJobById(build.JobId);
-                        BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
-                        SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
-                        ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
-                        Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
-
-                        if (!sourceServerPlugin.AttemptReach(sourceServer).Reachable)
+                        catch (WriteCollisionException ex)
                         {
-                            Console.WriteLine($"unable to reach source server \"{sourceServer.Name}\", waiting for later.");
-                            daemonProcesses.TaskBlocked(task, "source server down");
-                            continue;
+                            dataWrite.TransactionCancel();
+                            _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
                         }
-
-                        revision = sourceServerPlugin.GetRevision(sourceServer, buildInvolvement.RevisionCode);
-                        if (revision == null)
+                        catch (Exception ex)
                         {
+                            dataWrite.TransactionCancel();
+
                             task.HasPassed = false;
                             task.ProcessedUtc = DateTime.UtcNow;
-                            task.Result = $"Failed to resolve revision {buildInvolvement.RevisionCode} from source control server.";
-                            dataLayer.SaveDaemonTask(task);
+                            task.Result = ex.ToString();
+                            dataWrite.SaveDaemonTask(task);
                             daemonProcesses.TaskDone(task);
-                            continue;
                         }
-
-                        revision.SourceServerId = sourceServer.Id;
-                        revision = dataLayer.SaveRevision(revision);
-
-                        buildInvolvement.RevisionId = revision.Id;
-                        dataLayer.SaveBuildInvolement(buildInvolvement);
-
-                        task.HasPassed = true;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
-                    }
-                    catch (Exception ex) 
-                    {
-                        task.HasPassed = false;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = ex.ToString();
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
                     }
                 }
             }

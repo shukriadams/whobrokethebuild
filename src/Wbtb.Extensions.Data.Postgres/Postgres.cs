@@ -37,6 +37,9 @@ namespace Wbtb.Extensions.Data.Postgres
 
         void IDataPlugin.TransactionStart()
         {
+            if (_transaction != null)
+                throw new Exception("Transaction has already been started with this data object");
+
             this.Connection = PostgresCommon.GetConnection(this.ContextPluginConfig);
             _transaction = this.Connection.BeginTransaction();
         }
@@ -47,6 +50,11 @@ namespace Wbtb.Extensions.Data.Postgres
                 throw new Exception("Transaction not set on this data object");
 
             _transaction.Commit();
+            _transaction.Dispose();
+            this.Connection.Dispose();
+
+            _transaction = null;
+            this.Connection = null;
         }
 
         void IDataPlugin.TransactionCancel()
@@ -55,6 +63,11 @@ namespace Wbtb.Extensions.Data.Postgres
                 throw new Exception("Transaction not set on this data object");
 
             _transaction.Rollback();
+            _transaction.Dispose();
+            this.Connection.Dispose();
+
+            _transaction = null;
+            this.Connection = null;
         }
 
         PluginInitResult IPlugin.InitializePlugin()

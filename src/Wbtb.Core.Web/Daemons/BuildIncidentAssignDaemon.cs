@@ -60,83 +60,101 @@ namespace Wbtb.Core.Web
         /// </summary>
         private void Work()
         {
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.IncidentAssign);
+            IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.IncidentAssign);
             TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    try 
+                    using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>())
                     {
-                        Build build = dataLayer.GetBuildById(task.BuildId);
-
-                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.IncidentAssign);
-                        if (blocking.Any()) 
+                        try
                         {
-                            daemonProcesses.TaskBlocked(task, this, blocking);
-                            continue;
-                        }
 
-                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
-                        Build previousBuild = dataLayer.GetPreviousBuild(build);
-                        if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
-                        {
-                            // this build is either the very first build in job and has failed (way to start!) or is the first build of sequence to fail,
-                            // mark it as the incident build
-                            build.IncidentBuildId = build.Id;
-                            dataLayer.SaveBuild(build);
+                            Build build = dataRead.GetBuildById(task.BuildId);
 
-                            task.HasPassed = true;
+                            IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.IncidentAssign);
+                            if (blocking.Any())
+                            {
+                                daemonProcesses.TaskBlocked(task, this, blocking);
+                                continue;
+                            }
+
+                            dataWrite.TransactionStart();
+
+                            daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+                            Build previousBuild = dataRead.GetPreviousBuild(build);
+                            if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
+                            {
+                                // this build is either the very first build in job and has failed (way to start!) or is the first build of sequence to fail,
+                                // mark it as the incident build
+                                build.IncidentBuildId = build.Id;
+                                dataWrite.SaveBuild(build);
+
+                                task.HasPassed = true;
+                                task.ProcessedUtc = DateTime.UtcNow;
+                                dataWrite.SaveDaemonTask(task);
+                                dataWrite.TransactionCommit();
+                                daemonProcesses.TaskDone(task);
+                                continue;
+                            }
+
+                            // previous build is a fail, but it's incident hasn't been assigned, wait
+                            // todo : add some kind of max-tries here, it needs to timeout 
+                            if (previousBuild != null && previousBuild.Status == BuildStatus.Failed && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
+                            {
+                                Console.WriteLine($"Skipping task {task.Id} for build {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
+                                daemonProcesses.TaskBlocked(task, "Previous build waiting for incident assignment");
+                                continue;
+                            }
+
+                            // set incident to whatever previous build incident is, check above ensures that if prev failed, it has an incdidentid 
+                            if (previousBuild != null)
+                            {
+                                build.IncidentBuildId = previousBuild.IncidentBuildId;
+                                dataWrite.SaveBuild(build);
+
+                                task.HasPassed = true;
+                                task.ProcessedUtc = DateTime.UtcNow;
+                                dataWrite.SaveDaemonTask(task);
+                                dataWrite.TransactionCommit();
+                                daemonProcesses.TaskDone(task);
+                                continue;
+                            }
+
+                            // if reach here, incidentbuild could not be set, create a buildflag record that prevents build from being re-processed
+                            task.HasPassed = false;
                             task.ProcessedUtc = DateTime.UtcNow;
-                            dataLayer.SaveDaemonTask(task);
+                            task.Result = "Failed to assign incident.";
+                            if (previousBuild == null)
+                                task.Result += "Previous build null";
+                            if (previousBuild != null && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
+                                task.Result += "Previous build null";
+
+                            dataWrite.SaveDaemonTask(task);
                             daemonProcesses.TaskDone(task);
-                            continue;
+
+                            dataWrite.TransactionCommit();
                         }
-
-                        // previous build is a fail, but it's incident hasn't been assigned, wait
-                        // todo : add some kind of max-tries here, it needs to timeout 
-                        if (previousBuild != null && previousBuild.Status == BuildStatus.Failed && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
+                        catch (WriteCollisionException ex)
                         {
-                            Console.WriteLine($"Skipping task {task.Id} for build {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
-                            daemonProcesses.TaskBlocked(task, "Previous build waiting for incident assignment");
-                            continue;
+                            dataWrite.TransactionCancel();
+                            _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
                         }
-
-                        // set incident to whatever previous build incident is, check above ensures that if prev failed, it has an incdidentid 
-                        if (previousBuild != null)
+                        catch (Exception ex)
                         {
-                            build.IncidentBuildId = previousBuild.IncidentBuildId;
-                            dataLayer.SaveBuild(build);
+                            dataWrite.TransactionCancel();
 
-                            task.HasPassed = true;
+                            task.HasPassed = false;
                             task.ProcessedUtc = DateTime.UtcNow;
-                            dataLayer.SaveDaemonTask(task);
+                            task.Result = ex.ToString();
+                            dataWrite.SaveDaemonTask(task);
                             daemonProcesses.TaskDone(task);
-                            continue;
                         }
-
-                        // if reach here, incidentbuild could not be set, create a buildflag record that prevents build from being re-processed
-                        task.HasPassed = false;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = "Failed to assign incident.";
-                        if (previousBuild == null)
-                            task.Result += "Previous build null";
-                        if (previousBuild != null && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
-                            task.Result += "Previous build null";
-
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
                     }
-                    catch (Exception ex) 
-                    {
-                        task.HasPassed = false;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = ex.ToString();
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
-                    }
+
                 }
             }
             finally

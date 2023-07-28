@@ -57,75 +57,89 @@ namespace Wbtb.Core.Web
 
         private void Work()
         {
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataLayer.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.UserLink);
+            IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.UserLink);
             TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
             try
             {
                 foreach (DaemonTask task in tasks)
                 {
-                    try 
+                    using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>())
                     {
-                        Build build = dataLayer.GetBuildById(task.BuildId);
-                        daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
-
-                        IEnumerable<DaemonTask> blocking = dataLayer.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.UserLink);
-                        if (blocking.Any()) 
+                        try
                         {
-                            daemonProcesses.TaskBlocked(task, this, blocking);
-                            continue;
-                        }
+                            Build build = dataRead.GetBuildById(task.BuildId);
+                            daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
 
-                        Job job = dataLayer.GetJobById(build.JobId);
-                        BuildInvolvement buildInvolvement = dataLayer.GetBuildInvolvementById(task.BuildInvolvementId);
-                        SourceServer sourceServer = dataLayer.GetSourceServerByKey(job.SourceServer);
-                        Revision revision = dataLayer.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
-                        
-                        if (revision == null)
-                        {
+                            IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.UserLink);
+                            if (blocking.Any())
+                            {
+                                daemonProcesses.TaskBlocked(task, this, blocking);
+                                continue;
+                            }
+
+                            Job job = dataRead.GetJobById(build.JobId);
+                            BuildInvolvement buildInvolvement = dataRead.GetBuildInvolvementById(task.BuildInvolvementId);
+                            SourceServer sourceServer = dataRead.GetSourceServerByKey(job.SourceServer);
+                            Revision revision = dataRead.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
+
+                            if (revision == null)
+                            {
+                                task.ProcessedUtc = DateTime.UtcNow;
+                                task.Result = $"Expected revision {buildInvolvement.RevisionCode} has not yet been resolved";
+                                task.HasPassed = false;
+
+                                daemonProcesses.TaskBlocked(task, task.Result);
+                                continue;
+                            }
+
+                            User matchingUser = _config.Users
+                                .FirstOrDefault(r => r.SourceServerIdentities
+                                    .Any(r => r.Name == revision.User));
+
+                            User userInDatabase = null;
+                            if (matchingUser != null)
+                                userInDatabase = dataRead.GetUserByKey(matchingUser.Key);
+
+                            dataWrite.TransactionStart();
+
+                            if (userInDatabase == null)
+                            {
+                                task.ProcessedUtc = DateTime.UtcNow;
+                                task.Result = $"User {revision.User} for buildinvolvement does not exist. Add user and rerun import";
+                                task.HasPassed = false;
+                                dataWrite.SaveDaemonTask(task);
+                                dataWrite.TransactionCommit();
+                                daemonProcesses.TaskDone(task);
+                                continue;
+                            }
+
+                            buildInvolvement.MappedUserId = userInDatabase.Id;
+                            dataWrite.SaveBuildInvolement(buildInvolvement);
+
                             task.ProcessedUtc = DateTime.UtcNow;
-                            task.Result = $"Expected revision {buildInvolvement.RevisionCode} has not yet been resolved";
-                            task.HasPassed = false;
-
-                            daemonProcesses.TaskBlocked(task, task.Result);
-                            continue;
-                        }
-
-                        User matchingUser = _config.Users
-                            .FirstOrDefault(r => r.SourceServerIdentities
-                                .Any(r => r.Name == revision.User));
-
-                        User userInDatabase = null;
-                        if (matchingUser != null)
-                            userInDatabase = dataLayer.GetUserByKey(matchingUser.Key);
-
-                        if (userInDatabase == null)
-                        {
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.Result = $"User {revision.User} for buildinvolvement does not exist. Add user and rerun import";
-                            task.HasPassed = false;
-                            dataLayer.SaveDaemonTask(task);
+                            task.HasPassed = true;
+                            dataWrite.SaveDaemonTask(task);
+                            dataWrite.TransactionCommit();
                             daemonProcesses.TaskDone(task);
-                            continue;
                         }
+                        catch (WriteCollisionException ex)
+                        {
+                            dataWrite.TransactionCancel();
+                            _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
+                        }
+                        catch (Exception ex)
+                        {
+                            dataWrite.TransactionCancel();
 
-                        buildInvolvement.MappedUserId = userInDatabase.Id;
-                        dataLayer.SaveBuildInvolement(buildInvolvement);
-
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.HasPassed = true;
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
+                            task.HasPassed = false;
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            task.Result = ex.ToString();
+                            dataWrite.SaveDaemonTask(task);
+                            daemonProcesses.TaskDone(task);
+                        }
                     }
-                    catch(Exception ex) 
-                    {
-                        task.HasPassed = false;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = ex.ToString();
-                        dataLayer.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
-                    } 
                 }
             }
             finally
