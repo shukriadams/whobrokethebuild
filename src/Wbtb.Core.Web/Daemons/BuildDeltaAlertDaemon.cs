@@ -65,83 +65,73 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
 
-            try
+            foreach (Job job in dataLayer.GetJobs())
             {
-                foreach (Job job in dataLayer.GetJobs())
+                try
                 {
-                    try
+                    // scan on implausably high taskgroup we're more-or-less guaranteed to to see other tasks for job
+                    if (dataLayer.DaemonTasksBlockedForJob(job.Id, 99999).Any())
+                        continue;
+
+                    // handle current state of game
+                    Build deltaBuild = dataLayer.GetLastJobDelta(job.Id);
+
+                    // if delta not yet calculated, ignore alerts for this job
+                    if (deltaBuild == null)
+                        continue;
+
+                    // check if delta has already been alerted on
+                    string deltaAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
+                    if (_cache.Get(TypeHelper.Name(this), deltaAlertKey) != null)
+                        continue;
+
+                    if (deltaBuild.Status == BuildStatus.Failed)
                     {
-                        // scan on implausably high taskgroup we're more-or-less guaranteed to to see other tasks for job
-                        if (dataLayer.DaemonTasksBlockedForJob(job.Id, 99999).Any())
-                            continue;
+                        // build has gone from passing to failing
+                        _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaBuild);
 
-                        // handle current state of game
-                        Build deltaBuild = dataLayer.GetLastJobDelta(job.Id);
-
-                        // if delta not yet calculated, ignore alerts for this job
-                        if (deltaBuild == null)
-                            continue;
-
-                        // check if delta has already been alerted on
-                        string deltaAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
-                        StoreItem deltaAlerted = dataLayer.GetStoreItemByKey(deltaAlertKey);
-                        
-                        if (_cache.Get(TypeHelper.Name(this), deltaAlertKey) != null)
-                            continue;
-
-                        if (deltaBuild.Status == BuildStatus.Failed)
+                        foreach (MessageHandler alert in job.Message)
                         {
-                            // build has gone from passing to failing
-                            _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaBuild);
-
-                            foreach (MessageHandler alert in job.Message)
-                            {
-                                IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                                messagePlugin.AlertBreaking(alert, deltaBuild);
-                            }
-
-                        }
-                        else if (deltaBuild.Status == BuildStatus.Passed)
-                        {
-                            // build has gone from failing to passing
-                            _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, deltaBuild);
-
-                            string lastbreakingId = dataLayer.GetIncidentIdsForJob(job).FirstOrDefault();
-                            Build lastBreakingBuild = null;
-
-                            if (!string.IsNullOrEmpty(lastbreakingId))
-                                lastBreakingBuild = dataLayer.GetBuildById(lastbreakingId);
-
-                            // ugly cludge 
-                            if (lastBreakingBuild == null)
-                                lastBreakingBuild = deltaBuild;
-
-                            foreach (MessageHandler alert in job.Message)
-                            {
-                                IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                                messagePlugin.AlertPassing(alert, lastBreakingBuild, deltaBuild);
-                            }
+                            IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
+                            messagePlugin.AlertBreaking(alert, deltaBuild);
                         }
 
-                        _cache.Write(TypeHelper.Name(this), deltaAlertKey, "sent");
-
-                        dataLayer.SaveStore(new StoreItem
-                        {
-                            Key = deltaAlertKey,
-                            Plugin = this.GetType().Name
-                        });
                     }
-                    catch (Exception ex)
+                    else if (deltaBuild.Status == BuildStatus.Passed)
                     {
-                        _log.LogError($"Unexpected error on job {job.Name}.", ex);
+                        // build has gone from failing to passing
+                        _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, deltaBuild);
+
+                        string lastbreakingId = dataLayer.GetIncidentIdsForJob(job).FirstOrDefault();
+                        Build lastBreakingBuild = null;
+
+                        if (!string.IsNullOrEmpty(lastbreakingId))
+                            lastBreakingBuild = dataLayer.GetBuildById(lastbreakingId);
+
+                        // ugly cludge 
+                        if (lastBreakingBuild == null)
+                            lastBreakingBuild = deltaBuild;
+
+                        foreach (MessageHandler alert in job.Message)
+                        {
+                            IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
+                            messagePlugin.AlertPassing(alert, lastBreakingBuild, deltaBuild);
+                        }
                     }
+
+                    _cache.Write(TypeHelper.Name(this), deltaAlertKey, "sent");
+
+                    dataLayer.SaveStore(new StoreItem
+                    {
+                        Key = deltaAlertKey,
+                        Plugin = this.GetType().Name
+                    });
                 }
-            }
-            finally
-            {
-                daemonProcesses.ClearActive(this);
+                catch (Exception ex)
+                {
+                    _log.LogError($"Unexpected error on job {job.Name}.", ex);
+                }
             }
 
             

@@ -265,66 +265,54 @@ namespace Wbtb.Extensions.Data.Postgres
             };
         }
 
-        public static CommonT GetByQuery<CommonT>(PluginConfig contextPluginConfig, string query, IEnumerable<QueryParameter> parameters, IRecordConverter<CommonT> converter)
+        public static CommonT GetByQuery<CommonT>(NpgsqlConnection connection, PluginConfig contextPluginConfig, string query, IEnumerable<QueryParameter> parameters, IRecordConverter<CommonT> converter)
         {
-            using (NpgsqlConnection connection = GetConnection(contextPluginConfig))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             {
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-                {
-                    if (parameters != null)
-                        foreach(QueryParameter parameter in parameters)
-                            cmd.Parameters.AddWithValue(parameter.Name, parameter.Value);
+                if (parameters != null)
+                    foreach(QueryParameter parameter in parameters)
+                        cmd.Parameters.AddWithValue(parameter.Name, parameter.Value);
 
-                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                        return converter.ToCommon(reader);
-                }
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return converter.ToCommon(reader);
             }
         }
 
-        public static CommonT GetByField<CommonT>(PluginConfig contextPluginConfig, string field, string value, string tableName, IRecordConverter<CommonT> converter)
+        public static CommonT GetByField<CommonT>(NpgsqlConnection connection, PluginConfig contextPluginConfig, string field, string value, string tableName, IRecordConverter<CommonT> converter)
         {
-            using(NpgsqlConnection connection = GetConnection(contextPluginConfig))
+            string query = $"SELECT * FROM {tableName} WHERE {field}=@value";
+
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             {
-                string query = $"SELECT * FROM {tableName} WHERE {field}=@value";
+                cmd.Parameters.AddWithValue("value", value);
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-                {
-                    cmd.Parameters.AddWithValue("value", value);
-
-                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                        return converter.ToCommon(reader);
-                }
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return converter.ToCommon(reader);
             }
         }
 
-        public static CommonT GetById<CommonT>(PluginConfig contextPluginConfig, string id, string tableName, IRecordConverter<CommonT> converter)
+        public static CommonT GetById<CommonT>(NpgsqlConnection connection, PluginConfig contextPluginConfig, string id, string tableName, IRecordConverter<CommonT> converter)
         {
-            using(NpgsqlConnection connection = GetConnection(contextPluginConfig))
+            string query = $"SELECT * FROM {tableName} WHERE id=@id";
+
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
             {
-                string query = $"SELECT * FROM {tableName} WHERE id=@id";
+                cmd.Parameters.AddWithValue("id", int.Parse(id));
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-                {
-                    cmd.Parameters.AddWithValue("id", int.Parse(id));
-
-                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                        return converter.ToCommon(reader);
-                }
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return converter.ToCommon(reader);
             }
         }
 
-        public static bool Delete(PluginConfig contextPluginConfig, string table, string idName, string id)
+        public static bool Delete(NpgsqlConnection connection, PluginConfig contextPluginConfig, string table, string idName, string id)
         {
-            using (NpgsqlConnection connection = GetConnection(contextPluginConfig))
-            {
-                string query = $"DELETE FROM \"{table}\" WHERE {idName}={id}";
+            string query = $"DELETE FROM \"{table}\" WHERE {idName}={id}";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-                {
-                    int deleted = cmd.ExecuteNonQuery();
-                    return deleted > 0;
-                }
-            };
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            {
+                int deleted = cmd.ExecuteNonQuery();
+                return deleted > 0;
+            }
         }
 
     }

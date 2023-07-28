@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Wbtb.Core.Common
 {
@@ -20,6 +21,38 @@ namespace Wbtb.Core.Common
         #endregion
 
         #region UTIL
+        
+        void IDisposable.Dispose()
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = nameof(IDisposable.Dispose)
+            });
+        }
+
+        void IDataPlugin.TransactionStart()
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.TransactionStart)
+            });
+        }
+
+        void IDataPlugin.TransactionCommit()
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.TransactionCommit)
+            });
+        }
+
+        void IDataPlugin.TransactionCancel()
+        {
+            _pluginSender.InvokeMethod(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.TransactionCancel)
+            });
+        }
 
         void IPlugin.Diagnose()
         {

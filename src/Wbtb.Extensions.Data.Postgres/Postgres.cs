@@ -12,6 +12,10 @@ namespace Wbtb.Extensions.Data.Postgres
 
         private readonly Configuration _config;
 
+        public NpgsqlConnection Connection { get; private set; }
+
+        private NpgsqlTransaction _transaction;
+
         #endregion
 
         #region CTORS
@@ -24,6 +28,34 @@ namespace Wbtb.Extensions.Data.Postgres
         #endregion
 
         #region UTIL
+
+        void IDisposable.Dispose() 
+        {
+            if (this.Connection != null)
+                this.Connection.Dispose();
+        }
+
+        void IDataPlugin.TransactionStart()
+        {
+            this.Connection = PostgresCommon.GetConnection(this.ContextPluginConfig);
+            _transaction = this.Connection.BeginTransaction();
+        }
+
+        void IDataPlugin.TransactionCommit()
+        {
+            if (_transaction == null)
+                throw new Exception("Transaction not set on this data object");
+
+            _transaction.Commit();
+        }
+
+        void IDataPlugin.TransactionCancel()
+        {
+            if (_transaction == null)
+                throw new Exception("Transaction not set on this data object");
+
+            _transaction.Rollback();
+        }
 
         PluginInitResult IPlugin.InitializePlugin()
         {
@@ -90,12 +122,12 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     id = @id";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 if (string.IsNullOrEmpty(storeItem.Id))
-                    storeItem.Id = PostgresCommon.InsertWithId(this.ContextPluginConfig, insertQuery, storeItem, new ParameterMapper<StoreItem>(StoreItemMapping.MapParameters), connection);
+                    storeItem.Id = PostgresCommon.InsertWithId(this.ContextPluginConfig, insertQuery, storeItem, new ParameterMapper<StoreItem>(StoreItemMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update(this.ContextPluginConfig, updateQuery, storeItem, new ParameterMapper<StoreItem>(StoreItemMapping.MapParameters), connection);
+                    PostgresCommon.Update(this.ContextPluginConfig, updateQuery, storeItem, new ParameterMapper<StoreItem>(StoreItemMapping.MapParameters), conWrap.Connection());
 
                 return storeItem;
             }
@@ -103,34 +135,35 @@ namespace Wbtb.Extensions.Data.Postgres
         
         StoreItem IDataPlugin.GetStoreItemByItem(string id)
         {
-            return PostgresCommon.GetById(this.ContextPluginConfig, id, "store", new StoreItemConvert());
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetById(conWrap.Connection(), this.ContextPluginConfig, id, "store", new StoreItemConvert());
         }
 
         StoreItem IDataPlugin.GetStoreItemByKey(string key)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "store", new StoreItemConvert());
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetByField(conWrap.Connection(), this.ContextPluginConfig, "key", key, "store", new StoreItemConvert());
         }
 
         bool IDataPlugin.DeleteStoreItem(StoreItem record)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "store", "id", record.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "store", "id", record.Id);
         }
 
         bool IDataPlugin.DeleteStoreItemWithKey(string key)
         {
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            {
-                string query = @"
+            string query = @"
                 DELETE FROM 
                     store 
                 WHERE
                     key = @key";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-                {
-                    cmd.Parameters.AddWithValue("key", key);
-                    return cmd.ExecuteNonQuery() != 0;
-                }
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
+            {
+                cmd.Parameters.AddWithValue("key", key);
+                return cmd.ExecuteNonQuery() != 0;
             }
         }
 
@@ -153,12 +186,12 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     id = @id";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 if (string.IsNullOrEmpty(buildServer.Id))
-                    buildServer.Id = PostgresCommon.InsertWithId(this.ContextPluginConfig, insertQuery, buildServer, new ParameterMapper<BuildServer>(BuildServerMapping.MapParameters), connection);
+                    buildServer.Id = PostgresCommon.InsertWithId(this.ContextPluginConfig, insertQuery, buildServer, new ParameterMapper<BuildServer>(BuildServerMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update(this.ContextPluginConfig, updateQuery, buildServer, new ParameterMapper<BuildServer>(BuildServerMapping.MapParameters), connection);
+                    PostgresCommon.Update(this.ContextPluginConfig, updateQuery, buildServer, new ParameterMapper<BuildServer>(BuildServerMapping.MapParameters), conWrap.Connection());
 
                 return buildServer;
             }
@@ -166,12 +199,14 @@ namespace Wbtb.Extensions.Data.Postgres
 
         BuildServer IDataPlugin.GetBuildServerById(string id)
         {
-            return PostgresCommon.GetById(this.ContextPluginConfig, id, "buildserver", new BuildServerConvert(_config));
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetById(conWrap.Connection(), this.ContextPluginConfig, id, "buildserver", new BuildServerConvert(_config));
         }
 
         BuildServer IDataPlugin.GetBuildServerByKey(string key)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "buildserver", new BuildServerConvert(_config));
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetByField(conWrap.Connection(), this.ContextPluginConfig, "key", key, "buildserver", new BuildServerConvert(_config));
         }
 
         IEnumerable<BuildServer> IDataPlugin.GetBuildServers()
@@ -183,15 +218,16 @@ namespace Wbtb.Extensions.Data.Postgres
                     FROM 
                         buildserver";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 return new BuildServerConvert(_config).ToCommonList(reader);
         }
 
         bool IDataPlugin.DeleteBuildServer(BuildServer record)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "buildserver", "id", record.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "buildserver", "id", record.Id);
         }
 
         #endregion
@@ -213,12 +249,12 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     id = @id";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig)) 
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this)) 
             {
                 if (string.IsNullOrEmpty(sourceServer.Id))
-                    sourceServer.Id = PostgresCommon.InsertWithId(this.ContextPluginConfig, insertQuery, sourceServer, new ParameterMapper<SourceServer>(SourceServerMapping.MapParameters), connection);
+                    sourceServer.Id = PostgresCommon.InsertWithId(this.ContextPluginConfig, insertQuery, sourceServer, new ParameterMapper<SourceServer>(SourceServerMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update(this.ContextPluginConfig, updateQuery, sourceServer, new ParameterMapper<SourceServer>(SourceServerMapping.MapParameters), connection);
+                    PostgresCommon.Update(this.ContextPluginConfig, updateQuery, sourceServer, new ParameterMapper<SourceServer>(SourceServerMapping.MapParameters), conWrap.Connection());
 
                 return sourceServer;
             }
@@ -226,12 +262,14 @@ namespace Wbtb.Extensions.Data.Postgres
 
         SourceServer IDataPlugin.GetSourceServerById(string id)
         {
-            return PostgresCommon.GetById(this.ContextPluginConfig, id, "sourceserver", new SourceServerConvert(_config));
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetById(conWrap.Connection(), this.ContextPluginConfig, id, "sourceserver", new SourceServerConvert(_config));
         }
 
         SourceServer IDataPlugin.GetSourceServerByKey(string key)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "sourceserver", new SourceServerConvert(_config));
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetByField(conWrap.Connection(), this.ContextPluginConfig, "key", key, "sourceserver", new SourceServerConvert(_config));
         }
 
         IEnumerable<SourceServer> IDataPlugin.GetSourceServers()
@@ -243,15 +281,16 @@ namespace Wbtb.Extensions.Data.Postgres
                 FROM 
                     sourceserver";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 return new SourceServerConvert(_config).ToCommonList(reader);
         }
 
         bool IDataPlugin.DeleteSourceServer(SourceServer record)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "sourceserver", "id", record.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "sourceserver", "id", record.Id);
         }
 
         #endregion
@@ -275,12 +314,12 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     id = @id";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 if (string.IsNullOrEmpty(job.Id))
-                    job.Id = PostgresCommon.InsertWithId<Job>(this.ContextPluginConfig, insertQuery, job, new ParameterMapper<Job>(JobMapping.MapRevisionParameters), connection);
+                    job.Id = PostgresCommon.InsertWithId<Job>(this.ContextPluginConfig, insertQuery, job, new ParameterMapper<Job>(JobMapping.MapRevisionParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update<Job>(this.ContextPluginConfig, updateQuery, job, new ParameterMapper<Job>(JobMapping.MapRevisionParameters), connection);
+                    PostgresCommon.Update<Job>(this.ContextPluginConfig, updateQuery, job, new ParameterMapper<Job>(JobMapping.MapRevisionParameters), conWrap.Connection());
 
                 return job;
             }
@@ -288,18 +327,20 @@ namespace Wbtb.Extensions.Data.Postgres
 
         Job IDataPlugin.GetJobById(string id)
         {
-            return PostgresCommon.GetById<Job>(this.ContextPluginConfig, id, "job", new JobConvert(_config));
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetById<Job>(conWrap.Connection(), this.ContextPluginConfig, id, "job", new JobConvert(_config));
         }
 
         Job IDataPlugin.GetJobByKey(string key)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "job", new JobConvert(_config));
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetByField(conWrap.Connection(), this.ContextPluginConfig, "key", key, "job", new JobConvert(_config));
         }
 
         IEnumerable<Job> IDataPlugin.GetJobsByBuildServerId(string buildServerId)
         {
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT * from job where buildserverid=@buildserverid", connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT * from job where buildserverid=@buildserverid", conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildserverid", int.Parse(buildServerId));
 
@@ -310,8 +351,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
         IEnumerable<Job> IDataPlugin.GetJobs()
         {
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT * from job", connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT * from job", conWrap.Connection()))
             {
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new JobConvert(_config).ToCommonList(reader);
@@ -320,15 +361,20 @@ namespace Wbtb.Extensions.Data.Postgres
 
         bool IDataPlugin.DeleteJob(Job job)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "job", "id", job.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "job", "id", job.Id);
         }
 
         JobStats IDataPlugin.GetJobStats(Job job)
         {
-            JobStats stats = new JobStats();
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            {
+                NpgsqlConnection connection = conWrap.Connection();
 
-            // first build
-            string firstBuildQuery = @"
+                JobStats stats = new JobStats();
+
+                // first build
+                string firstBuildQuery = @"
                 SELECT
                     *
                 FROM
@@ -340,10 +386,10 @@ namespace Wbtb.Extensions.Data.Postgres
                 LIMIT 1
                 ";
 
-            Build firstBuild = PostgresCommon.GetByQuery<Build>(this.ContextPluginConfig, firstBuildQuery, new []{ new QueryParameter("jobid", int.Parse(job.Id)) }, new BuildConvert());
+                Build firstBuild = PostgresCommon.GetByQuery<Build>(connection, this.ContextPluginConfig, firstBuildQuery, new[] { new QueryParameter("jobid", int.Parse(job.Id)) }, new BuildConvert());
 
-            // latest build
-            string latestBuildQuery = @"
+                // latest build
+                string latestBuildQuery = @"
                 SELECT
                     *
                 FROM
@@ -354,16 +400,16 @@ namespace Wbtb.Extensions.Data.Postgres
                     startedutc DESC
                 LIMIT 1";
 
-            stats.LatestBuild = PostgresCommon.GetByQuery<Build>(this.ContextPluginConfig, latestBuildQuery, new[] { new QueryParameter("jobid", int.Parse(job.Id)) }, new BuildConvert());
+                stats.LatestBuild = PostgresCommon.GetByQuery<Build>(connection, this.ContextPluginConfig, latestBuildQuery, new[] { new QueryParameter("jobid", int.Parse(job.Id)) }, new BuildConvert());
 
-            if (firstBuild != null)
-                stats.StartUtc = firstBuild.StartedUtc;
+                if (firstBuild != null)
+                    stats.StartUtc = firstBuild.StartedUtc;
 
-            if (firstBuild != null && stats.LatestBuild != null && stats.LatestBuild.EndedUtc != null)
-                stats.JobDuration = stats.LatestBuild.EndedUtc - firstBuild.StartedUtc;
+                if (firstBuild != null && stats.LatestBuild != null && stats.LatestBuild.EndedUtc != null)
+                    stats.JobDuration = stats.LatestBuild.EndedUtc - firstBuild.StartedUtc;
 
-            // latest broken build, this is a simply the last build with status = broken, not the build that broke the job
-            string latestBrokenBuildQuery = @"
+                // latest broken build, this is a simply the last build with status = broken, not the build that broke the job
+                string latestBrokenBuildQuery = @"
                 SELECT
                     *
                 FROM
@@ -375,30 +421,30 @@ namespace Wbtb.Extensions.Data.Postgres
                     startedutc DESC
                 LIMIT 1";
 
-            stats.LatestBrokenBuild = PostgresCommon.GetByQuery<Build>(this.ContextPluginConfig, latestBrokenBuildQuery, new[] { 
+                stats.LatestBrokenBuild = PostgresCommon.GetByQuery<Build>(connection, this.ContextPluginConfig, latestBrokenBuildQuery, new[] {
                 new QueryParameter("jobid", int.Parse(job.Id)),
                 new QueryParameter("failed", (int)BuildStatus.Failed),
             }, new BuildConvert());
-            
-            // latest breaking build, ie, the last build that cause the job to fail
-            // latest break duration
-            if (stats.LatestBrokenBuild != null)
-            { 
-                if (!string.IsNullOrEmpty(stats.LatestBrokenBuild.IncidentBuildId))
-                { 
-                    if (stats.LatestBrokenBuild.Id == stats.LatestBrokenBuild.IncidentBuildId)
-                        stats.LatestBreakingBuild = stats.LatestBrokenBuild;
-                    else 
-                        stats.LatestBreakingBuild = ((IDataPlugin)this).GetBuildById(stats.LatestBrokenBuild.IncidentBuildId);
 
-                    Build fixingBuild = ((IDataPlugin)this).GetFirstPassingBuildAfterBuild(stats.LatestBreakingBuild);
-                    if (fixingBuild != null && fixingBuild.EndedUtc.HasValue && stats.LatestBreakingBuild.EndedUtc.HasValue)
-                        stats.LatestBreakDuration = fixingBuild.EndedUtc.Value - stats.LatestBreakingBuild.EndedUtc.Value;
+                // latest breaking build, ie, the last build that cause the job to fail
+                // latest break duration
+                if (stats.LatestBrokenBuild != null)
+                {
+                    if (!string.IsNullOrEmpty(stats.LatestBrokenBuild.IncidentBuildId))
+                    {
+                        if (stats.LatestBrokenBuild.Id == stats.LatestBrokenBuild.IncidentBuildId)
+                            stats.LatestBreakingBuild = stats.LatestBrokenBuild;
+                        else
+                            stats.LatestBreakingBuild = ((IDataPlugin)this).GetBuildById(stats.LatestBrokenBuild.IncidentBuildId);
+
+                        Build fixingBuild = ((IDataPlugin)this).GetFirstPassingBuildAfterBuild(stats.LatestBreakingBuild);
+                        if (fixingBuild != null && fixingBuild.EndedUtc.HasValue && stats.LatestBreakingBuild.EndedUtc.HasValue)
+                            stats.LatestBreakDuration = fixingBuild.EndedUtc.Value - stats.LatestBreakingBuild.EndedUtc.Value;
+                    }
                 }
-            }
 
-            // total builds
-            string buildCount = @"
+                // total builds
+                string buildCount = @"
                 SELECT
                     COUNT(id)
                 FROM
@@ -406,20 +452,19 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     jobid = @jobid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(buildCount, connection)) 
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlCommand cmd = new NpgsqlCommand(buildCount, connection))
                 {
-                    reader.Read();
-                    stats.TotalBuilds = reader.GetInt32(0);
-                }
-            }
+                    cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
 
-            // total fails
-            string failCountQuery = @"
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        reader.Read();
+                        stats.TotalBuilds = reader.GetInt32(0);
+                    }
+                }
+
+                // total fails
+                string failCountQuery = @"
                 SELECT
                     COUNT(id)
                 FROM
@@ -431,21 +476,20 @@ namespace Wbtb.Extensions.Data.Postgres
                         OR status = @status_aborted
                     )";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(failCountQuery, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
-                cmd.Parameters.AddWithValue("status_failed", (int)BuildStatus.Failed);
-                cmd.Parameters.AddWithValue("status_aborted", (int)BuildStatus.Aborted);
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlCommand cmd = new NpgsqlCommand(failCountQuery, connection))
                 {
-                    reader.Read();
-                    stats.TotalFails = reader.GetInt32(0);
+                    cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
+                    cmd.Parameters.AddWithValue("status_failed", (int)BuildStatus.Failed);
+                    cmd.Parameters.AddWithValue("status_aborted", (int)BuildStatus.Aborted);
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        reader.Read();
+                        stats.TotalFails = reader.GetInt32(0);
+                    }
                 }
-            }
 
-            // total incidents
-            string incidentCountQuery = @"
+                // total incidents
+                string incidentCountQuery = @"
                 SELECT COUNT(DISTINCT
                     incidentbuildid) 
                 FROM 
@@ -453,41 +497,41 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     jobid = @jobid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(incidentCountQuery, connection))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentCountQuery, connection))
                 {
-                    reader.Read();
-                    stats.Incidents = reader.GetInt32(0);
+                    cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        reader.Read();
+                        stats.Incidents = reader.GetInt32(0);
+                    }
                 }
+
+                // fail rate
+                stats.FailRatePercent = PercentHelper.ToPercent(stats.TotalFails, stats.TotalBuilds);
+
+                // rate per day
+                if (stats.JobDuration.HasValue && stats.JobDuration.Value.TotalDays > 0 && stats.TotalBuilds > 0)
+                    stats.DailyBuildRate = (int)Math.Round((decimal)((decimal)stats.TotalBuilds / (decimal)stats.JobDuration.Value.TotalDays));
+
+                // rate per week
+                if (stats.JobDuration.HasValue && stats.JobDuration.Value.TotalDays > 0 && stats.TotalBuilds > 0)
+                    stats.WeeklyBuildRate = (int)Math.Round((decimal)((decimal)stats.TotalBuilds / (decimal)stats.JobDuration.Value.TotalDays / 7));
+
+                // longest uptime
+                IEnumerable<string> incidentBuildIds = ((IDataPlugin)this).GetIncidentIdsForJob(job);
+
+                // longest downtime
+
+                return stats;
             }
-
-            // fail rate
-            stats.FailRatePercent = PercentHelper.ToPercent(stats.TotalFails, stats.TotalBuilds);
-
-            // rate per day
-            if (stats.JobDuration.HasValue && stats.JobDuration.Value.TotalDays > 0 &&  stats.TotalBuilds > 0)
-                stats.DailyBuildRate = (int)Math.Round((decimal)((decimal)stats.TotalBuilds / (decimal)stats.JobDuration.Value.TotalDays));
-
-            // rate per week
-            if (stats.JobDuration.HasValue && stats.JobDuration.Value.TotalDays > 0 && stats.TotalBuilds > 0)
-                stats.WeeklyBuildRate = (int)Math.Round((decimal)((decimal)stats.TotalBuilds / (decimal)stats.JobDuration.Value.TotalDays / 7));
-
-            // longest uptime
-            IEnumerable<string> incidentBuildIds = ((IDataPlugin)this).GetIncidentIdsForJob(job);
-
-            // longest downtime
-
-            return stats;
         }
 
         int IDataPlugin.ResetJob(string jobId, bool hard)
         {
-            int affected = 0;
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig)) 
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this)) 
             {
+                int affected = 0;
                 // remove build involvements
                 string removeBuildInvolvements = @"
                 DELETE FROM 
@@ -498,7 +542,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     build.id = buildinvolvement.buildid
                     AND build.jobid = @jobid";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(removeBuildInvolvements, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(removeBuildInvolvements, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                     affected += cmd.ExecuteNonQuery();
@@ -514,7 +558,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     build.id = buildlogparseresult.buildid
                     AND build.jobid = @jobid";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                     affected += cmd.ExecuteNonQuery();
@@ -529,7 +573,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     daemontask.buildid = build.id
                     AND build.jobid = @jobid";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(resetDaemonTasks, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(resetDaemonTasks, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                     affected += cmd.ExecuteNonQuery();
@@ -545,7 +589,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     OR incidentreport.mutationid = build.id)
                     AND build.jobid = @jobid";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReportReset, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReportReset, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                     affected += cmd.ExecuteNonQuery();
@@ -560,7 +604,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     WHERE 
                         jobid = @jobid";
 
-                    using (NpgsqlCommand cmd = new NpgsqlCommand(delete, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(delete, conWrap.Connection()))
                     {
                         cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                         affected += cmd.ExecuteNonQuery();
@@ -577,16 +621,14 @@ namespace Wbtb.Extensions.Data.Postgres
                         WHERE 
                             jobid = @jobid";
 
-                    using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReset, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReset, conWrap.Connection()))
                     {
                         cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                         affected += cmd.ExecuteNonQuery();
                     }
                 }
+                return affected;
             }
-
-
-            return affected;
         }
 
         IEnumerable<string> IDataPlugin.GetIncidentIdsForJob(Job job)
@@ -607,18 +649,18 @@ namespace Wbtb.Extensions.Data.Postgres
                 ORDER BY
                     startedutc DESC";
 
-            IList<string> buildIds = new List<string>();
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
+                IList<string> buildIds = new List<string>();
                 cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     while (reader.Read())
                         buildIds.Add(reader["incidentbuildid"].ToString());
-            }
 
-            return buildIds;
+                return buildIds;
+            }
         }
 
         #endregion
@@ -640,12 +682,12 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     id = @id";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 if (string.IsNullOrEmpty(user.Id))
-                    user.Id = PostgresCommon.InsertWithId<User>(this.ContextPluginConfig, insertQuery, user, new ParameterMapper<User>(UserMapping.MapParameters), connection);
+                    user.Id = PostgresCommon.InsertWithId<User>(this.ContextPluginConfig, insertQuery, user, new ParameterMapper<User>(UserMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update<User>(this.ContextPluginConfig, updateQuery, user, new ParameterMapper<User>(UserMapping.MapParameters), connection);
+                    PostgresCommon.Update<User>(this.ContextPluginConfig, updateQuery, user, new ParameterMapper<User>(UserMapping.MapParameters), conWrap.Connection());
 
                 return user;
             }
@@ -653,12 +695,14 @@ namespace Wbtb.Extensions.Data.Postgres
 
         User IDataPlugin.GetUserById(string id)
         {
-            return PostgresCommon.GetById<User>(this.ContextPluginConfig, id, "usr", new UserConvert(_config));
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetById<User>(conWrap.Connection(), this.ContextPluginConfig, id, "usr", new UserConvert(_config));
         }
 
         User IDataPlugin.GetUserByKey(string key)
         {
-            return PostgresCommon.GetByField(this.ContextPluginConfig, "key", key, "usr", new UserConvert(_config));
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetByField(conWrap.Connection(), this.ContextPluginConfig, "key", key, "usr", new UserConvert(_config));
         }
 
         IEnumerable<User> IDataPlugin.GetUsers()
@@ -670,8 +714,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     FROM 
                         usr";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 return new UserConvert(_config).ToCommonList(reader);
         }
@@ -698,10 +742,10 @@ namespace Wbtb.Extensions.Data.Postgres
             long virtualItemCount = 0;
             IEnumerable<User> users = null;
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 // get main records
-                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("index", index * pageSize);
                     cmd.Parameters.AddWithValue("pagesize", pageSize);
@@ -711,7 +755,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 }
 
                 // get count of total records possible
-                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, conWrap.Connection()))
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     reader.Read();
@@ -724,7 +768,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
         bool IDataPlugin.DeleteUser(User record)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "usr", "id", record.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "usr", "id", record.Id);
         }
 
         #endregion
@@ -762,12 +807,12 @@ namespace Wbtb.Extensions.Data.Postgres
                     id = @id
                     AND signature = @signature";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 if (string.IsNullOrEmpty(build.Id))
-                    build.Id = PostgresCommon.InsertWithId<Build>(this.ContextPluginConfig, insertQuery, build, new ParameterMapper<Build>(BuildMapping.MapParameters), connection);
+                    build.Id = PostgresCommon.InsertWithId<Build>(this.ContextPluginConfig, insertQuery, build, new ParameterMapper<Build>(BuildMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update<Build>(this.ContextPluginConfig, updateQuery, build, new ParameterMapper<Build>(BuildMapping.MapParameters), connection);
+                    PostgresCommon.Update<Build>(this.ContextPluginConfig, updateQuery, build, new ParameterMapper<Build>(BuildMapping.MapParameters), conWrap.Connection());
 
                 return build;
             }
@@ -780,7 +825,8 @@ namespace Wbtb.Extensions.Data.Postgres
         /// <returns></returns>
         Build IDataPlugin.GetBuildById(string id)
         {
-            return PostgresCommon.GetById< Build>(this.ContextPluginConfig, id, "build", new BuildConvert());
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetById<Build>(conWrap.Connection(), this.ContextPluginConfig, id, "build", new BuildConvert());
         }
 
         public Build GetCurrentBuildDelta(string jobId)
@@ -833,8 +879,8 @@ namespace Wbtb.Extensions.Data.Postgres
 	                endedutc ASC
                 LIMIT 1";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                 cmd.Parameters.AddWithValue("passing", (int)BuildStatus.Passed);
@@ -857,8 +903,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     AND identifier=@key
                     ";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                 cmd.Parameters.AddWithValue("key", key);
@@ -897,10 +943,10 @@ namespace Wbtb.Extensions.Data.Postgres
 
             long virtualItemCount = 0;
             IEnumerable<Build> builds = null;
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 // get main records
-                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                     cmd.Parameters.AddWithValue("index", index * pageSize);
@@ -911,7 +957,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 }
 
                 // get count of total records possible
-                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
 
@@ -956,10 +1002,11 @@ namespace Wbtb.Extensions.Data.Postgres
 
             long virtualItemCount = 0;
             IEnumerable<Build> builds = null;
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 // get main records
-                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                     cmd.Parameters.AddWithValue("index", index * pageSize);
@@ -970,7 +1017,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 }
 
                 // get count of total records possible
-                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
 
@@ -1002,8 +1049,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
             
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection)) 
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection())) 
             {
                 cmd.Parameters.AddWithValue("incidentId", int.Parse(incidentId));
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
@@ -1038,10 +1085,10 @@ namespace Wbtb.Extensions.Data.Postgres
             long virtualItemCount = 0;
             IEnumerable<Build> builds = null;
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 // get main records
-                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("hostname", hostname);
                     cmd.Parameters.AddWithValue("index", index * pageSize);
@@ -1052,7 +1099,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 }
 
                 // get count of total records possible
-                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("hostname", hostname);
 
@@ -1069,7 +1116,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
         bool IDataPlugin.DeleteBuild(Build record)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "build", "id", record.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "build", "id", record.Id);
         }
 
         Build IDataPlugin.GetLatestBuildByJob(Job job)
@@ -1086,8 +1134,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 LIMIT
                     1";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
 
@@ -1128,8 +1176,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 LIMIT
                     1";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(build.JobId));
                 cmd.Parameters.AddWithValue("buildid", int.Parse(build.Id));
@@ -1157,8 +1205,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     startedutc 
                 LIMIT 1";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(build.JobId));
                 cmd.Parameters.AddWithValue("referencebuildid", int.Parse(build.Id));
@@ -1183,8 +1231,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     startedutc DESC
                 LIMIT 1";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(build.JobId));
                 cmd.Parameters.AddWithValue("buildDate", build.StartedUtc);
@@ -1208,8 +1256,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     startedutc ASC
                 LIMIT 1";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(build.JobId));
                 cmd.Parameters.AddWithValue("buildDate", build.StartedUtc);
@@ -1221,9 +1269,10 @@ namespace Wbtb.Extensions.Data.Postgres
 
         int IDataPlugin.ResetBuild(string buildId, bool hard)
         {
-            int affected = 0;
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig)) 
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this)) 
             {
+                int affected = 0;
+
                 // remove build involvements
                 string removeBuildInvolvements = @"
                 DELETE FROM 
@@ -1231,7 +1280,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     buildid = @buildid";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(removeBuildInvolvements, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(removeBuildInvolvements, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                     affected += cmd.ExecuteNonQuery();
@@ -1246,7 +1295,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     daemontask.buildid = build.id
                     AND build.id = @buildid";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(resetDaemonTasks, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(resetDaemonTasks, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                     affected += cmd.ExecuteNonQuery();
@@ -1259,7 +1308,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     buildid = @buildid";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(logreset, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                     affected += cmd.ExecuteNonQuery();
@@ -1272,7 +1321,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     incidentid = @buildid
                     OR mutationid = @buildid";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReportReset, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReportReset, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                     affected += cmd.ExecuteNonQuery();
@@ -1283,12 +1332,12 @@ namespace Wbtb.Extensions.Data.Postgres
                 {
                     // delete all builds
                     string delete = @"
-                DELETE FROM 
-                    build 
-                WHERE 
-                    id = @buildid";
+                        DELETE FROM 
+                            build 
+                        WHERE 
+                            id = @buildid";
 
-                    using (NpgsqlCommand cmd = new NpgsqlCommand(delete, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(delete, conWrap.Connection()))
                     {
                         cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                         affected += cmd.ExecuteNonQuery();
@@ -1299,22 +1348,22 @@ namespace Wbtb.Extensions.Data.Postgres
                 {
                     // remove incident builds from other builds
                     string incidentReset = @"
-                UPDATE 
-                    build 
-                SET
-                    incidentbuildid = NULL
-                WHERE 
-                    id = @buildid";
+                        UPDATE 
+                            build 
+                        SET
+                            incidentbuildid = NULL
+                        WHERE 
+                            id = @buildid";
 
-                    using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReset, connection))
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReset, conWrap.Connection()))
                     {
                         cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                         affected += cmd.ExecuteNonQuery();
                     }
                 }
-            }
 
-            return affected;
+                return affected;
+            }
         }
 
         #endregion
@@ -1340,12 +1389,12 @@ namespace Wbtb.Extensions.Data.Postgres
                     id = @id
                     AND signature = @signature";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 if (string.IsNullOrEmpty(buildLog.Id))
-                    buildLog.Id = PostgresCommon.InsertWithId<BuildLogParseResult>(this.ContextPluginConfig, insertQuery, buildLog, new ParameterMapper<BuildLogParseResult>(BuildLogParseResultMapping.MapParameters), connection);
+                    buildLog.Id = PostgresCommon.InsertWithId<BuildLogParseResult>(this.ContextPluginConfig, insertQuery, buildLog, new ParameterMapper<BuildLogParseResult>(BuildLogParseResultMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update<BuildLogParseResult>(this.ContextPluginConfig, updateQuery, buildLog, new ParameterMapper<BuildLogParseResult>(BuildLogParseResultMapping.MapParameters), connection);
+                    PostgresCommon.Update<BuildLogParseResult>(this.ContextPluginConfig, updateQuery, buildLog, new ParameterMapper<BuildLogParseResult>(BuildLogParseResultMapping.MapParameters), conWrap.Connection());
 
                 return buildLog;
             }
@@ -1369,8 +1418,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     BLPR.buildid=@buildid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
 
@@ -1381,7 +1430,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
         bool IDataPlugin.DeleteBuildLogParseResult(BuildLogParseResult result)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "buildlogparseresult", "id", result.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "buildlogparseresult", "id", result.Id);
         }
 
         #endregion
@@ -1412,12 +1462,12 @@ namespace Wbtb.Extensions.Data.Postgres
                     id = @id
                     AND signature = @signature";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 if (string.IsNullOrEmpty(buildInvolvement.Id))
-                    buildInvolvement.Id = PostgresCommon.InsertWithId<BuildInvolvement>(this.ContextPluginConfig, insertQuery, buildInvolvement, new ParameterMapper<BuildInvolvement>(BuildInvolvementMapping.MapParameters), connection);
+                    buildInvolvement.Id = PostgresCommon.InsertWithId<BuildInvolvement>(this.ContextPluginConfig, insertQuery, buildInvolvement, new ParameterMapper<BuildInvolvement>(BuildInvolvementMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update<BuildInvolvement>(this.ContextPluginConfig, updateQuery, buildInvolvement, new ParameterMapper<BuildInvolvement>(BuildInvolvementMapping.MapParameters), connection);
+                    PostgresCommon.Update<BuildInvolvement>(this.ContextPluginConfig, updateQuery, buildInvolvement, new ParameterMapper<BuildInvolvement>(BuildInvolvementMapping.MapParameters), conWrap.Connection());
 
                 return buildInvolvement;
             }
@@ -1425,7 +1475,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
         BuildInvolvement IDataPlugin.GetBuildInvolvementById(string id)
         {
-            return PostgresCommon.GetById<BuildInvolvement>(this.ContextPluginConfig, id, "buildinvolvement", new BuildInvolvementConvert());
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetById<BuildInvolvement>(conWrap.Connection(), this.ContextPluginConfig, id, "buildinvolvement", new BuildInvolvementConvert());
         }
 
         BuildInvolvement IDataPlugin.GetBuildInvolvementByRevisionCode(string buildid, string revisionCode)
@@ -1439,8 +1490,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     buildid = @buildid
                     AND revisioncode = @revisioncode";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildid));
                 cmd.Parameters.AddWithValue("revisioncode", revisionCode);
@@ -1452,7 +1503,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
         bool IDataPlugin.DeleteBuildInvolvement(BuildInvolvement record)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "buildinvolvement", "id", record.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "buildinvolvement", "id", record.Id);
         }
 
         IEnumerable<BuildInvolvement> IDataPlugin.GetBuildInvolvementsByBuild(string buildId)
@@ -1465,8 +1517,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE 
                     buildid=@buildid";
             
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
 
@@ -1485,8 +1537,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE 
                     mappeduserid = @userid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("userid", int.Parse(userId));
 
@@ -1526,10 +1578,10 @@ namespace Wbtb.Extensions.Data.Postgres
             long virtualItemCount = 0;
             IEnumerable<BuildInvolvement> buildInvolvements = null;
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 // get main
-                using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("userid", int.Parse(userid));
                     cmd.Parameters.AddWithValue("buildstatus", (int)buildStatus);
@@ -1541,7 +1593,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 }
 
                 // get count of total records possible
-                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("userid", int.Parse(userid));
                     cmd.Parameters.AddWithValue("buildstatus", (int)buildStatus);
@@ -1551,7 +1603,6 @@ namespace Wbtb.Extensions.Data.Postgres
                         reader.Read();
                         virtualItemCount = reader.GetInt64(0);
                     }
-
                 }
 
                 return new PageableData<BuildInvolvement>(buildInvolvements, index, pageSize, virtualItemCount);
@@ -1587,12 +1638,12 @@ namespace Wbtb.Extensions.Data.Postgres
                     id = @id
                     AND signature = @signature";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 if (string.IsNullOrEmpty(daemonTask.Id))
-                    daemonTask.Id = PostgresCommon.InsertWithId<DaemonTask>(this.ContextPluginConfig, insertQuery, daemonTask, new ParameterMapper<DaemonTask>(DaemonTaskMapping.MapParameters), connection);
+                    daemonTask.Id = PostgresCommon.InsertWithId<DaemonTask>(this.ContextPluginConfig, insertQuery, daemonTask, new ParameterMapper<DaemonTask>(DaemonTaskMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update<DaemonTask>(this.ContextPluginConfig, updateQuery, daemonTask, new ParameterMapper<DaemonTask>(DaemonTaskMapping.MapParameters), connection);
+                    PostgresCommon.Update<DaemonTask>(this.ContextPluginConfig, updateQuery, daemonTask, new ParameterMapper<DaemonTask>(DaemonTaskMapping.MapParameters), conWrap.Connection());
 
                 return daemonTask;
             }
@@ -1600,12 +1651,14 @@ namespace Wbtb.Extensions.Data.Postgres
 
         DaemonTask IDataPlugin.GetDaemonTaskById(string id)
         {
-            return PostgresCommon.GetById<DaemonTask>(this.ContextPluginConfig, id, "daemontask", new DaemonTaskConvert());
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetById<DaemonTask>(conWrap.Connection(), this.ContextPluginConfig, id, "daemontask", new DaemonTaskConvert());
         }
 
         bool IDataPlugin.DeleteDaemonTask(DaemonTask record)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "daemontask", "id", record.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "daemontask", "id", record.Id);
         }
 
         IEnumerable<DaemonTask> IDataPlugin.GetDaemonsTaskByBuild(string buildid)
@@ -1618,8 +1671,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     buildid = @buildid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildid));
 
@@ -1643,8 +1696,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 LIMIT 
                     100";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("stage", stage);
 
@@ -1671,8 +1724,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
             // note the hard limit, this call scales badly, and generally we don't care about the specifics of blocks once we have too many, as that's a symptom of bigger problems
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                 cmd.Parameters.AddWithValue("order", order);
@@ -1701,8 +1754,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
             // note the hard limit, this call scales badly, and generally we don't care about the specifics of blocks once we have too many, as that's a symptom of bigger problems
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(jobid));
                 cmd.Parameters.AddWithValue("order", order);
@@ -1785,10 +1838,10 @@ namespace Wbtb.Extensions.Data.Postgres
 
             long virtualItemCount = 0;
             IEnumerable<DaemonTask> builds = null;
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 // get main records
-                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("index", index * pageSize);
                     cmd.Parameters.AddWithValue("pagesize", pageSize);
@@ -1798,7 +1851,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 }
 
                 // get count of total records possible
-                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, conWrap.Connection()))
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     reader.Read();
@@ -1842,12 +1895,12 @@ namespace Wbtb.Extensions.Data.Postgres
                     id = @id
                     AND signature = @signature";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 if (string.IsNullOrEmpty(incidentReport.Id))
-                    incidentReport.Id = PostgresCommon.InsertWithId<IncidentReport>(this.ContextPluginConfig, insertQuery, incidentReport, new ParameterMapper<IncidentReport>(IncidentReportMapping.MapParameters), connection);
+                    incidentReport.Id = PostgresCommon.InsertWithId<IncidentReport>(this.ContextPluginConfig, insertQuery, incidentReport, new ParameterMapper<IncidentReport>(IncidentReportMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update<IncidentReport>(this.ContextPluginConfig, updateQuery, incidentReport, new ParameterMapper<IncidentReport>(IncidentReportMapping.MapParameters), connection);
+                    PostgresCommon.Update<IncidentReport>(this.ContextPluginConfig, updateQuery, incidentReport, new ParameterMapper<IncidentReport>(IncidentReportMapping.MapParameters), conWrap.Connection());
 
                 return incidentReport;
             }
@@ -1866,8 +1919,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     createdutc DESC
                 LIMIT 1";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
 
@@ -1878,12 +1931,14 @@ namespace Wbtb.Extensions.Data.Postgres
 
         IncidentReport IDataPlugin.GetIncidentReportById(string id)
         {
-            return PostgresCommon.GetById<IncidentReport>(this.ContextPluginConfig, id, "incidentreport", new IncidentReportConvert());
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetById<IncidentReport>(conWrap.Connection(), this.ContextPluginConfig, id, "incidentreport", new IncidentReportConvert());
         }
 
         bool IDataPlugin.DeleteIncidentReport(IncidentReport record)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "incidentreport", "id", record.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "incidentreport", "id", record.Id);
         }
 
         IEnumerable<IncidentReport> IDataPlugin.GetIncidentReportsForBuild(string buildId)
@@ -1898,8 +1953,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 ORDER BY
                     createdutc DESC";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
 
@@ -1921,24 +1976,24 @@ namespace Wbtb.Extensions.Data.Postgres
                     (@buildLogParseResultId, @buildInvolvementId)
                 RETURNING id";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(insertQuery, conWrap.Connection()))
             {
-                using (NpgsqlCommand cmd = new NpgsqlCommand(insertQuery, connection))
+                cmd.Parameters.AddWithValue("buildLogParseResultId", int.Parse(buildLogParseResultId));
+                cmd.Parameters.AddWithValue("buildInvolvementId", int.Parse(buildInvolvementId));
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
-                    cmd.Parameters.AddWithValue("buildLogParseResultId", int.Parse(buildLogParseResultId));
-                    cmd.Parameters.AddWithValue("buildInvolvementId", int.Parse(buildInvolvementId));
-                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        reader.Read();
-                        return reader.GetInt32(0).ToString();
-                    }
+                    reader.Read();
+                    return reader.GetInt32(0).ToString();
                 }
             }
         }
 
         bool IDataPlugin.SplitBuildLogParseResultAndBuildBuildInvolvement(string id)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "r_buildLogParseResult_buildinvolvement", "id", id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "r_buildLogParseResult_buildinvolvement", "id", id);
         }
 
         IEnumerable<string> IDataPlugin.GetBuildLogParseResultsForBuildInvolvement(string buildInvolvementId) 
@@ -1952,8 +2007,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     buildinvolvementid=@buildinvolvementid
                 ";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildinvolvementid", int.Parse(buildInvolvementId));
 
@@ -2015,8 +2070,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE 
                     id = @id";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("id", int.Parse(id));
 
@@ -2036,8 +2091,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     code = @id
                     AND sourceserverid=@sourceserverid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("id", key);
                 cmd.Parameters.AddWithValue("sourceserverid", int.Parse(sourceServerId));
@@ -2062,8 +2117,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 LIMIT 
                     1";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
 
@@ -2084,8 +2139,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE 
                     BI.buildid = @buildid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildId", int.Parse(buildId));
 
@@ -2104,8 +2159,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE 
                     sourceserverid = @sourceserverid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("sourceserverid", int.Parse(sourceServerId));
 
@@ -2116,7 +2171,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
         bool IDataPlugin.DeleteRevision(Revision revision)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "revision", "id", revision.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "revision", "id", revision.Id);
         }
 
         #endregion
@@ -2141,12 +2197,12 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     id = @id";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 if (string.IsNullOrEmpty(session.Id))
-                    session.Id = PostgresCommon.InsertWithId<Session>(this.ContextPluginConfig, insertQuery, session, new ParameterMapper<Session>(SessionMapping.MapParameters), connection);
+                    session.Id = PostgresCommon.InsertWithId<Session>(this.ContextPluginConfig, insertQuery, session, new ParameterMapper<Session>(SessionMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update<Session>(this.ContextPluginConfig, updateQuery, session, new ParameterMapper<Session>(SessionMapping.MapParameters), connection);
+                    PostgresCommon.Update<Session>(this.ContextPluginConfig, updateQuery, session, new ParameterMapper<Session>(SessionMapping.MapParameters), conWrap.Connection());
 
                 return session;
             }
@@ -2154,15 +2210,16 @@ namespace Wbtb.Extensions.Data.Postgres
 
         Session IDataPlugin.GetSessionById(string id)
         {
-            return PostgresCommon.GetById<Session>(this.ContextPluginConfig, id, "session", new SessionConvert());
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.GetById<Session>(conWrap.Connection(), this.ContextPluginConfig, id, "session", new SessionConvert());
         }
 
         IEnumerable<Session> IDataPlugin.GetSessionByUserId(string userid)
         {
             string sql = @"SELECT * FROM session WHERE userid=@userid";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("userid", int.Parse(userid));
 
@@ -2173,7 +2230,8 @@ namespace Wbtb.Extensions.Data.Postgres
 
         bool IDataPlugin.DeleteSession(Session session)
         {
-            return PostgresCommon.Delete(this.ContextPluginConfig, "session", "id", session.Id);
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "session", "id", session.Id);
         }
 
         #endregion
@@ -2239,8 +2297,8 @@ namespace Wbtb.Extensions.Data.Postgres
 	                endedutc ASC
                 LIMIT 1";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                 cmd.Parameters.AddWithValue("passing", (int)BuildStatus.Passed);
@@ -2269,9 +2327,9 @@ namespace Wbtb.Extensions.Data.Postgres
                     (@createdutc, @hash, @content)
                 RETURNING id";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
-                configurationState.Id = PostgresCommon.InsertWithId<ConfigurationState>(this.ContextPluginConfig, insertQuery, configurationState, new ParameterMapper<ConfigurationState>(ConfigurationStateMapping.MapParameters), connection);
+                configurationState.Id = PostgresCommon.InsertWithId<ConfigurationState>(this.ContextPluginConfig, insertQuery, configurationState, new ParameterMapper<ConfigurationState>(ConfigurationStateMapping.MapParameters), conWrap.Connection());
                 return configurationState;
             }
         }
@@ -2288,12 +2346,10 @@ namespace Wbtb.Extensions.Data.Postgres
                 LIMIT 
                     1";
 
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
-            {
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new ConfigurationStateConvert().ToCommon(reader);
-            }
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
+            using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                return new ConfigurationStateConvert().ToCommon(reader);
         }
 
         PageableData<ConfigurationState> IDataPlugin.PageConfigurationStates(int index, int pageSize)
@@ -2314,10 +2370,10 @@ namespace Wbtb.Extensions.Data.Postgres
 
             long virtualItemCount = 0;
             IEnumerable<ConfigurationState> configurationStates = null;
-            using (NpgsqlConnection connection = PostgresCommon.GetConnection(this.ContextPluginConfig))
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
                 // get main records
-                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(pageQuery, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("index", index * pageSize);
                     cmd.Parameters.AddWithValue("pagesize", pageSize);
@@ -2327,13 +2383,11 @@ namespace Wbtb.Extensions.Data.Postgres
                 }
 
                 // get count of total records possible
-                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, connection))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(countQuery, conWrap.Connection()))
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
-                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        reader.Read();
-                        virtualItemCount = reader.GetInt64(0);
-                    }
+                    reader.Read();
+                    virtualItemCount = reader.GetInt64(0);
                 }
 
                 return new PageableData<ConfigurationState>(configurationStates, index, pageSize, virtualItemCount);

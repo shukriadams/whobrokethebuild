@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Wbtb.Core.Common
 {
@@ -7,7 +8,7 @@ namespace Wbtb.Core.Common
     /// </summary>
     [PluginProxy(typeof(DataPluginProxy))]
     [PluginBehaviour(allowMultiple: false)]
-    public interface IDataPlugin: IReachable, IPlugin 
+    public interface IDataPlugin: IReachable, IPlugin, IDisposable 
     {
         #region UTILITY
 
@@ -16,6 +17,12 @@ namespace Wbtb.Core.Common
         int DestroyDatastore();
 
         int ClearAllTables();
+
+        void TransactionStart();
+
+        void TransactionCommit();
+
+        void TransactionCancel();
 
         #endregion
 

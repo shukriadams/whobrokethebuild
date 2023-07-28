@@ -4,6 +4,26 @@ namespace Wbtb.Extensions.Data.FileSystem
 {
     internal class FileSystem : Plugin, IDataPlugin
     {
+        void IDisposable.Dispose()
+        {
+
+        }
+
+        void IDataPlugin.TransactionStart()
+        {
+
+        }
+
+        void IDataPlugin.TransactionCommit()
+        {
+
+        }
+
+        void IDataPlugin.TransactionCancel()
+        {
+
+        }
+
         ConfigurationState IDataPlugin.AddConfigurationState(ConfigurationState configurationState)
         {
             return null;

@@ -103,27 +103,29 @@ namespace Wbtb.Core
             }
 
             PluginManager pluginManager = di.Resolve<PluginManager>();
-            ConfigurationBuilder builder = di.Resolve<ConfigurationBuilder>();
-
             pluginManager.Initialize();
 
             if (persistStateToDatabase)
-            {
-                pluginManager.WriteCurrentPluginStateToStore();
+                using (ConfigurationBuilder builder = di.Resolve<ConfigurationBuilder>()) 
+                {
+                    builder.TransactionStart();
+                    pluginManager.WriteCurrentPluginStateToStore();
 
-                builder.InjectSourceServers();
-                builder.InjectUsers();
+                    builder.InjectSourceServers();
+                    builder.InjectUsers();
 
-                // build servers should be scafolded last, as they have data that has dependencies on other top level objects
-                builder.InjectBuildServers();
+                    // build servers should be scafolded last, as they have data that has dependencies on other top level objects
+                    builder.InjectBuildServers();
 
-                IEnumerable<string> orphans = builder.FindOrphans();
-                foreach (string orphan in orphans)
-                    Console.WriteLine(orphan);
+                    IEnumerable<string> orphans = builder.FindOrphans();
+                    foreach (string orphan in orphans)
+                        Console.WriteLine(orphan);
 
-                if (config.FailOnOrphans && orphans.Count() > 0)
-                    throw new ConfigurationException("Orphan records detected. Please merge or delete orphans. Disable this check with \"FailOnOrphans: false\" in config.");
-            }
+                    if (config.FailOnOrphans && orphans.Count() > 0)
+                        throw new ConfigurationException("Orphan records detected. Please merge or delete orphans. Disable this check with \"FailOnOrphans: false\" in config.");
+
+                    builder.TransactionCommit();
+                }
         }
     }
 }

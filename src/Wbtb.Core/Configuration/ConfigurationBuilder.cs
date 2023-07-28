@@ -5,12 +5,13 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core
 {
-    public class ConfigurationBuilder
+    public class ConfigurationBuilder : IDisposable
     {
         #region FIELDS
 
         private readonly Configuration _config;
         private readonly PluginProvider _pluginProvider;
+        private readonly IDataPlugin _datalayer;
 
         #endregion
 
@@ -20,42 +21,62 @@ namespace Wbtb.Core
         {
             _config = config;
             _pluginProvider = pluginProvider;
+            _datalayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
         }
 
         #endregion
 
         #region METHODS
 
+        public void Dispose() 
+        {
+            _datalayer.Dispose();
+        }
+
+        public void TransactionStart() 
+        {
+            _datalayer.TransactionStart();
+        }
+
+        public void TransactionCommit()
+        {
+            _datalayer.TransactionCommit();
+        }
+
+        public void TransactionCancel()
+        {
+            _datalayer.TransactionCancel();
+        }
+
         public IEnumerable<string> FindOrphans()
         {
-            IDataPlugin datalayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IList<string> errors = new List<string>();
 
             // source servers
-            IEnumerable<SourceServer> existingSourceServers = datalayer.GetSourceServers();
+            IEnumerable<SourceServer> existingSourceServers = _datalayer.GetSourceServers();
             foreach (SourceServer existingSourceServer in existingSourceServers)
                 if (!_config.SourceServers.Where(s => s.Key == existingSourceServer.Key).Any()) 
                 {
                     errors.Add($"The data store contains a source server with key {existingSourceServer.Key} that does not exist in config. This should deleted or merged with a valid object.");
-                    foreach(Job job in datalayer.GetJobs().Where(j => j.SourceServerId == existingSourceServer.Id))
+                    foreach(Job job in _datalayer.GetJobs().Where(j => j.SourceServerId == existingSourceServer.Id))
                         errors.Add($"This source server is referenced by job {job.Key}.");
                 }
 
             // buildservers
-            IEnumerable<BuildServer> existingBuildServers = datalayer.GetBuildServers();
+            IEnumerable<BuildServer> existingBuildServers = _datalayer.GetBuildServers();
             foreach (BuildServer existingBuildServer in existingBuildServers)
                 if (!_config.BuildServers.Where(s => s.Key == existingBuildServer.Key).Any()) 
                 {
                     errors.Add($"The data store contains a build server with key {existingBuildServer.Key} that does not exist in config. This should deleted or merged with a valid object.");
-                    foreach (Job job in datalayer.GetJobs().Where(j => j.BuildServerId == existingBuildServer.Id))
+                    foreach (Job job in _datalayer.GetJobs().Where(j => j.BuildServerId == existingBuildServer.Id))
                         errors.Add($"This build server is referenced by job {job.Key}.");
                 }
 
             // jobs
-            IEnumerable<Job> existingJobs = datalayer.GetJobs();
+            IEnumerable<Job> existingJobs = _datalayer.GetJobs();
             foreach (Job existingJob in existingJobs)
             {
-                BuildServer buildserver = datalayer.GetBuildServerById(existingJob.BuildServerId);
+                BuildServer buildserver = _datalayer.GetBuildServerById(existingJob.BuildServerId);
                 BuildServer buildServerConfig = _config.BuildServers.SingleOrDefault(b => b.Key == buildserver.Key);
                 if (buildServerConfig == null)
                 {
@@ -68,7 +89,7 @@ namespace Wbtb.Core
             }
 
             // users
-            IEnumerable<User> existingUsers = datalayer.GetUsers();
+            IEnumerable<User> existingUsers = _datalayer.GetUsers();
             foreach (User existingUser in existingUsers)
                 if (!_config.Users.Where(s => s.Key == existingUser.Key).Any())
                     errors.Add($"The data store contains a user with key {existingUser.Key} that does not exist in config. This should deleted or merged with a valid object.");
@@ -78,22 +99,20 @@ namespace Wbtb.Core
 
         public void InjectBuildServers()
         { 
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-
             List<string> errors = new List<string>();
 
             foreach(BuildServer buildServerConfig in _config.BuildServers)
             {
-                BuildServer buildserver = dataLayer.GetBuildServerByKey(buildServerConfig.Key);
+                BuildServer buildserver = _datalayer.GetBuildServerByKey(buildServerConfig.Key);
                 
                 // update if key changed
                 if (buildserver == null && !string.IsNullOrEmpty(buildServerConfig.KeyPrev)) 
                 {
-                    BuildServer previousCheck = dataLayer.GetBuildServerByKey(buildServerConfig.KeyPrev);
+                    BuildServer previousCheck = _datalayer.GetBuildServerByKey(buildServerConfig.KeyPrev);
                     if (previousCheck != null) 
                     {
                         previousCheck.Key = buildServerConfig.Key;
-                        dataLayer.SaveBuildServer(previousCheck);
+                        _datalayer.SaveBuildServer(previousCheck);
                         buildserver = previousCheck;
 
                         Console.WriteLine($"BuildServer key changed from {buildServerConfig.KeyPrev} to {buildServerConfig.Key}");
@@ -102,7 +121,7 @@ namespace Wbtb.Core
 
                 if (buildserver == null)
                 {
-                    buildserver = dataLayer.SaveBuildServer(new BuildServer
+                    buildserver = _datalayer.SaveBuildServer(new BuildServer
                     {
                         Key = buildServerConfig.Key,
                         Name = string.IsNullOrEmpty(buildServerConfig.Name) ? buildServerConfig.Key : buildServerConfig.Name,
@@ -113,18 +132,18 @@ namespace Wbtb.Core
                     Console.WriteLine($"WBTB : SETUP : Created BuildServer {buildServerConfig.Key}");
                 } 
 
-                IEnumerable<Job> jobs = dataLayer.GetJobsByBuildServerId(buildserver.Id);
+                IEnumerable<Job> jobs = _datalayer.GetJobsByBuildServerId(buildserver.Id);
 
                 foreach (Job jobConfig in buildServerConfig.Jobs)
                 {
-                    Job job = dataLayer.GetJobByKey(jobConfig.Key);
+                    Job job = _datalayer.GetJobByKey(jobConfig.Key);
                     SourceServer sourceServer = null;
                     if (!string.IsNullOrEmpty(jobConfig.SourceServer))
-                        sourceServer = dataLayer.GetSourceServerByKey(jobConfig.SourceServer);
+                        sourceServer = _datalayer.GetSourceServerByKey(jobConfig.SourceServer);
 
                     if (job == null)
                     {
-                        job = dataLayer.SaveJob(new Job
+                        job = _datalayer.SaveJob(new Job
                         {
                             Key = jobConfig.Key,
                             BuildServerId = buildserver.Id,
@@ -144,15 +163,15 @@ namespace Wbtb.Core
 
                     foreach (Build build in builds)
                     {
-                        if (dataLayer.GetBuildByKey(job.Id, build.Identifier) != null)
+                        if (_datalayer.GetBuildByKey(job.Id, build.Identifier) != null)
                             continue;
 
                         build.JobId = job.Id;
                         build.EndedUtc = null; // force end to null, let daemons process them
-                        dataLayer.SaveBuild(build);
+                        _datalayer.SaveBuild(build);
 
                         // create process order for build
-                        dataLayer.SaveDaemonTask(new DaemonTask
+                        _datalayer.SaveDaemonTask(new DaemonTask
                         {
                             Stage = 0, // BuildEnd
                             Src = this.GetType().Name,
@@ -167,18 +186,16 @@ namespace Wbtb.Core
 
         public void InjectUsers()
         {
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-
             foreach (User userConfig in _config.Users)
             {
-                User user = dataLayer.GetUserByKey(userConfig.Key);
+                User user = _datalayer.GetUserByKey(userConfig.Key);
                 if (user == null && !string.IsNullOrEmpty(userConfig.KeyPrev))
                 {
-                    User previousCheck = dataLayer.GetUserByKey(userConfig.KeyPrev);
+                    User previousCheck = _datalayer.GetUserByKey(userConfig.KeyPrev);
                     if (previousCheck != null)
                     {
                         previousCheck.Key = userConfig.Key;
-                        dataLayer.SaveUser(previousCheck);
+                        _datalayer.SaveUser(previousCheck);
                         user = previousCheck;
 
                         Console.WriteLine($"BuildServer key changed from {userConfig.KeyPrev} to {userConfig.Key}");
@@ -187,7 +204,7 @@ namespace Wbtb.Core
 
                 if (user == null) 
                 {
-                    dataLayer.SaveUser(new User
+                    _datalayer.SaveUser(new User
                     {
                         Key = userConfig.Key,
                         Name = string.IsNullOrEmpty(userConfig.Name) ? userConfig.Key : userConfig.Name,
@@ -202,18 +219,16 @@ namespace Wbtb.Core
 
         public void InjectSourceServers()
         {
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-
             foreach (SourceServer sourceServerConfig in _config.SourceServers)
             {
-                SourceServer sourceServer = dataLayer.GetSourceServerByKey(sourceServerConfig.Key);
+                SourceServer sourceServer = _datalayer.GetSourceServerByKey(sourceServerConfig.Key);
                 if (sourceServer == null && !string.IsNullOrEmpty(sourceServerConfig.KeyPrev))
                 {
-                    SourceServer previousCheck = dataLayer.GetSourceServerByKey(sourceServerConfig.KeyPrev);
+                    SourceServer previousCheck = _datalayer.GetSourceServerByKey(sourceServerConfig.KeyPrev);
                     if (previousCheck != null)
                     {
                         previousCheck.Key = sourceServerConfig.Key;
-                        dataLayer.SaveSourceServer(previousCheck);
+                        _datalayer.SaveSourceServer(previousCheck);
                         sourceServer = previousCheck;
 
                         Console.WriteLine($"BuildServer key changed from {sourceServerConfig.KeyPrev} to {sourceServerConfig.Key}");
@@ -222,7 +237,7 @@ namespace Wbtb.Core
 
                 if (sourceServer == null) 
                 {
-                    dataLayer.SaveSourceServer(new SourceServer
+                    _datalayer.SaveSourceServer(new SourceServer
                     {
                         Key = sourceServerConfig.Key,
                         Name = string.IsNullOrEmpty(sourceServerConfig.Name) ? sourceServerConfig.Key : sourceServerConfig.Name,
