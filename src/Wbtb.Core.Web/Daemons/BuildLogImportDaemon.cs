@@ -147,9 +147,8 @@ namespace Wbtb.Core.Web.Core
                             dataWrite.SaveDaemonTask(task);
                             daemonProcesses.TaskDone(task);
                         }
-                    }
-
-                }
+                    } // using
+                } // foreach
             }
             finally 
             {

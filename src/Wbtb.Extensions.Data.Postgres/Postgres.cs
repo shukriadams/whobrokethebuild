@@ -31,7 +31,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         void IDisposable.Dispose() 
         {
-            if (this.Connection != null)
+            if (this.Connection != null) 
                 this.Connection.Dispose();
         }
 
@@ -46,12 +46,16 @@ namespace Wbtb.Extensions.Data.Postgres
 
         void IDataPlugin.TransactionCommit()
         {
-            if (_transaction == null)
-                throw new Exception("Transaction not set on this data object");
+            if (_transaction != null)
+            {
+                _transaction.Commit();
+                _transaction.Dispose();
+            }
 
-            _transaction.Commit();
-            _transaction.Dispose();
-            this.Connection.Dispose();
+            if (this.Connection != null)
+            {
+                this.Connection.Dispose();
+            }
 
             _transaction = null;
             this.Connection = null;
@@ -59,12 +63,16 @@ namespace Wbtb.Extensions.Data.Postgres
 
         void IDataPlugin.TransactionCancel()
         {
-            if (_transaction == null)
-                throw new Exception("Transaction not set on this data object");
+            if (_transaction != null)
+            {
+                _transaction.Rollback();
+                _transaction.Dispose();
+            }
 
-            _transaction.Rollback();
-            _transaction.Dispose();
-            this.Connection.Dispose();
+            if (this.Connection != null)
+            {
+                this.Connection.Dispose();
+            }
 
             _transaction = null;
             this.Connection = null;
