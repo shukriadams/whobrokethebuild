@@ -69,6 +69,7 @@ namespace Wbtb.Core.Common
 
             return resolvedTyped;
         }
+
         public object GetDistinct(PluginConfig pluginConfig, bool forceConcrete = true)
         {
             if (pluginConfig == null)

@@ -248,7 +248,7 @@ namespace Wbtb.Core.Common
             IList<object> instances = new List<object>();
             IEnumerable<Registration> registrations = _register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true));
             if (!registrations.Any())
-                throw new Exception($"No implementations registered for service {TypeHelper.Name(service)}.");
+                return instances;
 
             foreach (Registration registration in registrations) 
                 instances.Add(ResolveInternal(registration, service));
@@ -330,7 +330,6 @@ namespace Wbtb.Core.Common
         /// <returns></returns>
         private static CompiledConstructor BuildConstructor(ConstructorInfo ctor)
         {
-            Type type = ctor.DeclaringType;
             ParameterInfo[] ctorParameters = ctor.GetParameters();
 
             //create a single param of type object[]

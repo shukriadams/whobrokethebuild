@@ -46,6 +46,9 @@ namespace Wbtb.Extensions.Data.Postgres
 
         void IDataPlugin.TransactionCommit()
         {
+            if (_transaction == null)
+                throw new Exception("Cannot commit - transaction not set on this data object");
+
             if (_transaction != null)
             {
                 _transaction.Commit();
@@ -63,6 +66,9 @@ namespace Wbtb.Extensions.Data.Postgres
 
         void IDataPlugin.TransactionCancel()
         {
+            if (_transaction == null)
+                throw new Exception("Cannot cancel - transaction not set on this data object");
+
             if (_transaction != null)
             {
                 _transaction.Rollback();
@@ -374,10 +380,8 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             using (NpgsqlCommand cmd = new NpgsqlCommand("SELECT * from job", conWrap.Connection()))
-            {
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new JobConvert(_config).ToCommonList(reader);
-            }
+            using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                return new JobConvert(_config).ToCommonList(reader);
         }
 
         bool IDataPlugin.DeleteJob(Job job)

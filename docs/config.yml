@@ -79,14 +79,12 @@ BuildServers:
         SourceServer: myperforce
         Config: 
         -   RemoteKey: Project_Skunkwords
-        -   GameRoot: //mydepot/main/core/PSD/Game
         LogParsers: 
         -   UnrealParser
         -   CppParser
         -   JenkinsSelfFailing
         -   BasicErrors
         PostProcessors:
-        -   Blamer
         -   JenkinsBlamer
         Message:
         -   Plugin: myslack

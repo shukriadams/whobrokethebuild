@@ -62,19 +62,6 @@ namespace Wbtb.Core.Web
                     string disableSocketsLook = Environment.GetEnvironmentVariable("WBTB_ENABLE_SOCKETS");
                     bool disableSockets = disableSocketsLook == "0" || disableSocketsLook == "false" || config.EnabledSockets == false;
 
-                    //string logText = System.IO.File.ReadAllText("D:\\log.txt");
-                    //string regex = @"<p4-changes........>\n*Change (\d+) on.*?\n*<p4-changes........>";
-                    //string hash = Sha256.FromString(regex + logText);
-                    //Match match = new Regex(regex, RegexOptions.Singleline & RegexOptions.Compiled).Match(logText);
-
-                    // 4872
-                    PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-                    IPostProcessorPlugin blamer = pluginProvider.GetByKey("Blamer") as IPostProcessorPlugin;
-                    IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
-                    Build build = data.GetBuildById("66");
-                    if (build != null)
-                        blamer.Process(build);
-
                     using (IServiceScope scope = serviceProvider.CreateScope())
                     {
                         if (disableDaemons)

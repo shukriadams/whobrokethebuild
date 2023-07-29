@@ -22,13 +22,17 @@ namespace Wbtb.Extensions.Data.Postgres
             if (_parent.Connection != null)
                 return _parent.Connection;
 
+            if (_ephemeralConnection != null)
+                return _ephemeralConnection;
+
             _ephemeralConnection = PostgresCommon.GetConnection(_parent.ContextPluginConfig);
             return _ephemeralConnection;
+            
         }
 
         public void Dispose() 
         {
-            if (_ephemeralConnection != null)
+            if (_ephemeralConnection != null) 
                 _ephemeralConnection.Dispose();
         }
     }
