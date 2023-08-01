@@ -587,7 +587,6 @@ namespace Madscience.Perforce
         {
             string ticket = GetTicket(username, password, host, trustFingerPrint);
             IList<string> revisions = new List<string>();
-            bool limitReached = false;
 
             string command = $"p4 -u {username} -p {host} -P {ticket} changes {path}@{startRevision},@{endRevision} ";
             ShellResult result = Run(command);
@@ -602,8 +601,14 @@ namespace Madscience.Perforce
                         continue;
 
                     string revisionFound = Find(line, @"change (\d*?) ", RegexOptions.IgnoreCase);
+                    
+                    // don't include tail-end revision
                     revisions.Add(revisionFound);
                 }
+
+            // remove the range revisions, we want only those between
+            revisions.Remove(startRevision.ToString());
+            revisions.Remove(endRevision.ToString());
 
             return revisions;
         }

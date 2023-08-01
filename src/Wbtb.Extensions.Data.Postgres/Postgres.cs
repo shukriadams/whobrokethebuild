@@ -16,6 +16,12 @@ namespace Wbtb.Extensions.Data.Postgres
 
         private NpgsqlTransaction _transaction;
 
+        string test = "";
+
+        public string id = Guid.NewGuid().ToString();
+
+        public string PubString = "";
+
         #endregion
 
         #region CTORS
@@ -46,8 +52,11 @@ namespace Wbtb.Extensions.Data.Postgres
 
         void IDataPlugin.TransactionCommit()
         {
+            // getting bizarre cross-thread collisions on same instance
             if (_transaction == null)
-                throw new Exception("Cannot commit - transaction not set on this data object");
+                return;
+
+                // throw new Exception("Cannot commit - transaction not set on this data object");
 
             if (_transaction != null)
             {
@@ -62,12 +71,15 @@ namespace Wbtb.Extensions.Data.Postgres
 
             _transaction = null;
             this.Connection = null;
+            this.test += $"committed | {this.id} | {new System.Diagnostics.StackTrace(true)}";
         }
 
         void IDataPlugin.TransactionCancel()
         {
+            // getting bizarre cross-thread collisions on same instance
             if (_transaction == null)
-                throw new Exception("Cannot cancel - transaction not set on this data object");
+                return;
+                //throw new Exception("Cannot cancel - transaction not set on this data object");
 
             if (_transaction != null)
             {
@@ -82,6 +94,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
             _transaction = null;
             this.Connection = null;
+            this.test += $"cancelled | {this.id} | {new System.Diagnostics.StackTrace(true)}";
         }
 
         PluginInitResult IPlugin.InitializePlugin()

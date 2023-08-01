@@ -12,10 +12,9 @@
     width: var(--bootstrip-card-strokeWidth);
     flex-grow: inherit;
     flex-basis: inherit;
-    height: 100%;
     margin-right: 32px;
     position: absolute;
-    height: 54px;
+    height: 9999px; // overset, covers varieabl height of rows, overflow hdden of row prevents overshoot
     width: 10px;
     left: -8px;
     top: -4px;

@@ -157,9 +157,12 @@ namespace Wbtb.Core.Web.Controllers
             model.Stats = dataLayer.GetJobStats(model.Job);
             model.BaseUrl = $"/job/{jobid}";
             model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByJob(jobid, pageIndex, config.StandardPageSize, false));
-            
-            foreach(ViewBuild build in model.Builds.Items)
+
+            foreach (ViewBuild build in model.Builds.Items)
+            {
                 build.IncidentReport = dataLayer.GetIncidentReportByMutation(build.Id);
+                build.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(build.Id)).OrderByDescending(bi => bi.RevisionCode);
+            }
 
             return View(model);
         }

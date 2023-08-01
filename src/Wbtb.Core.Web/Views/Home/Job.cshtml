@@ -167,7 +167,7 @@
                         @foreach(ViewBuildInvolvement involvement in build.BuildInvolvements)
                         {
                             <li>
-                                @involvement.RevisionCode - by 
+                                @involvement.RevisionCode -
                                 @ViewHelpers.BuildInvolvementUserLink(involvement)
                                 @if (involvement.Revision != null)
                                 { 
