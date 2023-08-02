@@ -87,7 +87,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             return $"buildStatusAlert_slack_{slackChannelId}_job{jobId}_incident{incidentBuildId}";
         }
 
-        string IMessagingPlugin.AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
+        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
@@ -95,16 +95,16 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
 
             MessageConfiguration targetSlackConfig = null;
 
-            if (!string.IsNullOrEmpty(alertHandler.User))
+            if (!string.IsNullOrEmpty(user))
             {
-                User user = _config.Users.Single(u => u.Key == alertHandler.User);
-                targetSlackConfig = user.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                User userData = _config.Users.Single(u => u.Key == user);
+                targetSlackConfig = userData.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
-            if (!string.IsNullOrEmpty(alertHandler.Group))
+            if (!string.IsNullOrEmpty(group))
             {
-                Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
-                targetSlackConfig = group.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                Group groupData = _config.Groups.Single(u => u.Key == group);
+                targetSlackConfig = groupData.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
             if (targetSlackConfig == null)
@@ -195,23 +195,23 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             }
         }
 
-        string IMessagingPlugin.AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
+        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild, bool force)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
             NameValueCollection data = new NameValueCollection();
             MessageConfiguration targetSlackConfig = null;
 
-            if (!string.IsNullOrEmpty(alertHandler.User))
+            if (!string.IsNullOrEmpty(user))
             {
-                User user = _config.Users.Single(u => u.Key == alertHandler.User);
-                targetSlackConfig = user.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                User userData = _config.Users.Single(u => u.Key == user);
+                targetSlackConfig = userData.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
-            if (!string.IsNullOrEmpty(alertHandler.Group))
+            if (!string.IsNullOrEmpty(group))
             {
-                Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
-                targetSlackConfig = group.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                Group groupData = _config.Groups.Single(u => u.Key == group);
+                targetSlackConfig = groupData.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
             if (targetSlackConfig == null)

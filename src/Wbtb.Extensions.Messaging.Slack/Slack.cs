@@ -99,24 +99,24 @@ namespace Wbtb.Extensions.Messaging.Slack
         }
 
 
-        string IMessagingPlugin.AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
+        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
             NameValueCollection data = new NameValueCollection();
 
             MessageConfiguration targetSlackConfig = null;
-
-            if (!string.IsNullOrEmpty(alertHandler.User))
+             
+            if (!string.IsNullOrEmpty(user))
             {
-                User user = _config.Users.Single(u => u.Key == alertHandler.User);
-                targetSlackConfig = user.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                User userData = _config.Users.Single(u => u.Key == user);
+                targetSlackConfig = userData.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
-            if (!string.IsNullOrEmpty(alertHandler.Group))
+            if (!string.IsNullOrEmpty(group))
             {
-                Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
-                targetSlackConfig = group.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                Group groupData = _config.Groups.Single(u => u.Key == group);
+                targetSlackConfig = groupData.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
             if (targetSlackConfig == null)
@@ -144,18 +144,56 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             // check if alert has already been sent
             string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
-            if (_cache.Get(this, key) != null)
+            if (!force && _cache.Get(this, key) != null)
                 return null;
 
             IncidentReport incidentReport = dataLayer.GetIncidentReportByMutation(incidentBuild.Id);
-            if (incidentReport == null)
-                return $"Incident report not found for mutationid {incidentBuild.Id}";
+            string summary = string.Empty;
+            string description = string.Empty;
+
+            if (incidentReport != null)
+            {
+                summary = incidentReport.Summary;
+                description = incidentReport.Description;
+            }
+            else 
+            {
+                summary = $" Broke at build {incidentBuild.Identifier}";
+                description = "No error cause determined. Please check build log for details.";
+
+                // in absence of proof of break, present all existing log parse results
+                IEnumerable<BuildLogParseResult> logParseResults = dataLayer.GetBuildLogParseResultsByBuildId(incidentBuild.Id);
+                if (logParseResults.Any()) 
+                {
+                    description = string.Empty;
+
+                    foreach (BuildLogParseResult result in logParseResults) 
+                    {
+                        ILogParserPlugin logparser = _pluginProvider.GetByKey(result.LogParserPlugin) as ILogParserPlugin;
+                        if (logparser == null)
+                        {
+                            description += result.LogParserPlugin;
+                        }
+                        else 
+                        {
+                            description += logparser.ContextPluginConfig.Key;
+                        }
+
+                        description += "\n---------------------------------------\n";
+                        description += result.ParsedContent;
+                    }
+                }
+            }
+
+            int maxAlertLength = 600; // move this to config
+            if (description.Length > maxAlertLength)
+                description = $"{description.Substring(0, maxAlertLength)}\n...\n(truncated, click link for more)";
 
             dynamic attachment = new JObject();
-            attachment.title = $"{job.Name} - {incidentReport.Summary}";
+            attachment.title = $"{job.Name} - {summary}";
             attachment.fallback = " ";
             attachment.color = "#D92424";
-            attachment.text = $"```{incidentReport.Description}```";
+            attachment.text = $"```{description}```";
             attachment.title_link = _urlHelper.Build(incidentBuild);
 
             var attachments = new JArray(1);
@@ -197,23 +235,23 @@ namespace Wbtb.Extensions.Messaging.Slack
             }
         }
 
-        string IMessagingPlugin.AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
+        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild, bool force)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
             NameValueCollection data = new NameValueCollection();
             MessageConfiguration targetSlackConfig = null;
 
-            if (!string.IsNullOrEmpty(alertHandler.User))
+            if (!string.IsNullOrEmpty(user))
             {
-                User user = _config.Users.Single(u => u.Key == alertHandler.User);
-                targetSlackConfig = user.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                User userData = _config.Users.Single(u => u.Key == user);
+                targetSlackConfig = userData.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
-            if (!string.IsNullOrEmpty(alertHandler.Group))
+            if (!string.IsNullOrEmpty(group))
             {
-                Group group = _config.Groups.Single(u => u.Key == alertHandler.Group);
-                targetSlackConfig = group.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
+                Group groupData = _config.Groups.Single(u => u.Key == group);
+                targetSlackConfig = groupData.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
             }
 
             if (targetSlackConfig == null)
@@ -246,12 +284,12 @@ namespace Wbtb.Extensions.Messaging.Slack
             StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
 
             // no alert for this build was sent, ignore it
-            if (storeItem == null)
+            if (!force && storeItem == null)
                 return null;
 
             dynamic storeItemPayload = Newtonsoft.Json.JsonConvert.DeserializeObject(storeItem.Content);
             // build already marked as passing
-            if ((string)storeItemPayload.status == fixingBuild.Status.ToString())
+            if (!force && (string)storeItemPayload.status == fixingBuild.Status.ToString())
                 return null;
 
             string message = $"Build fixed by #{fixingBuild.Identifier}, originally broken by #{incidentBuild.Identifier}.";

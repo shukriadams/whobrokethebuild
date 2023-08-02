@@ -28,27 +28,31 @@
             });
         }
 
-        string IMessagingPlugin.AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
+        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
                 FunctionName = nameof(IMessagingPlugin.AlertBreaking),
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "alertHandler", Value = alertHandler },
-                    new PluginFunctionParameter { Name = "incidentBuild", Value = incidentBuild }
+                    new PluginFunctionParameter { Name = "user", Value = user },
+                    new PluginFunctionParameter { Name = "group", Value = group },
+                    new PluginFunctionParameter { Name = "incidentBuild", Value = incidentBuild },
+                    new PluginFunctionParameter { Name = "force", Value = force },
                 }
             });
         }
 
-        string IMessagingPlugin.AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
+        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild, bool force)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
                 FunctionName = nameof(IMessagingPlugin.AlertPassing),
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "alertHandler", Value = alertHandler },
+                    new PluginFunctionParameter { Name = "user", Value = user },
+                    new PluginFunctionParameter { Name = "group", Value = group },
                     new PluginFunctionParameter { Name = "incidentBuild", Value = incidentBuild },
-                    new PluginFunctionParameter { Name = "fixingBuild", Value = fixingBuild }
+                    new PluginFunctionParameter { Name = "fixingBuild", Value = fixingBuild },
+                    new PluginFunctionParameter { Name = "force", Value = force }
                 }
             });
         }

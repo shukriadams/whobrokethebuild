@@ -14,12 +14,12 @@ namespace Wbtb.Extensions.Messaging.Sandbox
             return new ReachAttemptResult { Reachable = true };
         }
 
-        string IMessagingPlugin.AlertBreaking(MessageHandler alertHandler, Build incidentBuild)
+        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
         {
             return "alerted";
         }
 
-        string IMessagingPlugin.AlertPassing(MessageHandler alertHandler, Build incidentBuild, Build fixingBuild)
+        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild, bool force)
         {
             return "alerted";
         }
