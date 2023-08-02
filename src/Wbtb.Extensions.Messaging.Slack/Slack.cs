@@ -163,24 +163,33 @@ namespace Wbtb.Extensions.Messaging.Slack
 
                 // in absence of proof of break, present all existing log parse results
                 IEnumerable<BuildLogParseResult> logParseResults = dataLayer.GetBuildLogParseResultsByBuildId(incidentBuild.Id);
-                if (logParseResults.Any()) 
+                if (logParseResults.Where(r => !string.IsNullOrEmpty(r.ParsedContent)).Any())
                 {
-                    description = string.Empty;
+                    description = "No error cause, log parse returned :\n";
 
-                    foreach (BuildLogParseResult result in logParseResults) 
+                    foreach (BuildLogParseResult result in logParseResults.Where(r => !string.IsNullOrEmpty(r.ParsedContent))) 
                     {
+                        description += "\n";
+
                         ILogParserPlugin logparser = _pluginProvider.GetByKey(result.LogParserPlugin) as ILogParserPlugin;
                         if (logparser == null)
-                        {
                             description += result.LogParserPlugin;
-                        }
                         else 
-                        {
                             description += logparser.ContextPluginConfig.Key;
-                        }
 
                         description += "\n---------------------------------------\n";
-                        description += result.ParsedContent;
+                        ParsedBuildLogText parsedText = BuildLogTextParser.Parse(result.ParsedContent);
+                        if (parsedText != null) 
+                        {
+                            foreach(var item in parsedText.Items) 
+                            {
+                                foreach (var item2 in item.Items)
+                                    description += $"{item2.Content} ";
+
+                                description += "\n";
+                            }
+                        }
+
                     }
                 }
             }
