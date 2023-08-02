@@ -116,7 +116,7 @@ namespace Wbtb.Core.Web
                         foreach (MessageHandler alert in job.Message)
                         {
                             IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                            messagePlugin.AlertPassing(alert.User, alert.Group, lastBreakingBuild, deltaBuild, false);
+                            messagePlugin.AlertPassing(alert.User, alert.Group, lastBreakingBuild, deltaBuild);
                         }
                     }
 

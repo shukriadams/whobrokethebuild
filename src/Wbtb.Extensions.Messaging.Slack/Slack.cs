@@ -244,7 +244,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             }
         }
 
-        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild, bool force)
+        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
@@ -293,14 +293,11 @@ namespace Wbtb.Extensions.Messaging.Slack
             StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
 
             // no alert for this build was sent, ignore it
-            if (!force && storeItem == null)
-                return null;
+            if (storeItem == null)
+                return "no fail alert to update";
 
             dynamic storeItemPayload = Newtonsoft.Json.JsonConvert.DeserializeObject(storeItem.Content);
-            // build already marked as passing
-            if (!force && (string)storeItemPayload.status == fixingBuild.Status.ToString())
-                return null;
-
+ 
             string message = $"Build fixed by #{fixingBuild.Identifier}, originally broken by #{incidentBuild.Identifier}.";
             dynamic attachment = new JObject();
             attachment.title = $"{job.Name} is working again";
@@ -338,7 +335,7 @@ namespace Wbtb.Extensions.Messaging.Slack
                 // log error
                 // mark message sent as failed, somwhere
                 Console.WriteLine(response);
-                return null;
+                return response;
             }
         }
 

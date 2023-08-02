@@ -3,7 +3,7 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
-    internal class IMessaging_AlertBreaking : ICommand
+    internal class IMessaging_AlertPassing : ICommand
     {
         public string Describe()
         {
@@ -64,7 +64,9 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            string result = messagingPlugin.AlertBreaking(userKey, groupKey, build, true);
+            // mark build as fixing itself, it's testing only
+            string result = messagingPlugin.AlertPassing(userKey, groupKey, build, build); 
+            
 
             Console.Write($"Message test executed, result : {result}");
         }

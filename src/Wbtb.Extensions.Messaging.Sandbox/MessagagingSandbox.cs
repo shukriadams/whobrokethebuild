@@ -19,7 +19,7 @@ namespace Wbtb.Extensions.Messaging.Sandbox
             return "alerted";
         }
 
-        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild, bool force)
+        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild)
         {
             return "alerted";
         }

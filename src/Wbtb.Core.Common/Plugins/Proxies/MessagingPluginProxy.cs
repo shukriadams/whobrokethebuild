@@ -42,7 +42,7 @@
             });
         }
 
-        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild, bool force)
+        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
@@ -51,8 +51,7 @@
                     new PluginFunctionParameter { Name = "user", Value = user },
                     new PluginFunctionParameter { Name = "group", Value = group },
                     new PluginFunctionParameter { Name = "incidentBuild", Value = incidentBuild },
-                    new PluginFunctionParameter { Name = "fixingBuild", Value = fixingBuild },
-                    new PluginFunctionParameter { Name = "force", Value = force }
+                    new PluginFunctionParameter { Name = "fixingBuild", Value = fixingBuild }
                 }
             });
         }

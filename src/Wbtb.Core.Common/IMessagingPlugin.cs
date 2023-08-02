@@ -28,7 +28,7 @@
         /// <param name="fixingBuild"></param>
         /// <param name="force">If true, alert will be sent even if it has already been handled.</param>
         /// <returns></returns>
-        string AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild, bool force);
+        string AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild);
 
         void ValidateAlertConfig(MessageConfiguration alertConfig);
     }

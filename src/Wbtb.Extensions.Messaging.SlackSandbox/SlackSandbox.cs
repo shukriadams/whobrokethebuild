@@ -195,7 +195,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             }
         }
 
-        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild, bool force)
+        string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 
