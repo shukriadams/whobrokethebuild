@@ -86,6 +86,10 @@ namespace Wbtb.Core.Web.Controllers
 
             IncidentPageModel model = new IncidentPageModel();
             model.IncidentBuild = dataLayer.GetBuildById(incidentId);
+            
+            if (model.IncidentBuild != null)
+                model.FixingBuild = dataLayer.GetFirstPassingBuildAfterBuild(model.IncidentBuild);
+
             if (model.IncidentBuild == null)
                 return Responses.NotFoundError($"build {incidentId} does not exist");
 

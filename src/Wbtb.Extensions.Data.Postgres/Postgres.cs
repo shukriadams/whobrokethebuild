@@ -1236,7 +1236,9 @@ namespace Wbtb.Extensions.Data.Postgres
                 FROM 
                     build
                 WHERE 
-                    id > @referencebuildid
+                    startedutc > (
+                        SELECT startedutc FROM build WHERE id = @referencebuildid
+                    )
                     AND jobid = @jobid
                     AND status = @build_passing
                 ORDER BY 

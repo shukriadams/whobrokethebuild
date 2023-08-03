@@ -11,6 +11,14 @@
     <div>
         Breaking build : @ViewHelpers.BuildLink(Model.IncidentBuild)
     </div>
+
+    @if (Model.FixingBuild != null)
+    {
+        <div>
+            Fixed by : @ViewHelpers.BuildLink(Model.FixingBuild)
+        </div>
+    }
+
     <div>
         Job : @ViewHelpers.JobLink(Model.Job)
     </div>
@@ -22,6 +30,7 @@
             build broken @Model.IncidentBuild.EndedUtc.Ago()
         </div>        
     }
+
 
     @if (Model.InvolvedBuilds.Any())
     {
