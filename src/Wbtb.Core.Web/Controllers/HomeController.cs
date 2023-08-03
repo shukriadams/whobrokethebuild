@@ -162,6 +162,8 @@ namespace Wbtb.Core.Web.Controllers
             {
                 build.IncidentReport = dataLayer.GetIncidentReportByMutation(build.Id);
                 build.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(build.Id)).OrderByDescending(bi => bi.RevisionCode);
+                if (build.EndedUtc.HasValue)
+                    build.Duration = build.EndedUtc.Value - build.StartedUtc;
             }
 
             return View(model);

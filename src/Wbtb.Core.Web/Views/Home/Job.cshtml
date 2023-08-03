@@ -161,6 +161,12 @@
                         <div>
                             @build.VisibleDateUtc.ToHumanString() <span class="quiet">@build.VisibleDateUtc.Ago() ago</span>
                         </div>
+                        @if (build.Duration.HasValue)
+                        {
+                            <div class="quiet">
+                                Took @build.Duration.ToHumanString()
+                            </div>
+                        }
                     </x-list-cell>    
 
                     <x-list-cell>
