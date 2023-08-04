@@ -164,7 +164,7 @@ namespace Madscience.Perforce
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        private static ShellResult Run(string command)
+        private static ShellResult Run(string command, int? maxLines = null)
         {
             Process cmd = new Process();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -196,8 +196,16 @@ namespace Madscience.Perforce
             while (!cmd.StandardOutput.EndOfStream)
             {
                 string line = cmd.StandardOutput.ReadLine();
+                // arb number, emergency block, we don't care about exceptionally
+                if (maxLines.HasValue && stdOut.Count > maxLines.Value)
+                {
+                    cmd.Close();
+                    break;
+                }
+
                 stdOut.Add(line);
             }
+            
 
             while (!cmd.StandardError.EndOfStream)
             {
@@ -287,7 +295,7 @@ namespace Madscience.Perforce
             string ticket =  GetTicket(username, password, host, trustFingerPrint);
             string command = $"p4 -u {username} -p {host} -P {ticket} describe -s {revision}";
 
-            ShellResult result = Run(command);
+            ShellResult result = Run(command, 100);
 
             if (result.ExitCode != 0 || result.StdErr.Any())
             { 
