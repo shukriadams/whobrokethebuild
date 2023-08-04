@@ -178,7 +178,7 @@ namespace Wbtb.Core
                             BuildId = build.Id
                         });
 
-                        Console.WriteLine($"Imorted build {build.Identifier} under job {job.Name}");
+                        Console.WriteLine($"Imported build {build.Identifier} under job {job.Name}");
                     }
                 }
             }
