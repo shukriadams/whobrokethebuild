@@ -50,11 +50,8 @@ COPY ./Wbtb.Extensions.LogParsing.Cpp/bin/Release/net6.0/. /var/wbtb/Wbtb.Extens
 COPY ./Wbtb.Extensions.LogParsing.BasicErrors/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.BasicErrors
 COPY ./Wbtb.Extensions.LogParsing.JenkinsSelfFailing/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 COPY ./Wbtb.Extensions.LogParsing.Unreal/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.LogParsing.Unreal
-
 COPY ./Wbtb.Extensions.PostProcessing.AcmeGamesBlamer/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 COPY ./Wbtb.Extensions.PostProcessing.JenkinsSelfBlame/bin/Release/net6.0/. /var/wbtb/Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
-
-Wbtb.Extensions.LogParsing.Unreal
 
 RUN chmod +x /usr/bin/wbtb 
 
