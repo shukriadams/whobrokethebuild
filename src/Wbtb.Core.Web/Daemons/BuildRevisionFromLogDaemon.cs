@@ -91,7 +91,7 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.RevisionFromLog).Take(_config.MaxThreads);
-            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
+            DaemonTaskProcesses daemonProcesses = _di.Resolve<DaemonTaskProcesses>();
 
             tasks.AsParallel().ForAll(delegate (DaemonTask task)
             {
@@ -111,19 +111,19 @@ namespace Wbtb.Core.Web
 
                         processKey = $"{this.GetType().Name}_{task.Id}";
 
-                        daemonProcesses.AddActive(processKey, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.MarkActive(processKey, $"Task : {task.Id}, Build {build.Id}");
 
                         if (!reach.Reachable)
                         {
                             _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            daemonProcesses.TaskBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            daemonProcesses.MarkBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                             return;
                         }
 
                         IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.RevisionFromLog);
                         if (blocking.Any())
                         {
-                            daemonProcesses.TaskBlocked(task, this, blocking);
+                            daemonProcesses.MarkBlocked(task, this, blocking);
                             return;
                         }
 
@@ -131,7 +131,7 @@ namespace Wbtb.Core.Web
                         if (!reach.Reachable)
                         {
                             _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            daemonProcesses.TaskBlocked(task, $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            daemonProcesses.MarkBlocked(task, $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                             return;
                         }
 
@@ -153,7 +153,7 @@ namespace Wbtb.Core.Web
                             task.HasPassed = true;
                             dataWrite.SaveDaemonTask(task);
                             dataWrite.TransactionCommit();
-                            daemonProcesses.TaskDone(task);
+                            daemonProcesses.MarkDone(task);
                             return;
                         }
 
@@ -165,7 +165,7 @@ namespace Wbtb.Core.Web
                             task.HasPassed = false;
                             dataWrite.SaveDaemonTask(task);
                             dataWrite.TransactionCommit();
-                            daemonProcesses.TaskDone(task);
+                            daemonProcesses.MarkDone(task);
                             return;
                         }
 
@@ -237,7 +237,7 @@ namespace Wbtb.Core.Web
                             task.HasPassed = true;
                             dataWrite.SaveDaemonTask(task);
                             dataWrite.TransactionCommit();
-                            daemonProcesses.TaskDone(task);
+                            daemonProcesses.MarkDone(task);
                         }
                     }
                     catch (WriteCollisionException ex)
@@ -253,7 +253,7 @@ namespace Wbtb.Core.Web
                         task.HasPassed = false;
                         task.Result = ex.ToString();
                         dataWrite.SaveDaemonTask(task);
-                        daemonProcesses.TaskDone(task);
+                        daemonProcesses.MarkDone(task);
                     }
                     finally
                     {

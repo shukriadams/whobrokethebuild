@@ -61,89 +61,86 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.RevisionFromBuildServer);
-            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
+            DaemonTaskProcesses daemonProcesses = _di.Resolve<DaemonTaskProcesses>();
 
-            try
+            foreach (DaemonTask task in tasks)
             {
-                foreach (DaemonTask task in tasks)
+                using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>()) 
                 {
-                    using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>()) 
+                    try
                     {
-                        try
+                        Build build = dataRead.GetBuildById(task.BuildId);
+                        Job job = dataRead.GetJobById(build.JobId);
+                        BuildServer buildServer = dataRead.GetBuildServerByKey(job.BuildServer);
+                        IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+                        ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+
+                        daemonProcesses.MarkActive(task, $"Task : {task.Id}, Build {build.Id}");
+
+                        if (!reach.Reachable)
                         {
-                            Build build = dataRead.GetBuildById(task.BuildId);
-                            Job job = dataRead.GetJobById(build.JobId);
-                            BuildServer buildServer = dataRead.GetBuildServerByKey(job.BuildServer);
-                            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                            ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+                            _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            daemonProcesses.MarkBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            continue;
+                        }
 
-                            daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+                        // this daemon's tasks are not blocked by preceeding tasks
 
-                            if (!reach.Reachable)
+                        dataWrite.TransactionStart();
+
+                        BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
+                        foreach (string revisionCode in result.Revisions)
+                        {
+                            string biID = dataWrite.SaveBuildInvolement(new BuildInvolvement
                             {
-                                _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                                daemonProcesses.TaskBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                                continue;
-                            }
+                                BuildId = build.Id,
+                                RevisionCode = revisionCode
+                            }).Id;
 
-                            // this daemon's tasks are not blocked by preceeding tasks
-
-                            dataWrite.TransactionStart();
-
-                            BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
-                            foreach (string revisionCode in result.Revisions)
+                            dataWrite.SaveDaemonTask(new DaemonTask
                             {
-                                string biID = dataWrite.SaveBuildInvolement(new BuildInvolvement
-                                {
-                                    BuildId = build.Id,
-                                    RevisionCode = revisionCode
-                                }).Id;
+                                Stage = (int)DaemonTaskTypes.RevisionLink,
+                                BuildId = build.Id,
+                                BuildInvolvementId = biID,
+                                Src = this.GetType().Name
+                            });
 
-                                dataWrite.SaveDaemonTask(new DaemonTask
-                                {
-                                    Stage = (int)DaemonTaskTypes.RevisionLink,
-                                    BuildId = build.Id,
-                                    BuildInvolvementId = biID,
-                                    Src = this.GetType().Name
-                                });
-
-                                dataWrite.SaveDaemonTask(new DaemonTask
-                                {
-                                    Stage = (int)DaemonTaskTypes.UserLink,
-                                    BuildId = build.Id,
-                                    BuildInvolvementId = biID,
-                                    Src = this.GetType().Name
-                                });
-                            }
-
-                            task.HasPassed = result.Success;
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.Result = result.Result;
-                            dataWrite.SaveDaemonTask(task);
-                            dataWrite.TransactionCommit();
-                            daemonProcesses.TaskDone(task);
+                            dataWrite.SaveDaemonTask(new DaemonTask
+                            {
+                                Stage = (int)DaemonTaskTypes.UserLink,
+                                BuildId = build.Id,
+                                BuildInvolvementId = biID,
+                                Src = this.GetType().Name
+                            });
                         }
-                        catch (WriteCollisionException ex)
-                        {
-                            dataWrite.TransactionCancel();
-                            _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
-                        }
-                        catch (Exception ex)
-                        {
-                            dataWrite.TransactionCancel();
 
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.HasPassed = false;
-                            task.Result = ex.ToString();
-                            dataWrite.SaveDaemonTask(task);
-                            daemonProcesses.TaskDone(task);
-                        }
+                        task.HasPassed = result.Success;
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.Result = result.Result;
+                        dataWrite.SaveDaemonTask(task);
+                        dataWrite.TransactionCommit();
+                        daemonProcesses.MarkDone(task);
+                    }
+                    catch (WriteCollisionException ex)
+                    {
+                        dataWrite.TransactionCancel();
+                        _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
+                    }
+                    catch (Exception ex)
+                    {
+                        dataWrite.TransactionCancel();
+
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = false;
+                        task.Result = ex.ToString();
+                        dataWrite.SaveDaemonTask(task);
+                        daemonProcesses.MarkDone(task);
+                    }
+                    finally
+                    {
+                        daemonProcesses.ClearActive(task);
                     }
                 }
-            }
-            finally
-            {
-                daemonProcesses.ClearActive(this);
             }
         }
         #endregion

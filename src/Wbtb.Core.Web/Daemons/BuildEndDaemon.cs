@@ -54,100 +54,96 @@ namespace Wbtb.Core.Web
         private void Work()
         {
             IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
+            DaemonTaskProcesses daemonProcesses = _di.Resolve<DaemonTaskProcesses>();
             IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.BuildEnd);
 
-            try
+            foreach (DaemonTask task in tasks)
             {
-                foreach (DaemonTask task in tasks)
+                using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>())
                 {
-                    using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>())
+                    try
                     {
-                        try
+                        Build build = dataRead.GetBuildById(task.BuildId);
+                        Job job = dataRead.GetJobById(build.JobId);
+                        BuildServer buildserver = dataRead.GetBuildServerById(job.BuildServerId);
+                        IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
+
+                        daemonProcesses.MarkActive(task, $"Task : {task.Id}, Build {build.Id}");
+
+                        build = buildServerPlugin.TryUpdateBuild(build);
+
+                        // build still not done, contine and wait. Todo : Add forced time out on build here.
+                        if (!build.EndedUtc.HasValue)
                         {
+                            daemonProcesses.MarkBlocked(task, "Build not complete yet");
+                            continue;
+                        }
 
-                            Build build = dataRead.GetBuildById(task.BuildId);
-                            Job job = dataRead.GetJobById(build.JobId);
-                            BuildServer buildserver = dataRead.GetBuildServerById(job.BuildServerId);
-                            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
+                        dataWrite.TransactionStart();
+                        dataWrite.SaveBuild(build);
 
-                            daemonProcesses.AddActive(this, $"Task : {task.Id}, Build {build.Id}");
+                        task.HasPassed = true;
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        dataWrite.SaveDaemonTask(task);
+                        daemonProcesses.MarkDone(task);
 
-                            build = buildServerPlugin.TryUpdateBuild(build);
+                        // create tasks for next stage
+                        dataWrite.SaveDaemonTask(new DaemonTask
+                        {
+                            BuildId = build.Id,
+                            Src = this.GetType().Name,
+                            Stage = (int)DaemonTaskTypes.LogImport,
+                        });
 
-                            // build still not done, contine and wait. Todo : Add forced time out on build here.
-                            if (!build.EndedUtc.HasValue)
+                        if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
+                            dataWrite.SaveDaemonTask(new DaemonTask
                             {
-                                daemonProcesses.TaskBlocked(task, "Build not complete yet");
-                                continue;
-                            }
+                                Stage = (int)DaemonTaskTypes.RevisionFromBuildServer,
+                                Src = this.GetType().Name,
+                                BuildId = build.Id
+                            });
 
-                            dataWrite.TransactionStart();
-                            dataWrite.SaveBuild(build);
-
-                            task.HasPassed = true;
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            dataWrite.SaveDaemonTask(task);
-                            daemonProcesses.TaskDone(task);
-
-                            // create tasks for next stage
+                        if (build.Status == BuildStatus.Failed)
+                        {
                             dataWrite.SaveDaemonTask(new DaemonTask
                             {
                                 BuildId = build.Id,
                                 Src = this.GetType().Name,
-                                Stage = (int)DaemonTaskTypes.LogImport,
+                                Stage = (int)DaemonTaskTypes.IncidentAssign
                             });
 
-                            if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
-                                dataWrite.SaveDaemonTask(new DaemonTask
-                                {
-                                    Stage = (int)DaemonTaskTypes.RevisionFromBuildServer,
-                                    Src = this.GetType().Name,
-                                    BuildId = build.Id
-                                });
-
-                            if (build.Status == BuildStatus.Failed)
-                            {
+                            if (job.PostProcessors.Any())
                                 dataWrite.SaveDaemonTask(new DaemonTask
                                 {
                                     BuildId = build.Id,
                                     Src = this.GetType().Name,
-                                    Stage = (int)DaemonTaskTypes.IncidentAssign
+                                    Stage = (int)DaemonTaskTypes.PostProcess
                                 });
-
-                                if (job.PostProcessors.Any())
-                                    dataWrite.SaveDaemonTask(new DaemonTask
-                                    {
-                                        BuildId = build.Id,
-                                        Src = this.GetType().Name,
-                                        Stage = (int)DaemonTaskTypes.PostProcess
-                                    });
-                            }
-
-                            dataWrite.TransactionCommit();
                         }
-                        catch (WriteCollisionException ex) 
-                        {
-                            dataWrite.TransactionCancel();
-                            _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
-                        }
-                        catch (Exception ex)
-                        {
-                            dataWrite.TransactionCancel();
 
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.HasPassed = false;
-                            task.Result = ex.ToString();
-                            dataWrite.SaveDaemonTask(task);
-                            daemonProcesses.TaskDone(task);
-                        }
+                        dataWrite.TransactionCommit();
                     }
+                    catch (WriteCollisionException ex) 
+                    {
+                        dataWrite.TransactionCancel();
+                        _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
+                    }
+                    catch (Exception ex)
+                    {
+                        dataWrite.TransactionCancel();
 
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = false;
+                        task.Result = ex.ToString();
+                        dataWrite.SaveDaemonTask(task);
+                        daemonProcesses.MarkDone(task);
+                    }
+                    finally
+                    {
+                        daemonProcesses.ClearActive(task);
+                    }
                 }
-            }
-            finally 
-            {
-                daemonProcesses.ClearActive(this);
+
             }
         }
 

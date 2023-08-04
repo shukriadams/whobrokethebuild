@@ -7,7 +7,7 @@ namespace Wbtb.Core.Web
     {
         public Build Build { get; set; }
 
-        public DaemonBlockedProcessItem Block { get; set; }
+        public DaemonBlockedProcess Block { get; set; }
 
         public static ViewDaemonTask Copy(DaemonTask daemonTask)
         {

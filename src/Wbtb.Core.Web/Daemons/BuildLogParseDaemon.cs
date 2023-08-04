@@ -61,93 +61,83 @@ namespace Wbtb.Core.Web
         {
             IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.LogParse).Take(_config.MaxThreads);
-            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
+            DaemonTaskProcesses daemonProcesses = _di.Resolve<DaemonTaskProcesses>();
 
-            try
+            // start as many parallel parses as we're allowed, on bg threads
+            // foreach (DaemonTask task in tasks) 
+            tasks.AsParallel().ForAll(delegate (DaemonTask task)
             {
-                // start as many parallel parses as we're allowed, on bg threads
-                // foreach (DaemonTask task in tasks) 
-                tasks.AsParallel().ForAll(delegate (DaemonTask task)
+                using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>()) 
                 {
-                    using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>()) 
+                    Build build = dataRead.GetBuildById(task.BuildId);
+                    IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.LogParse);
+                    if (blocking.Any())
                     {
-                        string processKey = string.Empty;
+                        daemonProcesses.MarkBlocked(task, this, blocking);
+                        return;
+                    }
 
-                        Build build = dataRead.GetBuildById(task.BuildId);
-                        IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.LogParse);
-                        if (blocking.Any())
+                    Job job = dataRead.GetJobById(build.JobId);
+                    try
+                    {
+                        dataWrite.TransactionStart();
+
+                        ILogParserPlugin parser = _pluginProvider.GetByKey(task.Args) as ILogParserPlugin;
+                        if (parser == null)
                         {
-                            daemonProcesses.TaskBlocked(task, this, blocking);
+                            task.HasPassed = false;
+                            task.Result += $"Log parser {task.Args} was not found.";
+                            task.ProcessedUtc = DateTime.UtcNow;
+                            dataWrite.SaveDaemonTask(task);
+                            dataWrite.TransactionCommit();
+                            daemonProcesses.MarkDone(task);
                             return;
                         }
 
-                        Job job = dataRead.GetJobById(build.JobId);
-                        try
-                        {
-                            dataWrite.TransactionStart();
+                        daemonProcesses.MarkActive(task, $"Task {task.Id}, build {build.Identifier}, parser {parser.ContextPluginConfig.Manifest.Key}");
 
-                            ILogParserPlugin parser = _pluginProvider.GetByKey(task.Args) as ILogParserPlugin;
-                            if (parser == null)
-                            {
-                                task.HasPassed = false;
-                                task.Result += $"Log parser {task.Args} was not found.";
-                                task.ProcessedUtc = DateTime.UtcNow;
-                                dataWrite.SaveDaemonTask(task);
-                                dataWrite.TransactionCommit();
-                                daemonProcesses.TaskDone(task);
-                                return;
-                            }
+                        // todo : optimize, have to reread log just to hash is a major performance issue
+                        string rawLog = File.ReadAllText(build.LogPath);
+                        DateTime startUtc = DateTime.UtcNow;
+                        string result = parser.Parse(rawLog);
 
-                            processKey = $"{this.GetType().Name}_{task.Id}_{parser.ContextPluginConfig.Manifest.Key}";
-                            daemonProcesses.AddActive(processKey, $"Task {task.Id}, build {build.Identifier}, parser {parser.ContextPluginConfig.Manifest.Key}");
+                        BuildLogParseResult logParserResult = new BuildLogParseResult();
+                        logParserResult.BuildId = build.Id;
+                        logParserResult.LogParserPlugin = parser.ContextPluginConfig.Key;
+                        logParserResult.ParsedContent = result;
+                        dataWrite.SaveBuildLogParseResult(logParserResult);
 
-                            // todo : optimize, have to reread log just to hash is a major performance issue
-                            string rawLog = File.ReadAllText(build.LogPath);
-                            DateTime startUtc = DateTime.UtcNow;
-                            string result = parser.Parse(rawLog);
-
-                            BuildLogParseResult logParserResult = new BuildLogParseResult();
-                            logParserResult.BuildId = build.Id;
-                            logParserResult.LogParserPlugin = parser.ContextPluginConfig.Key;
-                            logParserResult.ParsedContent = result;
-                            dataWrite.SaveBuildLogParseResult(logParserResult);
-
-                            string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten: true)}";
-                            _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timestring}");
-                            task.Result = $"{logParserResult.LogParserPlugin} {timestring}. ";
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            task.HasPassed = true;
-                            dataWrite.SaveDaemonTask(task);
-                            dataWrite.TransactionCommit();
-                            daemonProcesses.TaskDone(task);
-                        }
-                        catch (WriteCollisionException ex)
-                        {
-                            dataWrite.TransactionCancel();
-                            _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
-                        }
-                        catch (Exception ex)
-                        {
-                            dataWrite.TransactionCancel();
-
-                            _log.LogError($"Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin : {ex}");
-                            task.HasPassed = false;
-                            task.Result = $"{task.Result}\n Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin: {ex.Message}";
-                            task.ProcessedUtc = DateTime.UtcNow;
-                            dataWrite.SaveDaemonTask(task);
-                            daemonProcesses.TaskDone(task);
-                        }
-                        finally
-                        {
-                            daemonProcesses.ClearActive(processKey);
-                        }
+                        string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten: true)}";
+                        _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timestring}");
+                        task.Result = $"{logParserResult.LogParserPlugin} {timestring}. ";
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        task.HasPassed = true;
+                        dataWrite.SaveDaemonTask(task);
+                        dataWrite.TransactionCommit();
+                        daemonProcesses.MarkDone(task);
                     }
-                });
-            }
-            finally
-            {
-                daemonProcesses.ClearActive(this);
-            }
+                    catch (WriteCollisionException ex)
+                    {
+                        dataWrite.TransactionCancel();
+                        _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
+                    }
+                    catch (Exception ex)
+                    {
+                        dataWrite.TransactionCancel();
+
+                        _log.LogError($"Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin : {ex}");
+                        task.HasPassed = false;
+                        task.Result = $"{task.Result}\n Unexpected error trying to process jobs/logs for build id \"{build.Id}\" with lopParserPlugin: {ex.Message}";
+                        task.ProcessedUtc = DateTime.UtcNow;
+                        dataWrite.SaveDaemonTask(task);
+                        daemonProcesses.MarkDone(task);
+                    }
+                    finally
+                    {
+                        daemonProcesses.ClearActive(task);
+                    }
+                } // using
+            });
         }
 
         #endregion

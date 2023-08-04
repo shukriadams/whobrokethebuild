@@ -5,51 +5,40 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
 {
-    public class DaemonActiveProcessItem 
-    {
-        public DateTime CreatedUtc { get; set; }
-        
-        public string Description { get; set; }
-
-        public string Daemon { get; set; }
-    }
-
-    public class DaemonBlockedProcessItem
-    {
-        public DateTime CreatedUtc { get; set; }
-
-        public string TaskId { get; set; }
-
-        public string Reason { get; set; }
-    }
-
-    public class TaskDaemonProcesses
+    /// <summary>
+    /// In-memory store of current daemon processes. Used to track daemon activity, performance and blockages.
+    /// </summary>
+    public class DaemonTaskProcesses
     {
         /// <summary>
-        /// key string is daemonName. This shows whatever process a given daemon is currently processing
+        /// key string is taskid. This shows whatever process a given daemon is currently processing
         /// </summary>
-        IDictionary<string, DaemonActiveProcessItem> _activePrrocesses = new Dictionary<string, DaemonActiveProcessItem>();
+        IDictionary<string, DaemonActiveProcess> _activePrrocesses = new Dictionary<string, DaemonActiveProcess>();
 
-        IDictionary<string, DaemonBlockedProcessItem> _blockedProcesses = new Dictionary<string, DaemonBlockedProcessItem>();
+        /// <summary>
+        /// Key string is task id.
+        /// </summary>
+        IDictionary<string, DaemonBlockedProcess> _blockedProcesses = new Dictionary<string, DaemonBlockedProcess>();
 
-        public void AddActive(IWebDaemon daemon, string description) 
+        public void MarkActive(DaemonTask task, string description) 
         {
             lock (_activePrrocesses)
             {
-                string daemonName = daemon.GetType().Name;
+                string key = task.Id;
 
-                if (_activePrrocesses.ContainsKey(daemonName))
-                    _activePrrocesses.Remove(daemonName);
+                if (_activePrrocesses.ContainsKey(key))
+                    _activePrrocesses.Remove(key);
 
-                _activePrrocesses.Add(daemonName, new DaemonActiveProcessItem
+                _activePrrocesses.Add(key, new DaemonActiveProcess
                 {
                     Description= description,
                     CreatedUtc = DateTime.UtcNow,
-                    Daemon = daemonName
+                    Daemon = key
                 });
             }
         }
-        public void TaskBlocked(DaemonTask task, IWebDaemon daemon, IEnumerable<DaemonTask> blocking) 
+
+        public void MarkBlocked(DaemonTask task, IWebDaemon daemon, IEnumerable<DaemonTask> blocking) 
         {
             lock (_blockedProcesses) 
             {
@@ -58,22 +47,22 @@ namespace Wbtb.Core.Web
 
                 string reason = $"Task {task.Id} blocked @ daemon {daemon.GetType().Name} by {blocking.Count()} preceeding tasks: {string.Join(", ", blocking.Select(b => b.Id))}.";
 
-                _blockedProcesses.Add(task.Id, new DaemonBlockedProcessItem { TaskId = task.Id, Reason = reason, CreatedUtc = DateTime.UtcNow });
+                _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { TaskId = task.Id, Reason = reason, CreatedUtc = DateTime.UtcNow, BlockingProcesses = blocking.Select(b => b.Id) });
             }
         }
 
-        public void TaskBlocked(DaemonTask task, string reason)
+        public void MarkBlocked(DaemonTask task, string reason)
         {
             lock (_blockedProcesses)
             {
                 if (_blockedProcesses.ContainsKey(task.Id))
                     return;
 
-                _blockedProcesses.Add(task.Id, new DaemonBlockedProcessItem { TaskId = task.Id, Reason = reason, CreatedUtc = DateTime.UtcNow });
+                _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { TaskId = task.Id, Reason = reason, CreatedUtc = DateTime.UtcNow });
             }
         }
 
-        public void TaskDone(DaemonTask task)
+        public void MarkDone(DaemonTask task)
         {
             lock (_blockedProcesses)
             {
@@ -82,7 +71,7 @@ namespace Wbtb.Core.Web
             }
         }
 
-        public void AddActive(string key, string description)
+        public void MarkActive(string key, string description)
         {
             lock (_activePrrocesses)
             {
@@ -90,7 +79,7 @@ namespace Wbtb.Core.Web
                     _activePrrocesses.Remove(key);
 
 
-                _activePrrocesses.Add(key, new DaemonActiveProcessItem
+                _activePrrocesses.Add(key, new DaemonActiveProcess
                 {
                     Description = description,
                     CreatedUtc = DateTime.UtcNow,
@@ -107,13 +96,12 @@ namespace Wbtb.Core.Web
             }
         }
 
-        public void ClearActive(IWebDaemon daemon) 
+        public void ClearActive(DaemonTask task) 
         {
             lock (_activePrrocesses)
             {
-                string name = daemon.GetType().Name;
-                if (_activePrrocesses.ContainsKey(name))
-                    _activePrrocesses.Remove(name);
+                if (_activePrrocesses.ContainsKey(task.Id))
+                    _activePrrocesses.Remove(task.Id);
             }
         }
 
@@ -126,12 +114,12 @@ namespace Wbtb.Core.Web
             }
         }
 
-        public IEnumerable<DaemonActiveProcessItem> GetActive() 
+        public IEnumerable<DaemonActiveProcess> GetActive() 
         { 
             return _activePrrocesses.Values;
         }
 
-        public IEnumerable<DaemonBlockedProcessItem> GetBlocked()
+        public IEnumerable<DaemonBlockedProcess> GetBlocked()
         {
             return _blockedProcesses.Values;
         }

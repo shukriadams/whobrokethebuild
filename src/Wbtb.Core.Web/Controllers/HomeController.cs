@@ -302,7 +302,7 @@ namespace Wbtb.Core.Web.Controllers
             Configuration config = _di.Resolve<Configuration>();
             hostname = HttpUtility.UrlDecode(hostname);
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
-            TaskDaemonProcesses daemonProcesses = _di.Resolve<TaskDaemonProcesses>();
+            DaemonTaskProcesses daemonProcesses = _di.Resolve<DaemonTaskProcesses>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             ProcessPageModel model = new ProcessPageModel();
 
@@ -313,7 +313,7 @@ namespace Wbtb.Core.Web.Controllers
             model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, orderBy, filterby, jobid));
             foreach (ViewDaemonTask task in model.DaemonTasks.Items) 
             {
-                DaemonBlockedProcessItem block = model.BlockedProcesses.FirstOrDefault(b => b.TaskId == task.Id);
+                DaemonBlockedProcess block = model.BlockedProcesses.FirstOrDefault(b => b.TaskId == task.Id);
                 if (block == null)
                     continue;
 

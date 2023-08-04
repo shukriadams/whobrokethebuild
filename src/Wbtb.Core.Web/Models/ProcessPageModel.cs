@@ -9,9 +9,9 @@ namespace Wbtb.Core.Web
 
         public PageableData<ViewDaemonTask> DaemonTasks { get; set; }
 
-        public IEnumerable<DaemonActiveProcessItem> ActiveProcesses { get; set; }
+        public IEnumerable<DaemonActiveProcess> ActiveProcesses { get; set; }
 
-        public IList<DaemonBlockedProcessItem> BlockedProcesses { get; set; }
+        public IList<DaemonBlockedProcess> BlockedProcesses { get; set; }
 
         public string BaseUrl { get; set; }
 
@@ -32,8 +32,8 @@ namespace Wbtb.Core.Web
         public ProcessPageModel()
         {
             this.DaemonTasks = new PageableData<ViewDaemonTask>(new ViewDaemonTask[] { }, 0, 0, 0);
-            this.ActiveProcesses = new DaemonActiveProcessItem [] { };
-            this.BlockedProcesses = new DaemonBlockedProcessItem[] { };
+            this.ActiveProcesses = new DaemonActiveProcess [] { };
+            this.BlockedProcesses = new DaemonBlockedProcess[] { };
             this.QueryStrings = string.Empty;
             this.FilterBy = string.Empty;
             this.OrderBy = string.Empty;

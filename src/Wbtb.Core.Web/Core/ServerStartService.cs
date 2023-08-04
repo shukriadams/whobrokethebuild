@@ -38,7 +38,7 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, BuildLogParseDaemon>(null, true);
                     di.Register<IWebDaemon, BuildInvolvementUserLinkDaemon>(null, true);
                     di.Register<IWebDaemon, BuildInvolvementRevisionResolveDaemon>(null, true);
-                    di.RegisterSingleton(typeof(TaskDaemonProcesses), new TaskDaemonProcesses());
+                    di.RegisterSingleton(typeof(DaemonTaskProcesses), new DaemonTaskProcesses());
                     di.RegisterFactory<IHubContext, HubFactory>();
                     di.Register<BuildEventHandlerHelper, BuildEventHandlerHelper>();
 
