@@ -243,7 +243,7 @@ namespace Wbtb.Core.Web
                     catch (WriteCollisionException ex)
                     {
                         dataWrite.TransactionCancel();
-                        _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later");
+                        _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later : {ex}");
                     }
                     catch (Exception ex)
                     {
