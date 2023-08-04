@@ -99,7 +99,9 @@ namespace Wbtb.Core.Common
             if (shorten && (DateTime.Now.ToLocalTime() - date).TotalHours > 24)
                 format = "yy-MM-dd";
 
-            string shortened = date.ToString(format);
+            string shortened = date.ToString(format)
+                .Replace(".", ":"); // .net in its infinite stupidity ignores the ":" in the format string and forces fullstops, replace those
+
             return shortened;
         }
 
