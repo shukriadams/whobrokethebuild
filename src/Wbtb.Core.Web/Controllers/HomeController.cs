@@ -252,12 +252,13 @@ namespace Wbtb.Core.Web.Controllers
         {
             BuildProcessPageModel model = new BuildProcessPageModel();
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            DaemonTaskProcesses daemonTaskProcesses = _di.Resolve<DaemonTaskProcesses>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             model.Build = ViewBuild.Copy(dataLayer.GetBuildById(buildid));
             if (model.Build == null)
                 return Responses.NotFoundError($"build {buildid} does not exist");
 
-            model.DaemonTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id).OrderBy(t => t.CreatedUtc);
+            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.GetDaemonsTaskByBuild(model.Build.Id).OrderBy(t => t.CreatedUtc));
             model.IsComplete = !model.DaemonTasks.Any(t => t.ProcessedUtc == null);
             model.HasErrors = model.DaemonTasks.Any(t => t.HasPassed == false);
 
@@ -267,6 +268,12 @@ namespace Wbtb.Core.Web.Controllers
                     model.QueueTime = model.DaemonTasks.OrderByDescending(t => t.CreatedUtc).First().ProcessedUtc.Value - model.DaemonTasks.OrderBy(t => t.CreatedUtc).First().CreatedUtc;
                 else
                     model.QueueTime = DateTime.UtcNow - model.DaemonTasks.OrderBy(t => t.CreatedUtc).First().CreatedUtc;
+            }
+
+            foreach (ViewDaemonTask task in model.DaemonTasks) 
+            {
+                task.ActiveProcess = daemonTaskProcesses.GetActive(task);
+                task.BlockedProcess = daemonTaskProcesses.GetBlocked(task);
             }
 
             return View(model);
@@ -306,8 +313,8 @@ namespace Wbtb.Core.Web.Controllers
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             ProcessPageModel model = new ProcessPageModel();
 
-            model.ActiveProcesses = daemonProcesses.GetActive();
-            model.BlockedProcesses = daemonProcesses.GetBlocked().OrderByDescending(p => p.CreatedUtc).ToList();
+            model.ActiveProcesses = daemonProcesses.GetAllActive();
+            model.BlockedProcesses = daemonProcesses.GetAllBlocked().OrderByDescending(p => p.CreatedUtc).ToList();
 
             // try to assign blocks to acitve processses to make it easier 
             model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, orderBy, filterby, jobid));
@@ -318,7 +325,7 @@ namespace Wbtb.Core.Web.Controllers
                     continue;
 
                 model.BlockedProcesses.Remove(block);
-                task.Block = block;
+                task.BlockedProcess = block;
             }
 
             model.DaemonTasks.Items.ToList().ForEach(daemonTask => daemonTask.Build = ViewBuild.Copy(dataLayer.GetBuildById(daemonTask.BuildId)));

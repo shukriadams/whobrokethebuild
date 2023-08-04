@@ -62,7 +62,7 @@
             </x-list-cell>
         </x-list-row>
 
-        @foreach (DaemonTask task in Model.DaemonTasks)
+        @foreach (ViewDaemonTask task in Model.DaemonTasks)
         {
             <x-list-row>
                 <x-list-cell>
@@ -100,6 +100,14 @@
                 </x-list-cell>
                 <x-list-cell class="quiet">
                     @task.Result
+                    @if (task.BlockedProcess != null)
+                    {
+                        <text>BLOCKED by taskid:@task.BlockedProcess.TaskId</text>
+                    }
+                    @if (task.ActiveProcess != null)
+                    {
+                        <text>Currently running @task.ActiveProcess.CreatedUtc.ToHumanString() <span>@task.ActiveProcess.CreatedUtc.Ago() ago</span></text>
+                    }
                 </x-list-cell>
             </x-list-row>
         }

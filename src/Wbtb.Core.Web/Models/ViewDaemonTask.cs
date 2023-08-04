@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -7,7 +8,9 @@ namespace Wbtb.Core.Web
     {
         public Build Build { get; set; }
 
-        public DaemonBlockedProcess Block { get; set; }
+        public DaemonActiveProcess ActiveProcess { get; set; }
+
+        public DaemonBlockedProcess BlockedProcess { get; set; }
 
         public static ViewDaemonTask Copy(DaemonTask daemonTask)
         {
@@ -27,6 +30,11 @@ namespace Wbtb.Core.Web
                 Signature = daemonTask.Signature,
                 Src = daemonTask.Src
             };
+        }
+
+        public static IEnumerable<ViewDaemonTask> Copy(IEnumerable<DaemonTask> items)
+        {
+            return items.Select(r => Copy(r));
         }
 
         public static PageableData<ViewDaemonTask> Copy(PageableData<DaemonTask> items)

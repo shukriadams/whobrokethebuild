@@ -136,12 +136,12 @@ else
                 <x-list-cell class="quiet">
                     @task.Result
                 </x-list-cell>
-                @if(task.Block != null)
+                @if(task.BlockedProcess != null)
                 {
                     <x-list-cell>
                         BLOCKED: 
-                        @task.Block.Reason
-                        for @task.Block.CreatedUtc.Ago()
+                        @task.BlockedProcess.Reason
+                        for @task.BlockedProcess.CreatedUtc.Ago()
                     </x-list-cell>
                 }
             </x-list-row>

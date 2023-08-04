@@ -8,7 +8,7 @@ namespace Wbtb.Core.Web
     {
         #region PROPERTIES
 
-        public IEnumerable<DaemonTask> DaemonTasks { get; set; }
+        public IEnumerable<ViewDaemonTask> DaemonTasks { get; set; }
 
         public Build Build { get; set; }
 
@@ -24,7 +24,7 @@ namespace Wbtb.Core.Web
 
         public BuildProcessPageModel()
         {
-            this.DaemonTasks = new List<DaemonTask>();
+            this.DaemonTasks = new List<ViewDaemonTask>();
         }
 
         #endregion

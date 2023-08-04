@@ -10,6 +10,8 @@ namespace Wbtb.Core.Web
     /// </summary>
     public class DaemonTaskProcesses
     {
+        #region FIELDS
+
         /// <summary>
         /// key string is taskid. This shows whatever process a given daemon is currently processing
         /// </summary>
@@ -19,6 +21,30 @@ namespace Wbtb.Core.Web
         /// Key string is task id.
         /// </summary>
         IDictionary<string, DaemonBlockedProcess> _blockedProcesses = new Dictionary<string, DaemonBlockedProcess>();
+
+        #endregion
+
+        #region METHODS
+
+        public DaemonActiveProcess GetActive(DaemonTask task) 
+        {
+            lock (_activePrrocesses)
+            {
+                if (_activePrrocesses.ContainsKey(task.Id))
+                    return _activePrrocesses[task.Id];
+                return null;
+            }
+        }
+
+        public DaemonBlockedProcess GetBlocked(DaemonTask task)
+        {
+            lock (_blockedProcesses)
+            {
+                if (_blockedProcesses.ContainsKey(task.Id))
+                    return _blockedProcesses[task.Id];
+                return null;
+            }
+        }
 
         public void MarkActive(DaemonTask task, string description) 
         {
@@ -96,6 +122,14 @@ namespace Wbtb.Core.Web
             }
         }
 
+        public bool HasActive(DaemonTask task)
+        {
+            lock (_activePrrocesses)
+            {
+                return _activePrrocesses.ContainsKey(task.Id);
+            }
+        }
+
         public void ClearActive(DaemonTask task) 
         {
             lock (_activePrrocesses)
@@ -114,14 +148,16 @@ namespace Wbtb.Core.Web
             }
         }
 
-        public IEnumerable<DaemonActiveProcess> GetActive() 
+        public IEnumerable<DaemonActiveProcess> GetAllActive() 
         { 
             return _activePrrocesses.Values;
         }
 
-        public IEnumerable<DaemonBlockedProcess> GetBlocked()
+        public IEnumerable<DaemonBlockedProcess> GetAllBlocked()
         {
             return _blockedProcesses.Values;
         }
+
+        #endregion
     }
 }
