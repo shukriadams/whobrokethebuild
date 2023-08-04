@@ -4,6 +4,7 @@ using Wbtb.Core.Common;
 using Madscience.Perforce;
 using System.Linq;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.SourceServer.Perforce
 {
@@ -12,14 +13,17 @@ namespace Wbtb.Extensions.SourceServer.Perforce
         #region FIELDS
 
         private readonly PersistPathHelper _persistPathHelper;
+        
+        private readonly ILogger _log;
 
         #endregion
 
         #region CTORS
 
-        public Perforce(PersistPathHelper persistPathHelper) 
+        public Perforce(PersistPathHelper persistPathHelper, ILogger log) 
         {
             _persistPathHelper = persistPathHelper;
+            _log = log;
         }
 
         #endregion
