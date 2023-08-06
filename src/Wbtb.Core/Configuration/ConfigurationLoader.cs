@@ -20,7 +20,7 @@ namespace Wbtb.Core
         /// Required first step for working with static config - set's the path config 
         /// </summary>
         /// <param name="path"></param>
-        public Configuration LoadUnsafeConfig(string path)
+        public Configuration LoadUnvalidatedConfig(string path)
         {
             if (string.IsNullOrEmpty(path))
                 throw new ConfigurationException("Config path cannot be an empty string");
@@ -97,16 +97,18 @@ namespace Wbtb.Core
                     user.Message[i].RawJson = ConfigurationHelper.GetRawAlertConfigByIndex(rawConfig, "Users", user.Key, i);
 
             AutofillOptionalValues(tempConfig);
+
+            tempConfig.Hash = Sha256.FromString(rawYml);
+
             return tempConfig;
         }
         
-        public void FinalizeConfig(Configuration unsafeConfig)
+        public void ConfigValidated(Configuration unsafeConfig)
         {
             
             SimpleDI di = new SimpleDI();
             di.RegisterSingleton<Configuration>(unsafeConfig);
         }
-
 
         /// <summary>
         /// move this to independent class, no need to be ehre
@@ -198,11 +200,10 @@ namespace Wbtb.Core
         }
 
         /// <summary>
-        /// Runs Config through a gauntlet to look for errors in data structure. On any error throws a ConfigurationException and aborts 
-        /// application start. Does not change config structure
+        /// Tries to load manifest data from plugins. Also validates manifests and plugin, and fails app start if necessary.
         /// </summary>
         /// <param name="config"></param>
-        public void EnsureManifestLogicValid(Configuration config)
+        public void LoadManifestData(Configuration config)
         {
             CurrentVersion currentVersion = new CurrentVersion();
             currentVersion.Resolve();
@@ -585,31 +586,6 @@ namespace Wbtb.Core
                     InnerException = ex
                 };
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public string GetBlank()
-        {
-            Configuration testconfig = new Configuration();
-            ISerializer serializer = new SerializerBuilder()
-                .Build();
-
-            return serializer.Serialize(testconfig);
-        }
-
-        /// <summary>
-        /// 
-        /// 
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public PluginManifest ParseManifest(string rawYml)
-        {
-            IDeserializer deserializer = YmlHelper.GetDeserializer();
-            return deserializer.Deserialize<PluginManifest>(rawYml);
         }
 
         #endregion

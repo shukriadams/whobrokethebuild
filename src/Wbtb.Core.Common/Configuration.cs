@@ -9,36 +9,24 @@ namespace Wbtb.Core.Common
     /// outermost is loaded from config.yml which is static and on-disk.
     /// PluginDeclarations are also static, but contain run-time data added on app start
     /// </summary>
-    public class Configuration
+    public class Configuration : ConfigurationBasic
     {
         #region PROPERTIES
 
+        /// <summary>
+        /// Hash of config text.
+        /// </summary>
+        public string Hash { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool FailOnOrphans { get; set; }
-
-        /// <summary>
-        /// Root dir where all WBTB is persisted. This dir contains other named directories based on specific nature
-        /// </summary>
-        public string DataDirectory { get; set; }
-
-        /// <summary>
-        /// Directory plugins can persist raw data to. Each plugin shoudl write to a sub dir names after itself
-        /// </summary>
-        public string PluginDataPersistDirectory { get; set; }
-
-        /// <summary>
-        /// Internal path plugins are copied to. This directory is owned by WBTB. Do not store plugin data in here.
-        /// </summary>
-        public string PluginsWorkingDirectory { get; set; }
 
         /// <summary>
         /// Global default timer for daemons (seconds, will be converted to ms)
         /// </summary>
         public int DaemonInterval { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string BuildLogsDirectory { get; set; }
 
         /// <summary>
         /// 
@@ -142,10 +130,7 @@ namespace Wbtb.Core.Common
             this.StandardPageSize = 25;
             this.PagesPerPageGroup = 20;
             this.MaxReadableRawLogSize = 30000000;
-            this.DataDirectory = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data");
-            this.BuildLogsDirectory = Path.Join(this.DataDirectory, "BuildLogs");
-            this.PluginDataPersistDirectory = Path.Join(this.DataDirectory, "PluginData");
-            this.PluginsWorkingDirectory = Path.Join(this.DataDirectory, "PluginsWorking");
+
             this.LiveConsoleSize = 500;
             this.DaemonInterval = 60;
             this.UnprocessedBuildProcessorLimit = 50;
