@@ -4,6 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace Wbtb.Core
 {
+    /// <summary>
+    /// Loads env vars from .env file. Intended for development environments only, but can in theory be used elsewhere.
+    /// Env file should contain name=value, one per line.
+    /// </summary>
     public class CustomEnvironmentArgs
     {
         /// <summary>
@@ -12,8 +16,10 @@ namespace Wbtb.Core
         public void Apply()
         {
             string envArgFilePath = null;
+    
+            // Crawl up directory tree from app start dir, look for .env file until reach disk root.
+            // Necessary because basedirectory varies between web and CLI app.
             DirectoryInfo currentPath = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            
             while (currentPath.Parent != null) 
             { 
                 if (File.Exists(Path.Combine(currentPath.FullName, ".env"))) 
@@ -33,11 +39,11 @@ namespace Wbtb.Core
             string filecontent = File.ReadAllText(envArgFilePath);
             filecontent = filecontent.Replace("\r\n", "\n");
             string[] args = filecontent.Split("\n");
-            Regex r = new Regex(@"(.*)?=(.*)");
+            Regex envVarRegex = new Regex(@"(.*)?=(.*)");
 
             foreach(string arg in args)
             {
-                Match match = r.Match(arg);
+                Match match = envVarRegex.Match(arg);
                 if (!match.Success)
                     continue;
 
@@ -45,7 +51,7 @@ namespace Wbtb.Core
                     continue;
 
                 Environment.SetEnvironmentVariable(match.Groups[1].Value, match.Groups[2].Value);
-                Console.WriteLine($"set environment variable {match.Groups[1].Value}");
+                Console.WriteLine($"WBTB : Set environment variable {match.Groups[1].Value}");
             }
                 
         }

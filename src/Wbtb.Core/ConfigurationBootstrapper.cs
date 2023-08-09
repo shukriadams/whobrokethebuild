@@ -28,8 +28,8 @@ namespace Wbtb.Core
 
             string localPath = "config.yml";
 
-            string cachePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "ConfigCache");
-            string checkoutPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "data", "ConfigCheckout");
+            string cachePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data", "ConfigCache");
+            string checkoutPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data", "ConfigCheckout");
 
             Directory.CreateDirectory(cachePath);
 

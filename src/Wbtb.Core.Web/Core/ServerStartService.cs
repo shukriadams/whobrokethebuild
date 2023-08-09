@@ -103,7 +103,7 @@ namespace Wbtb.Core.Web
                 {
                     AppState.ConfigErrors = true;
 
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine($"WBTB configuration error : {ex.Message}");
 
                     if (exitOnConfigError) 
                     {

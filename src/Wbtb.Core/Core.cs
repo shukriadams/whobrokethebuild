@@ -43,40 +43,70 @@ namespace Wbtb.Core
             di.RegisterFactory<ILogger, LogProvider>();
             di.RegisterFactory<IPluginSender, PluginSenderFactory>();
 
-            ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
+            // pick up env vars from local .env file
             CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
             customEnvironmentArgs.Apply();
+
+            // fetch latest config from git. Requires env vars set. Do after c
+            ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
             configBootstrapper.EnsureLatest();
 
-            ConfigurationLoader configurationManager = di.Resolve<ConfigurationLoader>();
-
-            // first part of server start, tries to load config
-            // always resolve ConfigurationBasic after apply custom env args
-            ConfigurationBasic configBasic = di.Resolve<ConfigurationBasic>(); 
+            // NOTE : Always resolve ConfigurationBasic after apply custom env args, this class contains bootstrap settings needed to load app,
+            // and these can be influenced by custom args
+            ConfigurationBasic configBasic = di.Resolve<ConfigurationBasic>();
             string configPath = configBasic.ConfigPath;
+
+            // first part of server start, try to load config
+            ConfigurationLoader configurationManager = di.Resolve<ConfigurationLoader>();
+            Configuration unvalidatedConfig = configurationManager.LoadUnvalidatedConfig(configPath);
             
-            Configuration unsafeConfig = configurationManager.LoadUnsafeConfig(configPath);
+            string cachePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data", ".currentConfigHash");
+            if (File.Exists(cachePath)) 
+            {
+                try
+                {
+                    if (File.ReadAllText(cachePath) == unvalidatedConfig.Hash) 
+                    {
+                        validate = false;
+                        Console.WriteLine("Skipping config validation, config unchanged since last check.");
+                    }
+                        
+                }
+                catch (Exception ex) 
+                {
+                    Console.WriteLine($"Failed to read config hash : {ex.Message}");
+                }
+            }
+
             if (validate)
-                configurationManager.EnsureNoneManifestLogicValid(unsafeConfig);
+                configurationManager.EnsureNoneManifestLogicValid(unvalidatedConfig);
 
             // ensure directories, this requires that config is loaded
-            Directory.CreateDirectory(unsafeConfig.DataDirectory);
-            Directory.CreateDirectory(unsafeConfig.BuildLogsDirectory);
-            Directory.CreateDirectory(unsafeConfig.PluginsWorkingDirectory);
-            Directory.CreateDirectory(unsafeConfig.PluginDataPersistDirectory);
+            Directory.CreateDirectory(unvalidatedConfig.DataDirectory);
+            Directory.CreateDirectory(unvalidatedConfig.BuildLogsDirectory);
+            Directory.CreateDirectory(unvalidatedConfig.PluginsWorkingDirectory);
+            Directory.CreateDirectory(unvalidatedConfig.PluginDataPersistDirectory);
 
-            configurationManager.FetchPlugins(unsafeConfig);
-            if (validate)
-                configurationManager.EnsureManifestLogicValid(unsafeConfig);
+            configurationManager.FetchPlugins(unvalidatedConfig);
+            configurationManager.LoadManifestData(unvalidatedConfig);
+            configurationManager.ConfigValidated(unvalidatedConfig);
+            
+            try
+            {
+                File.WriteAllText(cachePath, unvalidatedConfig.Hash);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to write config hash : {ex.Message}");
+            }
 
-            configurationManager.FinalizeConfig(unsafeConfig);
 
-            bool isAnyPluginProxying = unsafeConfig.Plugins.Where(p => p.Proxy).Any();
-            if (isAnyPluginProxying || unsafeConfig.ForceMessageQueue)
+            bool isAnyPluginProxying = unvalidatedConfig.Plugins.Where(p => p.Proxy).Any();
+            if (isAnyPluginProxying || unvalidatedConfig.ForceMessageQueue)
             {
                 MessageQueueHtppClient client = di.Resolve<MessageQueueHtppClient>();
                 client.EnsureAvailable();
-                client.AddConfig(unsafeConfig);
+                client.AddConfig(unvalidatedConfig);
             }
             else
             {
