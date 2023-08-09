@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -22,11 +21,13 @@ namespace Madscience.Perforce
         edit,
         delete
     }
+
     public class ClientView 
     {
         public string Remote { get; set; }
         public string Local { get; set; }
     }
+
     public class Client 
     {
         public string Name { get; set; }
@@ -61,7 +62,6 @@ namespace Madscience.Perforce
             File= string.Empty;
         }
     }
-
 
     /// <summary>
     /// 
@@ -118,7 +118,7 @@ namespace Madscience.Perforce
         public string File { get; set; }
 
         /// <summary>
-        /// Can be (delete|add|edit)
+        /// Can be (delete|add|edit|integrate)
         /// </summary>
         public string Change { get; set; }
         public IEnumerable<string> Differences { get; set; }
@@ -189,39 +189,72 @@ namespace Madscience.Perforce
             List<string> stdErr = new List<string>();
             int timeout = 50000;
 
-            using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
-            using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
             {
-                cmd.OutputDataReceived += (sender, e) =>
+                using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
+                using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
                 {
-                    if (e.Data == null)
-                        outputWaitHandle.Set();
-                    else
-                        stdOut.Add(e.Data);
-                };
-
-                cmd.ErrorDataReceived += (sender, e) =>
-                {
-                    if (e.Data == null)
-                        errorWaitHandle.Set();
-                    else
-                        stdErr.Add(e.Data);
-                };
-
-                cmd.Start();
-                cmd.BeginOutputReadLine();
-                cmd.BeginErrorReadLine();
-
-                if (cmd.WaitForExit(timeout) && outputWaitHandle.WaitOne(timeout) && errorWaitHandle.WaitOne(timeout))
-                    return new ShellResult
+                    cmd.OutputDataReceived += (sender, e) =>
                     {
-                        StdOut = stdOut,
-                        StdErr = stdErr,
-                        ExitCode = cmd.ExitCode
+                        if (e.Data == null)
+                            outputWaitHandle.Set();
+                        else
+                            stdOut.Add(e.Data);
                     };
-                else
-                    throw new Exception("Time out");
+
+                    cmd.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data == null)
+                            errorWaitHandle.Set();
+                        else
+                            stdErr.Add(e.Data);
+                    };
+
+                    cmd.Start();
+                    cmd.BeginOutputReadLine();
+                    cmd.BeginErrorReadLine();
+
+                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || (cmd.WaitForExit(timeout) && outputWaitHandle.WaitOne(timeout) && errorWaitHandle.WaitOne(timeout)))
+                        return new ShellResult
+                        {
+                            StdOut = stdOut,
+                            StdErr = stdErr,
+                            ExitCode = cmd.ExitCode
+                        };
+                    else
+                        throw new Exception("Time out");
+                }
             }
+            else
+            {
+                cmd.Start();
+                cmd.StandardInput.Flush();
+                cmd.StandardInput.Close();
+
+
+                while (!cmd.StandardOutput.EndOfStream)
+                {
+                    string line = cmd.StandardOutput.ReadLine();
+                    stdOut.Add(line);
+                    Console.WriteLine(line);
+                }
+
+                while (!cmd.StandardError.EndOfStream)
+                {
+                    string line = cmd.StandardError.ReadLine();
+                    stdErr.Add(line);
+                    Console.WriteLine(line);
+                }
+
+                return new ShellResult
+                {
+                    StdOut = stdOut,
+                    StdErr = stdErr,
+                    ExitCode = cmd.ExitCode
+                };
+
+            }
+
         }
 
 
@@ -442,7 +475,10 @@ namespace Madscience.Perforce
             }
             else 
             {
-                affectedFilesRaw = Find(rawDescribe, @"\n\nAffected files ...\n\n(.*)?", RegexOptions.IgnoreCase);
+                int position = rawDescribe.IndexOf("\n\nAffected files ...");
+                if (position > 0)
+                    // use substring because regex is too shit to ignore linebreaks
+                    affectedFilesRaw = rawDescribe.Substring(position, rawDescribe.Length - position);  // Find(rawDescribe, @"\n\nAffected files ...\n\n(.*)?", RegexOptions.IgnoreCase);
             }
             
 
@@ -454,10 +490,9 @@ namespace Madscience.Perforce
 
             IEnumerable<string> differences = differencesRaw.Split(@"\n==== ");
 
-            // note that we cap max nr of files, we don't care about file details on very large commits
-            foreach (string affectedFile in affectedFiles.Take(100))
+            foreach (string affectedFile in affectedFiles)
             {
-                Match match = new Regex(@"... (.*)#[\d]+ (delete|add|edit)$", RegexOptions.IgnoreCase).Match(affectedFile);
+                Match match = new Regex(@"... (.*)#[\d]+ (delete|add|edit|integrate)$", RegexOptions.IgnoreCase).Match(affectedFile);
                 if (!match.Success || match.Groups.Count < 2)
                     continue;
 
