@@ -5,6 +5,7 @@ using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 /// <summary>
 /// Single file, zero-dependency Perforce helper library.
@@ -164,7 +165,7 @@ namespace Madscience.Perforce
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        private static ShellResult Run(string command, int? maxLines = null)
+        private static ShellResult Run(string command)
         {
             Process cmd = new Process();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -183,42 +184,44 @@ namespace Madscience.Perforce
             cmd.StartInfo.RedirectStandardError = true;
             cmd.StartInfo.CreateNoWindow = true;
             cmd.StartInfo.UseShellExecute = false;
-            cmd.Start();
-
-            cmd.StandardInput.Flush();
-            cmd.StandardInput.Close();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                cmd.WaitForExit(); 
 
             List<string> stdOut = new List<string>();
             List<string> stdErr = new List<string>();
+            int timeout = 50000;
 
-            while (!cmd.StandardOutput.EndOfStream)
+            using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
+            using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
             {
-                string line = cmd.StandardOutput.ReadLine();
-                // arb number, emergency block, we don't care about exceptionally
-                if (maxLines.HasValue && stdOut.Count > maxLines.Value)
+                cmd.OutputDataReceived += (sender, e) =>
                 {
-                    cmd.Close();
-                    break;
-                }
+                    if (e.Data == null)
+                        outputWaitHandle.Set();
+                    else
+                        stdOut.Add(e.Data);
+                };
 
-                stdOut.Add(line);
+                cmd.ErrorDataReceived += (sender, e) =>
+                {
+                    if (e.Data == null)
+                        errorWaitHandle.Set();
+                    else
+                        stdErr.Add(e.Data);
+                };
+
+                cmd.Start();
+                cmd.BeginOutputReadLine();
+                cmd.BeginErrorReadLine();
+
+                if (cmd.WaitForExit(timeout) && outputWaitHandle.WaitOne(timeout) && errorWaitHandle.WaitOne(timeout))
+                    return new ShellResult
+                    {
+                        StdOut = stdOut,
+                        StdErr = stdErr,
+                        ExitCode = cmd.ExitCode
+                    };
+                else
+                    throw new Exception("Time out");
             }
-            
-
-            while (!cmd.StandardError.EndOfStream)
-            {
-                string line = cmd.StandardError.ReadLine();
-                stdErr.Add(line);
-            }
-
-            return new ShellResult
-            {
-                StdOut = stdOut,
-                StdErr = stdErr,
-                ExitCode = cmd.ExitCode
-            };
         }
 
 
@@ -241,11 +244,11 @@ namespace Madscience.Perforce
         /// <returns></returns>
         private static string Find(string text, string regexPattern, RegexOptions options = RegexOptions.None, string defaultValue = "")
         {
-            Match match = new Regex(regexPattern, options).Match(text);
-            if (!match.Success || match.Groups.Count < 2)
+            MatchCollection matches = new Regex(regexPattern, options).Matches(text);
+            if (!matches.Any())
                 return defaultValue;
 
-            return match.Groups[1].Value;
+            return string.Join(string.Empty, matches.Select(m => m.Groups[1].Value));
         }
 
 
@@ -295,7 +298,7 @@ namespace Madscience.Perforce
             string ticket =  GetTicket(username, password, host, trustFingerPrint);
             string command = $"p4 -u {username} -p {host} -P {ticket} describe -s {revision}";
 
-            ShellResult result = Run(command, 100);
+            ShellResult result = Run(command);
 
             if (result.ExitCode != 0 || result.StdErr.Any())
             { 
@@ -309,7 +312,7 @@ namespace Madscience.Perforce
                 throw new Exception($"P4 command {command} exited with code {result.ExitCode}, error : {stderr}");
             }
 
-            return string.Join("\\n", result.StdOut);
+            return string.Join("\n", result.StdOut);
         }
 
 
@@ -335,7 +338,7 @@ namespace Madscience.Perforce
                 throw new Exception($"P4 command {command} exited with code {result.ExitCode}, error : {stderr}");
             }
 
-            return string.Join("\\n", result.StdOut);
+            return string.Join("\n", result.StdOut);
         }
 
         public static Client ParseClient(string rawClient) 
@@ -428,18 +431,28 @@ namespace Madscience.Perforce
                 throw new Exception($"P4 describe failed, got invalid content {rawDescribe}");
 
             // s modifier selects across multiple lines
-            string descriptionRaw = Find(rawDescribe, @"\\n\\n(.*?)\\n\\nAffected files ...", RegexOptions.IgnoreCase & RegexOptions.Multiline).Trim();
+            string descriptionRaw = Find(rawDescribe, @"\n\n(.*?)\n\nAffected files ...", RegexOptions.IgnoreCase & RegexOptions.Multiline).Trim();
             IList<ChangeFile> files = new List<ChangeFile>();
 
             // affected files is large block listing all files which have been affected by revision
-            string affectedFilesRaw = Find(rawDescribe, @"\\n\\nAffected files ...\\n\\n(.*?)\\n\\nDifferences ...", RegexOptions.IgnoreCase);
+            string affectedFilesRaw = string.Empty;
+            if (rawDescribe.Contains("Differences ..."))
+            {
+                affectedFilesRaw = Find(rawDescribe, @"\n\nAffected files ...\n\n(.*)?\n\nDifferences ...", RegexOptions.IgnoreCase);
+            }
+            else 
+            {
+                affectedFilesRaw = Find(rawDescribe, @"\n\nAffected files ...\n\n(.*)?", RegexOptions.IgnoreCase);
+            }
+            
+
             // multiline grab
-            string differencesRaw = Find(rawDescribe, @"\\n\\nDifferences ...\\n\\n(.*)", RegexOptions.IgnoreCase);
+            string differencesRaw = Find(rawDescribe, @"\n\nDifferences ...\n\n(.*)", RegexOptions.IgnoreCase);
 
             affectedFilesRaw = affectedFilesRaw == null ? string.Empty : affectedFilesRaw;
-            IEnumerable<string> affectedFiles = affectedFilesRaw.Split("\\n");
+            IEnumerable<string> affectedFiles = affectedFilesRaw.Split("\n");
 
-            IEnumerable<string> differences = differencesRaw.Split(@"\\n==== ");
+            IEnumerable<string> differences = differencesRaw.Split(@"\n==== ");
 
             // note that we cap max nr of files, we don't care about file details on very large commits
             foreach (string affectedFile in affectedFiles.Take(100))
@@ -461,13 +474,13 @@ namespace Madscience.Perforce
                         string file = Find(difference, @" (.*?)#[\d]+ .+ ====");
                         if (file == item.File)
                             item.Differences = Find(difference, @"#.+====(.*)")
-                                .Split("\\n\\n", StringSplitOptions.RemoveEmptyEntries);
+                                .Split("\n\n", StringSplitOptions.RemoveEmptyEntries);
                     }
 
                 files.Add(item);
             }
 
-            IEnumerable<string> description = descriptionRaw.Split("\\n", StringSplitOptions.RemoveEmptyEntries);
+            IEnumerable<string> description = descriptionRaw.Split("\n", StringSplitOptions.RemoveEmptyEntries);
             description = description.Select(line => line.Trim());
 
             return new Change
@@ -475,7 +488,7 @@ namespace Madscience.Perforce
                 Revision = revision,
                 ChangeFilesCount = affectedFiles.Count(),
                 Workspace = Find(rawDescribe, @"change [\d]+ by.+@(.*?) on ", RegexOptions.IgnoreCase),
-                Date = DateTime.Parse(Find(rawDescribe, @"change [\d]+ by.+? on (.*?)\\n", RegexOptions.IgnoreCase)),
+                Date = DateTime.Parse(Find(rawDescribe, @"change [\d]+ by.+? on (.*?)\n", RegexOptions.IgnoreCase)),
                 User = Find(rawDescribe, @"change [\d]+ by (.*?)@", RegexOptions.IgnoreCase),
                 Files = files,
                 Description = string.Join(" ", description)
@@ -574,7 +587,7 @@ namespace Madscience.Perforce
 
             ShellResult result = Run(command);
             if (result.ExitCode != 0)
-                throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\\n", result.StdErr)}");
+                throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\n", result.StdErr)}");
 
             return result.StdOut;
         }
@@ -600,7 +613,7 @@ namespace Madscience.Perforce
             ShellResult result = Run(command);
             // bizarrely, p4 changes returns both stdout and stderr for changes
             if (result.ExitCode != 0 || (result.StdErr.Any() && !result.StdOut.Any()))
-                throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\\n", result.StdErr)}");
+                throw new Exception($"P4 command {command} exited with code {result.ExitCode} : {string.Join("\n", result.StdErr)}");
 
             if (result.StdOut.Any()) 
                 foreach (string line in result.StdOut)
