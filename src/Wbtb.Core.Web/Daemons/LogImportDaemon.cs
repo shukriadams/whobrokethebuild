@@ -9,7 +9,7 @@ namespace Wbtb.Core.Web.Core
     /// <summary>
     /// Runs import build and import log on build systems.
     /// </summary>
-    public class BuildLogImportDaemon : IWebDaemon
+    public class LogImportDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -25,7 +25,7 @@ namespace Wbtb.Core.Web.Core
 
         #region CTORS
 
-        public BuildLogImportDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public LogImportDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

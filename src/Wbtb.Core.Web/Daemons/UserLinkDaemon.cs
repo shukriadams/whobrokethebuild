@@ -9,7 +9,7 @@ namespace Wbtb.Core.Web
     /// <summary>
     /// Daemon for connecting a defined and mapped WBTB user to the string username associated with a source control revision
     /// </summary>
-    public class BuildInvolvementUserLinkDaemon : IWebDaemon
+    public class UserLinkDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -27,7 +27,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildInvolvementUserLinkDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public UserLinkDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

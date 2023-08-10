@@ -10,7 +10,7 @@ namespace Wbtb.Core.Web
     /// <summary>
     /// Parses build logs to try to find error lines, as well as link these errors to revisions and users where possible.
     /// </summary>
-    public class BuildLogParseDaemon : IWebDaemon
+    public class LogParseDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -28,7 +28,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildLogParseDaemon(ILogger log, Configuration config, PluginProvider pluginProvider, IDaemonProcessRunner processRunner)
+        public LogParseDaemon(ILogger log, Configuration config, PluginProvider pluginProvider, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

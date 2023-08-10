@@ -9,7 +9,7 @@ namespace Wbtb.Core.Web
     /// <summary>
     /// Sets incidentbuild on build records, this ties builds together when an incident occurs
     /// </summary>
-    public class BuildIncidentAssignDaemon : IWebDaemon
+    public class IncidentAssignDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -27,7 +27,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildIncidentAssignDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public IncidentAssignDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
@@ -70,7 +70,6 @@ namespace Wbtb.Core.Web
                 {
                     try
                     {
-
                         Build build = dataRead.GetBuildById(task.BuildId);
 
                         IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.IncidentAssign);

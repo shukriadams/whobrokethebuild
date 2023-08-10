@@ -9,7 +9,7 @@ namespace Wbtb.Core.Web
     /// Adds revisions in build, assuming job supports revision-in-build lookup at build server. If not, must read revisions in build from 
     /// log, which has its own daemon.
     /// </summary>
-    public class BuildRevisionAddDaemon : IWebDaemon
+    public class RevisionFromBuildServerDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -27,7 +27,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildRevisionAddDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public RevisionFromBuildServerDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;

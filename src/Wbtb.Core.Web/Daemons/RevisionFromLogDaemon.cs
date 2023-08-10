@@ -12,7 +12,7 @@ namespace Wbtb.Core.Web
     /// Creates build involvements for a build using build log contents - this is for jobs where builds are not triggered
     /// by source code commits, but by timers. This works on jobs that have the feature enabled.
     /// </summary>
-    public class BuildRevisionFromLogDaemon : IWebDaemon
+    public class RevisionFromLogDaemon : IWebDaemon
     {
         #region FIELDS
 
@@ -30,7 +30,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildRevisionFromLogDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public RevisionFromLogDaemon(ILogger log, IDaemonProcessRunner processRunner)
         {
             _log = log;
             _processRunner = processRunner;
