@@ -4,7 +4,6 @@ using Wbtb.Core.Common;
 using Madscience.Perforce;
 using System.Linq;
 using System.IO;
-using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.SourceServer.Perforce
 {
@@ -14,16 +13,14 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
         private readonly PersistPathHelper _persistPathHelper;
         
-        private readonly ILogger _log;
 
         #endregion
 
         #region CTORS
 
-        public Perforce(PersistPathHelper persistPathHelper, ILogger log) 
+        public Perforce(PersistPathHelper persistPathHelper) 
         {
             _persistPathHelper = persistPathHelper;
-            _log = log;
         }
 
         #endregion
@@ -82,7 +79,6 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
             try
             {
-
                 PerforceUtils.VerifyCredentials(user, password, host, trust);
                 return new ReachAttemptResult { Reachable = true };
             }
