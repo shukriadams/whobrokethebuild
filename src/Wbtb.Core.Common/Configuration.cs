@@ -130,7 +130,7 @@ namespace Wbtb.Core.Common
             this.MaxReadableRawLogSize = 30000000;
 
             this.LiveConsoleSize = 500;
-            this.DaemonInterval = 60;
+            this.DaemonInterval = 5;
             this.UnprocessedBuildProcessorLimit = 50;
             this.Port = 5000;
             this.EnabledDaemons = true;
