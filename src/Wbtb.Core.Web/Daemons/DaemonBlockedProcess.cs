@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
 {
@@ -7,10 +8,14 @@ namespace Wbtb.Core.Web
     {
         public DateTime CreatedUtc { get; set; }
 
-        public string TaskId { get; set; }
+        public DaemonTask Task { get; set; }
+
+        public Type Daemon { get; set; }
+
+        public Build Build { get; set; }
 
         public string Reason { get; set; }
 
-        public IEnumerable<string> BlockingProcesses { get; set; }
+        public IEnumerable<DaemonTask> BlockingProcesses { get; set; }
     }
 }

@@ -71,12 +71,12 @@ namespace Wbtb.Core.Web
                     try
                     {
                         Build build = dataRead.GetBuildById(task.BuildId);
-                        daemonProcesses.MarkActive(task, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.MarkActive(task, this, build);
 
                         IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.RevisionLink);
                         if (blocking.Any())
                         {
-                            daemonProcesses.MarkBlocked(task, this, blocking);
+                            daemonProcesses.MarkBlocked(task, this, build, blocking);
                             continue;
                         }
 
@@ -89,7 +89,7 @@ namespace Wbtb.Core.Web
                         if (!sourceServerPlugin.AttemptReach(sourceServer).Reachable)
                         {
                             Console.WriteLine($"unable to reach source server \"{sourceServer.Name}\", waiting for later.");
-                            daemonProcesses.MarkBlocked(task, "source server down");
+                            daemonProcesses.MarkBlocked(task, this, build,  $"source server {sourceServer.Name} unreachable");
                             continue;
                         }
 

@@ -75,13 +75,13 @@ namespace Wbtb.Core.Web
                         IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.IncidentAssign);
                         if (blocking.Any())
                         {
-                            daemonProcesses.MarkBlocked(task, this, blocking);
+                            daemonProcesses.MarkBlocked(task, this, build, blocking);
                             continue;
                         }
 
                         dataWrite.TransactionStart();
 
-                        daemonProcesses.MarkActive(task, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.MarkActive(task, this, build);
                         Build previousBuild = dataRead.GetPreviousBuild(build);
                         if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
                         {
@@ -103,7 +103,7 @@ namespace Wbtb.Core.Web
                         if (previousBuild != null && previousBuild.Status == BuildStatus.Failed && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
                         {
                             Console.WriteLine($"Skipping task {task.Id} for build {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
-                            daemonProcesses.MarkBlocked(task, "Previous build waiting for incident assignment");
+                            daemonProcesses.MarkBlocked(task, this, build, "Previous build waiting for incident assignment");
                             continue;
                         }
 

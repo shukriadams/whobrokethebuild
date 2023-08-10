@@ -71,19 +71,19 @@ namespace Wbtb.Core.Web.Core
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                         ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
-                        daemonProcesses.MarkActive(task, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.MarkActive(task, this, build);
 
                         if (!reach.Reachable)
                         {
                             _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            daemonProcesses.MarkBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            daemonProcesses.MarkBlocked(task, this, build, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                             continue;
                         }
 
                         IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.LogImport);
                         if (blocking.Any())
                         {
-                            daemonProcesses.MarkBlocked(task, this, blocking);
+                            daemonProcesses.MarkBlocked(task, this, build, blocking);
                             continue;
                         }
 

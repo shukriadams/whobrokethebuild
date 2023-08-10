@@ -74,11 +74,11 @@ namespace Wbtb.Core.Web
                         IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.PostProcess);
                         if (blocking.Any())
                         {
-                            daemonProcesses.MarkBlocked(task, this, blocking);
+                            daemonProcesses.MarkBlocked(task, this, build, blocking);
                             continue;
                         }
 
-                        daemonProcesses.MarkActive(task, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.MarkActive(task, this, build);
                         Job job = dataRead.GetJobById(build.JobId);
 
                         task.HasPassed = true;

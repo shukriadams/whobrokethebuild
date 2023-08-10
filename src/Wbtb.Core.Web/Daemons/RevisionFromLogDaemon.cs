@@ -97,8 +97,6 @@ namespace Wbtb.Core.Web
             {
                 using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>())
                 {
-                    string processKey = string.Empty;
-
                     try
                     {
                         Build build = dataRead.GetBuildById(task.BuildId);
@@ -109,21 +107,19 @@ namespace Wbtb.Core.Web
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
                         ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
-                        processKey = $"{this.GetType().Name}_{task.Id}";
-
-                        daemonProcesses.MarkActive(processKey, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.MarkActive(task, this, build);
 
                         if (!reach.Reachable)
                         {
                             _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            daemonProcesses.MarkBlocked(task, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            daemonProcesses.MarkBlocked(task,this, build, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                             return;
                         }
 
                         IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.RevisionFromLog);
                         if (blocking.Any())
                         {
-                            daemonProcesses.MarkBlocked(task, this, blocking);
+                            daemonProcesses.MarkBlocked(task, this, build, blocking);
                             return;
                         }
 
@@ -131,7 +127,7 @@ namespace Wbtb.Core.Web
                         if (!reach.Reachable)
                         {
                             _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            daemonProcesses.MarkBlocked(task, $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                            daemonProcesses.MarkBlocked(task, this, build, $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                             return;
                         }
 
@@ -257,7 +253,7 @@ namespace Wbtb.Core.Web
                     }
                     finally
                     {
-                        daemonProcesses.ClearActive(processKey);
+                        daemonProcesses.ClearActive(task);
                     }
                 }
 

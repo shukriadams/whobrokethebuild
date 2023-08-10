@@ -46,7 +46,7 @@ namespace Wbtb.Core.Web
             }
         }
 
-        public void MarkActive(DaemonTask task, string description) 
+        public void MarkActive(DaemonTask task, IWebDaemon daemon, Build build, string description = "") 
         {
             lock (_activePrrocesses)
             {
@@ -59,21 +59,47 @@ namespace Wbtb.Core.Web
                 {
                     Description= description,
                     CreatedUtc = DateTime.UtcNow,
-                    Daemon = key
+                    Daemon = daemon.GetType(),
+                    Build = build,
+                    Task = task
                 });
             }
         }
 
-        public void MarkBlocked(DaemonTask task, IWebDaemon daemon, IEnumerable<DaemonTask> blocking) 
+        public void MarkBlocked(DaemonTask task, IWebDaemon daemon, Build build, string reason = "")
+        {
+            lock (_blockedProcesses)
+            {
+                if (_blockedProcesses.ContainsKey(task.Id))
+                    return;
+
+                _blockedProcesses.Add(task.Id, new DaemonBlockedProcess
+                {
+                    Task = task,
+                    Reason = reason,
+                    CreatedUtc = DateTime.UtcNow,
+                    Daemon = daemon.GetType(),
+                    Build = build,
+                    BlockingProcesses = new DaemonTask[] { }
+                });
+            }
+        }
+
+        public void MarkBlocked(DaemonTask task, IWebDaemon daemon, Build build, IEnumerable<DaemonTask> blocking) 
         {
             lock (_blockedProcesses) 
             {
                 if (_blockedProcesses.ContainsKey(task.Id))
                     return;
 
-                string reason = $"Task {task.Id} blocked @ daemon {daemon.GetType().Name} by {blocking.Count()} preceeding tasks: {string.Join(", ", blocking.Select(b => b.Id))}.";
-
-                _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { TaskId = task.Id, Reason = reason, CreatedUtc = DateTime.UtcNow, BlockingProcesses = blocking.Select(b => b.Id) });
+                _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { 
+                    Task = task, 
+                    Reason = string.Empty, 
+                    CreatedUtc = DateTime.UtcNow, 
+                    Daemon = daemon.GetType(),
+                    Build = build,
+                    BlockingProcesses = blocking
+                });
             }
         }
 
@@ -84,7 +110,7 @@ namespace Wbtb.Core.Web
                 if (_blockedProcesses.ContainsKey(task.Id))
                     return;
 
-                _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { TaskId = task.Id, Reason = reason, CreatedUtc = DateTime.UtcNow });
+                _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { Task = task, Reason = reason, CreatedUtc = DateTime.UtcNow });
             }
         }
 
@@ -94,23 +120,6 @@ namespace Wbtb.Core.Web
             {
                 if (_blockedProcesses.ContainsKey(task.Id))
                     _blockedProcesses.Remove(task.Id);
-            }
-        }
-
-        public void MarkActive(string key, string description)
-        {
-            lock (_activePrrocesses)
-            {
-                if (_activePrrocesses.ContainsKey(key))
-                    _activePrrocesses.Remove(key);
-
-
-                _activePrrocesses.Add(key, new DaemonActiveProcess
-                {
-                    Description = description,
-                    CreatedUtc = DateTime.UtcNow,
-                    Daemon = key
-                });
             }
         }
 

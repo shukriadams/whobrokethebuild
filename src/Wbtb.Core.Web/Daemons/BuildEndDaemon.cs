@@ -68,14 +68,14 @@ namespace Wbtb.Core.Web
                         BuildServer buildserver = dataRead.GetBuildServerById(job.BuildServerId);
                         IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
 
-                        daemonProcesses.MarkActive(task, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.MarkActive(task, this, build);
 
                         build = buildServerPlugin.TryUpdateBuild(build);
 
                         // build still not done, contine and wait. Todo : Add forced time out on build here.
                         if (!build.EndedUtc.HasValue)
                         {
-                            daemonProcesses.MarkBlocked(task, "Build not complete yet");
+                            daemonProcesses.MarkBlocked(task, this, build, "Build not complete yet");
                             continue;
                         }
 

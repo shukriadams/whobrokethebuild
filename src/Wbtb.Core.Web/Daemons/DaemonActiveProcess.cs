@@ -1,4 +1,5 @@
 ﻿using System;
+using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
 {
@@ -6,8 +7,12 @@ namespace Wbtb.Core.Web
     {
         public DateTime CreatedUtc { get; set; }
 
-        public string Description { get; set; }
+        public Type Daemon { get; set; }
 
-        public string Daemon { get; set; }
+        public Build Build { get; set; }
+
+        public DaemonTask Task { get; set; }
+
+        public string Description { get; set; }
     }
 }

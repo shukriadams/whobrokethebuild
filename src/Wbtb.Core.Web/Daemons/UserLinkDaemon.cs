@@ -68,12 +68,12 @@ namespace Wbtb.Core.Web
                     try
                     {
                         Build build = dataRead.GetBuildById(task.BuildId);
-                        daemonProcesses.MarkActive(task, $"Task : {task.Id}, Build {build.Id}");
+                        daemonProcesses.MarkActive(task, this, build);
 
                         IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.UserLink);
                         if (blocking.Any())
                         {
-                            daemonProcesses.MarkBlocked(task, this, blocking);
+                            daemonProcesses.MarkBlocked(task, this, build, blocking);
                             continue;
                         }
 
@@ -88,7 +88,7 @@ namespace Wbtb.Core.Web
                             task.Result = $"Expected revision {buildInvolvement.RevisionCode} has not yet been resolved";
                             task.HasPassed = false;
 
-                            daemonProcesses.MarkBlocked(task, task.Result);
+                            daemonProcesses.MarkBlocked(task, this, build, task.Result);
                             continue;
                         }
 

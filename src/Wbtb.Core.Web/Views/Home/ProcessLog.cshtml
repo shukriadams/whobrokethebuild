@@ -10,19 +10,40 @@
 
 @if (Model.ActiveProcesses.Any())
 {
-    <h3>Active Processes</h3>
+    <h3>Active</h3>
     <x-list class="--dense">
-    @foreach (DaemonActiveProcess item in Model.ActiveProcesses)
-    {
         <x-list-row class="--header">
             <x-list-cell>
-                @item.Daemon
+                Task
+            </x-list-cell>
+            <x-list-cell>
+                Build
+            </x-list-cell>
+            <x-list-cell>
+                Daemon
+            </x-list-cell>
+            <x-list-cell>
+                Additional
+            </x-list-cell>
+        </x-list-row>
+
+    @foreach (DaemonActiveProcess item in Model.ActiveProcesses)
+    {
+        <x-list-row>
+            <x-list-cell>
+                @item.Task.Id
+                <div class="quiet">
+                    @item.CreatedUtc.Ago() ago
+                </div>
+            </x-list-cell>
+            <x-list-cell>
+                @ViewHelpers.BuildLink(item.Build)
+            </x-list-cell>
+            <x-list-cell>
+                @item.Daemon.Name
             </x-list-cell>
             <x-list-cell>
                 @item.Description
-            </x-list-cell>
-            <x-list-cell>
-                @item.CreatedUtc.Ago() ago
             </x-list-cell>
         </x-list-row>
     }
@@ -70,6 +91,9 @@ else
 
 @if (Model.DaemonTasks.Items.Any())
 {
+    <div>
+        Total items paging : @Model.DaemonTasks.TotalItemCount
+    </div>
     <x-list class="daemonTasks --dense">
 
         <x-list-row class="--header">

@@ -102,7 +102,7 @@
                     @task.Result
                     @if (task.BlockedProcess != null)
                     {
-                        <text>BLOCKED by taskid:@task.BlockedProcess.TaskId</text>
+                        <text>BLOCKED by taskid:@task.BlockedProcess.Task.Id</text>
                     }
                     @if (task.ActiveProcess != null)
                     {

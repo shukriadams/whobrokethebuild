@@ -73,7 +73,7 @@ namespace Wbtb.Core.Web
                     IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, (int)DaemonTaskTypes.LogParse);
                     if (blocking.Any())
                     {
-                        daemonProcesses.MarkBlocked(task, this, blocking);
+                        daemonProcesses.MarkBlocked(task, this, build, blocking);
                         return;
                     }
 
@@ -94,7 +94,7 @@ namespace Wbtb.Core.Web
                             return;
                         }
 
-                        daemonProcesses.MarkActive(task, $"Task {task.Id}, build {build.Id}, parser {parser.ContextPluginConfig.Manifest.Key}");
+                        daemonProcesses.MarkActive(task, this, build, $"Parser:{parser.ContextPluginConfig.Manifest.Key}");
 
                         // todo : optimize, have to reread log just to hash is a major performance issue
                         string rawLog = File.ReadAllText(build.LogPath);
