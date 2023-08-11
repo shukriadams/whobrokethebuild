@@ -1,15 +1,16 @@
-# A copy-paste config to get a dev server up and running immediately.
-Address: http://myserver.local
-DaemonInterval: 10
+# A copy-paste config to get a dev server up and running immediately. Set env vars with .env in Wbtb.Core.Web directory
+Address: {{env.WBTB_HOSTNAME}}
+MaxThreads: {{env.WBTB_MAX_THREADS}}
+DaemonInterval: {{env.WBTB_DAEMON_INTERVAL}}
 
 Plugins: 
 -   Key: Postgres
     Path: Wbtb.Extensions.Data.Postgres
     Config:
-    -   User: postgres
-    -   Host: <IP>
-    -   Password: <PWD>
-    -   Database: <DB>
+    -   User: {{env.PG_USER}}
+    -   Host: {{env.PG_HOST}}
+    -   Password: {{env.PG_ADMIN_PWD}}
+    -   Database: {{env.PG_DATABASE}}
 -   Key: jenkinsSandbox
     Path : Wbtb.Extensions.BuildServer.JenkinsSandbox
 -   Key: p4Sandbox

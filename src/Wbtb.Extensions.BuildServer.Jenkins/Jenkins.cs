@@ -311,7 +311,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                     return BuildStatus.Passed;
 
                 case "ABORTED":
-                    return BuildStatus.Failed;
+                    return BuildStatus.Aborted;
 
                 case null:
                     return BuildStatus.InProgress;

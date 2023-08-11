@@ -17,7 +17,7 @@
             "fullDisplayName": "MyProject - Build #41",
             "id": "41",
             "number": 41,
-            "result": "SUCCESS",
+            "result": "ABORTED",
             "timestamp": 1600002000000,
             "builtOn": "Agent Two"
         },
@@ -57,7 +57,7 @@
             "fullDisplayName": "MyProject - Build #45",
             "id": "45",
             "number": 45,
-            "result": "FAILURE",
+            "result": null,
             "timestamp": 1600006000000,
             "builtOn": "Agent Three"
         }

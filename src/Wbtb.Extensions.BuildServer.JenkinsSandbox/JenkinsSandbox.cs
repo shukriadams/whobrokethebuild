@@ -117,7 +117,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
                     return BuildStatus.Passed;
 
                 case "ABORTED":
-                    return BuildStatus.Failed;
+                    return BuildStatus.Aborted;
 
                 case null:
                     return BuildStatus.InProgress;

@@ -22,6 +22,10 @@
     &.jobsList-statusFlag--broken {
     }
 
+    &.jobsList-statusFlag--aborted {
+        background-color: var(--bootstrip-color-manatee);
+    }
+
     &.jobsList-statusFlag--passing {
         background-color: var(--bootstrip-color-genoa);
     }
@@ -30,7 +34,7 @@
         background-color: var(--bootstrip-color-crownOfThorns);
     }
 
-    &.jobsList-statusFlag--building {
+    &.jobsList-statusFlag--inprogress {
         background-color: var(--bootstrip-color-corn);
     }
 }

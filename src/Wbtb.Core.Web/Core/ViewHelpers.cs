@@ -74,7 +74,13 @@ namespace Wbtb.Core.Web
 
             if (build.Status == BuildStatus.Passed)
                 return "passing";
-            
+
+            if (build.Status == BuildStatus.InProgress)
+                return "inprogress";
+
+            if (build.Status == BuildStatus.Aborted)
+                return "aborted";
+
             return "build";
         }
         
@@ -217,6 +223,10 @@ namespace Wbtb.Core.Web
 
                     case BuildStatus.InProgress:
                         result = "Building";
+                        break;
+
+                    case BuildStatus.Aborted:
+                        result = "Aborted";
                         break;
 
                 }
