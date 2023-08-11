@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -37,14 +38,34 @@ namespace Wbtb.Core.CLI
             string pluginKey = switches.Get("plugin"); ;
             string userKey = null;
             string groupKey = null;
+            
+            SimpleDI di = new SimpleDI();
+            Configuration config = di.Resolve<Configuration>();
 
             if (switches.Contains("user"))
+            {
                 userKey = switches.Get("user");
+                if (!config.Users.Any(u => u.Key == userKey)) 
+                {
+                    Console.WriteLine($"ERROR : user \"{userKey}\" not found");
+                    Environment.Exit(1);
+                    return;
+                }
+
+            }
 
             if (switches.Contains("group"))
+            {
                 groupKey = switches.Get("group");
+                if (!config.Groups.Any(g => g.Key == groupKey))
+                {
+                    Console.WriteLine($"ERROR : group \"{groupKey}\" not found");
+                    Environment.Exit(1);
+                    return;
+                }
+            }
 
-            SimpleDI di = new SimpleDI();
+
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IMessagingPlugin messagingPlugin = pluginProvider.GetByKey(pluginKey) as IMessagingPlugin;
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();

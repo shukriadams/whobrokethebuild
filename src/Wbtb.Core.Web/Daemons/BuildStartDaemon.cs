@@ -110,7 +110,7 @@ namespace Wbtb.Core.Web
                     }
                     catch (Exception ex)
                     {
-                        _log.LogError($"Unexpected error trying to import builds for \"{job.Key}\" from buildserver \"{buildServer.Key}\" : {ex}");
+                        _log.LogError($"Unexpected error trying to import builds for \"{job.Name}\" from buildserver \"{buildServer.Name}\" : {ex}");
                     }
                 }
             }
