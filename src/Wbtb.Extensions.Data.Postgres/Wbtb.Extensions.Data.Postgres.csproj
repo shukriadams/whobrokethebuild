@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <PackageReference Include="Npgsql" Version="6.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

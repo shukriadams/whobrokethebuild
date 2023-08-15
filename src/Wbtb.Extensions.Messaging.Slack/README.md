@@ -9,8 +9,7 @@ Your Slack plugin needs a Slack APP API token. Create an app @ `https://api.slac
         Path: Wbtb.Extensions.Messaging.Slack
         Config:
         - Token: <slack Bot User OAuth Token>
-
-
+        - AlertMaxLength: <int> (optional)
 
 ### General informing
 

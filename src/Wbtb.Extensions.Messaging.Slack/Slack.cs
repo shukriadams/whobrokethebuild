@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using Wbtb.Core.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.Messaging.Slack
 {
@@ -31,16 +32,19 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         private readonly UrlHelper _urlHelper;
 
+        private readonly ILogger _log;
+
         #endregion
 
         #region CTORS
 
-        public Slack(Configuration config, Cache cache, UrlHelper urlHelper, PluginProvider pluginProvider) 
+        public Slack(Configuration config, Cache cache, UrlHelper urlHelper, PluginProvider pluginProvider, ILogger log) 
         {
             _config = config;
             _urlHelper = urlHelper;
             _pluginProvider = pluginProvider;
             _cache = cache;
+            _log = log;
         }
 
         #endregion
@@ -72,6 +76,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             }
         }
 
+
         PluginInitResult IPlugin.InitializePlugin()
         {
             if (!this.ContextPluginConfig.Config.Any(c => c.Key == "Token"))
@@ -87,11 +92,13 @@ namespace Wbtb.Extensions.Messaging.Slack
             };
         }
 
+
         void IMessagingPlugin.ValidateAlertConfig(MessageConfiguration alertConfig)
         {
             if (string.IsNullOrEmpty(alertConfig.Plugin))
                 throw new ConfigurationException("Slack detected alert with no \"Plugin\" value.");
         }
+
 
         private string AlertKey(string slackChannelId, string jobId, string incidentBuildId)
         {
@@ -102,11 +109,15 @@ namespace Wbtb.Extensions.Messaging.Slack
         string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
+            int alertMaxLength = 600;
+            if (ContextPluginConfig.Config.Any(r => r.Key == "AlertMaxLength")) 
+                int.TryParse(ContextPluginConfig.Config.First(r => r.Key == "AlertMaxLength").Value.ToString(), out alertMaxLength);
 
             NameValueCollection data = new NameValueCollection();
-
             MessageConfiguration targetSlackConfig = null;
-             
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(incidentBuild.JobId);
+
             if (!string.IsNullOrEmpty(user))
             {
                 User userData = _config.Users.Single(u => u.Key == user);
@@ -120,32 +131,22 @@ namespace Wbtb.Extensions.Messaging.Slack
             }
 
             if (targetSlackConfig == null)
-                throw new Exception("alerthandler has neither user nor group");
+                throw new Exception($"Job {job.Key} specified user:{user} and group:{group}, but neither are valid");
 
             SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(targetSlackConfig.RawJson);
             string slackId = config.SlackId;
 
             // if user, we need to get user channel id from user slack id, and post to this
             if (!config.IsGroup)
-            {
-                try
-                {
-                    slackId = this.GetUserChannelId(slackId);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                    return null;
-                }
-            }
-
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Job job = dataLayer.GetJobById(incidentBuild.JobId);
+                slackId = this.GetUserChannelId(slackId);
 
             // check if alert has already been sent
             string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
-            if (!force && _cache.Get(this, key) != null)
+            if (!force && _cache.Get(this, key) != null) 
+            {
+                _log.LogDebug($"Alert for delta on job {job.Key} already sent.");
                 return null;
+            }
 
             IncidentReport incidentReport = dataLayer.GetIncidentReportByMutation(incidentBuild.Id);
             string summary = string.Empty;
@@ -180,7 +181,6 @@ namespace Wbtb.Extensions.Messaging.Slack
                         description += "\n---------------------------------------\n";
                         ParsedBuildLogText parsedText = BuildLogTextParser.Parse(result.ParsedContent);
                         if (parsedText != null) 
-                        {
                             foreach(var item in parsedText.Items) 
                             {
                                 foreach (var item2 in item.Items)
@@ -188,15 +188,13 @@ namespace Wbtb.Extensions.Messaging.Slack
 
                                 description += "\n";
                             }
-                        }
 
                     }
                 }
             }
 
-            int maxAlertLength = 600; // move this to config
-            if (description.Length > maxAlertLength)
-                description = $"{description.Substring(0, maxAlertLength)}\n...\n(truncated, click link for more)";
+            if (description.Length > alertMaxLength)
+                description = $"{description.Substring(0, alertMaxLength)}\n...\n(truncated, click link for more)";
 
             dynamic attachment = new JObject();
             attachment.title = $"{job.Name} - {summary}";
@@ -239,10 +237,11 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                Console.WriteLine(response);
+                _log.LogError($"Error posting to slack : {response}");
                 return null;
             }
         }
+
 
         string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild)
         {
@@ -250,6 +249,9 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             NameValueCollection data = new NameValueCollection();
             MessageConfiguration targetSlackConfig = null;
+
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(fixingBuild.JobId);
 
             if (!string.IsNullOrEmpty(user))
             {
@@ -264,29 +266,14 @@ namespace Wbtb.Extensions.Messaging.Slack
             }
 
             if (targetSlackConfig == null)
-                throw new Exception("alerthandler has neither user nor group");
+                throw new Exception($"Job {job.Key} specified user:{user} and group:{group}, but neither are valid");
 
             SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(targetSlackConfig.RawJson);
             string slackId = config.SlackId;
 
             // if user, we need to get user channel id from user slack id, and post to this
             if (!config.IsGroup)
-            {
-                try
-                {
-                    slackId = this.GetUserChannelId(slackId);
-                }
-                catch (Exception ex)
-                {
-                    // log error
-                    // mark message sent as failed, somwhere
-                    Console.WriteLine(ex);
-                    return null;
-                }
-            }
-
-            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Job job = dataLayer.GetJobById(fixingBuild.JobId);
+                slackId = this.GetUserChannelId(slackId);
 
             // get message transaction
             string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
@@ -334,10 +321,11 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                Console.WriteLine(response);
+                _log.LogError($"Error posting to slack : {response}");
                 return response;
             }
         }
+
 
         private dynamic ExecAPI(string apiFragment, NameValueCollection data, string method = "POST")
         {
@@ -349,6 +337,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             string jsonResponse = Encoding.UTF8.GetString(client.UploadValues($"https://slack.com/api/{apiFragment}", method, data));
             return Newtonsoft.Json.JsonConvert.DeserializeObject(jsonResponse);
         }
+
 
         private string GetUserChannelId(string slackUserId)
         {
@@ -365,6 +354,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             throw new Exception($"Failed to get user channel for slack userid {slackUserId}: {response}");
         }
 
+
         string IMessagingPlugin.TestHandler(MessageConfiguration messageConfiguration)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
@@ -372,23 +362,11 @@ namespace Wbtb.Extensions.Messaging.Slack
             NameValueCollection data = new NameValueCollection();
            
             SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(messageConfiguration.RawJson);
-            string slackId = config.SlackId;
 
             // if user, we need to get user channel id from user slack id, and post to this
+            string slackId = config.SlackId;
             if (!config.IsGroup)
-            {
-                try
-                {
-                    slackId = this.GetUserChannelId(slackId);
-                }
-                catch (Exception ex)
-                {
-                    // log error
-                    // mark message sent as failed, somwhere
-                    Console.WriteLine(ex);
-                    return null;
-                }
-            }
+                slackId = this.GetUserChannelId(slackId);
 
             dynamic attachment = new JObject();
             string message = "This is a test message from WBTB to ensure connectivity works";
@@ -416,7 +394,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                Console.WriteLine(response);
+                _log.LogError($"Error posting to slack: {response}");
                 return null;
             }
         }

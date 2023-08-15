@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
 
@@ -70,16 +71,22 @@ namespace Wbtb.Core.Web
             {
                 try
                 {
-                    // scan on implausably high taskgroup we're more-or-less guaranteed to to see other tasks for job
-                    if (dataLayer.DaemonTasksBlockedForJob(job.Id, 99999).Any())
+                    // scan on implausably high taskgroup so we assume we always see other tasks for this job
+                    IEnumerable<DaemonTask> blockingTasksForJob = dataLayer.DaemonTasksBlockedForJob(job.Id, 99999);
+                    if (blockingTasksForJob.Any())
+                    {
+                        _log.LogDebug($"Job {job.Name} blocked by {blockingTasksForJob.Count()} tasks, waiting.");
                         continue;
+                    }
 
-                    // handle current state of game
                     Build deltaBuild = dataLayer.GetLastJobDelta(job.Id);
 
                     // if delta not yet calculated, ignore alerts for this job
                     if (deltaBuild == null)
+                    {
+                        _log.LogDebug($"Delta not yet set for job {job.Name}, waiting.");
                         continue;
+                    }
 
                     // check if delta has already been alerted on
                     string deltaAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
@@ -109,7 +116,9 @@ namespace Wbtb.Core.Web
                         if (!string.IsNullOrEmpty(lastbreakingId))
                             lastBreakingBuild = dataLayer.GetBuildById(lastbreakingId);
 
-                        // ugly cludge 
+                        // ugly cludge, we need two builds to mark something as fixed, the build that was
+                        // broken, and the buibld that fixed it. If we can't find the breaking build, we
+                        // say that the fixing build fixed itself.
                         if (lastBreakingBuild == null)
                             lastBreakingBuild = deltaBuild;
 

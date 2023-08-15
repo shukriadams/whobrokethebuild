@@ -58,9 +58,13 @@ RUN chmod +x /usr/bin/wbtb
 # p4 only (REMOVE)
 ENV PATH="${PATH}:/usr/bin/p4" 
 
-# set wbtb default log level
-ENV Logging__LogLevel__Microsoft=Warning
+# set default log level
+ENV Logging__LogLevel__Microsoft=Error
+env Logging__LogLevel__Microsoft.Hosting.Lifetime=Error
+env Logging__LogLevel__Wbtb=Warning
+
 # declare config location for wbtb CLI app
 ENV WBTB_CONFIGPATH=/var/wbtb/Wbtb.Core.Web/config.yml
+
 
 CMD sh -c 'dotnet /var/wbtb/MessageQueue/MessageQueue.dll & cd /var/wbtb/Wbtb.Core.Web && dotnet Wbtb.Core.Web.dll && fg'
