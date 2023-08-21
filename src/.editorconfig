@@ -1,8 +1,14 @@
 ﻿[*.cs]
 
-# CS8600: warning on unused method arg. 
+# warning on unused method arg. 
 dotnet_diagnostic.CS1066.severity = suggestion
-# CS8600: Converting null literal or possible null value to non-nullable type.
+# Converting null literal or possible null value to non-nullable type.
 dotnet_diagnostic.CS8600.severity = suggestion
+# something something nullable types something, complaining nullable types (like Type?) aren't 
+# declared nullable enough. No documentation on MS site, some pedantic nerd snuck this in.
+dotnet_diagnostic.CS8632.severity = suggestion
+# complaining that a type that is already nullable (like string) needs to be extra-defined as nullable
+# (string?).
+dotnet_diagnostic.CS8603.severity = suggestion
 # Webclient deprecated warning, no intention of moving to overly-verbose httpclient replacement
 dotnet_diagnostic.SYSLIB0014.severity = suggestion

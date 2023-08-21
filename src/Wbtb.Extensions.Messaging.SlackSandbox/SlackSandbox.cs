@@ -110,6 +110,8 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             if (targetSlackConfig == null)
                 throw new Exception("alerthandler has neither user nor group");
 
+            // note : config is never null, RawJson is the YMl structure of config, in Json form. if targetSlackConfig object
+            // exists, it must have YML.
             SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(targetSlackConfig.RawJson);
             string slackId = config.SlackId;
 
