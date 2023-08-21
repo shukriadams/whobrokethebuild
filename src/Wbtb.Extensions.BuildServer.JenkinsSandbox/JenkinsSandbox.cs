@@ -42,7 +42,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             };
         }
 
-        public void Diagnose() 
+        public new void Diagnose() 
         {
             IDataPlugin data = _di.Resolve<IDataPlugin>();
             var records = data.GetBuildServers();

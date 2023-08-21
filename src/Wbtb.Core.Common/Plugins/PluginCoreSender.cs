@@ -64,7 +64,10 @@ namespace Wbtb.Core.Common
         /// <returns></returns>
         private TReturnType Invoke<TReturnType>(object data)
         {
+            #pragma warning disable SYSLIB0014
             WebClient client = new WebClient();
+            #pragma warning restore SYSLIB0014
+
             string json = JsonConvert.SerializeObject(data);
             byte[] postData = Encoding.ASCII.GetBytes(json);
             byte[] reply = client.UploadData($"http://localhost:{_config.Port}/api/v1/invoke", postData);

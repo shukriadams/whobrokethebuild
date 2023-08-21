@@ -7,8 +7,11 @@ namespace Wbtb.Extensions.BuildServer.Jenkins.Utils
     {
         public static T Download<T>(string url)
         {
-            WebClient webClient = new WebClient();
-            string rawJson = webClient.DownloadString(url);
+            #pragma warning disable SYSLIB0014
+            WebClient client = new WebClient();
+            #pragma warning restore SYSLIB0014
+
+            string rawJson = client.DownloadString(url);
             return JsonConvert.DeserializeObject<T>(rawJson);
         }
     }
