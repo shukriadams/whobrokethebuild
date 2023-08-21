@@ -14,8 +14,6 @@ namespace Wbtb.Extensions.Messaging.Slack
     {
         #region FIELDS
 
-        static readonly int MAX_ALERT_LENGTH = 600;
-
         static readonly string[] allowedTargetTypes = new string[] { "user", "group" };
 
         private readonly Configuration _config;
@@ -333,9 +331,7 @@ namespace Wbtb.Extensions.Messaging.Slack
                 data = new NameValueCollection();
 
             string token = this.ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
-            #pragma warning disable SYSLIB0014 
             WebClient client = new WebClient();
-            #pragma warning restore SYSLIB0014 
             string jsonResponse = Encoding.UTF8.GetString(client.UploadValues($"https://slack.com/api/{apiFragment}", method, data));
             return Newtonsoft.Json.JsonConvert.DeserializeObject(jsonResponse);
         }

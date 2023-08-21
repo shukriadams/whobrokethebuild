@@ -1,0 +1,8 @@
+﻿[*.cs]
+
+# CS8600: warning on unused method arg. 
+dotnet_diagnostic.CS1066.severity = suggestion
+# CS8600: Converting null literal or possible null value to non-nullable type.
+dotnet_diagnostic.CS8600.severity = suggestion
+# Webclient deprecated warning, no intention of moving to overly-verbose httpclient replacement
+dotnet_diagnostic.SYSLIB0014.severity = suggestion

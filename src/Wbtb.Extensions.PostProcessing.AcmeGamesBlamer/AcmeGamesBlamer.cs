@@ -199,7 +199,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                     if (localFileMappedToRemote != revisionFileRemapped)
                                         continue;
 
-                                    BuildInvolvement bi = buildInvolvements.FirstOrDefault(bi => bi.RevisionCode == revision.Code);
+                                    BuildInvolvement bi = buildInvolvements.First(bi => bi.RevisionCode == revision.Code);
 
                                     blamedUserName = revision.User;
                                     User blamedUser = data.GetUserById(bi.MappedUserId);

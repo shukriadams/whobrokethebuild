@@ -94,19 +94,12 @@ namespace Wbtb.Core.Common
             string command = $"{runtime} {mainBin} --wbtb-message {id} --wbtb-tid {tid}";
             string result;
 
-            try
+            if (_config.LogOutgoingProxyCalls)
             {
-                if (_config.LogOutgoingProxyCalls)
-                {
-                    PluginLogger.Write($"Plugin invocation: {command}");
-                }
+                PluginLogger.Write($"Plugin invocation: {command}");
+            }
 
-                result = shell.Run(command);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            result = shell.Run(command);
 
             Regex regex = new Regex(@"<WBTB-output(.*)>([\S\s]*?)<\/WBTB-output>");
             Match match = regex.Match(result);

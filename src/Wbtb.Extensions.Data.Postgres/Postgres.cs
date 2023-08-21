@@ -1805,7 +1805,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobid = "") 
+        PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobId = "") 
         {
             /*
                 filterBy options : 
@@ -1843,12 +1843,12 @@ namespace Wbtb.Extensions.Data.Postgres
                 compountWhere = true;
             }
 
-            if (!string.IsNullOrEmpty(jobid)) 
+            if (!string.IsNullOrEmpty(jobId)) 
             {
                 if (compountWhere) 
-                    where = $" {where} AND B.jobid={jobid} ";
+                    where = $" {where} AND B.jobid={jobId} ";
                 else
-                    where = $" WHERE B.jobid={jobid} ";
+                    where = $" WHERE B.jobid={jobId} ";
             }
 
             if (orderBy == "oldest")

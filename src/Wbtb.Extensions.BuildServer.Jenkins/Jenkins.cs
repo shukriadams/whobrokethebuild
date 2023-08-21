@@ -195,9 +195,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         private WebClient GetAuthenticatedWebclient(Core.Common.BuildServer buildServer)
         {
-            #pragma warning disable SYSLIB0014
             WebClient client = new WebClient();
-            #pragma warning restore SYSLIB0014
 
             string username = buildServer.Config.First(r => r.Key == "Username").Value.ToString();
             string token = buildServer.Config.First(r => r.Key == "Token").Value.ToString();

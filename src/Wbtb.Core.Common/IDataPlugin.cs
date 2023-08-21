@@ -220,7 +220,7 @@ namespace Wbtb.Core.Common
 
         IEnumerable<DaemonTask> DaemonTasksBlockedForJob(string jobid, int order);
 
-        PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobid= "");
+        PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobId = "");
 
         #endregion
 

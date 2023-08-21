@@ -91,7 +91,6 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         IEnumerable<string> IBuildServerPlugin.ListRemoteJobsCanonical(Core.Common.BuildServer buildServer)
         {
-            string filePath = "./JSON/jobs.json";
             string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), "JSON.jobs.json");
 
             try

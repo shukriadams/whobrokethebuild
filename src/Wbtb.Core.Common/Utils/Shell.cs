@@ -17,8 +17,6 @@ namespace Wbtb.Core.Common
 
         public IList<string> StdErr = new List<string>();
 
-        private string _mode = "sh";
-
         #endregion
 
         #region PROPERTIES
