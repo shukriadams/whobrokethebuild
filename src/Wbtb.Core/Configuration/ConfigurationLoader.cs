@@ -43,7 +43,7 @@ namespace Wbtb.Core
                 string envVarValue = Environment.GetEnvironmentVariable(evnVarToken.Groups[1].Value);
                 if (envVarValue == null)
                 {
-                    throw new ConfigurationException($"Config has a template value {{env."+ evnVarToken.Groups[1].Value + "}}, but no matching env var value was found.");
+                    throw new ConfigurationException($"Config has a template value {{env." + evnVarToken.Groups[1].Value + "}}, but no matching env var value was found.");
                 }
                 else
                 {

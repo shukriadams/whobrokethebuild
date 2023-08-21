@@ -81,7 +81,7 @@ namespace Wbtb.Core
                     // plugin load should not throw unhandled exceptions, if it does, allow app to fail.
                     Console.WriteLine($"Plugin '{pluginConfig.Key}' threw exception on load {ex}");
                     pluginConfig.Enable = false;
-                    throw ex;
+                    throw;
                 }
             }
 
@@ -133,7 +133,7 @@ namespace Wbtb.Core
                     // plugin init should not throw unhandled exceptions, if it does, allow app to fail.
                     Console.WriteLine($"Plugin '{pluginConfig.Key}' failed to load : {ex}");
                     pluginConfig.Enable = false;
-                    throw ex;
+                    throw;
                 }
 
                 if (initResult == null || !initResult.Success)

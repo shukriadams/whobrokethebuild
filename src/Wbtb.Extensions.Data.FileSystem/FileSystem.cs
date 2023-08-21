@@ -24,7 +24,7 @@ namespace Wbtb.Extensions.Data.FileSystem
 
         }
 
-        ConfigurationState IDataPlugin.AddConfigurationState(ConfigurationState configurationState)
+        ConfigurationState? IDataPlugin.AddConfigurationState(ConfigurationState configurationState)
         {
             return null;
         }

@@ -105,7 +105,7 @@ namespace Wbtb.Core.Common
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
 
             Regex regex = new Regex(@"<WBTB-output(.*)>([\S\s]*?)<\/WBTB-output>");

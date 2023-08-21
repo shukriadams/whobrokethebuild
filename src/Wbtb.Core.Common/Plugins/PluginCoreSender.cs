@@ -80,7 +80,7 @@ namespace Wbtb.Core.Common
                 Console.WriteLine($"Failed to parse plugin result {innerJson} to type {typeof(TReturnType).Name}.");
                 Console.WriteLine(innerJson, ex);
 
-                throw ex;
+                throw;
             }
         }
     }

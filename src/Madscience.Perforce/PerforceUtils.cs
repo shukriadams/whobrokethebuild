@@ -159,6 +159,7 @@ namespace Madscience.Perforce
             Sh, Cmd
         }
 
+        private static Dictionary<string, string> _tickets = new Dictionary<string, string>();
 
         /// <summary>
         /// Runs a shell command synchronously, returns concatenated stdout, stderr and error code.
@@ -286,26 +287,40 @@ namespace Madscience.Perforce
 
 
         /// <summary>
-        /// gets a p4 ticket for user, returns string empty if faild
+        /// gets a p4 ticket for user. Tickets are cached in memory. This is a cludge fix for now, because ticket is generated once in memory, then we 
+        /// assume it always works. If ticket is revoked after server start, we have to restart it to recreate ticket. tickets should be checked 
+        /// on-the-fly, but that needs to be done higher up than this method.
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="host"></param>
         private static string GetTicket(string username, string password, string host, string trustFingerPrint)
         {
+            string key = username + host;
+            if (_tickets.ContainsKey(key)) 
+                return _tickets[key];
+
             string command = $"echo {password}|p4 -p {host} -u {username} login && p4 -p {host} tickets";
             if (!string.IsNullOrEmpty(trustFingerPrint))
                 command = $"p4 -p {host} trust -i {trustFingerPrint.ToUpper()} && p4 -p {host} trust -f -y && {command}";
 
             var result = Run(command);
+            // perforce cannot establish trust + get ticket at same time because it is stupid.
+            if (string.Join("\n", result.StdOut).ToLower().Contains("already established"))
+                result = Run(command);
+
             if (result.ExitCode != 0 || result.StdErr.Any())
                 throw new Exception($"Failed to login, got code {result.ExitCode} - {string.Join("\n", result.StdErr)}");
 
-            foreach (string outline in result.StdOut) 
+            foreach (string outline in result.StdOut)
                 if (outline.Contains($"({username})")) 
-                    return outline.Split(" ")[2];
+                {
+                    string ticket = outline.Split(" ")[2];
+                    _tickets.Add(key, ticket);
+                    return ticket;
+                }
 
-            throw new Exception($"Failed to get ticket - {string.Join("\n", result.StdErr)} {string.Join("\n", result.StdOut)} ");
+            throw new Exception($"Failed to get ticket - {string.Join("\n", result.StdErr)} {string.Join("\n", result.StdOut)}. If trust is already established, ignore this error. ");
         }
 
         public static  bool IsInstalled() 
@@ -353,8 +368,6 @@ namespace Madscience.Perforce
 
         public static string GetRawClient(string username, string password, string host, string trustFingerPrint, string clientname) 
         {
-
-            
             string ticket = GetTicket(username, password, host, trustFingerPrint);
             string command = $"p4 -u {username} -p {host} -P {ticket} client -o {clientname}";
 

@@ -10,12 +10,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.Messaging.Slack
 {
-    public class SlackConfig
-    { 
-        public string SlackId { get; set; }
-        public bool IsGroup { get;set; }
-    }
-
     public class Slack : Plugin, IMessagingPlugin
     {
         #region FIELDS
@@ -188,7 +182,6 @@ namespace Wbtb.Extensions.Messaging.Slack
 
                                 description += "\n";
                             }
-
                     }
                 }
             }
@@ -227,6 +220,8 @@ namespace Wbtb.Extensions.Messaging.Slack
                     Content = JsonConvert.SerializeObject(new
                     {
                         ts = response.ts.Value,
+                        failingDateUtc = DateTime.UtcNow,
+                        failingBuildId = incidentBuild.Id,
                         status = incidentBuild.Status.ToString()
                     })
                 });
@@ -304,12 +299,17 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             dynamic response = ExecAPI("chat.update", data);
 
+
             if (response.ok.Value)
             {
-                storeItem.Content = JsonConvert.SerializeObject(new
-                {
-                    ts = response.ts.Value,
-                    status = fixingBuild.Status.ToString()
+                storeItem.Content = JsonConvert.SerializeObject(new {
+                    ts = (string)storeItemPayload.ts,
+                    failingDateUtc = (string)storeItemPayload.failingDateUtc,
+                    status = (string)storeItemPayload.Status,
+                    failingBuildId = (string)storeItemPayload.failingBuildId,
+                    passingts = response.ts.Value,
+                    passingBuildId = fixingBuild.Id,
+                    passingDateUtc = DateTime.UtcNow
                 });
 
                 dataLayer.SaveStore(storeItem);

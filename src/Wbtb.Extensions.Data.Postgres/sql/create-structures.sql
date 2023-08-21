@@ -7,14 +7,6 @@ CREATE SEQUENCE public."store_id_seq"
     CACHE 1;
 ALTER SEQUENCE public."store_id_seq" OWNER TO postgres;
 
-CREATE SEQUENCE public."session_userid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."session_userid_seq" OWNER TO postgres;
-
 CREATE SEQUENCE public."configurationstate_id_seq"
     INCREMENT 1
     START 1
@@ -22,30 +14,6 @@ CREATE SEQUENCE public."configurationstate_id_seq"
     MAXVALUE 9223372036854775807
     CACHE 1;
 ALTER SEQUENCE public."configurationstate_id_seq" OWNER TO postgres;
-
-CREATE SEQUENCE public."build_jobid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."build_jobid_seq" OWNER TO postgres;
-
-CREATE SEQUENCE public."build_incidentbuildid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."build_incidentbuildid_seq" OWNER TO postgres;
-
-CREATE SEQUENCE public."job_sourceserverid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."job_sourceserverid_seq" OWNER TO postgres;
 
 CREATE SEQUENCE public."buildlogparseresult_id_seq"
     INCREMENT 1
@@ -63,14 +31,6 @@ CREATE SEQUENCE public."session_id_seq"
     CACHE 1;
 ALTER SEQUENCE public."session_id_seq" OWNER TO postgres;
 
-CREATE SEQUENCE public."buildlogparseresult_buildid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."buildlogparseresult_buildid_seq" OWNER TO postgres;
-
 CREATE SEQUENCE public."revision_id_seq"
     INCREMENT 1
     START 1
@@ -78,38 +38,6 @@ CREATE SEQUENCE public."revision_id_seq"
     MAXVALUE 9223372036854775807
     CACHE 1;
 ALTER SEQUENCE public."revision_id_seq" OWNER TO postgres;
-
-CREATE SEQUENCE public."buildinvolvement_buildid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."buildinvolvement_buildid_seq" OWNER TO postgres;
-
-CREATE SEQUENCE public."buildinvolvement_revisionid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."buildinvolvement_revisionid_seq" OWNER TO postgres;
-
-CREATE SEQUENCE public."buildinvolvement_mappeduserid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."buildinvolvement_mappeduserid_seq" OWNER TO postgres;
-
-CREATE SEQUENCE public."revision_sourceserverid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."revision_sourceserverid_seq" OWNER TO postgres;
 
 CREATE SEQUENCE public."build_id_seq"
     INCREMENT 1
@@ -142,14 +70,6 @@ CREATE SEQUENCE public."job_id_seq"
     MAXVALUE 9223372036854775807
     CACHE 1;
 ALTER SEQUENCE public."job_id_seq" OWNER TO postgres;
-
-CREATE SEQUENCE public."job_buildserverid_seq"
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-ALTER SEQUENCE public."job_buildserverid_seq" OWNER TO postgres;
 
 CREATE SEQUENCE public."sourceserver_id_seq"
     INCREMENT 1
@@ -194,22 +114,6 @@ ALTER SEQUENCE public."incidentreport_id_seq" OWNER TO postgres;
 
 
 -- CREATE TABLES
-CREATE TABLE public."store"
-(
-    id integer NOT NULL DEFAULT nextval('"store_id_seq"'::regclass),
-    "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    "plugin" character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    content text COLLATE pg_catalog."default",
-    CONSTRAINT "store_pkey" PRIMARY KEY (id),
-    CONSTRAINT "store_key_unique" UNIQUE ("key")
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-ALTER TABLE public."store" OWNER TO postgres;
-
-
 -- TABLE : BuildServer
 CREATE TABLE public."buildserver"
 (
@@ -276,8 +180,8 @@ CREATE TABLE public."job"
 (
     id integer NOT NULL DEFAULT nextval('"job_id_seq"'::regclass),
     "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    buildserverid integer NOT NULL DEFAULT nextval('"job_buildserverid_seq"'::regclass),
-    sourceserverid integer DEFAULT nextval('"job_sourceserverid_seq"'::regclass),
+    buildserverid integer NOT NULL,
+    sourceserverid integer,
     CONSTRAINT "job_pkey" PRIMARY KEY (id),
     CONSTRAINT "job_id_unique" UNIQUE ("key", buildserverid),
     CONSTRAINT "job_buildserverid_fk" FOREIGN KEY (buildserverid)
@@ -302,7 +206,7 @@ CREATE TABLE public."revision"
     id integer NOT NULL DEFAULT nextval('"revision_id_seq"'::regclass),
     signature character varying(38) COLLATE pg_catalog."default" NOT NULL,
     code character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    sourceserverid integer NOT NULL DEFAULT nextval('"revision_sourceserverid_seq"'::regclass),
+    sourceserverid integer NOT NULL,
     created timestamp(4) without time zone,
     usr character varying(64) COLLATE pg_catalog."default" NOT NULL,
     files text COLLATE pg_catalog."default",
@@ -325,8 +229,8 @@ CREATE TABLE public."build"
 (
     id integer NOT NULL DEFAULT nextval('"build_id_seq"'::regclass),
     signature character varying(38) COLLATE pg_catalog."default" NOT NULL,
-    jobid integer NOT NULL DEFAULT nextval('"build_jobid_seq"'::regclass),
-    incidentbuildid integer DEFAULT nextval('"build_incidentbuildid_seq"'::regclass),
+    jobid integer NOT NULL,
+    incidentbuildid integer,
     identifier character varying(64) COLLATE pg_catalog."default" NOT NULL,
     triggeringcodechange character varying(64) COLLATE pg_catalog."default",
     triggeringtype character varying(64) COLLATE pg_catalog."default",
@@ -353,15 +257,36 @@ TABLESPACE pg_default;
 ALTER TABLE public."build" OWNER TO postgres;
 
 
+-- TABLE : Store
+CREATE TABLE public."store"
+(
+    id integer NOT NULL DEFAULT nextval('"store_id_seq"'::regclass),
+    "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    "plugin" character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    content text COLLATE pg_catalog."default",
+    CONSTRAINT "store_pkey" PRIMARY KEY (id),
+    CONSTRAINT "store_key_unique" UNIQUE ("key"),
+    CONSTRAINT "store_buildid_fk" FOREIGN KEY (buildid)
+        REFERENCES public."build" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+ALTER TABLE public."store" OWNER TO postgres;
+
+
 -- TABLE : BuildInvolvement
 CREATE TABLE public."buildinvolvement"
 (
     id integer NOT NULL DEFAULT nextval('"buildinvolvement_id_seq"'::regclass),
     signature character varying(38) COLLATE pg_catalog."default" NOT NULL,
-    buildid integer NOT NULL DEFAULT nextval('"buildinvolvement_buildid_seq"'::regclass),
+    buildid integer NOT NULL,
     revisioncode character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    revisionid integer DEFAULT nextval('"buildinvolvement_revisionid_seq"'::regclass),
-    mappeduserid integer DEFAULT nextval('"buildinvolvement_mappeduserid_seq"'::regclass),
+    revisionid integer,
+    mappeduserid integer,
     isignoredfrombreakhistory boolean NOT NULL,
     blamescore integer,
     inferredrevisionlink boolean NOT NULL,
@@ -428,7 +353,7 @@ ALTER TABLE public."version" OWNER TO postgres;
 CREATE TABLE public."session"
 (
     id integer NOT NULL DEFAULT nextval('"session_id_seq"'::regclass),
-    userid integer NOT NULL DEFAULT nextval('"session_userid_seq"'::regclass),
+    userid integer NOT NULL,
     useragent character varying(64) COLLATE pg_catalog."default",
     ip character varying(40) COLLATE pg_catalog."default",
     createdutc timestamp(4) without time zone,
@@ -595,3 +520,9 @@ CREATE INDEX "incidentreport_mutationid_fk"
     ON public."incidentreport" USING btree
     (mutationid)
     TABLESPACE pg_default;
+
+CREATE INDEX "store_buildid_fk"
+    ON public."store" USING btree
+    (buildid)
+    TABLESPACE pg_default;
+   
