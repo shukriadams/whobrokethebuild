@@ -265,11 +265,7 @@ CREATE TABLE public."store"
     "plugin" character varying(64) COLLATE pg_catalog."default" NOT NULL,
     content text COLLATE pg_catalog."default",
     CONSTRAINT "store_pkey" PRIMARY KEY (id),
-    CONSTRAINT "store_key_unique" UNIQUE ("key"),
-    CONSTRAINT "store_buildid_fk" FOREIGN KEY (buildid)
-        REFERENCES public."build" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
+    CONSTRAINT "store_key_unique" UNIQUE ("key")
 )
 WITH (
     OIDS = FALSE
@@ -520,9 +516,4 @@ CREATE INDEX "incidentreport_mutationid_fk"
     ON public."incidentreport" USING btree
     (mutationid)
     TABLESPACE pg_default;
-
-CREATE INDEX "store_buildid_fk"
-    ON public."store" USING btree
-    (buildid)
-    TABLESPACE pg_default;
-   
+  

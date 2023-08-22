@@ -90,6 +90,11 @@ namespace Wbtb.Core.Web
 
                     // check if delta has already been alerted on
                     string deltaAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
+                    // getting a key for passing builds can't use the incident id, as fixing builds don't have incidents, so we use the fixing
+                    // build id
+                    if (deltaBuild.Status == BuildStatus.Passed)
+                        deltaAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.Id}_{deltaBuild.Status}";
+
                     if (_cache.Get(TypeHelper.Name(this), deltaAlertKey) != null)
                         continue;
 
@@ -110,6 +115,7 @@ namespace Wbtb.Core.Web
                         // build has gone from failing to passing
                         _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, deltaBuild);
 
+                        // note : this lookup scales badly on large datasets, consider rewriing
                         string lastbreakingId = dataLayer.GetIncidentIdsForJob(job).FirstOrDefault();
                         Build lastBreakingBuild = null;
 

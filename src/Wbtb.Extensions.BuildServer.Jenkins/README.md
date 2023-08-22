@@ -11,10 +11,10 @@ Plugin for connecting Wbtb to a Jenkins server.
     BuildServers:
     -   Plugin: myJenkins
         Config:
-        - Host: http://myJenkins.com
-        - Username: myUser
-        - Token: Myaccesstoken
+        -   Host: http://myJenkins.com
+        -   Username: myUser
+        -   Token: Myaccesstoken
         Jobs:
-        - Key: MyJob
-          Config:
-           - RemoteKey: My%20Build%20On%20Jenkins/
+        -   Key: MyJob
+            Config:
+            -   RemoteKey: My%20Build%20On%20Jenkins/
