@@ -176,6 +176,9 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                         if (localFile.EndsWith("."))
                                             localFile = localFile.Substring(0, localFile.Length - 1);
 
+                                        // clip off the first dir from path, this will be the game door dir, we don't want this
+                                        localFile = string.Join("/", localFile.Split("/", StringSplitOptions.RemoveEmptyEntries).Skip(1));
+
                                         localFileMappedToRemote = localFile;
                                     
                                         
@@ -190,8 +193,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                                 revisionFileRemapped = revisionFileRemapped.Substring(0, revisionFileRemapped.Length - 1);
 
 
-                                            revisionFileRemapped = revisionFileRemapped.Replace(gameRemoteRoot + "/Content", string.Empty);
-                                            revisionFileRemapped = $"/{gameDoorDirectory}{revisionFileRemapped}";
+                                            revisionFileRemapped = revisionFileRemapped.Replace(gameRemoteRoot + "/Content/", string.Empty);
                                         }
                                             
                                     }
