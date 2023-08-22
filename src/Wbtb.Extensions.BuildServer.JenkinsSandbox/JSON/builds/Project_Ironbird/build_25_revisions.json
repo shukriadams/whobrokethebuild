@@ -5,7 +5,7 @@
         "items": [
             {
                 "_class": "org.jenkinsci.plugins.p4.changes.P4ChangeEntry",
-                "commitId": "56331"
+                "commitId": "45231"
             }
         ]
     }

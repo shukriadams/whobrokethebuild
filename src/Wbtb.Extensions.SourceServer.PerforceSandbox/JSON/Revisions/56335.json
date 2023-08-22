@@ -1,0 +1,14 @@
+﻿{
+  "Revision": "56335",
+  "Workspace": "ugs_workspace",
+  "Date": "2022-01-01T12:00",
+  "User": "Ug",
+  "Description": "This is a UE5.2 blueprint error.",
+  "Files": [
+    {
+      "File": "//mydepot/main/core/PSD/Game/Content/Devs/Mort/BP_MyWidget.bp",
+      "Change": "add",
+      "Differences": [ ">> some line", "<< some other line" ]
+    }
+  ]
+}

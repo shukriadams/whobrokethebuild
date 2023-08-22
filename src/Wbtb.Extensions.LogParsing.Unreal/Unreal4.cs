@@ -42,20 +42,22 @@ namespace Wbtb.Extensions.LogParsing.Unreal
         {
             SimpleDI di = new SimpleDI();
 
-            string bluePrintRegex = @"Blueprint failed to compile: (.*)";
+            string bluePrintRegex4 = @"Blueprint failed to compile: (.*)";
+            string bluePrintRegex5 = @"LogBlueprint: Error: \[AssetLog\] .*?: \[Compiler]\ (.*)? from Source: (.*)?";
 
             // try for cache
-            string blueprintRegexHash = Sha256.FromString(bluePrintRegex + raw);
+            string blueprint4RegexHash = Sha256.FromString(bluePrintRegex4 + raw);
+            string blueprint5RegexHash = Sha256.FromString(bluePrintRegex5 + raw);
             Cache cache = di.Resolve<Cache>();
-            string bluePrintMatch = cache.Get(this, blueprintRegexHash);
+            string bluePrintMatch = cache.Get(this, blueprint4RegexHash);
 
             // force unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
 
+            // try blueprint 4x format
             if (bluePrintMatch == null)
             {
-                MatchCollection matches = new Regex(bluePrintRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);
-                bluePrintMatch = string.Empty;
+                MatchCollection matches = new Regex(bluePrintRegex4, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);
                 if (matches.Any())
                 {
                     BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
@@ -66,13 +68,44 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                     foreach (Match match in matches)
                     {
                         builder.AddItem(match.Groups[1].Value, "path");
+                        builder.AddItem(string.Empty, "description"); //write empty description to match v5 error format below
                         builder.NewLine();
                     }
 
                     bluePrintMatch = builder.GetText();
+                    cache.Write(this, blueprint4RegexHash, bluePrintMatch);
                 }
+            }
 
-                cache.Write(this, blueprintRegexHash, bluePrintMatch);
+            // try blueprint 5x format
+            if (bluePrintMatch == null)
+            {
+                MatchCollection matches = new Regex(bluePrintRegex5, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);
+                if (matches.Any())
+                {
+                    BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
+
+                    // always add flag at start of log data
+                    builder.AddItem("blueprint", "flag");
+
+                    foreach (Match match in matches)
+                    {
+                        builder.AddItem(match.Groups[2].Value, "path");
+                        builder.AddItem(match.Groups[1].Value, "description");
+                        builder.NewLine();
+                    }
+
+                    bluePrintMatch = builder.GetText();
+                    cache.Write(this, blueprint5RegexHash, bluePrintMatch);
+                }
+            }
+
+            // no blueprint matches found, write both to cache so we don't reprocess
+            if (bluePrintMatch == null) 
+            {
+                bluePrintMatch = string.Empty;
+                cache.Write(this, blueprint4RegexHash, bluePrintMatch);
+                cache.Write(this, blueprint5RegexHash, bluePrintMatch);
             }
 
             string shaderRegex = @"LogShaderCompilers: Warning:\n*(.*?.usf)\(\): Shader (.*?), .*";

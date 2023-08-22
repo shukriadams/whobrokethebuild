@@ -297,7 +297,6 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             dynamic response = ExecAPI("chat.update", data);
 
-
             if (response.ok.Value)
             {
                 storeItem.Content = JsonConvert.SerializeObject(new {

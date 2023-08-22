@@ -1,0 +1,33 @@
+﻿<current-revision>56335<current-revision>
+
+<p4-cient-state>
+Note : this is reusing the clientspec from the developer's workspace, this isn't an error, but it would be more correct for the clientspec to be 
+for a build machie, and to have its own view mapping
+
+Client: ugs_workspace
+Update: 2020/01/05 13:39:16
+Access: 2023/04/12 10:18:31
+Owner:  Ug
+Host:   ugs_pc
+Description:
+        Created by ug.
+
+Root:   C:\work\p4stuff
+Options:        noallwrite noclobber nocompress unlocked nomodtime normdir
+SubmitOptions:  submitunchanged
+LineEnd:        local
+Stream: //mydepot/main
+View:
+        //somedepot/main/important/%%1 //ugs_workspace/%%1
+        //mydepot/main/core/PSD/... //ugs_workspace/PSD/...
+
+<p4-cient-state>
+
+Example of a ue5.2 blueprint error
+
+...
+stuff
+LogBlueprint: Error: [AssetLog] C:\work\p4stuff\PSD\Game\Devs\Mort\BP_MyWidget.uasset: [Compiler] Unable to find function with name Stop/HammerTime for Message node  Invalid Message Node . from Source: /Game/Devs/Mort/BP_MyWidget.BP_MyWidget
+LogBlueprint: Error: [AssetLog] C:\work\p4stuff\PSD\Game\Devs\Mort\BP_MyWidget.uasset: [Compiler] Unable to find function with name Stop/HammerTime for Message node  Invalid Message Node . from Source: /Game/Devs/Mort/BP_MyWidget.BP_MyWidget
+...
+stuff
