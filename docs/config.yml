@@ -45,7 +45,7 @@ Groups:
   - Key: mygroup
     Message:
     -   Plugin: myslack
-        SlackId: myslackchannelid
+        SlackId: {{env.WBTB_SLACK_CHANNEL}}
         IsGroup: true
 
 SourceServers:

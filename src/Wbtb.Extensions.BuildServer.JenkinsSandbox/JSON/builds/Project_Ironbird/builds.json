@@ -120,6 +120,26 @@
             "result": "FAILURE",
             "timestamp": 1600013000000,
             "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #35",
+            "id": "35",
+            "number": 35,
+            "result": "FAILURE",
+            "timestamp": 1600014000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #36",
+            "id": "36",
+            "number": 36,
+            "result": "FAILURE",
+            "timestamp": 1600015000000,
+            "builtOn": "Agent Two"
         }
     ]
 }

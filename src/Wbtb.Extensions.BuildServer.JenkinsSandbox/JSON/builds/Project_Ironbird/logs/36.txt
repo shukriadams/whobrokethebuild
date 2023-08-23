@@ -1,0 +1,35 @@
+﻿<current-revision>56336<current-revision>
+<p4-cient-state>
+Note : this is reusing the clientspec from the developer's workspace, this isn't an error, but it would be more correct for the clientspec to be 
+for a build machie, and to have its own view mapping
+
+Client: ugs_workspace
+Update: 2020/01/05 13:39:16
+Access: 2023/04/12 10:18:31
+Owner:  Ug
+Host:   ugs_pc
+Description:
+        Created by ug.
+
+Root:   C:\work\p4stuff
+Options:        noallwrite noclobber nocompress unlocked nomodtime normdir
+SubmitOptions:  submitunchanged
+LineEnd:        local
+Stream: //mydepot/main
+View:
+        //somedepot/main/important/%%1 //ugs_workspace/%%1
+        //mydepot/main/core/PSD/... //ugs_workspace/PSD/...
+
+<p4-cient-state>
+
+Example of a Clang error:
+
+In file included from ..\Programs\BuildTool\PSDToolChain.cpp.38_of_50.cpp:16:
+C:\work\p4stuff\PSD\Source\Programs\BuildTool\PSDToolChain.cpp(1870,57): error: '&&' within '||' [-Werror,-Wlogical-op-parentheses]
+                        if (fml == wtf)
+                                                  ~~ ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\work\p4stuff\PSD\Source\Programs\BuildTool\PSDToolChain.cpp(1870,57): note: place parentheses around the '&&' expression to silence this warning
+                        if (fml == wtf)
+                          ^
+                        (                                                                                          )
+1 error generated.
