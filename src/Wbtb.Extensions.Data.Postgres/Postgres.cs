@@ -556,9 +556,6 @@ namespace Wbtb.Extensions.Data.Postgres
                 if (stats.JobDuration.HasValue && stats.JobDuration.Value.TotalDays > 0 && stats.TotalBuilds > 0)
                     stats.WeeklyBuildRate = (int)Math.Round((decimal)((decimal)stats.TotalBuilds / (decimal)stats.JobDuration.Value.TotalDays / 7));
 
-                // longest uptime
-                IEnumerable<string> incidentBuildIds = ((IDataPlugin)this).GetIncidentIdsForJob(job);
-
                 // longest downtime
 
                 return stats;
