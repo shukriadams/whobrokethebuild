@@ -149,9 +149,19 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Build { };
         }
 
-        IEnumerable<string> IDataPlugin.GetIncidentIdsForJob(Job job)
+        IEnumerable<string> IDataPlugin.GetIncidentIdsForJob(Job job, int count)
         {
             return new string[] { };
+        }
+
+        Build IDataPlugin.GetFixForIncident(Build incident) 
+        {
+            return new Build { };
+        }
+
+        Build IDataPlugin.GetIncidentForFix(Build fix)
+        {
+            return new Build { };
         }
 
         Job IDataPlugin.GetJobById(string id)

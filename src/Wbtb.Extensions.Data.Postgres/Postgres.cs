@@ -150,6 +150,9 @@ namespace Wbtb.Extensions.Data.Postgres
         StoreItem IDataPlugin.SaveStore(StoreItem storeItem)
         {
             string insertQuery = @"
+                -- workaround to ensure uniqueness of records, always destroy existing record by key if it already exists
+                DELETE FROM store where key = @key;
+
                 INSERT INTO store
                     (key, plugin, content)
                 VALUES
@@ -666,7 +669,82 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        IEnumerable<string> IDataPlugin.GetIncidentIdsForJob(Job job)
+
+        Build IDataPlugin.GetFixForIncident(Build incident)
+        {
+            string query = @"
+                SELECT
+                    *
+                FROM
+                    build
+                WHERE 
+                    status = @passingStatus
+                    AND startedutc > @incidentStart
+                    AND jobid = @jobid
+                ORDER BY
+                    startedutc ASC
+                LIMIT 
+                    1";
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
+            {
+                IList<string> buildIds = new List<string>();
+                cmd.Parameters.AddWithValue("jobid", int.Parse(incident.JobId));
+                cmd.Parameters.AddWithValue("passingStatus", (int)BuildStatus.Passed);
+                cmd.Parameters.AddWithValue("incidentStart", incident.StartedUtc);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new BuildConvert().ToCommon(reader);
+            }
+        }
+
+        Build IDataPlugin.GetIncidentForFix(Build fix) 
+        {
+            string query = @"
+                -- Gets the first failing build before fix 
+                SELECT
+                    *
+                FROM
+                    build
+                WHERE 
+                    status = @failingStatus
+                    AND jobid = @jobid                    
+                    AND startedutc > (
+                        -- get previous fix date
+                        SELECT 
+                            startedutc
+                        FROM 
+                            build
+                        WHERE
+                            jobid = @jobid
+                            AND status = @passingStatus
+                            AND startedutc < @incidentStart
+                        ORDER BY 
+                            startedutc DESC
+                        LIMIT 
+                            1
+                    )
+                ORDER BY
+                    startedutc ASC
+                LIMIT 
+                    1";
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
+            {
+                IList<string> buildIds = new List<string>();
+                cmd.Parameters.AddWithValue("jobid", int.Parse(fix.JobId));
+                cmd.Parameters.AddWithValue("failingStatus", (int)BuildStatus.Failed);
+                cmd.Parameters.AddWithValue("passingStatus", (int)BuildStatus.Passed);
+                cmd.Parameters.AddWithValue("incidentStart", fix.StartedUtc);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new BuildConvert().ToCommon(reader);
+            }
+        }
+
+        IEnumerable<string> IDataPlugin.GetIncidentIdsForJob(Job job, int count)
         { 
             string query = @"
                 SELECT
@@ -682,13 +760,16 @@ namespace Wbtb.Extensions.Data.Postgres
                         jobid = @jobid
                 )
                 ORDER BY
-                    startedutc DESC";
+                    startedutc DESC
+                LIMIT 
+                    @count";
 
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 IList<string> buildIds = new List<string>();
                 cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
+                cmd.Parameters.AddWithValue("count", count);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     while (reader.Read())
@@ -1009,7 +1090,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
         PageableData<Build> IDataPlugin.PageBuildsByJob(string jobId, int index, int pageSize, bool sortAscending)
         {
-            string sortOrder = "";
+            string sortOrder = string.Empty;
             if (!sortAscending)
                 sortOrder = "DESC";
 

@@ -79,69 +79,82 @@ namespace Wbtb.Core.Web
                         continue;
                     }
 
+
+                    // alert fails, we alert only latest fail, if for some reason build failed then fixed itself between alert windows 
+                    // we ignore those.
+                    // note : delta will be null if no build has run or builds have always had same status since job start
                     Build deltaBuild = dataLayer.GetLastJobDelta(job.Id);
 
-                    // if delta not yet calculated, ignore alerts for this job
-                    if (deltaBuild == null)
+                    if (deltaBuild != null && deltaBuild.Status == BuildStatus.Failed)
                     {
-                        _log.LogDebug($"Delta not yet set for job {job.Name}, waiting.");
-                        continue;
+                        string failingAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
+                        string result = string.Empty;
+
+                        // check if delta has already been alerted on
+                        if (_cache.Get(TypeHelper.Name(this), failingAlertKey) == null)
+                        {
+                            if (deltaBuild.Status == BuildStatus.Failed)
+                            {
+                                _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaBuild);
+
+                                foreach (MessageHandler alert in job.Message)
+                                {
+                                    IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
+                                    string localResult = messagePlugin.AlertBreaking(alert.User, alert.Group, deltaBuild, false);
+                                    result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
+                                }
+                            }
+
+                            _cache.Write(TypeHelper.Name(this), failingAlertKey, "sent");
+
+                            dataLayer.SaveStore(new StoreItem
+                            {
+                                Key = failingAlertKey,
+                                Plugin = this.GetType().Name,
+                                Content = $"Date:{DateTime.UtcNow}\n{result}"
+                            });
+                        }
                     }
 
-                    // check if delta has already been alerted on
-                    string deltaAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
-
-                    // getting a key for passing builds can't use the incident id, as fixing builds don't have incidents, so we use the fixing build id
-                    if (deltaBuild.Status == BuildStatus.Passed)
-                        deltaAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.Id}_{deltaBuild.Status}";
-
-                    if (_cache.Get(TypeHelper.Name(this), deltaAlertKey) != null)
-                        continue;
-
-                    if (deltaBuild.Status == BuildStatus.Failed)
+                    // ensure all previous resolve incidents are alerted on,
+                    IEnumerable<string> incidentIds = dataLayer.GetIncidentIdsForJob(job, 5);
+                    foreach (string incidentId in incidentIds)
                     {
-                        // build has gone from passing to failing
-                        _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaBuild);
+                        Build incident = dataLayer.GetBuildById(incidentId);
+                        Build fixingBuild = dataLayer.GetFixForIncident(incident);
+                        if (fixingBuild == null)
+                            continue;
+
+                        // has fail alert for incident been sent? if not, don't bother alerting fix for it
+                        string failingAlertKey = $"deltaAlert_{job.Key}_{incident.IncidentBuildId}_{incident.Status}";
+                        if (_cache.Get(TypeHelper.Name(this), failingAlertKey) == null)
+                            continue;
+
+                        // has pass alert been sent? if so, don't alert again
+                        string passingAlertKey = $"deltaAlert_{job.Key}_{incident.IncidentBuildId}_{fixingBuild.Status}";
+                        if (_cache.Get(TypeHelper.Name(this), passingAlertKey) != null)
+                            continue;
+
+                        _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, fixingBuild);
+                        
+                        string result = string.Empty;
 
                         foreach (MessageHandler alert in job.Message)
                         {
                             IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                            messagePlugin.AlertBreaking(alert.User, alert.Group, deltaBuild, false);
+                            string localResult = messagePlugin.AlertPassing(alert.User, alert.Group, incident, fixingBuild);
+                            result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
                         }
 
-                    }
-                    else if (deltaBuild.Status == BuildStatus.Passed)
-                    {
-                        // build has gone from failing to passing
-                        _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, deltaBuild);
+                        _cache.Write(TypeHelper.Name(this), passingAlertKey, "sent");
 
-                        // note : this lookup scales badly on large datasets, consider rewriing
-                        string lastbreakingId = dataLayer.GetIncidentIdsForJob(job).FirstOrDefault();
-                        Build lastBreakingBuild = null;
-
-                        if (!string.IsNullOrEmpty(lastbreakingId))
-                            lastBreakingBuild = dataLayer.GetBuildById(lastbreakingId);
-
-                        // ugly cludge, we need two builds to mark something as fixed, the build that was
-                        // broken, and the buibld that fixed it. If we can't find the breaking build, we
-                        // say that the fixing build fixed itself.
-                        if (lastBreakingBuild == null)
-                            lastBreakingBuild = deltaBuild;
-
-                        foreach (MessageHandler alert in job.Message)
+                        dataLayer.SaveStore(new StoreItem
                         {
-                            IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                            messagePlugin.AlertPassing(alert.User, alert.Group, lastBreakingBuild, deltaBuild);
-                        }
+                            Key = passingAlertKey,
+                            Plugin = this.GetType().Name,
+                            Content = $"Date:{DateTime.UtcNow}\n{result}"
+                        });
                     }
-
-                    _cache.Write(TypeHelper.Name(this), deltaAlertKey, "sent");
-
-                    dataLayer.SaveStore(new StoreItem
-                    {
-                        Key = deltaAlertKey,
-                        Plugin = this.GetType().Name
-                    });
                 }
                 catch (Exception ex)
                 {

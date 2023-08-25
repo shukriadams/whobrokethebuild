@@ -87,8 +87,27 @@ namespace Wbtb.Core.Common
         /// </summary>
         /// <param name="job"></param>
         /// <returns></returns>
-        IEnumerable<string> GetIncidentIdsForJob(Job job);
+        IEnumerable<string> GetIncidentIdsForJob(Job job, int count);
 
+        /// <summary>
+        /// Gets the build that fixed an incident
+        /// </summary>
+        /// <param name="incident"></param>
+        /// <returns></returns>
+        Build GetFixForIncident(Build incident);
+
+        /// <summary>
+        /// Gets the incident that a fixing build ... fixed.
+        /// </summary>
+        /// <param name="fix"></param>
+        /// <returns></returns>
+        Build GetIncidentForFix(Build fix);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="job"></param>
+        /// <returns></returns>
         JobStats GetJobStats(Job job);
         
         /// <summary>

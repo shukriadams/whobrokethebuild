@@ -317,16 +317,38 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<string> IDataPlugin.GetIncidentIdsForJob(Job job)
+        IEnumerable<string> IDataPlugin.GetIncidentIdsForJob(Job job, int count)
         {
             return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
             {
                 FunctionName = nameof(IDataPlugin.GetIncidentIdsForJob),
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "job", Value = job }
+                    new PluginFunctionParameter { Name = "job", Value = job },
+                    new PluginFunctionParameter { Name = "count", Value = count }
                 }
             });
+        }
 
+        Build IDataPlugin.GetFixForIncident(Build incident)
+        {
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetFixForIncident),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "incident", Value = incident}
+                }
+            });
+        }
+
+        Build IDataPlugin.GetIncidentForFix(Build fix)
+        {
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetIncidentForFix),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "fix", Value = fix }
+                }
+            });
         }
 
         JobStats IDataPlugin.GetJobStats(Job job)
@@ -338,7 +360,6 @@ namespace Wbtb.Core.Common
                     new PluginFunctionParameter { Name = "job", Value = job }
                 }
             });
-
         }
 
         int IDataPlugin.ResetJob(string jobId, bool hard)

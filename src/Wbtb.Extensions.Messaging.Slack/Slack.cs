@@ -133,7 +133,7 @@ namespace Wbtb.Extensions.Messaging.Slack
                 slackId = this.GetUserChannelId(slackId);
 
             // check if alert has already been sent
-            string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
+            string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
             if (!force && _cache.Get(this, key) != null) 
             {
                 _log.LogDebug($"Alert for delta on job {job.Key} already sent.");
@@ -269,7 +269,7 @@ namespace Wbtb.Extensions.Messaging.Slack
                 slackId = this.GetUserChannelId(slackId);
 
             // get message transaction
-            string key = AlertKey(slackId, job.Id, incidentBuild.IncidentBuildId);
+            string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
             StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
 
             // no alert for this build was sent, ignore it
