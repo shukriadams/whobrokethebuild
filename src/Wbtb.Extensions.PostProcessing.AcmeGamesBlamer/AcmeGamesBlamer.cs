@@ -219,12 +219,37 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             
             if (errorFound)
             {
-                if (isBluePrintError)
+                string description = "Error found";
+
+                if (isBluePrintError) 
+                {
                     breakExtraFlag = " (blueprint)";
-                if (isShaderError)
+                    description = "Blueprint error";
+                }
+                    
+                if (isShaderError) 
+                {
                     breakExtraFlag = " (shader)";
+                    description = "Shader error";
+                }
+                    
                 if (isCPPError)
+                {
                     breakExtraFlag = " (C++)";
+                    description = "C++ error";
+                }
+
+                if (!string.IsNullOrEmpty(fileCausingBreak))
+                    description += $"Caused by file {fileCausingBreak}. ";
+
+                if (!string.IsNullOrEmpty(revisionCausingBreak))
+                    description += $"revisions {revisionCausingBreak}. ";
+
+                if (!string.IsNullOrEmpty(blamedUserName))
+                    description += $"User {blamedUserName}. ";
+
+                if (!string.IsNullOrEmpty(errorLineFromLog))
+                    description += $"{errorLineFromLog}";
 
                 data.SaveIncidentReport(new IncidentReport
                 {
@@ -233,7 +258,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     Processor = this.GetType().Name,
                     Summary = $"Broken by {blamedUserName}{breakExtraFlag}",
                     Status = "Break",
-                    Description = $"Found error in P4 revision file {fileCausingBreak}, revision {revisionCausingBreak}, user {blamedUserName} : {errorLineFromLog}"
+                    Description = description
                 });
 
                 return new PostProcessResult

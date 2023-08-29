@@ -11,6 +11,8 @@ namespace Wbtb.Core.Web
 
         public IEnumerable<DaemonActiveProcess> ActiveProcesses { get; set; }
 
+        public IEnumerable<DaemonDoneProcess> DoneProcesses { get; set; }
+
         public IList<DaemonBlockedProcess> BlockedProcesses { get; set; }
 
         public string BaseUrl { get; set; }

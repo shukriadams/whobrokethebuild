@@ -15,7 +15,7 @@ namespace Wbtb.Core.Web
             _running = true;
         }
 
-        public void Start(DaemonWork work, int tickInterval)
+        public void dfStart(DaemonWork work, int tickInterval)
         {
             Task.Run(() => {
                 while (_running)
@@ -43,43 +43,32 @@ namespace Wbtb.Core.Web
             });
         }
 
-        public void dfdStart(DaemonWork work, int tickInterval)
+        public void Start(DaemonWork work, int tickInterval)
         {
-            // wrap start in a risk so they don't block calling thread
-            Task.Run(() => {
+            // do each work tick on its own thread
+            new Thread(delegate ()
+            {
                 while (_running)
                 {
+                    if (_busy)
+                        return;
+
+                    _busy = true;
+
                     try
                     {
-                        if (_busy)
-                            return;
-
-                        _busy = true;
-
-                        // do each work tick on its own thread
-                        //                        ManualResetEvent resetEvent = new ManualResetEvent(false);
-                        //                        new Thread(delegate ()
-                        //                        {
-                        //                        try
-                        //                        {
                         work();
-                        //                            }
-                        //                          finally
-                        //                        {
-                        //                        resetEvent.Set();
-                        //                }
-                        //                }).Start();
-
-                        // Wait for threads to finish
-                        //                        resetEvent.WaitOne();
                     }
                     finally
                     {
                         _busy = false;
-                        Thread.Sleep(tickInterval);
                     }
+
+                    Console.WriteLine($"{this.GetType()} ticked");
+                    Thread.Sleep(tickInterval);
                 }
-            });
+
+            }).Start();
         }
 
         /// <summary>

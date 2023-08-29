@@ -40,6 +40,9 @@ namespace Wbtb.Core.Common
     {
         public static ParsedBuildLogText Parse(string markup)
         {
+            if (string.IsNullOrEmpty(markup))
+                return null;
+
             XmlDocument xmlDoc = new XmlDocument();
 
             try

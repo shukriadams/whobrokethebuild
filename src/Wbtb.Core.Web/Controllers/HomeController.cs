@@ -315,6 +315,7 @@ namespace Wbtb.Core.Web.Controllers
 
             model.ActiveProcesses = daemonProcesses.GetAllActive();
             model.BlockedProcesses = daemonProcesses.GetAllBlocked().OrderByDescending(p => p.CreatedUtc).ToList();
+            model.DoneProcesses = daemonProcesses.GetDone();
 
             // try to assign blocks to acitve processses to make it easier 
             model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, orderBy, filterby, jobid));

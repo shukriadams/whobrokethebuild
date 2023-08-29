@@ -7,6 +7,89 @@
 
 <h1>Process log</h1>
 
+@if (Model.BlockedProcesses.Any())
+{
+    <h3>Blocked</h3>
+    <x-list class="--dense">
+        <x-list-row class="--header">
+            <x-list-cell>
+                Task
+            </x-list-cell>
+            <x-list-cell>
+                Build
+            </x-list-cell>
+            <x-list-cell>
+                Daemon
+            </x-list-cell>
+        </x-list-row>
+
+        @foreach (DaemonBlockedProcess item in Model.BlockedProcesses.Take(0))
+        {
+            <x-list-row>
+                <x-list-cell>
+                    @item.Task.Id
+                    <div class="quiet">
+                        @item.CreatedUtc.Ago() ago
+                    </div>
+                </x-list-cell>
+                <x-list-cell>
+                    @item.Task.BuildId
+                </x-list-cell>
+                <x-list-cell>
+                    @item.Daemon
+                </x-list-cell>
+            </x-list-row>
+        }
+    </x-list>
+}
+else
+{
+    <div>
+        No blocked processes
+    </div>
+}
+
+@if (Model.DoneProcesses.Any())
+{
+    <h3>Done</h3>
+    <x-list class="--dense">
+        <x-list-row class="--header">
+            <x-list-cell>
+                Task
+            </x-list-cell>
+            <x-list-cell>
+                Build
+            </x-list-cell>
+            <x-list-cell>
+                Daemon
+            </x-list-cell>
+        </x-list-row>
+
+        @foreach (DaemonDoneProcess item in Model.DoneProcesses)
+        {
+            <x-list-row>
+                <x-list-cell>
+                    @item.TaskId
+                    <div class="quiet">
+                        @item.DoneUTc.Ago() ago
+                    </div>
+                </x-list-cell>
+                <x-list-cell>
+                    @item.BuildId
+                </x-list-cell>
+                <x-list-cell>
+                    @item.Daemon
+                </x-list-cell>
+            </x-list-row>
+        }
+    </x-list>
+}
+else
+{
+    <div>
+        No done processes
+    </div>
+}
 
 @if (Model.ActiveProcesses.Any())
 {

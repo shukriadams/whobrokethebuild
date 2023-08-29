@@ -96,7 +96,13 @@
                     <div><a href="/build/@Model.PreviousBuild.Id">@Model.PreviousBuild.Identifier </a> <span class="quiet">@((Model.Build.StartedUtc - Model.PreviousBuild.StartedUtc).ToHumanString()) earlier</span></div>
                 }
 
-                <wbtb-label>Process log</wbtb-label>
+                <wbtb-label>Logs</wbtb-label>
+                <div>
+                    <a href="/build/log/@Model.Build.Id">Raw build log</a>
+                </div>
+
+
+                <wbtb-label></wbtb-label>
                 <div>
                     <a href="/buildProcessLog/@Model.Build.Id">
 
@@ -108,10 +114,9 @@
                             <x-badge class="--warning">Pending</x-badge>
                         }else
                         {
-                            <text>View</text>
+                            <text>Processing history</text>
                         }
                     </a>
-
                 </div>
 
             </wbtb-labels>
