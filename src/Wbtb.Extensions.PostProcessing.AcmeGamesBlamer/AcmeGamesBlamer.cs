@@ -128,6 +128,9 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     if (line.Items.Any(l => l.Type == "flag" && l.Content == "blueprint"))
                         isBluePrintError = true;
 
+                    if (parsedText.Type == "Wbtb.Extensions.LogParsing.BasicErrors")
+                        basicError += $"{string.Join("\n", line.Items.Select(i => i.Content))}\n";
+
                     foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
                     {
                         if (!allowedParsers.Contains(parsedText.Type))
@@ -244,8 +247,10 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 if (!string.IsNullOrEmpty(fileCausingBreak))
                     description += $" Caused by file {fileCausingBreak}. ";
 
-                if (!implicatedRevisions.Any())
+                if (implicatedRevisions.Any())
                     description += $" revision{(implicatedRevisions.Count == 1 ? "" : "s")} {string.Join(",", implicatedRevisions)}. ";
+                else
+                    description += $" Could not parse revision, 'error' keyword match found : {basicError}";
 
                 if (!string.IsNullOrEmpty(blamedUserName))
                     description += $" User {blamedUserName}. ";
