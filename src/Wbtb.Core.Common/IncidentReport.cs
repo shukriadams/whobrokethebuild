@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Wbtb.Core.Common
 {
@@ -25,6 +26,11 @@ namespace Wbtb.Core.Common
         /// Id of the specific build this incident is attached to 
         /// </summary>
         public string MutationId { get; set; }
+
+        /// <summary>
+        /// Revision (source control unique codes) confirmed to be involved in incident
+        /// </summary>
+        public IEnumerable<string> ImplicatedRevisions { get; set; }
 
         /// <summary>
         /// status identifier for summary. Normally "break" or "mutate". This is a descriptive field to make it easier to see that breaks are changing.
@@ -59,6 +65,7 @@ namespace Wbtb.Core.Common
         {
             this.Signature = Guid.NewGuid().ToString();
             this.CreatedUtc = DateTime.UtcNow;
+            this.ImplicatedRevisions = new List<string>();
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace Wbtb.Core.Common
 {
@@ -776,6 +777,14 @@ namespace Wbtb.Core.Common
                     new PluginFunctionParameter { Name = "jobid", Value = jobid },
                     new PluginFunctionParameter { Name = "order", Value = order }
                 }
+            });
+        }
+
+        IEnumerable<DaemonTask> IDataPlugin.GetBlockingDaemonTasks()
+        {
+            return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetBlockingDaemonTasks)
             });
         }
 

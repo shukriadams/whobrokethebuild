@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -1883,6 +1884,25 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
+        IEnumerable<DaemonTask> IDataPlugin.GetBlockingDaemonTasks() 
+        {
+            string sql = @"
+                SELECT 
+                    * 
+                FROM 
+                    daemontask WHERE (buildid, stage) IN
+                    (
+                        SELECT DISTINCT (buildid), MIN(stage) AS stage FROM daemontask WHERE processedutc IS NULL
+                        GROUP BY buildid
+                    )
+                ";
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
+            using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                return new DaemonTaskConvert().ToCommonList(reader);
+        }
+
         PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobId = "") 
         {
             /*
@@ -1993,9 +2013,9 @@ namespace Wbtb.Extensions.Data.Postgres
 
             string insertQuery = @"
                 INSERT INTO incidentreport
-                    (incidentid, mutationid, signature, createdutc, status, summary, description, processor)
+                    (incidentid, mutationid, signature, createdutc, status, summary, description, processor, implicatedrevisions)
                 VALUES
-                    (@incidentid, @mutationid, @signature, @createdutc, @status, @summary, @description, @processor)
+                    (@incidentid, @mutationid, @signature, @createdutc, @status, @summary, @description, @processor, @implicatedrevisions)
                 RETURNING id";
 
             string updateQuery = @"                    
@@ -2008,6 +2028,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     status = @status,
                     summary = @summary,
                     description = @description,
+                    implicatedrevisions = @implicatedrevisions,
                     processor = @processor
                 WHERE
                     id = @id

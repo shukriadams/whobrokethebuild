@@ -312,10 +312,15 @@ namespace Wbtb.Core.Web.Controllers
             DaemonTaskProcesses daemonProcesses = _di.Resolve<DaemonTaskProcesses>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             ProcessPageModel model = new ProcessPageModel();
-
+            
             model.ActiveProcesses = daemonProcesses.GetAllActive();
             model.BlockedProcesses = daemonProcesses.GetAllBlocked().OrderByDescending(p => p.CreatedUtc).ToList();
             model.DoneProcesses = daemonProcesses.GetDone();
+            IList<DaemonTask> blockedTasks = dataLayer.GetBlockingDaemonTasks().ToList();
+            foreach (DaemonActiveProcess active in model.ActiveProcesses)
+                blockedTasks.Remove(blockedTasks.FirstOrDefault(r => r.Id == active.Task.Id));
+
+            model.BlockingDaemonTasks = blockedTasks;
 
             // try to assign blocks to acitve processses to make it easier 
             model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, orderBy, filterby, jobid));

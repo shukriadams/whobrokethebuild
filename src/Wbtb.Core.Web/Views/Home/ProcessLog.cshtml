@@ -7,9 +7,9 @@
 
 <h1>Process log</h1>
 
-@if (Model.BlockedProcesses.Any())
+@if (Model.BlockingDaemonTasks.Any())
 {
-    <h3>Blocked</h3>
+    <h3>Blocking (@Model.BlockingDaemonTasks.Count)</h3>
     <x-list class="--dense">
         <x-list-row class="--header">
             <x-list-cell>
@@ -19,11 +19,47 @@
                 Build
             </x-list-cell>
             <x-list-cell>
-                Daemon
+                stage
             </x-list-cell>
         </x-list-row>
 
-        @foreach (DaemonBlockedProcess item in Model.BlockedProcesses.Take(0))
+        @foreach (DaemonTask item in Model.BlockingDaemonTasks)
+        {
+            <x-list-row>
+                <x-list-cell>
+                    @item.Id
+                    <div class="quiet">
+                        @item.CreatedUtc.Ago() ago
+                    </div>
+                </x-list-cell>
+                <x-list-cell>
+                    @item.BuildId
+                </x-list-cell>
+                <x-list-cell>
+                    @((DaemonTaskTypes)item.Stage)
+                </x-list-cell>
+            </x-list-row>
+        }
+    </x-list>
+}
+
+@if (Model.BlockedProcesses.Any())
+{
+    <h3>Blocked (@Model.BlockedProcesses.Count)</h3>
+    <x-list class="--dense">
+        <x-list-row class="--header">
+            <x-list-cell>
+                Task
+            </x-list-cell>
+            <x-list-cell>
+                Build
+            </x-list-cell>
+            <x-list-cell>
+                stage
+            </x-list-cell>
+        </x-list-row>
+
+        @foreach (DaemonBlockedProcess item in Model.BlockedProcesses)
         {
             <x-list-row>
                 <x-list-cell>
@@ -36,22 +72,19 @@
                     @item.Task.BuildId
                 </x-list-cell>
                 <x-list-cell>
-                    @item.Daemon
+                    @((DaemonTaskTypes)item.Task.Stage)
+                    <div>
+                        @item.Reason
+                    </div>
                 </x-list-cell>
             </x-list-row>
         }
     </x-list>
 }
-else
-{
-    <div>
-        No blocked processes
-    </div>
-}
 
 @if (Model.DoneProcesses.Any())
 {
-    <h3>Done</h3>
+    <h3>Done (@Model.DoneProcesses.Count())</h3>
     <x-list class="--dense">
         <x-list-row class="--header">
             <x-list-cell>
@@ -93,7 +126,7 @@ else
 
 @if (Model.ActiveProcesses.Any())
 {
-    <h3>Active</h3>
+    <h3>Active (@Model.ActiveProcesses.Count())</h3>
     <x-list class="--dense">
         <x-list-row class="--header">
             <x-list-cell>

@@ -429,6 +429,7 @@ CREATE TABLE public."incidentreport"
     status character varying(64) COLLATE pg_catalog."default" NOT NULL,
     summary character varying(256) COLLATE pg_catalog."default" NOT NULL,
     description text COLLATE pg_catalog."default",
+    implicatedrevisions text COLLATE pg_catalog."default",
     processor character varying(256) COLLATE pg_catalog."default"  NOT NULL,
     createdutc timestamp(4) without time zone NOT NULL,
     CONSTRAINT "incidentreport_compoundkey" UNIQUE (incidentid, mutationid),

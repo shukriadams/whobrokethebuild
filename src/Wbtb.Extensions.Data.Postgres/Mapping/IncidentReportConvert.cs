@@ -16,6 +16,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 IncidentId = reader["incidentid"].ToString(),
                 MutationId = reader["mutationid"].ToString(),
                 Description = reader["description"] == DBNull.Value ? null : reader["description"].ToString(),
+                ImplicatedRevisions = reader["implicatedrevisions"] == DBNull.Value ? new string[] { } : reader["implicatedrevisions"].ToString().Split(),
                 Processor = reader["processor"].ToString(),
                 Status = reader["status"].ToString(),
                 Summary = reader["summary"].ToString()

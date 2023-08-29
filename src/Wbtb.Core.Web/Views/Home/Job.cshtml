@@ -170,6 +170,13 @@
                     </x-list-cell>    
 
                     <x-list-cell>
+                        @if (build.IncidentReport != null)
+                        {
+                            <span class="jobsList-incidentReport">
+                                @build.IncidentReport.Summary
+                            </span>
+                        }
+
                         @foreach(ViewBuildInvolvement involvement in build.BuildInvolvements)
                         {
                             <li>
@@ -179,16 +186,14 @@
                                 { 
                                     @ViewHelpers.GistOf(involvement.Revision.Description, 20, "...") 
                                 }
+                                @if (build.IncidentReport != null && build.IncidentReport.ImplicatedRevisions.Contains(involvement.RevisionCode))
+                                {
+                                    <text>
+                                        (broken build)
+                                    </text>
+                                }
                             </li>
                         }
-
-                        @if (build.IncidentReport != null)
-                        {
-                            <span class="jobsList-incidentReport">
-                                @build.IncidentReport.Summary
-                            </span>
-                        }
-
                     </x-list-cell>
                 </x-list-row>
             }

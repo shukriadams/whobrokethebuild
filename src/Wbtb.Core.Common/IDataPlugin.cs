@@ -241,6 +241,8 @@ namespace Wbtb.Core.Common
 
         PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobId = "");
 
+        IEnumerable<DaemonTask> GetBlockingDaemonTasks();
+
         #endregion
 
         #region INCIDENTREPORT

@@ -102,12 +102,14 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             bool isShaderError = false;
             bool isBluePrintError = false;
             bool isCPPError = false;
+            bool isBasicError = false;
             string blamedUserName = string.Empty;
-            string[] allowedParsers = { "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp" };
+            string[] allowedParsers = { "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp", "Wbtb.Extensions.LogParsing.BasicErrors" };
             bool errorFound = false;
             string fileCausingBreak = string.Empty;
-            string revisionCausingBreak = string.Empty;
             string errorLineFromLog = string.Empty;
+            string basicError = string.Empty;
+            IList<string> implicatedRevisions = new List<string>();
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
@@ -128,12 +130,12 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
                     foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
                     {
+                        if (!allowedParsers.Contains(parsedText.Type))
+                            continue;
+
                         // force unitpaths, p4 uses these
                         string localFile = localPathItem.Content.Replace("\\", "/");
                         string clientRoot = client.Root.Replace("\\", "/");
-
-                        if (!allowedParsers.Contains(parsedText.Type))
-                            continue;
 
                         isCPPError = parsedText.Type == "Wbtb.Extensions.LogParsing.Cpp";
 
@@ -209,7 +211,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                         blamedUserName = blamedUser.Name;
 
                                     fileCausingBreak = revisionFile;
-                                    revisionCausingBreak = revision.Code;
+                                    implicatedRevisions.Add(revision.Code);
                                     errorLineFromLog += $"{string.Join(" ", line.Items.Select(i => i.Content))} ";
                                 }
                             }
@@ -240,21 +242,22 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 }
 
                 if (!string.IsNullOrEmpty(fileCausingBreak))
-                    description += $"Caused by file {fileCausingBreak}. ";
+                    description += $" Caused by file {fileCausingBreak}. ";
 
-                if (!string.IsNullOrEmpty(revisionCausingBreak))
-                    description += $"revisions {revisionCausingBreak}. ";
+                if (!implicatedRevisions.Any())
+                    description += $" revision{(implicatedRevisions.Count == 1 ? "" : "s")} {string.Join(",", implicatedRevisions)}. ";
 
                 if (!string.IsNullOrEmpty(blamedUserName))
-                    description += $"User {blamedUserName}. ";
+                    description += $" User {blamedUserName}. ";
 
                 if (!string.IsNullOrEmpty(errorLineFromLog))
-                    description += $"{errorLineFromLog}";
+                    description += $" {errorLineFromLog}";
 
                 data.SaveIncidentReport(new IncidentReport
                 {
                     IncidentId = build.IncidentBuildId,
                     MutationId = build.Id,
+                    ImplicatedRevisions = implicatedRevisions,
                     Processor = this.GetType().Name,
                     Summary = $"Broken by {blamedUserName}{breakExtraFlag}",
                     Status = "Break",
@@ -264,7 +267,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 return new PostProcessResult
                 {
                     Passed = true,
-                    Result = $"Found error in P4 revision. File ${fileCausingBreak} from revision {revisionCausingBreak} implicated in break.\n."
+                    Result = $"Found error in P4 revision. File ${fileCausingBreak} from revision {string.Join(",", implicatedRevisions)} implicated in break.\n."
                 };
             }
 

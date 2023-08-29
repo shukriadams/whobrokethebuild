@@ -98,12 +98,26 @@ namespace Wbtb.Core.Web
                             continue;
                         }
 
-                        // previous build is a fail, but it's incident hasn't been assigned, wait
+                        // previous build failed, but it's incident hasn't been assigned, wait
                         // todo : add some kind of max-tries here, it needs to timeout 
+                        // todo : this is a critical bottleneck
                         if (previousBuild != null && previousBuild.Status == BuildStatus.Failed && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
                         {
+                            DaemonTask previousBuildFailingTask = dataRead.GetDaemonsTaskByBuild(previousBuild.Id).FirstOrDefault(b => b.HasPassed.Value && b.HasPassed.Value == false);
+                            if (previousBuildFailingTask != null) 
+                            {
+                                task.HasPassed = false;
+                                task.ProcessedUtc = DateTime.UtcNow;
+                                task.Result = $"Failed because previous build id:{previousBuild.Id} failed at daemontask id ${previousBuildFailingTask.Id}";
+                                dataWrite.SaveDaemonTask(task);
+                                dataWrite.TransactionCommit();
+                                daemonProcesses.MarkDone(task);
+                                continue;
+                            }
+
                             Console.WriteLine($"Skipping task {task.Id} for build {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
-                            daemonProcesses.MarkBlocked(task, this, build, "Previous build waiting for incident assignment");
+                            daemonProcesses.MarkBlocked(task, this, build, $"Previous build {build.Id} waiting for incident assignment");
+                            dataWrite.TransactionCancel();
                             continue;
                         }
 
