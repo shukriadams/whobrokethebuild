@@ -49,7 +49,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, null);
         }
 
         /// <summary>
@@ -58,6 +58,85 @@ namespace Wbtb.Core.Web
         public void Dispose()
         {
             _processRunner.Dispose();
+        }
+
+        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        {
+            // alert fails, we alert only latest fail, if for some reason build failed then fixed itself between alert windows 
+            // we ignore those.
+            // note : delta will be null if no build has run or builds have always had same status since job start
+            Build deltaBuild = dataRead.GetLastJobDelta(job.Id);
+
+            if (deltaBuild != null && deltaBuild.Status == BuildStatus.Failed)
+            {
+                string failingAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
+                string result = string.Empty;
+
+                // check if delta has already been alerted on
+                if (_cache.Get(TypeHelper.Name(this), failingAlertKey) == null)
+                {
+                    if (deltaBuild.Status == BuildStatus.Failed)
+                    {
+                        _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaBuild);
+
+                        foreach (MessageHandler alert in job.Message)
+                        {
+                            IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
+                            string localResult = messagePlugin.AlertBreaking(alert.User, alert.Group, deltaBuild, false);
+                            result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
+                        }
+                    }
+
+                    _cache.Write(TypeHelper.Name(this), failingAlertKey, "sent");
+
+                    dataWrite.SaveStore(new StoreItem
+                    {
+                        Key = failingAlertKey,
+                        Plugin = this.GetType().Name,
+                        Content = $"Date:{DateTime.UtcNow}\n{result}"
+                    });
+                }
+            }
+
+            // ensure all previous resolve incidents are alerted on,
+            IEnumerable<string> incidentIds = dataRead.GetIncidentIdsForJob(job, 5);
+            foreach (string incidentId in incidentIds)
+            {
+                Build incident = dataRead.GetBuildById(incidentId);
+                Build fixingBuild = dataRead.GetFixForIncident(incident);
+                if (fixingBuild == null)
+                    continue;
+
+                // has fail alert for incident been sent? if not, don't bother alerting fix for it
+                string failingAlertKey = $"deltaAlert_{job.Key}_{incident.IncidentBuildId}_{incident.Status}";
+                if (_cache.Get(TypeHelper.Name(this), failingAlertKey) == null)
+                    continue;
+
+                // has pass alert been sent? if so, don't alert again
+                string passingAlertKey = $"deltaAlert_{job.Key}_{incident.IncidentBuildId}_{fixingBuild.Status}";
+                if (_cache.Get(TypeHelper.Name(this), passingAlertKey) != null)
+                    continue;
+
+                _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, fixingBuild);
+
+                string result = string.Empty;
+
+                foreach (MessageHandler alert in job.Message)
+                {
+                    IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
+                    string localResult = messagePlugin.AlertPassing(alert.User, alert.Group, incident, fixingBuild);
+                    result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
+                }
+
+                _cache.Write(TypeHelper.Name(this), passingAlertKey, "sent");
+
+                dataWrite.SaveStore(new StoreItem
+                {
+                    Key = passingAlertKey,
+                    Plugin = this.GetType().Name,
+                    Content = $"Date:{DateTime.UtcNow}\n{result}"
+                });
+            }
         }
 
         /// <summary>
@@ -78,7 +157,6 @@ namespace Wbtb.Core.Web
                         _log.LogDebug($"Job {job.Name} blocked by {blockingTasksForJob.Count()} tasks, waiting.");
                         continue;
                     }
-
 
                     // alert fails, we alert only latest fail, if for some reason build failed then fixed itself between alert windows 
                     // we ignore those.

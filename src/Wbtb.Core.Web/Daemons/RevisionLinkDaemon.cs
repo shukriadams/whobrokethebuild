@@ -44,7 +44,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.RevisionLink);
         }
 
         /// <summary>
@@ -53,6 +53,30 @@ namespace Wbtb.Core.Web
         public void Dispose()
         {
             _processRunner.Dispose();
+        }
+
+        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        {
+            BuildInvolvement buildInvolvement = dataRead.GetBuildInvolvementById(task.BuildInvolvementId);
+            SourceServer sourceServer = dataRead.GetSourceServerByKey(job.SourceServer);
+            ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
+            Revision revision = dataRead.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
+
+            if (!sourceServerPlugin.AttemptReach(sourceServer).Reachable)
+            {
+                _log.LogError($"unable to reach source server \"{sourceServer.Name}\", waiting for later.");
+                throw new DaemonTaskBlockedException($"source server {sourceServer.Name} unreachable");
+            }
+
+            revision = sourceServerPlugin.GetRevision(sourceServer, buildInvolvement.RevisionCode);
+            if (revision == null)
+                throw new DaemonTaskFailedException($"Failed to resolve revision {buildInvolvement.RevisionCode} from source control server.");
+
+            revision.SourceServerId = sourceServer.Id;
+            dataWrite.SaveRevision(revision);
+
+            buildInvolvement.RevisionId = revision.Id;
+            dataWrite.SaveBuildInvolement(buildInvolvement);
         }
 
         /// <summary>

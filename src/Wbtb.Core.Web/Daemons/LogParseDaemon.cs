@@ -43,7 +43,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.LogParse);
         }
 
         /// <summary>
@@ -52,6 +52,28 @@ namespace Wbtb.Core.Web
         public void Dispose()
         {
             _processRunner.Dispose();
+        }
+
+        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job) 
+        {
+            ILogParserPlugin parser = _pluginProvider.GetByKey(task.Args) as ILogParserPlugin;
+            if (parser == null)
+                throw new DaemonTaskFailedException("Log parser {task.Args} was not found.");
+
+            // todo : optimize, have to reread log just to hash is a major performance issue
+            string rawLog = File.ReadAllText(build.LogPath);
+            DateTime startUtc = DateTime.UtcNow;
+            string result = parser.Parse(rawLog);
+
+            BuildLogParseResult logParserResult = new BuildLogParseResult();
+            logParserResult.BuildId = build.Id;
+            logParserResult.LogParserPlugin = parser.ContextPluginConfig.Key;
+            logParserResult.ParsedContent = result;
+            dataWrite.SaveBuildLogParseResult(logParserResult);
+
+            string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten: true)}";
+            _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timestring}");
+            task.Result = $"{logParserResult.LogParserPlugin} {timestring}. ";
         }
 
         /// <summary>

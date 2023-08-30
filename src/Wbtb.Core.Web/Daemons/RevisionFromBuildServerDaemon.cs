@@ -43,7 +43,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.RevisionFromBuildServer);
         }
 
         /// <summary>
@@ -52,6 +52,47 @@ namespace Wbtb.Core.Web
         public void Dispose()
         {
             _processRunner.Dispose();
+        }
+
+        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        {
+            BuildServer buildServer = dataRead.GetBuildServerByKey(job.BuildServer);
+            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+            ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+
+            if (!reach.Reachable)
+            {
+                _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                throw new DaemonTaskBlockedException($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+            }
+
+            BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
+            foreach (string revisionCode in result.Revisions)
+            {
+                string biID = dataWrite.SaveBuildInvolement(new BuildInvolvement
+                {
+                    BuildId = build.Id,
+                    RevisionCode = revisionCode
+                }).Id;
+
+                dataWrite.SaveDaemonTask(new DaemonTask
+                {
+                    Stage = (int)DaemonTaskTypes.RevisionLink,
+                    BuildId = build.Id,
+                    BuildInvolvementId = biID,
+                    Src = this.GetType().Name
+                });
+
+                dataWrite.SaveDaemonTask(new DaemonTask
+                {
+                    Stage = (int)DaemonTaskTypes.UserLink,
+                    BuildId = build.Id,
+                    BuildInvolvementId = biID,
+                    Src = this.GetType().Name
+                });
+            }
+
+            task.Result = result.Result;
         }
 
         /// <summary>

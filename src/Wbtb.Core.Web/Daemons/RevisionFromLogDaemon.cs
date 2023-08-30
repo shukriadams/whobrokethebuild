@@ -46,7 +46,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.RevisionFromLog);
         }
 
         /// <summary>
@@ -85,6 +85,113 @@ namespace Wbtb.Core.Web
 
             cache.Write(this.GetType().Name, hash, cacheLookup);
             return cacheLookup;
+        }
+
+        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        {
+            BuildServer buildServer = dataRead.GetBuildServerByKey(job.BuildServer);
+            SourceServer sourceServer = dataRead.GetSourceServerById(job.SourceServerId);
+            ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
+            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+            ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+
+            if (!reach.Reachable)
+            {
+                _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                throw new DaemonTaskBlockedException($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+            }
+
+            reach = sourceServerPlugin.AttemptReach(sourceServer);
+            if (!reach.Reachable)
+            {
+                _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                throw new DaemonTaskBlockedException($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+            }
+
+            string logText;
+            string revisionCode;
+
+            if (string.IsNullOrEmpty(job.RevisionAtBuildRegex))
+                throw new DaemonTaskBlockedException("RevisionAtBuildRegex not set");
+
+            logText = File.ReadAllText(build.LogPath);
+            revisionCode = GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
+
+
+            if (string.IsNullOrEmpty(revisionCode))
+            {
+                task.Result = $"Could not read a revision code from log content. This might be due to an error with your revision regex {job.RevisionAtBuildRegex}, but it could be that the revision string was not written to the log.";
+                return;
+            }
+
+            Revision revisionInLog = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
+            if (revisionInLog == null)
+                throw new DaemonTaskFailedException($"Unable to retrieve revision details for {revisionCode}.");
+
+            IList<Revision> revisionsToLink = new List<Revision>() { revisionInLog };
+
+            // get previous build and if it has any revision on it, span the gap with current build
+            Build previousBuild = dataRead.GetPreviousBuild(build);
+            if (previousBuild != null)
+            {
+                // note : assumes previous build's revisions have been successfully resolved so their date is available
+                Revision lastRevisionOnPreviousBuild = dataRead.GetNewestRevisionForBuild(previousBuild.Id);
+                if (lastRevisionOnPreviousBuild != null)
+                    revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(job, lastRevisionOnPreviousBuild.Code, revisionInLog.Code)).ToList();
+            }
+
+            foreach (Revision revision in revisionsToLink)
+            {
+                string revisionId;
+
+                // if revision doesn't exist in db, add it
+                Revision lookupRevision = dataRead.GetRevisionByKey(sourceServer.Id, revision.Code);
+                if (lookupRevision == null)
+                {
+                    revision.SourceServerId = sourceServer.Id;
+                    revisionId = dataWrite.SaveRevision(revision).Id;
+                }
+                else
+                {
+                    revisionId = lookupRevision.Id;
+                }
+
+                // check if revision involvement already exists
+                BuildInvolvement buildInvolvement = dataRead.GetBuildInvolvementsByBuild(build.Id).FirstOrDefault(bi => bi.RevisionCode == revision.Code);
+
+                // create build involvement for this revision
+                if (buildInvolvement == null)
+                {
+                    buildInvolvement = dataWrite.SaveBuildInvolement(new BuildInvolvement
+                    {
+                        BuildId = build.Id,
+                        RevisionCode = revision.Code,
+                        InferredRevisionLink = revisionCode != revision.Code,
+                        RevisionId = revisionId
+                    });
+
+                    dataWrite.SaveDaemonTask(new DaemonTask
+                    {
+                        BuildId = build.Id,
+                        BuildInvolvementId = buildInvolvement.Id,
+                        Src = this.GetType().Name,
+                        Stage = (int)DaemonTaskTypes.RevisionLink
+                    });
+
+                    dataWrite.SaveDaemonTask(new DaemonTask
+                    {
+                        BuildId = build.Id,
+                        Src = this.GetType().Name,
+                        BuildInvolvementId = buildInvolvement.Id,
+                        Stage = (int)DaemonTaskTypes.UserLink
+                    });
+
+                }
+                else
+                {
+                    task.Result = $"Build involvement id {buildInvolvement.Id} already existed.";
+                }
+            }
         }
 
         private void Work()

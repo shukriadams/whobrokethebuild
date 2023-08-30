@@ -43,7 +43,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.PostProcess);
         }
 
         /// <summary>
@@ -52,6 +52,35 @@ namespace Wbtb.Core.Web
         public void Dispose()
         {
             _processRunner.Dispose();
+        }
+
+        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        {
+            task.Result = string.Empty;
+
+            foreach (string postProcessor in job.PostProcessors)
+            {
+                try
+                {
+                    IPostProcessorPlugin processor = _pluginProvider.GetByKey(postProcessor) as IPostProcessorPlugin;
+
+                    PostProcessResult result = processor.Process(build);
+                    task.Result += result.Result;
+                    if (!result.Passed)
+                        task.HasPassed = false;
+
+                    Console.WriteLine($"Processed build id {build.Id} with plugin {postProcessor}");
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Unexpected error trying to blame build id \"{build.Id}\" with blame \"{postProcessor}\" : {ex}");
+                    task.HasPassed = false;
+                    if (task.Result == null)
+                        task.Result = string.Empty;
+
+                    task.Result = $"{task.Result}\n{ex}";
+                }
+            }
         }
 
         /// <summary>

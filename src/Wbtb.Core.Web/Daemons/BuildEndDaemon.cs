@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -18,6 +20,8 @@ namespace Wbtb.Core.Web
 
         private readonly SimpleDI _di;
 
+        private readonly Configuration _configuration;
+
         #endregion
 
         #region CTORS
@@ -29,6 +33,7 @@ namespace Wbtb.Core.Web
 
             _di = new SimpleDI();
             _pluginProvider = _di.Resolve<PluginProvider>();
+            _configuration = _di.Resolve<Configuration>();
         }
 
         #endregion
@@ -37,7 +42,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.BuildEnd);
         }
 
         /// <summary>
@@ -46,6 +51,54 @@ namespace Wbtb.Core.Web
         public void Dispose()
         {
             _processRunner.Dispose();
+        }
+
+        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job) 
+        {
+            BuildServer buildserver = dataRead.GetBuildServerById(job.BuildServerId);
+            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
+
+            build = buildServerPlugin.TryUpdateBuild(build);
+
+            // build still not done, contine and wait. Todo : Add forced time out on build here.
+            if (!build.EndedUtc.HasValue)
+                throw new DaemonTaskBlockedException("Build not complete yet");
+
+            dataWrite.SaveBuild(build);
+
+            // create tasks for next stage
+            dataWrite.SaveDaemonTask(new DaemonTask
+            {
+                BuildId = build.Id,
+                Src = this.GetType().Name,
+                Stage = (int)DaemonTaskTypes.LogImport,
+            });
+
+            if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
+                dataWrite.SaveDaemonTask(new DaemonTask
+                {
+                    Stage = (int)DaemonTaskTypes.RevisionFromBuildServer,
+                    Src = this.GetType().Name,
+                    BuildId = build.Id
+                });
+
+            if (build.Status == BuildStatus.Failed)
+            {
+                dataWrite.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = build.Id,
+                    Src = this.GetType().Name,
+                    Stage = (int)DaemonTaskTypes.IncidentAssign
+                });
+
+                if (job.PostProcessors.Any())
+                    dataWrite.SaveDaemonTask(new DaemonTask
+                    {
+                        BuildId = build.Id,
+                        Src = this.GetType().Name,
+                        Stage = (int)DaemonTaskTypes.PostProcess
+                    });
+            }
         }
 
         /// <summary>
@@ -59,6 +112,9 @@ namespace Wbtb.Core.Web
 
             foreach (DaemonTask task in tasks)
             {
+                if (daemonProcesses.GetAllActive().Count() > _configuration.MaxThreads)
+                    break;
+
                 using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>())
                 {
                     try
@@ -136,6 +192,7 @@ namespace Wbtb.Core.Web
                         task.HasPassed = false;
                         task.Result = ex.ToString();
                         dataWrite.SaveDaemonTask(task);
+
                         daemonProcesses.MarkDone(task);
                     }
                     finally

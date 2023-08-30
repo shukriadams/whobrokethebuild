@@ -44,7 +44,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.IncidentAssign);
         }
 
         /// <summary>
@@ -53,6 +53,59 @@ namespace Wbtb.Core.Web
         public void Dispose()
         {
             _processRunner.Dispose();
+        }
+
+        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        {
+            Build previousBuild = dataRead.GetPreviousBuild(build);
+
+            if (previousBuild == null || previousBuild.Status == BuildStatus.Passed)
+            {
+                // this build is either the very first build in job and has failed (way to start!) or is the first build of sequence to fail,
+                // mark it as the incident build
+                build.IncidentBuildId = build.Id;
+                dataWrite.SaveBuild(build);
+                return;
+            }
+
+            // previous build failed, but it's incident hasn't been assigned, wait
+            // todo : add some kind of max-tries here, it needs to timeout 
+            // todo : this is a critical bottleneck
+            if (previousBuild != null && previousBuild.Status == BuildStatus.Failed && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
+            {
+                // check to see if the upstream task is marked as failed. If it has, this task is permanently blocked
+                // and should be marked as failed. Fixing of upstream task + resetting job necessary.
+                DaemonTask previousBuildFailingTask = dataRead.GetDaemonsTaskByBuild(previousBuild.Id)
+                    .Where(b => b.HasPassed.HasValue && b.HasPassed.Value == false)
+                    .FirstOrDefault();
+
+                if (previousBuildFailingTask != null)
+                    throw new DaemonTaskFailedException($"Failed because previous build id:{previousBuild.Id} failed at daemontask id ${previousBuildFailingTask.Id}. Fix upstream task, then reset job.");
+
+                // if reach here, previous build's incident not assigned, but likely because it hasn't been processed yet. 
+                // Mark current as blocked and wait.
+                Console.WriteLine($"Skipping task {task.Id} for build {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
+                throw new DaemonTaskBlockedException($"Previous build {build.Id} waiting for incident assignment");
+            }
+
+            // happy outcome - set incident to whatever previous build incident is 
+            if (previousBuild != null)
+            {
+                build.IncidentBuildId = previousBuild.IncidentBuildId;
+                dataWrite.SaveBuild(build);
+                return;
+            }
+
+            // if reach here, incidentbuild could not be set, create a buildflag record that prevents build from being re-processed
+            string failReason = "Failed to assign incident.";
+
+            if (previousBuild == null)
+                failReason += "Previous build null";
+
+            if (previousBuild != null && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
+                failReason += "Previous build null";
+
+            throw new DaemonTaskFailedException(failReason);
         }
 
         /// <summary>
@@ -140,8 +193,10 @@ namespace Wbtb.Core.Web
                         task.HasPassed = false;
                         task.ProcessedUtc = DateTime.UtcNow;
                         task.Result = "Failed to assign incident.";
+                        
                         if (previousBuild == null)
                             task.Result += "Previous build null";
+
                         if (previousBuild != null && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
                             task.Result += "Previous build null";
 

@@ -39,6 +39,14 @@ namespace Wbtb.Core.Web
 
         #region METHODS
 
+        public bool IsActive(DaemonTask task) 
+        {
+            lock (_activePrrocesses)
+            {
+                return _activePrrocesses.ContainsKey(task.Id);
+            }
+        }
+
         public DaemonActiveProcess GetActive(DaemonTask task) 
         {
             lock (_activePrrocesses)

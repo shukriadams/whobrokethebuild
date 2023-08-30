@@ -39,7 +39,7 @@ namespace Wbtb.Core.Web.Core
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.LogImport);
         }
 
         /// <summary>
@@ -48,6 +48,47 @@ namespace Wbtb.Core.Web.Core
         public void Dispose()
         {
             _processRunner.Dispose();
+        }
+
+        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        {
+            BuildServer buildServer = dataRead.GetBuildServerByKey(job.BuildServer);
+            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+            ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
+
+            if (!reach.Reachable)
+            {
+                _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                throw new DaemonTaskBlockedException($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+            }
+
+            BuildLogRetrieveResult result = buildServerPlugin.ImportLog(build);
+            task.Result = result.Result;
+
+            if (!result.Success)
+                throw new DaemonTaskFailedException(result.Result);
+
+            build.LogPath = result.BuildLogPath;
+            dataWrite.SaveBuild(build);
+
+            // create tasks for next stage
+            foreach (string logparser in job.LogParsers)
+                dataWrite.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = build.Id,
+                    Src = this.GetType().Name,
+                    Args = logparser,
+                    Stage = (int)DaemonTaskTypes.LogParse
+                });
+
+            // build revision requires source controld
+            if (!string.IsNullOrEmpty(job.RevisionAtBuildRegex) && !string.IsNullOrEmpty(job.SourceServerId))
+                dataWrite.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = build.Id,
+                    Src = this.GetType().Name,
+                    Stage = (int)DaemonTaskTypes.RevisionFromLog
+                });
         }
 
         /// <summary>
