@@ -17,6 +17,7 @@ namespace Wbtb.Core.Web
         {
             if (AppState.ConfigErrors /*&& (string)context.HttpContext.Request.Path != "/ConfigErrors"*/)
             {
+                context.HttpContext.Response.StatusCode = 500;
                 context.Result = new ViewResult
                 {
                     ViewName = "~/Views/Error/Configuration.cshtml"
@@ -24,6 +25,7 @@ namespace Wbtb.Core.Web
             }
             else if (!AppState.Ready /*&& (string)context.HttpContext.Request.Path == "/NotReady"*/)
             {
+                context.HttpContext.Response.StatusCode = 503;
                 context.Result = new ViewResult
                 {
                     ViewName = "~/Views/Error/NotReady.cshtml"
