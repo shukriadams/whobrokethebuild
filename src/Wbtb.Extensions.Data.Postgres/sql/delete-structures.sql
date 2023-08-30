@@ -34,27 +34,17 @@ DROP TABLE IF EXISTS public."store" CASCADE;
 
 
 -- DROP SEQUENCES
-DROP SEQUENCE IF EXISTS public."buildlogparseresult_buildid_seq";
-DROP SEQUENCE IF EXISTS public."buildinvolvement_buildid_seq";
-DROP SEQUENCE IF EXISTS public."buildinvolvement_revisionid_seq";
-DROP SEQUENCE IF EXISTS public."buildinvolvement_mappeduserid_seq";
-DROP SEQUENCE IF EXISTS public."revision_sourceserverid_seq";
 DROP SEQUENCE IF EXISTS public."revision_id_seq";
 DROP SEQUENCE IF EXISTS public."build_id_seq";
-DROP SEQUENCE IF EXISTS public."build_jobid_seq";
-DROP SEQUENCE IF EXISTS public."build_incidentbuildid_seq";
 DROP SEQUENCE IF EXISTS public."buildlogparseresult_id_seq";
 DROP SEQUENCE IF EXISTS public."buildinvolvement_id_seq";
 DROP SEQUENCE IF EXISTS public."session_id_seq";
 DROP SEQUENCE IF EXISTS public."buildserver_id_seq";
 DROP SEQUENCE IF EXISTS public."job_id_seq";
-DROP SEQUENCE IF EXISTS public."job_sourceserverid_seq";
-DROP SEQUENCE IF EXISTS public."job_buildserverid_seq";
 DROP SEQUENCE IF EXISTS public."sourceserver_id_seq";
 DROP SEQUENCE IF EXISTS public."usr_id_seq";
-DROP SEQUENCE IF EXISTS public."session_userid_seq";
 DROP SEQUENCE IF EXISTS public."configurationstate_id_seq";
 DROP SEQUENCE IF EXISTS public."store_id_seq";
 DROP SEQUENCE IF EXISTS public."daemontask_id_seq";
-DROP SEQUENCE IF EXISTS public."r_buildLogParseResult_buildinvolvement_id_seq";
 DROP SEQUENCE IF EXISTS public."incidentreport_id_seq";
+DROP SEQUENCE IF EXISTS public."r_buildLogParseResult_buildinvolvement_id_seq";
