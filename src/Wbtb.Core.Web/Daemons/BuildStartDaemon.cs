@@ -98,6 +98,8 @@ namespace Wbtb.Core.Web
                             latestBuild.JobId = jobInDB.Id;
                             string buildId = dataLayer.SaveBuild(latestBuild).Id;
 
+                            _log.LogInformation($"Daemon {this.GetType().Name}: Created build {latestBuild.Identifier}, id {latestBuild.Id} for job {job.Name}.");
+
                             _buildLevelPluginHelper.InvokeEvents("OnBuildStart", job.OnBuildStart, latestBuild);
 
                             // create next task in chain

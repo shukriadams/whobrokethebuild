@@ -253,7 +253,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     description += $" Could not parse revision, 'error' keyword match found : {basicError}";
 
                 if (!string.IsNullOrEmpty(blamedUserName))
-                    description += $" User {blamedUserName}. ";
+                    description += $" Broken by {blamedUserName}. ";
 
                 if (!string.IsNullOrEmpty(errorLineFromLog))
                     description += $" {errorLineFromLog}";
@@ -264,7 +264,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     MutationId = build.Id,
                     ImplicatedRevisions = implicatedRevisions,
                     Processor = this.GetType().Name,
-                    Summary = $"Broken by {blamedUserName}{breakExtraFlag}",
+                    Summary = $"{blamedUserName}{breakExtraFlag}",
                     Status = "Break",
                     Description = description
                 });
