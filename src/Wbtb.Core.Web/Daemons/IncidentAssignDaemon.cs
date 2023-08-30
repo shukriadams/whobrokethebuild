@@ -103,7 +103,7 @@ namespace Wbtb.Core.Web
                         // todo : this is a critical bottleneck
                         if (previousBuild != null && previousBuild.Status == BuildStatus.Failed && string.IsNullOrEmpty(previousBuild.IncidentBuildId))
                         {
-                            DaemonTask previousBuildFailingTask = dataRead.GetDaemonsTaskByBuild(previousBuild.Id).Where(b => b.HasPassed.Value && b.HasPassed.Value == false).FirstOrDefault();
+                            DaemonTask previousBuildFailingTask = dataRead.GetDaemonsTaskByBuild(previousBuild.Id).Where(b => b.HasPassed.HasValue && b.HasPassed.Value == false).FirstOrDefault();
 
                             if (previousBuildFailingTask != null) 
                             {
