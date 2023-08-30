@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
-using Serilog;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -124,7 +122,7 @@ namespace Wbtb.Core.Web
                                     {
                                         // ignore these, we'll try again later
                                         dataWrite.TransactionCancel();
-                                        log.Warning($"Write collision occurred trying to update {task.Id}, trying again in a while.");
+                                        log.LogWarning($"Write collision occurred trying to update {task.Id}, trying again in a while.");
                                     }
                                     catch (DaemonTaskFailedException ex)
                                     {
@@ -152,7 +150,7 @@ namespace Wbtb.Core.Web
 
                                         daemonProcesses.MarkDone(task);
 
-                                        log.Error($"Unexpected error, daemon {daemon.GetType().Name}, task id {task.Id} ", ex);
+                                        log.LogError($"Unexpected error, daemon {daemon.GetType().Name}, task id {task.Id} ", ex);
                                     }
                                 }
                             }).Start();

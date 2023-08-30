@@ -90,63 +90,62 @@ namespace Wbtb.Core.Web
         public void MarkBlocked(DaemonTask task, IWebDaemon daemon, Build build, string reason = "")
         {
             lock (_blockedProcesses)
-            {
-                if (_blockedProcesses.ContainsKey(task.Id))
-                    return;
+                if (!_blockedProcesses.ContainsKey(task.Id))
+                    _blockedProcesses.Add(task.Id, new DaemonBlockedProcess
+                    {
+                        Task = task,
+                        Reason = reason,
+                        CreatedUtc = DateTime.UtcNow,
+                        Daemon = daemon.GetType(),
+                        Build = build,
+                        BlockingProcesses = new DaemonTask[] { }
+                    });
 
-                _blockedProcesses.Add(task.Id, new DaemonBlockedProcess
-                {
-                    Task = task,
-                    Reason = reason,
-                    CreatedUtc = DateTime.UtcNow,
-                    Daemon = daemon.GetType(),
-                    Build = build,
-                    BlockingProcesses = new DaemonTask[] { }
-                });
-            }
+            lock (_activePrrocesses)
+                if (_activePrrocesses.ContainsKey(task.Id))
+                    _activePrrocesses.Remove(task.Id);
         }
 
         public void MarkBlocked(DaemonTask task, IWebDaemon daemon, Build build, IEnumerable<DaemonTask> blocking) 
         {
             lock (_blockedProcesses) 
-            {
-                if (_blockedProcesses.ContainsKey(task.Id))
-                    return;
+                if (!_blockedProcesses.ContainsKey(task.Id))
+                    _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { 
+                        Task = task, 
+                        Reason = string.Empty, 
+                        CreatedUtc = DateTime.UtcNow, 
+                        Daemon = daemon.GetType(),
+                        Build = build,
+                        BlockingProcesses = blocking
+                    });
 
-                _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { 
-                    Task = task, 
-                    Reason = string.Empty, 
-                    CreatedUtc = DateTime.UtcNow, 
-                    Daemon = daemon.GetType(),
-                    Build = build,
-                    BlockingProcesses = blocking
-                });
-            }
+            lock (_activePrrocesses)
+                if (_activePrrocesses.ContainsKey(task.Id))
+                    _activePrrocesses.Remove(task.Id);
         }
 
         public void MarkBlocked(DaemonTask task, string reason)
         {
             lock (_blockedProcesses)
-            {
-                if (_blockedProcesses.ContainsKey(task.Id))
-                    return;
-
-                _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { Task = task, Reason = reason, CreatedUtc = DateTime.UtcNow });
-            }
+                if (!_blockedProcesses.ContainsKey(task.Id))
+                    _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { Task = task, Reason = reason, CreatedUtc = DateTime.UtcNow });
+    
+            lock (_activePrrocesses)
+                if (_activePrrocesses.ContainsKey(task.Id))
+                    _activePrrocesses.Remove(task.Id);
         }
 
         public void MarkDone(DaemonTask task)
         {
             lock (_blockedProcesses)
-            {
                 if (_blockedProcesses.ContainsKey(task.Id)) 
                     _blockedProcesses.Remove(task.Id);
-            }
 
             lock (_activePrrocesses)
             {
                 if (_activePrrocesses.ContainsKey(task.Id)) 
                 {
+
                     DaemonActiveProcess done = _activePrrocesses[task.Id];
                     _doneProcesses[_currentDone] = new DaemonDoneProcess
                     {
@@ -159,6 +158,8 @@ namespace Wbtb.Core.Web
                     _currentDone++;
                     if (_currentDone >= _doneListSize)
                         _currentDone = 0;
+
+                    _activePrrocesses.Remove(task.Id);
                 }
 
             }
