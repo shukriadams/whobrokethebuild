@@ -60,7 +60,7 @@ namespace Wbtb.Core.Web
             _processRunner.Dispose();
         }
 
-        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
         {
             // alert fails, we alert only latest fail, if for some reason build failed then fixed itself between alert windows 
             // we ignore those.
@@ -137,6 +137,8 @@ namespace Wbtb.Core.Web
                     Content = $"Date:{DateTime.UtcNow}\n{result}"
                 });
             }
+
+            return new DaemonTaskWorkResult();
         }
 
         /// <summary>

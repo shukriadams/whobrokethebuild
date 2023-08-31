@@ -54,7 +54,7 @@ namespace Wbtb.Core.Web
             _processRunner.Dispose();
         }
 
-        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
         {
             BuildServer buildServer = dataRead.GetBuildServerByKey(job.BuildServer);
             IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
@@ -63,7 +63,7 @@ namespace Wbtb.Core.Web
             if (!reach.Reachable)
             {
                 _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                throw new DaemonTaskBlockedException($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                return new DaemonTaskWorkResult {ResultType=DaemonTaskWorkResultType.Blocked, Description = $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}" };
             }
 
             BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
@@ -93,6 +93,7 @@ namespace Wbtb.Core.Web
             }
 
             task.Result = result.Result;
+            return new DaemonTaskWorkResult();
         }
 
         /// <summary>

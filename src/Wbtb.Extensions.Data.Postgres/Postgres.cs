@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -1272,17 +1271,18 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     jobid = @jobid
                     AND status = @status
-                    AND id <= @buildid
-                    AND id > (
+                    AND staredutc <= @startedutc
+                    AND startedutc > (
+                        -- get date of LAST build in previous incident, ie with status PASSED|FAILED and different status to reference build
                         SELECT
-                            id
+                            startedutc
                         FROM
                             build
                         WHERE
                             jobid = @jobid
                             AND (status = @failing OR status = @passing)
                             AND NOT status = @status
-                            AND id < @buildid
+                            AND startedutc < @startedutc
                         ORDER BY
                             startedutc DESC
                         LIMIT
@@ -1297,6 +1297,7 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(build.JobId));
+                cmd.Parameters.AddWithValue("startedutc", build.StartedUtc);
                 cmd.Parameters.AddWithValue("buildid", int.Parse(build.Id));
                 cmd.Parameters.AddWithValue("status", (int)build.Status);
                 cmd.Parameters.AddWithValue("passing", (int)BuildStatus.Passed);
@@ -1349,7 +1350,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 ORDER BY 
                     startedutc DESC
                 LIMIT 1";
-
+            
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {

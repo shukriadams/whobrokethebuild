@@ -51,7 +51,7 @@ namespace Wbtb.Core.Web
             _processRunner.Dispose();
         }
 
-        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job) 
+        private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job) 
         {
             BuildServer buildserver = dataRead.GetBuildServerById(job.BuildServerId);
             IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
@@ -60,7 +60,7 @@ namespace Wbtb.Core.Web
 
             // build still not done, contine and wait. Todo : Add forced time out on build here.
             if (!build.EndedUtc.HasValue)
-                throw new DaemonTaskBlockedException("Build not complete yet");
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = "Build not complete yet" };
 
             dataWrite.SaveBuild(build);
 
@@ -97,6 +97,8 @@ namespace Wbtb.Core.Web
                         Stage = (int)DaemonTaskTypes.PostProcess
                     });
             }
+
+            return new DaemonTaskWorkResult();
         }
 
         /// <summary>

@@ -54,7 +54,7 @@ namespace Wbtb.Core.Web
             _processRunner.Dispose();
         }
 
-        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
         {
             task.Result = string.Empty;
 
@@ -81,6 +81,8 @@ namespace Wbtb.Core.Web
                     task.Result = $"{task.Result}\n{ex}";
                 }
             }
+
+            return new DaemonTaskWorkResult { };
         }
 
         /// <summary>

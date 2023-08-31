@@ -166,6 +166,11 @@ namespace Wbtb.Core.Common
 
         Build GetFirstPassingBuildAfterBuild(Build build);
 
+        /// <summary>
+        /// Gets previous build in job (based on date) 
+        /// </summary>
+        /// <param name="build"></param>
+        /// <returns></returns>
         Build GetPreviousBuild(Build build);
 
         Build GetNextBuild(Build build);

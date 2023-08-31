@@ -23,7 +23,7 @@
             </x-list-cell>
         </x-list-row>
 
-        @foreach (DaemonTask item in Model.BlockingDaemonTasks)
+        @foreach (DaemonTask item in Model.BlockingDaemonTasks.Take(0))
         {
             <x-list-row>
                 <x-list-cell>
@@ -55,7 +55,7 @@
                 Build
             </x-list-cell>
             <x-list-cell>
-                stage
+                Stage
             </x-list-cell>
         </x-list-row>
 
@@ -75,6 +75,9 @@
                     @((DaemonTaskTypes)item.Task.Stage)
                     <div>
                         @item.Reason
+                    </div>
+                    <div>
+                        Failed @item.ErrorCount time(s)
                     </div>
                 </x-list-cell>
             </x-list-row>

@@ -55,28 +55,29 @@ namespace Wbtb.Core.Web
             _processRunner.Dispose();
         }
 
-        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
         {
             BuildInvolvement buildInvolvement = dataRead.GetBuildInvolvementById(task.BuildInvolvementId);
             SourceServer sourceServer = dataRead.GetSourceServerByKey(job.SourceServer);
             ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
-            Revision revision = dataRead.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
 
             if (!sourceServerPlugin.AttemptReach(sourceServer).Reachable)
             {
                 _log.LogError($"unable to reach source server \"{sourceServer.Name}\", waiting for later.");
-                throw new DaemonTaskBlockedException($"source server {sourceServer.Name} unreachable");
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"source server {sourceServer.Name} unreachable" };
             }
 
-            revision = sourceServerPlugin.GetRevision(sourceServer, buildInvolvement.RevisionCode);
+            Revision revision = sourceServerPlugin.GetRevision(sourceServer, buildInvolvement.RevisionCode);
             if (revision == null)
-                throw new DaemonTaskFailedException($"Failed to resolve revision {buildInvolvement.RevisionCode} from source control server.");
+                return new DaemonTaskWorkResult {  ResultType = DaemonTaskWorkResultType.Failed, Description = $"Failed to resolve revision {buildInvolvement.RevisionCode} from source control server." };
 
             revision.SourceServerId = sourceServer.Id;
             dataWrite.SaveRevision(revision);
 
             buildInvolvement.RevisionId = revision.Id;
             dataWrite.SaveBuildInvolement(buildInvolvement);
+
+            return new DaemonTaskWorkResult();
         }
 
         /// <summary>

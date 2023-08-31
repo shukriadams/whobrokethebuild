@@ -55,14 +55,14 @@ namespace Wbtb.Core.Web
             _processRunner.Dispose();
         }
 
-        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
         {
             BuildInvolvement buildInvolvement = dataRead.GetBuildInvolvementById(task.BuildInvolvementId);
             SourceServer sourceServer = dataRead.GetSourceServerByKey(job.SourceServer);
             Revision revision = dataRead.GetRevisionByKey(sourceServer.Id, buildInvolvement.RevisionCode);
 
             if (revision == null)
-                throw new DaemonTaskBlockedException($"Expected revision {buildInvolvement.RevisionCode} has not yet been resolved");
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Expected revision {buildInvolvement.RevisionCode} has not yet been resolved" };
 
             User matchingUser = _config.Users
                 .FirstOrDefault(r => r.SourceServerIdentities
@@ -73,10 +73,12 @@ namespace Wbtb.Core.Web
                 userInDatabase = dataRead.GetUserByKey(matchingUser.Key);
 
             if (userInDatabase == null)
-                throw new DaemonTaskFailedException($"User {revision.User} for buildinvolvement does not exist. Add user and rerun import");
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"User {revision.User} for buildinvolvement does not exist. Add user and rerun import" };
 
             buildInvolvement.MappedUserId = userInDatabase.Id;
             dataWrite.SaveBuildInvolement(buildInvolvement);
+
+            return new DaemonTaskWorkResult();
         }
 
         private void Work()

@@ -87,7 +87,7 @@ namespace Wbtb.Core.Web
             return cacheLookup;
         }
 
-        private void WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
         {
             BuildServer buildServer = dataRead.GetBuildServerByKey(job.BuildServer);
             SourceServer sourceServer = dataRead.GetSourceServerById(job.SourceServerId);
@@ -98,21 +98,21 @@ namespace Wbtb.Core.Web
             if (!reach.Reachable)
             {
                 _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                throw new DaemonTaskBlockedException($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}" };
             }
 
             reach = sourceServerPlugin.AttemptReach(sourceServer);
             if (!reach.Reachable)
             {
                 _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                throw new DaemonTaskBlockedException($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}" };
             }
 
             string logText;
             string revisionCode;
 
             if (string.IsNullOrEmpty(job.RevisionAtBuildRegex))
-                throw new DaemonTaskBlockedException("RevisionAtBuildRegex not set");
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = "RevisionAtBuildRegex not set" };
 
             logText = File.ReadAllText(build.LogPath);
             revisionCode = GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
@@ -121,12 +121,12 @@ namespace Wbtb.Core.Web
             if (string.IsNullOrEmpty(revisionCode))
             {
                 task.Result = $"Could not read a revision code from log content. This might be due to an error with your revision regex {job.RevisionAtBuildRegex}, but it could be that the revision string was not written to the log.";
-                return;
+                return new DaemonTaskWorkResult();
             }
 
             Revision revisionInLog = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
             if (revisionInLog == null)
-                throw new DaemonTaskFailedException($"Unable to retrieve revision details for {revisionCode}.");
+                return new DaemonTaskWorkResult {ResultType =DaemonTaskWorkResultType.Failed, Description = $"Unable to retrieve revision details for {revisionCode}." };
 
             IList<Revision> revisionsToLink = new List<Revision>() { revisionInLog };
 
@@ -192,6 +192,8 @@ namespace Wbtb.Core.Web
                     task.Result = $"Build involvement id {buildInvolvement.Id} already existed.";
                 }
             }
+
+            return new DaemonTaskWorkResult { };
         }
 
         private void Work()

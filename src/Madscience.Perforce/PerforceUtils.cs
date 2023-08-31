@@ -237,14 +237,12 @@ namespace Madscience.Perforce
                 {
                     string line = cmd.StandardOutput.ReadLine();
                     stdOut.Add(line);
-                    Console.WriteLine(line);
                 }
 
                 while (!cmd.StandardError.EndOfStream)
                 {
                     string line = cmd.StandardError.ReadLine();
                     stdErr.Add(line);
-                    Console.WriteLine(line);
                 }
 
                 return new ShellResult

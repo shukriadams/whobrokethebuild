@@ -17,5 +17,12 @@ namespace Wbtb.Core.Web
         public string Reason { get; set; }
 
         public IEnumerable<DaemonTask> BlockingProcesses { get; set; }
+
+        public int ErrorCount { get; set; }
+
+        public DaemonBlockedProcess() 
+        {
+            ErrorCount = 1;
+        }
     }
 }

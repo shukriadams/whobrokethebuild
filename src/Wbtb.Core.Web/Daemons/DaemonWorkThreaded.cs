@@ -2,5 +2,5 @@
 
 namespace Wbtb.Core.Web
 {
-    public delegate void DaemonWorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job);
+    public delegate DaemonTaskWorkResult DaemonWorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job);
 }

@@ -27,6 +27,16 @@ namespace Wbtb.Core.Common
         public int DaemonInterval { get; set; }
 
         /// <summary>
+        /// Time in seconds after which daemon task will be marked as failed if processing or blocked
+        /// </summary>
+        public int DaemonTaskTimeout { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int DaemonMaxFailsPerTask { get; set; }
+
+        /// <summary>
         /// 
         /// </summary>
         public int StandardPageSize { get; set; }
@@ -135,7 +145,9 @@ namespace Wbtb.Core.Common
             this.Port = 5000;
             this.EnabledDaemons = true;
             this.EnabledSockets = true;
-            this.MaxThreads = 2;
+            this.MaxThreads = 10;
+            this.DaemonMaxFailsPerTask = 500;
+            this.DaemonTaskTimeout = 600; // 300 = 5 minutes
 
             this.Plugins = new List<PluginConfig>();
             this.BuildServers = new List<BuildServer>();

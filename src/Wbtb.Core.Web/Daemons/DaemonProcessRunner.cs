@@ -72,18 +72,21 @@ namespace Wbtb.Core.Web
                         IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask(daemonLevelRaw);
                         foreach (DaemonTask task in tasks)
                         {
-                            if (daemonProcesses.GetAllActive().Count() > configuration.MaxThreads)
+                            if (daemonProcesses.GetAllActive().Count() >= configuration.MaxThreads)
                                 break;
 
                             if (daemonProcesses.IsActive(task))
                                 continue;
 
+
+
                             Build build = dataRead.GetBuildById(task.BuildId);
 
                             IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, daemonLevelRaw);
-                            if (blocking.Any())
+                            // if no blocks are marked as fails, wait
+                            if (blocking.Any() && !blocking.Any(b => b.HasPassed.HasValue && b.HasPassed.Value == false))
                             {
-                                daemonProcesses.MarkBlocked(task, daemon, build);
+                                daemonProcesses.MarkBlocked(task, daemon, build, blocking);
                                 continue;
                             }
 
@@ -96,61 +99,78 @@ namespace Wbtb.Core.Web
                                 {
                                     try
                                     {
+                                        
                                         Job job = dataRead.GetJobById(build.JobId);
 
                                         dataWrite.TransactionStart();
+                                        
+                                        DaemonBlockedProcess block = daemonProcesses.GetBlocked(task);
+                                        if (block != null && (DateTime.UtcNow - block.CreatedUtc).TotalSeconds > configuration.DaemonTaskTimeout)
+                                            throw new Exception($"Task timeout out. Consider resetting job id {job.Id}.");
+
+                                        if (blocking.Any(b => b.HasPassed.HasValue && b.HasPassed.Value == false))
+                                            throw new Exception($"Previous tasks failed ({string.Join(",", blocking.Where(b => b.HasPassed.HasValue && !b.HasPassed.Value))}). Fix and reset job id {job.Id}.");
 
                                         // DO WORK HERE - work either passes and task can be marked as done,
                                         // or it fails and it's still marked as done but failing done (requiring manual restart)
                                         // or it's forced to exit from a block, in which case, marked as blocked
-                                        work(dataRead, dataWrite, task, build, job);
+                                        DaemonTaskWorkResult workResult = work(dataRead, dataWrite, task, build, job);
 
-                                        // note : task.Result can be set by daemon, don't overwrite it
-                                        task.HasPassed = true;
-                                        task.ProcessedUtc = DateTime.UtcNow;
-                                        dataWrite.SaveDaemonTask(task);
-                                        daemonProcesses.MarkDone(task);
+                                        if (workResult.ResultType == DaemonTaskWorkResultType.Passed)
+                                        {
+                                            // note : task.Result can be set by daemon, don't overwrite it
+                                            task.HasPassed = true;
+                                            task.ProcessedUtc = DateTime.UtcNow;
+                                            dataWrite.SaveDaemonTask(task);
+                                            daemonProcesses.MarkDone(task);
 
-                                        dataWrite.TransactionCommit();
-                                    }
-                                    catch (DaemonTaskBlockedException ex)
-                                    {
-                                        dataWrite.TransactionCancel();
-                                        daemonProcesses.MarkBlocked(task, daemon, build, ex.Message);
-                                    }
-                                    catch (WriteCollisionException ex)
-                                    {
-                                        // ignore these, we'll try again later
-                                        dataWrite.TransactionCancel();
-                                        log.LogWarning($"Write collision occurred trying to update {task.Id}, trying again in a while.");
-                                    }
-                                    catch (DaemonTaskFailedException ex)
-                                    {
-                                        // task fail is a normal outcome, and happens when some logical condition prevents
-                                        // the task from "passing". User intervention is required.
+                                            dataWrite.TransactionCommit();
+                                        }
+                                        else if (workResult.ResultType == DaemonTaskWorkResultType.Blocked)
+                                        {
+                                            dataWrite.TransactionCancel();
+                                            daemonProcesses.MarkBlocked(task, daemon, build, workResult.Description);
+                                        }
+                                        else if (workResult.ResultType == DaemonTaskWorkResultType.WriteCollision)
+                                        {
+                                            dataWrite.TransactionCancel();
+                                            log.LogWarning($"Write collision occurred trying to update {task.Id}, trying again in a while.");
+                                        }
+                                        else if (workResult.ResultType == DaemonTaskWorkResultType.Failed)
+                                        {
+                                            // task fail is a normal outcome, and happens when some logical condition prevents
+                                            // the task from "passing". User intervention is required.
 
-                                        // commit transaction, this exception is normal and expected
-                                        dataWrite.TransactionCommit();
+                                            // commit transaction, this exception is normal and expected
+                                            dataWrite.TransactionCommit();
 
-                                        task.ProcessedUtc = DateTime.UtcNow;
-                                        task.HasPassed = false;
-                                        task.Result = ex.Message; // store message, not stack trace, the message will explicitly explain enough
-                                        dataWrite.SaveDaemonTask(task);
+                                            task.ProcessedUtc = DateTime.UtcNow;
+                                            task.HasPassed = false;
+                                            task.Result = workResult.Description;
+                                            dataWrite.SaveDaemonTask(task);
 
-                                        daemonProcesses.MarkDone(task);
+                                            daemonProcesses.MarkDone(task);
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
+                                        log.LogError($"Unexpected error, daemon {daemon.GetType().Name}, task id {task.Id} ", ex);
+ 
                                         dataWrite.TransactionCancel();
-
-                                        task.ProcessedUtc = DateTime.UtcNow;
-                                        task.HasPassed = false;
-                                        task.Result = ex.ToString();
-                                        dataWrite.SaveDaemonTask(task);
+                                        
+                                        try
+                                        {
+                                            task.ProcessedUtc = DateTime.UtcNow;
+                                            task.HasPassed = false;
+                                            task.Result = ex.ToString();
+                                            dataWrite.SaveDaemonTask(task);
+                                        }
+                                        catch (WriteCollisionException ex2)
+                                        {
+                                            log.LogError($"nested WriteCollisionException updating error on task {task.Id}, ignoring this and trying again.", ex2);
+                                        }
 
                                         daemonProcesses.MarkDone(task);
-
-                                        log.LogError($"Unexpected error, daemon {daemon.GetType().Name}, task id {task.Id} ", ex);
                                     }
                                 }
                             }).Start();

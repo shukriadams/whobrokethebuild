@@ -317,8 +317,9 @@ namespace Wbtb.Core.Web.Controllers
             model.BlockedProcesses = daemonProcesses.GetAllBlocked().OrderByDescending(p => p.CreatedUtc).ToList();
             model.DoneProcesses = daemonProcesses.GetDone();
             IList<DaemonTask> blockedTasks = dataLayer.GetBlockingDaemonTasks().ToList();
-            foreach (DaemonActiveProcess active in model.ActiveProcesses)
-                blockedTasks.Remove(blockedTasks.FirstOrDefault(r => r.Id == active.Task.Id));
+            //blockedTasks = blockedTasks.Remove(blockedTasks.FirstOrDefault(r => r.Id == active.Task.Id));
+            //foreach (DaemonActiveProcess active in model.ActiveProcesses)
+            //    blockedTasks.Remove(blockedTasks.FirstOrDefault(r => r.Id == active.Task.Id));
 
             model.BlockingDaemonTasks = blockedTasks;
 

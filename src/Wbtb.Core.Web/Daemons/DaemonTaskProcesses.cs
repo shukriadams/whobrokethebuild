@@ -90,7 +90,11 @@ namespace Wbtb.Core.Web
         public void MarkBlocked(DaemonTask task, IWebDaemon daemon, Build build, string reason = "")
         {
             lock (_blockedProcesses)
-                if (!_blockedProcesses.ContainsKey(task.Id))
+                if (_blockedProcesses.ContainsKey(task.Id)) { 
+                    _blockedProcesses[task.Id].ErrorCount ++;
+                    _blockedProcesses[task.Id].Reason = reason;
+                }
+                else
                     _blockedProcesses.Add(task.Id, new DaemonBlockedProcess
                     {
                         Task = task,
@@ -108,12 +112,18 @@ namespace Wbtb.Core.Web
 
         public void MarkBlocked(DaemonTask task, IWebDaemon daemon, Build build, IEnumerable<DaemonTask> blocking) 
         {
-            lock (_blockedProcesses) 
-                if (!_blockedProcesses.ContainsKey(task.Id))
-                    _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { 
-                        Task = task, 
-                        Reason = string.Empty, 
-                        CreatedUtc = DateTime.UtcNow, 
+            lock (_blockedProcesses)
+                if (_blockedProcesses.ContainsKey(task.Id)) 
+                {
+                    _blockedProcesses[task.Id].ErrorCount++;
+                    _blockedProcesses[task.Id].BlockingProcesses = blocking;
+                }
+                else
+                    _blockedProcesses.Add(task.Id, new DaemonBlockedProcess
+                    {
+                        Task = task,
+                        Reason = string.Empty,
+                        CreatedUtc = DateTime.UtcNow,
                         Daemon = daemon.GetType(),
                         Build = build,
                         BlockingProcesses = blocking
@@ -127,8 +137,17 @@ namespace Wbtb.Core.Web
         public void MarkBlocked(DaemonTask task, string reason)
         {
             lock (_blockedProcesses)
-                if (!_blockedProcesses.ContainsKey(task.Id))
-                    _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { Task = task, Reason = reason, CreatedUtc = DateTime.UtcNow });
+                if (_blockedProcesses.ContainsKey(task.Id))
+                {
+                    _blockedProcesses[task.Id].ErrorCount++;
+                    _blockedProcesses[task.Id].Reason = reason;
+                }
+                else
+                    _blockedProcesses.Add(task.Id, new DaemonBlockedProcess { 
+                        Task = task, 
+                        Reason = reason, 
+                        CreatedUtc = DateTime.UtcNow 
+                    });
     
             lock (_activePrrocesses)
                 if (_activePrrocesses.ContainsKey(task.Id))
