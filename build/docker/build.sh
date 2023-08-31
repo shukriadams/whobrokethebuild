@@ -69,7 +69,7 @@ if [ $SMOKETEST -eq 1 ]; then
     sleep 5  # wait a few seconds to make sure app in container has started
     STATUS=$(curl -s -o /dev/null -w "%{http_code}" localhost:49022/error/notready) 
     docker-compose -f docker-compose.yml down 
-    if [ "$STATUS" != "200" ]; then
+    if [ "$STATUS" != "503" ]; then
         echo "test container returned unexpected value ${STATUS}. Container log is:"
         echo $(docker logs wbbt-test)
         exit 1
