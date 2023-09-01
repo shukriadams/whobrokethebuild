@@ -106,10 +106,10 @@ namespace Wbtb.Core.Web
                                         
                                         DaemonBlockedProcess block = daemonProcesses.GetBlocked(task);
                                         if (block != null && (DateTime.UtcNow - block.CreatedUtc).TotalSeconds > configuration.DaemonTaskTimeout)
-                                            throw new Exception($"Task timeout out. Consider resetting job id {job.Id}.");
+                                            throw new Exception($"Task timeout out : {block.Reason}. Consider resetting job id {job.Id}.");
 
                                         if (blocking.Any(b => b.HasPassed.HasValue && b.HasPassed.Value == false))
-                                            throw new Exception($"Previous tasks failed ({string.Join(",", blocking.Where(b => b.HasPassed.HasValue && !b.HasPassed.Value))}). Fix and reset job id {job.Id}.");
+                                            throw new Exception($"Previous tasks failed (Task ids: {string.Join(",", blocking.Where(b => b.HasPassed.HasValue && !b.HasPassed.Value).Select(b => b.Id))}). Fix and reset job id {job.Id}.");
 
                                         // DO WORK HERE - work either passes and task can be marked as done,
                                         // or it fails and it's still marked as done but failing done (requiring manual restart)
