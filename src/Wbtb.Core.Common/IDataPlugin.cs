@@ -242,6 +242,12 @@ namespace Wbtb.Core.Common
         /// <returns></returns>
         IEnumerable<DaemonTask> DaemonTasksBlocked(string buildId, int order);
 
+        /// <summary>
+        /// Gets unprocessed daemontasks for job. Failed daemontasks are ignored.
+        /// </summary>
+        /// <param name="jobid"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
         IEnumerable<DaemonTask> DaemonTasksBlockedForJob(string jobid, int order);
 
         PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobId = "");

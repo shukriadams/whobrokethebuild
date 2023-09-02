@@ -1839,10 +1839,7 @@ namespace Wbtb.Extensions.Data.Postgres
                         processedUtc is NULL
                         OR passed = False
                     )
-                    AND stage < @order
-                LIMIT 100";
-
-            // note the hard limit, this call scales badly, and generally we don't care about the specifics of blocks once we have too many, as that's a symptom of bigger problems
+                    AND stage < @order";
 
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
@@ -1865,10 +1862,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     JOIN build B on B.id = DT.buildid
                 WHERE
                     B.jobid = @jobid
-                    AND (
-                        DT.processedUtc is NULL
-                        OR DT.passed = False
-                    )
+                    AND 
+                    DT.processedUtc is NULL
                     AND DT.stage < @order
                 LIMIT 100";
 

@@ -75,22 +75,62 @@ namespace Wbtb.Core.Web
                             if (daemonProcesses.GetAllActive().Count() >= configuration.MaxThreads)
                                 break;
 
-                            if (daemonProcesses.IsActive(task))
+                            DaemonActiveProcess activeProcess = daemonProcesses.GetActive(task);
+                            if (activeProcess != null)
+                            {
+                                // task is already running
+                                
+                                // check if active task has timed out, if so, mark it as failed
+                                if ((DateTime.UtcNow - activeProcess.CreatedUtc).TotalSeconds > configuration.DaemonTaskTimeout)
+                                {
+                                    task.ProcessedUtc = DateTime.UtcNow;
+                                    task.HasPassed = false;
+                                    task.Result = $"Marked as timed out after {configuration.DaemonTaskTimeout} seconds.";
+                                    try
+                                    {
+                                        dataRead.SaveDaemonTask(task);
+                                        daemonProcesses.MarkDone(task);
+                                    }
+                                    catch (WriteCollisionException) 
+                                    {
+                                        log.LogWarning($"Write collision trying to mark timedout task id {task.Id}, trying again later Ignored unless flooding.");
+                                    }
+                                }
+
                                 continue;
-
-
+                            }
 
                             Build build = dataRead.GetBuildById(task.BuildId);
 
                             IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, daemonLevelRaw);
+                            
+                            IEnumerable<DaemonTask> failing = blocking.Where(t => t.HasPassed.HasValue && !t.HasPassed.Value);
+                            // if previous fails in build, mark this as failed to.
+                            if (failing.Any())
+                            {
+                                task.ProcessedUtc = DateTime.UtcNow;
+                                task.HasPassed = false;
+                                task.Result = $"Marked as failed because preceeding task(s) {string.Join(",", failing)} failed. Fix then rereset job id {build.JobId}.";
+                                
+                                try
+                                {
+                                    dataRead.SaveDaemonTask(task);
+                                    daemonProcesses.MarkDone(task);
+                                }
+                                catch (WriteCollisionException)
+                                {
+                                    log.LogWarning($"Write collision trying to mark task id {task.Id} as failed, trying again later. Ignored unless flooding.");
+                                }
+
+                                continue;
+                            }
+
                             // if no blocks are marked as fails, wait
-                            if (blocking.Any() && !blocking.Any(b => b.HasPassed.HasValue && b.HasPassed.Value == false))
+                            if (blocking.Any())
                             {
                                 daemonProcesses.MarkBlocked(task, daemon, build, blocking);
                                 continue;
                             }
-
-                            daemonProcesses.MarkActive(task, daemon, build);
 
                             // do each work tick on its own thread
                             new Thread(delegate ()
@@ -99,17 +139,9 @@ namespace Wbtb.Core.Web
                                 {
                                     try
                                     {
-                                        
                                         Job job = dataRead.GetJobById(build.JobId);
 
                                         dataWrite.TransactionStart();
-                                        
-                                        DaemonBlockedProcess block = daemonProcesses.GetBlocked(task);
-                                        if (block != null && (DateTime.UtcNow - block.CreatedUtc).TotalSeconds > configuration.DaemonTaskTimeout)
-                                            throw new Exception($"Task timeout out : {block.Reason}. Consider resetting job id {job.Id}.");
-
-                                        if (blocking.Any(b => b.HasPassed.HasValue && b.HasPassed.Value == false))
-                                            throw new Exception($"Previous tasks failed (Task ids: {string.Join(",", blocking.Where(b => b.HasPassed.HasValue && !b.HasPassed.Value).Select(b => b.Id))}). Fix and reset job id {job.Id}.");
 
                                         // DO WORK HERE - work either passes and task can be marked as done,
                                         // or it fails and it's still marked as done but failing done (requiring manual restart)
@@ -134,7 +166,7 @@ namespace Wbtb.Core.Web
                                         else if (workResult.ResultType == DaemonTaskWorkResultType.WriteCollision)
                                         {
                                             dataWrite.TransactionCancel();
-                                            log.LogWarning($"Write collision occurred trying to update {task.Id}, trying again in a while.");
+                                            log.LogWarning($"Write collision occurred trying to update {task.Id}, trying again in a while. Ignored unless flooding.");
                                         }
                                         else if (workResult.ResultType == DaemonTaskWorkResultType.Failed)
                                         {
@@ -174,6 +206,8 @@ namespace Wbtb.Core.Web
                                     }
                                 }
                             }).Start();
+
+                            daemonProcesses.MarkActive(task, daemon, build);
                         }
                     }
                     finally
