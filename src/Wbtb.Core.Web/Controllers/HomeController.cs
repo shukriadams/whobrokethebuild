@@ -312,16 +312,6 @@ namespace Wbtb.Core.Web.Controllers
             DaemonTaskProcesses daemonProcesses = _di.Resolve<DaemonTaskProcesses>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             ProcessPageModel model = new ProcessPageModel();
-            
-            model.ActiveProcesses = daemonProcesses.GetAllActive();
-            model.BlockedProcesses = daemonProcesses.GetAllBlocked().OrderByDescending(p => p.CreatedUtc).ToList();
-            model.DoneProcesses = daemonProcesses.GetDone();
-            IList<DaemonTask> blockedTasks = dataLayer.GetBlockingDaemonTasks().ToList();
-            //blockedTasks = blockedTasks.Remove(blockedTasks.FirstOrDefault(r => r.Id == active.Task.Id));
-            //foreach (DaemonActiveProcess active in model.ActiveProcesses)
-            //    blockedTasks.Remove(blockedTasks.FirstOrDefault(r => r.Id == active.Task.Id));
-
-            model.BlockingDaemonTasks = blockedTasks;
 
             // try to assign blocks to acitve processses to make it easier 
             model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, orderBy, filterby, jobid));
@@ -342,6 +332,28 @@ namespace Wbtb.Core.Web.Controllers
             model.OrderBy = orderBy;
             model.JobId = jobid;
             model.Jobs = dataLayer.GetJobs().OrderBy(j => j.Name );
+
+            return View(model);
+        }
+
+        [ServiceFilter(typeof(ViewStatus))]
+        [Route("/processlogblock")]
+        public IActionResult ProcessLogBlock(string hostname)
+        {
+            Configuration config = _di.Resolve<Configuration>();
+            hostname = HttpUtility.UrlDecode(hostname);
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            DaemonTaskProcesses daemonProcesses = _di.Resolve<DaemonTaskProcesses>();
+            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            ProcessPageModel model = new ProcessPageModel();
+
+            model.ActiveProcesses = daemonProcesses.GetAllActive();
+            model.BlockedProcesses = daemonProcesses.GetAllBlocked().OrderByDescending(p => p.CreatedUtc).ToList();
+            model.DoneProcesses = daemonProcesses.GetDone();
+            IList<DaemonTask> blockedTasks = dataLayer.GetBlockingDaemonTasks().ToList();
+
+            model.BlockingDaemonTasks = blockedTasks;
+            model.DaemonTasks.Items.ToList().ForEach(daemonTask => daemonTask.Build = ViewBuild.Copy(dataLayer.GetBuildById(daemonTask.BuildId)));
 
             return View(model);
         }

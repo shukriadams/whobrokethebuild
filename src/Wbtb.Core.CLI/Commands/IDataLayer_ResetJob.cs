@@ -102,6 +102,7 @@ namespace Wbtb.Core.CLI
 
                     page++;
                 }
+
                 Console.Write($"Job {job.Name} reset. {deleted} records deleted.");
             }
 

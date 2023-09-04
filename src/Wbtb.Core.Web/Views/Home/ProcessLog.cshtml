@@ -5,185 +5,17 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Process log</h1>
-
-@if (Model.BlockingDaemonTasks.Any())
-{
-    <h3>Blocking (@Model.BlockingDaemonTasks.Count)</h3>
-    <x-list class="--dense">
-        <x-list-row class="--header">
-            <x-list-cell>
-                Task
-            </x-list-cell>
-            <x-list-cell>
-                Build
-            </x-list-cell>
-            <x-list-cell>
-                stage
-            </x-list-cell>
-        </x-list-row>
-
-        @foreach (DaemonTask item in Model.BlockingDaemonTasks.Take(0))
-        {
-            <x-list-row>
-                <x-list-cell>
-                    @item.Id
-                    <div class="quiet">
-                        @item.CreatedUtc.Ago() ago
-                    </div>
-                </x-list-cell>
-                <x-list-cell>
-                    @item.BuildId
-                </x-list-cell>
-                <x-list-cell>
-                    @((DaemonTaskTypes)item.Stage)
-                </x-list-cell>
-            </x-list-row>
-        }
-    </x-list>
-}
-
-@if (Model.BlockedProcesses.Any())
-{
-    <h3>Blocked (@Model.BlockedProcesses.Count)</h3>
-    <x-list class="--dense">
-        <x-list-row class="--header">
-            <x-list-cell>
-                Task
-            </x-list-cell>
-            <x-list-cell>
-                Build
-            </x-list-cell>
-            <x-list-cell>
-                Stage
-            </x-list-cell>
-        </x-list-row>
-
-        @foreach (DaemonBlockedProcess item in Model.BlockedProcesses)
-        {
-            <x-list-row>
-                <x-list-cell>
-                    @item.Task.Id
-                    <div class="quiet">
-                        @item.CreatedUtc.Ago() ago
-                    </div>
-                </x-list-cell>
-                <x-list-cell>
-                    @item.Task.BuildId
-                </x-list-cell>
-                <x-list-cell>
-                    @((DaemonTaskTypes)item.Task.Stage)
-                    <div>
-                        @item.Reason
-                    </div>
-                    <div>
-                        Failed @item.ErrorCount time(s)
-                    </div>
-                </x-list-cell>
-            </x-list-row>
-        }
-    </x-list>
-}
-
-@if (Model.DoneProcesses.Any())
-{
-    <h3>Done (@Model.DoneProcesses.Count())</h3>
-    <x-list class="--dense">
-        <x-list-row class="--header">
-            <x-list-cell>
-                Task
-            </x-list-cell>
-            <x-list-cell>
-                Build
-            </x-list-cell>
-            <x-list-cell>
-                Daemon
-            </x-list-cell>
-        </x-list-row>
-
-        @foreach (DaemonDoneProcess item in Model.DoneProcesses)
-        {
-            <x-list-row>
-                <x-list-cell>
-                    @item.TaskId
-                    <div class="quiet">
-                        @item.DoneUTc.Ago() ago
-                    </div>
-                </x-list-cell>
-                <x-list-cell>
-                    @item.BuildId
-                </x-list-cell>
-                <x-list-cell>
-                    @item.Daemon
-                </x-list-cell>
-            </x-list-row>
-        }
-    </x-list>
-}
-else
-{
-    <div>
-        No done processes
-    </div>
-}
-
-@if (Model.ActiveProcesses.Any())
-{
-    <h3>Active (@Model.ActiveProcesses.Count())</h3>
-    <x-list class="--dense">
-        <x-list-row class="--header">
-            <x-list-cell>
-                Task
-            </x-list-cell>
-            <x-list-cell>
-                Build
-            </x-list-cell>
-            <x-list-cell>
-                Daemon
-            </x-list-cell>
-            <x-list-cell>
-                Additional
-            </x-list-cell>
-        </x-list-row>
-
-    @foreach (DaemonActiveProcess item in Model.ActiveProcesses)
-    {
-        <x-list-row>
-            <x-list-cell>
-                @item.Task.Id
-                <div class="quiet">
-                    @item.CreatedUtc.Ago() ago
-                </div>
-            </x-list-cell>
-            <x-list-cell>
-                @ViewHelpers.BuildLink(item.Build)
-            </x-list-cell>
-            <x-list-cell>
-                @item.Daemon.Name
-            </x-list-cell>
-            <x-list-cell>
-                @item.Description
-            </x-list-cell>
-        </x-list-row>
-    }
-    </x-list>
-} 
-else
-{
-    <div>
-        No active processes
-    </div>
-}
-
-
-
-
+<div>
+    <a href="/processlogblock">Blocked</a>
+</div>
 <div>
     Filter by : <a href="@Model.BaseUrl?filterby=unprocessed&jobid=@Model.JobId&orderby=@Model.OrderBy">Unprocessed</a>  | <a href="@Model.BaseUrl?filterby=passed&jobid=@Model.JobId&orderby=@Model.OrderBy">Passed</a> | <a href="@Model.BaseUrl?filterby=failed&jobid=@Model.JobId">Failed</a> | <a href="@Model.BaseUrl?filterby=&jobid=@Model.JobId&orderby=@Model.OrderBy">None (show all)</a>
 </div>
+
 <div>
     Order by : <a href="@Model.BaseUrl?filterby=@Model.FilterBy&jobid=@Model.JobId&orderby=oldest">Oldest</a> | <a href="@Model.BaseUrl?filterby=@Model.FilterBy&jobid=@Model.JobId&orderby=latestDone">Latest done</a> | <a href="@Model.BaseUrl?filterby=@Model.FilterBy&jobid=@Model.JobId&orderby=">Latest queued</a>
 </div>
+
 <div>
     Show for job
     <select class="processLog_jobsFilter">
@@ -206,7 +38,6 @@ else
         })()
     </script>
 </div>
-
 
 @if (Model.DaemonTasks.Items.Any())
 {
@@ -249,6 +80,9 @@ else
                         @if (!task.HasPassed.Value)
                         {
                             <x-badge class="--danger">Failed</x-badge>
+                            <div>
+                                <a class="bntResetJob" href="javascript:(null)" data-jobid="@task.Build.JobId">Reset job</a>
+                            </div>
                         }
                         <text>
                             @task.ProcessedUtc.Ago() ago
@@ -289,6 +123,22 @@ else
                 }
             </x-list-row>
         }
+
+        <script>
+            (()=>{
+                let buttons = document.querySelectorAll('.bntResetJob')
+                for (let button of buttons){
+                    button.addEventListener('click', ()=>{
+                        if (!confirm('Are you sure you want to reset this job?'))
+                            return
+
+                        window.location = `/api/v1/job/reset/${button.getAttribute('data-jobid')}`
+                    }, false)
+
+                    
+                }
+            })()
+        </script>
     </x-list>
 }
 else
