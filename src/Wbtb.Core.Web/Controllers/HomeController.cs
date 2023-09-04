@@ -325,6 +325,8 @@ namespace Wbtb.Core.Web.Controllers
                 task.BlockedProcess = block;
             }
 
+            
+
             model.DaemonTasks.Items.ToList().ForEach(daemonTask => daemonTask.Build = ViewBuild.Copy(dataLayer.GetBuildById(daemonTask.BuildId)));
             model.BaseUrl = $"/processlog";
             model.QueryStrings = $"filterby={filterby}&orderBy={orderBy}&jobid={jobid}";

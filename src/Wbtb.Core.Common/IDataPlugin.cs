@@ -254,6 +254,8 @@ namespace Wbtb.Core.Common
 
         IEnumerable<DaemonTask> GetBlockingDaemonTasks();
 
+        IEnumerable<DaemonTask> GetFailingDaemonTasks();
+
         #endregion
 
         #region INCIDENTREPORT

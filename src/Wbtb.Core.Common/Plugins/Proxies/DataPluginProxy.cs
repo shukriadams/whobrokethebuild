@@ -787,6 +787,14 @@ namespace Wbtb.Core.Common
             });
         }
 
+        IEnumerable<DaemonTask> IDataPlugin.GetFailingDaemonTasks()
+        {
+            return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetFailingDaemonTasks)
+            });
+        }
+
         PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobId = "")
         {
             return _pluginSender.InvokeMethod<PageableData<DaemonTask>>(this, new PluginArgs

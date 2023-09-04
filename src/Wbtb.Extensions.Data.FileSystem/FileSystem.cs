@@ -465,6 +465,11 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new DaemonTask[] { };
         }
 
+        IEnumerable<DaemonTask> IDataPlugin.GetFailingDaemonTasks()
+        {
+            return new DaemonTask[] { };
+        }
+
         PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobId = "") 
         {
             return new PageableData<DaemonTask>(new DaemonTask[] { }, 0, 0, 0);
