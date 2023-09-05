@@ -27,9 +27,9 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             // try for cache
             string hash = Sha256.FromString(RegexPattern + fullErrorLog);
             Cache cache = di.Resolve<Cache>();
-            string resultLookup = cache.Get(this, hash);
-            if (resultLookup != null)
-                return resultLookup;
+            CachePayload cacheLookup = cache.Get(this, hash);
+            if (cacheLookup.Payload != null)
+                return cacheLookup.Payload;
 
             // look for following matches
             // at org.jenkinsci

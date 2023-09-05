@@ -69,22 +69,24 @@ namespace Wbtb.Core.Web
             SimpleDI di = new SimpleDI();
             Cache cache = di.Resolve<Cache>();
             string hash = Sha256.FromString(regex + logText);
-            string cacheLookup = cache.Get(this.GetType().Name, hash);
-            if (cacheLookup != null)
-                return cacheLookup;
+            string revFromLog = null;
+            CachePayload cacheLookup = cache.Get(this.GetType().Name, hash);
+            if (cacheLookup.Payload != null)
+                return cacheLookup.Payload;
+
 
             Match match = new Regex(regex, RegexOptions.Singleline & RegexOptions.Compiled).Match(logText);
             if (!match.Success || match.Groups.Count < 2)
             {
-                cacheLookup = string.Empty;
+                revFromLog = string.Empty;
             }
             else 
             {
-                cacheLookup = match.Groups[1].Value;
+                revFromLog = match.Groups[1].Value;
             }
 
-            cache.Write(this.GetType().Name, hash, cacheLookup);
-            return cacheLookup;
+            cache.Write(this.GetType().Name, hash, revFromLog);
+            return revFromLog;
         }
 
         private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)

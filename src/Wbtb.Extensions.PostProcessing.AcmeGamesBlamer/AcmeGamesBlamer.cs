@@ -82,21 +82,24 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             string regex = @"<p4-cient-state>([\s\S]*?)<p4-cient-state>";
             string hash = Sha256.FromString(regex + rawLog);
             Cache cache = di.Resolve<Cache>();
-            string clientLookup = cache.Get(this, hash);
-                
-            if (clientLookup == null) 
+            string client = null;
+            CachePayload clientLookup = cache.Get(this, hash);
+            if (clientLookup.Payload != null)
+                client = clientLookup.Payload;
+
+            if (client == null) 
             {
                 Match match = new Regex(regex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Match(rawLog);
                 if (match.Success)
                 {
-                    clientLookup = match.Groups[1].Value.Trim();
-                    cache.Write(this, hash, clientLookup);
+                    client = match.Groups[1].Value.Trim();
+                    cache.Write(this, hash, client);
                 }
             }
 
-            Client client = null;
-            if (clientLookup != null)
-                client = PerforceUtils.ParseClient(clientLookup);
+            Client p4client = null;
+            if (client != null)
+                p4client = PerforceUtils.ParseClient(client);
 
             string breakExtraFlag = string.Empty;
             bool isShaderError = false;
@@ -138,7 +141,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
                         // force unitpaths, p4 uses these
                         string localFile = localPathItem.Content.Replace("\\", "/");
-                        string clientRoot = client.Root.Replace("\\", "/");
+                        string clientRoot = p4client.Root.Replace("\\", "/");
 
                         isCPPError = parsedText.Type == "Wbtb.Extensions.LogParsing.Cpp";
 
@@ -146,7 +149,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                             foreach (string revisionFile in revision.Files)
                             {
                                 // is revisionFile mentioned in a log error?
-                                foreach (ClientView clientView in client.Views) 
+                                foreach (ClientView clientView in p4client.Views) 
                                 {
                                     // currently support only standard mapping
                                     if (!clientView.Local.EndsWith("/..."))

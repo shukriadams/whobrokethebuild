@@ -49,7 +49,10 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             string blueprint4RegexHash = Sha256.FromString(bluePrintRegex4 + raw);
             string blueprint5RegexHash = Sha256.FromString(bluePrintRegex5 + raw);
             Cache cache = di.Resolve<Cache>();
-            string bluePrintMatch = cache.Get(this, blueprint4RegexHash);
+            string bluePrintMatch = null;
+            CachePayload bluePrintMatchLookup = cache.Get(this, blueprint4RegexHash);
+            if (bluePrintMatchLookup.Payload != null)
+                bluePrintMatch = bluePrintMatchLookup.Payload;
 
             // force unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
@@ -112,7 +115,11 @@ namespace Wbtb.Extensions.LogParsing.Unreal
 
             // try for cache
             string shaderRegexHash = Sha256.FromString(shaderRegex + raw);
-            string shaderMatch = cache.Get(this, shaderRegexHash);
+            string shaderMatch = null;
+            CachePayload shaderMatchLookup = cache.Get(this, shaderRegexHash);
+            if (shaderMatchLookup != null)
+                shaderMatch = shaderMatchLookup.Payload;
+
             if (shaderMatch == null)
             {
                 MatchCollection matches = new Regex(shaderRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);

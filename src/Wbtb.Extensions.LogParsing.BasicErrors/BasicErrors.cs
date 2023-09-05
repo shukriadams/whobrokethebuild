@@ -5,7 +5,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
 {
     internal class BasicErrors : Plugin, ILogParserPlugin
     {
-        private readonly string Regex = @"^.*error:.*$";
+        private readonly string Regex = @"^.*error.*$";
 
         PluginInitResult IPlugin.InitializePlugin()
         {
@@ -23,14 +23,14 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             // try for cache
             string hash = Sha256.FromString(Regex + raw);
             Cache cache = di.Resolve<Cache>();
-            string lookup = cache.Get(this, hash);
-            if (lookup != null)
-                return lookup;
+            CachePayload lookup = cache.Get(this, hash);
+            if (lookup.Payload != null)
+                return lookup.Payload;
 
             MatchCollection matches = new Regex(Regex, RegexOptions.IgnoreCase|RegexOptions.Multiline).Matches(raw);
 
             string result = string.Empty;
-            if (matches.Any())
+            if (matches.Any()) 
             {
                 BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
                 foreach (Match match in matches)

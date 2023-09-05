@@ -1412,8 +1412,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 USING
                     build
                 WHERE
-                    daemontask.buildid = build.id
-                    AND build.id = @buildid";
+                    daemontask.buildid = @buildid";
 
                 using (NpgsqlCommand cmd = new NpgsqlCommand(resetDaemonTasks, conWrap.Connection()))
                 {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
@@ -7,8 +8,8 @@ namespace Wbtb.Extensions.LogParsing.Cpp
 {
     public class Cpp : Plugin, ILogParserPlugin
     {
-        const string MSVCRegex = @"(.*\.h|.*\.cpp)(\(\d+,\d+\)): error\s?([A-Z]{1,2}[0-9]+):(.*)";
-
+        const string MSVCRegex = @"(.*\.h|.*\.cpp)\((.*)\):.*?error\s?([A-Z]{1,2}[0-9]+):(.*)";
+        // (.*\.h|.*\.cpp)(\(.*?\)):(.*?error.*)
         const string ClangRegex = @"(.*\.h|.*\.cpp)(\(\d+,\d+\)): error\s?:(.*)([\s\S]*?generated\.)";
 
         PluginInitResult IPlugin.InitializePlugin()
@@ -23,13 +24,17 @@ namespace Wbtb.Extensions.LogParsing.Cpp
         string ILogParserPlugin.Parse(string raw)
         {
             SimpleDI di = new SimpleDI();
+            ILogger logger = di.Resolve<ILogger>();
 
             // try for cache
             string hash = Sha256.FromString(MSVCRegex + raw);
             Cache cache = di.Resolve<Cache>();
-            string resultLookup = cache.Get(this, hash);
-            if (resultLookup != null)
-                return resultLookup;
+            CachePayload resultLookup = cache.Get(this, hash);
+            if (resultLookup.Payload != null)
+            {
+                logger.LogInformation($"{this.GetType().Name} found cache hit {resultLookup.Key}.");
+                return resultLookup.Payload;
+            }
 
             // force unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");

@@ -31,12 +31,12 @@ namespace Wbtb.Core.Common
             }
         }
 
-        public string Get(IPlugin plugin, string index)
+        public CachePayload Get(IPlugin plugin, string index)
         {
             return Get(plugin.ContextPluginConfig.Manifest.Key, index);
         }
 
-        public string Get(string source, string index) 
+        public CachePayload Get(string source, string index) 
         {
             if (index.Length < 2)
                 throw new Exception("index must be at least 2 characters long");
@@ -48,9 +48,12 @@ namespace Wbtb.Core.Common
             lock (Lock)
             {
                 if (!File.Exists(cachePath))
-                    return null;
+                    return new CachePayload();
 
-                return File.ReadAllText(cachePath);
+                return new CachePayload {
+                    Payload = File.ReadAllText(cachePath),
+                    Key = cachePath
+                };
             }
         }
     }

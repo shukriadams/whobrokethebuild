@@ -82,7 +82,10 @@
                         {
                             <x-badge class="--danger">Failed</x-badge>
                             <div>
-                                <a class="bntResetJob" href="javascript:(null)" data-jobid="@task.Build.JobId">Reset job</a>
+                                <a class="bntResetBuild" href="javascript:(null)" data-buildid="@task.Build.Id">Reset build @task.Build.Id</a>
+                            </div>
+                            <div>
+                                <a class="bntResetJob" href="javascript:(null)" data-jobid="@task.Build.JobId">Reset job @task.Build.JobId</a>
                             </div>
                         }
                         <text>
@@ -127,16 +130,22 @@
 
         <script>
             (()=>{
-                let buttons = document.querySelectorAll('.bntResetJob')
-                for (let button of buttons){
+                for (let button of document.querySelectorAll('.bntResetJob')) {
                     button.addEventListener('click', ()=>{
                         if (!confirm('Are you sure you want to reset this job?'))
                             return
 
                         window.location = `/api/v1/job/reset/${button.getAttribute('data-jobid')}`
                     }, false)
+                }
 
-                    
+                for (let button of document.querySelectorAll('.bntResetBuild')) {
+                    button.addEventListener('click', () => {
+                        if (!confirm('Are you sure you want to reset this build?'))
+                            return
+
+                        window.location = `/api/v1/build/reset/${button.getAttribute('data-buildid')}`
+                    }, false)
                 }
             })()
         </script>

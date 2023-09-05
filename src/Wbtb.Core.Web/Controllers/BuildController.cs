@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading;
+using System;
 using Wbtb.Core.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Core.Web
 {
@@ -42,6 +45,40 @@ namespace Wbtb.Core.Web
                 dataLayer.DeleteBuild(build);
 
             return "deleted";
+        }
+
+        [ServiceFilter(typeof(ViewStatus))]
+        [Route("reset/{buildid}")]
+        public void Reset(string buildid)
+        {
+            SimpleDI di = new SimpleDI();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            ILogger log = di.Resolve<ILogger>();
+            dataLayer.TransactionStart();
+
+            try
+            {
+                int deleted = dataLayer.ResetBuild(buildid, false);
+                dataLayer.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = buildid,
+                    Stage = 0, //"BuildEnd",
+                    CreatedUtc = DateTime.UtcNow,
+                    Src = this.GetType().Name
+                });
+
+                dataLayer.TransactionCommit();
+                log.LogInformation($"Sucessfully reset build {buildid}");
+
+            }
+            catch (Exception ex)
+            {
+                dataLayer.TransactionCancel();
+                log.LogError("Unexpected error", ex);
+            }
+
+            Response.Redirect("/processlog");
         }
 
         #endregion
