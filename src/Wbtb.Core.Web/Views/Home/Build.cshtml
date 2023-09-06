@@ -181,7 +181,7 @@
                     </x-columns>
 
                     <x-columns>
-                        @if (involvement.BlameScore > 0 && involvement.BlameScore < 0)
+                        @if (involvement.BlameScore > 0)
                         {
                             <text>This change has a @involvement.BlameScore% chance of having broken the build</text>
                         }

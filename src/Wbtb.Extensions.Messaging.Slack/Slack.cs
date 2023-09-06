@@ -99,7 +99,7 @@ namespace Wbtb.Extensions.Messaging.Slack
 
 
         string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
-        {
+        { 
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
             int alertMaxLength = 600;
             if (ContextPluginConfig.Config.Any(r => r.Key == "AlertMaxLength")) 
@@ -138,6 +138,19 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 _log.LogDebug($"Alert for delta on job {job.Key} already sent.");
                 return null;
+            }
+
+            IEnumerable<BuildInvolvement> buildInvolvements = dataLayer.GetBuildInvolvementsByBuild(incidentBuild.Id).Where(bi => bi.BlameScore == 100 && !string.IsNullOrEmpty(bi.MappedUserId));
+            List<string> mentions = new List<string>();
+            foreach (BuildInvolvement bi in buildInvolvements)
+            {
+                User mappedUser = dataLayer.GetUserById(bi.MappedUserId);
+                MessageConfiguration messageConfig = mappedUser.Message.SingleOrDefault(m => m.Plugin == this.ContextPluginConfig.Key);
+                if (messageConfig == null)
+                    continue;
+
+                SlackConfig slackConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(messageConfig.RawJson);
+                mentions.Add($"<@{slackConfig.SlackId}>");
             }
 
             IncidentReport incidentReport = dataLayer.GetIncidentReportByMutation(incidentBuild.Id);
@@ -187,11 +200,12 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (description.Length > alertMaxLength)
                 description = $"{description.Substring(0, alertMaxLength)}\n...\n(truncated, click link for more)";
 
+
             dynamic attachment = new JObject();
             attachment.title = $"{job.Name} - {summary}";
             attachment.fallback = " ";
             attachment.color = "#D92424";
-            attachment.text = $"```{description}```";
+            attachment.text = $"```{description}``` \n{string.Join(" ", mentions)}";
             attachment.title_link = _urlHelper.Build(incidentBuild);
 
             var attachments = new JArray(1);

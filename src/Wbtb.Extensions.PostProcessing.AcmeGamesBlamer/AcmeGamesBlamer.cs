@@ -210,6 +210,8 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                         continue;
 
                                     BuildInvolvement bi = buildInvolvements.First(bi => bi.RevisionCode == revision.Code);
+                                    bi.BlameScore = 100; // set score to max because we've directly tied user's revision file to build log error
+                                    data.SaveBuildInvolement(bi);
 
                                     blamedUserName = revision.User;
                                     User blamedUser = data.GetUserById(bi.MappedUserId);

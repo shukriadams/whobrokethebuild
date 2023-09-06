@@ -7,8 +7,17 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
 {
+    /// <summary>
+    /// Common runner logic for all daemons. Is reponsible for ticking each daemon on its own thread, and that ticks do not collide. Per tick, daemons
+    /// fullfill daemontasks, these can be executed on their own threads.
+    /// 
+    /// Each instance of a daemon has its own process runniner.
+    /// </summary>
     public class DaemonProcessRunner : IDaemonProcessRunner
     {
+        /// <summary>
+        /// 
+        /// </summary>
         private bool _running;
 
         private bool _busy;
@@ -18,6 +27,11 @@ namespace Wbtb.Core.Web
             _running = true;
         }
 
+        /// <summary>
+        /// Starts a daemon that runs child processes on its own thread.
+        /// </summary>
+        /// <param name="work"></param>
+        /// <param name="tickInterval"></param>
         public void Start(DaemonWork work, int tickInterval)
         {
             // do each work tick on its own thread
@@ -41,10 +55,16 @@ namespace Wbtb.Core.Web
 
                     Thread.Sleep(tickInterval);
                 }
-
             }).Start();
         }
 
+        /// <summary>
+        /// Starts a daemon that runs child processes on their own threads.
+        /// </summary>
+        /// <param name="work"></param>
+        /// <param name="tickInterval"></param>
+        /// <param name="daemon"></param>
+        /// <param name="daemonLevel"></param>
         public void Start(DaemonWorkThreaded work, int tickInterval, IWebDaemon daemon, DaemonTaskTypes? daemonLevel)
         {
             int daemonLevelRaw = 9999; // pick an absurdly high number to ensure we overshoot
