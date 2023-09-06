@@ -94,9 +94,8 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         private string AlertKey(string slackChannelId, string jobId, string incidentBuildId)
         {
-            return $"buildStatusAlert_slack_{slackChannelId}_job{jobId}_incident{incidentBuildId}";
+            return $"incident{incidentBuildId}_job{jobId}_buildStatusAlert_slack_{slackChannelId}";
         }
-
 
         string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
         { 
@@ -132,13 +131,6 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (!config.IsGroup)
                 slackId = this.GetUserChannelId(slackId);
 
-            // check if alert has already been sent
-            string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
-            if (!force && _cache.Get(this, key) != null) 
-            {
-                _log.LogDebug($"Alert for delta on job {job.Key} already sent.");
-                return null;
-            }
 
             IEnumerable<BuildInvolvement> buildInvolvements = dataLayer.GetBuildInvolvementsByBuild(incidentBuild.Id).Where(bi => bi.BlameScore == 100 && !string.IsNullOrEmpty(bi.MappedUserId));
             List<string> mentions = new List<string>();
@@ -217,6 +209,8 @@ namespace Wbtb.Extensions.Messaging.Slack
             data["attachments"] = Convert.ToString(attachments);
 
             dynamic response = ExecAPI("chat.postMessage", data);
+            // check if alert has already been sent
+            string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
 
             if (response.ok.Value)
             {

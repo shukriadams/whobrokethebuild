@@ -86,11 +86,11 @@ namespace Wbtb.Core.Web
 
                     if (deltaBuild != null && deltaBuild.Status == BuildStatus.Failed)
                     {
-                        string failingAlertKey = $"deltaAlert_{job.Key}_{deltaBuild.IncidentBuildId}_{deltaBuild.Status}";
+                        string failingAlertKey = $"{deltaBuild.IncidentBuildId}_{job.Key}_deltaAlert_{deltaBuild.Status}";
                         string result = string.Empty;
 
                         // check if delta has already been alerted on
-                        if (_cache.Get(TypeHelper.Name(this), failingAlertKey) == null)
+                        if (_cache.Get(TypeHelper.Name(this), failingAlertKey).Payload == null)
                         {
                             if (deltaBuild.Status == BuildStatus.Failed)
                             {
@@ -125,13 +125,13 @@ namespace Wbtb.Core.Web
                             continue;
 
                         // has fail alert for incident been sent? if not, don't bother alerting fix for it
-                        string failingAlertKey = $"deltaAlert_{job.Key}_{incident.IncidentBuildId}_{incident.Status}";
-                        if (_cache.Get(TypeHelper.Name(this), failingAlertKey) == null)
+                        string failingAlertKey = $"{incident.IncidentBuildId}_{job.Key}_deltaAlert_{incident.Status}";
+                        if (_cache.Get(TypeHelper.Name(this), failingAlertKey).Payload == null)
                             continue;
 
                         // has pass alert been sent? if so, don't alert again
-                        string passingAlertKey = $"deltaAlert_{job.Key}_{incident.IncidentBuildId}_{fixingBuild.Status}";
-                        if (_cache.Get(TypeHelper.Name(this), passingAlertKey) != null)
+                        string passingAlertKey = $"{incident.IncidentBuildId}_{job.Key}_deltaAlert_{fixingBuild.Status}";
+                        if (_cache.Get(TypeHelper.Name(this), passingAlertKey).Payload != null)
                             continue;
 
                         _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, fixingBuild);
