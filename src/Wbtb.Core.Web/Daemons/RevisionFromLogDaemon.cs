@@ -163,9 +163,11 @@ namespace Wbtb.Core.Web
             // get build involvements already in this build
             IEnumerable<BuildInvolvement> buildInvolvementsInThisBuild = dataRead.GetBuildInvolvementsByBuild(build.Id);
 
-            foreach (Revision revision in revisionsToLink)
+            IEnumerable<string> revisionsToLinkIds = revisionsToLink.Select(r => r.Code).Distinct();
+
+            foreach (string revisionsToLinkId in revisionsToLinkIds)
             {
-                BuildInvolvement buildInvolvement = buildInvolvementsInThisBuild.FirstOrDefault(bi => bi.RevisionCode == revision.Code);
+                BuildInvolvement buildInvolvement = buildInvolvementsInThisBuild.FirstOrDefault(bi => bi.RevisionCode == revisionsToLinkId);
                 if (buildInvolvement != null) 
                 {
                     task.Result = $"Build involvement id {buildInvolvement.Id} already existed.";
@@ -173,15 +175,15 @@ namespace Wbtb.Core.Web
                 }
     
                 // check if revision shows up in history of previous build, if so, we've overspanned, but that's ok, just ignore it
-                if (buildInvolvementsInPreviousBuild.Any(bi => bi.RevisionCode == revision.Code))
+                if (buildInvolvementsInPreviousBuild.Any(bi => bi.RevisionCode == revisionsToLinkId))
                     continue;
 
                 // create build involvement for this revision
                 buildInvolvement = dataWrite.SaveBuildInvolement(new BuildInvolvement
                 {
                     BuildId = build.Id,
-                    RevisionCode = revision.Code,
-                    InferredRevisionLink = revisionCode != revision.Code
+                    RevisionCode = revisionsToLinkId,
+                    InferredRevisionLink = revisionCode != revisionsToLinkId
                 });
 
                 dataWrite.SaveDaemonTask(new DaemonTask

@@ -19,7 +19,7 @@ namespace Wbtb.Extensions.Data.Postgres
             string password = contextPluginConfig.Config.First(c => c.Key == "Password").Value.ToString();
             string database = contextPluginConfig.Config.First(c => c.Key == "Database").Value.ToString();
             string user = contextPluginConfig.Config.First(c => c.Key == "User").Value.ToString();
-            string connectionString = $"Host={host};Username={user};Password={password};Database={database}";
+            string connectionString = $"Host={host};Username={user};Password={password};Database={database};Include Error Detail=True;";
 
             NpgsqlConnection connection = new NpgsqlConnection(connectionString);
             connection.Open();

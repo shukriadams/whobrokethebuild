@@ -116,6 +116,8 @@ namespace Wbtb.Core.Web
             // get build involvements already in this build
             IEnumerable<BuildInvolvement> buildInvolvementsInThisBuild = dataRead.GetBuildInvolvementsByBuild(build.Id);
 
+            revisionsToLink = revisionsToLink.Distinct().ToList();
+
             foreach (string revisionCode in revisionsToLink)
             {
                 BuildInvolvement buildInvolvement = buildInvolvementsInThisBuild.FirstOrDefault(bi => bi.RevisionCode == revisionCode);
