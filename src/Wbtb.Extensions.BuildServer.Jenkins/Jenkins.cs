@@ -275,15 +275,11 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                     if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
                     {
                         HttpWebResponse resp = (HttpWebResponse)ex.Response;
-                        if (resp.StatusCode == HttpStatusCode.NotFound)
-                        {
-                            Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
-                            return new BuildRevisionsRetrieveResult { Result = "Revisions no longer available on server <WBTB_BUILDSERVER_HISTORY_EXPIRED>.", Success = true };
-                        }
-                        else 
-                        {
+                        if (resp.StatusCode != HttpStatusCode.NotFound)
                             throw ex;
-                        }
+
+                        Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                        return new BuildRevisionsRetrieveResult { Result = "Revisions no longer available on server <WBTB_BUILDSERVER_HISTORY_EXPIRED>.", Success = true };
                     }
                     else
                     {
@@ -335,8 +331,6 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             int position = random.Next(0, chars.Length);
             return chars.Substring(position, 1);
         }
-
-
 
         void IBuildServerPlugin.PollBuildsForJob(Job job) 
         {

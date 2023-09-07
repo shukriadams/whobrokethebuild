@@ -225,7 +225,7 @@ namespace Wbtb.Core.Common
 
         bool DeleteDaemonTask(DaemonTask record);
 
-        IEnumerable<DaemonTask> GetDaemonsTaskByBuild(string buildid);
+        IEnumerable<DaemonTask> GetDaemonTasksByBuild(string buildid);
 
         /// <summary>
         /// Gets block of oldest pending tasks

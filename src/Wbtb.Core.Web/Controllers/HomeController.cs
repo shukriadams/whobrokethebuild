@@ -210,7 +210,7 @@ namespace Wbtb.Core.Web.Controllers
                 return Responses.NotFoundError($"build {buildid} does not exist");
 
             model.Build.Job = ViewJob.Copy(dataLayer.GetJobById(model.Build.JobId));
-            IEnumerable<DaemonTask> buildTasks = dataLayer.GetDaemonsTaskByBuild(model.Build.Id);
+            IEnumerable<DaemonTask> buildTasks = dataLayer.GetDaemonTasksByBuild(model.Build.Id);
 
             BuildServer buildServer = dataLayer.GetBuildServerById(model.Build.Job.BuildServerId);
             IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
@@ -258,7 +258,7 @@ namespace Wbtb.Core.Web.Controllers
             if (model.Build == null)
                 return Responses.NotFoundError($"build {buildid} does not exist");
 
-            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.GetDaemonsTaskByBuild(model.Build.Id).OrderBy(t => t.CreatedUtc));
+            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.GetDaemonTasksByBuild(model.Build.Id).OrderBy(t => t.CreatedUtc));
             model.IsComplete = !model.DaemonTasks.Any(t => t.ProcessedUtc == null);
             model.HasErrors = model.DaemonTasks.Any(t => t.HasPassed == false);
 

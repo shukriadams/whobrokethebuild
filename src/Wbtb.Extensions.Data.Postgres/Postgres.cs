@@ -1780,7 +1780,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "daemontask", "id", record.Id);
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.GetDaemonsTaskByBuild(string buildid)
+        IEnumerable<DaemonTask> IDataPlugin.GetDaemonTasksByBuild(string buildid)
         {
             string sql = @"
                 SELECT

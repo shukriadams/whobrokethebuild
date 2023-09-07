@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -119,7 +118,6 @@ namespace Wbtb.Core.Web
             logText = File.ReadAllText(build.LogPath);
             revisionCode = GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
 
-
             if (string.IsNullOrEmpty(revisionCode))
             {
                 task.Result = $"Could not read a revision code from log content. This might be due to an error with your revision regex {job.RevisionAtBuildRegex}, but it could be that the revision string was not written to the log.";
@@ -130,69 +128,77 @@ namespace Wbtb.Core.Web
             if (revisionInLog == null)
                 return new DaemonTaskWorkResult {ResultType =DaemonTaskWorkResultType.Failed, Description = $"Unable to retrieve revision details for {revisionCode}." };
 
+            // go back in time to some build with a revision in it that we can reference against
+            Build previousBuild = build;
+            IEnumerable<BuildInvolvement> buildInvolvementsInPreviousBuild = new BuildInvolvement[] { };
+
+            while (true) 
+            {
+                previousBuild = dataRead.GetPreviousBuild(previousBuild);
+                // no more builds to search through
+                if (previousBuild == null)
+                    break;
+
+                // build must be pass or fail to count for history traversal
+                if (!previousBuild.IsDefinitive())
+                    break;
+
+                // check if previous build is still having its involvements calculated
+                if (dataRead.GetDaemonTasksByBuild(previousBuild.Id).Any(t => t.ProcessedUtc == null && t.Stage == (int)DaemonTaskTypes.IncidentAssign))
+                    return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Previous build id {previousBuild.Id} still processing build involvements, waiting." };
+
+                buildInvolvementsInPreviousBuild = dataRead.GetBuildInvolvementsByBuild(previousBuild.Id);
+                if (buildInvolvementsInPreviousBuild.Any())
+                    break;
+            }
+
             IList<Revision> revisionsToLink = new List<Revision>() { revisionInLog };
 
-            // get previous build and if it has any revision on it, span the gap with current build
-            Build previousBuild = dataRead.GetPreviousBuild(build);
-            if (previousBuild != null)
+            if (buildInvolvementsInPreviousBuild.Any())
             {
-                // note : assumes previous build's revisions have been successfully resolved so their date is available
-                Revision lastRevisionOnPreviousBuild = dataRead.GetNewestRevisionForBuild(previousBuild.Id);
-                if (lastRevisionOnPreviousBuild != null)
-                    revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(job, lastRevisionOnPreviousBuild.Code, revisionInLog.Code)).ToList();
+                // take any revision known to be in the previous build, we can span with that and tidy up as we go
+                revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(job, buildInvolvementsInPreviousBuild.First().RevisionCode, revisionInLog.Code)).ToList();
             }
+
+            // get build involvements already in this build
+            IEnumerable<BuildInvolvement> buildInvolvementsInThisBuild = dataRead.GetBuildInvolvementsByBuild(build.Id);
 
             foreach (Revision revision in revisionsToLink)
             {
-                string revisionId;
-
-                // if revision doesn't exist in db, add it
-                Revision lookupRevision = dataRead.GetRevisionByKey(sourceServer.Id, revision.Code);
-                if (lookupRevision == null)
-                {
-                    revision.SourceServerId = sourceServer.Id;
-                    revisionId = dataWrite.SaveRevision(revision).Id;
-                }
-                else
-                {
-                    revisionId = lookupRevision.Id;
-                }
-
-                // check if revision involvement already exists
-                BuildInvolvement buildInvolvement = dataRead.GetBuildInvolvementsByBuild(build.Id).FirstOrDefault(bi => bi.RevisionCode == revision.Code);
-
-                // create build involvement for this revision
-                if (buildInvolvement == null)
-                {
-                    buildInvolvement = dataWrite.SaveBuildInvolement(new BuildInvolvement
-                    {
-                        BuildId = build.Id,
-                        RevisionCode = revision.Code,
-                        InferredRevisionLink = revisionCode != revision.Code,
-                        RevisionId = revisionId
-                    });
-
-                    dataWrite.SaveDaemonTask(new DaemonTask
-                    {
-                        BuildId = build.Id,
-                        BuildInvolvementId = buildInvolvement.Id,
-                        Src = this.GetType().Name,
-                        Stage = (int)DaemonTaskTypes.RevisionLink
-                    });
-
-                    dataWrite.SaveDaemonTask(new DaemonTask
-                    {
-                        BuildId = build.Id,
-                        Src = this.GetType().Name,
-                        BuildInvolvementId = buildInvolvement.Id,
-                        Stage = (int)DaemonTaskTypes.UserLink
-                    });
-
-                }
-                else
+                BuildInvolvement buildInvolvement = buildInvolvementsInThisBuild.FirstOrDefault(bi => bi.RevisionCode == revision.Code);
+                if (buildInvolvement != null) 
                 {
                     task.Result = $"Build involvement id {buildInvolvement.Id} already existed.";
+                    continue;
                 }
+    
+                // check if revision shows up in history of previous build, if so, we've overspanned, but that's ok, just ignore it
+                if (buildInvolvementsInPreviousBuild.Any(bi => bi.RevisionCode == revision.Code))
+                    continue;
+
+                // create build involvement for this revision
+                buildInvolvement = dataWrite.SaveBuildInvolement(new BuildInvolvement
+                {
+                    BuildId = build.Id,
+                    RevisionCode = revision.Code,
+                    InferredRevisionLink = revisionCode != revision.Code
+                });
+
+                dataWrite.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = build.Id,
+                    BuildInvolvementId = buildInvolvement.Id,
+                    Src = this.GetType().Name,
+                    Stage = (int)DaemonTaskTypes.RevisionLink
+                });
+
+                dataWrite.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = build.Id,
+                    Src = this.GetType().Name,
+                    BuildInvolvementId = buildInvolvement.Id,
+                    Stage = (int)DaemonTaskTypes.UserLink
+                });
             }
 
             return new DaemonTaskWorkResult { };

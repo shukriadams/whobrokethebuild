@@ -732,11 +732,11 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.GetDaemonsTaskByBuild(string buildid)
+        IEnumerable<DaemonTask> IDataPlugin.GetDaemonTasksByBuild(string buildid)
         {
             return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
             {
-                FunctionName = nameof(IDataPlugin.GetDaemonsTaskByBuild),
+                FunctionName = nameof(IDataPlugin.GetDaemonTasksByBuild),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildid", Value = buildid }
                 }

@@ -71,5 +71,18 @@ namespace Wbtb.Core.Common
         {
             this.Signature = Guid.NewGuid().ToString();
         }
+
+        /// <summary>
+        /// Builds that count towards definitive history must either pass or fail, we don't care about builds that 
+        /// have other statuses.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsDefinitive() 
+        {
+            if (this.Status == BuildStatus.Passed || this.Status == BuildStatus.Failed)
+                return true;
+
+            return false;
+        }
     }
 }

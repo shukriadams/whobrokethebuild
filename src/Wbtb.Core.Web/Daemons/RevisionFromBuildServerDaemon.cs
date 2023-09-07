@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -58,6 +59,8 @@ namespace Wbtb.Core.Web
         {
             BuildServer buildServer = dataRead.GetBuildServerByKey(job.BuildServer);
             IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
+            SourceServer sourceServer = dataRead.GetSourceServerById(job.SourceServerId);
+            ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
             ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
 
             if (!reach.Reachable)
@@ -66,9 +69,66 @@ namespace Wbtb.Core.Web
                 return new DaemonTaskWorkResult {ResultType=DaemonTaskWorkResultType.Blocked, Description = $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}" };
             }
 
-            BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
-            foreach (string revisionCode in result.Revisions)
+            reach = sourceServerPlugin.AttemptReach(sourceServer);
+            if (!reach.Reachable)
             {
+                _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}" };
+            }
+
+
+            BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
+
+
+            // go back in time to some build with a revision in it that we can reference against
+            Build previousBuild = build;
+            IEnumerable<BuildInvolvement> buildInvolvementsInPreviousBuild = new BuildInvolvement[] { };
+
+            while (true)
+            {
+                previousBuild = dataRead.GetPreviousBuild(previousBuild);
+                // no more builds to search through
+                if (previousBuild == null)
+                    break;
+
+                // build must be pass or fail to count for history traversal
+                if (!previousBuild.IsDefinitive())
+                    break;
+
+                // check if previous build is still having its involvements calculated
+                if (dataRead.GetDaemonTasksByBuild(previousBuild.Id).Any(t => t.ProcessedUtc == null && t.Stage == (int)DaemonTaskTypes.IncidentAssign))
+                    return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Previous build id {previousBuild.Id} still processing build involvements, waiting." };
+
+                buildInvolvementsInPreviousBuild = dataRead.GetBuildInvolvementsByBuild(previousBuild.Id);
+                if (buildInvolvementsInPreviousBuild.Any())
+                    break;
+            }
+
+            IList<string> revisionsToLink = result.Revisions.ToList();
+
+            if (revisionsToLink.Any() && buildInvolvementsInPreviousBuild.Any())
+            {
+                // take any revision known to be in the previous build, we can span with that and tidy up as we go
+                IEnumerable<Revision> revsBetween = sourceServerPlugin.GetRevisionsBetween(job, buildInvolvementsInPreviousBuild.First().RevisionCode, revisionsToLink.First());
+                revisionsToLink = revisionsToLink.Concat(revsBetween.Select(r => r.Code)).ToList();
+            }
+
+            // get build involvements already in this build
+            IEnumerable<BuildInvolvement> buildInvolvementsInThisBuild = dataRead.GetBuildInvolvementsByBuild(build.Id);
+
+            foreach (string revisionCode in revisionsToLink)
+            {
+                BuildInvolvement buildInvolvement = buildInvolvementsInThisBuild.FirstOrDefault(bi => bi.RevisionCode == revisionCode);
+                if (buildInvolvement != null)
+                {
+                    task.Result = $"Build involvement id {buildInvolvement.Id} already existed.";
+                    continue;
+                }
+
+                // check if revision shows up in history of previous build, if so, we've overspanned, but that's ok, just ignore it
+                if (buildInvolvementsInPreviousBuild.Any(bi => bi.RevisionCode == revisionCode))
+                    continue;
+
                 string biID = dataWrite.SaveBuildInvolement(new BuildInvolvement
                 {
                     BuildId = build.Id,
@@ -96,95 +156,6 @@ namespace Wbtb.Core.Web
             return new DaemonTaskWorkResult();
         }
 
-        /// <summary>
-        /// Daemon's main work method
-        /// </summary>
-        private void Work()
-        {
-            IDataPlugin dataRead = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-            IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask((int)DaemonTaskTypes.RevisionFromBuildServer);
-            DaemonTaskProcesses daemonProcesses = _di.Resolve<DaemonTaskProcesses>();
-
-            foreach (DaemonTask task in tasks)
-            {
-                using (IDataPlugin dataWrite = _pluginProvider.GetFirstForInterface<IDataPlugin>()) 
-                {
-                    try
-                    {
-                        Build build = dataRead.GetBuildById(task.BuildId);
-                        Job job = dataRead.GetJobById(build.JobId);
-                        BuildServer buildServer = dataRead.GetBuildServerByKey(job.BuildServer);
-                        IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
-                        ReachAttemptResult reach = buildServerPlugin.AttemptReach(buildServer);
-
-                        daemonProcesses.MarkActive(task, this, build);
-
-                        if (!reach.Reachable)
-                        {
-                            _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            daemonProcesses.MarkBlocked(task, this, build, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
-                            continue;
-                        }
-
-                        // this daemon's tasks are not blocked by preceeding tasks
-
-                        dataWrite.TransactionStart();
-
-                        BuildRevisionsRetrieveResult result = buildServerPlugin.GetRevisionsInBuild(build);
-                        foreach (string revisionCode in result.Revisions)
-                        {
-                            string biID = dataWrite.SaveBuildInvolement(new BuildInvolvement
-                            {
-                                BuildId = build.Id,
-                                RevisionCode = revisionCode
-                            }).Id;
-
-                            dataWrite.SaveDaemonTask(new DaemonTask
-                            {
-                                Stage = (int)DaemonTaskTypes.RevisionLink,
-                                BuildId = build.Id,
-                                BuildInvolvementId = biID,
-                                Src = this.GetType().Name
-                            });
-
-                            dataWrite.SaveDaemonTask(new DaemonTask
-                            {
-                                Stage = (int)DaemonTaskTypes.UserLink,
-                                BuildId = build.Id,
-                                BuildInvolvementId = biID,
-                                Src = this.GetType().Name
-                            });
-                        }
-
-                        task.HasPassed = result.Success;
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.Result = result.Result;
-                        dataWrite.SaveDaemonTask(task);
-                        dataWrite.TransactionCommit();
-                        daemonProcesses.MarkDone(task);
-                    }
-                    catch (WriteCollisionException ex)
-                    {
-                        dataWrite.TransactionCancel();
-                        _log.LogWarning($"Write collision trying to process task {task.Id}, trying again later : {ex}");
-                    }
-                    catch (Exception ex)
-                    {
-                        dataWrite.TransactionCancel();
-
-                        task.ProcessedUtc = DateTime.UtcNow;
-                        task.HasPassed = false;
-                        task.Result = ex.ToString();
-                        dataWrite.SaveDaemonTask(task);
-                        daemonProcesses.MarkDone(task);
-                    }
-                    finally
-                    {
-                        daemonProcesses.ClearActive(task);
-                    }
-                }
-            }
-        }
         #endregion
     }
 }

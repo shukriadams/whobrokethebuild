@@ -440,7 +440,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return false;
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.GetDaemonsTaskByBuild(string buildid)
+        IEnumerable<DaemonTask> IDataPlugin.GetDaemonTasksByBuild(string buildid)
         {
             return new DaemonTask[] { };
         }

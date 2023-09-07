@@ -198,11 +198,15 @@ namespace Wbtb.Extensions.Messaging.Slack
                 description = $"{description.Substring(0, alertMaxLength)}\n...\n(truncated, click link for more)";
 
 
+            string mentionsFlattened = string.Empty;
+            if (mentions.Any())
+                mentionsFlattened = $"\n{string.Join(" ", mentions)}";
+
             dynamic attachment = new JObject();
             attachment.title = $"{job.Name} - {summary}";
             attachment.fallback = " ";
             attachment.color = "#D92424";
-            attachment.text = $"```{description}``` \n{string.Join(" ", mentions)}";
+            attachment.text = $"```{description}```{mentionsFlattened}";
             attachment.title_link = _urlHelper.Build(incidentBuild);
 
             var attachments = new JArray(1);
