@@ -10,6 +10,7 @@ Your Slack plugin needs a Slack APP API token. Create an app @ `https://api.slac
         Config:
         - Token: <slack Bot User OAuth Token>
         - AlertMaxLength: <int> (optional)
+        - MentionUsersInGroupPosts: <boo> (optional)
 
 ### General informing
 

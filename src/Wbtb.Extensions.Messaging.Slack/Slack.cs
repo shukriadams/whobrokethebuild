@@ -100,6 +100,8 @@ namespace Wbtb.Extensions.Messaging.Slack
         string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
         { 
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
+            bool mentionUsers = Configuration.GetConfigValue(ContextPluginConfig.Config, "MentionUsersInGroupPosts", false);
+
             int alertMaxLength = 600;
             if (ContextPluginConfig.Config.Any(r => r.Key == "AlertMaxLength")) 
                 int.TryParse(ContextPluginConfig.Config.First(r => r.Key == "AlertMaxLength").Value.ToString(), out alertMaxLength);
@@ -132,18 +134,21 @@ namespace Wbtb.Extensions.Messaging.Slack
                 slackId = this.GetUserChannelId(slackId);
 
 
-            IEnumerable<BuildInvolvement> buildInvolvements = dataLayer.GetBuildInvolvementsByBuild(incidentBuild.Id).Where(bi => bi.BlameScore == 100 && !string.IsNullOrEmpty(bi.MappedUserId));
-            List<string> mentions = new List<string>();
-            foreach (BuildInvolvement bi in buildInvolvements)
-            {
-                User mappedUser = dataLayer.GetUserById(bi.MappedUserId);
-                MessageConfiguration messageConfig = mappedUser.Message.SingleOrDefault(m => m.Plugin == this.ContextPluginConfig.Key);
-                if (messageConfig == null)
-                    continue;
+            IEnumerable<BuildInvolvement> buildInvolvements = dataLayer.GetBuildInvolvementsByBuild(incidentBuild.Id);
 
-                SlackConfig slackConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(messageConfig.RawJson);
-                mentions.Add($"<@{slackConfig.SlackId}>");
-            }
+            // get slack id's of users confirmed involved in break
+            List<string> mentions = new List<string>();
+            if (mentionUsers)
+                foreach (BuildInvolvement bi in buildInvolvements.Where(bi => bi.BlameScore == 100 && !string.IsNullOrEmpty(bi.MappedUserId)))
+                {
+                    User mappedUser = dataLayer.GetUserById(bi.MappedUserId);
+                    MessageConfiguration messageConfig = mappedUser.Message.SingleOrDefault(m => m.Plugin == this.ContextPluginConfig.Key);
+                    if (messageConfig == null)
+                        continue;
+
+                    SlackConfig slackConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(messageConfig.RawJson);
+                    mentions.Add($"<@{slackConfig.SlackId}>");
+                }
 
             IncidentReport incidentReport = dataLayer.GetIncidentReportByMutation(incidentBuild.Id);
             string summary = string.Empty;

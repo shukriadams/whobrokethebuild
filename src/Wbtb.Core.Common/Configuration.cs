@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Wbtb.Core.Common
 {
@@ -154,6 +156,26 @@ namespace Wbtb.Core.Common
             this.SourceServers = new List<SourceServer>();
             this.Users = new List<User>();
             this.Groups = new List<Group>();
+        }
+
+        #endregion
+
+        #region METHODS
+
+        /// <summary>
+        /// Helper method to safely get value from KeyValue pair collections in a single line, with default value.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static T GetConfigValue<T>(IEnumerable<KeyValuePair<string, object>> config, string key, T defaultValue)
+        {
+            KeyValuePair<string, object>? item = config.FirstOrDefault(r => r.Key == key);
+            if (item == null)
+                return defaultValue;
+
+            return (T)item.Value.Value;
         }
 
         #endregion
