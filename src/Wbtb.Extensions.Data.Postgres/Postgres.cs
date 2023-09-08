@@ -1357,8 +1357,11 @@ namespace Wbtb.Extensions.Data.Postgres
                 cmd.Parameters.AddWithValue("jobid", int.Parse(build.JobId));
                 cmd.Parameters.AddWithValue("buildDate", build.StartedUtc);
 
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildConvert().ToCommon(reader);
+                using (NpgsqlDataReader reader = cmd.ExecuteReader()) 
+                {
+                    Build prev = new BuildConvert().ToCommon(reader);
+                    return prev;
+                }
             }
         }
 
@@ -1806,12 +1809,13 @@ namespace Wbtb.Extensions.Data.Postgres
                 SELECT
                     *
                 FROM
-                    daemontask
+                    daemontask DT 
+                    JOIN build B on DT.buildid = B.id
                 WHERE
-                    stage = @stage
-                    AND processedutc IS NULL
+                    DT.stage = @stage
+                    AND DT.processedutc IS NULL
                 ORDER BY
-                    createdutc ASC
+                    B.startedutc ASC
                 LIMIT 
                     100";
 

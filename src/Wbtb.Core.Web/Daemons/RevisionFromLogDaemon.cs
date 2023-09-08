@@ -144,7 +144,7 @@ namespace Wbtb.Core.Web
                     break;
 
                 // check if previous build is still having its involvements calculated
-                if (dataRead.GetDaemonTasksByBuild(previousBuild.Id).Any(t => t.ProcessedUtc == null && t.Stage == (int)DaemonTaskTypes.IncidentAssign))
+                if (dataRead.GetDaemonTasksByBuild(previousBuild.Id).Any(t => t.ProcessedUtc == null && (t.Stage == (int)DaemonTaskTypes.RevisionFromLog|| t.Stage == (int)DaemonTaskTypes.RevisionFromBuildServer)))
                     return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Previous build id {previousBuild.Id} still processing build involvements, waiting." };
 
                 buildInvolvementsInPreviousBuild = dataRead.GetBuildInvolvementsByBuild(previousBuild.Id);

@@ -27,6 +27,8 @@ namespace Wbtb.Core.Common
         /// Global default timer for daemons (seconds, will be converted to ms)
         /// </summary>
         public int DaemonInterval { get; set; }
+ 
+        public int MaxThreadsPerDaemon { get; set; }
 
         /// <summary>
         /// Time in seconds after which daemon task will be marked as failed if processing or blocked
@@ -148,6 +150,7 @@ namespace Wbtb.Core.Common
             this.EnabledDaemons = true;
             this.EnabledSockets = true;
             this.MaxThreads = 10;
+            this.MaxThreadsPerDaemon = 2;
             this.DaemonMaxFailsPerTask = 500;
             this.DaemonTaskTimeout = 600; // 300 = 5 minutes
 

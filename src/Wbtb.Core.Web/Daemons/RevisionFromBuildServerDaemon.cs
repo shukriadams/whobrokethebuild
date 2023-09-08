@@ -87,16 +87,17 @@ namespace Wbtb.Core.Web
             while (true)
             {
                 previousBuild = dataRead.GetPreviousBuild(previousBuild);
-                // no more builds to search through
+
+                // no more builds to search through 
                 if (previousBuild == null)
                     break;
 
                 // build must be pass or fail to count for history traversal
                 if (!previousBuild.IsDefinitive())
-                    break;
+                     continue;
 
                 // check if previous build is still having its involvements calculated
-                if (dataRead.GetDaemonTasksByBuild(previousBuild.Id).Any(t => t.ProcessedUtc == null && t.Stage == (int)DaemonTaskTypes.IncidentAssign))
+                if (dataRead.GetDaemonTasksByBuild(previousBuild.Id).Any(t => t.ProcessedUtc == null && (t.Stage == (int)DaemonTaskTypes.RevisionFromBuildServer) || t.Stage == (int)DaemonTaskTypes.RevisionFromLog))
                     return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Previous build id {previousBuild.Id} still processing build involvements, waiting." };
 
                 buildInvolvementsInPreviousBuild = dataRead.GetBuildInvolvementsByBuild(previousBuild.Id);

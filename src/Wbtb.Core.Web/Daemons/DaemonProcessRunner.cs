@@ -92,8 +92,19 @@ namespace Wbtb.Core.Web
                         IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask(daemonLevelRaw);
                         foreach (DaemonTask task in tasks)
                         {
-                            if (daemonProcesses.GetAllActive().Count() >= configuration.MaxThreads)
+                            try
+                            {
+                                if (daemonProcesses.GetAllActive().Count() >= configuration.MaxThreads)
+                                    break;
+
+                                if (daemonProcesses.GetAllActive().Where(t => t.Daemon == this.GetType()).Count() >= configuration.MaxThreadsPerDaemon)
+                                    break;
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                // cross thread error on active collections, assume too many processes and try again late
                                 break;
+                            }
 
                             DaemonActiveProcess activeProcess = daemonProcesses.GetActive(task);
                             if (activeProcess != null)

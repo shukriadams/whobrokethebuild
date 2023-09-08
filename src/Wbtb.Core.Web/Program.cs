@@ -8,6 +8,8 @@ namespace Wbtb.Core.Web
 {
     public class Program
     {
+        public static object LockInstance = new object();
+
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
