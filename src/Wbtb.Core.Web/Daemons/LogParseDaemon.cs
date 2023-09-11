@@ -58,7 +58,7 @@ namespace Wbtb.Core.Web
         {
             ILogParserPlugin parser = _pluginProvider.GetByKey(task.Args) as ILogParserPlugin;
             if (parser == null)
-                return new DaemonTaskWorkResult { ResultType=DaemonTaskWorkResultType.Failed, Description = "Log parser {task.Args} was not found." };
+                return new DaemonTaskWorkResult { ResultType=DaemonTaskWorkResultType.Failed, Description = $"Log parser {task.Args} requested by this task was not found." };
 
             // todo : optimize, have to reread log just to hash is a major performance issue
             string rawLog = File.ReadAllText(build.LogPath);

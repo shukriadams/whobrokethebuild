@@ -9,6 +9,13 @@
     Build : @ViewHelpers.BuildLink(Model.Build)
 </div>
 
+@if(string.IsNullOrEmpty(Model.Build.LogPath))
+{
+    <div>
+        A log does not exist for this build. Either log has not been retrieved yet, or the retrieval has failed. Check logs for more info.
+    </div>
+}
+
 @if (!string.IsNullOrEmpty(Model.Raw))
 {
     <pre class="code">@Model.Raw</pre>
