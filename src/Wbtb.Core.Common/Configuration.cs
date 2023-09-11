@@ -172,13 +172,16 @@ namespace Wbtb.Core.Common
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public static T GetConfigValue<T>(IEnumerable<KeyValuePair<string, object>> config, string key, T defaultValue)
+        public static string GetConfigValue(IEnumerable<KeyValuePair<string, object>> config, string key, string defaultValue)
         {
             KeyValuePair<string, object>? item = config.FirstOrDefault(r => r.Key == key);
             if (item == null)
                 return defaultValue;
 
-            return (T)item.Value.Value;
+            if (item.Value.Value == null)
+                return string.Empty;
+
+            return item.Value.Value.ToString();
         }
 
         #endregion

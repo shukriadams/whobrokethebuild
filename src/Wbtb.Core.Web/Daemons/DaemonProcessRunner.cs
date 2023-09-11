@@ -100,8 +100,9 @@ namespace Wbtb.Core.Web
                                 if (daemonProcesses.GetAllActive().Where(t => t.Daemon == this.GetType()).Count() >= configuration.MaxThreadsPerDaemon)
                                     break;
                             }
-                            catch (InvalidOperationException)
+                            catch (Exception)
                             {
+                                // this section code above is pure unstable trash
                                 // cross thread error on active collections, assume too many processes and try again late
                                 break;
                             }
@@ -141,7 +142,7 @@ namespace Wbtb.Core.Web
                             {
                                 task.ProcessedUtc = DateTime.UtcNow;
                                 task.HasPassed = false;
-                                task.Result = $"Marked as failed because preceeding task(s) {string.Join(",", failing)} failed. Fix then rereset job id {build.JobId}.";
+                                task.Result = $"Marked as failed because preceeding task(s) {string.Join(",", failing.Select(t => t.Id))} failed. Fix then rereset job id {build.JobId}.";
                                 
                                 try
                                 {

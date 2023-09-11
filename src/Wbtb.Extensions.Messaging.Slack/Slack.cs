@@ -100,7 +100,7 @@ namespace Wbtb.Extensions.Messaging.Slack
         string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
         { 
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
-            bool mentionUsers = Configuration.GetConfigValue(ContextPluginConfig.Config, "MentionUsersInGroupPosts", false);
+            bool mentionUsers = Configuration.GetConfigValue(ContextPluginConfig.Config, "MentionUsersInGroupPosts", "false").ToLower() == "true";
 
             int alertMaxLength = 600;
             if (ContextPluginConfig.Config.Any(r => r.Key == "AlertMaxLength")) 

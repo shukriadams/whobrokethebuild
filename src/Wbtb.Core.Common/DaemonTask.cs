@@ -9,6 +9,9 @@ namespace Wbtb.Core.Common
         /// </summary>
         public string Id { get; set; }
 
+        /// <summary>
+        /// Build task belongs to
+        /// </summary>
         public string BuildId { get; set; }
 
         /// <summary>
