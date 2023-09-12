@@ -64,14 +64,14 @@ namespace Wbtb.Core.Web
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"source server {sourceServer.Name} unreachable" };
             }
 
-            Revision revision = sourceServerPlugin.GetRevision(sourceServer, buildInvolvement.RevisionCode);
-            if (revision == null)
+            RevisionLookup revisionLookup = sourceServerPlugin.GetRevision(sourceServer, buildInvolvement.RevisionCode);
+            if (!revisionLookup.Success)
                 return new DaemonTaskWorkResult {  ResultType = DaemonTaskWorkResultType.Failed, Description = $"Failed to resolve revision {buildInvolvement.RevisionCode} from source control server." };
 
-            revision.SourceServerId = sourceServer.Id;
-            dataWrite.SaveRevision(revision);
+            revisionLookup.Revision.SourceServerId = sourceServer.Id;
+            dataWrite.SaveRevision(revisionLookup.Revision);
 
-            buildInvolvement.RevisionId = revision.Id;
+            buildInvolvement.RevisionId = revisionLookup.Revision.Id;
             dataWrite.SaveBuildInvolement(buildInvolvement);
 
             return new DaemonTaskWorkResult();

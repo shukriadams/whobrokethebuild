@@ -66,9 +66,9 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Revision ISourceServerPlugin.GetRevision(SourceServer contextServer, string revisionCode)
+        RevisionLookup ISourceServerPlugin.GetRevision(SourceServer contextServer, string revisionCode)
         {
-            return _pluginSender.InvokeMethod<Revision>(this, new PluginArgs
+            return _pluginSender.InvokeMethod<RevisionLookup>(this, new PluginArgs
             {
                 FunctionName = nameof(ISourceServerPlugin.GetRevision),
                 Arguments = new PluginFunctionParameter[] {

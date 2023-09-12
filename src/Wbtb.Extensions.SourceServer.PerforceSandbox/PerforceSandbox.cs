@@ -54,8 +54,14 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
             while (currentRevision < endRevision) 
             {
                 string path = $"JSON.Revisions.{currentRevision}.json";
-                if (ResourceHelper.ResourceExists(this.GetType(), path))
-                    revisions.Add(_this.GetRevision(sourceServer, currentRevision.ToString()));
+                if (ResourceHelper.ResourceExists(this.GetType(), path)) 
+                {
+                    RevisionLookup revisionsLookup = _this.GetRevision(sourceServer, currentRevision.ToString());
+                    if (revisionsLookup.Success)
+                        revisions.Add(revisionsLookup.Revision);
+                    else
+                        throw new Exception(revisionsLookup.Error);
+                }
 
                 currentRevision++;
             }
@@ -63,14 +69,14 @@ namespace Wbtb.Extensions.SourceServer.PerforceSandbox
             return revisions;
         }
 
-        Revision ISourceServerPlugin.GetRevision(Core.Common.SourceServer contextServer, string revisionCode)
+        RevisionLookup ISourceServerPlugin.GetRevision(Core.Common.SourceServer contextServer, string revisionCode)
         {
             string rawChange = ResourceHelper.LoadFromLocalJsonOrLocalResourceAsString(this.GetType(), $"JSON.Revisions.{revisionCode}.json");
             if (rawChange == null)
-                return null;
+                return new RevisionLookup { Error = "Revision not found"};
 
             Change change = JsonConvert.DeserializeObject<Change>(rawChange);
-            return FromChange(change);
+            return new RevisionLookup { Revision = FromChange(change), Success = true };
         }
 
         private static Revision FromChange(Change change)

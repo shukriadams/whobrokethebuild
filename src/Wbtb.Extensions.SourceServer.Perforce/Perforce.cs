@@ -4,6 +4,7 @@ using Wbtb.Core.Common;
 using Madscience.Perforce;
 using System.Linq;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.SourceServer.Perforce
 {
@@ -13,14 +14,16 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
         private readonly PersistPathHelper _persistPathHelper;
         
+        private readonly ILogger _logger;
 
         #endregion
 
         #region CTORS
 
-        public Perforce(PersistPathHelper persistPathHelper) 
+        public Perforce(PersistPathHelper persistPathHelper, ILogger log) 
         {
             _persistPathHelper = persistPathHelper;
+            _logger = log; 
         }
 
         #endregion
@@ -112,13 +115,19 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             IEnumerable<string> revisionNumbers = PerforceUtils.GetRawChangesBetween(user, password, host, trust, int.Parse(revisionStart), int.Parse(revisionEnd), depotRoot);
             IList<Revision> changes = new List<Revision>();
             ISourceServerPlugin _this = this;
-            foreach (string revisionNumber in revisionNumbers)
-                changes.Add(_this.GetRevision(contextServer, revisionNumber));
+            foreach (string revisionNumber in revisionNumbers) 
+            {
+                RevisionLookup revisionsLookup = _this.GetRevision(contextServer, revisionNumber);
+                if (revisionsLookup.Success)
+                    changes.Add(revisionsLookup.Revision);
+                else
+                    _logger.LogError($"Revison lookup for rev {revisionNumber} failed while doing range lookup between {revisionStart} and {revisionEnd} - {revisionsLookup.Error}.");
+            }
 
             return changes;
         }
 
-        Revision ISourceServerPlugin.GetRevision(Core.Common.SourceServer contextServer, string revisionCode)
+        RevisionLookup ISourceServerPlugin.GetRevision(Core.Common.SourceServer contextServer, string revisionCode)
         {
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();
@@ -141,9 +150,12 @@ namespace Wbtb.Extensions.SourceServer.Perforce
                 File.WriteAllText(persistPath, describe);
             }
 
+            if (string.IsNullOrEmpty(describe))
+                return new RevisionLookup { Error = $"Revision was empty, assumed {revisionCode} is an invalid revision" };
+
             Change change = PerforceUtils.ParseDescribe(describe);
 
-            return ChangeToRevision(change);
+            return new RevisionLookup { Revision = ChangeToRevision(change), Success = true } ;
         }
 
         /// <summary>

@@ -18,6 +18,6 @@ namespace Wbtb.Core.Common
 
         IEnumerable<Revision> GetRevisionsBetween(Job job, string revisionStart, string revisionEnd);
 
-        Revision GetRevision(SourceServer contextServer, string revisionCode);
+        RevisionLookup GetRevision(SourceServer contextServer, string revisionCode);
     }
 }

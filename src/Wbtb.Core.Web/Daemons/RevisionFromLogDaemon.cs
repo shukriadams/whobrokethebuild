@@ -124,8 +124,8 @@ namespace Wbtb.Core.Web
                 return new DaemonTaskWorkResult();
             }
 
-            Revision revisionInLog = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
-            if (revisionInLog == null)
+            RevisionLookup revisionLookup = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
+            if (!revisionLookup.Success)
                 return new DaemonTaskWorkResult {ResultType =DaemonTaskWorkResultType.Failed, Description = $"Unable to retrieve revision details for {revisionCode}." };
 
             // go back in time to some build with a revision in it that we can reference against
@@ -152,12 +152,12 @@ namespace Wbtb.Core.Web
                     break;
             }
 
-            IList<Revision> revisionsToLink = new List<Revision>() { revisionInLog };
+            IList<Revision> revisionsToLink = new List<Revision>() { revisionLookup.Revision };
 
             if (buildInvolvementsInPreviousBuild.Any())
             {
                 // take any revision known to be in the previous build, we can span with that and tidy up as we go
-                revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(job, buildInvolvementsInPreviousBuild.First().RevisionCode, revisionInLog.Code)).ToList();
+                revisionsToLink = revisionsToLink.Concat(sourceServerPlugin.GetRevisionsBetween(job, buildInvolvementsInPreviousBuild.First().RevisionCode, revisionLookup.Revision.Code)).ToList();
             }
 
             // get build involvements already in this build

@@ -473,7 +473,7 @@ namespace Madscience.Perforce
             // lookup, so we need to "probe" the text this way.
             string revision = Find(rawDescribe, @"change ([\d]+) ", RegexOptions.IgnoreCase);
             if (string.IsNullOrEmpty(revision))
-                throw new Exception($"P4 describe failed, got invalid content {rawDescribe}");
+                throw new Exception($"P4 describe failed, got invalid content \"{rawDescribe}\".");
 
             // s modifier selects across multiple lines
             string descriptionRaw = Find(rawDescribe, @"\n\n(.*?)\n\nAffected files ...", RegexOptions.IgnoreCase & RegexOptions.Multiline).Trim();
