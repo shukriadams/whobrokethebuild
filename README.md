@@ -1,12 +1,12 @@
 # Who broke the build?
 
-A server to process build data from CI servers like Jenkins, aiding communication with large development teams, particularly those in game development. WBTB is written in C#, Docker-ready and developed Linux-first. It supports Perforce and Unreal Engine out of the box, and all its integrations 
+A server to process build data from CI servers like Jenkins, aiding communication with large development teams, particularly those in game development. WBTB is written in C#, Docker-ready and developed Linux-first. It supports Perforce and Unreal Engine out of the box, and all of its integrations are plugins.
 
 ## Basic Setup
 
 ### Database
 
-WBTB requires a database. Currently PostgreSQL is supported. It manages its own database structures.
+WBTB requires a database. Currently only PostgreSQL is supported.
 
 ### Configuration 
 

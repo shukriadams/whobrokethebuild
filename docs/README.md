@@ -1,5 +1,15 @@
 # WBTB
 
+Who Broke The Build? is a server/service for managing build data in a CI environment. It gathers information about builds, including build state, logs and source code information, for the purpose of communicating build state to a development team. Basically, it tells your team when a build is broken, what broke, and who broke it. It is aimed specifically at game developers working on large teams, large code bases and multiple build targets. 
+
+WBTB has the following features :
+
+- All integrations are done as plugins, and you can extend it by adding your own plugins.
+- WBTB plugins can be written in any programming language that runs in a shell and supports HTTP. It already supports C#, Javascript and Python.
+- WBTB config can be managed entirely from git.
+- WBTB is written to take advantage of modern multi-core CPUs.
+- WBTB requires a Postgres database to operate, but is not reliant on the database content - the database content can be deleted and WBTB will repopulate it.
+
 These docs are a still a WIP.
 
 ## Todo
@@ -102,9 +112,8 @@ Wbtb requires .Net 6.0. Building static frontend resources for Wbtb requires Nod
 There are several complex concepts in WBTB. 
 
 1 - data objects can be defined in the config file. these objects are available at runtime. Complete with relationships.
-2 - the same data objects defined in congif file are also created in a database, but db records are always slaved to congif file records. restraints are enforced in the db. 
-3 - Config YML is designed to be easy to read and understand, but because the YML contains the actual mapping to objects, class structure is locked to YML structure, and is therefore also human-friendly.
-4 - plugins are ways to connect to subsystems. in some cases plugins are closely connected with config objects, ie, build server and source control servers. There can be multiple buildservers connected to a WBTB instance, as well as multiple build server plugins. Some plugins must be associated with a config object to work.
+2 - the same data objects defined in config file are also created in a database, but db records are always slaved to config file records. Restraints are enforced in the db. 
+3 - Plugins are ways to connect to subsystems. in some cases plugins are closely connected with config objects, ie, build server and source control servers. There can be multiple buildservers connected to a WBTB instance, as well as multiple build server plugins. Some plugins must be associated with a config object to work.
 5 - Keys are important. They normally reflect unique identities that persist in the world - employees, source control for projects that persist indefinitely, and build servers that perform thousands of builds and which have history. Pick keys that accurately describe these, are easy to understand, and can live alongside future keys. WBTB provides a mechanism to merge existing key-based data into new objects, but you probably won't be using this a lot.
 6- WBTB auto-validates configuration on start, and validation is designed to give a clear indication of what went wrong and how to fix it. Iin most cases WBTB will not start until all validation errors are corrected.
 7- WBTB can be run in staging mode, allowing you to test configuration changes outside your prodution environment before deploying them. 
