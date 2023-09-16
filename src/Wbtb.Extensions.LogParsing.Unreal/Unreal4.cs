@@ -38,7 +38,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             };
         }
 
-        string ILogParserPlugin.Parse(string raw)
+        string ILogParserPlugin.Parse(Build build, string raw)
         {
             SimpleDI di = new SimpleDI();
 

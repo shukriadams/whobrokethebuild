@@ -14,8 +14,9 @@
         /// </x-logParseLine>
         /// 
         /// </summary>
-        /// <param name="raw"></param>
-        /// <returns></returns>
-        string Parse(string raw);
+        /// <param name="build">Build object log is being processed for.</param>
+        /// <param name="raw">Raw string of build log.</param>
+        /// <returns>A string of parsed results from raw log. String can be simple or be XML-like markup.</returns>
+        string Parse(Build build, string raw);
     }
 }

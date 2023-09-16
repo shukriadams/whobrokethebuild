@@ -301,10 +301,9 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
                 return new BuildLogRetrieveResult { Result = "Build log does not exist" };
 
             string logContent = GetBuildLog(build);
-            string logDirectory = Path.Combine(_config.BuildLogsDirectory, GetRandom(), GetRandom());
+            string logPath = Path.Combine(_config.BuildLogsDirectory, job.Key, build.Identifier, $"log.txt");
 
-            Directory.CreateDirectory(logDirectory);
-            string logPath = Path.Combine(logDirectory, $"{Guid.NewGuid()}.txt");
+            Directory.CreateDirectory(Path.GetDirectoryName(logPath));
             File.WriteAllText(logPath, logContent);
 
 

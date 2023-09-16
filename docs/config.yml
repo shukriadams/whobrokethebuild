@@ -41,6 +41,10 @@ Users:
     SourceServerIdentities:
     -   SourceServerKey: myperforce
         Name: Mort
+-   Key: Bob
+    SourceServerIdentities:
+    -   SourceServerKey: myperforce
+        Name: Bob        
 Groups:
   - Key: mygroup
     Message:

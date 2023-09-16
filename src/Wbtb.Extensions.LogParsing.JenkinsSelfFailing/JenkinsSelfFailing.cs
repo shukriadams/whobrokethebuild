@@ -17,7 +17,7 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             };
         }
 
-        string ILogParserPlugin.Parse(string raw)
+        string ILogParserPlugin.Parse(Build build, string raw)
         {
             SimpleDI di = new SimpleDI();
 

@@ -106,7 +106,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             bool isBluePrintError = false;
             bool isCPPError = false;
             bool isBasicError = false;
-            string blamedUserName = string.Empty;
+            List<string> blamedUserNames = new List<string>();
             string[] allowedParsers = { "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp", "Wbtb.Extensions.LogParsing.BasicErrors" };
             bool errorFound = false;
             string fileCausingBreak = string.Empty;
@@ -120,9 +120,6 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 if (parsedText == null)
                     continue;
 
-                if (client == null)
-                    continue;
-
                 foreach (ParsedBuildLogTextLine line in parsedText.Items)
                 {
                     if (line.Items.Any(l => l.Type == "flag" && l.Content == "shader"))
@@ -133,6 +130,10 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
                     if (parsedText.Type == "Wbtb.Extensions.LogParsing.BasicErrors")
                         basicError += $"{string.Join("\n", line.Items.Select(i => i.Content))}\n";
+
+                    // everything further requires p4client, so exit loop if none known
+                    if (p4client == null)
+                        continue;
 
                     foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
                     {
@@ -188,7 +189,6 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                         localFile = string.Join("/", localFile.Split("/", StringSplitOptions.RemoveEmptyEntries).Skip(1));
 
                                         localFileMappedToRemote = localFile;
-                                    
                                         
                                         string gameDoorDirectory = gameRemoteRoot.Split("/").Last();
                                         
@@ -200,10 +200,8 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                             if (revisionFileRemapped.EndsWith("."))
                                                 revisionFileRemapped = revisionFileRemapped.Substring(0, revisionFileRemapped.Length - 1);
 
-
                                             revisionFileRemapped = revisionFileRemapped.Replace(gameRemoteRoot + "/Content/", string.Empty);
                                         }
-                                            
                                     }
 
                                     if (localFileMappedToRemote != revisionFileRemapped)
@@ -213,10 +211,11 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                     bi.BlameScore = 100; // set score to max because we've directly tied user's revision file to build log error
                                     data.SaveBuildInvolement(bi);
 
-                                    blamedUserName = revision.User;
                                     User blamedUser = data.GetUserById(bi.MappedUserId);
-                                    if (blamedUser != null)
-                                        blamedUserName = blamedUser.Name;
+                                    if (blamedUser == null)
+                                        blamedUserNames.Add(revision.User);
+                                    else
+                                        blamedUserNames.Add(blamedUser.Name);
 
                                     fileCausingBreak = revisionFile;
                                     implicatedRevisions.Add(revision.Code);
@@ -227,22 +226,25 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 }
             }
             
+            string resultString = string.Empty;
+            string description = string.Empty;
+
             if (errorFound)
             {
-                string description = "Error found";
+                description = "Error found";
 
-                if (isBluePrintError) 
+                if (isBluePrintError)
                 {
                     breakExtraFlag = " (blueprint)";
                     description = "Blueprint error";
                 }
-                    
-                if (isShaderError) 
+
+                if (isShaderError)
                 {
                     breakExtraFlag = " (shader)";
                     description = "Shader error";
                 }
-                    
+
                 if (isCPPError)
                 {
                     breakExtraFlag = " (C++)";
@@ -254,11 +256,15 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
                 if (implicatedRevisions.Any())
                     description += $" revision{(implicatedRevisions.Count == 1 ? "" : "s")} {string.Join(",", implicatedRevisions)}. ";
-                else
-                    description += $" Could not parse revision, 'error' keyword match found : {basicError}";
+                else 
+                {
+                    description += $" Could not parse revision.";
+                    if (!string.IsNullOrEmpty(basicError))
+                        description  += $"'error' keyword match found:\n{basicError}.";
+                }
 
-                if (!string.IsNullOrEmpty(blamedUserName))
-                    description += $" Broken by {blamedUserName}. ";
+                if (blamedUserNames.Any())
+                    description += $" Broken by {string.Join(",",blamedUserNames)}.";
 
                 if (!string.IsNullOrEmpty(errorLineFromLog))
                     description += $" {errorLineFromLog}";
@@ -269,17 +275,37 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     MutationId = build.Id,
                     ImplicatedRevisions = implicatedRevisions,
                     Processor = this.GetType().Name,
-                    Summary = $"{blamedUserName}{breakExtraFlag}",
+                    Summary = $"{string.Join(",", blamedUserNames)}{breakExtraFlag}",
                     Status = "Break",
                     Description = description
                 });
 
-                return new PostProcessResult
-                {
-                    Passed = true,
-                    Result = $"Found error in P4 revision. File ${fileCausingBreak} from revision {string.Join(",", implicatedRevisions)} implicated in break.\n."
-                };
+                resultString = $"Found error in P4 revision. File ${fileCausingBreak} from revision {string.Join(",", implicatedRevisions)} implicated in break.\n.";
             }
+            else 
+            {
+                description = "No definitive error cause found.";
+
+                if (!string.IsNullOrEmpty(basicError))
+                    description += $"\n'error' keyword match found:\n{basicError}";
+
+                data.SaveIncidentReport(new IncidentReport
+                {
+                    IncidentId = build.IncidentBuildId,
+                    MutationId = build.Id,
+                    Processor = this.GetType().Name,
+                    Summary = $"No cause found",
+                    Status = "Break",
+                    Description = description
+                });
+                resultString = "No error cause found.";
+            }
+
+            return new PostProcessResult
+            {
+                Passed = true,
+                Result = resultString
+            };
 
             // if log parse results are blueprint
             // can we parse blueprint file path out of error message

@@ -21,7 +21,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             };
         }
 
-        string ILogParserPlugin.Parse(string raw)
+        string ILogParserPlugin.Parse(Build build, string raw)
         {
             SimpleDI di = new SimpleDI();
             ILogger logger = di.Resolve<ILogger>();

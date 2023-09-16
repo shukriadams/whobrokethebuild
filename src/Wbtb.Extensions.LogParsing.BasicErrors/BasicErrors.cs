@@ -16,7 +16,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             };
         }
 
-        string ILogParserPlugin.Parse(string raw)
+        string ILogParserPlugin.Parse(Build build,string raw)
         {
             SimpleDI di = new SimpleDI();
 
@@ -33,11 +33,41 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
             if (matches.Any()) 
             {
                 BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
+                int ignoredErrors = 0;
+
                 foreach (Match match in matches)
                 {
+                    CachePayload errorStringCacheLookup = null;
+                    string errorStringKey = Sha256.FromString(match.Value);
+                    errorStringCacheLookup = cache.Get(this, errorStringKey);
+                    int cacheCount = 0;
+
+                    if (errorStringCacheLookup.Payload != null) 
+                    { 
+                        int.TryParse(errorStringCacheLookup.Payload, out cacheCount);
+                    }
+
+                    if (build.Status == BuildStatus.Passed)
+                    {
+                        // write error string to "safe error" cache
+                        cacheCount++;
+                        cache.Write(this, errorStringKey, cacheCount.ToString());
+                        continue;
+                    }
+
+                    // ignore if error string is already in "safe error" cache
+                    if (cacheCount > 2) // 5 is arbitrary score
+                    {
+                        ignoredErrors++;
+                        continue;
+                    }
+
                     builder.AddItem(match.Value);
                     builder.NewLine();
                 }
+
+                if (ignoredErrors > 0) 
+                    builder.AddItem($"Suppressed {ignoredErrors} additional occurrence(s).");
 
                 result = builder.GetText();
             }

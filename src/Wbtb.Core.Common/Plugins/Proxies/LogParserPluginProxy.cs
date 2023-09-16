@@ -17,7 +17,7 @@
             _pluginSender = pluginSender;
         }
 
-        string ILogParserPlugin.Parse(string raw)
+        string ILogParserPlugin.Parse(Build build, string raw)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {

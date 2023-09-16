@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -60,10 +58,27 @@ namespace Wbtb.Core.Web
             if (parser == null)
                 return new DaemonTaskWorkResult { ResultType=DaemonTaskWorkResultType.Failed, Description = $"Log parser {task.Args} requested by this task was not found." };
 
+            if (string.IsNullOrEmpty(build.LogPath))
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Build id:{build.Id} has no log path value." };
+
+            if (!File.Exists(build.LogPath))
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Log for Build id:{build.Id} at path:{build.LogPath} does not exist on disk." };
+
             // todo : optimize, have to reread log just to hash is a major performance issue
-            string rawLog = File.ReadAllText(build.LogPath);
+            string rawLog;
+
+            try
+            {
+                rawLog = File.ReadAllText(build.LogPath);
+            }
+            catch (Exception ex) 
+            {
+                _log.LogError($"Failed to read log for build id:{build.Id} at path:{build.LogPath}.", ex);
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Failed to read log for build id:{build.Id} at path:{build.LogPath}. Exception : {ex}" };
+            }
+
             DateTime startUtc = DateTime.UtcNow;
-            string result = parser.Parse(rawLog);
+            string result = parser.Parse(build, rawLog);
 
             BuildLogParseResult logParserResult = new BuildLogParseResult();
             logParserResult.BuildId = build.Id;
