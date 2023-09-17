@@ -144,6 +144,7 @@ namespace Wbtb.Core.Web
                                 task.HasPassed = false;
                                 task.Result = $"Marked as failed because preceeding task(s) failed. Fix then rereset job id {build.JobId}.";
                                 string failingTaskId = failing.First().Id;
+                                if (failing.Any(f => string.IsNullOrEmpty(f.FailDaemonTaskId)))
                                     failingTaskId = failing.Where(f => string.IsNullOrEmpty(f.FailDaemonTaskId)).First().Id;
 
                                 task.FailDaemonTaskId = failingTaskId;
