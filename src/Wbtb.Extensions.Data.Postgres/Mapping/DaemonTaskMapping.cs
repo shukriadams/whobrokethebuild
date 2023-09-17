@@ -15,6 +15,7 @@ namespace Wbtb.Extensions.Data.Postgres
             queryParameters.AddWithValue("stage", record.Stage);
             queryParameters.AddWithValue("src", record.Src);
             queryParameters.AddWithValue("buildinvolvementid", record.BuildInvolvementId == null ? (object)DBNull.Value : int.Parse(record.BuildInvolvementId));
+            queryParameters.AddWithValue("faildaemontaskid", record.FailDaemonTaskId == null ? (object)DBNull.Value : int.Parse(record.FailDaemonTaskId));
             queryParameters.AddWithValue("createdutc", record.CreatedUtc);
             queryParameters.AddWithValue("result", record.Result == null ? (object)DBNull.Value : record.Result);
             queryParameters.AddWithValue("args", record.Args == null ? (object)DBNull.Value : record.Args);

@@ -1739,9 +1739,9 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO daemontask
-                    (buildid, signature, buildinvolvementid, src, createdutc, processedutc, passed, args, result, stage)
+                    (buildid, signature, buildinvolvementid, faildaemontaskid, src, createdutc, processedutc, passed, args, result, stage)
                 VALUES
-                    (@buildid, @signature,  @buildinvolvementid, @src, @createdutc, @processedutc, @passed, @args, @result, @stage)
+                    (@buildid, @signature,  @buildinvolvementid, @faildaemontaskid, @src, @createdutc, @processedutc, @passed, @args, @result, @stage)
                 RETURNING id";
 
             string updateQuery = @"                    
@@ -1749,7 +1749,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     buildid = @buildid,
                     signature = @new_signature,
                     buildinvolvementid = @buildinvolvementid, 
-                    src = @src, 
+                    src = @src,
+                    faildaemontaskid = @faildaemontaskid,
                     stage = @stage,
                     createdutc = @createdutc,
                     processedutc = @processedutc,
@@ -1894,6 +1895,7 @@ namespace Wbtb.Extensions.Data.Postgres
                         SELECT DISTINCT (buildid), MIN(stage) AS stage FROM daemontask WHERE processedutc IS NULL
                         GROUP BY buildid
                     )
+                    AND NOT faildaemontaskid IS NULL
                 ";
 
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
@@ -1943,7 +1945,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
             if (filterBy == "failed")
             {
-                where = " WHERE DT.passed = false ";
+                where = " WHERE DT.passed = false AND faildaemontaskid IS NULL ";
                 compountWhere = true;
             }
 

@@ -1,0 +1,1 @@
+﻿No error in build log, but log import for this is hardcoded to fail in JenkinsSandbox plugin.

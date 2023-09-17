@@ -398,13 +398,19 @@ CREATE TABLE public."daemontask"
     buildid integer NOT NULL,
     buildinvolvementid integer,
     stage integer NOT NULL,
+    faildaemontaskid integer,
     src character varying(256) COLLATE pg_catalog."default",
     createdutc timestamp(4) without time zone NOT NULL,
     processedutc timestamp(4) without time zone,
     passed boolean,
     args text COLLATE pg_catalog."default",
     result text COLLATE pg_catalog."default",
+    CONSTRAINT "daemontask_pkey" PRIMARY KEY (id),
     CONSTRAINT "daemontask_compoundkey" UNIQUE (buildid, buildinvolvementid, stage),
+    CONSTRAINT "daemontask_faildaemontaskid_fk" FOREIGN KEY (faildaemontaskid)
+        REFERENCES public."daemontask" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE,
     CONSTRAINT "daemontask_buildid_fk" FOREIGN KEY (buildid)
         REFERENCES public."build" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -501,6 +507,11 @@ CREATE INDEX "r_buildlogparseresult_buildinvolvement_buildinvolvementid_fk"
 CREATE INDEX "daemontask_buildid_fk"
     ON public."daemontask" USING btree
     (buildid)
+    TABLESPACE pg_default;
+
+CREATE INDEX "daemontask_faildaemontaskid_fk"
+    ON public."daemontask" USING btree
+    (faildaemontaskid)
     TABLESPACE pg_default;
 
 CREATE INDEX "daemontask_buildinvolvementid_fk"

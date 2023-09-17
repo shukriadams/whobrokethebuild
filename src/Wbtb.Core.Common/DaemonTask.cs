@@ -4,6 +4,8 @@ namespace Wbtb.Core.Common
 {
     public class DaemonTask : ISignature
     {
+        #region PROPERTIES
+
         /// <summary>
         /// Id of record in database
         /// </summary>
@@ -55,14 +57,25 @@ namespace Wbtb.Core.Common
         public int Stage { get; set; }
 
         /// <summary>
+        /// Id of the daemontask that caused this task to fail. Null if this task failed on its own.
+        /// </summary>
+        public string FailDaemonTaskId { get; set; }
+
+        /// <summary>
         /// 
         /// </summary>
         public string Signature { get; set; }
+
+        #endregion
+
+        #region CTORS
 
         public DaemonTask() 
         {
             this.Signature = Guid.NewGuid().ToString();
             this.CreatedUtc = DateTime.UtcNow;
         }
+
+        #endregion
     }
 }

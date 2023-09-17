@@ -75,10 +75,12 @@
                         {
                             <x-badge class="--danger">Failed</x-badge>
                         }
+
                         <text>
                             @task.ProcessedUtc.Ago() ago
                             <div class="quiet">(@task.ProcessedUtc.ToHumanString())</div>
                         </text>
+
                         <div class="quiet">Queued for @((task.ProcessedUtc - task.CreatedUtc).ToHumanString(shorten: true))</div>
                     }
                     else
@@ -100,10 +102,12 @@
                 </x-list-cell>
                 <x-list-cell class="quiet">
                     @task.Result
+                    
                     @if (task.BlockedProcess != null)
                     {
                         <text>BLOCKED by taskid:@task.BlockedProcess.Task.Id</text>
                     }
+
                     @if (task.ActiveProcess != null)
                     {
                         <text>Currently running @task.ActiveProcess.CreatedUtc.ToHumanString() <span>@task.ActiveProcess.CreatedUtc.Ago() ago</span></text>

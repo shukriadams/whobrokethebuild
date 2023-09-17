@@ -4,6 +4,16 @@
         {
             "_class": "hudson.model.FreeStyleBuild",
             "duration": 354161,
+            "fullDisplayName": "MyProject - Build #39",
+            "id": "39",
+            "number": 39,
+            "result": "FAILURE",
+            "timestamp": 1600000000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 354161,
             "fullDisplayName": "MyProject - Build #40",
             "id": "40",
             "number": 40,

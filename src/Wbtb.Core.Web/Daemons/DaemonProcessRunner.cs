@@ -142,7 +142,11 @@ namespace Wbtb.Core.Web
                             {
                                 task.ProcessedUtc = DateTime.UtcNow;
                                 task.HasPassed = false;
-                                task.Result = $"Marked as failed because preceeding task(s)  failed. Fix then rereset job id {build.JobId}. <failing_tasks>{string.Join(",", failing.Select(t => t.Id))}</failing_tasks>";
+                                task.Result = $"Marked as failed because preceeding task(s) failed. Fix then rereset job id {build.JobId}.";
+                                string failingTaskId = failing.First().Id;
+                                    failingTaskId = failing.Where(f => string.IsNullOrEmpty(f.FailDaemonTaskId)).First().Id;
+
+                                task.FailDaemonTaskId = failingTaskId;
                                 
                                 try
                                 {

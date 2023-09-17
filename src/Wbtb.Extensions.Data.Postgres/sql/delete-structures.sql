@@ -8,6 +8,7 @@ DROP INDEX IF EXISTS public."build_jobid_fk";
 DROP INDEX IF EXISTS public."build_incidentbuildid_fk";
 DROP INDEX IF EXISTS public."session_userid_fk";
 DROP INDEX IF EXISTS public."daemontask_buildid_fk";
+DROP INDEX IF EXISTS public."daemontask_faildaemontaskid_fk";
 DROP INDEX IF EXISTS public."daemontask_buildinvolvementid_fk";
 DROP INDEX IF EXISTS public."r_buildlogparseresult_buildinvolvement_buildlogparseresultid_fk";
 DROP INDEX IF EXISTS public."r_buildlogparseresult_buildinvolvement_buildinvolvementid_fk";

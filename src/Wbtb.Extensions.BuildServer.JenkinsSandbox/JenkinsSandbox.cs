@@ -297,6 +297,9 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             Job job = dataLayer.GetJobById(build.JobId);
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
 
+            if (build.Identifier == "39" && job.Name.ToLower().Contains("skunk"))
+                throw new Exception("Log import failed deliberately on build 39 for skunkwords. This is to test daemontask error handling.");
+
             if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{remotekey.Value}.logs.{build.Identifier}.txt"))
                 return new BuildLogRetrieveResult { Result = "Build log does not exist" };
 
