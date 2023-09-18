@@ -349,7 +349,8 @@ namespace Wbtb.Core.Web.Controllers
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             ProcessPageModel model = new ProcessPageModel();
 
-            model.ActiveProcesses = daemonProcesses.GetAllActive();
+            DateTime timecutoff = DateTime.UtcNow - new TimeSpan(0, 0 , 1);
+            model.ActiveProcesses = daemonProcesses.GetAllActive().Where(p => p.CreatedUtc < timecutoff);
             model.BlockedProcesses = daemonProcesses.GetAllBlocked().OrderByDescending(p => p.CreatedUtc).ToList();
             model.DoneProcesses = daemonProcesses.GetDone();
             IList<DaemonTask> blockedTasks = dataLayer.GetBlockingDaemonTasks().ToList();
