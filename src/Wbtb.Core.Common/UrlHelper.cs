@@ -11,10 +11,10 @@ namespace Wbtb.Core.Common
             _config = config;
         }
 
-        public string Build(Build build) 
+        public string Build(Build build, Job job) 
         {
             string address = string.IsNullOrEmpty(_config.Address) ? $"http://localhost:{_config.Port}" : _config.Address;
-            return new Uri(new Uri(address), $"/build/{build.Id}").ToString();
+            return new Uri(new Uri(address), $"/build/{build.GetPublicId(job)}").ToString();
         }
     }
 }

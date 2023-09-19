@@ -150,7 +150,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             attachment.fallback = " ";
             attachment.color = "#D92424";
             attachment.text = incidentReport.Description;
-            attachment.title_link = _urlHelper.Build(incidentBuild);
+            attachment.title_link = _urlHelper.Build(incidentBuild, job);
 
             var attachments = new JArray(1);
             attachments[0] = attachment;
@@ -263,7 +263,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             var attachments = new JArray(1);
             attachments[0] = attachment;
 
-            data["title_link"] = _urlHelper.Build(fixingBuild);
+            data["title_link"] = _urlHelper.Build(fixingBuild, job);
             data["token"] = token;
             data["ts"] = (string)storeItemPayload.ts;
             data["channel"] = slackId;

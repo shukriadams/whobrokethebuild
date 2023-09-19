@@ -207,7 +207,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             attachment.fallback = " ";
             attachment.color = "#D92424";
             attachment.text = $"```{description}```{mentionsFlattened}";
-            attachment.title_link = _urlHelper.Build(incidentBuild);
+            attachment.title_link = _urlHelper.Build(incidentBuild, job);
 
             var attachments = new JArray(1);
             attachments[0] = attachment;
@@ -301,7 +301,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             attachment.fallback = " ";
             attachment.color = "#007a5a";
             attachment.text = message;
-            attachment["title_link"] = _urlHelper.Build(fixingBuild);
+            attachment["title_link"] = _urlHelper.Build(fixingBuild, job);
 
             JArray attachments = new JArray(1);
             attachments[0] = attachment;

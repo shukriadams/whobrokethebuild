@@ -141,6 +141,8 @@ namespace Wbtb.Core.Common
 
         Build GetBuildById(string id);
 
+        Build GetBuildByJobAndIdentifier(string jobKey, string buildIdentifier);
+
         Build GetBuildByKey(string jobId, string key);
 
         PageableData<Build> PageBuildsByJob(string jobId, int index, int pageSize, bool sortAscending);

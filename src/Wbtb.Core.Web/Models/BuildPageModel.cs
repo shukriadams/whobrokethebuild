@@ -33,6 +33,8 @@ namespace Wbtb.Core.Web
 
         public CommonModel Common { get;set; }
 
+        public ViewJob Job { get; set; }
+
         public Build PreviousBuild { get; set; }
 
         public Build NextBuild { get; set; }

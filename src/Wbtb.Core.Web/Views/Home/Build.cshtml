@@ -27,7 +27,7 @@
                 @if(Model.IncidentCausalBuild != null)
                 {
                     <wbtb-label>Breaking build</wbtb-label>
-                    <div><a href="/build/@Model.IncidentCausalBuild.Id">@Model.IncidentCausalBuild.Identifier</a></div>
+                    <div><a href="/build/@Model.IncidentCausalBuild.GetPublicId(Model.Job)">@Model.IncidentCausalBuild.Identifier</a></div>
                 }
 
                 @if (Model.Build.IncidentBuild != null)
@@ -87,24 +87,24 @@
                 @if (Model.NextBuild != null)
                 {
                     <wbtb-label>Next build</wbtb-label>
-                    <div><a href="/build/@Model.NextBuild.Id">@Model.NextBuild.Identifier </a> <span class="quiet">@((Model.NextBuild.StartedUtc - Model.Build.StartedUtc).ToHumanString()) later</span></div>
+                    <div><a href="/build/@Model.NextBuild.GetPublicId(Model.Job)">@Model.NextBuild.Identifier </a> <span class="quiet">@((Model.NextBuild.StartedUtc - Model.Build.StartedUtc).ToHumanString()) later</span></div>
                 }
 
                 @if (Model.PreviousBuild != null)
                 {
                     <wbtb-label>Prev build</wbtb-label>
-                    <div><a href="/build/@Model.PreviousBuild.Id">@Model.PreviousBuild.Identifier </a> <span class="quiet">@((Model.Build.StartedUtc - Model.PreviousBuild.StartedUtc).ToHumanString()) earlier</span></div>
+                    <div><a href="/build/@Model.PreviousBuild.GetPublicId(Model.Job)">@Model.PreviousBuild.Identifier </a> <span class="quiet">@((Model.Build.StartedUtc - Model.PreviousBuild.StartedUtc).ToHumanString()) earlier</span></div>
                 }
 
                 <wbtb-label>Logs</wbtb-label>
                 <div>
-                    <a href="/build/log/@Model.Build.Id">Raw build log</a>
+                    <a href="/build/log/@Model.Build.GetPublicId(Model.Job)">Raw build log</a>
                 </div>
 
 
                 <wbtb-label></wbtb-label>
                 <div>
-                    <a href="/buildProcessLog/@Model.Build.Id">
+                    <a href="/buildProcessLog/@Model.Build.GetPublicId(Model.Job)">
 
                         @if (Model.ProcessErrors)
                         {
@@ -295,7 +295,7 @@ else
 else
 {
     <div>
-        <a href="/build/log/@Model.Build.Id">View full build log</a>
+        <a href="/build/log/@Model.Build.GetPublicId(Model.Job)">View full build log</a>
     </div>
 }
       

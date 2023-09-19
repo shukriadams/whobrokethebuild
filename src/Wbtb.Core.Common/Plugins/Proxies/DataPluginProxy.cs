@@ -468,6 +468,18 @@ namespace Wbtb.Core.Common
             });
         }
 
+        Build IDataPlugin.GetBuildByJobAndIdentifier(string jobKey, string buildIdentifier) 
+        {
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetBuildByJobAndIdentifier),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "jobKey", Value = jobKey },
+                    new PluginFunctionParameter { Name = "buildIdentifier", Value = buildIdentifier }
+                }
+            });
+        }
+
         Build IDataPlugin.GetLastJobDelta(string jobId)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs

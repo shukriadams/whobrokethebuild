@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Wbtb.Common;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web.Controllers
@@ -78,27 +79,30 @@ namespace Wbtb.Core.Web.Controllers
         }
 
         [ServiceFilter(typeof(ViewStatus))]
-        [Route("/incident/{incidentId}")]
-        public IActionResult Incident(string incidentId)
+        [Route("/incident/{publicBuildId}")]
+        public IActionResult Incident(string publicBuildId)
         {
+            PublicIdentifier publicIdentifier = PublicIdentifierHelper.ParsePublicBuildId(publicBuildId);
+            if (publicIdentifier== null)
+                return Responses.NotFoundError($"build id {publicBuildId} does not exist");
+
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             IncidentPageModel model = new IncidentPageModel();
-            model.IncidentBuild = dataLayer.GetBuildById(incidentId);
-            
+            model.IncidentBuild = dataLayer.GetBuildByJobAndIdentifier(publicIdentifier.JobKey, publicIdentifier.BuildIdentifer);
+            if (model.IncidentBuild == null)
+                return Responses.NotFoundError($"build {publicBuildId} does not exist");
+
             if (model.IncidentBuild != null)
                 model.FixingBuild = dataLayer.GetFirstPassingBuildAfterBuild(model.IncidentBuild);
 
-            if (model.IncidentBuild == null)
-                return Responses.NotFoundError($"build {incidentId} does not exist");
-
             Build jobDelta = dataLayer.GetLastJobDelta(model.IncidentBuild.JobId);
-            if (jobDelta != null && jobDelta.IncidentBuildId == incidentId)
+            if (jobDelta != null && jobDelta.IncidentBuildId == model.IncidentBuild.Id)
                 model.IsActive = true;
 
             model.Job = dataLayer.GetJobById(model.IncidentBuild.JobId);
-            model.InvolvedBuilds = dataLayer.GetBuildsByIncident(incidentId);
+            model.InvolvedBuilds = dataLayer.GetBuildsByIncident(model.IncidentBuild.Id);
             return View(model);
         }
 
@@ -199,23 +203,28 @@ namespace Wbtb.Core.Web.Controllers
         /// <param name="buildid"></param>
         /// <returns></returns>
         [ServiceFilter(typeof(ViewStatus))]
-        [Route("/build/{buildid}")]
-        public IActionResult Build(string buildid)
+        [Route("/build/{publicBuildId}")]
+        public IActionResult Build(string publicBuildId)
         {
+            PublicIdentifier publicIdentifier = PublicIdentifierHelper.ParsePublicBuildId(publicBuildId);
+            if (publicIdentifier == null)
+                return Responses.NotFoundError($"build id {publicBuildId} does not exist");
+
             BuildPageModel model = new BuildPageModel();
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            model.Build = ViewBuild.Copy(dataLayer.GetBuildById(buildid));
+            model.Build = ViewBuild.Copy(dataLayer.GetBuildByJobAndIdentifier(publicIdentifier.JobKey, publicIdentifier.BuildIdentifer));
             if (model.Build == null)
-                return Responses.NotFoundError($"build {buildid} does not exist");
+                return Responses.NotFoundError($"build {publicBuildId} does not exist");
 
+            model.Job = ViewJob.Copy(dataLayer.GetJobById(model.Build.JobId));
             model.Build.Job = ViewJob.Copy(dataLayer.GetJobById(model.Build.JobId));
             IEnumerable<DaemonTask> buildTasks = dataLayer.GetDaemonTasksByBuild(model.Build.Id);
 
             BuildServer buildServer = dataLayer.GetBuildServerById(model.Build.Job.BuildServerId);
             IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
 
-            model.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(buildid));
+            model.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(model.Build.Id));
 
             foreach (ViewBuildInvolvement bi in model.BuildInvolvements)
             {
@@ -235,7 +244,7 @@ namespace Wbtb.Core.Web.Controllers
             model.BuildServer = buildServer;
             model.PreviousBuild = dataLayer.GetPreviousBuild(model.Build);
             model.NextBuild = dataLayer.GetNextBuild(model.Build);
-            model.BuildParseResults = dataLayer.GetBuildLogParseResultsByBuildId(buildid).OrderBy(r => string.IsNullOrEmpty(r.ParsedContent));
+            model.BuildParseResults = dataLayer.GetBuildLogParseResultsByBuildId(model.Build.Id).OrderBy(r => string.IsNullOrEmpty(r.ParsedContent));
             model.Build.IncidentBuild = string.IsNullOrEmpty(model.Build.IncidentBuildId) ? null : ViewBuild.Copy(dataLayer.GetBuildById(model.Build.IncidentBuildId));
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
             model.ProcessErrors = buildTasks.Any(t => t.HasPassed.HasValue && t.HasPassed.Value == false);
@@ -247,16 +256,20 @@ namespace Wbtb.Core.Web.Controllers
 
 
         [ServiceFilter(typeof(ViewStatus))]
-        [Route("/BuildProcessLog/{buildid}")]
-        public IActionResult BuildProcessLog(string buildid)
+        [Route("/BuildProcessLog/{publicBuildId}")]
+        public IActionResult BuildProcessLog(string publicBuildId)
         {
+            PublicIdentifier publicIdentifier = PublicIdentifierHelper.ParsePublicBuildId(publicBuildId);
+            if (publicIdentifier == null)
+                return Responses.NotFoundError($"build id {publicBuildId} does not exist");
+
             BuildProcessPageModel model = new BuildProcessPageModel();
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             DaemonTaskProcesses daemonTaskProcesses = _di.Resolve<DaemonTaskProcesses>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            model.Build = ViewBuild.Copy(dataLayer.GetBuildById(buildid));
+            model.Build = ViewBuild.Copy(dataLayer.GetBuildByJobAndIdentifier(publicIdentifier.JobKey, publicIdentifier.BuildIdentifer));
             if (model.Build == null)
-                return Responses.NotFoundError($"build {buildid} does not exist");
+                return Responses.NotFoundError($"build {publicBuildId} does not exist");
 
             model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.GetDaemonTasksByBuild(model.Build.Id).OrderBy(t => t.CreatedUtc));
             model.IsComplete = !model.DaemonTasks.Any(t => t.ProcessedUtc == null);
@@ -281,22 +294,26 @@ namespace Wbtb.Core.Web.Controllers
 
 
         [ServiceFilter(typeof(ViewStatus))]
-        [Route("/build/log/{buildid}")]
-        public IActionResult BuildLog(string buildid)
+        [Route("/build/log/{publicBuildId}")]
+        public IActionResult BuildLog(string publicBuildId)
         {
+            PublicIdentifier publicIdentifier = PublicIdentifierHelper.ParsePublicBuildId(publicBuildId);
+            if (publicIdentifier == null)
+                return Responses.NotFoundError($"build id {publicBuildId} does not exist");
+
             BuildLogParseResultsPageModel model = new BuildLogParseResultsPageModel();
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            model.Build = ViewBuild.Copy(dataLayer.GetBuildById(buildid));
+            model.Build = ViewBuild.Copy(dataLayer.GetBuildByJobAndIdentifier(publicIdentifier.JobKey, publicIdentifier.BuildIdentifer));
             if (model.Build == null)
-                return Responses.NotFoundError($"build {buildid} does not exist");
+                return Responses.NotFoundError($"build {publicBuildId} does not exist");
 
             if (model.Build.LogPath != null)
             { 
                 if (System.IO.File.Exists(model.Build.LogPath))
                     model.Raw = System.IO.File.ReadAllText(model.Build.LogPath);
                 else
-                    return Responses.UnknownError($"The log for build {buildid} was not found at expected path {model.Build.LogPath}", 120); // todo : proper code needed
+                    return Responses.UnknownError($"The log for build {publicBuildId} was not found at expected path {model.Build.LogPath}", 120); // todo : proper code needed
             }
 
             return View(model);

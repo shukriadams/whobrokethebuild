@@ -161,7 +161,7 @@ namespace Wbtb.Core.Web
             if (build == null)
                 return new HtmlString(string.Empty);
 
-            return new HtmlString($"<a href=\"/incident/{build.Id}\">{text}</a>");
+            return new HtmlString($"<a href=\"/incident/{build.GetPublicId()}\">{text}</a>");
         }
 
         public static HtmlString BuildLink(Build build)
@@ -169,7 +169,7 @@ namespace Wbtb.Core.Web
             if (build == null)
                 return new HtmlString(string.Empty);
 
-            return new HtmlString($"<a href=\"/build/{build.Id}\">{build.Identifier}</a>");
+            return new HtmlString($"<a href=\"/build/{build.GetPublicId()}\">{build.Identifier}</a>");
         }
 
         public static HtmlString JobLink(Job job)

@@ -1,4 +1,5 @@
 ﻿using System;
+using Wbtb.Common;
 
 namespace Wbtb.Core.Common
 {
@@ -83,6 +84,18 @@ namespace Wbtb.Core.Common
                 return true;
 
             return false;
+        }
+
+        public string GetPublicId(Job job = null) 
+        {
+            SimpleDI di = new SimpleDI();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+            IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
+
+            if (job == null)
+                job = data.GetJobById(this.JobId);
+
+            return PublicIdentifierHelper.Encode($"{this.Identifier}____{job.Key}");
         }
     }
 }

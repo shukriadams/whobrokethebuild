@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -943,6 +944,29 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
                 return PostgresCommon.GetById<Build>(conWrap.Connection(), this.ContextPluginConfig, id, "build", new BuildConvert());
+        }
+
+        Build IDataPlugin.GetBuildByJobAndIdentifier(string jobKey, string buildIdentifier)
+        {
+            string query = @"
+                SELECT 
+                    *
+                FROM
+                    build B JOIN Job J
+                    ON B.jobid = J.id
+                WHERE
+                    j.key=@jobkey
+                    AND B.identifier=@buildidentifier";
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
+            {
+                cmd.Parameters.AddWithValue("jobkey", jobKey);
+                cmd.Parameters.AddWithValue("buildidentifier", buildIdentifier);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new BuildConvert().ToCommon(reader);
+            }
         }
 
         public Build GetCurrentBuildDelta(string jobId)
