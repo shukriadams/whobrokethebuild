@@ -50,6 +50,14 @@
                     </div>
                 }
 
+                @if (Model.PreviousIncident != null)
+                {
+                    <wbtb-label>Previous incident</wbtb-label>
+                    <div>
+                        @ViewHelpers.BuildLink(Model.PreviousIncident)
+                    </div>
+                }
+
                 @if (Model.BuildBreakers.Any())
                 {
                     <wbtb-label>Broken by</wbtb-label>

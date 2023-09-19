@@ -340,11 +340,11 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Build IDataPlugin.GetIncidentForFix(Build fix)
+        Build IDataPlugin.GetBreakBuildFixed(Build fix)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = nameof(IDataPlugin.GetIncidentForFix),
+                FunctionName = nameof(IDataPlugin.GetBreakBuildFixed),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "fix", Value = fix }
                 }
@@ -464,6 +464,17 @@ namespace Wbtb.Core.Common
                 FunctionName = nameof(IDataPlugin.GetBuildById),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "id", Value = id }
+                }
+            });
+        }
+
+        Build IDataPlugin.GetPreviousIncident(Build referenceBuild)
+        {
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetPreviousIncident),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "referenceBuild", Value = referenceBuild }
                 }
             });
         }

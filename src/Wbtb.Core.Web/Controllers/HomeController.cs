@@ -240,6 +240,7 @@ namespace Wbtb.Core.Web.Controllers
             if (!model.BuildInvolvements.Where(bi => bi.Revision == null).Any())
                 model.BuildInvolvements = model.BuildInvolvements.OrderByDescending(bi => bi.Revision.Created);
 
+            model.PreviousIncident = dataLayer.GetPreviousIncident(model.Build);
             model.UrlOnBuildServer = buildServerPlugin.GetBuildUrl(buildServer, model.Build);
             model.BuildServer = buildServer;
             model.PreviousBuild = dataLayer.GetPreviousBuild(model.Build);

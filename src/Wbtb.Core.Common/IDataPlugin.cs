@@ -101,7 +101,7 @@ namespace Wbtb.Core.Common
         /// </summary>
         /// <param name="fix"></param>
         /// <returns></returns>
-        Build GetIncidentForFix(Build fix);
+        Build GetBreakBuildFixed(Build fix);
 
         /// <summary>
         /// 
@@ -142,6 +142,8 @@ namespace Wbtb.Core.Common
         Build GetBuildById(string id);
 
         Build GetBuildByJobAndIdentifier(string jobKey, string buildIdentifier);
+
+        Build GetPreviousIncident(Build referenceBuild);
 
         Build GetBuildByKey(string jobId, string key);
 

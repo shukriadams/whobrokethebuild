@@ -159,12 +159,17 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new string[] { };
         }
 
+        Build IDataPlugin.GetPreviousIncident(Build referenceBuild) 
+        {
+            return new Build { };
+        }
+
         Build IDataPlugin.GetFixForIncident(Build incident) 
         {
             return new Build { };
         }
 
-        Build IDataPlugin.GetIncidentForFix(Build fix)
+        Build IDataPlugin.GetBreakBuildFixed(Build fix)
         {
             return new Build { };
         }

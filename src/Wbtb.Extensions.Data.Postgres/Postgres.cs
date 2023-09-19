@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -699,11 +698,51 @@ namespace Wbtb.Extensions.Data.Postgres
                     return new BuildConvert().ToCommon(reader);
             }
         }
-
-        Build IDataPlugin.GetIncidentForFix(Build fix) 
+        
+        
+        Build IDataPlugin.GetPreviousIncident(Build referenceBuild)
         {
             string query = @"
-                -- Gets the first failing build before fix 
+                SELECT 
+	                * 
+                FROM
+	                build
+                WHERE 
+	                id =
+            
+                    -- gets the last incident id before reference build 
+
+                    (SELECT
+	                    incidentbuildid
+                    FROM
+	                    build
+                    WHERE 
+	                    status = @failingStatus
+	                    AND jobid = @jobid
+	                    AND startedutc < @referenceBuildStart
+                    ORDER BY
+	                    startedutc DESC
+                    LIMIT 
+	                    1)";
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
+            {
+                IList<string> buildIds = new List<string>();
+                cmd.Parameters.AddWithValue("jobid", int.Parse(referenceBuild.JobId));
+                cmd.Parameters.AddWithValue("failingStatus", (int)BuildStatus.Failed);
+                cmd.Parameters.AddWithValue("passingStatus", (int)BuildStatus.Passed);
+                cmd.Parameters.AddWithValue("referenceBuildStart", referenceBuild.StartedUtc);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new BuildConvert().ToCommon(reader);
+            }
+        }
+        
+        Build IDataPlugin.GetBreakBuildFixed(Build fix) 
+        {
+            string query = @"
+                -- Gets first failing build after previous working build
                 SELECT
                     *
                 FROM
@@ -711,8 +750,10 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE 
                     status = @failingStatus
                     AND jobid = @jobid                    
+                    AND startedutc < @referenceBuildStart 
                     AND startedutc > (
-                        -- get previous fix date
+
+                        -- get date of previous working build
                         SELECT 
                             startedutc
                         FROM 
@@ -720,7 +761,7 @@ namespace Wbtb.Extensions.Data.Postgres
                         WHERE
                             jobid = @jobid
                             AND status = @passingStatus
-                            AND startedutc < @incidentStart
+                            AND startedutc < @referenceBuildStart
                         ORDER BY 
                             startedutc DESC
                         LIMIT 
@@ -738,7 +779,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 cmd.Parameters.AddWithValue("jobid", int.Parse(fix.JobId));
                 cmd.Parameters.AddWithValue("failingStatus", (int)BuildStatus.Failed);
                 cmd.Parameters.AddWithValue("passingStatus", (int)BuildStatus.Passed);
-                cmd.Parameters.AddWithValue("incidentStart", fix.StartedUtc);
+                cmd.Parameters.AddWithValue("referenceBuildStart", fix.StartedUtc);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new BuildConvert().ToCommon(reader);

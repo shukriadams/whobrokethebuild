@@ -26,6 +26,8 @@ namespace Wbtb.Core.Web
         /// </summary>
         public ViewBuild IncidentCausalBuild { get; set; }
 
+        public Build PreviousIncident { get; set; }
+
         /// <summary>
         /// Confirmed build breakers
         /// </summary>
