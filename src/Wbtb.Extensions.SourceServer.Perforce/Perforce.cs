@@ -146,9 +146,20 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             }
             else
             {
-                describe = PerforceUtils.GetRawDescribe(user, password, host, trust, int.Parse(revisionCode));
+                try
+                {
+                    describe = PerforceUtils.GetRawDescribe(user, password, host, trust, int.Parse(revisionCode));
+                }
+                catch (Exception ex)
+                {
+                    if (ex.Message.Contains("Invalid revision encoding"))
+                        describe = "INVALID REVISION ENCODING";
+                }
                 File.WriteAllText(persistPath, describe);
             }
+
+            if (describe == "INVALID REVISION ENCODING")
+                return new RevisionLookup { Error = $"Revision encoding could not be read. Treating {revisionCode} as invalid revision." };
 
             if (string.IsNullOrEmpty(describe))
                 return new RevisionLookup { Error = $"Revision was empty, assumed {revisionCode} is an invalid revision" };

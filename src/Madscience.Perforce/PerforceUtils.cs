@@ -353,10 +353,15 @@ namespace Madscience.Perforce
                 if(stderr.Contains("no such changelist"))
                     return null;
 
+                // ignore text encoding issues
+                // todo : find a better way to fix this
+                if (stderr.Contains("No Translation for parameter 'data'"))
+                    throw new Exception("Invalid revision encoding"); // do not change exception message, we're hardcoded referring to further up
+
                 if (stderr.Contains("'p4 trust' command"))
                     Console.WriteLine("Note that you can force p4 trust by adding Trust: true to your source server's Config: block");
 
-                throw new Exception($"P4 command {command} exited with code {result.ExitCode}, error : {stderr}");
+                throw new Exception($"P4 command {command} exited with code {result.ExitCode}, revision {revision}, error : {stderr}");
             }
 
             return string.Join("\n", result.StdOut);
