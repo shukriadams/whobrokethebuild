@@ -228,48 +228,50 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             
             string resultString = string.Empty;
             string description = string.Empty;
+            
+            blamedUserNames = blamedUserNames.Distinct().ToList();
+            implicatedRevisions = implicatedRevisions.Distinct().ToList();
 
             if (errorFound)
             {
-                description = "Error found";
+                description = string.Empty;
 
                 if (isBluePrintError)
                 {
                     breakExtraFlag = " (blueprint)";
-                    description = "Blueprint error";
+                    description = "Blueprint error.\n";
                 }
 
                 if (isShaderError)
                 {
                     breakExtraFlag = " (shader)";
-                    description = "Shader error";
+                    description = "Shader error.\n";
                 }
 
                 if (isCPPError)
                 {
                     breakExtraFlag = " (C++)";
-                    description = "C++ error";
+                    description = "C++ error.\n";
                 }
 
                 if (!string.IsNullOrEmpty(fileCausingBreak))
-                    description += $" Caused by file {fileCausingBreak}. ";
+                    description += $"Caused by file {fileCausingBreak}.\n";
 
                 if (implicatedRevisions.Any())
-                    description += $" revision{(implicatedRevisions.Count == 1 ? "" : "s")} {string.Join(",", implicatedRevisions)}. ";
+                    description += $"Revision{(implicatedRevisions.Count == 1 ? "" : "s")} {string.Join(",", implicatedRevisions)}.\n";
                 else 
                 {
-                    description += $" Could not parse revision.";
+                    description += $"Could not parse revision.\n";
+
                     if (!string.IsNullOrEmpty(basicError))
-                        description  += $"'error' keyword match found:\n{basicError}.";
+                        description  += $"'error' keyword match found:\n{basicError}\n";
                 }
 
-                blamedUserNames = blamedUserNames.Distinct().ToList();
-
                 if (blamedUserNames.Any())
-                    description += $" Broken by {string.Join(",",blamedUserNames)}.";
+                    description += $"Broken by {string.Join(",",blamedUserNames)}.\n";
 
                 if (!string.IsNullOrEmpty(errorLineFromLog))
-                    description += $" {errorLineFromLog}";
+                    description += $"{errorLineFromLog}\n";
 
                 data.SaveIncidentReport(new IncidentReport
                 {
@@ -282,11 +284,11 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     Description = description
                 });
 
-                resultString = $"Found error in P4 revision. File ${fileCausingBreak} from revision {string.Join(",", implicatedRevisions)} implicated in break.\n.";
+                resultString = $"Found error in P4 revision. File ${fileCausingBreak} from revision {string.Join(",", implicatedRevisions)} implicated in break.\n";
             }
             else 
             {
-                description = "No definitive error cause found.";
+                description = "No definitive error cause found.\n";
 
                 if (!string.IsNullOrEmpty(basicError))
                     description += $"\n'error' keyword match found:\n{basicError}";
