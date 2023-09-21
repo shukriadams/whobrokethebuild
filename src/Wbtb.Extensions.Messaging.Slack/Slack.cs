@@ -150,8 +150,6 @@ namespace Wbtb.Extensions.Messaging.Slack
                     SlackConfig slackConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(messageConfig.RawJson);
                     mentions.Add($"<@{slackConfig.SlackId}>");
                 }
-
-                mentions = mentions.Distinct().ToList();
             }
 
             IncidentReport incidentReport = dataLayer.GetIncidentReportByMutation(incidentBuild.Id);
@@ -167,35 +165,6 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 summary = $" Broke at build {incidentBuild.Identifier}";
                 description = "No error cause determined. Please check build log for details.";
-
-                // in absence of proof of break, present all existing log parse results
-                IEnumerable<BuildLogParseResult> logParseResults = dataLayer.GetBuildLogParseResultsByBuildId(incidentBuild.Id);
-                if (logParseResults.Where(r => !string.IsNullOrEmpty(r.ParsedContent)).Any())
-                {
-                    description = "No error cause, log parse returned :\n";
-
-                    foreach (BuildLogParseResult result in logParseResults.Where(r => !string.IsNullOrEmpty(r.ParsedContent))) 
-                    {
-                        description += "\n";
-
-                        ILogParserPlugin logparser = _pluginProvider.GetByKey(result.LogParserPlugin) as ILogParserPlugin;
-                        if (logparser == null)
-                            description += result.LogParserPlugin;
-                        else 
-                            description += logparser.ContextPluginConfig.Key;
-
-                        description += "\n---------------------------------------\n";
-                        ParsedBuildLogText parsedText = BuildLogTextParser.Parse(result.ParsedContent);
-                        if (parsedText != null) 
-                            foreach(var item in parsedText.Items) 
-                            {
-                                foreach (var item2 in item.Items)
-                                    description += $"{item2.Content} ";
-
-                                description += "\n";
-                            }
-                    }
-                }
             }
 
             if (description.Length > alertMaxLength)
@@ -203,6 +172,7 @@ namespace Wbtb.Extensions.Messaging.Slack
 
 
             string mentionsFlattened = string.Empty;
+            mentions = mentions.Distinct().ToList();
             if (mentions.Any())
                 mentionsFlattened = $"\n{string.Join(" ", mentions)}";
 
@@ -292,14 +262,39 @@ namespace Wbtb.Extensions.Messaging.Slack
             // get message transaction
             string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
             StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
+            IEnumerable<Build> buildsInIncident = dataLayer.GetBuildsByIncident(incidentBuild.IncidentBuildId);
+            string ts = string.Empty;
+            string failingDateUtc = string.Empty;
+            string status = string.Empty;
+            string failingBuildId = string.Empty;
+            Incident incident = dataLayer.GetIncident(incidentBuild.Id);
 
-            // no alert for this build was sent, ignore it
-            if (storeItem == null)
-                return "no fail alert to update";
+            if (storeItem == null) 
+            {
+                storeItem = new StoreItem
+                {
+                    Plugin = this.ContextPluginConfig.Manifest.Key,
+                    Key = key
+                };
+            }
+            else 
+            {
+                dynamic storeItemPayload = Newtonsoft.Json.JsonConvert.DeserializeObject(storeItem.Content);
+                ts = (string)storeItemPayload.ts;
+                failingDateUtc = (string)storeItemPayload.failingDateUtc;
+                status = (string)storeItemPayload.Status;
+                failingBuildId = (string)storeItemPayload.failingBuildId;
+            }
 
-            dynamic storeItemPayload = Newtonsoft.Json.JsonConvert.DeserializeObject(storeItem.Content);
- 
             string message = $"Build fixed by #{fixingBuild.Identifier}, originally broken by #{incidentBuild.Identifier}.";
+            if (incident != null) 
+            {
+                if (incident.Duration.HasValue) 
+                    message += $"Broken for {incident.Duration.ToHumanString()}.";
+                if (incident.BuildsInIncident > 0)
+                    message += $"Spanned {incident.BuildsInIncident} build attempts.";
+            }
+
             dynamic attachment = new JObject();
             attachment.title = $"{job.Name} is working again";
             attachment.fallback = " ";
@@ -309,22 +304,22 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             JArray attachments = new JArray(1);
             attachments[0] = attachment;
-
             data["token"] = token;
-            data["ts"] = (string)storeItemPayload.ts;
             data["channel"] = slackId;
             data["text"] = " ";
             data["attachments"] = Convert.ToString(attachments);
+            if (ts != null)
+                data["ts"] = ts;
 
             dynamic response = ExecAPI("chat.update", data);
 
             if (response.ok.Value)
             {
                 storeItem.Content = JsonConvert.SerializeObject(new {
-                    ts = (string)storeItemPayload.ts,
-                    failingDateUtc = (string)storeItemPayload.failingDateUtc,
-                    status = (string)storeItemPayload.Status,
-                    failingBuildId = (string)storeItemPayload.failingBuildId,
+                    ts,
+                    failingDateUtc,
+                    status,
+                    failingBuildId,
                     passingts = response.ts.Value,
                     passingBuildId = fixingBuild.Id,
                     passingDateUtc = DateTime.UtcNow

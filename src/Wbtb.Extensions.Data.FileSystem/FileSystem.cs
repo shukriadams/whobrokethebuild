@@ -94,6 +94,11 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Build { };
         }
 
+        Incident IDataPlugin.GetIncident(string incidentId) 
+        {
+            return new Incident { }; 
+        }
+
         Build IDataPlugin.GetBuildByJobAndIdentifier(string jobKey, string buildIdentifier)
         {
             return new Build { };

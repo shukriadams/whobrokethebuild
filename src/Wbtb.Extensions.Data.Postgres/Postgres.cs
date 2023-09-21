@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -1228,8 +1229,6 @@ namespace Wbtb.Extensions.Data.Postgres
                 LIMIT 
                     100";
 
-            
-
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection())) 
             {
@@ -1551,6 +1550,72 @@ namespace Wbtb.Extensions.Data.Postgres
 
                 return affected;
             }
+        }
+
+        Incident IDataPlugin.GetIncident(string incidentId)
+        {
+            string firstBuildQuery = @"
+                SELECT 
+                    * 
+                FROM
+                    build 
+                WHERE 
+                    incidentbuildId=@incidentid 
+                ORDER BY 
+                    startedutc 
+                LIMIT 1";
+
+            string lastBuildQuery = @"
+                select 
+                    * 
+                from build 
+                where incidentbuildId=@incidentid order by startedutc desc limit 1;
+                ";
+
+            string buildCountQuery = @"
+                select count(id) from build where incidentbuildId=@incidentid
+                ";
+
+            Incident incident = new Incident();
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            {
+                using (NpgsqlCommand cmd = new NpgsqlCommand(firstBuildQuery, conWrap.Connection()))
+                {
+                    cmd.Parameters.AddWithValue("incidentId", incidentId);
+
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                        incident.CauseBuild = new BuildConvert().ToCommon(reader);
+                }
+                
+                using (NpgsqlCommand cmd = new NpgsqlCommand(lastBuildQuery, conWrap.Connection()))
+                {
+                    cmd.Parameters.AddWithValue("incidentId", incidentId);
+
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                        incident.LastBuild = new BuildConvert().ToCommon(reader);
+                }
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(buildCountQuery, conWrap.Connection()))
+                {
+                    cmd.Parameters.AddWithValue("incidentId", incidentId);
+
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        reader.Read();
+                        incident.BuildsInIncident = reader.GetInt32(0);
+                    }
+                }
+            }
+
+            if (incident.CauseBuild != null 
+                && incident.ResolvingBuild != null 
+                && incident.CauseBuild.Id != incident.ResolvingBuild.Id
+                && incident.CauseBuild.EndedUtc.HasValue
+                && incident.ResolvingBuild.EndedUtc.HasValue)
+                    incident.Duration = incident.ResolvingBuild.EndedUtc.Value - incident.CauseBuild.EndedUtc.Value;
+
+            return incident;
         }
 
         #endregion

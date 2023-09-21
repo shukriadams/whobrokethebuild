@@ -643,6 +643,17 @@ namespace Wbtb.Core.Common
             });
         }
 
+        Incident IDataPlugin.GetIncident(string incidentId)
+        {
+            return _pluginSender.InvokeMethod<Incident>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetIncident),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "incidentId", Value = incidentId }
+                }
+            });
+        }
+
         #endregion
 
         #region BUILD LOG PARSE RESULT

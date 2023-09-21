@@ -181,6 +181,8 @@ namespace Wbtb.Core.Common
 
         int ResetBuild(string buildId, bool hard);
 
+        Incident GetIncident(string incidentId);
+
         #endregion
 
         #region BUILDLOG

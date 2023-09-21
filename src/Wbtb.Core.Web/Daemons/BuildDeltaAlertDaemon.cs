@@ -83,15 +83,15 @@ namespace Wbtb.Core.Web
                     // we ignore those.
                     // note : delta will be null if no build has run or builds have always had same status since job start
                     Build deltaBuild = dataLayer.GetLastJobDelta(job.Id);
+                    Build incidentBuild = dataLayer.GetBuildById(deltaBuild.IncidentBuildId);
+                    string alertKey = $"{incidentBuild.Identifier}_{job.Key}_deltaAlert_{deltaBuild.Status}";
 
-                    if (deltaBuild != null && deltaBuild.Status == BuildStatus.Failed)
+                    if (_cache.Get(TypeHelper.Name(this), alertKey).Payload == null)
                     {
-                        string failingAlertKey = $"{deltaBuild.IncidentBuildId}_{job.Key}_deltaAlert_{deltaBuild.Status}";
-                        string result = string.Empty;
-
-                        // check if delta has already been alerted on
-                        if (_cache.Get(TypeHelper.Name(this), failingAlertKey).Payload == null)
+                        if (deltaBuild != null && deltaBuild.Status == BuildStatus.Failed)
                         {
+                            string result = string.Empty;
+
                             if (deltaBuild.Status == BuildStatus.Failed)
                             {
                                 _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaBuild);
@@ -104,16 +104,17 @@ namespace Wbtb.Core.Web
                                 }
                             }
 
-                            _cache.Write(TypeHelper.Name(this), failingAlertKey, "sent");
+                            _cache.Write(TypeHelper.Name(this), alertKey, "sent");
 
                             dataLayer.SaveStore(new StoreItem
                             {
-                                Key = failingAlertKey,
+                                Key = alertKey,
                                 Plugin = this.GetType().Name,
                                 Content = $"Date:{DateTime.UtcNow}\n{result}"
                             });
                         }
                     }
+
 
                     // ensure all previous resolve incidents are alerted on,
                     IEnumerable<string> incidentIds = dataLayer.GetIncidentIdsForJob(job, 5);
@@ -125,12 +126,12 @@ namespace Wbtb.Core.Web
                             continue;
 
                         // has fail alert for incident been sent? if not, don't bother alerting fix for it
-                        string failingAlertKey = $"{incident.IncidentBuildId}_{job.Key}_deltaAlert_{incident.Status}";
+                        string failingAlertKey = $"{incident.Identifier}_{job.Key}_deltaAlert_{incident.Status}";
                         if (_cache.Get(TypeHelper.Name(this), failingAlertKey).Payload == null)
                             continue;
 
                         // has pass alert been sent? if so, don't alert again
-                        string passingAlertKey = $"{incident.IncidentBuildId}_{job.Key}_deltaAlert_{fixingBuild.Status}";
+                        string passingAlertKey = $"{incident.Identifier}_{job.Key}_deltaAlert_{fixingBuild.Status}";
                         if (_cache.Get(TypeHelper.Name(this), passingAlertKey).Payload != null)
                             continue;
 
