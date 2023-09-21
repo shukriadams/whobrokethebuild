@@ -1,4 +1,5 @@
 ﻿using System;
+using Wbtb.Common;
 using Wbtb.Core.CLI.Lib;
 using Wbtb.Core.Common;
 
@@ -40,12 +41,11 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            string buildId = switches.Get("build");
+            PublicIdentifier identifier = PublicIdentifierHelper.ParsePublicBuildId(switches.Get("build"));
             bool hard = switches.Contains("hard");
-
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
-            Build build = dataLayer.GetBuildById(buildId);
+            Build build = dataLayer.GetBuildByJobAndIdentifier(identifier.JobKey, identifier.BuildIdentifer);
             if (build == null)
             {
                 Console.WriteLine($"ERROR : \"--build\" id {build} does not point to a valid build");

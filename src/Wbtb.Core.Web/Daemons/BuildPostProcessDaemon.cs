@@ -73,7 +73,7 @@ namespace Wbtb.Core.Web
                 }
                 catch (Exception ex)
                 {
-                    _log.LogError($"Unexpected error trying to blame build id \"{build.Id}\" with blame \"{postProcessor}\" : {ex}");
+                    _log.LogError($"Unexpected post processor error at build id \"{build.Id}\", processor \"{postProcessor}\" : {ex}");
                     task.HasPassed = false;
                     if (task.Result == null)
                         task.Result = string.Empty;

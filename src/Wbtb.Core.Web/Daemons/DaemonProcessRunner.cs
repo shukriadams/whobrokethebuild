@@ -118,6 +118,7 @@ namespace Wbtb.Core.Web
                                     task.ProcessedUtc = DateTime.UtcNow;
                                     task.HasPassed = false;
                                     task.Result = $"Marked as timed out after {configuration.DaemonTaskTimeout} seconds.";
+
                                     try
                                     {
                                         dataRead.SaveDaemonTask(task);
@@ -133,10 +134,9 @@ namespace Wbtb.Core.Web
                             }
 
                             Build build = dataRead.GetBuildById(task.BuildId);
-
                             IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, daemonLevelRaw);
-                            
                             IEnumerable<DaemonTask> failing = blocking.Where(t => t.HasPassed.HasValue && !t.HasPassed.Value);
+                            
                             // if previous fails in build, mark this as failed to.
                             if (failing.Any())
                             {
@@ -144,6 +144,7 @@ namespace Wbtb.Core.Web
                                 task.HasPassed = false;
                                 task.Result = $"Marked as failed because preceeding task(s) failed. Fix then rereset job id {build.JobId}.";
                                 string failingTaskId = failing.First().Id;
+                                
                                 if (failing.Any(f => string.IsNullOrEmpty(f.FailDaemonTaskId)))
                                     failingTaskId = failing.Where(f => string.IsNullOrEmpty(f.FailDaemonTaskId)).First().Id;
 
