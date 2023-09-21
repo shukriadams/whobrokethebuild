@@ -263,6 +263,8 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                         description  += $"'error' keyword match found:\n{basicError}.";
                 }
 
+                blamedUserNames = blamedUserNames.Distinct().ToList();
+
                 if (blamedUserNames.Any())
                     description += $" Broken by {string.Join(",",blamedUserNames)}.";
 

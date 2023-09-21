@@ -139,6 +139,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             // get slack id's of users confirmed involved in break
             List<string> mentions = new List<string>();
             if (mentionUsers)
+            {
                 foreach (BuildInvolvement bi in buildInvolvements.Where(bi => bi.BlameScore == 100 && !string.IsNullOrEmpty(bi.MappedUserId)))
                 {
                     User mappedUser = dataLayer.GetUserById(bi.MappedUserId);
@@ -149,6 +150,9 @@ namespace Wbtb.Extensions.Messaging.Slack
                     SlackConfig slackConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(messageConfig.RawJson);
                     mentions.Add($"<@{slackConfig.SlackId}>");
                 }
+
+                mentions = mentions.Distinct().ToList();
+            }
 
             IncidentReport incidentReport = dataLayer.GetIncidentReportByMutation(incidentBuild.Id);
             string summary = string.Empty;
