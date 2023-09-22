@@ -70,9 +70,9 @@ namespace Wbtb.Core.Web
             string hash = Sha256.FromString(regex + logText);
             string revFromLog = null;
             CachePayload cacheLookup = cache.Get(this.GetType().Name, hash);
+
             if (cacheLookup.Payload != null)
                 return cacheLookup.Payload;
-
 
             Match match = new Regex(regex, RegexOptions.Singleline & RegexOptions.Compiled).Match(logText);
             if (!match.Success || match.Groups.Count < 2)

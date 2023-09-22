@@ -112,7 +112,6 @@ CREATE SEQUENCE public."incidentreport_id_seq"
 ALTER SEQUENCE public."incidentreport_id_seq" OWNER TO postgres;
 
 
-
 -- CREATE TABLES
 -- TABLE : BuildServer
 CREATE TABLE public."buildserver"
@@ -231,7 +230,8 @@ CREATE TABLE public."build"
     signature character varying(38) COLLATE pg_catalog."default" NOT NULL,
     jobid integer NOT NULL,
     incidentbuildid integer,
-    identifier character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    uniquepublickey character varying(64) COLLATE pg_catalog."default" NOT NULL,
     triggeringcodechange character varying(64) COLLATE pg_catalog."default",
     triggeringtype character varying(64) COLLATE pg_catalog."default",
     startedutc timestamp(4) without time zone NOT NULL,
@@ -240,7 +240,8 @@ CREATE TABLE public."build"
     hostname character varying(64) COLLATE pg_catalog."default",
     status integer NOT NULL,
     CONSTRAINT "build_pkey" PRIMARY KEY (id),
-    CONSTRAINT "build_identifier_unique" UNIQUE (identifier, jobid),
+    CONSTRAINT "build_key_unique" UNIQUE ("key", jobid),
+    CONSTRAINT "build_uniquepublickey_unique" UNIQUE (uniquepublickey),
     CONSTRAINT "build_jobid_fk" FOREIGN KEY (jobid)
         REFERENCES public."job" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -528,4 +529,3 @@ CREATE INDEX "incidentreport_mutationid_fk"
     ON public."incidentreport" USING btree
     (mutationid)
     TABLESPACE pg_default;
-  

@@ -1,5 +1,4 @@
 ﻿using System;
-using Wbtb.Common;
 
 namespace Wbtb.Core.Common
 {
@@ -18,18 +17,13 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// Unique, immutable id from CI server this build originates from. Will be used to trace this record back to that build.
         /// </summary>
-        public string Identifier { get; set; }
+        public string Key { get; set; }
 
         /// <summary>
-        /// Hash/revision/id/etc of code change that triggered build. 
+        /// A local identifier for a build that is somewhat immutable across database purges. Used for external permalinks, URLs and persistent cache
+        /// keys. Internally, this value consists of the parent job key + build identifer, one-way hashed.
         /// </summary>
-        public string TriggeringCodeChange { get; set; }
-
-        /// <summary>
-        /// Type of event that triggered build (manual, code change, timer etc). This can't be constrained so can't have any logic associated with it, and is for 
-        /// information only.
-        /// </summary>
-        public string TriggeringType { get; set; }
+        public string UniquePublicKey { get; set; }
 
         /// <summary>
         /// Time build started
@@ -86,16 +80,15 @@ namespace Wbtb.Core.Common
             return false;
         }
 
-        public string GetPublicId(Job job = null) 
+        public void SetUniquePublicIdentifier(Job job) 
         {
-            SimpleDI di = new SimpleDI();
-            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            if (string.IsNullOrEmpty(this.Key))
+                throw new Exception($"Cannot set public identifier on build id {this.Id}, build has no key value");
 
-            if (job == null)
-                job = data.GetJobById(this.JobId);
+            if (string.IsNullOrEmpty(job.Key))
+                throw new Exception($"Cannot set public identifier on build id {this.Id}, job id {job.Id} has no key value");
 
-            return PublicIdentifierHelper.Encode($"{this.Identifier}____{job.Key}");
+            this.UniquePublicKey = Sha256.FromString($"{this.Key}_{job.Key}");
         }
     }
 }

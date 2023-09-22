@@ -129,7 +129,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             Job job = datalayer.GetJobById(build.JobId);
             KeyValuePair<string, object> remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
 
-            return new Uri(new Uri(host), $"job/{remoteKey.Value}/{build.Identifier}").ToString();
+            return new Uri(new Uri(host), $"job/{remoteKey.Value}/{build.Key}").ToString();
         }
 
         string IBuildServerPlugin.GetEphemeralBuildLog(Build build)
@@ -143,7 +143,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
 
             string hostUrl = GetHostUrl(buildServer);
-            string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), build.Identifier, "consoleText");
+            string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), build.Key, "consoleText");
             string log = webClient.DownloadString(url);
             return log;
         }
@@ -154,7 +154,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             // persist path
             Job job = dataLayer.GetJobById(build.JobId);
 
-            string persistPath = Path.Combine(_config.PluginDataPersistDirectory, this.ContextPluginConfig.Manifest.Key, job.Key, build.Identifier, "log.txt");
+            string persistPath = Path.Combine(_config.PluginDataPersistDirectory, this.ContextPluginConfig.Manifest.Key, job.Key, build.Key, "log.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
             if (File.Exists(persistPath))
                 return File.ReadAllText(persistPath);
@@ -189,7 +189,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             }
             catch (Exception ex)
             { 
-                throw new Exception($"Failed to download log for build {build.Id}, external id {build.Identifier}", ex);
+                throw new Exception($"Failed to download log for build {build.Id}, external id {build.Key}", ex);
             }
         }
 
@@ -250,7 +250,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "revisions", $"{build.Identifier}.json");
+            string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "revisions", $"{build.Key}.json");
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerByKey(job.BuildServer);
             string rawJson;
@@ -264,7 +264,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 WebClient webClient = this.GetAuthenticatedWebclient(buildServer);
                 string hostUrl = GetHostUrl(buildServer);
                 var remoteKey = job.Config.FirstOrDefault(r => r.Key == "RemoteKey");
-                string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), build.Identifier, "api/json?pretty=true&tree=changeSet[items[commitId]]");
+                string url = UrlHelper.Join(hostUrl, "job", remoteKey.Value.ToString(), build.Key, "api/json?pretty=true&tree=changeSet[items[commitId]]");
                 
                 try 
                 {
@@ -426,7 +426,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
                 builds.Add(new Build
                 {
-                    Identifier = rawBuild.number,
+                    Key = rawBuild.number,
                     Hostname = rawBuild.builtOn,
                     StartedUtc = UnixTimeStampToDateTime(rawBuild.timestamp),
                     Status = ConvertBuildStatus(rawBuild.result)
@@ -440,7 +440,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            string completeBuildPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, $"{build.Identifier}", "build.json");
+            string completeBuildPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, $"{build.Key}", "build.json");
             if (!File.Exists(completeBuildPath))
                 return build;
 
@@ -469,7 +469,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                     RawBuild rawBuild = JsonConvert.DeserializeObject<RawBuild>(File.ReadAllText(buildFile));
                     DateTime started = UnixTimeStampToDateTime(rawBuild.timestamp);
                     builds.Add(new Build {
-                        Identifier = rawBuild.number,
+                        Key = rawBuild.number,
                         Hostname = rawBuild.builtOn,
                         StartedUtc = started,
                         EndedUtc = rawBuild.result == null ? null : started.AddMilliseconds(int.Parse(rawBuild.duration)),
@@ -485,7 +485,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            string logPath = Path.Combine(_config.BuildLogsDirectory, job.Key, build.Identifier, $"log.txt");
+            string logPath = Path.Combine(_config.BuildLogsDirectory, job.Key, build.Key, $"log.txt");
 
             try
             {

@@ -67,7 +67,7 @@ namespace Wbtb.Core.CLI
                         });
 
                         Thread.Sleep(10);
-                        Console.WriteLine($"Requeued build {build.Identifier} for processing.");
+                        Console.WriteLine($"Requeued build {build.Key} for processing.");
                     }
 
                     page++;

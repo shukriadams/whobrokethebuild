@@ -9,13 +9,13 @@
     @foreach (ViewBuild build in Model.Builds.Items)
         { 
             <x-list-row class="job-buildItem">
-                <a class="job-buildTitle" href="/build/@build.GetPublicId()">
+            <a class="job-buildTitle" href="/build/@build.UniquePublicKey">
                     <div class="jobsList-statusFlag jobsList-statusFlag--@ViewHelpers.BuildStatusToCSSClass(build)"></div>
                 </a>
                 <x-list-cell class="jobsList-buildTitle">
                     <div>
-                        <a class="job-buildTitle" href="/build/@build.GetPublicId()">
-                            @build.Identifier
+                        <a class="job-buildTitle" href="/build/@build.UniquePublicKey">
+                            @build.Key
                         </a>
                     </div>
                 </x-list-cell>

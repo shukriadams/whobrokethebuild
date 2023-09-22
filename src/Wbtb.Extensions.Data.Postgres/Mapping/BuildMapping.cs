@@ -11,7 +11,8 @@ namespace Wbtb.Extensions.Data.Postgres
                 queryParameters.AddWithValue("id", int.Parse(record.Id));
 
             queryParameters.AddWithValue("signature", record.Signature);
-            queryParameters.AddWithValue("identifier", record.Identifier);
+            queryParameters.AddWithValue("key", record.Key);
+            queryParameters.AddWithValue("uniquepublickey", record.UniquePublicKey);
             queryParameters.AddWithValue("logpath", string.IsNullOrEmpty(record.LogPath) ? (object)DBNull.Value : record.LogPath);
             queryParameters.AddWithValue("endedutc", record.EndedUtc == null ? (object)DBNull.Value : record.EndedUtc.Value);
             queryParameters.AddWithValue("hostname", string.IsNullOrEmpty(record.Hostname) ? (object)DBNull.Value : record.Hostname);
@@ -19,8 +20,6 @@ namespace Wbtb.Extensions.Data.Postgres
             queryParameters.AddWithValue("incidentbuildid", string.IsNullOrEmpty(record.IncidentBuildId) ? (object)DBNull.Value : int.Parse(record.IncidentBuildId));
             queryParameters.AddWithValue("startedutc", record.StartedUtc);
             queryParameters.AddWithValue("status", (int)record.Status);
-            queryParameters.AddWithValue("triggeringcodechange", string.IsNullOrEmpty(record.TriggeringCodeChange) ? (object)DBNull.Value : record.TriggeringCodeChange);
-            queryParameters.AddWithValue("triggeringtype", string.IsNullOrEmpty(record.TriggeringType) ? (object)DBNull.Value : record.TriggeringType);
         }
     }
 }

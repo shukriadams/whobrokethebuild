@@ -83,12 +83,18 @@ namespace Wbtb.Core.Web
                     // we ignore those.
                     // note : delta will be null if no build has run or builds have always had same status since job start
                     Build deltaBuild = dataLayer.GetLastJobDelta(job.Id);
+                    if (deltaBuild == null)
+                        continue;
+
+                    if (string.IsNullOrEmpty(deltaBuild.IncidentBuildId))
+                        continue;
+
                     Build incidentBuild = dataLayer.GetBuildById(deltaBuild.IncidentBuildId);
-                    string alertKey = $"{incidentBuild.Identifier}_{job.Key}_deltaAlert_{deltaBuild.Status}";
+                    string alertKey = $"{incidentBuild.Key}_{job.Key}_deltaAlert_{deltaBuild.Status}";
 
                     if (_cache.Get(TypeHelper.Name(this), alertKey).Payload == null)
                     {
-                        if (deltaBuild != null && deltaBuild.Status == BuildStatus.Failed)
+                        if (deltaBuild.Status == BuildStatus.Failed)
                         {
                             string result = string.Empty;
 
@@ -126,12 +132,12 @@ namespace Wbtb.Core.Web
                             continue;
 
                         // has fail alert for incident been sent? if not, don't bother alerting fix for it
-                        string failingAlertKey = $"{incident.Identifier}_{job.Key}_deltaAlert_{incident.Status}";
+                        string failingAlertKey = $"{incident.Key}_{job.Key}_deltaAlert_{incident.Status}";
                         if (_cache.Get(TypeHelper.Name(this), failingAlertKey).Payload == null)
                             continue;
 
                         // has pass alert been sent? if so, don't alert again
-                        string passingAlertKey = $"{incident.Identifier}_{job.Key}_deltaAlert_{fixingBuild.Status}";
+                        string passingAlertKey = $"{incident.Key}_{job.Key}_deltaAlert_{fixingBuild.Status}";
                         if (_cache.Get(TypeHelper.Name(this), passingAlertKey).Payload != null)
                             continue;
 

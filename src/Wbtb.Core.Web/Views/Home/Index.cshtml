@@ -27,7 +27,7 @@
                 { 
                     <text>
 
-                        last build was <a href="/build/@job.LatestBuild.GetPublicId(job)">@job.LatestBuild.Identifier</a>,
+                        last build was <a href="/build/@job.LatestBuild.UniquePublicKey">@job.LatestBuild.Key</a>,
                                 
                         @if (@job.LatestBuild.EndedUtc.HasValue)
                         {
@@ -44,7 +44,7 @@
                                 Broken  
                                 @if (job.DeltaBuild.Id != job.LatestBuild.Id) 
                                 { 
-                                    <text>by</text> <a href="/build/@job.DeltaBuild.GetPublicId(job)">@job.DeltaBuild.Identifier </a> 
+                                    <text>by</text> <a href="/build/@job.DeltaBuild.UniquePublicKey">@job.DeltaBuild.Key </a> 
                                     @if(job.DeltaBuild.EndedUtc.HasValue)
                                     {
                                         <text>

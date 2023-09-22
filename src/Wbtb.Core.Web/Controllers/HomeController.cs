@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Wbtb.Common;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web.Controllers
@@ -82,15 +81,11 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/incident/{publicBuildId}")]
         public IActionResult Incident(string publicBuildId)
         {
-            PublicIdentifier publicIdentifier = PublicIdentifierHelper.ParsePublicBuildId(publicBuildId);
-            if (publicIdentifier== null)
-                return Responses.NotFoundError($"build id {publicBuildId} does not exist");
-
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             IncidentPageModel model = new IncidentPageModel();
-            model.IncidentBuild = dataLayer.GetBuildByJobAndIdentifier(publicIdentifier.JobKey, publicIdentifier.BuildIdentifer);
+            model.IncidentBuild = dataLayer.GetBuildByUniquePublicIdentifier(publicBuildId);
             if (model.IncidentBuild == null)
                 return Responses.NotFoundError($"build {publicBuildId} does not exist");
 
@@ -206,14 +201,10 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/build/{publicBuildId}")]
         public IActionResult Build(string publicBuildId)
         {
-            PublicIdentifier publicIdentifier = PublicIdentifierHelper.ParsePublicBuildId(publicBuildId);
-            if (publicIdentifier == null)
-                return Responses.NotFoundError($"build id {publicBuildId} does not exist");
-
             BuildPageModel model = new BuildPageModel();
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            model.Build = ViewBuild.Copy(dataLayer.GetBuildByJobAndIdentifier(publicIdentifier.JobKey, publicIdentifier.BuildIdentifer));
+            model.Build = ViewBuild.Copy(dataLayer.GetBuildByUniquePublicIdentifier(publicBuildId));
             if (model.Build == null)
                 return Responses.NotFoundError($"build {publicBuildId} does not exist");
 
@@ -260,15 +251,11 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/BuildProcessLog/{publicBuildId}")]
         public IActionResult BuildProcessLog(string publicBuildId)
         {
-            PublicIdentifier publicIdentifier = PublicIdentifierHelper.ParsePublicBuildId(publicBuildId);
-            if (publicIdentifier == null)
-                return Responses.NotFoundError($"build id {publicBuildId} does not exist");
-
             BuildProcessPageModel model = new BuildProcessPageModel();
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             DaemonTaskProcesses daemonTaskProcesses = _di.Resolve<DaemonTaskProcesses>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            model.Build = ViewBuild.Copy(dataLayer.GetBuildByJobAndIdentifier(publicIdentifier.JobKey, publicIdentifier.BuildIdentifer));
+            model.Build = ViewBuild.Copy(dataLayer.GetBuildByUniquePublicIdentifier(publicBuildId));
             if (model.Build == null)
                 return Responses.NotFoundError($"build {publicBuildId} does not exist");
 
@@ -298,14 +285,10 @@ namespace Wbtb.Core.Web.Controllers
         [Route("/build/log/{publicBuildId}")]
         public IActionResult BuildLog(string publicBuildId)
         {
-            PublicIdentifier publicIdentifier = PublicIdentifierHelper.ParsePublicBuildId(publicBuildId);
-            if (publicIdentifier == null)
-                return Responses.NotFoundError($"build id {publicBuildId} does not exist");
-
             BuildLogParseResultsPageModel model = new BuildLogParseResultsPageModel();
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            model.Build = ViewBuild.Copy(dataLayer.GetBuildByJobAndIdentifier(publicIdentifier.JobKey, publicIdentifier.BuildIdentifer));
+            model.Build = ViewBuild.Copy(dataLayer.GetBuildByUniquePublicIdentifier(publicBuildId));
             if (model.Build == null)
                 return Responses.NotFoundError($"build {publicBuildId} does not exist");
 

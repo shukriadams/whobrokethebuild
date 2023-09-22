@@ -163,7 +163,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             }
             else 
             {
-                summary = $" Broke at build {incidentBuild.Identifier}";
+                summary = $" Broke at build {incidentBuild.Key}";
                 description = "No error cause determined. Please check build log for details.";
             }
 
@@ -181,7 +181,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             attachment.fallback = " ";
             attachment.color = "#D92424";
             attachment.text = $"```{description}```{mentionsFlattened}";
-            attachment.title_link = _urlHelper.Build(incidentBuild, job);
+            attachment.title_link = _urlHelper.Build(incidentBuild);
 
             var attachments = new JArray(1);
             attachments[0] = attachment;
@@ -286,7 +286,7 @@ namespace Wbtb.Extensions.Messaging.Slack
                 failingBuildId = (string)storeItemPayload.failingBuildId;
             }
 
-            string message = $"Build fixed by #{fixingBuild.Identifier}, originally broken by #{incidentBuild.Identifier}.";
+            string message = $"Build fixed by #{fixingBuild.Key}, originally broken by #{incidentBuild.Key}.";
             if (incident != null) 
             {
                 if (incident.Duration.HasValue) 
@@ -300,7 +300,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             attachment.fallback = " ";
             attachment.color = "#007a5a";
             attachment.text = message;
-            attachment["title_link"] = _urlHelper.Build(fixingBuild, job);
+            attachment["title_link"] = _urlHelper.Build(fixingBuild);
 
             JArray attachments = new JArray(1);
             attachments[0] = attachment;

@@ -99,7 +99,7 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Incident { }; 
         }
 
-        Build IDataPlugin.GetBuildByJobAndIdentifier(string jobKey, string buildIdentifier)
+        Build IDataPlugin.GetBuildByUniquePublicIdentifier(string uniquePublicIdentifier)
         {
             return new Build { };
         }

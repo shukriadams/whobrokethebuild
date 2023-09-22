@@ -139,11 +139,11 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             Job job = dataLayer.GetJobById(build.JobId);
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
 
-            string filePath = $"./JSON/builds/{remotekey.Value}/build_{build.Identifier}_revisions.json";
+            string filePath = $"./JSON/builds/{remotekey.Value}/build_{build.Key}_revisions.json";
             string rawJson = null;
-            string persistPath = _persistPathHelper.GetPath(ContextPluginConfig, job.Key, build.Identifier, "revisions.json");
+            string persistPath = _persistPathHelper.GetPath(ContextPluginConfig, job.Key, build.Key, "revisions.json");
 
-            string path = $"JSON.builds.{remotekey.Value}.build_{build.Identifier}_revisions.json";
+            string path = $"JSON.builds.{remotekey.Value}.build_{build.Key}_revisions.json";
             if (ResourceHelper.ResourceExists(this.GetType(), path))
             {
                 rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), path);
@@ -151,7 +151,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
                 File.WriteAllText(persistPath, rawJson);
             }
             else
-                Console.WriteLine($"Failed to to read revisions for build {build.Identifier}, job {remotekey.Value}. No data in sandbox");
+                Console.WriteLine($"Failed to to read revisions for build {build.Key}, job {remotekey.Value}. No data in sandbox");
             
             if (rawJson == null)
                 return new BuildRevisionsRetrieveResult { Result = "revisions not available in sandbox" };
@@ -177,7 +177,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             foreach (RawBuild rawBuild in rawBuilds)
                 builds.Add(new Build
                 {
-                    Identifier = rawBuild.number,
+                    Key = rawBuild.number,
                     Hostname = rawBuild.builtOn,
                     StartedUtc = UnixTimeStampToDateTime(rawBuild.timestamp),
                     Status = ConvertBuildStatus(rawBuild.result)
@@ -230,7 +230,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
                 DateTime started = UnixTimeStampToDateTime(rawBuild.timestamp);
                 builds.Add(new Build()
                 {
-                    Identifier = rawBuild.number,
+                    Key = rawBuild.number,
                     Hostname = rawBuild.builtOn,
                     StartedUtc = started,
                     Status = ConvertBuildStatus(rawBuild.result),
@@ -257,7 +257,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             Job job = dataLayer.GetJobById(build.JobId);
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
 
-            string log = ResourceHelper.ReadResourceAsString(this.GetType(), $"JSON.builds.{remotekey.Value}.logs.{build.Identifier}.txt");
+            string log = ResourceHelper.ReadResourceAsString(this.GetType(), $"JSON.builds.{remotekey.Value}.logs.{build.Key}.txt");
             return log;
         }
 
@@ -268,7 +268,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             // persist path
             Job job = dataLayer.GetJobById(build.JobId);
 
-            string persistPath = _persistPathHelper.GetPath(ContextPluginConfig, job.Key, build.Identifier, "log.txt");
+            string persistPath = _persistPathHelper.GetPath(ContextPluginConfig, job.Key, build.Key, "log.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
             if (File.Exists(persistPath))
                 return File.ReadAllText(persistPath);
@@ -282,7 +282,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to download log for build {build.Id}, external id {build.Identifier}", ex);
+                throw new Exception($"Failed to download log for build {build.Id}, external id {build.Key}", ex);
             }
         }
 
@@ -297,14 +297,14 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             Job job = dataLayer.GetJobById(build.JobId);
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
 
-            if (build.Identifier == "39" && job.Name.ToLower().Contains("skunk"))
+            if (build.Key == "39" && job.Name.ToLower().Contains("skunk"))
                 throw new Exception("Log import failed deliberately on build 39 for skunkwords. This is to test daemontask error handling.");
 
-            if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{remotekey.Value}.logs.{build.Identifier}.txt"))
+            if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{remotekey.Value}.logs.{build.Key}.txt"))
                 return new BuildLogRetrieveResult { Result = "Build log does not exist" };
 
             string logContent = GetBuildLog(build);
-            string logPath = Path.Combine(_config.BuildLogsDirectory, job.Key, build.Identifier, $"log.txt");
+            string logPath = Path.Combine(_config.BuildLogsDirectory, job.Key, build.Key, $"log.txt");
 
             Directory.CreateDirectory(Path.GetDirectoryName(logPath));
             File.WriteAllText(logPath, logContent);
@@ -325,11 +325,11 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             if (ResourceHelper.ResourceExists(this.GetType(), path))
                 rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), path);
             else
-                throw new Exception($"Failed to to read revisions for build {build.Identifier}, job {job.Name}. No data in sandbox");
+                throw new Exception($"Failed to to read revisions for build {build.Key}, job {job.Name}. No data in sandbox");
 
             dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);
             IEnumerable<RawBuild> rawBuilds = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<RawBuild>>(response.allBuilds.ToString());
-            RawBuild rawBuild = rawBuilds.First(b => b.number == build.Identifier.ToString());
+            RawBuild rawBuild = rawBuilds.First(b => b.number == build.Key.ToString());
             build.EndedUtc = build.StartedUtc.AddMilliseconds(int.Parse(rawBuild.duration));
             build.Status = ConvertBuildStatus(rawBuild.result);
 

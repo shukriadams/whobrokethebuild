@@ -150,7 +150,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             attachment.fallback = " ";
             attachment.color = "#D92424";
             attachment.text = incidentReport.Description;
-            attachment.title_link = _urlHelper.Build(incidentBuild, job);
+            attachment.title_link = _urlHelper.Build(incidentBuild);
 
             var attachments = new JArray(1);
             attachments[0] = attachment;
@@ -254,7 +254,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             if ((string)storeItemPayload.status == fixingBuild.Status.ToString())
                 return null;
 
-            string message = $"Build for {job.Name} fixed by #{fixingBuild.Identifier}, originally broken by #{incidentBuild.Identifier}.";
+            string message = $"Build for {job.Name} fixed by #{fixingBuild.Key}, originally broken by #{incidentBuild.Key}.";
             dynamic attachment = new JObject();
             attachment.fallback = " ";
             attachment.text = message;
@@ -263,7 +263,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             var attachments = new JArray(1);
             attachments[0] = attachment;
 
-            data["title_link"] = _urlHelper.Build(fixingBuild, job);
+            data["title_link"] = _urlHelper.Build(fixingBuild);
             data["token"] = token;
             data["ts"] = (string)storeItemPayload.ts;
             data["channel"] = slackId;

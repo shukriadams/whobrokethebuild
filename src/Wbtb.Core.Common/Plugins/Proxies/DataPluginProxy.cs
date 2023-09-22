@@ -479,14 +479,13 @@ namespace Wbtb.Core.Common
             });
         }
 
-        Build IDataPlugin.GetBuildByJobAndIdentifier(string jobKey, string buildIdentifier) 
+        Build IDataPlugin.GetBuildByUniquePublicIdentifier(string uniquePublicIdentifier)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
             {
-                FunctionName = nameof(IDataPlugin.GetBuildByJobAndIdentifier),
+                FunctionName = nameof(IDataPlugin.GetBuildByUniquePublicIdentifier),
                 Arguments = new PluginFunctionParameter[] {
-                    new PluginFunctionParameter { Name = "jobKey", Value = jobKey },
-                    new PluginFunctionParameter { Name = "buildIdentifier", Value = buildIdentifier }
+                    new PluginFunctionParameter { Name = "uniquePublicIdentifier", Value = uniquePublicIdentifier }
                 }
             });
         }

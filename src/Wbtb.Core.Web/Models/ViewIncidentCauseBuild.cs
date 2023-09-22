@@ -34,14 +34,12 @@ namespace Wbtb.Core.Web
             {
                 EndedUtc = build.EndedUtc,
                 Hostname = build.Hostname,
-                Identifier = build.Identifier,
+                Key = build.Key,
                 IncidentBuildId = build.IncidentBuildId,
                 LogPath = build.LogPath,
                 JobId = build.JobId,
                 StartedUtc = build.StartedUtc,
                 Status = build.Status,
-                TriggeringCodeChange = build.TriggeringCodeChange,
-                TriggeringType = build.TriggeringType,
                 Id = build.Id,
                 Duration = duration,
                 InvolvedBuilds = involved

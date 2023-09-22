@@ -110,13 +110,11 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
         { 
             return new Build
             {
-                Identifier = RandomString(),
+                Key = RandomString(),
                 EndedUtc = new DateTime(),
                 Hostname = RandomString(),
                 JobId = RandomString(),
-                StartedUtc = new DateTime(),
-                TriggeringCodeChange = RandomString(),
-                TriggeringType = RandomString()
+                StartedUtc = new DateTime()
             };
         }
 

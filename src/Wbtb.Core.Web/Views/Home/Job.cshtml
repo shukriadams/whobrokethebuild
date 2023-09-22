@@ -142,14 +142,14 @@
             {
                 <x-list-row>
                     <x-list-cell class="jobsList-statusFlagContainer">
-                        <a class="job-buildTitle" href="/build/@build.GetPublicId(Model.Job)">
+                        <a class="job-buildTitle" href="/build/@build.UniquePublicKey">
                             <div class="jobsList-statusFlag jobsList-statusFlag--@ViewHelpers.BuildStatusToCSSClass(build)"></div>
                         </a>
                     </x-list-cell> 
                     <x-list-cell class="jobsList-buildTitle">
                         <div>
-                            <a class="job-buildTitle" href="/build/@build.GetPublicId(Model.Job)">
-                                @build.Identifier
+                            <a class="job-buildTitle" href="/build/@build.UniquePublicKey">
+                                @build.Key
                             </a>
                         </div>
                     </x-list-cell>

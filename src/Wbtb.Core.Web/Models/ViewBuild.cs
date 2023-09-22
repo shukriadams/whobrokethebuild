@@ -49,15 +49,14 @@ namespace Wbtb.Core.Web
             return new ViewBuild{ 
                 EndedUtc = build.EndedUtc,
                 Hostname = build.Hostname,
-                Identifier = build.Identifier,
+                UniquePublicKey = build.UniquePublicKey,
+                Key = build.Key,
                 VisibleDateUtc = build.EndedUtc.HasValue ? build.EndedUtc.Value : build.StartedUtc,
                 IncidentBuildId = build.IncidentBuildId,
                 LogPath = build.LogPath,
                 JobId = build.JobId,
                 StartedUtc = build.StartedUtc,
                 Status = build.Status,
-                TriggeringCodeChange = build.TriggeringCodeChange,
-                TriggeringType = build.TriggeringType,
                 Id = build.Id
             };
         }

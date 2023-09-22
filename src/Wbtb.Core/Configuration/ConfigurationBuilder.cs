@@ -163,11 +163,12 @@ namespace Wbtb.Core
 
                     foreach (Build build in builds)
                     {
-                        if (_datalayer.GetBuildByKey(job.Id, build.Identifier) != null)
+                        if (_datalayer.GetBuildByKey(job.Id, build.Key) != null)
                             continue;
 
                         build.JobId = job.Id;
                         build.EndedUtc = null; // force end to null, let daemons process them
+                        build.SetUniquePublicIdentifier(job);
                         _datalayer.SaveBuild(build);
 
                         // create process order for build
@@ -178,7 +179,7 @@ namespace Wbtb.Core
                             BuildId = build.Id
                         });
 
-                        Console.WriteLine($"Imported build {build.Identifier} under job {job.Name}");
+                        Console.WriteLine($"Imported build {build.Key} under job {job.Name}");
                     }
                 }
             }

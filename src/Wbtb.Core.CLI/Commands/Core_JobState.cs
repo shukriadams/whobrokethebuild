@@ -95,15 +95,18 @@ namespace Wbtb.Core.CLI
                 }
             }
 
-            dataLayer.SaveBuild(new Build
+            Build build = new Build
             {
                 JobId = job.Id,
-                Identifier = key.ToString(),
+                Key = key.ToString(),
                 StartedUtc = DateTime.UtcNow,
                 EndedUtc = DateTime.UtcNow,
                 LogPath = logPath,
                 Status = state == "fail" ? BuildStatus.Failed : BuildStatus.Passed,
-            });
+            };
+            build.SetUniquePublicIdentifier(job);
+
+            dataLayer.SaveBuild(build);
 
             Console.WriteLine($"Set job {job.Key} to {state}");
         }

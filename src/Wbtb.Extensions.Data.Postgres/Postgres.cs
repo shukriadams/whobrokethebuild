@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -944,20 +943,19 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO build
-                    (jobid, signature, identifier, logpath, incidentbuildid, triggeringcodechange, triggeringtype, startedutc, endedutc, hostname, status)
+                    (jobid, signature, key, uniquepublickey, logpath, incidentbuildid, startedutc, endedutc, hostname, status)
                 VALUES
-                    (@jobid, @signature, @identifier, @logpath, @incidentbuildid, @triggeringcodechange, @triggeringtype, @startedutc, @endedutc, @hostname, @status)
+                    (@jobid, @signature, @key, @uniquepublickey, @logpath, @incidentbuildid, @startedutc, @endedutc, @hostname, @status)
                 RETURNING id";
 
             string updateQuery = @"                    
                 UPDATE build SET 
                     jobid = @jobid, 
                     signature = @new_signature,
-                    identifier = @identifier, 
+                    key = @key, 
+                    uniquepublickey = @uniquepublickey,
                     incidentbuildid = @incidentbuildid,
                     logpath = @logpath,
-                    triggeringcodechange = @triggeringcodechange, 
-                    triggeringtype = @triggeringtype, 
                     startedutc = @startedutc, 
                     endedutc = @endedutc, 
                     hostname = @hostname, 
@@ -988,23 +986,20 @@ namespace Wbtb.Extensions.Data.Postgres
                 return PostgresCommon.GetById<Build>(conWrap.Connection(), this.ContextPluginConfig, id, "build", new BuildConvert());
         }
 
-        Build IDataPlugin.GetBuildByJobAndIdentifier(string jobKey, string buildIdentifier)
+        Build IDataPlugin.GetBuildByUniquePublicIdentifier(string uniquePublicIdentifier)
         {
             string query = @"
                 SELECT 
                     *
                 FROM
-                    build B JOIN Job J
-                    ON B.jobid = J.id
+                    build 
                 WHERE
-                    j.key=@jobkey
-                    AND B.identifier=@buildidentifier";
+                    uniquepublickey=@uniquepublickey";
 
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
-                cmd.Parameters.AddWithValue("jobkey", jobKey);
-                cmd.Parameters.AddWithValue("buildidentifier", buildIdentifier);
+                cmd.Parameters.AddWithValue("uniquepublickey", uniquePublicIdentifier);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new BuildConvert().ToCommon(reader);
@@ -1082,7 +1077,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     build 
                 WHERE
                     jobid=@jobid
-                    AND identifier=@key
+                    AND key=@key
                     ";
 
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))

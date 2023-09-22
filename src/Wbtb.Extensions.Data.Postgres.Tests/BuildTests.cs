@@ -18,26 +18,22 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
                 
             Build record = this.Postgres.SaveBuild(new Build
             {
-                Identifier = "mybuildId",
+                Key = "mybuildId",
                 EndedUtc = new DateTime(2001,1,1),
                 Hostname = "myhostname",
                 JobId = job.Key,
                 StartedUtc = new DateTime(2000, 1, 1),
-                Status = BuildStatus.InProgress,
-                TriggeringCodeChange = "myRevision",
-                TriggeringType = "someEvent"
+                Status = BuildStatus.InProgress
             });
 
             Assert.NotEqual("0", record.Id);
 
-            Assert.Equal("mybuildId", record.Identifier);
+            Assert.Equal("mybuildId", record.Key);
             Assert.Equal(new DateTime(2001, 1, 1), record.EndedUtc);
             Assert.Equal("myhostname", record.Hostname);
             Assert.Equal(job.Key, record.JobId);
             Assert.Equal(new DateTime(2000, 1, 1), record.StartedUtc);
             Assert.Equal(BuildStatus.InProgress, record.Status);
-            Assert.Equal("myRevision", record.TriggeringCodeChange);
-            Assert.Equal("someEvent", record.TriggeringType);
         }
 
         [Fact]
@@ -88,9 +84,9 @@ namespace Wbtb.Extensions.Data.Postgres.Tests
             // create 
             Job job1 = RecordHelper.CreateJob(this.Postgres);
             Job job2 = RecordHelper.CreateJob(this.Postgres);
-            Build record1 = this.Postgres.SaveBuild(new Build { JobId = job1.Key, Identifier = "a", TriggeringCodeChange = "a", TriggeringType = "a", Hostname = "a" });
-            Build record2 = this.Postgres.SaveBuild(new Build { JobId = job1.Key, Identifier = "b", TriggeringCodeChange = "a", TriggeringType = "a", Hostname = "a" });
-            Build record3 = this.Postgres.SaveBuild(new Build { JobId = job2.Key, Identifier = "c", TriggeringCodeChange = "a", TriggeringType = "a", Hostname = "a" });
+            Build record1 = this.Postgres.SaveBuild(new Build { JobId = job1.Key, Key = "a", Hostname = "a" });
+            Build record2 = this.Postgres.SaveBuild(new Build { JobId = job1.Key, Key = "b", Hostname = "a" });
+            Build record3 = this.Postgres.SaveBuild(new Build { JobId = job2.Key, Key = "c", Hostname = "a" });
 
 
             PageableData<Build> page = this.Postgres.PageBuildsByJob(job1.Key, 0, 2, false);

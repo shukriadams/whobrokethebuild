@@ -88,17 +88,18 @@ namespace Wbtb.Core.Web
                         foreach (Build latestBuild in latestBuilds) 
                         {
                             // check if incoming build is in latest page, this will happen most frequently, and is a cheap check
-                            if (existingBuilds.FirstOrDefault(b => b.Identifier == latestBuild.Identifier) != null)
+                            if (existingBuilds.FirstOrDefault(b => b.Key == latestBuild.Key) != null)
                                 continue;
 
                             // make certain build doesnt't exist in db
-                            if (dataLayer.GetBuildByKey(jobInDB.Id, latestBuild.Identifier) != null)
+                            if (dataLayer.GetBuildByKey(jobInDB.Id, latestBuild.Key) != null)
                                 continue;
 
                             latestBuild.JobId = jobInDB.Id;
+                            latestBuild.SetUniquePublicIdentifier(job);
                             string buildId = dataLayer.SaveBuild(latestBuild).Id;
 
-                            _log.LogInformation($"Daemon {this.GetType().Name}: Created build {latestBuild.Identifier}, id {latestBuild.Id} for job {job.Name}.");
+                            _log.LogInformation($"Daemon {this.GetType().Name}: Created build {latestBuild.Key}, id {latestBuild.Id} for job {job.Name}.");
 
                             _buildLevelPluginHelper.InvokeEvents("OnBuildStart", job.OnBuildStart, latestBuild);
 

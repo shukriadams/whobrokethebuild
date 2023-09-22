@@ -141,7 +141,7 @@ namespace Wbtb.Core.Common
 
         Build GetBuildById(string id);
 
-        Build GetBuildByJobAndIdentifier(string jobKey, string buildIdentifier);
+        Build GetBuildByUniquePublicIdentifier(string uniquePublicIdentifier);
 
         Build GetPreviousIncident(Build referenceBuild);
 
