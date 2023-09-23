@@ -20,6 +20,9 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
         string ILogParserPlugin.Parse(Build build, string raw)
         {
             SimpleDI di = new SimpleDI();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(build.JobId);
 
             // force unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
@@ -27,7 +30,7 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             // try for cache
             string hash = Sha256.FromString(RegexPattern + fullErrorLog);
             Cache cache = di.Resolve<Cache>();
-            CachePayload cacheLookup = cache.Get(this, hash);
+            CachePayload cacheLookup = cache.Get(this,job, build, hash);
             if (cacheLookup.Payload != null)
                 return cacheLookup.Payload;
 
@@ -51,7 +54,7 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
                 result =  builder.GetText();
             }
 
-            cache.Write(this, hash, result);
+            cache.Write(this,job, build, hash, result);
             return result;
         }
     }

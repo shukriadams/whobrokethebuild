@@ -19,11 +19,14 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
         string ILogParserPlugin.Parse(Build build,string raw)
         {
             SimpleDI di = new SimpleDI();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(build.JobId);
 
             // try for cache
             string hash = Sha256.FromString(Regex + raw);
             Cache cache = di.Resolve<Cache>();
-            CachePayload lookup = cache.Get(this, hash);
+            CachePayload lookup = cache.Get(this, job, build, hash);
             if (lookup.Payload != null)
                 return lookup.Payload;
 
@@ -39,7 +42,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                 {
                     CachePayload errorStringCacheLookup = null;
                     string errorStringKey = Sha256.FromString(match.Value);
-                    errorStringCacheLookup = cache.Get(this, errorStringKey);
+                    errorStringCacheLookup = cache.Get(this, job, build, errorStringKey);
                     int cacheCount = 0;
 
                     if (errorStringCacheLookup.Payload != null) 
@@ -51,7 +54,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                     {
                         // write error string to "safe error" cache
                         cacheCount++;
-                        cache.Write(this, errorStringKey, cacheCount.ToString());
+                        cache.Write(this, job, build, errorStringKey, cacheCount.ToString());
                         continue;
                     }
 
@@ -72,7 +75,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                 result = builder.GetText();
             }
 
-            cache.Write(this, hash, result);
+            cache.Write(this, job, build, hash, result);
             return result;
         }
     }

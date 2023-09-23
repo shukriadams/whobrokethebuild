@@ -10,19 +10,19 @@ namespace Wbtb.Core.Common
     {
         private static object Lock = new object();
         
-        public void Write(IPlugin source, string index, string data)
+        public void Write(IPlugin source, Job job, Build build, string index, string data)
         {
-            Write(source.ContextPluginConfig.Manifest.Key, index, data);
+            Write(source.ContextPluginConfig.Manifest.Key, job, build, index, data);
         }
 
-        public void Write(string source, string index, string data)
+        public void Write(string source, Job job, Build build, string index, string data)
         {
             if (index.Length < 2)
                 throw new Exception("index must be at least 2 characters long");
 
             SimpleDI di = new SimpleDI();
             Configuration config = di.Resolve<Configuration>();
-            string writePath = Path.Combine(config.PluginDataPersistDirectory, source, "__cache", index.Substring(0, 1), index.Substring(1, 1));
+            string writePath = Path.Combine(config.PluginDataPersistDirectory, source, job.Key, build.UniquePublicKey, "__cache", index.Substring(0, 1), index.Substring(1, 1));
             
             lock(Lock)
             {
@@ -31,12 +31,28 @@ namespace Wbtb.Core.Common
             }
         }
 
-        public CachePayload Get(IPlugin plugin, string index)
+        public void Write(string source,  string index, string data)
         {
-            return Get(plugin.ContextPluginConfig.Manifest.Key, index);
+            if (index.Length < 2)
+                throw new Exception("index must be at least 2 characters long");
+
+            SimpleDI di = new SimpleDI();
+            Configuration config = di.Resolve<Configuration>();
+            string writePath = Path.Combine(config.PluginDataPersistDirectory, source, "__cache", index.Substring(0, 1), index.Substring(1, 1));
+
+            lock (Lock)
+            {
+                Directory.CreateDirectory(writePath);
+                File.WriteAllText(Path.Combine(writePath, index), data);
+            }
         }
 
-        public CachePayload Get(string source, string index) 
+        public CachePayload Get(IPlugin plugin, Job job, Build build, string index)
+        {
+            return Get(plugin.ContextPluginConfig.Manifest.Key, job, build, index);
+        }
+
+        public CachePayload Get(string source, string index)
         {
             if (index.Length < 2)
                 throw new Exception("index must be at least 2 characters long");
@@ -44,6 +60,28 @@ namespace Wbtb.Core.Common
             SimpleDI di = new SimpleDI();
             Configuration config = di.Resolve<Configuration>();
             string cachePath = Path.Combine(config.PluginDataPersistDirectory, source, "__cache", index.Substring(0, 1), index.Substring(1, 1), index);
+
+            lock (Lock)
+            {
+                if (!File.Exists(cachePath))
+                    return new CachePayload();
+
+                return new CachePayload
+                {
+                    Payload = File.ReadAllText(cachePath),
+                    Key = cachePath
+                };
+            }
+        }
+
+        public CachePayload Get(string source, Job job, Build build, string index) 
+        {
+            if (index.Length < 2)
+                throw new Exception("index must be at least 2 characters long");
+
+            SimpleDI di = new SimpleDI();
+            Configuration config = di.Resolve<Configuration>();
+            string cachePath = Path.Combine(config.PluginDataPersistDirectory, source, job.Key, build.UniquePublicKey, "__cache", index.Substring(0, 1), index.Substring(1, 1), index);
 
             lock (Lock)
             {

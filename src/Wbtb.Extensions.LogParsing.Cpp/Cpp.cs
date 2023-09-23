@@ -25,11 +25,14 @@ namespace Wbtb.Extensions.LogParsing.Cpp
         {
             SimpleDI di = new SimpleDI();
             ILogger logger = di.Resolve<ILogger>();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(build.JobId);
 
             // try for cache
             string hash = Sha256.FromString(MSVCRegex + raw);
             Cache cache = di.Resolve<Cache>();
-            CachePayload resultLookup = cache.Get(this, hash);
+            CachePayload resultLookup = cache.Get(this,job, build, hash);
             if (resultLookup.Payload != null)
             {
                 logger.LogInformation($"{this.GetType().Name} found cache hit {resultLookup.Key}.");
@@ -102,7 +105,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             if (result == null)
                 result = string.Empty;
 
-            cache.Write(this, hash, result);
+            cache.Write(this, job, build, hash, result);
             return result;
         }
     }

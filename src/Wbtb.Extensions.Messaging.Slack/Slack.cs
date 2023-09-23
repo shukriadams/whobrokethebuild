@@ -30,12 +30,11 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         #region CTORS
 
-        public Slack(Configuration config, Cache cache, UrlHelper urlHelper, PluginProvider pluginProvider, ILogger log) 
+        public Slack(Configuration config, UrlHelper urlHelper, PluginProvider pluginProvider, ILogger log) 
         {
             _config = config;
             _urlHelper = urlHelper;
             _pluginProvider = pluginProvider;
-            _cache = cache;
             _log = log;
         }
 
@@ -197,9 +196,6 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             if (response.ok.Value)
             {
-                // write 
-                _cache.Write(this, key, "sent");
-
                 // store message info and proof of sending
                 dataLayer.DeleteStoreItemWithKey(key);
                 dataLayer.SaveStore(new StoreItem

@@ -41,6 +41,9 @@ namespace Wbtb.Extensions.LogParsing.Unreal
         string ILogParserPlugin.Parse(Build build, string raw)
         {
             SimpleDI di = new SimpleDI();
+            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(build.JobId);
 
             string bluePrintRegex4 = @"Blueprint failed to compile: (.*)";
             string bluePrintRegex5 = @"LogBlueprint: Error: \[AssetLog\] .*?: \[Compiler]\ (.*)? from Source: (.*)?";
@@ -50,7 +53,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             string blueprint5RegexHash = Sha256.FromString(bluePrintRegex5 + raw);
             Cache cache = di.Resolve<Cache>();
             string bluePrintMatch = null;
-            CachePayload bluePrintMatchLookup = cache.Get(this, blueprint4RegexHash);
+            CachePayload bluePrintMatchLookup = cache.Get(this, job, build, blueprint4RegexHash);
             if (bluePrintMatchLookup.Payload != null)
                 bluePrintMatch = bluePrintMatchLookup.Payload;
 
@@ -76,7 +79,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                     }
 
                     bluePrintMatch = builder.GetText();
-                    cache.Write(this, blueprint4RegexHash, bluePrintMatch);
+                    cache.Write(this, job, build, blueprint4RegexHash, bluePrintMatch);
                 }
             }
 
@@ -99,7 +102,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                     }
 
                     bluePrintMatch = builder.GetText();
-                    cache.Write(this, blueprint5RegexHash, bluePrintMatch);
+                    cache.Write(this, job, build, blueprint5RegexHash, bluePrintMatch);
                 }
             }
 
@@ -107,8 +110,8 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             if (bluePrintMatch == null) 
             {
                 bluePrintMatch = string.Empty;
-                cache.Write(this, blueprint4RegexHash, bluePrintMatch);
-                cache.Write(this, blueprint5RegexHash, bluePrintMatch);
+                cache.Write(this, job, build, blueprint4RegexHash, bluePrintMatch);
+                cache.Write(this, job, build, blueprint5RegexHash, bluePrintMatch);
             }
 
             string shaderRegex = @"LogShaderCompilers: Warning:\n*(.*?.usf)\(\): Shader (.*?), .*";
@@ -116,7 +119,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             // try for cache
             string shaderRegexHash = Sha256.FromString(shaderRegex + raw);
             string shaderMatch = null;
-            CachePayload shaderMatchLookup = cache.Get(this, shaderRegexHash);
+            CachePayload shaderMatchLookup = cache.Get(this, job, build, shaderRegexHash);
             if (shaderMatchLookup != null)
                 shaderMatch = shaderMatchLookup.Payload;
 
@@ -141,7 +144,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                     shaderMatch = builder.GetText();
                 }
 
-                cache.Write(this, shaderRegexHash, shaderMatch);
+                cache.Write(this, job, build, shaderRegexHash, shaderMatch);
             }
 
             return bluePrintMatch + shaderMatch;

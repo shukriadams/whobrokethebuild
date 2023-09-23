@@ -83,7 +83,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             string hash = Sha256.FromString(regex + rawLog);
             Cache cache = di.Resolve<Cache>();
             string client = null;
-            CachePayload clientLookup = cache.Get(this, hash);
+            CachePayload clientLookup = cache.Get(this,job, build, hash);
             if (clientLookup.Payload != null)
                 client = clientLookup.Payload;
 
@@ -93,7 +93,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 if (match.Success)
                 {
                     client = match.Groups[1].Value.Trim();
-                    cache.Write(this, hash, client);
+                    cache.Write(this, job, build, hash, client);
                 }
             }
 

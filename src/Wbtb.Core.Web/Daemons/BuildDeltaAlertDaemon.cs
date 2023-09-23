@@ -92,7 +92,7 @@ namespace Wbtb.Core.Web
                     Build incidentBuild = dataLayer.GetBuildById(deltaBuild.IncidentBuildId);
                     string alertKey = $"{incidentBuild.Key}_{job.Key}_deltaAlert_{deltaBuild.Status}";
 
-                    if (_cache.Get(TypeHelper.Name(this), alertKey).Payload == null)
+                    if (_cache.Get(TypeHelper.Name(this), job, incidentBuild, alertKey).Payload == null)
                     {
                         if (deltaBuild.Status == BuildStatus.Failed)
                         {
@@ -110,7 +110,7 @@ namespace Wbtb.Core.Web
                                 }
                             }
 
-                            _cache.Write(TypeHelper.Name(this), alertKey, "sent");
+                            _cache.Write(TypeHelper.Name(this), job, incidentBuild, alertKey, "sent");
 
                             dataLayer.SaveStore(new StoreItem
                             {
@@ -133,12 +133,12 @@ namespace Wbtb.Core.Web
 
                         // has fail alert for incident been sent? if not, don't bother alerting fix for it
                         string failingAlertKey = $"{incident.Key}_{job.Key}_deltaAlert_{incident.Status}";
-                        if (_cache.Get(TypeHelper.Name(this), failingAlertKey).Payload == null)
+                        if (_cache.Get(TypeHelper.Name(this), job, incident, failingAlertKey).Payload == null)
                             continue;
 
                         // has pass alert been sent? if so, don't alert again
                         string passingAlertKey = $"{incident.Key}_{job.Key}_deltaAlert_{fixingBuild.Status}";
-                        if (_cache.Get(TypeHelper.Name(this), passingAlertKey).Payload != null)
+                        if (_cache.Get(TypeHelper.Name(this), job, incident, passingAlertKey).Payload != null)
                             continue;
 
                         _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, fixingBuild);
@@ -152,7 +152,7 @@ namespace Wbtb.Core.Web
                             result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
                         }
 
-                        _cache.Write(TypeHelper.Name(this), passingAlertKey, "sent");
+                        _cache.Write(TypeHelper.Name(this), job, incident, passingAlertKey, "sent");
 
                         dataLayer.SaveStore(new StoreItem
                         {
