@@ -82,6 +82,9 @@ ul, li {
     list-style: none;
 }
 
+pre {
+    white-space: break-spaces;
+}
 
 input[type=text], input[type=password], select {
     @include common-input;
