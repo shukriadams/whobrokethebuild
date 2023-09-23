@@ -56,10 +56,16 @@ docker run \
         dotnet restore MessageQueue && \
         dotnet publish MessageQueue /property:PublishWithAspNetCoreTargetManifest=false --configuration Release"
 
-# build hosting container
-echo "Building container ..."
+# build web container
+
 cd ./../../src
-docker build -t shukriadams/wbtb . 
+
+echo "Building cli container ..."
+docker build -t shukriadams/wbtb -f Dockerfile-CLI . 
+docker tag shukriadams/wbtb-cli:latest shukriadams/wbtb-cli:$TAG 
+
+echo "Building web container ..."
+docker build -t shukriadams/wbtb -f Dockerfile-Web . 
 docker tag shukriadams/wbtb:latest shukriadams/wbtb:$TAG 
 cd -
 
