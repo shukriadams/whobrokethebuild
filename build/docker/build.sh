@@ -61,7 +61,7 @@ docker run \
 cd ./../../src
 
 echo "Building cli container ..."
-docker build -t shukriadams/wbtb -f Dockerfile-CLI . 
+docker build -t shukriadams/wbtb-cli -f Dockerfile-CLI . 
 docker tag shukriadams/wbtb-cli:latest shukriadams/wbtb-cli:$TAG 
 
 echo "Building web container ..."
@@ -87,4 +87,8 @@ fi
 if [ $DOCKERPUSH -eq 1 ]; then
     docker login -u $DOCKER_USER -p $DOCKER_PASS 
     docker push shukriadams/wbtb:$TAG  
+
+    docker login -u $DOCKER_USER -p $DOCKER_PASS 
+    docker push shukriadams/wbtb-cli:$TAG  
+
 fi
