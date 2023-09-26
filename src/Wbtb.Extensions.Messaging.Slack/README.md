@@ -8,9 +8,10 @@ Your Slack plugin needs a Slack APP API token. Create an app @ `https://api.slac
     -   Key: myslack
         Path: Wbtb.Extensions.Messaging.Slack
         Config:
-        - Token: <slack Bot User OAuth Token>
-        - AlertMaxLength: <int> (optional)
-        - MentionUsersInGroupPosts: <boo> (optional)
+        -   Token: <string> (required, slack Bot User OAuth Token)
+        -   AlertMaxLength: <int> (optional, default 0, posts longer than this will be cut off with "...". 0 does not truncate)
+        -   MentionUsersInGroupPosts: <boo> (optional, default false. If true, confirmed build breakers will be @mentioned in break alerts)
+        -   Mute: <boo> (optional, default false. If true, Slack messages will be processed and cached, but not posted to Slack)
 
 ### General informing
 

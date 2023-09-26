@@ -100,6 +100,9 @@ namespace Wbtb.Extensions.Messaging.Slack
         { 
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
             bool mentionUsers = Configuration.GetConfigValue(ContextPluginConfig.Config, "MentionUsersInGroupPosts", "false").ToLower() == "true";
+            bool mute = Configuration.GetConfigValue(ContextPluginConfig.Config, "Mute", "false").ToLower() == "true";
+            if (mute)
+                return "muted";
 
             int alertMaxLength = 600;
             if (ContextPluginConfig.Config.Any(r => r.Key == "AlertMaxLength")) 
@@ -190,10 +193,10 @@ namespace Wbtb.Extensions.Messaging.Slack
             data["text"] = " ";
             data["attachments"] = Convert.ToString(attachments);
 
-            dynamic response = ExecAPI("chat.postMessage", data);
+            dynamic response = response = ExecAPI("chat.postMessage", data);
+
             // check if alert has already been sent
             string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
-
             if (response.ok.Value)
             {
                 // store message info and proof of sending
@@ -226,6 +229,9 @@ namespace Wbtb.Extensions.Messaging.Slack
         string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
+            bool mute = Configuration.GetConfigValue(ContextPluginConfig.Config, "Mute", "false").ToLower() == "true";
+            if (mute)
+                return "muted";
 
             NameValueCollection data = new NameValueCollection();
             MessageConfiguration targetSlackConfig = null;
