@@ -105,13 +105,14 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             bool isShaderError = false;
             bool isBluePrintError = false;
             bool isCPPError = false;
-            bool isBasicError = false;
             List<string> blamedUserNames = new List<string>();
             string[] allowedParsers = { "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp", "Wbtb.Extensions.LogParsing.BasicErrors" };
-            bool errorFound = false;
+            bool p4CauseLinked = false;
             string fileCausingBreak = string.Empty;
-            string errorLineFromLog = string.Empty;
-            string basicError = string.Empty;
+            string specificErrorParsed = string.Empty;
+            string basicErrorParsed = string.Empty;
+            string parsedLogError = string.Empty;
+
             IList<string> implicatedRevisions = new List<string>();
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
@@ -129,11 +130,9 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                         isBluePrintError = true;
 
                     if (parsedText.Type == "Wbtb.Extensions.LogParsing.BasicErrors")
-                        basicError += $"{string.Join("\n", line.Items.Select(i => i.Content))}\n";
-
-                    // everything further requires p4client, so exit loop if none known
-                    if (p4client == null)
-                        continue;
+                        basicErrorParsed += $"{string.Join("\n", line.Items.Select(i => i.Content))}\n";
+                    else
+                        specificErrorParsed += $"{string.Join(" ", line.Items.Select(i => i.Content))} ";
 
                     foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
                     {
@@ -142,9 +141,14 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
                         // force unitpaths, p4 uses these
                         string localFile = localPathItem.Content.Replace("\\", "/");
-                        string clientRoot = p4client.Root.Replace("\\", "/");
 
                         isCPPError = parsedText.Type == "Wbtb.Extensions.LogParsing.Cpp";
+
+                        if (p4client == null)
+                            continue;
+
+                        // everything further requires p4client, so exit loop if none known
+                        string clientRoot = p4client.Root.Replace("\\", "/");
 
                         foreach (Revision revision in revisionsLinkedToBuild)
                             foreach (string revisionFile in revision.Files)
@@ -156,7 +160,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                     if (!clientView.Local.EndsWith("/..."))
                                         continue;
 
-                                    errorFound = true;
+                                    p4CauseLinked = true;
 
                                     // clip off trailing /... from client mapping
                                     string root = clientView.Local.Substring(0, clientView.Local.Length - 4);
@@ -219,96 +223,73 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
                                     fileCausingBreak = revisionFile;
                                     implicatedRevisions.Add(revision.Code);
-                                    errorLineFromLog += $"{string.Join(" ", line.Items.Select(i => i.Content))} ";
                                 }
                             }
                     }
                 }
             }
             
-            string resultString = string.Empty;
             string description = string.Empty;
             
             blamedUserNames = blamedUserNames.Distinct().ToList();
             implicatedRevisions = implicatedRevisions.Distinct().ToList();
 
-            if (errorFound)
+            description = string.Empty;
+
+            if (isBluePrintError)
+                breakExtraFlag = " Blueprint error";
+
+            if (isShaderError)
+                breakExtraFlag = " Shader error";
+
+            if (isCPPError)
+                breakExtraFlag = " C++ error";
+
+            if (string.IsNullOrEmpty(specificErrorParsed))
+                description += $"Could not find definitive cause, 'error' keyword match returned:\n{basicErrorParsed}\n";
+            else
+                description += $"{specificErrorParsed}\n";
+
+            if (!string.IsNullOrEmpty(fileCausingBreak))
+                description += $"Caused by file {fileCausingBreak}.\n";
+
+            if (implicatedRevisions.Any())
+                description += $"Revision{(implicatedRevisions.Count == 1 ? "" : "s")} {string.Join(",", implicatedRevisions)}.\n";
+            else
+                description += $"Could not parse revision.\n";
+
+            if (blamedUserNames.Any())
+                description += $"Broken by {string.Join(",", blamedUserNames)}.\n";
+            else
+                description += $"Could not link error to user.\n";
+            
+            string summary = string.Empty;
+            if (blamedUserNames.Any())
+                summary = string.Join(",", blamedUserNames);
+
+            if (summary.Length > 0)
+                summary += $" ({breakExtraFlag})";
+            else
+                summary = breakExtraFlag;
+
+            if (summary.Length == 0)
+                summary = "Unknown error";
+
+            data.SaveIncidentReport(new IncidentReport
             {
-                description = string.Empty;
-
-                if (isBluePrintError)
-                {
-                    breakExtraFlag = " (blueprint)";
-                    description = "Blueprint error.\n";
-                }
-
-                if (isShaderError)
-                {
-                    breakExtraFlag = " (shader)";
-                    description = "Shader error.\n";
-                }
-
-                if (isCPPError)
-                {
-                    breakExtraFlag = " (C++)";
-                    description = "C++ error.\n";
-                }
-
-                if (!string.IsNullOrEmpty(fileCausingBreak))
-                    description += $"Caused by file {fileCausingBreak}.\n";
-
-                if (implicatedRevisions.Any())
-                    description += $"Revision{(implicatedRevisions.Count == 1 ? "" : "s")} {string.Join(",", implicatedRevisions)}.\n";
-                else 
-                {
-                    description += $"Could not parse revision.\n";
-
-                    if (!string.IsNullOrEmpty(basicError))
-                        description  += $"'error' keyword match found:\n{basicError}\n";
-                }
-
-                if (blamedUserNames.Any())
-                    description += $"Broken by {string.Join(",",blamedUserNames)}.\n";
-
-                if (!string.IsNullOrEmpty(errorLineFromLog))
-                    description += $"{errorLineFromLog}\n";
-
-                data.SaveIncidentReport(new IncidentReport
-                {
-                    IncidentId = build.IncidentBuildId,
-                    MutationId = build.Id,
-                    ImplicatedRevisions = implicatedRevisions,
-                    Processor = this.GetType().Name,
-                    Summary = $"{string.Join(",", blamedUserNames)}{breakExtraFlag}",
-                    Status = "Break",
-                    Description = description
-                });
-
-                resultString = $"Found error in P4 revision. File ${fileCausingBreak} from revision {string.Join(",", implicatedRevisions)} implicated in break.\n";
-            }
-            else 
-            {
-                description = "No definitive error cause found.\n";
-
-                if (!string.IsNullOrEmpty(basicError))
-                    description += $"\n'error' keyword match found:\n{basicError}";
-
-                data.SaveIncidentReport(new IncidentReport
-                {
-                    IncidentId = build.IncidentBuildId,
-                    MutationId = build.Id,
-                    Processor = this.GetType().Name,
-                    Summary = $"No cause found",
-                    Status = "Break",
-                    Description = description
-                });
-                resultString = "No error cause found.";
-            }
+                IncidentId = build.IncidentBuildId,
+                MutationId = build.Id,
+                ImplicatedRevisions = implicatedRevisions,
+                Processor = this.GetType().Name,
+                Summary = summary,
+                Status = "Break",
+                Description = description
+            });
 
             return new PostProcessResult
             {
                 Passed = true,
-                Result = resultString
+                Result = summary
             };
 
             // if log parse results are blueprint
