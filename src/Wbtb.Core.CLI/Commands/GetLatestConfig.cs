@@ -14,8 +14,6 @@ namespace Wbtb.Core.CLI
         {
             SimpleDI di = new SimpleDI();
             ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
-            CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
-            customEnvironmentArgs.Apply();
 
             bool hasChanged = configBootstrapper.EnsureLatest();
             string status = hasChanged ? "Config was updated" : "Config unchanged";

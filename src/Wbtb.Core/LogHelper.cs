@@ -14,7 +14,7 @@ namespace Wbtb.Core
 
         public string GetBuildProcessorLog(string buildId, string buildProcessorId)
         {
-            string path = Path.Join(_config.DataDirectory, "BuildProcessorLogs", buildId, $"{buildProcessorId}.txt");
+            string path = Path.Join(_config.DataRootPath, "BuildProcessorLogs", buildId, $"{buildProcessorId}.txt");
             if (!File.Exists(path))
                 return string.Empty;
 

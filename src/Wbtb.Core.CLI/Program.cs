@@ -12,6 +12,10 @@ namespace Wbtb.Core.CLI
         {
             try 
             {
+                // load custom env args as early as possible
+                CustomEnvironmentArgs customEnvironmentArgs = new CustomEnvironmentArgs();
+                customEnvironmentArgs.Apply();
+
                 // bind types - dev only! These are needed by all general plugin activity
                 Core core = new Core();
                 core.Start(persistStateToDatabase:false);

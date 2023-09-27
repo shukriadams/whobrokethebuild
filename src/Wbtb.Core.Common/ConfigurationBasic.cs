@@ -9,16 +9,27 @@ namespace Wbtb.Core.Common
     /// </summary>
     public class ConfigurationBasic
     {
+        #region PROPERTIES
+
+        /// <summary>
+        /// 
+        /// </summary>
         public int MessageQueuePort { get;set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool PersistCalls { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string ProxyMode { get;set;}
 
         /// <summary>
         /// Root dir where all WBTB is persisted. This dir contains other named directories based on specific nature
         /// </summary>
-        public string DataDirectory { get; set; }
+        public string DataRootPath { get; set; }
 
         /// <summary>
         /// Directory plugins can persist raw data to. Each plugin shoudl write to a sub dir names after itself
@@ -35,7 +46,19 @@ namespace Wbtb.Core.Common
         /// </summary>
         public string PluginsWorkingDirectory { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string ConfigPath { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string LogPath { get; set; }
+
+        #endregion
+
+        #region CTORS
 
         public ConfigurationBasic()
         {
@@ -45,12 +68,14 @@ namespace Wbtb.Core.Common
             this.PersistCalls = EnvironmentVariableHelper.GetBool("WBTB_PERSISTCALLS", false);
             this.ProxyMode = EnvironmentVariableHelper.GetString("WBTB_PROXYMODE", "default");
             this.ConfigPath = EnvironmentVariableHelper.GetString(Constants.ENV_VAR_CONFIG_PATH, Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
-            this.DataDirectory = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data");
+            this.DataRootPath = EnvironmentVariableHelper.GetString("WBTB_DATA_ROOT", Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data")); ;
+            this.LogPath = EnvironmentVariableHelper.GetString("WBTB_LOG_PATH", Path.Join(this.DataRootPath, "logs", "log.txt"));
 
-            this.BuildLogsDirectory = Path.Join(this.DataDirectory, "BuildLogs");
-            this.PluginDataPersistDirectory = Path.Join(this.DataDirectory, "PluginData");
-            this.PluginsWorkingDirectory = Path.Join(this.DataDirectory, "PluginsWorking");
+            this.BuildLogsDirectory = Path.Join(this.DataRootPath, "BuildLogs");
+            this.PluginDataPersistDirectory = Path.Join(this.DataRootPath, "PluginData");
+            this.PluginsWorkingDirectory = Path.Join(this.DataRootPath, "PluginsWorking");
         }
 
+        #endregion
     }
 }

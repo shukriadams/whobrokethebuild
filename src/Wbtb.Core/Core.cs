@@ -43,10 +43,6 @@ namespace Wbtb.Core
             di.RegisterFactory<ILogger, LogProvider>();
             di.RegisterFactory<IPluginSender, PluginSenderFactory>();
 
-            // pick up env vars from local .env file
-            CustomEnvironmentArgs customEnvironmentArgs = di.Resolve<CustomEnvironmentArgs>();
-            customEnvironmentArgs.Apply();
-
             // fetch latest config from git. Requires env vars set. Do after c
             ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
             configBootstrapper.EnsureLatest();
@@ -60,7 +56,9 @@ namespace Wbtb.Core
             ConfigurationLoader configurationManager = di.Resolve<ConfigurationLoader>();
             Configuration unvalidatedConfig = configurationManager.LoadUnvalidatedConfig(configPath);
             
-            string cachePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data", ".currentConfigHash");
+            // it's safe to use datarootpath here, this doesn't need to be validated
+            string cachePath = Path.Join(unvalidatedConfig.DataRootPath, ".currentConfigHash");
+
             if (File.Exists(cachePath)) 
             {
                 try
@@ -82,7 +80,7 @@ namespace Wbtb.Core
                 configurationManager.EnsureNoneManifestLogicValid(unvalidatedConfig);
 
             // ensure directories, this requires that config is loaded
-            Directory.CreateDirectory(unvalidatedConfig.DataDirectory);
+            Directory.CreateDirectory(unvalidatedConfig.DataRootPath);
             Directory.CreateDirectory(unvalidatedConfig.BuildLogsDirectory);
             Directory.CreateDirectory(unvalidatedConfig.PluginsWorkingDirectory);
             Directory.CreateDirectory(unvalidatedConfig.PluginDataPersistDirectory);

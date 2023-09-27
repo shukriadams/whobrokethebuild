@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
 using System.IO;
+using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
 {
@@ -12,6 +12,11 @@ namespace Wbtb.Core.Web
 
         public static void Main(string[] args)
         {
+            // pick up env vars from local .env file as soon as possible, the contents of this file can be used to set basic features in application
+            // and needs to be loaded before anything else
+            CustomEnvironmentArgs customEnvironmentArgs = new CustomEnvironmentArgs();
+            customEnvironmentArgs.Apply();
+
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -19,13 +24,13 @@ namespace Wbtb.Core.Web
             Host.CreateDefaultBuilder(args)
                 .ConfigureLogging((hostingContext, builder) => {
 
-                    // set up logging
-                    string logPath = Environment.GetEnvironmentVariable("WBTB_LOG_PATH");
-                    if (string.IsNullOrEmpty(logPath))
-                        logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "logs", "log.txt");
+                    ConfigurationBasic configurationBasic = new ConfigurationBasic();
 
-                    Directory.CreateDirectory(Path.GetDirectoryName(logPath));
-                    builder.AddFile(logPath);
+                    if (Directory.Exists(configurationBasic.LogPath))
+                        throw new ConfigurationException($"The provided logpath {configurationBasic.LogPath} is invalid - path must be a file, but there is currently a directory at this location.");
+
+                    Directory.CreateDirectory(Path.GetDirectoryName(configurationBasic.LogPath));
+                    builder.AddFile(configurationBasic.LogPath);
                 })
                 .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<Startup>();

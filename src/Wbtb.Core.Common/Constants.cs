@@ -2,6 +2,6 @@
 {
     public class Constants
     {
-        public static string ENV_VAR_CONFIG_PATH="WBTB_CONFIGPATH";
+        public static string ENV_VAR_CONFIG_PATH="WBTB_CONFIG_PATH";
     }
 }
