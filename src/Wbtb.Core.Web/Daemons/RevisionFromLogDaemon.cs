@@ -69,7 +69,7 @@ namespace Wbtb.Core.Web
             Cache cache = di.Resolve<Cache>();
             string hash = Sha256.FromString(regex + logText);
             string revFromLog = null;
-            CachePayload cacheLookup = cache.Get(this.GetType().Name, hash);
+            CachePayload cacheLookup = cache.Get(TypeHelper.Name(this), hash);
 
             if (cacheLookup.Payload != null)
                 return cacheLookup.Payload;
@@ -84,7 +84,7 @@ namespace Wbtb.Core.Web
                 revFromLog = match.Groups[1].Value;
             }
 
-            cache.Write(this.GetType().Name, hash, revFromLog);
+            cache.Write(TypeHelper.Name(this), hash, revFromLog);
             return revFromLog;
         }
 

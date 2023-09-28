@@ -293,6 +293,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 if (incident.Duration.HasValue) 
                     message += $"Broken for {incident.Duration.ToHumanString()}.";
+
                 if (incident.BuildsInIncident > 0)
                     message += $"Spanned {incident.BuildsInIncident} build attempts.";
             }

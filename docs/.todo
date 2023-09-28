@@ -1,3 +1,5 @@
+- logging to file still broken
+- plugin cached oversplitting, simplify after partitioning by job + build
 - ensure handling of errors across multiple builds in an incident
 - handle mutations in an incident
 - run same container in CLI mode on same install contrent

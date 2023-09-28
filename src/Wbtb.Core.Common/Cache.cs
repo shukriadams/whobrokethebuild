@@ -31,7 +31,7 @@ namespace Wbtb.Core.Common
             }
         }
 
-        public void Write(string source,  string index, string data)
+        public void Write(string source, string index, string data)
         {
             if (index.Length < 2)
                 throw new Exception("index must be at least 2 characters long");
