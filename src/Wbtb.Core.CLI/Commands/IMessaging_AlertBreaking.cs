@@ -34,8 +34,8 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            string buildId = switches.Get("build"); ;
-            string pluginKey = switches.Get("plugin"); ;
+            string buildId = switches.Get("build");
+            string pluginKey = switches.Get("plugin");
             string userKey = null;
             string groupKey = null;
 
@@ -51,7 +51,6 @@ namespace Wbtb.Core.CLI
                     Environment.Exit(1);
                     return;
                 }
-
             }
 
             if (switches.Contains("group"))
@@ -68,7 +67,7 @@ namespace Wbtb.Core.CLI
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IMessagingPlugin messagingPlugin = pluginProvider.GetByKey(pluginKey) as IMessagingPlugin;
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Build build = dataLayer.GetBuildById(buildId);
+            Build build = dataLayer.GetBuildByUniquePublicIdentifier(buildId);
 
             if (messagingPlugin == null)
             {

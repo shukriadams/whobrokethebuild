@@ -1561,15 +1561,20 @@ namespace Wbtb.Extensions.Data.Postgres
                 LIMIT 1";
 
             string lastBuildQuery = @"
-                select 
+                SELECT 
                     * 
-                from build 
-                where incidentbuildId=@incidentid order by startedutc desc limit 1;
+                FROM 
+                    build 
+                WHERE incidentbuildId=@incidentid order by startedutc desc limit 1;
                 ";
 
             string buildCountQuery = @"
-                select count(id) from build where incidentbuildId=@incidentid
-                ";
+                SELECT 
+                    COUNT(id) 
+                FROM 
+                    build 
+                WHERE 
+                    incidentbuildId=@incidentid";
 
             Incident incident = new Incident();
 
@@ -1577,7 +1582,7 @@ namespace Wbtb.Extensions.Data.Postgres
             {
                 using (NpgsqlCommand cmd = new NpgsqlCommand(firstBuildQuery, conWrap.Connection()))
                 {
-                    cmd.Parameters.AddWithValue("incidentId", incidentId);
+                    cmd.Parameters.AddWithValue("incidentId", int.Parse(incidentId));
 
                     using (NpgsqlDataReader reader = cmd.ExecuteReader())
                         incident.CauseBuild = new BuildConvert().ToCommon(reader);
@@ -1585,7 +1590,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 
                 using (NpgsqlCommand cmd = new NpgsqlCommand(lastBuildQuery, conWrap.Connection()))
                 {
-                    cmd.Parameters.AddWithValue("incidentId", incidentId);
+                    cmd.Parameters.AddWithValue("incidentId", int.Parse(incidentId));
 
                     using (NpgsqlDataReader reader = cmd.ExecuteReader())
                         incident.LastBuild = new BuildConvert().ToCommon(reader);
@@ -1593,7 +1598,7 @@ namespace Wbtb.Extensions.Data.Postgres
 
                 using (NpgsqlCommand cmd = new NpgsqlCommand(buildCountQuery, conWrap.Connection()))
                 {
-                    cmd.Parameters.AddWithValue("incidentId", incidentId);
+                    cmd.Parameters.AddWithValue("incidentId", int.Parse(incidentId));
 
                     using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     {

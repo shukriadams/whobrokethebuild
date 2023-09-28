@@ -1,3 +1,9 @@
+- ensure handling of errors across multiple builds in an incident
+- handle mutations in an incident
+- run same container in CLI mode on same install contrent
+- processing error page should only errors that were not triggered be a preceeding task error
+- rewrite active error display, needs to focus on which tasks are currently running, how long they've been running, how 
+long before they time out, tasks per daemon, total nr of threads available, rate of processing
 - show when jobs are blocked by errors
 - expose errors via influx-compatible api
 - p4 blame 

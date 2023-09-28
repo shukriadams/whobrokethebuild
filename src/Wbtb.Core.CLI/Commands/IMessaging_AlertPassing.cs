@@ -8,7 +8,7 @@ namespace Wbtb.Core.CLI
     {
         public string Describe()
         {
-            return @"Sends a build break warning top the given message provider";
+            return @"Sends a build pass notice to the given message provider";
         }
 
         public void Process(CommandLineSwitches switches)
@@ -69,7 +69,7 @@ namespace Wbtb.Core.CLI
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IMessagingPlugin messagingPlugin = pluginProvider.GetByKey(pluginKey) as IMessagingPlugin;
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Build build = dataLayer.GetBuildById(buildId);
+            Build build = dataLayer.GetBuildByUniquePublicIdentifier(buildId);
 
             if (messagingPlugin == null)
             {
@@ -87,7 +87,6 @@ namespace Wbtb.Core.CLI
 
             // mark build as fixing itself, it's testing only
             string result = messagingPlugin.AlertPassing(userKey, groupKey, build, build); 
-            
 
             Console.Write($"Message test executed, result : {result}");
         }
