@@ -83,45 +83,43 @@ namespace Wbtb.Core.Web
                     // we ignore those.
                     // note : delta will be null if no build has run or builds have always had same status since job start
                     Build deltaBuild = dataLayer.GetLastJobDelta(job.Id);
-                    if (deltaBuild == null)
-                        continue;
-
-                    if (string.IsNullOrEmpty(deltaBuild.IncidentBuildId))
-                        continue;
-
-                    Build incidentBuild = dataLayer.GetBuildById(deltaBuild.IncidentBuildId);
-                    string alertKey = $"{incidentBuild.Key}_{job.Key}_deltaAlert_{deltaBuild.Status}";
-
-                    if (_cache.Get(TypeHelper.Name(this), job, incidentBuild, alertKey).Payload == null)
+                    if (deltaBuild != null && !string.IsNullOrEmpty(deltaBuild.IncidentBuildId))
                     {
-                        if (deltaBuild.Status == BuildStatus.Failed)
-                        {
-                            string result = string.Empty;
+                        Build incidentBuild = dataLayer.GetBuildById(deltaBuild.IncidentBuildId);
+                        string alertKey = $"{incidentBuild.Key}_{job.Key}_deltaAlert_{deltaBuild.Status}";
 
+                        if (_cache.Get(TypeHelper.Name(this), job, incidentBuild, alertKey).Payload == null)
+                        {
                             if (deltaBuild.Status == BuildStatus.Failed)
                             {
-                                _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaBuild);
+                                string result = string.Empty;
 
-                                foreach (MessageHandler alert in job.Message)
+                                if (deltaBuild.Status == BuildStatus.Failed)
                                 {
-                                    IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                                    string localResult = messagePlugin.AlertBreaking(alert.User, alert.Group, deltaBuild, false);
-                                    result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
+                                    _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaBuild);
+
+                                    foreach (MessageHandler alert in job.Message)
+                                    {
+                                        IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
+                                        string localResult = messagePlugin.AlertBreaking(alert.User, alert.Group, deltaBuild, false);
+                                        result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
+                                    }
                                 }
+
+                                _cache.Write(TypeHelper.Name(this), job, incidentBuild, alertKey, "sent");
+
+                                dataLayer.SaveStore(new StoreItem
+                                {
+                                    Key = alertKey,
+                                    Plugin = this.GetType().Name,
+                                    Content = $"Date:{DateTime.UtcNow}\n{result}"
+                                });
                             }
-
-                            _cache.Write(TypeHelper.Name(this), job, incidentBuild, alertKey, "sent");
-
-                            dataLayer.SaveStore(new StoreItem
-                            {
-                                Key = alertKey,
-                                Plugin = this.GetType().Name,
-                                Content = $"Date:{DateTime.UtcNow}\n{result}"
-                            });
                         }
                     }
 
 
+                    // todo : this block could be removed from the preceeding fail alert block, they are functionally unrelated
                     // ensure all previous resolve incidents are alerted on,
                     IEnumerable<string> incidentIds = dataLayer.GetIncidentIdsForJob(job, 5);
                     foreach (string incidentId in incidentIds)
