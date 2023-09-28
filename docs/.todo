@@ -1,3 +1,4 @@
+- agent job page has interal-id based links
 - logging to file still broken
 - plugin cached oversplitting, simplify after partitioning by job + build
 - ensure handling of errors across multiple builds in an incident
