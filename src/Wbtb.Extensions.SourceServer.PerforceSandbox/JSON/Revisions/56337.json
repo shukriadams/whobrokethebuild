@@ -1,14 +1,14 @@
 ﻿{
-  "Revision": "56337",
-  "Workspace": "ugs_workspace",
-  "Date": "2022-01-01T12:00",
-  "User": "Ug",
-  "Description": "White space change",
-  "Files": [
-    {
-      "File": "//mydepot/void.cpp",
-      "Change": "add",
-      "Differences": [ " " ]
-    }
-  ]
+    "Revision": "56337",
+    "Workspace": "ugs_workspace",
+    "Date": "2022-01-01T12:00",
+    "User": "Ug",
+    "Description": "White space change",
+    "Files": [
+        {
+            "File": "//mydepot/void.cpp",
+            "Change": "add",
+            "Differences": [ " " ]
+        }
+    ]
 }

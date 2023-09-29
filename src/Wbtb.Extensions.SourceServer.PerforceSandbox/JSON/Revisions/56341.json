@@ -1,0 +1,14 @@
+﻿{
+    "Revision": "56341",
+    "Workspace": "ugs_workspace",
+    "Date": "2022-01-01T12:00",
+    "User": "Ug",
+    "Description": "Doing code stuff",
+    "Files": [
+        {
+            "File": "//mydepot/main/core/PSD/Source/Programs/BuildTool/PSDToolChain.cpp",
+            "Change": "add",
+            "Differences": [ ">> some line", "<< some other line" ]
+        }
+    ]
+}

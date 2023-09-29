@@ -107,7 +107,6 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             bool isCPPError = false;
             List<string> blamedUserNames = new List<string>();
             string[] allowedParsers = { "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp", "Wbtb.Extensions.LogParsing.BasicErrors" };
-            bool p4CauseLinked = false;
             string fileCausingBreak = string.Empty;
             string specificErrorParsed = string.Empty;
             string basicErrorParsed = string.Empty;
@@ -159,8 +158,6 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                                     // currently support only standard mapping
                                     if (!clientView.Local.EndsWith("/..."))
                                         continue;
-
-                                    p4CauseLinked = true;
 
                                     // clip off trailing /... from client mapping
                                     string root = clientView.Local.Substring(0, clientView.Local.Length - 4);
