@@ -9,6 +9,8 @@ namespace Wbtb.Core.Web
 
         public IEnumerable<BuildLogParseResult> LogParseResults { get; set; }
 
+        public ViewJobBanner Banner { get; set; }
+
         public string Raw { get; set; }
     }
 }

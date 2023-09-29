@@ -10,6 +10,8 @@ namespace Wbtb.Core.Web
 
         public ViewJob Job { get; set; }
 
+        public ViewJobBanner Banner { get; set; }
+
         public JobStats Stats { get; set; }
 
         public PageableData<ViewBuild> Builds { get; set; }

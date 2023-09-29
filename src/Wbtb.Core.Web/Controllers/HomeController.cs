@@ -160,6 +160,8 @@ namespace Wbtb.Core.Web.Controllers
             model.Stats = dataLayer.GetJobStats(model.Job);
             model.BaseUrl = $"/job/{jobid}";
             model.Builds = ViewBuild.Copy(dataLayer.PageBuildsByJob(jobid, pageIndex, config.StandardPageSize, false));
+            model.Banner = new ViewJobBanner { Job = model.Job };
+            model.Banner.BreadCrumbs.Add(ViewHelpers.String(model.Job.Name));
 
             foreach (ViewBuild build in model.Builds.Items)
             {
@@ -208,8 +210,11 @@ namespace Wbtb.Core.Web.Controllers
             if (model.Build == null)
                 return Responses.NotFoundError($"build {publicBuildId} does not exist");
 
-            model.Job = ViewJob.Copy(dataLayer.GetJobById(model.Build.JobId));
             model.Build.Job = ViewJob.Copy(dataLayer.GetJobById(model.Build.JobId));
+            model.Banner = new ViewJobBanner { Job = model.Build.Job };
+            model.Banner.BreadCrumbs.Add(ViewHelpers.JobLink(model.Build.Job));
+            model.Banner.BreadCrumbs.Add(ViewHelpers.String(model.Build.Key));
+
             IEnumerable<DaemonTask> buildTasks = dataLayer.GetDaemonTasksByBuild(model.Build.Id);
 
             BuildServer buildServer = dataLayer.GetBuildServerById(model.Build.Job.BuildServerId);
@@ -262,6 +267,10 @@ namespace Wbtb.Core.Web.Controllers
             model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.GetDaemonTasksByBuild(model.Build.Id).OrderBy(t => t.CreatedUtc));
             model.IsComplete = !model.DaemonTasks.Any(t => t.ProcessedUtc == null);
             model.HasErrors = model.DaemonTasks.Any(t => t.HasPassed == false);
+            model.Banner = new ViewJobBanner { Job = ViewJob.Copy(dataLayer.GetJobById(model.Build.JobId)) };
+            model.Banner.BreadCrumbs.Add(ViewHelpers.JobLink(model.Banner.Job));
+            model.Banner.BreadCrumbs.Add(ViewHelpers.BuildLink(model.Build));
+            model.Banner.BreadCrumbs.Add(ViewHelpers.String("Process Log"));
 
             if (model.DaemonTasks.Any()) 
             {
@@ -291,6 +300,11 @@ namespace Wbtb.Core.Web.Controllers
             model.Build = ViewBuild.Copy(dataLayer.GetBuildByUniquePublicIdentifier(publicBuildId));
             if (model.Build == null)
                 return Responses.NotFoundError($"build {publicBuildId} does not exist");
+
+            model.Banner = new ViewJobBanner { Job = ViewJob.Copy(dataLayer.GetJobById(model.Build.JobId)) };
+            model.Banner.BreadCrumbs.Add(ViewHelpers.JobLink(model.Banner.Job));
+            model.Banner.BreadCrumbs.Add(ViewHelpers.BuildLink(model.Build));
+            model.Banner.BreadCrumbs.Add(ViewHelpers.String("Log"));
 
             if (model.Build.LogPath != null)
             { 

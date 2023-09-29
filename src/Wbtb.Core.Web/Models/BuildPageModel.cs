@@ -8,6 +8,8 @@ namespace Wbtb.Core.Web
         public bool RevisionsLinkedFromLog { get; set; }
 
         public string Title { get; set; }
+ 
+        public ViewJobBanner Banner { get; set; }
 
         /// <summary>
         /// Build this model focuses on.
@@ -34,8 +36,6 @@ namespace Wbtb.Core.Web
         public IEnumerable<User> BuildBreakers { get; set; }
 
         public CommonModel Common { get;set; }
-
-        public ViewJob Job { get; set; }
 
         public Build PreviousBuild { get; set; }
 

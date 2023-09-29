@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Build @Model.Build.Key Process Log</h1>
+@await Html.PartialAsync("JobBanner", Model.Banner )
 
 <div>
     Build : @ViewHelpers.BuildLink(Model.Build)

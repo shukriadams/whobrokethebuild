@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@await Html.PartialAsync("JobBanner", Model.Build.Job)
+@await Html.PartialAsync("JobBanner", Model.Banner )
 
 <h1>Build #@Model.Build.Key</h1>
 <div data-isBuild />

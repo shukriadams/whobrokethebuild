@@ -18,6 +18,8 @@ namespace Wbtb.Core.Web
 
         public TimeSpan? QueueTime { get; set; }
 
+        public ViewJobBanner Banner { get; set; }
+
         #endregion
 
         #region CTORS
