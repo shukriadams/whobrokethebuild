@@ -1555,17 +1555,34 @@ namespace Wbtb.Extensions.Data.Postgres
                 FROM
                     build 
                 WHERE 
-                    incidentbuildId=@incidentid 
-                ORDER BY 
-                    startedutc 
-                LIMIT 1";
+                    id=@incidentid 
+                ";
 
             string lastBuildQuery = @"
                 SELECT 
                     * 
                 FROM 
                     build 
-                WHERE incidentbuildId=@incidentid order by startedutc desc limit 1;
+                WHERE 
+                    incidentbuildId=@incidentid 
+                ORDER BY 
+                    startedutc DESC 
+                LIMIT 1;
+                ";
+
+            string resolvingBuildQuery = @"
+                SELECT 
+                    *
+                FROM
+                    build
+                WHERE
+                    startedutc > (
+                        SELECT startedtc FROM build WHERE id=incidentid
+                    )
+                    AND status=@passingStatus
+                ORDER BY 
+                    startedtc ASC
+                LIMIT 1
                 ";
 
             string buildCountQuery = @"
@@ -1594,6 +1611,15 @@ namespace Wbtb.Extensions.Data.Postgres
 
                     using (NpgsqlDataReader reader = cmd.ExecuteReader())
                         incident.LastBuild = new BuildConvert().ToCommon(reader);
+                }
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(resolvingBuildQuery, conWrap.Connection()))
+                {
+                    cmd.Parameters.AddWithValue("incidentId", int.Parse(incidentId));
+                    cmd.Parameters.AddWithValue("passingStatus", (int)BuildStatus.Passed);
+
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                        incident.ResolvingBuild = new BuildConvert().ToCommon(reader);
                 }
 
                 using (NpgsqlCommand cmd = new NpgsqlCommand(buildCountQuery, conWrap.Connection()))
