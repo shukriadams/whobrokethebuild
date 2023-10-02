@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Http;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -34,13 +35,24 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            string buildId = switches.Get("build"); ;
-            string pluginKey = switches.Get("plugin"); ;
+            string incidentId = switches.Get("build");
+            string fixingBuildId = null;
+            string pluginKey = switches.Get("plugin");
             string userKey = null;
             string groupKey = null;
             
             SimpleDI di = new SimpleDI();
             Configuration config = di.Resolve<Configuration>();
+
+            if (switches.Contains("fixing"))
+            {
+                fixingBuildId = switches.Get("fixing");
+            }
+            else 
+            {
+                Console.WriteLine("--fixing not set, using --build as fixing build.");
+                fixingBuildId = incidentId;
+            }
 
             if (switches.Contains("user"))
             {
@@ -69,7 +81,8 @@ namespace Wbtb.Core.CLI
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IMessagingPlugin messagingPlugin = pluginProvider.GetByKey(pluginKey) as IMessagingPlugin;
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Build build = dataLayer.GetBuildByUniquePublicIdentifier(buildId);
+            Build build = dataLayer.GetBuildByUniquePublicIdentifier(incidentId);
+            Build fixingBuild = dataLayer.GetBuildByUniquePublicIdentifier(fixingBuildId);
 
             if (messagingPlugin == null)
             {
@@ -80,13 +93,20 @@ namespace Wbtb.Core.CLI
 
             if (build == null)
             {
-                Console.WriteLine($"ERROR : build \"{buildId}\" not found");
+                Console.WriteLine($"ERROR : build \"{incidentId}\" not found");
+                Environment.Exit(1);
+                return;
+            }
+
+            if (fixingBuild == null && fixingBuildId != incidentId)
+            {
+                Console.WriteLine($"ERROR : fixing build \"{fixingBuild}\" not found");
                 Environment.Exit(1);
                 return;
             }
 
             // mark build as fixing itself, it's testing only
-            string result = messagingPlugin.AlertPassing(userKey, groupKey, build, build); 
+            string result = messagingPlugin.AlertPassing(userKey, groupKey, build, fixingBuild); 
 
             Console.Write($"Message test executed, result : {result}");
         }

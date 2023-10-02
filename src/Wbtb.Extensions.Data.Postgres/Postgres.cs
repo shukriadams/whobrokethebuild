@@ -1330,7 +1330,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     jobid = @jobid
                     AND status = @status
-                    AND staredutc <= @startedutc
+                    AND startedutc <= @startedutc
                     AND startedutc > (
                         -- get date of LAST build in previous incident, ie with status PASSED|FAILED and different status to reference build
                         SELECT
@@ -1577,11 +1577,19 @@ namespace Wbtb.Extensions.Data.Postgres
                     build
                 WHERE
                     startedutc > (
-                        SELECT startedtc FROM build WHERE id=incidentid
+                        SELECT 
+                            startedutc 
+                        FROM 
+                            build 
+                        WHERE 
+                            id=@incidentid
                     )
                     AND status=@passingStatus
+                    AND jobid=(
+                        SELECT jobid FROM build where id=@incidentid
+                    )
                 ORDER BY 
-                    startedtc ASC
+                    startedutc ASC
                 LIMIT 1
                 ";
 
