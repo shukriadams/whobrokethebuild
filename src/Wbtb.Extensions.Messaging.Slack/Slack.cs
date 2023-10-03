@@ -220,7 +220,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack : {response}");
+                _log.LogError($"Error posting to slack : {Convert.ToString(response)}");
                 return null;
             }
         }
@@ -316,6 +316,8 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             dynamic response = ExecAPI("chat.update", data);
 
+            // todo : check if message is still updated even if ts match doesn't occur.
+
             if (response.ok.Value)
             {
                 storeItem.Content = JsonConvert.SerializeObject(new {
@@ -337,8 +339,8 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack : {response}");
-                return response;
+                _log.LogError($"Error posting to slack : {Convert.ToString(response)}");
+                return Convert.ToString(response);
             }
         }
 
@@ -367,7 +369,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (response.ok.Value == true)
                 return response.channel.id.Value;
 
-            throw new Exception($"Failed to get user channel for slack userid {slackUserId}: {response}");
+            throw new Exception($"Failed to get user channel for slack userid {slackUserId}: {Convert.ToString(response)}");
         }
 
 
@@ -410,7 +412,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack: {response}");
+                _log.LogError($"Error posting to slack: {Convert.ToString(response)}");
                 return null;
             }
         }

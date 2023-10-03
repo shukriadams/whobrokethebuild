@@ -29,4 +29,8 @@ Register plugin, then add to a job under the `LogParserPlugins` node.
     Jobs:
     -   Key: MyJob
         PostProcessors: 
-        -   MyCppParser
+        -   AcmeGamesBlamer
+        Config:
+        -   GameRoot: //mydepot/mystream/myprojectroot
+
+GameRoot is the path in your P4 stream where your Unreal Project file is. This is the "root" of the project for blueprint compiler errors.

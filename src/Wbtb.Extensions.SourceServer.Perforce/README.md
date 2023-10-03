@@ -20,11 +20,15 @@ Plugin for connecting Wbtb to a Perforce server.
     BuildServers:
     -   Jobs:
         -   SourceServer: myPerforce
+            Config:
+            -   p4depotRoot: //mydepot/mystream/...
 
 Perforce integration in WBTB is stateless - you don't have to set any environment variables or P4 session for the WBTB host environment.
 
 `TrustFingerprint` is required for SSL servers only, is the fingerprint of your SSL Key, and looks like `xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx`. You can obtain it by running `p4 trust -l` against your Perforce server. See
 https://www.perforce.com/manuals/cmdref/Content/CmdRef/p4_trust.html for more info.
+
+`p4depotRoot` is the path to the stream root a given job will read code from.
 
 ## Defining users
 
