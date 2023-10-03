@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using System.IO;
 using Wbtb.Core.Common;
 
@@ -22,16 +23,19 @@ namespace Wbtb.Core.Web
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                
                 .ConfigureLogging((hostingContext, builder) => {
 
                     ConfigurationBasic configurationBasic = new ConfigurationBasic();
 
-                    if (Directory.Exists(configurationBasic.LogPath))
-                        throw new ConfigurationException($"The provided logpath {configurationBasic.LogPath} is invalid - path must be a file, but there is currently a directory at this location.");
+                    if (Directory.Exists(configurationBasic.DotNetLogPath))
+                        throw new ConfigurationException($"The provided logpath {configurationBasic.DotNetLogPath} is invalid - path must be a file, but there is currently a directory at this location.");
 
-                    Directory.CreateDirectory(Path.GetDirectoryName(configurationBasic.LogPath));
-                    builder.AddFile(configurationBasic.LogPath);
+                    Directory.CreateDirectory(Path.GetDirectoryName(configurationBasic.DotNetLogPath));
+                    builder.AddFile(configurationBasic.DotNetLogPath, LogLevel.Warning);
+
                 })
+                
                 .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<Startup>();
                 });

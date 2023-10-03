@@ -56,6 +56,7 @@ namespace Wbtb.Core.Common
         /// </summary>
         public string LogPath { get; set; }
 
+        public string DotNetLogPath { get; set; }
         #endregion
 
         #region CTORS
@@ -70,7 +71,7 @@ namespace Wbtb.Core.Common
             this.ConfigPath = EnvironmentVariableHelper.GetString(Constants.ENV_VAR_CONFIG_PATH, Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
             this.DataRootPath = EnvironmentVariableHelper.GetString("WBTB_DATA_ROOT", Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data")); ;
             this.LogPath = EnvironmentVariableHelper.GetString("WBTB_LOG_PATH", Path.Join(this.DataRootPath, "logs", "log.txt"));
-
+            this.DotNetLogPath = EnvironmentVariableHelper.GetString("WBTB_DOTNETLOG_PATH", Path.Join(this.DataRootPath, "logs", "log-sys.txt"));
             this.BuildLogsDirectory = Path.Join(this.DataRootPath, "BuildLogs");
             this.PluginDataPersistDirectory = Path.Join(this.DataRootPath, "PluginData");
             this.PluginsWorkingDirectory = Path.Join(this.DataRootPath, "PluginsWorking");

@@ -40,7 +40,7 @@ namespace Wbtb.Core
             di.Register<FileSystemHelper, FileSystemHelper>();
             di.Register<CustomEnvironmentArgs, CustomEnvironmentArgs>();
             di.Register<Cache, Cache>();
-            di.RegisterFactory<ILogger, LogProvider>();
+            //di.RegisterFactory<ILogger, LogProvider>();
             di.RegisterFactory<IPluginSender, PluginSenderFactory>();
 
             // fetch latest config from git. Requires env vars set. Do after c

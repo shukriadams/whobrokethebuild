@@ -23,7 +23,7 @@ namespace Wbtb.Core.Web
             services.AddRazorPages()
                 .AddRazorRuntimeCompilation(); // allows us to to reload view changes without recompile
 
-            // note : we don't use dotnet's DI framew
+            // note : we don't use dotnet's DI framework
             services.AddSignalR();
             services.AddHostedService<ServerStartService>();
             services.AddMemoryCache();

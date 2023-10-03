@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -22,6 +23,7 @@ namespace Wbtb.Core.Web
                     SimpleDI di = new SimpleDI();
 
                     // register types defined in web project
+                    di.RegisterFactory<ILogger, LogProvider>();
                     di.Register<IDaemonProcessRunner, DaemonProcessRunner>();
                     di.Register<IWebDaemon, BuildStartDaemon>(null, true);
                     di.Register<IWebDaemon, BuildPostProcessDaemon>(null, true);
