@@ -33,11 +33,24 @@ namespace Wbtb.Core.Common
             this.Version = string.Empty;
             this.Items = new List<ParsedBuildLogTextLine>();
         }
-
     }
 
     public static class BuildLogTextParser
     {
+        public static string ToInnerText(BuildLogParseResult result) 
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            try
+            {
+                xmlDoc.LoadXml(result.ParsedContent);
+                return xmlDoc.InnerText;
+            }
+            catch (Exception ex)
+            {
+                return string.Empty;
+            }
+        }
+
         public static ParsedBuildLogText Parse(string markup)
         {
             if (string.IsNullOrEmpty(markup))

@@ -54,7 +54,7 @@ namespace Wbtb.Core.Web
         /// <summary>
         /// 
         /// </summary>
-        public IEnumerable<BuildLogParseResult> BuildParseResults { get; set; }
+        public IEnumerable<ViewBuildLogParseResult> BuildParseResults { get; set; }
 
         public IncidentReport IncidentReport { get; set; }
 

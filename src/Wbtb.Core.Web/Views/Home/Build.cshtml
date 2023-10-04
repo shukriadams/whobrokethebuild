@@ -267,21 +267,12 @@ else
 {
     @if (Model.BuildParseResults.Any())
     {
-        @foreach(BuildLogParseResult parseResult in Model.BuildParseResults)
+        @foreach (ViewBuildLogParseResult parseResult in Model.BuildParseResults.Where(p => !string.IsNullOrEmpty(p.InnerText)))
         {
             <div class="code">
                 <h4>@parseResult.LogParserPlugin</h4>
                 <p>
-                    @if (string.IsNullOrEmpty(parseResult.ParsedContent))
-                    {
-                        <text>
-                            No matches.
-                        </text>
-                    }
-                    else
-                    {
-                        @ViewHelpers.String(parseResult.ParsedContent)
-                    }
+                    @ViewHelpers.String(parseResult.ParsedContent)
                 </p>
             </div>
         }

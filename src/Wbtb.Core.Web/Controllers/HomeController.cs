@@ -241,7 +241,8 @@ namespace Wbtb.Core.Web.Controllers
             model.BuildServer = buildServer;
             model.PreviousBuild = dataLayer.GetPreviousBuild(model.Build);
             model.NextBuild = dataLayer.GetNextBuild(model.Build);
-            model.BuildParseResults = dataLayer.GetBuildLogParseResultsByBuildId(model.Build.Id).OrderBy(r => string.IsNullOrEmpty(r.ParsedContent));
+            model.BuildParseResults = ViewBuildLogParseResult.Copy(dataLayer.GetBuildLogParseResultsByBuildId(model.Build.Id).OrderBy(r => string.IsNullOrEmpty(r.ParsedContent)));
+
             model.Build.IncidentBuild = string.IsNullOrEmpty(model.Build.IncidentBuildId) ? null : ViewBuild.Copy(dataLayer.GetBuildById(model.Build.IncidentBuildId));
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
             model.ProcessErrors = buildTasks.Any(t => t.HasPassed.HasValue && t.HasPassed.Value == false);
