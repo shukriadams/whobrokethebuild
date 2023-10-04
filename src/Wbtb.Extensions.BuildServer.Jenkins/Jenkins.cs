@@ -345,26 +345,30 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             string rawJson = webClient.DownloadString(url);
             dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);
 
-            IEnumerable<RawBuild> rawBuilds = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<RawBuild>>(response.allBuilds.ToString());
-            foreach (RawBuild rawBuild in rawBuilds) 
+            IEnumerable<RawBuild> remoteBuilds = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<RawBuild>>(response.allBuilds.ToString());
+            foreach (RawBuild remoteBuild in remoteBuilds) 
             {
                 string persistPath = string.Empty;
                 string cleanupPath = string.Empty;
 
-                if (rawBuild.result == null)
+                // if remote build is still in progress (no result) we write it to "incomplete" builds.
+                // Else we write to builds root directory
+                if (remoteBuild.result == null)
                 {
-                    persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete", $"{rawBuild.number}", "build.json");
+                    persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete", $"{remoteBuild.number}", "build.json");
                 }
                 else
                 {
-                    cleanupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete", $"{rawBuild.number}", "build.json");
-                    persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, $"{rawBuild.number}", "build.json");
+                    persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, $"{remoteBuild.number}", "build.json");
+
+                    // need to clean out the in-progress builds
+                    cleanupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete", $"{remoteBuild.number}", "build.json");
                 }
 
                 if (!File.Exists(persistPath))
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
-                    File.WriteAllText(persistPath, JsonConvert.SerializeObject(rawBuild));
+                    File.WriteAllText(persistPath, JsonConvert.SerializeObject(remoteBuild));
                 }
 
                 if (!string.IsNullOrEmpty(cleanupPath) && File.Exists(cleanupPath))
@@ -398,29 +402,38 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             return rawBuild;
         }
 
+        /// <summary>
+        /// This method does not directly call server to get latest builds, the PollBuildsForJob method does that. That method also writes everything
+        /// it finds in the "incomplete" directory. 
+        /// 
+        /// This method reads all builds under "incomplete" and complete, and returns the latest of all them combined, so it overreads (safety). The 
+        /// daemon calling this will discard overreads after verifying database state.
+        /// </summary>
+        /// <param name="job"></param>
+        /// <param name="take"></param>
+        /// <returns></returns>
         IEnumerable<Build> IBuildServerPlugin.GetLatesBuilds(Job job, int take)
         {
-
-            string lookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete");
-            Directory.CreateDirectory(lookupPath);
-
+            string incompleteLookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key, "incomplete");
             string completeLookupPath = _persistPathHelper.GetPath(this.ContextPluginConfig, job.Key);
-            IList<string> incompleteBuildFiles = Directory.GetFiles(lookupPath).ToList();
 
+            Directory.CreateDirectory(incompleteLookupPath);
+
+            // start by getting everything in incomplete
+            IList<string> buildsToReturn = Directory.GetFiles(incompleteLookupPath).ToList();
+
+            // take a subset of builds in complete, this list will get large
             IEnumerable<string> completeBuildParents =  Directory.GetDirectories(completeLookupPath).OrderByDescending(f => f).Take(take);
+
             foreach (string completeBuildParent in completeBuildParents)
             { 
                 string filePath = Path.Combine(completeBuildParent, "build.json");
                 if (File.Exists(filePath))
-                    incompleteBuildFiles.Add(filePath);
+                    buildsToReturn.Add(filePath);
             }
 
-            incompleteBuildFiles = incompleteBuildFiles.OrderByDescending(f => f)
-                .Take(take)
-                .ToList();
-
             IList<Build> builds = new List<Build>();
-            foreach (string incompleteBuildFilePath in incompleteBuildFiles) 
+            foreach (string incompleteBuildFilePath in buildsToReturn) 
             {
                 RawBuild rawBuild = this.LoadRawBuild(incompleteBuildFilePath);
 
