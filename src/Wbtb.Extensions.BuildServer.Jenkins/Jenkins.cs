@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -419,14 +421,25 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
             Directory.CreateDirectory(incompleteLookupPath);
 
-            // start by getting everything in incomplete
+            // start by getting everything in incomplete, we will return all of these
             IList<string> buildsToReturn = Directory.GetFiles(incompleteLookupPath).ToList();
 
-            // take a subset of builds in complete, this list will get large
-            IEnumerable<string> completeBuildParents =  Directory.GetDirectories(completeLookupPath).OrderByDescending(f => f).Take(take);
+            // take a subset of builds in complete, this list will get large, so we want the latest ones. Jenkins uses numerical
+            // build numbers so we can sort descending, but build numbers are variable-length strings, so a custom sorter is used
+            IEnumerable<string> completeBuildParents = Directory.GetDirectories(completeLookupPath);
+            
+            List<string>sortedCompletedFilenames = completeBuildParents.Select(f => Path.GetFileName(f)).ToList();
+            sortedCompletedFilenames.Sort(new NumericStringComparer());
+            sortedCompletedFilenames = sortedCompletedFilenames
+                .Reverse<string>() // compare sorts asc, we need desc
+                .Take(take)
+                .ToList();
 
             foreach (string completeBuildParent in completeBuildParents)
-            { 
+            {
+                if (!sortedCompletedFilenames.Contains(Path.GetFileName(completeBuildParent)))
+                    continue;
+
                 string filePath = Path.Combine(completeBuildParent, "build.json");
                 if (File.Exists(filePath))
                     buildsToReturn.Add(filePath);
