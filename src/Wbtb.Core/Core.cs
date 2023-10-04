@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -131,7 +130,7 @@ namespace Wbtb.Core
             }
 
             PluginManager pluginManager = di.Resolve<PluginManager>();
-            pluginManager.Initialize();
+            pluginManager.Initialize(validate);
 
             if (persistStateToDatabase)
                 using (ConfigurationBuilder builder = di.Resolve<ConfigurationBuilder>()) 

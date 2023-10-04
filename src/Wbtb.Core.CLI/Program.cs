@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.CLI.Lib;
@@ -12,17 +13,22 @@ namespace Wbtb.Core.CLI
         {
             try 
             {
+                CommandLineSwitches switches = new CommandLineSwitches(args);
+
                 // load custom env args as early as possible
                 CustomEnvironmentArgs customEnvironmentArgs = new CustomEnvironmentArgs();
                 customEnvironmentArgs.Apply();
 
-                // bind types - dev only! These are needed by all general plugin activity
-                Core core = new Core();
-                core.Start(persistStateToDatabase:false);
-
+                bool validate = switches.Contains("validate") && switches.Get("validate") == "true";
                 SimpleDI di = new SimpleDI();
+                
+                di.RegisterFactory<ILogger, LogProvider>();
                 di.Register<OrphanRecordHelper, OrphanRecordHelper>();
                 di.Register<ConsoleHelper, ConsoleHelper>();
+
+                // bind types - dev only! These are needed by all general plugin activity
+                Core core = new Core();
+                core.Start(persistStateToDatabase: false, validate : validate);
 
                 // register local commands dynamically
                 IEnumerable<Type> availableCommands = AppDomain.CurrentDomain.GetAssemblies()
@@ -32,7 +38,6 @@ namespace Wbtb.Core.CLI
                 foreach(Type availableCommand in availableCommands)
                     di.Register(availableCommand, availableCommand);
 
-                CommandLineSwitches switches = new CommandLineSwitches(args);
 
                 string command = string.Empty;
                 if (switches.Contains("c"))

@@ -45,21 +45,21 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            string jobid = switches.Get("job");
+            string jobKey = switches.Get("job");
             bool hard = switches.Contains("hard");
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             IList<Job> jobs = new List<Job>();
-            if (jobid == "*")
+            if (jobKey == "*")
             {
                 jobs = dataLayer.GetJobs().ToList();
             }
             else 
             {
-                Job job = dataLayer.GetJobById(jobid);
+                Job job = dataLayer.GetJobByKey(jobKey);
                 if (job == null)
                 {
-                    Console.WriteLine($"ERROR : \"--job\" id {jobid} does not point to a valid job");
+                    Console.WriteLine($"ERROR : \"--job\" key {jobKey} does not point to a valid job");
                     _consoleHelper.PrintJobs();
                     Environment.Exit(1);
                     return;

@@ -32,8 +32,10 @@ namespace Wbtb.Core
 
         /// <summary>
         /// Does all plugin init / setup / test / install etc. Call this from web start
+        /// 
+        /// TODO : refactor, split into set-state, and validate (non state-setting)
         /// </summary>
-        public void Initialize()
+        public void Initialize(bool validate = true)
         {
             IList<PluginConfig> loadingPlugins = new List<PluginConfig>();
             
@@ -86,220 +88,233 @@ namespace Wbtb.Core
             }
 
             // once all plugin config loaded ...
-            foreach (PluginConfig config in loadingPlugins)
+            if (validate) 
             {
-                // ensure plugin id set
-                if (string.IsNullOrEmpty(config.Manifest.Key))
-                    throw new ConfigurationException($"type {config.Path} has invalid metadata - no name defined");
+                foreach (PluginConfig config in loadingPlugins)
+                {
+                    // ensure plugin id set
+                    if (string.IsNullOrEmpty(config.Manifest.Key))
+                        throw new ConfigurationException($"type {config.Path} has invalid metadata - no name defined");
 
-                // ensure plugin id unique
-                if (loadingPlugins.Where(r => r.Manifest.Key == config.Manifest.Key).Count() > 1)
-                    throw new ConfigurationException($"multiple plugins with id {config.Manifest.Key} found");
+                    // ensure plugin id unique
+                    if (loadingPlugins.Where(r => r.Manifest.Key == config.Manifest.Key).Count() > 1)
+                        throw new ConfigurationException($"multiple plugins with id {config.Manifest.Key} found");
 
-                // parse inteface type
-                Type interfaceFace = commonAssembly.GetType(config.Manifest.Interface);
+                    // parse inteface type
+                    Type interfaceFace = commonAssembly.GetType(config.Manifest.Interface);
 
-                if (interfaceFace == null)
-                    throw new ConfigurationException($"The manifest in plugin {config.Manifest.Key} declares an interface {config.Manifest.Interface} that could not be matched to a known interface. Please contact plugin developer.");
+                    if (interfaceFace == null)
+                        throw new ConfigurationException($"The manifest in plugin {config.Manifest.Key} declares an interface {config.Manifest.Interface} that could not be matched to a known interface. Please contact plugin developer.");
 
-                // ensure exclusivity
-                PluginBehaviourAttribute behaviourAttribute = TypeHelper.GetAttribute<PluginBehaviourAttribute>(interfaceFace);
-                if (behaviourAttribute == null)
-                    throw new ConfigurationException($"plugin interface {interfaceFace} does not impliment attribute {typeof(PluginBehaviourAttribute).Name}.");
+                    // ensure exclusivity
+                    PluginBehaviourAttribute behaviourAttribute = TypeHelper.GetAttribute<PluginBehaviourAttribute>(interfaceFace);
+                    if (behaviourAttribute == null)
+                        throw new ConfigurationException($"plugin interface {interfaceFace} does not impliment attribute {typeof(PluginBehaviourAttribute).Name}.");
 
-                if (!behaviourAttribute.AllowMultiple){
-                    IEnumerable<PluginConfig> implimenting = loadingPlugins.Where(r => r.Manifest.Interface== config.Manifest.Interface);
-                    if (implimenting.Count() > 2)
-                        throw new ConfigurationException($"multiple plugins ({string.Join(",", implimenting)}) declare interface {config.Manifest.Interface}, but this interface allows only a single active plugin");
+                    if (!behaviourAttribute.AllowMultiple)
+                    {
+                        IEnumerable<PluginConfig> implimenting = loadingPlugins.Where(r => r.Manifest.Interface == config.Manifest.Interface);
+                        if (implimenting.Count() > 2)
+                            throw new ConfigurationException($"multiple plugins ({string.Join(",", implimenting)}) declare interface {config.Manifest.Interface}, but this interface allows only a single active plugin");
+                    }
                 }
-            }
 
+            }
 
             // once handshaked, need to initialize each plugin by passing config to it. this config contains data for all plugins so each can talk direcly, this requires
             // that all handsaking is done.
             // plugin init fail would put app into broken state, so must fail if any plugin fails
-            foreach(PluginConfig pluginConfig in _config.Plugins)
+            if (validate)
             {
-                IPlugin plugin = _pluginProvider.GetByKey(pluginConfig.Key) as IPlugin;
-
-                PluginInitResult initResult;
-
-                try
+                foreach (PluginConfig pluginConfig in _config.Plugins)
                 {
-                    initResult = plugin.InitializePlugin();
-                }
-                catch (Exception ex)
-                {
-                    // plugin init should not throw unhandled exceptions, if it does, allow app to fail.
-                    Console.WriteLine($"Plugin '{pluginConfig.Key}' failed to load : {ex}");
-                    pluginConfig.Enable = false;
-                    throw;
-                }
+                    IPlugin plugin = _pluginProvider.GetByKey(pluginConfig.Key) as IPlugin;
 
-                if (initResult == null || !initResult.Success)
-                    throw new ConfigurationException($"Plugin '{pluginConfig.Manifest.Key}' failed to initialize - {initResult.Description}");
+                    PluginInitResult initResult;
+
+                    try
+                    {
+                        initResult = plugin.InitializePlugin();
+                    }
+                    catch (Exception ex)
+                    {
+                        // plugin init should not throw unhandled exceptions, if it does, allow app to fail.
+                        Console.WriteLine($"Plugin '{pluginConfig.Key}' failed to load : {ex}");
+                        pluginConfig.Enable = false;
+                        throw;
+                    }
+
+                    if (initResult == null || !initResult.Success)
+                        throw new ConfigurationException($"Plugin '{pluginConfig.Manifest.Key}' failed to initialize - {initResult.Description}");
+                }
             }
 
             // attempt to reach remote system behind plugin if plugin supports 
-            foreach (PluginConfig pluginConfig in _config.Plugins)
+            if (validate)
             {
-                IPlugin plugin = _pluginProvider.GetByKey(pluginConfig.Key) as IPlugin;
-                if (typeof(IReachable).IsAssignableFrom(plugin.GetType()))
+                foreach (PluginConfig pluginConfig in _config.Plugins)
                 {
-                    IReachable reachable = plugin as IReachable;
-                    ReachAttemptResult reach = reachable.AttemptReach();
+                    IPlugin plugin = _pluginProvider.GetByKey(pluginConfig.Key) as IPlugin;
+                    if (typeof(IReachable).IsAssignableFrom(plugin.GetType()))
+                    {
+                        IReachable reachable = plugin as IReachable;
+                        ReachAttemptResult reach = reachable.AttemptReach();
 
-                    // Todo : need more granularity here, we probably don't want to abort WBTB start just because a service is not available
-                    if (reach.Reachable)
-                        Console.WriteLine($"Plugin \"{pluginConfig.Key}\" is reachable.");
-                    else
-                        throw new ConfigurationException($"Credentials for plugin \"{pluginConfig.Key}\" failed : {reach.Error}{reach.Exception}.");
-                }
-            }
-
-            // attempt to initialize datastores for all datalayer plugins
-            foreach (PluginConfig pluginConfig in _config.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name<IDataPlugin>()))
-            {
-                IDataPlugin dataLayerPlugin = _pluginProvider.GetDistinct(pluginConfig) as IDataPlugin;
-                dataLayerPlugin.InitializeDatastore();
-            }
-
-
-            // validate build servers
-            foreach (BuildServer buildserver in _config.BuildServers)
-            {
-                IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
-
-                try 
-                {
-                    buildServerPlugin.AttemptReach(buildserver);
-                }
-                catch(Exception ex)
-                {
-                    throw new ConfigurationException($"Lookup for build server \"{buildserver.Name}\" failed:{ex}");
+                        // Todo : need more granularity here, we probably don't want to abort WBTB start just because a service is not available
+                        if (reach.Reachable)
+                            Console.WriteLine($"Plugin \"{pluginConfig.Key}\" is reachable.");
+                        else
+                            throw new ConfigurationException($"Credentials for plugin \"{pluginConfig.Key}\" failed : {reach.Error}{reach.Exception}.");
+                    }
                 }
 
-                foreach (Job job in buildserver.Jobs)
+                // attempt to initialize datastores for all datalayer plugins
+                foreach (PluginConfig pluginConfig in _config.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name<IDataPlugin>()))
                 {
+                    IDataPlugin dataLayerPlugin = _pluginProvider.GetDistinct(pluginConfig) as IDataPlugin;
+                    dataLayerPlugin.InitializeDatastore();
+                }
+
+
+                // validate build servers
+                foreach (BuildServer buildserver in _config.BuildServers)
+                {
+                    IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
+
                     try
                     {
-                        buildServerPlugin.VerifyBuildServerConfig(buildserver);
-                        buildServerPlugin.AttemptReachJob(buildserver, job);
+                        buildServerPlugin.AttemptReach(buildserver);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        throw new ConfigurationException($"Lookup for job \"{job.Name}\" failed:{ex}");
+                        throw new ConfigurationException($"Lookup for build server \"{buildserver.Name}\" failed:{ex}");
                     }
-                }
-            }
 
-            // validate source servers
-            foreach (SourceServer sourceServer in _config.SourceServers) 
-            {
-                ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
-
-                try
-                {
-                    sourceServerPlugin.AttemptReach(sourceServer);
-                    Console.WriteLine($"{sourceServer.Name} is contactable");
-            
-                    // verify config
-                    sourceServerPlugin.VerifySourceServerConfig(sourceServer);
-
-                    foreach (BuildServer buildServer in _config.BuildServers)
-                        foreach (Job job in buildServer.Jobs)
-                            sourceServerPlugin.VerifyJobConfig(job, sourceServer);
-                            
-                }
-                catch (Exception ex)
-                {
-                    throw new ConfigurationException($"Source server \"{sourceServer.Key}\" failed config test :{ex}");
-                }
-            }
-
-            // validate alert config against plugins - alerting is done by a specific plugin, that plugin can impose its own requirements.
-            foreach (BuildServer buildserver in _config.BuildServers)
-                foreach (Job job in buildserver.Jobs)
-                {
-                    foreach(MessageHandler alert in job.Message)
+                    foreach (Job job in buildserver.Jobs)
                     {
-                        IPlugin plugin = _pluginProvider.GetByKey(alert.Plugin);
-                        if (!typeof (IMessagingPlugin).IsAssignableFrom(plugin.GetType()))
-                            throw new ConfigurationException($"Job \"{job.Key}\" defines an alert with plugin \"{alert.Plugin}\". This plugin exists, but does not impliment the interface {typeof(IMessagingPlugin).FullName}.");
-                    
-                        int configCount = 0;
-                        if (!string.IsNullOrEmpty(alert.User))
-                            configCount ++;
-                        if (!string.IsNullOrEmpty(alert.Group))
-                            configCount++;
-
-                        if (configCount == 0)
-                            throw new ConfigurationException($"Job \"{job.Key}\" has no target config - define either User, Group or Config info.");
-
-                        if (configCount > 1)
-                            throw new ConfigurationException($"Job \"{job.Key}\" defines more than one target config - use only User, Group or Config info.");
-                        
-                        MessageConfiguration config = null;
-
-                        // alerts are chained from job > user|group > alert handling plugin
-                        if (!string.IsNullOrEmpty(alert.User))
-                        { 
-                            User user = _config.Users.FirstOrDefault(u => u.Key == alert.User);
-                            if (user == null)
-                                throw new ConfigurationException($"Job \"{job.Key}\" defines a target user \"{alert.User}\" but this user is not defined under users.");
-
-                            config = user.Message.FirstOrDefault(r => r.Plugin == alert.Plugin);
-                            if (config == null)
-                                throw new ConfigurationException($"Job \"{job.Key}\" defines a target user \"{alert.User}\" with expected plugin info for \"{alert.Plugin}\", but this user has no config for this plugin.");
-                        }
-
-                        if (!string.IsNullOrEmpty(alert.Group))
-                        {
-                            Group group = _config.Groups.FirstOrDefault(u => u.Key == alert.Group);
-                            if (group == null)
-                                throw new ConfigurationException($"Job \"{job.Key}\" defines a target group \"{alert.Group}\" but this group is not defined under groups.");
-
-                            config = group.Message.FirstOrDefault(r => r.Plugin == alert.Plugin);
-                            if (config == null)
-                                throw new ConfigurationException($"Job \"{job.Key}\" defines a target group \"{alert.Group}\" with expected plugin info for \"{alert.Plugin}\", but this user has no config for this plugin.");
-
-                        }
-                        
-                        IMessagingPlugin messagingPlugin = plugin as IMessagingPlugin;
-
                         try
                         {
-                            messagingPlugin.AttemptReach();
+                            buildServerPlugin.VerifyBuildServerConfig(buildserver);
+                            buildServerPlugin.AttemptReachJob(buildserver, job);
                         }
-                        catch (ConfigurationException ex)
+                        catch (Exception ex)
                         {
-                            throw new ConfigurationException($"Plugin \"{alert.Plugin}\" failed reach attempt : {ex.Message}");
-                        }
-
-                        try 
-                        {
-                            messagingPlugin.ValidateAlertConfig(config); 
-                        } 
-                        catch (ConfigurationException ex)
-                        { 
-                            throw new ConfigurationException($"Plugin \"{alert.Plugin}\" rejected alert config for job \"{job.Key}\" : {ex.Message}");
+                            throw new ConfigurationException($"Lookup for job \"{job.Name}\" failed:{ex}");
                         }
                     }
                 }
 
-            // validate post processor config
-            foreach (BuildServer buildserver in _config.BuildServers)
-                foreach (Job job in buildserver.Jobs)
-                    foreach (string postProcessor in job.PostProcessors) 
+                // validate source servers
+                foreach (SourceServer sourceServer in _config.SourceServers)
+                {
+                    ISourceServerPlugin sourceServerPlugin = _pluginProvider.GetByKey(sourceServer.Plugin) as ISourceServerPlugin;
+
+                    try
                     {
-                        IPostProcessorPlugin postProcessorPlugin = _pluginProvider.GetByKey(postProcessor) as IPostProcessorPlugin;
-                        postProcessorPlugin.VerifyJobConfig(job);
+                        sourceServerPlugin.AttemptReach(sourceServer);
+                        Console.WriteLine($"{sourceServer.Name} is contactable");
+
+                        // verify config
+                        sourceServerPlugin.VerifySourceServerConfig(sourceServer);
+
+                        foreach (BuildServer buildServer in _config.BuildServers)
+                            foreach (Job job in buildServer.Jobs)
+                                sourceServerPlugin.VerifyJobConfig(job, sourceServer);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ConfigurationException($"Source server \"{sourceServer.Key}\" failed config test :{ex}");
+                    }
+                }
+
+                // validate alert config against plugins - alerting is done by a specific plugin, that plugin can impose its own requirements.
+                foreach (BuildServer buildserver in _config.BuildServers)
+                    foreach (Job job in buildserver.Jobs)
+                    {
+                        foreach (MessageHandler alert in job.Message)
+                        {
+                            IPlugin plugin = _pluginProvider.GetByKey(alert.Plugin);
+                            if (!typeof(IMessagingPlugin).IsAssignableFrom(plugin.GetType()))
+                                throw new ConfigurationException($"Job \"{job.Key}\" defines an alert with plugin \"{alert.Plugin}\". This plugin exists, but does not impliment the interface {typeof(IMessagingPlugin).FullName}.");
+
+                            int configCount = 0;
+                            if (!string.IsNullOrEmpty(alert.User))
+                                configCount++;
+                            if (!string.IsNullOrEmpty(alert.Group))
+                                configCount++;
+
+                            if (configCount == 0)
+                                throw new ConfigurationException($"Job \"{job.Key}\" has no target config - define either User, Group or Config info.");
+
+                            if (configCount > 1)
+                                throw new ConfigurationException($"Job \"{job.Key}\" defines more than one target config - use only User, Group or Config info.");
+
+                            MessageConfiguration config = null;
+
+                            // alerts are chained from job > user|group > alert handling plugin
+                            if (!string.IsNullOrEmpty(alert.User))
+                            {
+                                User user = _config.Users.FirstOrDefault(u => u.Key == alert.User);
+                                if (user == null)
+                                    throw new ConfigurationException($"Job \"{job.Key}\" defines a target user \"{alert.User}\" but this user is not defined under users.");
+
+                                config = user.Message.FirstOrDefault(r => r.Plugin == alert.Plugin);
+                                if (config == null)
+                                    throw new ConfigurationException($"Job \"{job.Key}\" defines a target user \"{alert.User}\" with expected plugin info for \"{alert.Plugin}\", but this user has no config for this plugin.");
+                            }
+
+                            if (!string.IsNullOrEmpty(alert.Group))
+                            {
+                                Group group = _config.Groups.FirstOrDefault(u => u.Key == alert.Group);
+                                if (group == null)
+                                    throw new ConfigurationException($"Job \"{job.Key}\" defines a target group \"{alert.Group}\" but this group is not defined under groups.");
+
+                                config = group.Message.FirstOrDefault(r => r.Plugin == alert.Plugin);
+                                if (config == null)
+                                    throw new ConfigurationException($"Job \"{job.Key}\" defines a target group \"{alert.Group}\" with expected plugin info for \"{alert.Plugin}\", but this user has no config for this plugin.");
+
+                            }
+
+                            IMessagingPlugin messagingPlugin = plugin as IMessagingPlugin;
+
+                            try
+                            {
+                                messagingPlugin.AttemptReach();
+                            }
+                            catch (ConfigurationException ex)
+                            {
+                                throw new ConfigurationException($"Plugin \"{alert.Plugin}\" failed reach attempt : {ex.Message}");
+                            }
+
+                            try
+                            {
+                                messagingPlugin.ValidateAlertConfig(config);
+                            }
+                            catch (ConfigurationException ex)
+                            {
+                                throw new ConfigurationException($"Plugin \"{alert.Plugin}\" rejected alert config for job \"{job.Key}\" : {ex.Message}");
+                            }
+                        }
                     }
 
-            ValidateRuntimeState();
+                // validate post processor config
+                foreach (BuildServer buildserver in _config.BuildServers)
+                    foreach (Job job in buildserver.Jobs)
+                        foreach (string postProcessor in job.PostProcessors)
+                        {
+                            IPostProcessorPlugin postProcessorPlugin = _pluginProvider.GetByKey(postProcessor) as IPostProcessorPlugin;
+                            postProcessorPlugin.VerifyJobConfig(job);
+                        }
 
-            foreach (PluginConfig pluginConfig in _config.Plugins)
-                Console.WriteLine($"WBTB : initialized plugin {pluginConfig.Key}");
+                ValidateRuntimeState();
+
+                foreach (PluginConfig pluginConfig in _config.Plugins)
+                    Console.WriteLine($"WBTB : initialized plugin {pluginConfig.Key}");
+
+            }
+
+
         }
 
         private void ValidateRuntimeState()
