@@ -105,6 +105,8 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             bool isShaderError = false;
             bool isBluePrintError = false;
             bool isCPPError = false;
+            bool isJenkinsInternalError = false;
+            bool isJenkinsBuildTimeout = false;
             List<string> blamedUserNames = new List<string>();
             string[] allowedParsers = { "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp", "Wbtb.Extensions.LogParsing.BasicErrors" };
             string fileCausingBreak = string.Empty;
@@ -127,6 +129,18 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
                     if (line.Items.Any(l => l.Type == "flag" && l.Content == "blueprint"))
                         isBluePrintError = true;
+
+                    if (parsedText.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing" && line.Items.Any(l => l.Type == "internalError"))
+                    {
+                        isJenkinsInternalError = true;
+                        break;
+                    }
+
+                    if (parsedText.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing" && line.Items.Any(l => l.Type == "buildTimeout"))
+                    {
+                        isJenkinsBuildTimeout = true;
+                        break;
+                    }
 
                     if (parsedText.Type == "Wbtb.Extensions.LogParsing.BasicErrors")
                         basicErrorParsed += $"{string.Join("\n", line.Items.Select(i => i.Content))}\n";
@@ -232,6 +246,18 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             implicatedRevisions = implicatedRevisions.Distinct().ToList();
 
             description = string.Empty;
+
+            if (isJenkinsInternalError) 
+            {
+                breakExtraFlag = " Jenkins internal error";
+                description = "A machine-level error occurred. This was likely not caused by project content.\n";
+            }
+
+            if (isJenkinsBuildTimeout) 
+            {
+                breakExtraFlag = " Build timout";
+                description = "A build ran for too long, and was automatically cancelled by Jenkins.\n";
+            }
 
             if (isBluePrintError)
                 breakExtraFlag = " Blueprint error";

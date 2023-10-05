@@ -58,13 +58,15 @@ namespace Wbtb.Core.CLI
                 Console.WriteLine("Performing reset - to force delete all child records under build use --hard switch");
 
             int deleted = dataLayer.ResetBuild(build.Id, hard);
-            dataLayer.SaveDaemonTask(new DaemonTask
-            {
-                BuildId = build.Id,
-                Stage = 0, //"BuildEnd",
-                CreatedUtc = DateTime.UtcNow,
-                Src = this.GetType().Name
-            });
+            // if hard, let build requeue internally
+            if (!hard)
+                dataLayer.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = build.Id,
+                    Stage = 0, //"BuildEnd",
+                    CreatedUtc = DateTime.UtcNow,
+                    Src = this.GetType().Name
+                });
 
             Console.Write($"Build {build.Id} reset. {deleted} records deleted.");
         }

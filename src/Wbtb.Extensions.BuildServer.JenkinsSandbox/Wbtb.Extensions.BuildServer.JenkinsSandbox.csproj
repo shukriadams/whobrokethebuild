@@ -24,6 +24,7 @@
     <None Remove="JSON\builds\Project_Ironbird\build_29_revisions.json" />
     <None Remove="JSON\builds\Project_Ironbird\build_33_revisions.json" />
     <None Remove="JSON\builds\Project_Ironbird\build_34_revisions.json" />
+    <None Remove="JSON\builds\Project_Ironbird\logs\19.txt" />
     <None Remove="JSON\builds\Project_Ironbird\logs\20.txt" />
     <None Remove="JSON\builds\Project_Ironbird\logs\21.txt" />
     <None Remove="JSON\builds\Project_Ironbird\logs\22.txt" />
@@ -79,6 +80,7 @@
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\build_21_revisions.json" />
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\build_33_revisions.json" />
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\build_34_revisions.json" />
+    <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\19.txt" />
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\28.txt" />
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\27.txt" />
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\26.txt" />
