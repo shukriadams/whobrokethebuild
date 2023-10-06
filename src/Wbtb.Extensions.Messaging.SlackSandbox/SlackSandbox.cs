@@ -87,7 +87,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             return $"buildStatusAlert_slack_{slackChannelId}_job{jobId}_incident{incidentBuildId}";
         }
 
-        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
+        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool isMutation, bool force)
         {
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
 

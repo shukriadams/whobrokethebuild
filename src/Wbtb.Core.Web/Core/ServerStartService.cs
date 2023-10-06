@@ -24,6 +24,7 @@ namespace Wbtb.Core.Web
 
                     // register types defined in web project
                     di.RegisterFactory<ILogger, LogProvider>();
+                    di.Register<MutationHelper, MutationHelper>();
                     di.Register<IDaemonProcessRunner, DaemonProcessRunner>();
                     di.Register<IWebDaemon, BuildStartDaemon>(null, true);
                     di.Register<IWebDaemon, BuildPostProcessDaemon>(null, true);

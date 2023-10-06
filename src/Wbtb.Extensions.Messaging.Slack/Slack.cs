@@ -96,7 +96,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             return $"incident{incidentBuildId}_job{jobId}_buildStatusAlert_slack_{slackChannelId}";
         }
 
-        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
+        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool isMutation, bool force)
         { 
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
             bool mentionUsers = Configuration.GetConfigValue(ContextPluginConfig.Config, "MentionUsersInGroupPosts", "false").ToLower() == "true";
@@ -192,6 +192,8 @@ namespace Wbtb.Extensions.Messaging.Slack
             data["channel"] = slackId;
             data["text"] = " ";
             data["attachments"] = Convert.ToString(attachments);
+
+            // data["thread_ts"] = ts;
 
             dynamic response = response = ExecAPI("chat.postMessage", data);
 

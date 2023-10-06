@@ -27,16 +27,19 @@ namespace Wbtb.Core.Web
 
         private readonly SimpleDI _di;
 
+        private readonly MutationHelper _mutationHelper;
+
         #endregion
 
         #region CTORS
 
-        public BuildDeltaAlertDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BuildDeltaAlertDaemon(ILogger log, IDaemonProcessRunner processRunner, MutationHelper mutationHelper)
         {
             _log = log;
             _processRunner = processRunner;
 
             _di = new SimpleDI();
+            _mutationHelper = mutationHelper;
             _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
             _cache = _di.Resolve<Cache>();
@@ -82,28 +85,37 @@ namespace Wbtb.Core.Web
                     // alert fails, we alert only latest fail, if for some reason build failed then fixed itself between alert windows 
                     // we ignore those.
                     // note : delta will be null if no build has run or builds have always had same status since job start
-                    Build deltaBuild = dataLayer.GetLastJobDelta(job.Id);
-                    if (deltaBuild != null && !string.IsNullOrEmpty(deltaBuild.IncidentBuildId))
+                    Build latestDeltaBuild = dataLayer.GetLastJobDelta(job.Id);
+                    if (latestDeltaBuild != null && !string.IsNullOrEmpty(latestDeltaBuild.IncidentBuildId))
                     {
-                        Build incidentBuild = dataLayer.GetBuildById(deltaBuild.IncidentBuildId);
-                        string alertKey = $"{incidentBuild.Key}_{job.Key}_deltaAlert_{deltaBuild.Status}";
+                        Build incidentBuild = dataLayer.GetBuildById(latestDeltaBuild.IncidentBuildId);
+                        Build previousBreakingBuild = dataLayer.GetPrecedingBuildInIncident(latestDeltaBuild);
+                        string currentBuildMutation = _mutationHelper.GetBuildMutation(latestDeltaBuild);
+                        
 
-                        if (_cache.Get(TypeHelper.Name(this), job, incidentBuild, alertKey).Payload == null)
+                        string previousBuildMutation = null;
+                        if (previousBreakingBuild != null)
+                            previousBuildMutation = _mutationHelper.GetBuildMutation(previousBreakingBuild);
+
+                        bool hasMutated = previousBuildMutation != null && previousBuildMutation != currentBuildMutation;
+
+                        if (latestDeltaBuild.Status == BuildStatus.Failed )
                         {
-                            if (deltaBuild.Status == BuildStatus.Failed)
+                            
+                            string alertKey = $"{currentBuildMutation}_{job.Key}_deltaAlert_{latestDeltaBuild.Status}";
+
+                            if (_cache.Get(TypeHelper.Name(this), job, incidentBuild, alertKey).Payload == null) 
                             {
                                 string result = string.Empty;
 
-                                if (deltaBuild.Status == BuildStatus.Failed)
-                                {
-                                    _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, deltaBuild);
+                                // handle mutation - needs new args
+                                _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestDeltaBuild);
 
-                                    foreach (MessageHandler alert in job.Message)
-                                    {
-                                        IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                                        string localResult = messagePlugin.AlertBreaking(alert.User, alert.Group, deltaBuild, false);
-                                        result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
-                                    }
+                                foreach (MessageHandler alert in job.Message)
+                                {
+                                    IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
+                                    string localResult = messagePlugin.AlertBreaking(alert.User, alert.Group, latestDeltaBuild, hasMutated, false);
+                                    result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
                                 }
 
                                 _cache.Write(TypeHelper.Name(this), job, incidentBuild, alertKey, "sent");

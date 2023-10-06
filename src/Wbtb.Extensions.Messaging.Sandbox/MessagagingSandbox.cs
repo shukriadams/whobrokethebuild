@@ -14,7 +14,7 @@ namespace Wbtb.Extensions.Messaging.Sandbox
             return new ReachAttemptResult { Reachable = true };
         }
 
-        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
+        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool isMutation, bool force)
         {
             return "alerted";
         }

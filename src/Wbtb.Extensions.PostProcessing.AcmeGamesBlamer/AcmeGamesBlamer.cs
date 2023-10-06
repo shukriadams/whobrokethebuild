@@ -38,6 +38,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 };
 
             SimpleDI di = new SimpleDI();
+            MutationHelper mutationHelper = di.Resolve<MutationHelper>();
             Configuration config = di.Resolve<Configuration>();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
@@ -61,10 +62,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             Build previousBuildInIncident = data.GetPrecedingBuildInIncident(build);
             string previusBuildMutationHash = string.Empty;
             if (previousBuildInIncident != null) 
-            {
-                IEnumerable<BuildLogParseResult> previousBuildLogParseResults = data.GetBuildLogParseResultsByBuildId(previousBuildInIncident.Id);
-                previusBuildMutationHash = Sha256.FromString(string.Join(string.Empty, previousBuildLogParseResults.Select(r => r.ParsedContent)));
-            }
+                previusBuildMutationHash = mutationHelper.GetBuildMutation(previousBuildInIncident);
 
             // get all revisions associated with this build
             IList<Revision> revisionsLinkedToBuild = new List<Revision>();
@@ -121,10 +119,9 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             string specificErrorParsed = string.Empty;
             string basicErrorParsed = string.Empty;
             string parsedLogError = string.Empty;
-
             IList<string> implicatedRevisions = new List<string>();
 
-            string thisBuildMutationHash = Sha256.FromString(string.Join(string.Empty, logParseResults.Select(r => r.ParsedContent)));
+            string thisBuildMutationHash = mutationHelper.GetBuildMutation(build);
             bool hasMutated = previusBuildMutationHash != thisBuildMutationHash;
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)

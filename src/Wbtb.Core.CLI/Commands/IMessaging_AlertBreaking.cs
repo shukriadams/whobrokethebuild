@@ -83,7 +83,7 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            string result = messagingPlugin.AlertBreaking(userKey, groupKey, build, true);
+            string result = messagingPlugin.AlertBreaking(userKey, groupKey, build, false, true);
 
             Console.Write($"Message test executed, result : {result}");
         }

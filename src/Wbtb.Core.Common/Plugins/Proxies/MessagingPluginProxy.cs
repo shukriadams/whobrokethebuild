@@ -28,7 +28,7 @@
             });
         }
 
-        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool force)
+        string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool isMutation, bool force)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs
             {
@@ -37,6 +37,7 @@
                     new PluginFunctionParameter { Name = "user", Value = user },
                     new PluginFunctionParameter { Name = "group", Value = group },
                     new PluginFunctionParameter { Name = "incidentBuild", Value = incidentBuild },
+                    new PluginFunctionParameter { Name = "isMutation", Value = isMutation },
                     new PluginFunctionParameter { Name = "force", Value = force },
                 }
             });
