@@ -78,7 +78,8 @@ src/Wbtb.Extensions.PostProcessing.AcmeGamesBlamer/bin
 src/Wbtb.Extensions.PostProcessing.AcmeGamesBlamer/obj
 src/Wbtb.Extensions.PostProcessing.JenkinsSelfBlame/bin
 src/Wbtb.Extensions.PostProcessing.JenkinsSelfBlame/obj
+src/Wbtb.Extensions.LogParsing.AcmeGamesTester/obj
+src/Wbtb.Extensions.LogParsing.AcmeGamesTester/bin
+
 *.csproj.user
-
-
 

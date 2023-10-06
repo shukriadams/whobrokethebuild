@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -1085,6 +1086,35 @@ namespace Wbtb.Extensions.Data.Postgres
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                 cmd.Parameters.AddWithValue("key", key);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new BuildConvert().ToCommon(reader);
+            }
+        }
+
+        Build IDataPlugin.GetPrecedingBuildInIncident(Build build) 
+        {
+            if (string.IsNullOrEmpty(build.IncidentBuildId))
+                throw new Exception($"build UPK:{build.UniquePublicKey} does not have an incident id");
+
+            string query = @"
+                SELECT 
+                    *
+                FROM
+                    build 
+                WHERE
+                    startedutc<@startedutc
+                    AND incidentbuildid=@incidentid
+                ORDER BY 
+                    startedutc DESC
+                LIMIT 
+                    1";
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
+            {
+                cmd.Parameters.AddWithValue("incidentid", int.Parse(build.IncidentBuildId));
+                cmd.Parameters.AddWithValue("startedutc", build.StartedUtc);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new BuildConvert().ToCommon(reader);

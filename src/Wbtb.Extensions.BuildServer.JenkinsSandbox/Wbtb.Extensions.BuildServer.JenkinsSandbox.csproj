@@ -48,6 +48,7 @@
     <None Remove="JSON\builds\Project_Ironbird\logs\43.txt" />
     <None Remove="JSON\builds\Project_Ironbird\logs\44.txt" />
     <None Remove="JSON\builds\Project_Ironbird\logs\45.txt" />
+    <None Remove="JSON\builds\Project_Ironbird\logs\46.txt" />
     <None Remove="JSON\builds\Project_Skunkwords\builds.json" />
     <None Remove="JSON\builds\Project_Skunkwords\logs\39.txt" />
     <None Remove="JSON\builds\Project_Skunkwords\logs\40.txt" />
@@ -105,6 +106,7 @@
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\43.txt" />
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\44.txt" />
     <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\45.txt" />
+    <EmbeddedResource Include="JSON\builds\Project_Ironbird\logs\46.txt" />
     <EmbeddedResource Include="JSON\builds\Project_Skunkwords\builds.json" />
     <EmbeddedResource Include="JSON\builds\Project_Skunkwords\logs\39.txt" />
     <EmbeddedResource Include="JSON\builds\Project_Skunkwords\logs\43.txt" />

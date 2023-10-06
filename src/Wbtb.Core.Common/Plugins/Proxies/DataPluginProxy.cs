@@ -479,6 +479,17 @@ namespace Wbtb.Core.Common
             });
         }
 
+        Build IDataPlugin.GetPrecedingBuildInIncident(Build build)
+        {
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetPrecedingBuildInIncident),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "build", Value = build }
+                }
+            });
+        }
+
         Build IDataPlugin.GetBuildByUniquePublicIdentifier(string uniquePublicIdentifier)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs

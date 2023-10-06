@@ -1,5 +1,8 @@
-﻿<current-revision>56336<current-revision>
+﻿Example of a Clang error:
+
+<current-revision>56336<current-revision>
 <p4-cient-state>
+
 Note : this is reusing the clientspec from the developer's workspace, this isn't an error, but it would be more correct for the clientspec to be 
 for a build machie, and to have its own view mapping
 
@@ -21,8 +24,6 @@ View:
         //mydepot/main/core/PSD/... //ugs_workspace/PSD/...
 
 <p4-cient-state>
-
-Example of a Clang error:
 
 In file included from ..\Programs\BuildTool\PSDToolChain.cpp.38_of_50.cpp:16:
 C:\work\p4stuff\PSD\Source\Programs\BuildTool\PSDToolChain.cpp(1870,57): error: '&&' within '||' [-Werror,-Wlogical-op-parentheses]

@@ -36,6 +36,7 @@
     <None Remove="JSON\Revisions\56340.json" />
     <None Remove="JSON\Revisions\56341.json" />
     <None Remove="JSON\Revisions\56342.json" />
+    <None Remove="JSON\Revisions\56343.json" />
     <None Remove="Wbtb.yml" />
   </ItemGroup>
 
@@ -65,6 +66,7 @@
     <EmbeddedResource Include="JSON\Revisions\56335.json" />
     <EmbeddedResource Include="JSON\Revisions\56336.json" />
     <EmbeddedResource Include="JSON\Revisions\56337.json" />
+    <EmbeddedResource Include="JSON\Revisions\56343.json" />
     <EmbeddedResource Include="JSON\Revisions\56342.json" />
     <EmbeddedResource Include="JSON\Revisions\56341.json" />
     <EmbeddedResource Include="JSON\Revisions\56340.json" />

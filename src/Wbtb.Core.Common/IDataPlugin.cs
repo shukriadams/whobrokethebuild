@@ -156,7 +156,14 @@ namespace Wbtb.Core.Common
         IEnumerable<Build> GetBuildsByIncident(string incidentId);
 
         Build GetLastJobDelta(string jobId);
-        
+
+        /// <summary>
+        /// Gets preceding build (by date) with same incident id.
+        /// </summary>
+        /// <param name="build"></param>
+        /// <returns></returns>
+        Build GetPrecedingBuildInIncident(Build build);
+
         bool DeleteBuild(Build record);
 
         /// <summary>

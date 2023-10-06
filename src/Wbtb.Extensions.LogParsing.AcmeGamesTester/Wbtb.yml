@@ -1,0 +1,8 @@
+﻿Key: Wbtb.Extensions.LogParsing.AcmeGamesTester
+Runtime: dotnet
+Main: Wbtb.Extensions.LogParsing.AcmeGamesTester.dll
+Interface: Wbtb.Core.Common.ILogParserPlugin
+Assembly: Wbtb.Extensions.LogParsing.AcmeGamesTester
+Concrete: Wbtb.Extensions.LogParsing.AcmeGamesTester.AcmeGamesTester
+Version: 0.0.1
+APIVersion: 0.0.1

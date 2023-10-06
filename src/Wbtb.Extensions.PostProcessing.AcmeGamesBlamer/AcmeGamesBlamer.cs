@@ -58,6 +58,13 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
             IEnumerable<BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
             IEnumerable<BuildInvolvement> buildInvolvements = data.GetBuildInvolvementsByBuild(build.Id);
+            Build previousBuildInIncident = data.GetPrecedingBuildInIncident(build);
+            string previusBuildMutationHash = string.Empty;
+            if (previousBuildInIncident != null) 
+            {
+                IEnumerable<BuildLogParseResult> previousBuildLogParseResults = data.GetBuildLogParseResultsByBuildId(previousBuildInIncident.Id);
+                previusBuildMutationHash = Sha256.FromString(string.Join(string.Empty, previousBuildLogParseResults.Select(r => r.ParsedContent)));
+            }
 
             // get all revisions associated with this build
             IList<Revision> revisionsLinkedToBuild = new List<Revision>();
@@ -105,16 +112,20 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             bool isShaderError = false;
             bool isBluePrintError = false;
             bool isCPPError = false;
+            bool isFunctionalTestError = false;
             bool isJenkinsInternalError = false;
             bool isJenkinsBuildTimeout = false;
             List<string> blamedUserNames = new List<string>();
-            string[] allowedParsers = { "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp", "Wbtb.Extensions.LogParsing.BasicErrors" };
+            string[] allowedParsers = { "Wbtb.Extensions.LogParsing.AcmeGamesTester", "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp", "Wbtb.Extensions.LogParsing.BasicErrors" };
             string fileCausingBreak = string.Empty;
             string specificErrorParsed = string.Empty;
             string basicErrorParsed = string.Empty;
             string parsedLogError = string.Empty;
 
             IList<string> implicatedRevisions = new List<string>();
+
+            string thisBuildMutationHash = Sha256.FromString(string.Join(string.Empty, logParseResults.Select(r => r.ParsedContent)));
+            bool hasMutated = previusBuildMutationHash != thisBuildMutationHash;
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
@@ -156,6 +167,8 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                         string localFile = localPathItem.Content.Replace("\\", "/");
 
                         isCPPError = parsedText.Type == "Wbtb.Extensions.LogParsing.Cpp";
+
+                        isFunctionalTestError = parsedText.Type == "Wbtb.Extensions.LogParsing.AcmeGamesTester";
 
                         if (p4client == null)
                             continue;
@@ -259,14 +272,17 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 description = "A build ran for too long, and was automatically cancelled by Jenkins.\n";
             }
 
+            if (isFunctionalTestError)
+                breakExtraFlag = "Functional test error";
+
             if (isBluePrintError)
-                breakExtraFlag = " Blueprint error";
+                breakExtraFlag = "Blueprint error";
 
             if (isShaderError)
-                breakExtraFlag = " Shader error";
+                breakExtraFlag = "Shader error";
 
             if (isCPPError)
-                breakExtraFlag = " C++ error";
+                breakExtraFlag = "C++ error";
 
             if (string.IsNullOrEmpty(specificErrorParsed))
                 description += $"Could not find definitive cause, 'error' keyword match returned:\n{basicErrorParsed}\n";
@@ -301,7 +317,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             data.SaveIncidentReport(new IncidentReport
             {
                 IncidentId = build.IncidentBuildId,
-                MutationId = build.Id,
+                MutationId = hasMutated || previousBuildInIncident == null ? build.Id : previousBuildInIncident.Id,
                 ImplicatedRevisions = implicatedRevisions,
                 Processor = this.GetType().Name,
                 Summary = summary,
