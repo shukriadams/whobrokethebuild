@@ -28,6 +28,8 @@ Plugins:
 -   Key: JenkinsSelfFailing
     Path: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 -   Key: JenkinsBlamer
+    Path: Wbtb.Extensions.LogParsing.AcmeGamesTester
+-   Key: AcmeGamesTester
     Path: Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 -   Key: Blamer
     Path: Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
@@ -72,6 +74,7 @@ BuildServers:
         -   CppParser
         -   JenkinsSelfFailing
         -   BasicErrors
+        -   AcmeGamesTester
         PostProcessors:
         -   Blamer
         -   JenkinsBlamer
@@ -89,6 +92,7 @@ BuildServers:
         -   CppParser
         -   JenkinsSelfFailing
         -   BasicErrors
+        -   AcmeGamesTester
         PostProcessors:
         -   JenkinsBlamer
         Message:
