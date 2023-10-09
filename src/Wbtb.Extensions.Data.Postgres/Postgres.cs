@@ -2652,7 +2652,7 @@ namespace Wbtb.Extensions.Data.Postgres
 			                endedutc DESC
 		                LIMIT 1)
                 ORDER BY 
-	                endedutc ASC
+	                endedutc DESC
                 LIMIT 1";
 
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))

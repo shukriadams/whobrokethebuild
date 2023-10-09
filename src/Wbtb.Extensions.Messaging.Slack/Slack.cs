@@ -40,6 +40,21 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         #endregion
 
+        #region PLUMBING METHODS
+
+        private dynamic ExecAPI(string apiFragment, NameValueCollection data, string method = "POST")
+        {
+            if (data == null)
+                data = new NameValueCollection();
+
+            string token = this.ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
+            WebClient client = new WebClient();
+            string jsonResponse = Encoding.UTF8.GetString(client.UploadValues($"https://slack.com/api/{apiFragment}", method, data));
+            return Newtonsoft.Json.JsonConvert.DeserializeObject(jsonResponse);
+        }
+
+        #endregion
+
         #region METHODS
 
         /// <summary>
@@ -55,7 +70,6 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // list channels to ensure connection works
                 dynamic response = ExecAPI("conversations.list", data);
-
                 if (response.error != null && response.error.Value == "invalid_auth")
                     return new ReachAttemptResult { Error = "Slack credentials failed" };
 
@@ -95,6 +109,7 @@ namespace Wbtb.Extensions.Messaging.Slack
         {
             return $"incident{incidentBuildId}_job{jobId}_buildStatusAlert_slack_{slackChannelId}";
         }
+
 
         string IMessagingPlugin.AlertBreaking(string user, string group, Build incidentBuild, bool isMutation, bool force)
         { 
@@ -172,6 +187,14 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (description.Length > alertMaxLength)
                 description = $"{description.Substring(0, alertMaxLength)}\n...\n(truncated, click link for more)";
 
+            string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
+            StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
+            string ts = string.Empty;
+            if (storeItem != null) 
+            {
+                dynamic storeItemPayload = Newtonsoft.Json.JsonConvert.DeserializeObject(storeItem.Content);
+                ts = (string)storeItemPayload.ts;
+            }
 
             string mentionsFlattened = string.Empty;
             mentions = mentions.Distinct().ToList();
@@ -179,11 +202,11 @@ namespace Wbtb.Extensions.Messaging.Slack
                 mentionsFlattened = $"\n{string.Join(" ", mentions)}";
 
             dynamic attachment = new JObject();
-            attachment.title = $"{job.Name} - {summary}";
             attachment.fallback = " ";
             attachment.color = "#D92424";
             attachment.text = $"```{description}```{mentionsFlattened}";
             attachment.title_link = _urlHelper.Build(incidentBuild);
+            attachment.title = $"{(isMutation ? "Error changed" : job.Name)} - {summary}";
 
             var attachments = new JArray(1);
             attachments[0] = attachment;
@@ -192,13 +215,12 @@ namespace Wbtb.Extensions.Messaging.Slack
             data["channel"] = slackId;
             data["text"] = " ";
             data["attachments"] = Convert.ToString(attachments);
-
-            // data["thread_ts"] = ts;
+            if (!string.IsNullOrEmpty(ts))
+                data["thread_ts"] = ts;
 
             dynamic response = response = ExecAPI("chat.postMessage", data);
 
             // check if alert has already been sent
-            string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
             if (response.ok.Value)
             {
                 // store message info and proof of sending
@@ -266,6 +288,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             // get message transaction
             string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
             StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
+
             IEnumerable<Build> buildsInIncident = dataLayer.GetBuildsByIncident(incidentBuild.IncidentBuildId);
             string ts = string.Empty;
             string failingDateUtc = string.Empty;
@@ -319,7 +342,6 @@ namespace Wbtb.Extensions.Messaging.Slack
             dynamic response = ExecAPI("chat.update", data);
 
             // todo : check if message is still updated even if ts match doesn't occur.
-
             if (response.ok.Value)
             {
                 storeItem.Content = JsonConvert.SerializeObject(new {
@@ -344,18 +366,6 @@ namespace Wbtb.Extensions.Messaging.Slack
                 _log.LogError($"Error posting to slack : {Convert.ToString(response)}");
                 return Convert.ToString(response);
             }
-        }
-
-
-        private dynamic ExecAPI(string apiFragment, NameValueCollection data, string method = "POST")
-        {
-            if (data == null)
-                data = new NameValueCollection();
-
-            string token = this.ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
-            WebClient client = new WebClient();
-            string jsonResponse = Encoding.UTF8.GetString(client.UploadValues($"https://slack.com/api/{apiFragment}", method, data));
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(jsonResponse);
         }
 
 

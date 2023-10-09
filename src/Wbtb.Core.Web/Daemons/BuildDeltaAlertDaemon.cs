@@ -91,8 +91,6 @@ namespace Wbtb.Core.Web
                         Build incidentBuild = dataLayer.GetBuildById(latestDeltaBuild.IncidentBuildId);
                         Build previousBreakingBuild = dataLayer.GetPrecedingBuildInIncident(latestDeltaBuild);
                         string currentBuildMutation = _mutationHelper.GetBuildMutation(latestDeltaBuild);
-                        
-
                         string previousBuildMutation = null;
                         if (previousBreakingBuild != null)
                             previousBuildMutation = _mutationHelper.GetBuildMutation(previousBreakingBuild);

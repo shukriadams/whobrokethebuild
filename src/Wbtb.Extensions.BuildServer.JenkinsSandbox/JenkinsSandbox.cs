@@ -77,7 +77,6 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         }
 
-
         private static PluginConfig GetThisConfig()
         {
             return null;
@@ -87,7 +86,6 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         {
             return string.Empty;
         }
-
 
         IEnumerable<string> IBuildServerPlugin.ListRemoteJobsCanonical(Core.Common.BuildServer buildServer)
         {
@@ -167,14 +165,19 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             string resourcePath = $"JSON.builds.{remotekey.Value}.builds.json";
 
             if (!ResourceHelper.ResourceExists(this.GetType(), resourcePath))
-                throw new Exception($"Failed to import builds, sandbox job {remotekey.Value} does not exist in data store");
+                throw new Exception($"Failed to import builds, sandbox job {remotekey.Value} does not exist. Create a static directory, add content and ensure they are marked as embedded resource.");
 
             string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), resourcePath);
             dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);
             IEnumerable<RawBuild> rawBuilds = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<RawBuild>>(response.allBuilds.ToString());
 
+            // dev feature : To simulate passing of time on build server, add the optional
+            //     "dev_isLatest" : true
+            // property in the builds.json file job is importing from. Importing will stop at the first build in file that has this flag.
+            // moving flag requires app rebuild, it's not great, but it's what we have
             IList<Build> builds = new List<Build>();
-            foreach (RawBuild rawBuild in rawBuilds)
+            foreach (RawBuild rawBuild in rawBuilds) 
+            {
                 builds.Add(new Build
                 {
                     Key = rawBuild.number,
@@ -182,6 +185,10 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
                     StartedUtc = UnixTimeStampToDateTime(rawBuild.timestamp),
                     Status = ConvertBuildStatus(rawBuild.result)
                 });
+
+                if (rawBuild.dev_isLatest == "true")
+                    break;
+            }
 
             return builds;
         }
@@ -288,7 +295,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         void IBuildServerPlugin.PollBuildsForJob(Job job) 
         {
-
+            // not used in this implementation
         }
 
         BuildLogRetrieveResult IBuildServerPlugin.ImportLog(Build build)
@@ -308,7 +315,6 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
             Directory.CreateDirectory(Path.GetDirectoryName(logPath));
             File.WriteAllText(logPath, logContent);
-
 
             return new BuildLogRetrieveResult { Success = true, BuildLogPath = logPath};
         }

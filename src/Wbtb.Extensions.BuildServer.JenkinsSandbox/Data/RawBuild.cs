@@ -16,5 +16,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         public string timestamp { get; set; }
 
         public string duration { get; set; }
+
+        public string dev_isLatest { get; set; }
     }
 }
