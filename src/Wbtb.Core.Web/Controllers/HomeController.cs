@@ -165,7 +165,7 @@ namespace Wbtb.Core.Web.Controllers
 
             foreach (ViewBuild build in model.Builds.Items)
             {
-                build.IncidentReport = dataLayer.GetIncidentReportByMutation(build.Id);
+                build.MutationReport = dataLayer.GetMutationReportByBuild(build.Id);
                 build.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(build.Id)).OrderByDescending(bi => bi.RevisionCode);
                 if (build.EndedUtc.HasValue)
                     build.Duration = build.EndedUtc.Value - build.StartedUtc;
@@ -247,7 +247,7 @@ namespace Wbtb.Core.Web.Controllers
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
             model.ProcessErrors = buildTasks.Any(t => t.HasPassed.HasValue && t.HasPassed.Value == false);
             model.ProcessesPending = buildTasks.Any(t => t.ProcessedUtc == null);
-            model.IncidentReport = dataLayer.GetIncidentReportByMutation(model.Build.Id);
+            model.MutationReport = dataLayer.GetMutationReportByBuild(model.Build.Id);
 
             return View(model);
         }

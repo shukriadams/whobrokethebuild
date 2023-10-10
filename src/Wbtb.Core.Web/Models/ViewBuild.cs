@@ -22,7 +22,7 @@ namespace Wbtb.Core.Web
 
         public TimeSpan? Duration { get; set; }
 
-        public IncidentReport IncidentReport { get; set; }
+        public MutationReport MutationReport { get; set; }
 
         public ViewJob Job { get; set; }
 

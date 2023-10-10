@@ -271,17 +271,17 @@ namespace Wbtb.Core.Common
 
         #endregion
 
-        #region INCIDENTREPORT
+        #region MUATIONREPORT
 
-        IncidentReport SaveIncidentReport(IncidentReport incidentSummary);
+        MutationReport SaveMutationReport(MutationReport incidentSummary);
 
-        IEnumerable<IncidentReport> GetIncidentReportsForBuild(string buildId);
+        IEnumerable<MutationReport> GetMutationReportsForBuild(string buildId);
 
-        IncidentReport GetIncidentReportByMutation(string buildId);
+        MutationReport GetMutationReportByBuild(string buildId);
 
-        IncidentReport GetIncidentReportById(string id);
+        MutationReport GetMutationReportById(string id);
 
-        bool DeleteIncidentReport(IncidentReport record);
+        bool DeleteMutationReport(MutationReport record);
 
         #endregion
 

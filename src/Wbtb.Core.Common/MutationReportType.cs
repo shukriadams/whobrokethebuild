@@ -1,7 +1,7 @@
 ﻿
 namespace Wbtb.Core.Common
 {
-    public enum IncidentReportType
+    public enum MutationReportType
     {
         Break,
         Mutation

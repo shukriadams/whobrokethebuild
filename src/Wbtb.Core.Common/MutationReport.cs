@@ -3,7 +3,10 @@ using System.Collections.Generic;
 
 namespace Wbtb.Core.Common
 {
-    public class IncidentReport : ISignature
+    /// <summary>
+    /// 
+    /// </summary>
+    public class MutationReport : ISignature
     {
         #region PROPERTIES
 
@@ -11,6 +14,11 @@ namespace Wbtb.Core.Common
         /// 
         /// </summary>
         public string Id { get; set; }
+
+        /// <summary>
+        /// Build on which this report was generated
+        /// </summary>
+        public string BuildId { get; set; }
 
         /// <summary>
         /// 
@@ -26,6 +34,11 @@ namespace Wbtb.Core.Common
         /// Id of the specific build this incident is attached to 
         /// </summary>
         public string MutationId { get; set; }
+
+        /// <summary>
+        /// Hash of sumamry + description
+        /// </summary>
+        public string MutationHash { get; set; }
 
         /// <summary>
         /// Revision (source control unique codes) confirmed to be involved in incident
@@ -61,7 +74,7 @@ namespace Wbtb.Core.Common
 
         #region CTORS
 
-        public IncidentReport()
+        public MutationReport()
         {
             this.Signature = Guid.NewGuid().ToString();
             this.CreatedUtc = DateTime.UtcNow;

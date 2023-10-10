@@ -5,15 +5,16 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
 {
-    internal class IncidentReportConvert : IRecordConverter<IncidentReport>
+    internal class MutationReportConvert : IRecordConverter<MutationReport>
     {
-        private IncidentReport ToCommonSingle(NpgsqlDataReader reader)
+        private MutationReport ToCommonSingle(NpgsqlDataReader reader)
         {
-            return new IncidentReport
+            return new MutationReport
             {
                 Id = reader["id"].ToString(),
                 Signature = reader["signature"].ToString(),
                 IncidentId = reader["incidentid"].ToString(),
+                BuildId = reader["buildid"].ToString(),
                 MutationId = reader["mutationid"].ToString(),
                 Description = reader["description"] == DBNull.Value ? null : reader["description"].ToString(),
                 ImplicatedRevisions = reader["implicatedrevisions"] == DBNull.Value ? new string[] { } : reader["implicatedrevisions"].ToString().Split(),
@@ -23,7 +24,7 @@ namespace Wbtb.Extensions.Data.Postgres
             };
         }
 
-        public IncidentReport ToCommon(NpgsqlDataReader reader)
+        public MutationReport ToCommon(NpgsqlDataReader reader)
         {
             if (!reader.HasRows)
                 return null;
@@ -32,9 +33,9 @@ namespace Wbtb.Extensions.Data.Postgres
             return ToCommonSingle(reader);
         }
 
-        public IEnumerable<IncidentReport> ToCommonList(NpgsqlDataReader reader)
+        public IEnumerable<MutationReport> ToCommonList(NpgsqlDataReader reader)
         {
-            IList<IncidentReport> list = new List<IncidentReport>();
+            IList<MutationReport> list = new List<MutationReport>();
             while (reader.Read())
                 list.Add(this.ToCommonSingle(reader));
 

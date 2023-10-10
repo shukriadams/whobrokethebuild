@@ -170,10 +170,10 @@
                     </x-list-cell>    
 
                     <x-list-cell>
-                        @if (build.IncidentReport != null)
+                        @if (build.MutationReport != null)
                         {
-                            <span class="jobsList-incidentReport">
-                                @build.IncidentReport.Summary
+                            <span class="jobsList-mutationReport">
+                                @build.MutationReport.Summary
                             </span>
                         }
 
@@ -186,7 +186,7 @@
                                 { 
                                     @ViewHelpers.GistOf(involvement.Revision.Description, 20, "...") 
                                 }
-                                @if (build.IncidentReport != null && build.IncidentReport.ImplicatedRevisions.Contains(involvement.RevisionCode))
+                                @if (build.MutationReport != null && build.MutationReport.ImplicatedRevisions.Contains(involvement.RevisionCode))
                                 {
                                     <text>
                                         (broken build)

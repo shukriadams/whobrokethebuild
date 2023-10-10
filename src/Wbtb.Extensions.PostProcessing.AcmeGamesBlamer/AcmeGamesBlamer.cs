@@ -311,10 +311,13 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             if (summary.Length == 0)
                 summary = "Unknown error";
 
-            data.SaveIncidentReport(new IncidentReport
+            string mutationId = hasMutated || previousBuildInIncident == null ? build.Id : previousBuildInIncident.Id;
+
+            data.SaveMutationReport(new MutationReport
             {
                 IncidentId = build.IncidentBuildId,
-                MutationId = hasMutated || previousBuildInIncident == null ? build.Id : previousBuildInIncident.Id,
+                BuildId = build.Id,
+                MutationId = mutationId,
                 ImplicatedRevisions = implicatedRevisions,
                 Processor = this.GetType().Name,
                 Summary = summary,

@@ -497,29 +497,29 @@ namespace Wbtb.Extensions.Data.FileSystem
 
         #endregion
 
-        #region INCIDENTREPORT
+        #region MUTATIONREPORT
 
-        IncidentReport IDataPlugin.SaveIncidentReport(IncidentReport incidentSummary)
+        MutationReport IDataPlugin.SaveMutationReport(MutationReport incidentSummary)
         {
-            return new IncidentReport { };
+            return new MutationReport { };
         }
 
-        IEnumerable<IncidentReport> IDataPlugin.GetIncidentReportsForBuild(string buildId) 
+        IEnumerable<MutationReport> IDataPlugin.GetMutationReportsForBuild(string buildId) 
         {
-            return new IncidentReport[] { };
+            return new MutationReport[] { };
         }
 
-        IncidentReport IDataPlugin.GetIncidentReportByMutation(string buildId) 
+        MutationReport IDataPlugin.GetMutationReportByBuild(string buildId) 
         {
-            return new IncidentReport { };
+            return new MutationReport { };
         }
 
-        IncidentReport IDataPlugin.GetIncidentReportById(string id)
+        MutationReport IDataPlugin.GetMutationReportById(string id)
         {
-            return new IncidentReport { };
+            return new MutationReport { };
         }
 
-        bool IDataPlugin.DeleteIncidentReport(IncidentReport record)
+        bool IDataPlugin.DeleteMutationReport(MutationReport record)
         {
             return true;
         }

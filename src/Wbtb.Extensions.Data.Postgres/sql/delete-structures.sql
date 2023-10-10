@@ -12,12 +12,13 @@ DROP INDEX IF EXISTS public."daemontask_faildaemontaskid_fk";
 DROP INDEX IF EXISTS public."daemontask_buildinvolvementid_fk";
 DROP INDEX IF EXISTS public."r_buildlogparseresult_buildinvolvement_buildlogparseresultid_fk";
 DROP INDEX IF EXISTS public."r_buildlogparseresult_buildinvolvement_buildinvolvementid_fk";
-DROP INDEX IF EXISTS public."incidentreport_incidentid_fk";
-DROP INDEX IF EXISTS public."incidentreport_mutationid_fk";
+DROP INDEX IF EXISTS public."mutationreport_incidentid_fk";
+DROP INDEX IF EXISTS public."mutationreport_mutationid_fk";
+DROP INDEX IF EXISTS public."mutationreport_buildid_fk";
 
 
 -- DROP TABLES
-DROP TABLE IF EXISTS public."incidentreport" CASCADE;
+DROP TABLE IF EXISTS public."mutationreport" CASCADE;
 DROP TABLE IF EXISTS public."daemontask" CASCADE;
 DROP TABLE IF EXISTS public."r_buildlogparseresult_buildinvolvement" CASCADE;
 DROP TABLE IF EXISTS public."buildlogparseresult" CASCADE;
@@ -47,5 +48,5 @@ DROP SEQUENCE IF EXISTS public."usr_id_seq";
 DROP SEQUENCE IF EXISTS public."configurationstate_id_seq";
 DROP SEQUENCE IF EXISTS public."store_id_seq";
 DROP SEQUENCE IF EXISTS public."daemontask_id_seq";
-DROP SEQUENCE IF EXISTS public."incidentreport_id_seq";
+DROP SEQUENCE IF EXISTS public."mutationreport_id_seq";
 DROP SEQUENCE IF EXISTS public."r_buildLogParseResult_buildinvolvement_id_seq";

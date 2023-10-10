@@ -38,7 +38,7 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
                         foreach (var item2 in item.Items)
                             summary += $"{item2.Content}";
 
-                    data.SaveIncidentReport(new IncidentReport
+                    data.SaveMutationReport(new MutationReport
                     {
                         IncidentId = build.IncidentBuildId,
                         MutationId = build.Id,

@@ -99,7 +99,6 @@ namespace Wbtb.Core.Web
 
                         if (latestDeltaBuild.Status == BuildStatus.Failed )
                         {
-                            
                             string alertKey = $"{currentBuildMutation}_{job.Key}_deltaAlert_{latestDeltaBuild.Status}";
 
                             if (_cache.Get(TypeHelper.Name(this), job, incidentBuild, alertKey).Payload == null) 

@@ -618,17 +618,18 @@ namespace Wbtb.Extensions.Data.Postgres
                     affected += cmd.ExecuteNonQuery();
                 }
 
-                string incidentReportReset = @"
+                string mutationReportReset = @"
                 DELETE FROM
-                    incidentreport
+                    mutationreport
                 USING
                     build
                 WHERE
-                    (incidentreport.incidentid = build.id
-                    OR incidentreport.mutationid = build.id)
+                    (mutationreport.incidentid = build.id
+                    OR mutationreport.builid = build.id
+                    OR mutationreport.mutationid = build.id)
                     AND build.jobid = @jobid";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReportReset, conWrap.Connection()))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(mutationReportReset, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
                     affected += cmd.ExecuteNonQuery();
@@ -1525,14 +1526,14 @@ namespace Wbtb.Extensions.Data.Postgres
                     affected += cmd.ExecuteNonQuery();
                 }
 
-                string incidentReportReset = @"
+                string mutationReportReset = @"
                 DELETE FROM
-                    incidentreport
+                    mutationreport
                 WHERE
                     incidentid = @buildid
                     OR mutationid = @buildid";
 
-                using (NpgsqlCommand cmd = new NpgsqlCommand(incidentReportReset, conWrap.Connection()))
+                using (NpgsqlCommand cmd = new NpgsqlCommand(mutationReportReset, conWrap.Connection()))
                 {
                     cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
                     affected += cmd.ExecuteNonQuery();
@@ -2221,26 +2222,27 @@ namespace Wbtb.Extensions.Data.Postgres
 
         #endregion
 
-        #region INCIDENTREPORT
+        #region MUTATIONREPORT
 
-        IncidentReport IDataPlugin.SaveIncidentReport(IncidentReport incidentReport)
+        MutationReport IDataPlugin.SaveMutationReport(MutationReport mutationReport)
         {
             // enforce string lengths
-            incidentReport.Processor = incidentReport.Processor.Length > 256 ? incidentReport.Processor.Substring(0, 256) : incidentReport.Processor;
-            incidentReport.Summary = incidentReport.Summary.Length > 256 ? incidentReport.Summary.Substring(0, 256) : incidentReport.Summary;
-            incidentReport.Status = incidentReport.Status.Length > 64 ? incidentReport.Status.Substring(0, 64) : incidentReport.Status;
+            mutationReport.Processor = mutationReport.Processor.Length > 256 ? mutationReport.Processor.Substring(0, 256) : mutationReport.Processor;
+            mutationReport.Summary = mutationReport.Summary.Length > 256 ? mutationReport.Summary.Substring(0, 256) : mutationReport.Summary;
+            mutationReport.Status = mutationReport.Status.Length > 64 ? mutationReport.Status.Substring(0, 64) : mutationReport.Status;
 
             string insertQuery = @"
-                INSERT INTO incidentreport
-                    (incidentid, mutationid, signature, createdutc, status, summary, description, processor, implicatedrevisions)
+                INSERT INTO mutationreport
+                    (incidentid, mutationid, buildid, signature, createdutc, status, summary, description, processor, implicatedrevisions)
                 VALUES
-                    (@incidentid, @mutationid, @signature, @createdutc, @status, @summary, @description, @processor, @implicatedrevisions)
+                    (@incidentid, @mutationid, @buildid, @signature, @createdutc, @status, @summary, @description, @processor, @implicatedrevisions)
                 RETURNING id";
 
             string updateQuery = @"                    
-                UPDATE incidentreport SET 
+                UPDATE mutationreport SET 
                     signature = @new_signature,
                     incidentid = @incidentid,
+                    buildid = @buildid,
                     mutationid = @mutationid,
                     signature = @signature,
                     createdutc = @createdutc,
@@ -2255,27 +2257,24 @@ namespace Wbtb.Extensions.Data.Postgres
 
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             {
-                if (string.IsNullOrEmpty(incidentReport.Id))
-                    incidentReport.Id = PostgresCommon.InsertWithId<IncidentReport>(this.ContextPluginConfig, insertQuery, incidentReport, new ParameterMapper<IncidentReport>(IncidentReportMapping.MapParameters), conWrap.Connection());
+                if (string.IsNullOrEmpty(mutationReport.Id))
+                    mutationReport.Id = PostgresCommon.InsertWithId<MutationReport>(this.ContextPluginConfig, insertQuery, mutationReport, new ParameterMapper<MutationReport>(MutationReportMapping.MapParameters), conWrap.Connection());
                 else
-                    PostgresCommon.Update<IncidentReport>(this.ContextPluginConfig, updateQuery, incidentReport, new ParameterMapper<IncidentReport>(IncidentReportMapping.MapParameters), conWrap.Connection());
+                    PostgresCommon.Update<MutationReport>(this.ContextPluginConfig, updateQuery, mutationReport, new ParameterMapper<MutationReport>(MutationReportMapping.MapParameters), conWrap.Connection());
 
-                return incidentReport;
+                return mutationReport;
             }
         }
 
-        IncidentReport IDataPlugin.GetIncidentReportByMutation(string buildId) 
+        MutationReport IDataPlugin.GetMutationReportByBuild(string buildId) 
         {
             string sql = @"
                 SELECT
                     *
                 FROM
-                    incidentreport
+                    mutationreport
                 WHERE
-                    mutationid = @buildid
-                ORDER BY
-                    createdutc DESC
-                LIMIT 1";
+                    buildid = @buildid";
 
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
@@ -2283,29 +2282,29 @@ namespace Wbtb.Extensions.Data.Postgres
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new IncidentReportConvert().ToCommon(reader);
+                    return new MutationReportConvert().ToCommon(reader);
             }
         }
 
-        IncidentReport IDataPlugin.GetIncidentReportById(string id)
+        MutationReport IDataPlugin.GetMutationReportById(string id)
         {
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
-                return PostgresCommon.GetById<IncidentReport>(conWrap.Connection(), this.ContextPluginConfig, id, "incidentreport", new IncidentReportConvert());
+                return PostgresCommon.GetById<MutationReport>(conWrap.Connection(), this.ContextPluginConfig, id, "mutationreport", new MutationReportConvert());
         }
 
-        bool IDataPlugin.DeleteIncidentReport(IncidentReport record)
+        bool IDataPlugin.DeleteMutationReport(MutationReport record)
         {
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
-                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "incidentreport", "id", record.Id);
+                return PostgresCommon.Delete(conWrap.Connection(), this.ContextPluginConfig, "mutationreport", "id", record.Id);
         }
 
-        IEnumerable<IncidentReport> IDataPlugin.GetIncidentReportsForBuild(string buildId)
+        IEnumerable<MutationReport> IDataPlugin.GetMutationReportsForBuild(string buildId)
         {
             string sql = @"
                 SELECT
                     *
                 FROM
-                    incidentreport
+                    mutationreport
                 WHERE
                     incidentId = @buildid
                 ORDER BY
@@ -2317,7 +2316,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 cmd.Parameters.AddWithValue("buildid", int.Parse(buildId));
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new IncidentReportConvert().ToCommonList(reader);
+                    return new MutationReportConvert().ToCommonList(reader);
             }
         }
 

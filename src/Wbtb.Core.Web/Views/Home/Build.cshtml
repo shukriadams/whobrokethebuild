@@ -142,14 +142,14 @@
     </x-card>
 </x-columns>
 
-@if (Model.IncidentReport != null)
+@if (Model.MutationReport != null)
 {
-    <x-card class="buildIncidentReport">
+    <x-card class="buildMutationReport">
         <x-card-pad>
             <strong>
-                @Model.IncidentReport.Summary
+                @Model.MutationReport.Summary
             </strong>
-            <pre>@Model.IncidentReport.Description</pre>
+            <pre>@Model.MutationReport.Description</pre>
         </x-card-pad>
     </x-card>
 }

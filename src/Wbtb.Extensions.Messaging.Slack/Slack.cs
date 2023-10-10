@@ -169,14 +169,14 @@ namespace Wbtb.Extensions.Messaging.Slack
                 }
             }
 
-            IncidentReport incidentReport = dataLayer.GetIncidentReportByMutation(incidentBuild.Id);
+            MutationReport mutationReport = dataLayer.GetMutationReportByBuild(incidentBuild.Id);
             string summary = string.Empty;
             string description = string.Empty;
 
-            if (incidentReport != null)
+            if (mutationReport != null)
             {
-                summary = incidentReport.Summary;
-                description = incidentReport.Description;
+                summary = mutationReport.Summary;
+                description = mutationReport.Description;
             }
             else 
             {

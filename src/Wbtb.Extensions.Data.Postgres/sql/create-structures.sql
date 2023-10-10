@@ -103,13 +103,13 @@ CREATE SEQUENCE public."daemontask_id_seq"
     CACHE 1;
 ALTER SEQUENCE public."daemontask_id_seq" OWNER TO postgres;
 
-CREATE SEQUENCE public."incidentreport_id_seq"
+CREATE SEQUENCE public."mutationreport_id_seq"
     INCREMENT 1
     START 1
     MINVALUE 1
     MAXVALUE 9223372036854775807
     CACHE 1;
-ALTER SEQUENCE public."incidentreport_id_seq" OWNER TO postgres;
+ALTER SEQUENCE public."mutationreport_id_seq" OWNER TO postgres;
 
 
 -- CREATE TABLES
@@ -426,12 +426,13 @@ TABLESPACE pg_default;
 ALTER TABLE public."daemontask" OWNER TO postgres;
 
 
--- CREATE INCIDENTREPORT
-CREATE TABLE public."incidentreport"
+-- CREATE MUTATIONREPORT
+CREATE TABLE public."mutationreport"
 (
-    id integer NOT NULL DEFAULT nextval('"incidentreport_id_seq"'::regclass),
+    id integer NOT NULL DEFAULT nextval('"mutationreport_id_seq"'::regclass),
     signature character varying(38) COLLATE pg_catalog."default" NOT NULL,
     incidentid integer NOT NULL,
+    buildid integer NOT NULL,
     mutationid integer NOT NULL,
     status character varying(64) COLLATE pg_catalog."default" NOT NULL,
     summary character varying(256) COLLATE pg_catalog."default" NOT NULL,
@@ -439,19 +440,23 @@ CREATE TABLE public."incidentreport"
     implicatedrevisions text COLLATE pg_catalog."default",
     processor character varying(256) COLLATE pg_catalog."default"  NOT NULL,
     createdutc timestamp(4) without time zone NOT NULL,
-    CONSTRAINT "incidentreport_compoundkey" UNIQUE (incidentid, mutationid),
-    CONSTRAINT "incidentreport_incidentid_fk" FOREIGN KEY (incidentid)
+    CONSTRAINT "mutationreport_compoundkey" UNIQUE (incidentid, mutationid),
+    CONSTRAINT "mutationreport_buildid_fk" FOREIGN KEY (buildid)
         REFERENCES public."build" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE,
-    CONSTRAINT "incidentreport_mutationid_fk" FOREIGN KEY (mutationid)
+    CONSTRAINT "mutationreport_incidentid_fk" FOREIGN KEY (incidentid)
+        REFERENCES public."build" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE,
+    CONSTRAINT "mutationreport_mutationid_fk" FOREIGN KEY (mutationid)
         REFERENCES public."build" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
 )
 WITH (OIDS = FALSE)
 TABLESPACE pg_default;
-ALTER TABLE public."incidentreport" OWNER TO postgres;
+ALTER TABLE public."mutationreport" OWNER TO postgres;
 
 
 -- CREATE INDEXES
@@ -520,12 +525,17 @@ CREATE INDEX "daemontask_buildinvolvementid_fk"
     (buildinvolvementid)
     TABLESPACE pg_default;
 
-CREATE INDEX "incidentreport_incidentid_fk"
-    ON public."incidentreport" USING btree
+CREATE INDEX "mutationreport_buildid_fk"
+    ON public."mutationreport" USING btree
+    (buildid)
+    TABLESPACE pg_default;
+
+CREATE INDEX "mutationreport_incidentid_fk"
+    ON public."mutationreport" USING btree
     (incidentid)
     TABLESPACE pg_default;
 
-CREATE INDEX "incidentreport_mutationid_fk"
-    ON public."incidentreport" USING btree
+CREATE INDEX "mutationreport_mutationid_fk"
+    ON public."mutationreport" USING btree
     (mutationid)
     TABLESPACE pg_default;
