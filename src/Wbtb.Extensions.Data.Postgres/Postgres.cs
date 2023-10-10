@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -2233,9 +2232,9 @@ namespace Wbtb.Extensions.Data.Postgres
 
             string insertQuery = @"
                 INSERT INTO mutationreport
-                    (incidentid, mutationid, buildid, signature, createdutc, status, summary, description, processor, implicatedrevisions)
+                    (incidentid, mutationid, buildid, signature, createdutc, status, summary, description, mutationhash, processor, implicatedrevisions)
                 VALUES
-                    (@incidentid, @mutationid, @buildid, @signature, @createdutc, @status, @summary, @description, @processor, @implicatedrevisions)
+                    (@incidentid, @mutationid, @buildid, @signature, @createdutc, @status, @summary, @description, @mutationhash, @processor, @implicatedrevisions)
                 RETURNING id";
 
             string updateQuery = @"                    
@@ -2249,6 +2248,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     status = @status,
                     summary = @summary,
                     description = @description,
+                    mutationhash = @mutationhash,
                     implicatedrevisions = @implicatedrevisions,
                     processor = @processor
                 WHERE

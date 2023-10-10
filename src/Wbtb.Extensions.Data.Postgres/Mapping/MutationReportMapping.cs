@@ -15,7 +15,8 @@ namespace Wbtb.Extensions.Data.Postgres
             queryParameters.AddWithValue("incidentid", int.Parse(record.IncidentId));
             queryParameters.AddWithValue("buildid", int.Parse(record.BuildId));
             queryParameters.AddWithValue("mutationid", int.Parse(record.MutationId));
-            queryParameters.AddWithValue("description", record.IncidentId == null ? (object)DBNull.Value : record.Description);
+            queryParameters.AddWithValue("description", record.Description == null ? (object)DBNull.Value : record.Description);
+            queryParameters.AddWithValue("mutationhash", record.MutationHash == null ? (object)DBNull.Value : record.MutationHash);
             queryParameters.AddWithValue("implicatedrevisions", record.ImplicatedRevisions.Any() ? string.Join(",", record.ImplicatedRevisions) : (object)DBNull.Value);
             queryParameters.AddWithValue("createdutc", record.CreatedUtc);
             queryParameters.AddWithValue("processor", record.Processor);

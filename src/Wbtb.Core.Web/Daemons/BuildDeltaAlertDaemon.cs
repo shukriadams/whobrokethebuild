@@ -138,14 +138,16 @@ namespace Wbtb.Core.Web
                         if (fixingBuild == null)
                             continue;
 
-                        // has fail alert for incident been sent? if not, don't bother alerting fix for it
-                        string failingAlertKey = $"{incident.Key}_{job.Key}_deltaAlert_{incident.Status}";
-                        if (_cache.Get(TypeHelper.Name(this), job, incident, failingAlertKey).Payload == null)
-                            continue;
-
                         // has pass alert been sent? if so, don't alert again
                         string passingAlertKey = $"{incident.Key}_{job.Key}_deltaAlert_{fixingBuild.Status}";
                         if (_cache.Get(TypeHelper.Name(this), job, incident, passingAlertKey).Payload != null)
+                            continue;
+
+                        string incidentMutation = _mutationHelper.GetBuildMutation(incident);
+
+                        // has fail alert for incident been sent? if not, don't bother alerting fix for it
+                        string failingAlertKey = $"{incidentMutation}_{job.Key}_deltaAlert_{incident.Status}";
+                        if (_cache.Get(TypeHelper.Name(this), job, incident, failingAlertKey).Payload == null)
                             continue;
 
                         _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, fixingBuild);

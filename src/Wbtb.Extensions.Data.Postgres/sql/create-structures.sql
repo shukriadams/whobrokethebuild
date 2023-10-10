@@ -436,11 +436,12 @@ CREATE TABLE public."mutationreport"
     mutationid integer NOT NULL,
     status character varying(64) COLLATE pg_catalog."default" NOT NULL,
     summary character varying(256) COLLATE pg_catalog."default" NOT NULL,
+    mutationhash text COLLATE pg_catalog."default",
     description text COLLATE pg_catalog."default",
     implicatedrevisions text COLLATE pg_catalog."default",
     processor character varying(256) COLLATE pg_catalog."default"  NOT NULL,
     createdutc timestamp(4) without time zone NOT NULL,
-    CONSTRAINT "mutationreport_compoundkey" UNIQUE (incidentid, mutationid),
+    CONSTRAINT "mutationreport_buildid_unique" UNIQUE (buildid),
     CONSTRAINT "mutationreport_buildid_fk" FOREIGN KEY (buildid)
         REFERENCES public."build" (id) MATCH SIMPLE
         ON UPDATE NO ACTION

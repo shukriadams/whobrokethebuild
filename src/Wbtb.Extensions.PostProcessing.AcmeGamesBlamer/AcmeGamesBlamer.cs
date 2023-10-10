@@ -318,6 +318,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 IncidentId = build.IncidentBuildId,
                 BuildId = build.Id,
                 MutationId = mutationId,
+                MutationHash = thisBuildMutationHash,
                 ImplicatedRevisions = implicatedRevisions,
                 Processor = this.GetType().Name,
                 Summary = summary,

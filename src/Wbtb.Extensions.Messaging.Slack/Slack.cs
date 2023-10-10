@@ -190,10 +190,14 @@ namespace Wbtb.Extensions.Messaging.Slack
             string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
             StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
             string ts = string.Empty;
+            string replies = string.Empty;
             if (storeItem != null) 
             {
                 dynamic storeItemPayload = Newtonsoft.Json.JsonConvert.DeserializeObject(storeItem.Content);
                 ts = (string)storeItemPayload.ts;
+                replies = (string)storeItemPayload.repies;
+                if (replies == null)
+                    replies = string.Empty;
             }
 
             string mentionsFlattened = string.Empty;
@@ -203,7 +207,7 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             dynamic attachment = new JObject();
             attachment.fallback = " ";
-            attachment.color = "#D92424";
+            attachment.color = isMutation ? "#f58742" : "#D92424";
             attachment.text = $"```{description}```{mentionsFlattened}";
             attachment.title_link = _urlHelper.Build(incidentBuild);
             attachment.title = $"{(isMutation ? "Error changed" : job.Name)} - {summary}";
@@ -220,9 +224,13 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             dynamic response = response = ExecAPI("chat.postMessage", data);
 
-            // check if alert has already been sent
             if (response.ok.Value)
             {
+                if (string.IsNullOrEmpty(ts))
+                    ts = ts = response.ts.Value;
+                else
+                    replies += $",{response.ts.Value}";
+
                 // store message info and proof of sending
                 dataLayer.DeleteStoreItemWithKey(key);
                 dataLayer.SaveStore(new StoreItem
@@ -231,7 +239,8 @@ namespace Wbtb.Extensions.Messaging.Slack
                     Key = key,
                     Content = JsonConvert.SerializeObject(new
                     {
-                        ts = response.ts.Value,
+                        ts = ts, // this ts is always the original incident post ts
+                        replies = replies,
                         failingDateUtc = DateTime.UtcNow,
                         failingBuildId = incidentBuild.Id,
                         status = incidentBuild.Status.ToString()
