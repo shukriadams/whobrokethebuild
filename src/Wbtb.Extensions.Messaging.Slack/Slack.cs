@@ -175,7 +175,7 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             if (mutationReport != null)
             {
-                summary = mutationReport.Summary;
+                summary = $"{mutationReport.Summary}. Build {incidentBuild.Key}";
                 description = mutationReport.Description;
             }
             else 

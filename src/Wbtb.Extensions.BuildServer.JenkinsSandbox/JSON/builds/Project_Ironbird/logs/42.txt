@@ -1,5 +1,6 @@
 ﻿Failing build
-C++ build error
+
+C++ build error, with no error code
 
 <p4-cient-state>
 Client: ugs_workspace
@@ -21,5 +22,4 @@ View:
 
 <p4-cient-state>
 <current-revision>56339<current-revision>
-
-C:\work\p4stuff\PSD\Source\Programs\BuildTool\PSDToolChain.cpp(620,51): error CS0246: The type or namespace name 'FileItem' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]
+C:\work\p4stuff\PSD\Source\Programs\BuildTool\PSDToolChain.cpp(620,51): Error: The type or namespace name 'FileItem' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]

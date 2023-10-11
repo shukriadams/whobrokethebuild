@@ -8,7 +8,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
 {
     public class Cpp : Plugin, ILogParserPlugin
     {
-        const string MSVCRegex = @"(.*\.h|.*\.cpp)\((.*)\):.*?error\s?([A-Z]{1,2}[0-9]+):(.*)";
+        const string MSVCRegex = @"(.*\.h|.*\.cpp)\((.*)\):.*?error\s?([A-Z]{1,2}[0-9]+)?:(.*)";
         // (.*\.h|.*\.cpp)(\(.*?\)):(.*?error.*)
         const string ClangRegex = @"(.*\.h|.*\.cpp)(\(\d+,\d+\)): error\s?:(.*)([\s\S]*?generated\.)";
 
@@ -51,8 +51,9 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             // 0 : all
             // 1 : file path
             // 2 : line nr in file
-            // 3 : error code
+            // 3 : error code (optional)
             // 4 : description
+
             MatchCollection matches = new Regex(MSVCRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);
             if (matches.Any())
             {
@@ -62,8 +63,17 @@ namespace Wbtb.Extensions.LogParsing.Cpp
                 {
                     builder.AddItem(match.Groups[1].Value, "path");
                     builder.AddItem(match.Groups[2].Value, "line_number");
-                    builder.AddItem(match.Groups[3].Value, "error_code");
-                    builder.AddItem(match.Groups[4].Value, "description");
+                    
+                    if (match.Groups.Count == 4)
+                    {
+                        builder.AddItem(match.Groups[3].Value, "description");
+                    }
+                    else 
+                    {
+                        builder.AddItem(match.Groups[3].Value, "error_code");
+                        builder.AddItem(match.Groups[4].Value, "description");
+                    }
+
                     builder.NewLine();
                 }
 

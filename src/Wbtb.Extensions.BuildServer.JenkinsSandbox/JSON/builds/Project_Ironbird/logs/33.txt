@@ -1,4 +1,4 @@
-﻿Example of a C++ build error
+﻿Example of a C++ build error with explicit error code
 
 <p4-cient-state>
 Note : this is reusing the clientspec from the developer's workspace, this isn't an error, but it would be more correct for the clientspec to be 
