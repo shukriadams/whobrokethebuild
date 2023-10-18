@@ -127,7 +127,12 @@ namespace Wbtb.Core.Common
         public int MaxThreads { get; set; }
 
         /// <summary>
-        /// 
+        /// User comma-separated input
+        /// </summary>
+        public IEnumerable<string> FeatureToggles { get; set; }
+
+        /// <summary>
+        /// URL of server.
         /// </summary>
         public string Address { get; set; }
 
@@ -159,6 +164,7 @@ namespace Wbtb.Core.Common
             this.SourceServers = new List<SourceServer>();
             this.Users = new List<User>();
             this.Groups = new List<Group>();
+            this.FeatureToggles = EnvironmentVariableHelper.GetString("WBTB__FEATURE_TOGGLES", string.Empty).Split(",", StringSplitOptions.RemoveEmptyEntries);
         }
 
         #endregion
