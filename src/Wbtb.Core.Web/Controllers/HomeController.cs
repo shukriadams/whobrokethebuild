@@ -297,22 +297,25 @@ namespace Wbtb.Core.Web.Controllers
         {
             BuildLogParseResultsPageModel model = new BuildLogParseResultsPageModel();
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            Configuration config = _di.Resolve<Configuration>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             model.Build = ViewBuild.Copy(dataLayer.GetBuildByUniquePublicIdentifier(publicBuildId));
             if (model.Build == null)
                 return Responses.NotFoundError($"build {publicBuildId} does not exist");
 
+            Job job = dataLayer.GetJobById(model.Build.JobId);
             model.Banner = new ViewJobBanner { Job = ViewJob.Copy(dataLayer.GetJobById(model.Build.JobId)) };
             model.Banner.BreadCrumbs.Add(ViewHelpers.JobLink(model.Banner.Job));
             model.Banner.BreadCrumbs.Add(ViewHelpers.BuildLink(model.Build));
             model.Banner.BreadCrumbs.Add(ViewHelpers.String("Log"));
 
-            if (model.Build.LogPath != null)
-            { 
-                if (System.IO.File.Exists(model.Build.LogPath))
-                    model.Raw = System.IO.File.ReadAllText(model.Build.LogPath);
+            if (model.Build.LogFetched)
+            {
+                string logPath = Common.Build.GetLogPath(config, job, model.Build);
+                if (System.IO.File.Exists(logPath))
+                    model.Raw = System.IO.File.ReadAllText(logPath);
                 else
-                    return Responses.UnknownError($"The log for build {publicBuildId} was not found at expected path {model.Build.LogPath}", 120); // todo : proper code needed
+                    return Responses.UnknownError($"The log for build {publicBuildId} was not found at expected path {logPath}", 120); // todo : proper code needed
             }
 
             return View(model);

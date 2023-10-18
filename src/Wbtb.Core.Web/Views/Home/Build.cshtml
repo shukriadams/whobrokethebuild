@@ -285,16 +285,16 @@ else
     }
 }
 
-@if (string.IsNullOrEmpty(Model.Build.LogPath))
+@if (Model.Build.LogFetched)
 {
     <div>
-        Build log has not yet been retrieved.
+        <a href="/build/log/@Model.Build.UniquePublicKey">View full build log</a>
     </div>
 }
 else
 {
     <div>
-        <a href="/build/log/@Model.Build.UniquePublicKey">View full build log</a>
+        Build log has not yet been retrieved.
     </div>
 }
       

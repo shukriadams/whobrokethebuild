@@ -31,7 +31,7 @@ namespace Wbtb.Core.CLI
                         break;
 
                     foreach (Build build in builds.Items)
-                        knownLogs.Add(build.LogPath);
+                        knownLogs.Add(Build.GetLogPath(config, job, build));
 
                     i++;
                 }

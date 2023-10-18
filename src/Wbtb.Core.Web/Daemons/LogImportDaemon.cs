@@ -68,7 +68,7 @@ namespace Wbtb.Core.Web.Core
             if (!result.Success)
                 return new DaemonTaskWorkResult { ResultType=DaemonTaskWorkResultType.Failed, Description = result.Result };
 
-            build.LogPath = result.BuildLogPath;
+            build.LogFetched = true;
             dataWrite.SaveBuild(build);
 
             // create tasks for next stage

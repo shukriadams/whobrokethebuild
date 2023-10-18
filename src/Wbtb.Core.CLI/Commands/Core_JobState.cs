@@ -79,14 +79,13 @@ namespace Wbtb.Core.CLI
                         return;
                     }
 
-                    if (logBuild.LogPath == null)
+                    if (!logBuild.LogFetched)
                     {
                         Console.WriteLine($"build with id {switches.Get("logbuild")} has no log");
                         Environment.Exit(1);
                         return;
                     }
 
-                    logPath = logBuild.LogPath;
                     Console.WriteLine($"logpath for forced build will be set to path from build {logBuild.Id}.");
                 }
                 else 
@@ -101,7 +100,7 @@ namespace Wbtb.Core.CLI
                 Key = key.ToString(),
                 StartedUtc = DateTime.UtcNow,
                 EndedUtc = DateTime.UtcNow,
-                LogPath = logPath,
+                LogFetched = true,
                 Status = state == "fail" ? BuildStatus.Failed : BuildStatus.Passed,
             };
             build.SetUniquePublicIdentifier(job);

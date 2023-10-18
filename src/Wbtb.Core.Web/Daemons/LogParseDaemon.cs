@@ -58,23 +58,25 @@ namespace Wbtb.Core.Web
             if (parser == null)
                 return new DaemonTaskWorkResult { ResultType=DaemonTaskWorkResultType.Failed, Description = $"Log parser {task.Args} requested by this task was not found." };
 
-            if (string.IsNullOrEmpty(build.LogPath))
+            if (!build.LogFetched)
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Build id:{build.Id} has no log path value." };
 
-            if (!File.Exists(build.LogPath))
-                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Log for Build id:{build.Id} at path:{build.LogPath} does not exist on disk." };
+            string logPath = Build.GetLogPath(_config, job, build);
+
+            if (!File.Exists(logPath))
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Log for Build id:{build.Id} at path:{logPath} does not exist on disk." };
 
             // todo : optimize, have to reread log just to hash is a major performance issue
             string rawLog;
 
             try
             {
-                rawLog = File.ReadAllText(build.LogPath);
+                rawLog = File.ReadAllText(logPath);
             }
             catch (Exception ex) 
             {
-                _log.LogError($"Failed to read log for build id:{build.Id} at path:{build.LogPath}.", ex);
-                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Failed to read log for build id:{build.Id} at path:{build.LogPath}. Exception : {ex}" };
+                _log.LogError($"Failed to read log for build id:{build.Id} at path:{logPath}.", ex);
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Failed to read log for build id:{build.Id} at path:{logPath}. Exception : {ex}" };
             }
 
             DateTime startUtc = DateTime.UtcNow;

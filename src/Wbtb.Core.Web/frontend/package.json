@@ -4,7 +4,7 @@
   "repository": "https://github.com/shukriadams/whobrokethebuild",
   "scripts": {
     "build": "npm run assets",
-    "buildall": "npm run build && npm run icons && node build/build-all-assets",
+    "buildall": " npm run icons && npm run build && node build/build-all-assets",
     "assets": "node ./build/build-all-assets",
     "icons": "cd build && node icons"
   },

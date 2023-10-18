@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Wbtb.Core.Common
 {
@@ -53,9 +54,9 @@ namespace Wbtb.Core.Common
         public string IncidentBuildId { get; set; }
 
         /// <summary>
-        /// Path log is stored to on local file system. Null until log is fetched.
+        /// 
         /// </summary>
-        public string LogPath { get; set; }
+        public bool LogFetched { get; set; }
 
         /// <summary>
         /// 
@@ -89,6 +90,11 @@ namespace Wbtb.Core.Common
                 throw new Exception($"Cannot set public identifier on build id {this.Id}, job id {job.Id} has no key value");
 
             this.UniquePublicKey = Sha256.FromString($"{this.Key}_{job.Key}");
+        }
+
+        public static string GetLogPath(Configuration config, Job job, Build build) 
+        {
+            return Path.Combine(config.BuildLogsDirectory, job.Key, build.Key, $"log.txt");
         }
     }
 }

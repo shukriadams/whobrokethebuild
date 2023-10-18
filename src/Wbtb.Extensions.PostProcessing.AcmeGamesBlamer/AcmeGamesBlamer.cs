@@ -83,7 +83,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 };
 
             // parse out clientspec from log : note the mandatory <p4-cient-state> wrapper required for clientspec in buildlog
-            string rawLog = File.ReadAllText(build.LogPath);
+            string rawLog = File.ReadAllText(Build.GetLogPath(config, job, build));
             string regex = @"<p4-cient-state>([\s\S]*?)<p4-cient-state>";
             string hash = Sha256.FromString(regex + rawLog);
             Cache cache = di.Resolve<Cache>();

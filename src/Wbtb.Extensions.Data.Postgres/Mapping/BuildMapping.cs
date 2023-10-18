@@ -13,7 +13,7 @@ namespace Wbtb.Extensions.Data.Postgres
             queryParameters.AddWithValue("signature", record.Signature);
             queryParameters.AddWithValue("key", record.Key);
             queryParameters.AddWithValue("uniquepublickey", record.UniquePublicKey);
-            queryParameters.AddWithValue("logpath", string.IsNullOrEmpty(record.LogPath) ? (object)DBNull.Value : record.LogPath);
+            queryParameters.AddWithValue("logfetched", record.LogFetched);
             queryParameters.AddWithValue("endedutc", record.EndedUtc == null ? (object)DBNull.Value : record.EndedUtc.Value);
             queryParameters.AddWithValue("hostname", string.IsNullOrEmpty(record.Hostname) ? (object)DBNull.Value : record.Hostname);
             queryParameters.AddWithValue("jobid", int.Parse(record.JobId));

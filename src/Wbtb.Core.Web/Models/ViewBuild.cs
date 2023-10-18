@@ -53,7 +53,7 @@ namespace Wbtb.Core.Web
                 Key = build.Key,
                 VisibleDateUtc = build.EndedUtc.HasValue ? build.EndedUtc.Value : build.StartedUtc,
                 IncidentBuildId = build.IncidentBuildId,
-                LogPath = build.LogPath,
+                LogFetched = build.LogFetched,
                 JobId = build.JobId,
                 StartedUtc = build.StartedUtc,
                 Status = build.Status,

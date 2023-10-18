@@ -511,19 +511,20 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            string logPath = Path.Combine(_config.BuildLogsDirectory, job.Key, build.Key, $"log.txt");
+            string absoluteLogPath = Build.GetLogPath(_config, job, build);
 
             try
             {
-                if (File.Exists(logPath))
-                    return new BuildLogRetrieveResult { Success = true, BuildLogPath = logPath, Result = "Log already imported" };
 
-                Directory.CreateDirectory(Path.GetDirectoryName(logPath));
+                if (File.Exists(absoluteLogPath))
+                    return new BuildLogRetrieveResult { Success = true, Result = "Log already imported" };
+
+                Directory.CreateDirectory(Path.GetDirectoryName(absoluteLogPath));
 
                 string logContent = ((IBuildServerPlugin)this).GetEphemeralBuildLog(build);
-                File.WriteAllText(logPath, logContent);
+                File.WriteAllText(absoluteLogPath, logContent);
 
-                return new BuildLogRetrieveResult { Success = true, BuildLogPath = logPath };
+                return new BuildLogRetrieveResult { Success = true };
             }
             catch (WebException ex)
             {
@@ -533,9 +534,9 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                     if (resp.StatusCode == HttpStatusCode.NotFound)
                     {
                         string placeholdertext = "Log no longer available on server <WBTB_BUILDSERVER_HISTORY_EXPIRED>.";
-                        File.WriteAllText(logPath, placeholdertext);
+                        File.WriteAllText(absoluteLogPath, placeholdertext);
                         Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
-                        return new BuildLogRetrieveResult { Success = true, BuildLogPath = logPath, Result = placeholdertext };
+                        return new BuildLogRetrieveResult { Success = true, Result = placeholdertext };
                     }
                     else
                     {
@@ -551,12 +552,12 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
             { 
                 try 
                 {
-                    if (File.Exists(logPath))
-                        File.Delete(logPath);
+                    if (File.Exists(absoluteLogPath))
+                        File.Delete(absoluteLogPath);
                 }
                 catch(Exception exCleanup)
                 { 
-                    Console.WriteLine($"Unexpected error trying to rollback log @ {logPath}", exCleanup);
+                    Console.WriteLine($"Unexpected error trying to rollback log @ {absoluteLogPath}", exCleanup);
                 }
 
                 // yeah, what is going on here .....

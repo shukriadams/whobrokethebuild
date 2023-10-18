@@ -36,7 +36,7 @@ namespace Wbtb.Core.Web
                 Hostname = build.Hostname,
                 Key = build.Key,
                 IncidentBuildId = build.IncidentBuildId,
-                LogPath = build.LogPath,
+                LogFetched = build.LogFetched,
                 JobId = build.JobId,
                 StartedUtc = build.StartedUtc,
                 Status = build.Status,

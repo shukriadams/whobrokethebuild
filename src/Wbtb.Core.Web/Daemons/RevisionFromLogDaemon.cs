@@ -115,7 +115,8 @@ namespace Wbtb.Core.Web
             if (string.IsNullOrEmpty(job.RevisionAtBuildRegex))
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = "RevisionAtBuildRegex not set" };
 
-            logText = File.ReadAllText(build.LogPath);
+            string logPath = Build.GetLogPath(_config, job, build);
+            logText = File.ReadAllText(logPath);
             revisionCode = GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
 
             if (string.IsNullOrEmpty(revisionCode))

@@ -17,7 +17,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 IncidentBuildId = reader["incidentbuildid"] == DBNull.Value ? null : reader["incidentbuildid"].ToString(),
                 Key = reader["key"].ToString(),
                 UniquePublicKey = reader["uniquepublickey"].ToString(),
-                LogPath = reader["logpath"] == DBNull.Value ? null : reader["logpath"].ToString(),
+                LogFetched = bool.Parse(reader["logfetched"].ToString()),
                 StartedUtc = DateTime.Parse(reader["startedutc"].ToString()),
                 EndedUtc = reader["endedutc"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(reader["endedutc"].ToString()),
                 Hostname = reader["hostname"].ToString(),

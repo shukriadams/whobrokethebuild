@@ -236,7 +236,7 @@ CREATE TABLE public."build"
     triggeringtype character varying(64) COLLATE pg_catalog."default",
     startedutc timestamp(4) without time zone NOT NULL,
     endedutc timestamp(4) without time zone,
-    logpath character varying(256) COLLATE pg_catalog."default",
+    logfetched boolean NOT NULL,
     hostname character varying(64) COLLATE pg_catalog."default",
     status integer NOT NULL,
     CONSTRAINT "build_pkey" PRIMARY KEY (id),

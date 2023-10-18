@@ -51,6 +51,8 @@ namespace Wbtb.Core.CLI
             SimpleDI di = new SimpleDI();
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Build build = dataLayer.GetBuildById(buildid);
+            Configuration config = di.Resolve<Configuration>();
+
             if (build == null) 
             {
                 Console.WriteLine($"ERROR : build {buildid} does not exist. Note this is a unique database id, not key/identifier from an external build srver.");
@@ -58,7 +60,7 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            if (string.IsNullOrEmpty(build.LogPath))
+            if (!build.LogFetched)
             {
                 Console.WriteLine($"ERROR : build {buildid} has no log");
                 Environment.Exit(1);
@@ -73,7 +75,7 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            string log = File.ReadAllText(build.LogPath);
+            string log = File.ReadAllText(Build.GetLogPath(config, job, build));
 
             Match match = new Regex(job.RevisionAtBuildRegex, RegexOptions.IgnoreCase & RegexOptions.Multiline).Match(log);
             if (!match.Success || match.Groups.Count < 2)

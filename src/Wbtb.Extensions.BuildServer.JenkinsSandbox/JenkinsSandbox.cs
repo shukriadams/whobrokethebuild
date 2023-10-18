@@ -311,12 +311,12 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
                 return new BuildLogRetrieveResult { Result = "Build log does not exist" };
 
             string logContent = GetBuildLog(build);
-            string logPath = Path.Combine(_config.BuildLogsDirectory, job.Key, build.Key, $"log.txt");
+            string logPath = Build.GetLogPath(_config, job, build);
 
             Directory.CreateDirectory(Path.GetDirectoryName(logPath));
             File.WriteAllText(logPath, logContent);
 
-            return new BuildLogRetrieveResult { Success = true, BuildLogPath = logPath};
+            return new BuildLogRetrieveResult { Success = true  };
         }
 
         Build IBuildServerPlugin.TryUpdateBuild(Build build)
