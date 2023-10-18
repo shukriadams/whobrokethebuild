@@ -624,7 +624,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     build
                 WHERE
                     (mutationreport.incidentid = build.id
-                    OR mutationreport.builid = build.id
+                    OR mutationreport.buildid = build.id
                     OR mutationreport.mutationid = build.id)
                     AND build.jobid = @jobid";
 
