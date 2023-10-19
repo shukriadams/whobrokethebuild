@@ -97,7 +97,12 @@ namespace Wbtb.Core.Web
 
                         bool hasMutated = previousBuildMutation != null && previousBuildMutation != currentBuildMutation;
 
-                        if (latestDeltaBuild.Status == BuildStatus.Failed )
+                        // force mutation to false if no toggle
+                        bool ignoreThisError = false;
+                        if (hasMutated && !_config.FeatureToggles.Contains("BUILD_MUTATION"))
+                            ignoreThisError = true;
+
+                        if (!ignoreThisError && latestDeltaBuild.Status == BuildStatus.Failed)
                         {
                             string alertKey = $"{currentBuildMutation}_{job.Key}_deltaAlert_{latestDeltaBuild.Status}";
 

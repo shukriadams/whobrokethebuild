@@ -124,9 +124,6 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             string thisBuildMutationHash = mutationHelper.GetBuildMutation(build);
             bool hasMutated = previusBuildMutationHash != thisBuildMutationHash;
 
-            // force mutation to false if no toggle
-            if (!config.FeatureToggles.Contains("BUILD_MUTATION"))
-                hasMutated = false;
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
