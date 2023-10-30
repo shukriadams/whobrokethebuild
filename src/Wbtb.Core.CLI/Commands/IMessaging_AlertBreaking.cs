@@ -83,6 +83,13 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
+            if (string.IsNullOrEmpty(build.IncidentBuildId))
+            {
+                Console.WriteLine($"ERROR : cannot mark build \"{build.Id}\" as failed, build does not have an incident nr. Did this build really fail?");
+                Environment.Exit(1);
+                return;
+            }
+
             string result = messagingPlugin.AlertBreaking(userKey, groupKey, build, false, true);
 
             Console.Write($"Message test executed, result : {result}");

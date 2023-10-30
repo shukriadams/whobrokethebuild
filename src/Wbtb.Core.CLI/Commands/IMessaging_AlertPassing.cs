@@ -105,6 +105,13 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
+            if (string.IsNullOrEmpty(build.IncidentBuildId))
+            {
+                Console.WriteLine($"ERROR : cannot mark build \"{build.Id}\" as fixed, build does not have an incident nr. Did this build really fail?");
+                Environment.Exit(1);
+                return;
+            }
+
             // mark build as fixing itself, it's testing only
             string result = messagingPlugin.AlertPassing(userKey, groupKey, build, fixingBuild); 
 
