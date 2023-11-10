@@ -21,7 +21,8 @@ namespace Wbtb.Core.Common
         public virtual string BuildInvolvementId { get; set; }
 
         /// <summary>
-        /// Name of plugin which parsed the log
+        /// Key of plugin which parsed the log. This value is based on config at the time of running, and could point to a plugin
+        /// that no longer exists.
         /// </summary>
         public string LogParserPlugin { get; set; }
 
