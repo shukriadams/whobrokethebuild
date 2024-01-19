@@ -17,21 +17,20 @@ namespace Wbtb.Core.Web
             Configuration = configuration;
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages()
                 .AddRazorRuntimeCompilation(); // allows us to to reload view changes without recompile
 
-            // note : we don't use dotnet's DI framework
+            // note : we don't use dotnet's DI framework. DI is handled by internal SimpleDI
             services.AddSignalR();
-            services.AddHostedService<ServerStartService>();
             services.AddMemoryCache();
+            // most WBTB app load logic is in this service, which is called once the underlying ASP application is loaded.
+            services.AddHostedService<ServerStartService>();
 
             services.AddScoped<ViewStatus>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IServiceProvider provider, IWebHostEnvironment env)
         {
             IHubContext<ConsoleHub> consoleHubContext = provider.GetRequiredService<IHubContext<ConsoleHub>>();

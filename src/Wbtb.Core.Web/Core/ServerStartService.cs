@@ -13,6 +13,11 @@ namespace Wbtb.Core.Web
 {
     public class ServerStartService : BackgroundService
     {
+        /// <summary>
+        /// Does the final part of Wbtb server start, after the underlying ASP application is loaded. We need to wait for this because WBTB relies on HTTP requests to do its thing.
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <param name="lifetime"></param>
         public ServerStartService(IServiceProvider serviceProvider, IHostApplicationLifetime lifetime)
         {
             bool exitOnConfigError = true;

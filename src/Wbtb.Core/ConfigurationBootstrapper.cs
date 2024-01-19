@@ -5,12 +5,12 @@ using Wbtb.Core.Common;
 namespace Wbtb.Core
 {
     /// <summary>
-    /// Fetches WBTB config froma git repo
+    /// Fetches WBTB config from a git repo
     /// </summary>
     public class ConfigurationBootstrapper
     {
         /// <summary>
-        /// Ensures latest config. returns true of config has changed
+        /// Ensures latest config. Returns true of config has changed
         /// </summary>
         /// <returns></returns>
         public bool EnsureLatest() 
@@ -80,6 +80,7 @@ namespace Wbtb.Core
                 return true;
             }
 
+            Console.WriteLine($"Config unchanged at hash {targetConfigFileHash}.");
             return false;
         }
     }
