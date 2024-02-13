@@ -16,15 +16,21 @@ namespace Wbtb.Core
         public bool EnsureLatest() 
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL")))
+            {
+                Console.WriteLine("GIT-CONFIG : sync disabled, skipping");
                 return false;
+            }
+
+            Console.WriteLine("GIT-CONFIG : sync enabled");
 
             string gitRemote = Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL");
             string localgiturlfile = "./.giturl";
-            if (File.Exists(localgiturlfile))
+            if (File.Exists(localgiturlfile)) 
+            {
                 gitRemote = File.ReadAllText(localgiturlfile);
-
-            if (string.IsNullOrEmpty(gitRemote))
-                throw new Exception("WBTB_GIT_CONFIG_REPO_URL required");
+                if (string.IsNullOrEmpty(gitRemote))
+                    throw new Exception("GIT-CONFIG : ./.giturl override exists, but is empty. File should contain git url to sync config from.");
+            }
 
             string localPath = "config.yml";
 
@@ -38,7 +44,7 @@ namespace Wbtb.Core
             Shell shell = new Shell();
             shell.Run("git");
             if (shell.StdErr.Count > 0)
-                throw new Exception("git not installed");
+                throw new Exception("GIT-CONFIG : git not found, but required to sync config. Please install git and restart server.");
 
             if (Directory.Exists(checkoutPath)) 
             {
@@ -53,7 +59,8 @@ namespace Wbtb.Core
             {
                 // git clone
                 shell = new Shell();
-                shell.Run($"git clone {gitRemote} {checkoutPath}");
+                string result = shell.Run($"git clone {gitRemote} {checkoutPath}");
+                Console.WriteLine($"GIT-CONFIG : {result}");
             }
 
             shell = new Shell();
@@ -62,7 +69,7 @@ namespace Wbtb.Core
             string configFileLocalPath = Path.Join(checkoutPath, localPath);
 
             if (!File.Exists(configFileLocalPath))
-                throw new ConfigurationException($"Expected config file {localPath} was not found in checkout from remote repo");
+                throw new ConfigurationException($"GIT-CONFIG : Expected config file {localPath} was not found at checkout path {configFileLocalPath}. Did git clone fail?");
 
             string targetConfigFilePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml");
             string targetConfigFileHash = string.Empty;
@@ -76,11 +83,11 @@ namespace Wbtb.Core
                 File.Copy(configFileLocalPath, Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"), true);
                 shell = new Shell();
                 string commitMessage = shell.Run($"git log --format=%B -n 1 {incomingConfigFileHash}");
-                Console.WriteLine($"CONFIG HAS CHANGED ({incomingConfigFileHash} {commitMessage}).");
+                Console.WriteLine($"GIT-CONFIG : config has changed. Config hash was {targetConfigFileHash}, is now {incomingConfigFileHash} ({commitMessage}).");
                 return true;
             }
 
-            Console.WriteLine($"Config unchanged at hash {targetConfigFileHash}.");
+            Console.WriteLine($"GIT-CONFIG : Config unchanged at hash {targetConfigFileHash}.");
             return false;
         }
     }
