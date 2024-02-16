@@ -21,6 +21,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 StartedUtc = DateTime.Parse(reader["startedutc"].ToString()),
                 EndedUtc = reader["endedutc"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(reader["endedutc"].ToString()),
                 Hostname = reader["hostname"].ToString(),
+                RevisionInBuildLog = reader["revisionInBuildLog"] == DBNull.Value ? null : reader["revisionInBuildLog"].ToString(),
                 Status = (BuildStatus)reader["status"]
             };
         }

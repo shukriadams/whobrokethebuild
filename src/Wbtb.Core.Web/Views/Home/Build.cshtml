@@ -74,6 +74,13 @@
                     <wbtb-label>View on</wbtb-label>
                     <div><a href="@Model.UrlOnBuildServer">@Model.BuildServer.Name</a></div>
                 }
+
+                @if (!string.IsNullOrEmpty(Model.Build.RevisionInBuildLog))
+                {
+                    <wbtb-label>Revision in log</wbtb-label>
+                    <div>@Model.Build.RevisionInBuildLog</div>
+                }
+
             </wbtb-labels>
 
         </x-card-pad>

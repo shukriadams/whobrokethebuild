@@ -5,7 +5,7 @@ using System.Linq;
 namespace Wbtb.Core.Common
 {
     /// <summary>
-    /// config is loaded from multiple sources.
+    /// Main configuration. loaded from multiple sources.
     /// outermost is loaded from config.yml which is static and on-disk.
     /// PluginDeclarations are also static, but contain run-time data added on app start
     /// </summary>

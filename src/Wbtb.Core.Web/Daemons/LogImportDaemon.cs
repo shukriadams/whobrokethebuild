@@ -81,7 +81,7 @@ namespace Wbtb.Core.Web.Core
                     Stage = (int)DaemonTaskTypes.LogParse
                 });
 
-            // build revision requires source controld
+            // build revision requires source control
             if (!string.IsNullOrEmpty(job.RevisionAtBuildRegex) && !string.IsNullOrEmpty(job.SourceServerId))
                 dataWrite.SaveDaemonTask(new DaemonTask
                 {

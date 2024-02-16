@@ -239,6 +239,7 @@ CREATE TABLE public."build"
     logfetched boolean NOT NULL,
     hostname character varying(64) COLLATE pg_catalog."default",
     status integer NOT NULL,
+    revisionInBuildLog text COLLATE pg_catalog."default",
     CONSTRAINT "build_pkey" PRIMARY KEY (id),
     CONSTRAINT "build_key_unique" UNIQUE ("key", jobid),
     CONSTRAINT "build_uniquepublickey_unique" UNIQUE (uniquepublickey),

@@ -3,12 +3,24 @@ using System.IO;
 
 namespace Wbtb.Core.Common
 {
+    /// <summary>
+    /// Defines a type that corresponds to a build run on a CI server. Build runs are typically unique in time, and involve running some kind of shell 
+    /// command that ends in pass or fail. Traditionally a "build" means compiling code, and ends either with binaries, or an error log that explains 
+    /// why the binaries failed to compile. Builds are organized under Jobs.
+    /// </summary>
     public class Build : ISignature
     {
+        #region PROPERTIES
+
         /// <summary>
         /// Id of record in database
         /// </summary>
         public string Id { get; set; }
+
+        /// <summary>
+        /// See ISignature.
+        /// </summary>
+        public string Signature { get; set; }
 
         /// <summary>
         /// Parent job this build is associated with
@@ -59,14 +71,23 @@ namespace Wbtb.Core.Common
         public bool LogFetched { get; set; }
 
         /// <summary>
-        /// 
+        /// If revision at time of running is in log, and job has regex for parsing this out, and a value could be parsed out.
+        /// Null if not set. Check Task status for job to determine why not set.
         /// </summary>
-        public string Signature { get; set; }
+        public string RevisionInBuildLog { get; set; }
+
+        #endregion
+
+        #region CTORS
 
         public Build()
         {
             this.Signature = Guid.NewGuid().ToString();
         }
+
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// Builds that count towards definitive history must either pass or fail, we don't care about builds that 
@@ -96,5 +117,7 @@ namespace Wbtb.Core.Common
         {
             return Path.Combine(config.BuildLogsDirectory, job.Key, build.Key, $"log.txt");
         }
+
+        #endregion
     }
 }

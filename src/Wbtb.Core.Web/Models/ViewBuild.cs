@@ -25,7 +25,7 @@ namespace Wbtb.Core.Web
         public MutationReport MutationReport { get; set; }
 
         public ViewJob Job { get; set; }
-
+   
         /// <summary>
         /// Safe date that can always be relied on to display on view. Is build.endutc if set, else reverts to build.startuc
         /// </summary>
@@ -53,6 +53,7 @@ namespace Wbtb.Core.Web
                 Key = build.Key,
                 VisibleDateUtc = build.EndedUtc.HasValue ? build.EndedUtc.Value : build.StartedUtc,
                 IncidentBuildId = build.IncidentBuildId,
+                RevisionInBuildLog = build.RevisionInBuildLog,
                 LogFetched = build.LogFetched,
                 JobId = build.JobId,
                 StartedUtc = build.StartedUtc,

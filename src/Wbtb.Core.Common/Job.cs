@@ -2,6 +2,9 @@
 
 namespace Wbtb.Core.Common
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class Job : IIdentifiable
     {
         #region PROPERTIES
@@ -120,6 +123,17 @@ namespace Wbtb.Core.Common
         /// Addition key-value config specific to plugin. These are defined in config.yml
         /// </summary>
         public IEnumerable<KeyValuePair<string, object>> Config { get; set; }
+
+        /// <summary>
+        /// Returns if job supports showing revisions from build log
+        /// </summary>
+        public bool CanHaveRevisionInBuildLog 
+        {
+            get 
+            {
+                return !string.IsNullOrEmpty(this.RevisionAtBuildRegex);
+            }
+        }
 
         #endregion
 

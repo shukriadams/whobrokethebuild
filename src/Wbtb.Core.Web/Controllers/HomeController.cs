@@ -215,12 +215,31 @@ namespace Wbtb.Core.Web.Controllers
             model.Banner.BreadCrumbs.Add(ViewHelpers.JobLink(model.Build.Job));
             model.Banner.BreadCrumbs.Add(ViewHelpers.String(model.Build.Key));
 
-            IEnumerable<DaemonTask> buildTasks = dataLayer.GetDaemonTasksByBuild(model.Build.Id);
+            IEnumerable<DaemonTask> daemonTasks = dataLayer.GetDaemonTasksByBuild(model.Build.Id);
 
             BuildServer buildServer = dataLayer.GetBuildServerById(model.Build.Job.BuildServerId);
             IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
 
             model.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(model.Build.Id));
+            
+            /// if build should have a revision from build but doesn't have it yet, try to explain why
+            if (model.Build.Job.CanHaveRevisionInBuildLog && string.IsNullOrEmpty(model.Build.RevisionInBuildLog)) 
+            {
+                DaemonTask task = daemonTasks.FirstOrDefault(t => t.Stage == (int)DaemonTaskTypes.RevisionFromLog);
+                if (task == null)
+                {
+                    model.Build.RevisionInBuildLog = "No daemon task to read";
+                }
+                else 
+                {
+                    if (task.ProcessedUtc == null)
+                        model.Build.RevisionInBuildLog = "Not processed yet";
+                    else if (task.HasPassed.HasValue && task.HasPassed.Value== false)
+                        model.Build.RevisionInBuildLog = "Log parse failed";
+                    else
+                        model.Build.RevisionInBuildLog = "Error reading from log";
+                }
+            }
 
             foreach (ViewBuildInvolvement bi in model.BuildInvolvements)
             {
@@ -245,8 +264,8 @@ namespace Wbtb.Core.Web.Controllers
 
             model.Build.IncidentBuild = string.IsNullOrEmpty(model.Build.IncidentBuildId) ? null : ViewBuild.Copy(dataLayer.GetBuildById(model.Build.IncidentBuildId));
             model.RevisionsLinkedFromLog = !string.IsNullOrEmpty(model.Build.Job.RevisionAtBuildRegex);
-            model.ProcessErrors = buildTasks.Any(t => t.HasPassed.HasValue && t.HasPassed.Value == false);
-            model.ProcessesPending = buildTasks.Any(t => t.ProcessedUtc == null);
+            model.ProcessErrors = daemonTasks.Any(t => t.HasPassed.HasValue && t.HasPassed.Value == false);
+            model.ProcessesPending = daemonTasks.Any(t => t.ProcessedUtc == null);
             model.MutationReport = dataLayer.GetMutationReportByBuild(model.Build.Id);
 
             return View(model);

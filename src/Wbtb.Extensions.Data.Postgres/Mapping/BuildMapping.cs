@@ -20,6 +20,7 @@ namespace Wbtb.Extensions.Data.Postgres
             queryParameters.AddWithValue("incidentbuildid", string.IsNullOrEmpty(record.IncidentBuildId) ? (object)DBNull.Value : int.Parse(record.IncidentBuildId));
             queryParameters.AddWithValue("startedutc", record.StartedUtc);
             queryParameters.AddWithValue("status", (int)record.Status);
+            queryParameters.AddWithValue("revisionInBuildLog", string.IsNullOrEmpty(record.RevisionInBuildLog) ? (object)DBNull.Value : record.RevisionInBuildLog);
         }
     }
 }

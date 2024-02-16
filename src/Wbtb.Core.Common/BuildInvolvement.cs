@@ -15,6 +15,11 @@ namespace Wbtb.Core.Common
         public virtual string Id { get; set; }
 
         /// <summary>
+        /// See ISignature.
+        /// </summary>
+        public string Signature { get; set; }
+
+        /// <summary>
         /// Database id of the build this involvement happens under.
         /// </summary>
         public string BuildId { get; set; }
@@ -54,11 +59,6 @@ namespace Wbtb.Core.Common
         /// Score from 0 (innocent to 100, guaranteed blame. Everything in between is arbitrary.
         /// </summary>
         public int? BlameScore { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Signature { get; set; }
 
         #endregion
 

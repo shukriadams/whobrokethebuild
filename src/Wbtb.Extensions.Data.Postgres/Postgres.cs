@@ -944,9 +944,9 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             string insertQuery = @"
                 INSERT INTO build
-                    (jobid, signature, key, uniquepublickey, logfetched, incidentbuildid, startedutc, endedutc, hostname, status)
+                    (jobid, signature, key, uniquepublickey, logfetched, incidentbuildid, startedutc, endedutc, hostname, status, revisionInBuildLog)
                 VALUES
-                    (@jobid, @signature, @key, @uniquepublickey, @logfetched, @incidentbuildid, @startedutc, @endedutc, @hostname, @status)
+                    (@jobid, @signature, @key, @uniquepublickey, @logfetched, @incidentbuildid, @startedutc, @endedutc, @hostname, @status, @revisionInBuildLog)
                 RETURNING id";
 
             string updateQuery = @"                    
@@ -959,7 +959,8 @@ namespace Wbtb.Extensions.Data.Postgres
                     logfetched = @logfetched,
                     startedutc = @startedutc, 
                     endedutc = @endedutc, 
-                    hostname = @hostname, 
+                    hostname = @hostname,
+                    revisionInBuildLog = @revisionInBuildLog,
                     status = @status
                 WHERE
                     id = @id

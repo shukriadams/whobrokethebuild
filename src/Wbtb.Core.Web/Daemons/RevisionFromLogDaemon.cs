@@ -117,13 +117,21 @@ namespace Wbtb.Core.Web
 
             string logPath = Build.GetLogPath(_config, job, build);
             logText = File.ReadAllText(logPath);
-            revisionCode = GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
+            revisionCode = this.GetRevisionFromLog(logText, job.RevisionAtBuildRegex);
 
             if (string.IsNullOrEmpty(revisionCode))
             {
                 task.Result = $"Could not read a revision code from log content. This might be due to an error with your revision regex {job.RevisionAtBuildRegex}, but it could be that the revision string was not written to the log.";
                 return new DaemonTaskWorkResult();
             }
+
+            // write revision to build if not yet saved
+            if (build.RevisionInBuildLog != revisionCode)
+            {
+                build.RevisionInBuildLog = revisionCode;
+                dataWrite.SaveBuild(build);
+            }
+
 
             RevisionLookup revisionLookup = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
             if (!revisionLookup.Success)
@@ -164,11 +172,11 @@ namespace Wbtb.Core.Web
             // get build involvements already in this build
             IEnumerable<BuildInvolvement> buildInvolvementsInThisBuild = dataRead.GetBuildInvolvementsByBuild(build.Id);
 
-            IEnumerable<string> revisionsToLinkIds = revisionsToLink.Select(r => r.Code).Distinct();
+            IEnumerable<string> revisionsIdsToLink = revisionsToLink.Select(r => r.Code).Distinct();
 
-            foreach (string revisionsToLinkId in revisionsToLinkIds)
+            foreach (string revisionIdToLink in revisionsIdsToLink)
             {
-                BuildInvolvement buildInvolvement = buildInvolvementsInThisBuild.FirstOrDefault(bi => bi.RevisionCode == revisionsToLinkId);
+                BuildInvolvement buildInvolvement = buildInvolvementsInThisBuild.FirstOrDefault(bi => bi.RevisionCode == revisionIdToLink);
                 if (buildInvolvement != null) 
                 {
                     task.Result = $"Build involvement id {buildInvolvement.Id} already existed.";
@@ -176,15 +184,15 @@ namespace Wbtb.Core.Web
                 }
     
                 // check if revision shows up in history of previous build, if so, we've overspanned, but that's ok, just ignore it
-                if (buildInvolvementsInPreviousBuild.Any(bi => bi.RevisionCode == revisionsToLinkId))
+                if (buildInvolvementsInPreviousBuild.Any(bi => bi.RevisionCode == revisionIdToLink))
                     continue;
 
                 // create build involvement for this revision
                 buildInvolvement = dataWrite.SaveBuildInvolement(new BuildInvolvement
                 {
                     BuildId = build.Id,
-                    RevisionCode = revisionsToLinkId,
-                    InferredRevisionLink = revisionCode != revisionsToLinkId
+                    RevisionCode = revisionIdToLink,
+                    InferredRevisionLink = revisionCode != revisionIdToLink
                 });
 
                 dataWrite.SaveDaemonTask(new DaemonTask

@@ -70,7 +70,7 @@ namespace Wbtb.Core.CLI
             Job job = dataLayer.GetJobById(build.JobId);
             if (string.IsNullOrEmpty(job.RevisionAtBuildRegex)) 
             {
-                Console.WriteLine($"ERROR : job {job.Name} for build {buildid} has RevisionAtBuildRegex regex set.");
+                Console.WriteLine($"ERROR : job {job.Name} for build {buildid} has no RevisionAtBuildRegex regex set.");
                 Environment.Exit(1);
                 return;
             }
