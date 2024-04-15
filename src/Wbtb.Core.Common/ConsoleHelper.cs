@@ -10,6 +10,7 @@ namespace Wbtb.Core.Common
         public static void WriteLine(object arg)
         {
             Console.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} :", arg);
+            System.Diagnostics.Debug.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} :", arg);
         }
 
         /// <summary>
@@ -20,6 +21,7 @@ namespace Wbtb.Core.Common
         public static void WriteLine(string message, object arg = null)
         {
             Console.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} : {message}" , arg);
+            System.Diagnostics.Debug.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} : {message}", arg);
         }
 
         /// <summary>
@@ -31,6 +33,7 @@ namespace Wbtb.Core.Common
         public static void WriteLine(object sourceObject, string message, object arg = null)
         {
             Console.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} : {sourceObject.GetType().Name} : {message}", arg);
+            System.Diagnostics.Debug.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} : {sourceObject.GetType().Name} : {message}", arg);
         }
     }
 }

@@ -47,7 +47,7 @@ namespace Wbtb.Core
                 }
                 else
                 {
-                    ConsoleHelper.WriteLine($"Replacing env var for value \"{evnVarToken.Groups[1].Value}\".");
+                    ConsoleHelper.WriteLine($"Injecting environment variable for \"{evnVarToken.Groups[1].Value}\".");
                     rawYml = rawYml.Replace("{{env." + evnVarToken.Groups[1].Value + "}}", envVarValue);
                 }
             }
