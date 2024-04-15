@@ -65,13 +65,13 @@ namespace Wbtb.Core
                     if (File.ReadAllText(cachePath) == unvalidatedConfig.Hash) 
                     {
                         validate = false;
-                        Console.WriteLine("Skipping config validation, config unchanged since last check.");
+                        ConsoleHelper.WriteLine("Skipping config validation, config unchanged since last check.");
                     }
                         
                 }
                 catch (Exception ex) 
                 {
-                    Console.WriteLine($"Failed to read config hash : {ex.Message}");
+                    ConsoleHelper.WriteLine($"Failed to read config hash : {ex.Message}");
                 }
             }
 
@@ -94,7 +94,7 @@ namespace Wbtb.Core
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to write config hash : {ex.Message}");
+                ConsoleHelper.WriteLine($"Failed to write config hash : {ex.Message}");
             }
 
 
@@ -107,7 +107,7 @@ namespace Wbtb.Core
             }
             else
             {
-                Console.WriteLine("No plugins running in proxy mode, ignoring MessageQueue status.");
+                ConsoleHelper.WriteLine("No plugins running in proxy mode, ignoring MessageQueue status.");
             }
 
             Configuration config = di.Resolve<Configuration>();
@@ -146,7 +146,7 @@ namespace Wbtb.Core
 
                     IEnumerable<string> orphans = builder.FindOrphans();
                     foreach (string orphan in orphans)
-                        Console.WriteLine(orphan);
+                        ConsoleHelper.WriteLine(orphan);
 
                     if (config.FailOnOrphans && orphans.Count() > 0)
                         throw new ConfigurationException("Orphan records detected. Please merge or delete orphans. Disable this check with \"FailOnOrphans: false\" in config.");

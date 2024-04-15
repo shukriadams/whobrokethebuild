@@ -18,14 +18,14 @@ namespace Wbtb.Core.CLI
 
             if (!switches.Contains("Job"))
             {
-                Console.WriteLine($"ERROR : \"Job\" key required");
+                ConsoleHelper.WriteLine($"ERROR : \"Job\" key required");
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("State"))
             {
-                Console.WriteLine($"ERROR : \"State\" key required");
+                ConsoleHelper.WriteLine($"ERROR : \"State\" key required");
                 Environment.Exit(1);
                 return;
             }
@@ -35,7 +35,7 @@ namespace Wbtb.Core.CLI
             string state = switches.Get("state");
             if (state != "pass" && state != "fail")
             {
-                Console.WriteLine($"ERROR : \"State\" must be either \"pass\" or \"fail\".");
+                ConsoleHelper.WriteLine($"ERROR : \"State\" must be either \"pass\" or \"fail\".");
                 Environment.Exit(1);
                 return;
             }
@@ -44,7 +44,7 @@ namespace Wbtb.Core.CLI
             Job job = dataLayer.GetJobByKey(jobKey);
             if (job == null) 
             {
-                Console.WriteLine($"Job key {jobKey} not valid");
+                ConsoleHelper.WriteLine($"Job key {jobKey} not valid");
                 Environment.Exit(1);
                 return;
             }
@@ -66,7 +66,7 @@ namespace Wbtb.Core.CLI
                     int buildId = 0;
                     if (!int.TryParse(switches.Get("logbuild"), out buildId)) 
                     {
-                        Console.WriteLine("--logbuild value is not an integer");
+                        ConsoleHelper.WriteLine("--logbuild value is not an integer");
                         Environment.Exit(1);
                         return;
                     }
@@ -74,23 +74,23 @@ namespace Wbtb.Core.CLI
                     Build logBuild = dataLayer.GetBuildById(switches.Get("logbuild"));
                     if (logBuild == null)
                     {
-                        Console.WriteLine($"Could not find build with id {switches.Get("logbuild")}");
+                        ConsoleHelper.WriteLine($"Could not find build with id {switches.Get("logbuild")}");
                         Environment.Exit(1);
                         return;
                     }
 
                     if (!logBuild.LogFetched)
                     {
-                        Console.WriteLine($"build with id {switches.Get("logbuild")} has no log");
+                        ConsoleHelper.WriteLine($"build with id {switches.Get("logbuild")} has no log");
                         Environment.Exit(1);
                         return;
                     }
 
-                    Console.WriteLine($"logpath for forced build will be set to path from build {logBuild.Id}.");
+                    ConsoleHelper.WriteLine($"logpath for forced build will be set to path from build {logBuild.Id}.");
                 }
                 else 
                 {
-                    Console.WriteLine("--logbuild not set, ignoring. You can force an error log from an existing build with this switch.");
+                    ConsoleHelper.WriteLine("--logbuild not set, ignoring. You can force an error log from an existing build with this switch.");
                 }
             }
 
@@ -107,7 +107,7 @@ namespace Wbtb.Core.CLI
 
             dataLayer.SaveBuild(build);
 
-            Console.WriteLine($"Set job {job.Key} to {state}");
+            ConsoleHelper.WriteLine($"Set job {job.Key} to {state}");
         }
     }
 }

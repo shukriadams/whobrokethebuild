@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
@@ -153,6 +152,9 @@ namespace Wbtb.Core.Web
                     BuildInvolvementId = biID,
                     Src = this.GetType().Name
                 });
+
+                ConsoleHelper.WriteLine(this, $"Linked revision {revisionCode} to build {build.Key} (id:{build.Id})");
+
             }
 
             task.Result = result.Result;

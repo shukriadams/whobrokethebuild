@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Wbtb.Core.CLI.Lib;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -49,12 +48,12 @@ namespace Wbtb.Core.CLI
                 if (string.IsNullOrEmpty(command)) 
                 {
 
-                    Console.WriteLine($"ERROR : key --\"command|c\" <COMMAND NAME> required");
-                    Console.WriteLine("Available commands :");
+                    ConsoleHelper.WriteLine($"ERROR : key --\"command|c\" <COMMAND NAME> required");
+                    ConsoleHelper.WriteLine("Available commands :");
                     foreach (Type availableCommand in availableCommands) 
                     {
                         ICommand commandInstance = di.Resolve(availableCommand) as ICommand;
-                        Console.WriteLine($"Command: {availableCommand.Name} ({commandInstance.Describe()})");
+                        ConsoleHelper.WriteLine($"Command: {availableCommand.Name} ({commandInstance.Describe()})");
                     }
 
                     Environment.Exit(1);
@@ -66,7 +65,7 @@ namespace Wbtb.Core.CLI
                 
                 if (commandType == null)
                 {
-                    Console.WriteLine($"ERROR : command \"{command}\" does not exist.");
+                    ConsoleHelper.WriteLine($"ERROR : command \"{command}\" does not exist.");
                     Environment.Exit(1);
                 }
 
@@ -75,7 +74,7 @@ namespace Wbtb.Core.CLI
             }
             catch (ConfigurationException ex)
             {
-                Console.WriteLine($"CONFIG ERROR : {ex.Message}");
+                ConsoleHelper.WriteLine($"CONFIG ERROR : {ex.Message}");
             }
         }
     }

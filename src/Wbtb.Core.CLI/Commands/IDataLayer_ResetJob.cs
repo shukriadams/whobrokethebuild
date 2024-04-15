@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Wbtb.Core.CLI.Lib;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -13,13 +12,13 @@ namespace Wbtb.Core.CLI
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly ConsoleHelper _consoleHelper;
+        private readonly Wbtb.Core.CLI.ConsoleCLIHelper _consoleHelper;
 
         #endregion
 
         #region CTORS
 
-        public IDataLayer_ResetJob(PluginProvider pluginProvider, ConsoleHelper consoleHelper) 
+        public IDataLayer_ResetJob(PluginProvider pluginProvider, ConsoleCLIHelper consoleHelper) 
         {
             _pluginProvider = pluginProvider;
             _consoleHelper = consoleHelper;
@@ -38,9 +37,9 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("job"))
             {
-                Console.WriteLine($"ERROR : \"--job\" <job> required");
+                ConsoleHelper.WriteLine($"ERROR : \"--job\" <job> required");
                 _consoleHelper.PrintJobs();
-                Console.WriteLine($"use \"--job * \"to wipe all jobs");
+                ConsoleHelper.WriteLine($"use \"--job * \"to wipe all jobs");
                 Environment.Exit(1);
                 return;
             }
@@ -59,7 +58,7 @@ namespace Wbtb.Core.CLI
                 Job job = dataLayer.GetJobByKey(jobKey);
                 if (job == null)
                 {
-                    Console.WriteLine($"ERROR : \"--job\" key {jobKey} does not point to a valid job");
+                    ConsoleHelper.WriteLine($"ERROR : \"--job\" key {jobKey} does not point to a valid job");
                     _consoleHelper.PrintJobs();
                     Environment.Exit(1);
                     return;
@@ -69,11 +68,11 @@ namespace Wbtb.Core.CLI
 
 
             if (hard)
-                Console.WriteLine("Performing hard reset");
+                ConsoleHelper.WriteLine("Performing hard reset");
             else
-                Console.WriteLine("Performing reset - to force delete all child records under job use --hard switch");
+                ConsoleHelper.WriteLine("Performing reset - to force delete all child records under job use --hard switch");
 
-            Console.Write($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.");
+            ConsoleHelper.WriteLine($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.");
 
             foreach (Job job in jobs) 
             {
@@ -97,13 +96,13 @@ namespace Wbtb.Core.CLI
                         });
 
                         Thread.Sleep(10);
-                        Console.WriteLine($"Requeued build {build.Key} for processing.");
+                        ConsoleHelper.WriteLine($"Requeued build {build.Key} for processing.");
                     }
 
                     page++;
                 }
 
-                Console.Write($"Job {job.Name} reset. {deleted} records deleted.");
+                ConsoleHelper.WriteLine($"Job {job.Name} reset. {deleted} records deleted.");
             }
 
         }

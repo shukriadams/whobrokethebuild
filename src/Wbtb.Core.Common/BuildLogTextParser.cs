@@ -63,7 +63,7 @@ namespace Wbtb.Core.Common
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex);
+                ConsoleHelper.WriteLine(ex);
                 return null;
             }
 

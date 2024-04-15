@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Wbtb.Core.CLI.Lib;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -41,7 +36,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("build"))
             {
-                Console.WriteLine($"ERROR : \"--build\" <buildid> required");
+                ConsoleHelper.WriteLine($"ERROR : \"--build\" <buildid> required");
                 Environment.Exit(1);
                 return;
             }
@@ -55,14 +50,14 @@ namespace Wbtb.Core.CLI
 
             if (build == null) 
             {
-                Console.WriteLine($"ERROR : build {buildid} does not exist. Note this is a unique database id, not key/identifier from an external build srver.");
+                ConsoleHelper.WriteLine($"ERROR : build {buildid} does not exist. Note this is a unique database id, not key/identifier from an external build srver.");
                 Environment.Exit(1);
                 return;
             }
 
             if (!build.LogFetched)
             {
-                Console.WriteLine($"ERROR : build {buildid} has no log");
+                ConsoleHelper.WriteLine($"ERROR : build {buildid} has no log");
                 Environment.Exit(1);
                 return;
             }
@@ -70,7 +65,7 @@ namespace Wbtb.Core.CLI
             Job job = dataLayer.GetJobById(build.JobId);
             if (string.IsNullOrEmpty(job.RevisionAtBuildRegex)) 
             {
-                Console.WriteLine($"ERROR : job {job.Name} for build {buildid} has no RevisionAtBuildRegex regex set.");
+                ConsoleHelper.WriteLine($"ERROR : job {job.Name} for build {buildid} has no RevisionAtBuildRegex regex set.");
                 Environment.Exit(1);
                 return;
             }
@@ -80,12 +75,12 @@ namespace Wbtb.Core.CLI
             Match match = new Regex(job.RevisionAtBuildRegex, RegexOptions.IgnoreCase & RegexOptions.Multiline).Match(log);
             if (!match.Success || match.Groups.Count < 2)
             {
-                Console.WriteLine("No revisions found");
+                ConsoleHelper.WriteLine("No revisions found");
                 return;
             }
 
-            Console.WriteLine("Found ");
-            Console.WriteLine(match.Groups[1].Value);
+            ConsoleHelper.WriteLine("Found ");
+            ConsoleHelper.WriteLine(match.Groups[1].Value);
         }
 
         #endregion

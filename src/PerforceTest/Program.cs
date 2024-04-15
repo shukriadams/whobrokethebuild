@@ -15,7 +15,7 @@ namespace PerforceTest
 
             // var annotate = PerforceUtils.Annotate("myuser", "mypwd", "p4.myserver:1666", "//mystream/thing", 51039);
 
-            //  Console.WriteLine(annotate);
+            //  ConsoleHelper.WriteLine(annotate);
         }
     }
 }

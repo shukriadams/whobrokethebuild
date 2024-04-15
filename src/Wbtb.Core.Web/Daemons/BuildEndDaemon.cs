@@ -95,6 +95,8 @@ namespace Wbtb.Core.Web
                         Stage = (int)DaemonTaskTypes.PostProcess
                     });
             }
+            
+            ConsoleHelper.WriteLine(this, $"Build {build.Key} (id:{build.Id}) marked as complete, status is {build.Status}");
 
             return new DaemonTaskWorkResult();
         }

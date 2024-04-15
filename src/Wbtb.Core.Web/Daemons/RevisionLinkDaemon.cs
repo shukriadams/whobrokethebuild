@@ -74,6 +74,8 @@ namespace Wbtb.Core.Web
             buildInvolvement.RevisionId = revisionLookup.Revision.Id;
             dataWrite.SaveBuildInvolement(buildInvolvement);
 
+            ConsoleHelper.WriteLine(this, $"Linked revision {revisionLookup.Revision.Code} to build {build.Key} (id:{build.Id})");
+
             return new DaemonTaskWorkResult();
         }
 

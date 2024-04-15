@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
 
@@ -110,7 +108,7 @@ namespace Wbtb.Core.Web
 
                 // if reach here, previous build's incident not assigned, but likely because it hasn't been processed yet. 
                 // Mark current as blocked and wait.
-                Console.WriteLine($"Skipping task {task.Id} for build {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
+                ConsoleHelper.WriteLine(this, $"Skipping task {task.Id} for build {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Previous build id {build.Id}, job id {job.Id} waiting for incident assignment" };
             }
 
@@ -118,6 +116,7 @@ namespace Wbtb.Core.Web
             build.IncidentBuildId = previousBuild.IncidentBuildId;
             dataWrite.SaveBuild(build);
 
+            ConsoleHelper.WriteLine(this, $"Incidents assigned for for build {build.Key} (id:{build.Id})");
             return new DaemonTaskWorkResult();
         }
 

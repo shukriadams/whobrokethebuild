@@ -14,7 +14,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("user") && !switches.Contains("group"))
             {
-                Console.WriteLine($"ERROR : \"user\"  or \"group\" required");
+                ConsoleHelper.WriteLine($"ERROR : \"user\"  or \"group\" required");
                 Environment.Exit(1);
                 return;
             }
@@ -29,7 +29,7 @@ namespace Wbtb.Core.CLI
 
             if (!switches.Contains("plugin"))
             {
-                Console.WriteLine("ERROR : \"plugin\" required");
+                ConsoleHelper.WriteLine("ERROR : \"plugin\" required");
                 Environment.Exit(1);
                 return;
             }
@@ -43,7 +43,7 @@ namespace Wbtb.Core.CLI
 
             if (messagingPlugin == null) 
             {
-                Console.WriteLine($"ERROR : plugin \"{pluginKey}\" not found");
+                ConsoleHelper.WriteLine($"ERROR : plugin \"{pluginKey}\" not found");
                 Environment.Exit(1);
                 return;
             }
@@ -56,7 +56,7 @@ namespace Wbtb.Core.CLI
                 user = dataLayer.GetUserByKey(userKey);
                 if (user == null)
                 {
-                    Console.WriteLine($"ERROR : user \"{userKey}\" not found");
+                    ConsoleHelper.WriteLine($"ERROR : user \"{userKey}\" not found");
                     Environment.Exit(1);
                     return;
                 }
@@ -68,7 +68,7 @@ namespace Wbtb.Core.CLI
                 group = configuration.Groups.Where(g => g.Key == groupKey).FirstOrDefault();
                 if (group == null)
                 {
-                    Console.WriteLine($"ERROR : group \"{groupKey}\" not found");
+                    ConsoleHelper.WriteLine($"ERROR : group \"{groupKey}\" not found");
                     Environment.Exit(1);
                     return;
                 }
@@ -77,13 +77,13 @@ namespace Wbtb.Core.CLI
 
             if (messageConfiguration == null) 
             {
-                Console.Write($"Target recipient does not have a message configuration for plugin \"{pluginKey}\".");
+                ConsoleHelper.WriteLine($"Target recipient does not have a message configuration for plugin \"{pluginKey}\".");
                 Environment.Exit(1);
                 return;
             }
 
             string result = messagingPlugin.TestHandler(messageConfiguration);
-            Console.Write($"Message test executed, result : {result}");
+            ConsoleHelper.WriteLine($"Message test executed, result : {result}");
         }
     }
 }

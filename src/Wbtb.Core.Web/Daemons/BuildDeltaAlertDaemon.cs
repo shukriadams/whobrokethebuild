@@ -128,12 +128,14 @@ namespace Wbtb.Core.Web
                                     Plugin = this.GetType().Name,
                                     Content = $"Date:{DateTime.UtcNow}\n{result}"
                                 });
+
+                                ConsoleHelper.WriteLine(this, $"Alerted job {job.Name} broken by build {incidentBuild.Key} (id:{incidentBuild.Id})");
                             }
                         }
                     }
 
 
-                    // todo : this block could be removed from the preceeding fail alert block, they are functionally unrelated
+                    // todo : this block could be decoupled from the preceeding fail alert block, they are functionally unrelated
                     // ensure all previous resolve incidents are alerted on,
                     IEnumerable<string> incidentIds = dataLayer.GetIncidentIdsForJob(job, 5);
                     foreach (string incidentId in incidentIds)
@@ -174,6 +176,8 @@ namespace Wbtb.Core.Web
                             Plugin = this.GetType().Name,
                             Content = $"Date:{DateTime.UtcNow}\n{result}"
                         });
+
+                        ConsoleHelper.WriteLine(this, $"Alerted job {job.Name} passing at incident {incident.Key} (id:{incident.Id})");
                     }
                 }
                 catch (Exception ex)
@@ -181,7 +185,6 @@ namespace Wbtb.Core.Web
                     _log.LogError($"Unexpected error on job {job.Name}.", ex);
                 }
             }
-
             
         }
 

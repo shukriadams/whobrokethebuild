@@ -65,12 +65,12 @@ namespace Wbtb.Core
                         string devPath = Path.Combine(pluginConfig.Path, "bin", "Debug", "net6.0");
                         if (Directory.Exists(devPath))
                         {
-                            Console.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}");
+                            ConsoleHelper.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}");
                             pluginConfig.Path = devPath;
                         } 
                         else 
                         {
-                            Console.WriteLine($"Plugin '{pluginConfig.Key}' expected at path '{pluginConfig.Path}' but was not found.");
+                            ConsoleHelper.WriteLine($"Plugin '{pluginConfig.Key}' expected at path '{pluginConfig.Path}' but was not found.");
                             pluginConfig.Enable = false;
                             continue;
                         }
@@ -81,7 +81,7 @@ namespace Wbtb.Core
                 catch (Exception ex)
                 {
                     // plugin load should not throw unhandled exceptions, if it does, allow app to fail.
-                    Console.WriteLine($"Plugin '{pluginConfig.Key}' threw exception on load {ex}");
+                    ConsoleHelper.WriteLine($"Plugin '{pluginConfig.Key}' threw exception on load {ex}");
                     pluginConfig.Enable = false;
                     throw;
                 }
@@ -139,7 +139,7 @@ namespace Wbtb.Core
                     catch (Exception ex)
                     {
                         // plugin init should not throw unhandled exceptions, if it does, allow app to fail.
-                        Console.WriteLine($"Plugin '{pluginConfig.Key}' failed to load : {ex}");
+                        ConsoleHelper.WriteLine($"Plugin '{pluginConfig.Key}' failed to load : {ex}");
                         pluginConfig.Enable = false;
                         throw;
                     }
@@ -162,7 +162,7 @@ namespace Wbtb.Core
 
                         // Todo : need more granularity here, we probably don't want to abort WBTB start just because a service is not available
                         if (reach.Reachable)
-                            Console.WriteLine($"Plugin \"{pluginConfig.Key}\" is reachable.");
+                            ConsoleHelper.WriteLine($"Plugin \"{pluginConfig.Key}\" is reachable.");
                         else
                             throw new ConfigurationException($"Credentials for plugin \"{pluginConfig.Key}\" failed : {reach.Error}{reach.Exception}.");
                     }
@@ -212,7 +212,7 @@ namespace Wbtb.Core
                     try
                     {
                         sourceServerPlugin.AttemptReach(sourceServer);
-                        Console.WriteLine($"{sourceServer.Name} is contactable");
+                        ConsoleHelper.WriteLine($"{sourceServer.Name} is contactable");
 
                         // verify config
                         sourceServerPlugin.VerifySourceServerConfig(sourceServer);
@@ -310,7 +310,7 @@ namespace Wbtb.Core
                 ValidateRuntimeState();
 
                 foreach (PluginConfig pluginConfig in _config.Plugins)
-                    Console.WriteLine($"WBTB : initialized plugin {pluginConfig.Key}");
+                    ConsoleHelper.WriteLine($"WBTB : initialized plugin {pluginConfig.Key}");
 
             }
 
@@ -336,7 +336,7 @@ namespace Wbtb.Core
             if (latestConfigState == null || latestConfigState.Hash != configHash)
             {
                 if (latestConfigState != null)
-                    Console.WriteLine($"Warning - config has changed since last time. If current site loads due to config errors, check configurationstate table for ref. Storing new hash ({configHash}) of current config");
+                    ConsoleHelper.WriteLine($"ATTENTION - config has changed since last time. If site fails to load due to config errors, check configurationstate table for ref. Storing new hash ({configHash}) of current config");
 
                 // todo : need user prompt to force add new config state to db
                 dataLayer.AddConfigurationState(new ConfigurationState

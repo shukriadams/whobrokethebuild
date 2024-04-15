@@ -33,7 +33,7 @@ namespace Wbtb.Core.CLI
             {
                 job.SourceServerId = toSourceServer.Id;
                 _datalayer.SaveJob(job);
-                Console.WriteLine($"Merged job {job.Key}");
+                ConsoleHelper.WriteLine($"Merged job {job.Key}");
             }
 
             // update revisions
@@ -41,11 +41,11 @@ namespace Wbtb.Core.CLI
             {
                 revision.SourceServerId = toSourceServer.Id;
                 _datalayer.SaveRevision(revision);
-                Console.WriteLine($"Merged revison {revision.Code}");
+                ConsoleHelper.WriteLine($"Merged revison {revision.Code}");
             }
 
             _datalayer.DeleteSourceServer(fromSourceServer);
-            Console.WriteLine($"Deleted from sourceserver {fromSourceServer.Key}");
+            ConsoleHelper.WriteLine($"Deleted from sourceserver {fromSourceServer.Key}");
         }
 
         public void MergeBuildServers(string fromServerKey, string toServerKey)
@@ -64,11 +64,11 @@ namespace Wbtb.Core.CLI
             {
                 job.BuildServerId = toBuildServer.Id;
                 _datalayer.SaveJob(job);
-                Console.WriteLine($"Merged job {job.Key}");
+                ConsoleHelper.WriteLine($"Merged job {job.Key}");
             }
 
             _datalayer.DeleteBuildServer(fromBuildServer);
-            Console.WriteLine($"Deleted from buildserver {fromBuildServer.Key}");
+            ConsoleHelper.WriteLine($"Deleted from buildserver {fromBuildServer.Key}");
         }
 
         public void DeleteUser(string key) 
@@ -79,7 +79,7 @@ namespace Wbtb.Core.CLI
 
             _datalayer.DeleteUser(record);
 
-            Console.WriteLine($"Deleted user {key}");
+            ConsoleHelper.WriteLine($"Deleted user {key}");
         }
 
         public void DeleteJob(string key) 
@@ -90,7 +90,7 @@ namespace Wbtb.Core.CLI
 
             _datalayer.DeleteJob(record);
 
-            Console.WriteLine($"Deleted job {key}");
+            ConsoleHelper.WriteLine($"Deleted job {key}");
         }
 
         public void DeleteSourceServer(string key)
@@ -101,7 +101,7 @@ namespace Wbtb.Core.CLI
 
             _datalayer.DeleteSourceServer(record);
 
-            Console.WriteLine($"Deleted sourceserver {key}");
+            ConsoleHelper.WriteLine($"Deleted sourceserver {key}");
         }
 
         public void DeleteBuildServer(string key)
@@ -112,7 +112,7 @@ namespace Wbtb.Core.CLI
 
             _datalayer.DeleteBuildServer(record);
 
-            Console.WriteLine($"Deleted buildserver {key}");
+            ConsoleHelper.WriteLine($"Deleted buildserver {key}");
         }
 
         public void MergeUsers(string fromUserKey, string toUserKey)
@@ -132,7 +132,7 @@ namespace Wbtb.Core.CLI
             {
                 buildInvolvement.MappedUserId = toUser.Id;
                 _datalayer.SaveBuildInvolement(buildInvolvement);
-                Console.WriteLine($"Merged buildInvolvement {buildInvolvement.Id}");
+                ConsoleHelper.WriteLine($"Merged buildInvolvement {buildInvolvement.Id}");
             }
 
             // session can't be updated, force delete
@@ -140,11 +140,11 @@ namespace Wbtb.Core.CLI
             foreach(Session session in sessions)
             {
                 _datalayer.DeleteSession(session);
-                Console.WriteLine($"Deleted session {session.Id}");
+                ConsoleHelper.WriteLine($"Deleted session {session.Id}");
             }
 
             _datalayer.DeleteUser(fromUser);
-            Console.WriteLine($"Deleted from user {fromUser.Key}");
+            ConsoleHelper.WriteLine($"Deleted from user {fromUser.Key}");
         }
     }
 }

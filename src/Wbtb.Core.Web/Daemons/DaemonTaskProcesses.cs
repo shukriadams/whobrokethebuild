@@ -5,13 +5,6 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
 {
-    public class DaemonDoneProcess
-    {
-        public DateTime DoneUTc { get; set; }
-        public string TaskId { get; set; }
-        public string BuildId { get; set; }
-        public string Daemon { get; set; }
-    }
     /// <summary>
     /// In-memory store of current daemon processes. Used to track daemon activity, performance and blockages.
     /// </summary>
@@ -29,10 +22,10 @@ namespace Wbtb.Core.Web
         /// </summary>
         IDictionary<string, DaemonBlockedProcess> _blockedProcesses = new Dictionary<string, DaemonBlockedProcess>();
 
-
-
         const int _doneListSize = 5;
+
         int _currentDone = 0;
+
         DaemonDoneProcess[] _doneProcesses = new DaemonDoneProcess[_doneListSize];
 
         #endregion

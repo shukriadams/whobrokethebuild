@@ -149,7 +149,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
                 File.WriteAllText(persistPath, rawJson);
             }
             else
-                Console.WriteLine($"Failed to to read revisions for build {build.Key}, job {remotekey.Value}. No data in sandbox");
+                ConsoleHelper.WriteLine($"Failed to to read revisions for build {build.Key}, job {remotekey.Value}. No data in sandbox");
             
             if (rawJson == null)
                 return new BuildRevisionsRetrieveResult { Result = "revisions not available in sandbox" };

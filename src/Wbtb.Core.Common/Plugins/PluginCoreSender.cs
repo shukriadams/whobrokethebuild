@@ -77,8 +77,8 @@ namespace Wbtb.Core.Common
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to parse plugin result {innerJson} to type {typeof(TReturnType).Name}.");
-                Console.WriteLine(innerJson, ex);
+                ConsoleHelper.WriteLine($"Failed to parse plugin result {innerJson} to type {typeof(TReturnType).Name}.");
+                ConsoleHelper.WriteLine(innerJson, ex);
 
                 throw;
             }

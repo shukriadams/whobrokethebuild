@@ -15,21 +15,21 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("build"))
             {
-                Console.WriteLine($"ERROR : \"build\" <buildid> required");
+                ConsoleHelper.WriteLine($"ERROR : \"build\" <buildid> required");
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("plugin"))
             {
-                Console.WriteLine($"ERROR : \"plugin\" <pluginkey> required");
+                ConsoleHelper.WriteLine($"ERROR : \"plugin\" <pluginkey> required");
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("user") && !switches.Contains("group"))
             {
-                Console.WriteLine($"ERROR : \"user\"  or \"group\" required");
+                ConsoleHelper.WriteLine($"ERROR : \"user\"  or \"group\" required");
                 Environment.Exit(1);
                 return;
             }
@@ -47,7 +47,7 @@ namespace Wbtb.Core.CLI
                 userKey = switches.Get("user");
                 if (!config.Users.Any(u => u.Key == userKey))
                 {
-                    Console.WriteLine($"ERROR : user \"{userKey}\" not found");
+                    ConsoleHelper.WriteLine($"ERROR : user \"{userKey}\" not found");
                     Environment.Exit(1);
                     return;
                 }
@@ -58,7 +58,7 @@ namespace Wbtb.Core.CLI
                 groupKey = switches.Get("group");
                 if (!config.Groups.Any(g => g.Key == groupKey))
                 {
-                    Console.WriteLine($"ERROR : group \"{groupKey}\" not found");
+                    ConsoleHelper.WriteLine($"ERROR : group \"{groupKey}\" not found");
                     Environment.Exit(1);
                     return;
                 }
@@ -71,21 +71,21 @@ namespace Wbtb.Core.CLI
 
             if (messagingPlugin == null)
             {
-                Console.WriteLine($"ERROR : plugin \"{pluginKey}\" not found");
+                ConsoleHelper.WriteLine($"ERROR : plugin \"{pluginKey}\" not found");
                 Environment.Exit(1);
                 return;
             }
 
             if (build == null)
             {
-                Console.WriteLine($"ERROR : build \"{buildId}\" not found");
+                ConsoleHelper.WriteLine($"ERROR : build \"{buildId}\" not found");
                 Environment.Exit(1);
                 return;
             }
 
             if (string.IsNullOrEmpty(build.IncidentBuildId))
             {
-                Console.WriteLine($"ERROR : cannot mark build \"{build.Id}\" as failed, build does not have an incident nr. Did this build really fail?");
+                ConsoleHelper.WriteLine($"ERROR : cannot mark build \"{build.Id}\" as failed, build does not have an incident nr. Did this build really fail?");
                 Environment.Exit(1);
                 return;
             }

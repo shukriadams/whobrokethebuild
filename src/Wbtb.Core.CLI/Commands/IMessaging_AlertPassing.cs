@@ -16,21 +16,21 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("build"))
             {
-                Console.WriteLine($"ERROR : \"build\" <buildid> required");
+                ConsoleHelper.WriteLine($"ERROR : \"build\" <buildid> required");
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("plugin"))
             {
-                Console.WriteLine($"ERROR : \"plugin\" <pluginkey> required");
+                ConsoleHelper.WriteLine($"ERROR : \"plugin\" <pluginkey> required");
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("user") && !switches.Contains("group"))
             {
-                Console.WriteLine($"ERROR : \"user\"  or \"group\" required");
+                ConsoleHelper.WriteLine($"ERROR : \"user\"  or \"group\" required");
                 Environment.Exit(1);
                 return;
             }
@@ -50,7 +50,7 @@ namespace Wbtb.Core.CLI
             }
             else 
             {
-                Console.WriteLine("--fixing not set, using --build as fixing build.");
+                ConsoleHelper.WriteLine("--fixing not set, using --build as fixing build.");
                 fixingBuildId = incidentId;
             }
 
@@ -59,7 +59,7 @@ namespace Wbtb.Core.CLI
                 userKey = switches.Get("user");
                 if (!config.Users.Any(u => u.Key == userKey)) 
                 {
-                    Console.WriteLine($"ERROR : user \"{userKey}\" not found");
+                    ConsoleHelper.WriteLine($"ERROR : user \"{userKey}\" not found");
                     Environment.Exit(1);
                     return;
                 }
@@ -71,7 +71,7 @@ namespace Wbtb.Core.CLI
                 groupKey = switches.Get("group");
                 if (!config.Groups.Any(g => g.Key == groupKey))
                 {
-                    Console.WriteLine($"ERROR : group \"{groupKey}\" not found");
+                    ConsoleHelper.WriteLine($"ERROR : group \"{groupKey}\" not found");
                     Environment.Exit(1);
                     return;
                 }
@@ -86,36 +86,36 @@ namespace Wbtb.Core.CLI
 
             if (messagingPlugin == null)
             {
-                Console.WriteLine($"ERROR : plugin \"{pluginKey}\" not found");
+                ConsoleHelper.WriteLine($"ERROR : plugin \"{pluginKey}\" not found");
                 Environment.Exit(1);
                 return;
             }
 
             if (build == null)
             {
-                Console.WriteLine($"ERROR : build \"{incidentId}\" not found");
+                ConsoleHelper.WriteLine($"ERROR : build \"{incidentId}\" not found");
                 Environment.Exit(1);
                 return;
             }
 
             if (fixingBuild == null && fixingBuildId != incidentId)
             {
-                Console.WriteLine($"ERROR : fixing build \"{fixingBuild}\" not found");
+                ConsoleHelper.WriteLine($"ERROR : fixing build \"{fixingBuild}\" not found");
                 Environment.Exit(1);
                 return;
             }
 
             if (string.IsNullOrEmpty(build.IncidentBuildId))
             {
-                Console.WriteLine($"ERROR : cannot mark build \"{build.Id}\" as fixed, build does not have an incident nr. Did this build really fail?");
+                ConsoleHelper.WriteLine($"ERROR : cannot mark build \"{build.Id}\" as fixed, build does not have an incident nr. Did this build really fail?");
                 Environment.Exit(1);
                 return;
             }
 
             // mark build as fixing itself, it's testing only
-            string result = messagingPlugin.AlertPassing(userKey, groupKey, build, fixingBuild); 
+            string result = messagingPlugin.AlertPassing(userKey, groupKey, build, fixingBuild);
 
-            Console.Write($"Message test executed, result : {result}");
+            ConsoleHelper.WriteLine($"Message test executed, result : {result}");
         }
     }
 }

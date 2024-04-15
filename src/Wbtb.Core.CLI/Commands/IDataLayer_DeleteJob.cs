@@ -19,7 +19,7 @@ namespace Wbtb.Core.CLI
 
             if (!switches.Contains("job"))
             {
-                Console.WriteLine($"ERROR : --job required");
+                ConsoleHelper.WriteLine($"ERROR : --job required");
                 Environment.Exit(1);
                 return;
             }
@@ -32,7 +32,7 @@ namespace Wbtb.Core.CLI
             }
             catch (RecordNotFoundException ex)
             {
-                Console.WriteLine(ex.Message);
+                ConsoleHelper.WriteLine(ex.Message);
                 Environment.Exit(1);
             }
         }

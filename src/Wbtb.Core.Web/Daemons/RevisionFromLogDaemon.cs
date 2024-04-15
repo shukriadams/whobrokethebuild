@@ -210,6 +210,8 @@ namespace Wbtb.Core.Web
                     BuildInvolvementId = buildInvolvement.Id,
                     Stage = (int)DaemonTaskTypes.UserLink
                 });
+
+                ConsoleHelper.WriteLine(this, $"Linked revision {revisionIdToLink} to build {build.Key} (id:{build.Id})");
             }
 
             return new DaemonTaskWorkResult { };

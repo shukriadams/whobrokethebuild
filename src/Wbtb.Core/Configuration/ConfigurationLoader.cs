@@ -32,8 +32,8 @@ namespace Wbtb.Core
                 throw new ConfigurationException($"Config path was set to \"{path}\", but no config file was found at this location. You can override path with the \"{Constants.ENV_VAR_CONFIG_PATH}\" env var.");
 
             string rawYml = File.ReadAllText(path);
-            
-            Console.WriteLine($"WBTB : Loaded config @ {path}");
+
+            ConsoleHelper.WriteLine($"WBTB : Loaded config @ {path}");
 
             // substitute templated {...} settings from env variables. this is a security feature so we can store sensitive data as 
             // env vars instead of in config file
@@ -47,17 +47,17 @@ namespace Wbtb.Core
                 }
                 else
                 {
-                    Console.WriteLine($"Replacing env var for value \"{evnVarToken.Groups[1].Value}\".");
+                    ConsoleHelper.WriteLine($"Replacing env var for value \"{evnVarToken.Groups[1].Value}\".");
                     rawYml = rawYml.Replace("{{env." + evnVarToken.Groups[1].Value + "}}", envVarValue);
                 }
             }
 
             IDeserializer deserializer = YmlHelper.GetDeserializer();
-            Console.WriteLine("WBTB : initializing config");
+            ConsoleHelper.WriteLine("WBTB : initializing config");
 
-            ConfigurationValidationError validation = ValidateYmlFormat(rawYml);
+            ConfigurationValidationError validation = ValidateYmlParsing(rawYml);
             if (!validation.IsValid)
-                throw new ConfigurationException($"Application config yml is not properly formatted. See WBTB setup guide for details. {validation.Message}");
+                throw new ConfigurationException($"Application config yml at path {path} is not properly formatted. See WBTB setup guide for details. {validation.Message}");
 
             // load raw yml config into strongly-typed object structure used internally by WBTB
             Configuration tempConfig = deserializer.Deserialize<Configuration>(rawYml);
@@ -211,7 +211,7 @@ namespace Wbtb.Core
             // enforce API version check if semver of current version is not all zero (local dev)
             bool doAPIVersionCheck = currentVersion.CoreVersion.Major > 0 && currentVersion.CoreVersion.Minor > 0 && currentVersion.CoreVersion.Patch > 0;
             if (!doAPIVersionCheck)
-                Console.WriteLine("Skipping semver checking, dev versioning detected");
+                ConsoleHelper.WriteLine("Skipping semver checking, dev versioning detected");
             
             foreach (PluginConfig pluginConfig in config.Plugins)
             {
@@ -235,7 +235,7 @@ namespace Wbtb.Core
 
                     if (Directory.Exists(devPath))
                     {
-                        Console.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}");
+                        ConsoleHelper.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}");
                         pluginConfig.Path = devPath;
                         pluginConfig.Proxy = false;
                         isExternal = true;
@@ -568,7 +568,7 @@ namespace Wbtb.Core
         /// </summary>
         /// <param name="ymlText"></param>
         /// <returns></returns>
-        private ConfigurationValidationError ValidateYmlFormat(string ymlText)
+        private ConfigurationValidationError ValidateYmlParsing(string ymlText)
         {
             IDeserializer deserializer = YmlHelper.GetDeserializer();
 

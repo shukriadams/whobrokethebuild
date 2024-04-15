@@ -176,7 +176,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                     {
                         string placeholdertext = "Log no longer available on Jenkins.";
                         File.WriteAllText(persistPath, placeholdertext);
-                        Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                        ConsoleHelper.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
                         return placeholdertext;
                     }
                     else
@@ -280,7 +280,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                         if (resp.StatusCode != HttpStatusCode.NotFound)
                             throw ex;
 
-                        Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                        ConsoleHelper.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
                         return new BuildRevisionsRetrieveResult { Result = "Revisions no longer available on server <WBTB_BUILDSERVER_HISTORY_EXPIRED>.", Success = true };
                     }
                     else
@@ -535,7 +535,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                     {
                         string placeholdertext = "Log no longer available on server <WBTB_BUILDSERVER_HISTORY_EXPIRED>.";
                         File.WriteAllText(absoluteLogPath, placeholdertext);
-                        Console.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                        ConsoleHelper.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
                         return new BuildLogRetrieveResult { Success = true, Result = placeholdertext };
                     }
                     else
@@ -556,13 +556,13 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                         File.Delete(absoluteLogPath);
                 }
                 catch(Exception exCleanup)
-                { 
-                    Console.WriteLine($"Unexpected error trying to rollback log @ {absoluteLogPath}", exCleanup);
+                {
+                    ConsoleHelper.WriteLine($"Unexpected error trying to rollback log @ {absoluteLogPath}", exCleanup);
                 }
 
                 // yeah, what is going on here .....
                 // ignore network errors
-                Console.WriteLine($"Error fetching log for build {build.Id}", ex);
+                ConsoleHelper.WriteLine($"Error fetching log for build {build.Id}", ex);
                 return new BuildLogRetrieveResult { Result = $"Error fetching log for build {build.Id}, {ex}" };
             }
 

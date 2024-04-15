@@ -45,11 +45,11 @@ namespace Wbtb.Core.CLI
                     continue;
 
                 File.Delete(existingLogFile);
-                Console.WriteLine($"Removed orphan log {existingLogFile}");
+                ConsoleHelper.WriteLine($"Removed orphan log {existingLogFile}");
                 removed++;
             }
 
-            Console.WriteLine($"Done - deleted {removed} orphan build logs.");
+            ConsoleHelper.WriteLine($"Done - deleted {removed} orphan build logs.");
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Wbtb.Core.CLI
 
             if (!switches.Contains("Key"))
             {
-                Console.WriteLine($"ERROR : \"Key\" arg required, for buildserver Key to list jobs for");
+                ConsoleHelper.WriteLine($"ERROR : \"Key\" arg required, for buildserver Key to list jobs for");
                 Environment.Exit(1);
                 return;
             }
@@ -29,17 +29,17 @@ namespace Wbtb.Core.CLI
             BuildServer buildServer = config.BuildServers.FirstOrDefault(r => r.Key == buildServerKey);
             if (buildServer == null)
             {
-                Console.WriteLine($"ERROR : Buildserver with key \"{buildServerKey}\" not found");
+                ConsoleHelper.WriteLine($"ERROR : Buildserver with key \"{buildServerKey}\" not found");
                 Environment.Exit(1);
             }
 
             IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
             IEnumerable<string> jobs = buildServerPlugin.ListRemoteJobsCanonical(buildServer);
-            Console.WriteLine($"Found {jobs.Count()} jobs on buildserver \"{buildServer.Key}\".");
+            ConsoleHelper.WriteLine($"Found {jobs.Count()} jobs on buildserver \"{buildServer.Key}\".");
 
             foreach (string job in jobs)
             {
-                Console.WriteLine($"{job}");
+                ConsoleHelper.WriteLine($"{job}");
             }
         }
     }

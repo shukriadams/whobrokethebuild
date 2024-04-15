@@ -1,5 +1,4 @@
 ﻿using System;
-using Wbtb.Core.CLI.Lib;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -10,13 +9,13 @@ namespace Wbtb.Core.CLI
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly ConsoleHelper _consoleHelper;
+        private readonly ConsoleCLIHelper _consoleHelper;
 
         #endregion
 
         #region CTORS
 
-        public IDataLayer_ResetBuild(PluginProvider pluginProvider, ConsoleHelper consoleHelper)
+        public IDataLayer_ResetBuild(PluginProvider pluginProvider, ConsoleCLIHelper consoleHelper)
         {
             _pluginProvider = pluginProvider;
             _consoleHelper = consoleHelper;
@@ -35,7 +34,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("build"))
             {
-                Console.WriteLine($"ERROR : \"--build\" <buildid> required");
+                ConsoleHelper.WriteLine($"ERROR : \"--build\" <buildid> required");
                 Environment.Exit(1);
                 return;
             }
@@ -46,16 +45,16 @@ namespace Wbtb.Core.CLI
             Build build = dataLayer.GetBuildByUniquePublicIdentifier(switches.Get("build"));
             if (build == null)
             {
-                Console.WriteLine($"ERROR : \"--build\" id {build} does not point to a valid build");
+                ConsoleHelper.WriteLine($"ERROR : \"--build\" id {build} does not point to a valid build");
                 _consoleHelper.PrintJobs();
                 Environment.Exit(1);
                 return;
             }
 
             if (hard)
-                Console.WriteLine("Performing hard reset");
+                ConsoleHelper.WriteLine("Performing hard reset");
             else
-                Console.WriteLine("Performing reset - to force delete all child records under build use --hard switch");
+                ConsoleHelper.WriteLine("Performing reset - to force delete all child records under build use --hard switch");
 
             int deleted = dataLayer.ResetBuild(build.Id, hard);
             // if hard, let build requeue internally

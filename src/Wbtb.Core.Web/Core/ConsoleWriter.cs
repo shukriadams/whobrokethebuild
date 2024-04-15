@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Wbtb.Core.Web
 {
+    /// <summary>
+    /// Allows piping out of regular console output to signalr. 
+    /// </summary>
     public class ConsoleWriter : TextWriter
     {
         public override Encoding Encoding { get { return Encoding.UTF8; } }

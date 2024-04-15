@@ -16,10 +16,10 @@ namespace Wbtb.Core.CLI
             SimpleDI di = new SimpleDI();
             ConfigurationBuilder configurationBuilder = di.Resolve<ConfigurationBuilder>();
 
-            Console.WriteLine("Executing function IDataLayerPlugin.ListOrphanedRecords");
+            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.ListOrphanedRecords");
             IEnumerable<string> orphans = configurationBuilder.FindOrphans();
             foreach (string orphan in orphans)
-                Console.WriteLine(orphan);
+                ConsoleHelper.WriteLine(orphan);
         }
     }
 }

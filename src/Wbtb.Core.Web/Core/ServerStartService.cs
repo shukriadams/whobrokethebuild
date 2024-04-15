@@ -51,7 +51,7 @@ namespace Wbtb.Core.Web
 
                     if (exitOnConfigErrorLook == "0" || exitOnConfigErrorLook == "false") { 
                         exitOnConfigError = false;
-                        Console.WriteLine("exit on config error is disabled");
+                        ConsoleHelper.WriteLine("exit on config error is disabled");
                     }
                     exitOnConfigError = false;
 
@@ -70,7 +70,7 @@ namespace Wbtb.Core.Web
                     {
                         if (disableDaemons)
                         {
-                            Console.WriteLine("DAEMONS DISABLED");
+                            ConsoleHelper.WriteLine("DAEMONS DISABLED");
                         }
                         else
                         {
@@ -82,18 +82,19 @@ namespace Wbtb.Core.Web
 
                         if (disableSockets)
                         {
-                            Console.WriteLine("SOCKETS DISABLED");
+                            ConsoleHelper.WriteLine("SOCKETS DISABLED");
                         }
                         else
                         {
                             // signlr, pipe all console write and writelines to signlr hub
                             // dev stuff, this should be moved somewhere better. 
                             IHubContext<ConsoleHub> hub = scope.ServiceProvider.GetService<IHubContext<ConsoleHub>>();
-                            using (var consoleWriter = new ConsoleWriter())
+                            using (ConsoleWriter consoleWriter = new ConsoleWriter())
                             {
                                 consoleWriter.WriteEvent += (object sender, ConsoleWriterEventArgs e) => {
                                     hub.Clients.All.SendAsync("ReceiveMessage", "some user", e.Value);
                                 };
+
                                 Console.SetOut(consoleWriter);
                             }
 
@@ -107,11 +108,11 @@ namespace Wbtb.Core.Web
                 {
                     AppState.ConfigErrors = true;
 
-                    Console.WriteLine($"WBTB configuration error : {ex.Message}");
+                    ConsoleHelper.WriteLine($"WBTB configuration error : {ex.Message}");
 
                     if (exitOnConfigError) 
                     {
-                        Console.WriteLine("WBTB failed to start - configuration errors were detected :");
+                        ConsoleHelper.WriteLine("WBTB failed to start - configuration errors were detected :");
                         // force exit app if config failed
                         System.Diagnostics.Process
                             .GetCurrentProcess()

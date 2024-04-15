@@ -446,7 +446,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
                 {
                     // log error
                     // mark message sent as failed, somwhere
-                    Console.WriteLine(ex);
+                    ConsoleHelper.WriteLine(ex);
                     return null;
                 }
             }
@@ -480,7 +480,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             {
                 // log error
                 // mark message sent as failed, somwhere
-                Console.WriteLine(response);
+                ConsoleHelper.WriteLine(response);
                 return null;
             }
         }
@@ -498,7 +498,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             dynamic response = ExecAPI("conversations.list", data, forcedResponse);
             IEnumerable<JToken> channels = Enumerable.ToList(response.channels);
             foreach (JToken channel in channels)
-                Console.WriteLine(channel);
+                ConsoleHelper.WriteLine(channel);
         }
 
         string IMessagingPlugin.DeleteAlert(object alertIdentifier)

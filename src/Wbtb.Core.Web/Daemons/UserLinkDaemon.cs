@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Wbtb.Core.Common;
 
@@ -77,6 +75,8 @@ namespace Wbtb.Core.Web
 
             buildInvolvement.MappedUserId = userInDatabase.Id;
             dataWrite.SaveBuildInvolement(buildInvolvement);
+
+            ConsoleHelper.WriteLine(this, $"Linked user {userInDatabase.Name} to build {build.Key} (id:{build.Id})");
 
             return new DaemonTaskWorkResult();
         }

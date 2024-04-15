@@ -47,7 +47,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectorySandbox
             string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), "JSON.users.json");
             IEnumerable<ADUser> users = JsonConvert.DeserializeObject<IEnumerable<ADUser>>(rawJson);
             foreach(ADUser user in users)
-                Console.WriteLine(user.Name);
+                ConsoleHelper.WriteLine(user.Name);
 
         }
 

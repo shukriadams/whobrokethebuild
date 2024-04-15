@@ -447,7 +447,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             dynamic response = ExecAPI("conversations.list", data);
             IEnumerable<JToken> channels = Enumerable.ToList(response.channels);
             foreach (JToken channel in channels)
-                Console.WriteLine(channel);
+                ConsoleHelper.WriteLine(channel);
         }
 
         string IMessagingPlugin.DeleteAlert(object alertIdentifier)

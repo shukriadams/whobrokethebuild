@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -69,7 +67,7 @@ namespace Wbtb.Core.Web
                     if (!result.Passed)
                         task.HasPassed = false;
 
-                    Console.WriteLine($"Processed build id {build.Id} with plugin {postProcessor}");
+                    ConsoleHelper.WriteLine(this, $"Processed build id {build.Id} with plugin {postProcessor}");
                 }
                 catch (Exception ex)
                 {

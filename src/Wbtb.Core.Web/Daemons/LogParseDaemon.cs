@@ -92,6 +92,7 @@ namespace Wbtb.Core.Web
             _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timestring}");
             task.Result = $"{logParserResult.LogParserPlugin} {timestring}. ";
 
+            ConsoleHelper.WriteLine(this, $"Log parsed for build {build.Key} (id:{build.Id})");
             return new DaemonTaskWorkResult(); 
         }
 

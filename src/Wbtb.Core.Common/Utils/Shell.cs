@@ -86,7 +86,7 @@ namespace Wbtb.Core.Common
             this.StdErr.Add(e.Data);
 
             if (this.WriteToConsole)
-                Console.WriteLine(e.Data);
+                ConsoleHelper.WriteLine(e.Data);
         }
 
         private void Cmd_OnStdOut(object sender, DataReceivedEventArgs e)
@@ -96,7 +96,7 @@ namespace Wbtb.Core.Common
             this.StdOut.Add(e.Data);
 
             if (this.WriteToConsole)
-                Console.WriteLine(e.Data);
+                ConsoleHelper.WriteLine(e.Data);
         }
 
         #endregion

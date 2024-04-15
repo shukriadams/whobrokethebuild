@@ -44,7 +44,7 @@ namespace Wbtb.Core.Web
                         });
 
                         Thread.Sleep(10);
-                        Console.WriteLine($"Requeued build {build.Key} for processing.");
+                        ConsoleHelper.WriteLine($"Requeued build {build.Key} for processing.");
                     }
 
                     page++;

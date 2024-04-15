@@ -37,7 +37,7 @@ namespace Wbtb.Core.Common
         {
             if (!ResourceHelper.ResourceExists(callerType, resourcePath))
             {
-                Console.WriteLine($"Did not find embedded resource {resourcePath} in assembly defined by type {callerType}");
+                ConsoleHelper.WriteLine($"Did not find embedded resource {resourcePath} in assembly defined by type {callerType}");
                 return null;
             }
 

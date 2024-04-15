@@ -116,7 +116,7 @@ namespace Wbtb.Core.Web.Controllers
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             int deleted = dataLayer.ResetBuild(buildId, false);
-            System.Console.WriteLine($"Reset {deleted} incident from build {buildId}");
+            ConsoleHelper.WriteLine($"Reset {deleted} incident from build {buildId}");
 
             return Redirect($"/build/{buildId}");
         }

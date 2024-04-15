@@ -17,11 +17,11 @@ namespace Wbtb.Core
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL")))
             {
-                Console.WriteLine("GIT-CONFIG : sync disabled, skipping");
+                ConsoleHelper.WriteLine("GIT-CONFIG : sync disabled, skipping");
                 return false;
             }
 
-            Console.WriteLine("GIT-CONFIG : sync enabled");
+            ConsoleHelper.WriteLine("GIT-CONFIG : sync enabled");
 
             string gitRemote = Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL");
             string localgiturlfile = "./.giturl";
@@ -60,7 +60,7 @@ namespace Wbtb.Core
                 // git clone
                 shell = new Shell();
                 string result = shell.Run($"git clone {gitRemote} {checkoutPath}");
-                Console.WriteLine($"GIT-CONFIG : {result}");
+                ConsoleHelper.WriteLine($"GIT-CONFIG : {result}");
             }
 
             shell = new Shell();
@@ -83,11 +83,11 @@ namespace Wbtb.Core
                 File.Copy(configFileLocalPath, Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"), true);
                 shell = new Shell();
                 string commitMessage = shell.Run($"git log --format=%B -n 1 {incomingConfigFileHash}");
-                Console.WriteLine($"GIT-CONFIG : config has changed. Config hash was {targetConfigFileHash}, is now {incomingConfigFileHash} ({commitMessage}).");
+                ConsoleHelper.WriteLine($"GIT-CONFIG : config has changed. Config hash was {targetConfigFileHash}, is now {incomingConfigFileHash} ({commitMessage}).");
                 return true;
             }
 
-            Console.WriteLine($"GIT-CONFIG : Config unchanged at hash {targetConfigFileHash}.");
+            ConsoleHelper.WriteLine($"GIT-CONFIG : Config unchanged at hash {targetConfigFileHash}.");
             return false;
         }
     }

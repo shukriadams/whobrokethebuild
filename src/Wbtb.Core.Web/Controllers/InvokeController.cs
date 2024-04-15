@@ -72,7 +72,7 @@ namespace Wbtb.Core.Web.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                ConsoleHelper.WriteLine(ex);
                 return string.Join(string.Empty, PluginOutputEncoder.Encode(ex.ToString(), pluginType));
             }
         }

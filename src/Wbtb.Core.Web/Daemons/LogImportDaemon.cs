@@ -90,6 +90,8 @@ namespace Wbtb.Core.Web.Core
                     Stage = (int)DaemonTaskTypes.RevisionFromLog
                 });
 
+            ConsoleHelper.WriteLine(this, $"Log imported for build {build.Key} (id:{build.Id})");
+
             return new DaemonTaskWorkResult { };
         }
 

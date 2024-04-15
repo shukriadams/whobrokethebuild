@@ -98,16 +98,16 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
                         
                         if (item.Properties[bindProperty] == null || item.Properties[bindProperty].Count == 0)
                         {
-                            Console.WriteLine("----------------------------------------");
-                            Console.WriteLine($"User without BindProperty \"{bindProperty}\".");
+                            ConsoleHelper.WriteLine("----------------------------------------");
+                            ConsoleHelper.WriteLine($"User without BindProperty \"{bindProperty}\".");
 
                             foreach (var prop in item.Properties.PropertyNames)
-                                Console.WriteLine($"{prop}:{item.Properties[prop.ToString()][0]}");
+                                ConsoleHelper.WriteLine($"{prop}:{item.Properties[prop.ToString()][0]}");
 
                             continue;
                         }
 
-                        Console.WriteLine($"Bind value:{item.Properties[bindProperty][0]}");
+                        ConsoleHelper.WriteLine($"Bind value:{item.Properties[bindProperty][0]}");
                     }
                 }
             }

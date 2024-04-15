@@ -99,8 +99,6 @@ namespace Wbtb.Core.Web
                             latestBuild.SetUniquePublicIdentifier(job);
                             string buildId = dataLayer.SaveBuild(latestBuild).Id;
 
-                            _log.LogInformation($"Daemon {this.GetType().Name}: Created build {latestBuild.Key}, id {latestBuild.Id} for job {job.Name}.");
-
                             _buildLevelPluginHelper.InvokeEvents("OnBuildStart", job.OnBuildStart, latestBuild);
 
                             // create next task in chain
@@ -109,6 +107,9 @@ namespace Wbtb.Core.Web
                                 Src = this.GetType().Name,
                                 BuildId = buildId
                             });
+
+                            _log.LogInformation($"Daemon {this.GetType().Name}: Created build {latestBuild.Key}, id {latestBuild.Id} for job {job.Name}.");
+                            ConsoleHelper.WriteLine($"Created build {latestBuild.Key}, id {latestBuild.Id} for job {job.Name}.");
                         }
                     }
                     catch (Exception ex)
