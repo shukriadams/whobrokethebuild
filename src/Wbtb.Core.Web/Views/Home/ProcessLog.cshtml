@@ -86,6 +86,7 @@
                             </div>
                             <div>
                                 <a class="bntResetJob" href="javascript:void(0)" data-jobid="@task.Build.JobId">Reset job @task.Build.JobId</a>
+                                @ViewHelpers.JobLink(task.Build.JobId, "View job")
                             </div>
                         }
                         <text>

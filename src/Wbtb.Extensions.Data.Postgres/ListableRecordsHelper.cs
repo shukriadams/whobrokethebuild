@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Npgsql;
+using System.Collections.Generic;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.Data.Postgres
@@ -23,5 +24,13 @@ namespace Wbtb.Extensions.Data.Postgres
             return list;
         }
 
+        internal static IEnumerable<string> ToStringList(NpgsqlDataReader reader, string fieldName)
+        {
+            IList<string> ids = new List<string>();
+            while (reader.Read())
+                ids.Add(reader[fieldName].ToString());
+
+            return ids;
+        }
     }
 }

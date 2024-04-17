@@ -164,6 +164,7 @@ namespace Wbtb.Core.Web
             return new HtmlString($"<a href=\"/incident/{build.UniquePublicKey}\">{text}</a>");
         }
 
+
         public static HtmlString BuildLink(Build build)
         { 
             if (build == null)
@@ -172,14 +173,22 @@ namespace Wbtb.Core.Web
             return new HtmlString($"<a href=\"/build/{build.UniquePublicKey}\">{build.Key}</a>");
         }
 
+
         public static HtmlString JobLink(Job job)
         {
             if (job == null)
                 return new HtmlString(string.Empty);
 
-            return new HtmlString($"<a href=\"/job/{job.Id}\">{job.Name}</a>");
+            return JobLink(job.Id, job.Name);
         }
 
+
+        public static HtmlString JobLink(string jobId, string jobName)
+        {
+            return new HtmlString($"<a href=\"/job/{jobId}\">{jobName}</a>");
+        }
+
+        
         public static HtmlString BuildHostLink(Build build)
         {
             if (build == null)

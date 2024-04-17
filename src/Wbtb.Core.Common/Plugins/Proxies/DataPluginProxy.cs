@@ -854,6 +854,14 @@ namespace Wbtb.Core.Common
             });
         }
 
+        IEnumerable<string> IDataPlugin.GetFailingDaemonTasksBuildIds()
+        {
+            return _pluginSender.InvokeMethod<IEnumerable<string>>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetFailingDaemonTasksBuildIds)
+            });
+        }
+
         #endregion
 
         #region INCIDENTSUMMARY

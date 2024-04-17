@@ -109,7 +109,7 @@ namespace Wbtb.Core.Web
                             });
 
                             _log.LogInformation($"Daemon {this.GetType().Name}: Created build {latestBuild.Key}, id {latestBuild.Id} for job {job.Name}.");
-                            ConsoleHelper.WriteLine($"Created build {latestBuild.Key}, id {latestBuild.Id} for job {job.Name}.");
+                            ConsoleHelper.WriteLine(this, $"Created build {latestBuild.Key}, id {latestBuild.Id} for job {job.Name}.");
                         }
                     }
                     catch (Exception ex)

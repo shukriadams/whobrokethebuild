@@ -25,6 +25,8 @@ namespace Wbtb.Core.CLI
                 di.Register<OrphanRecordHelper, OrphanRecordHelper>();
                 di.Register<ConsoleHelper, ConsoleHelper>();
                 di.Register<MutationHelper, MutationHelper>();
+                di.Register<ConsoleCLIHelper, ConsoleCLIHelper>();
+                
 
                 // bind types - dev only! These are needed by all general plugin activity
                 Core core = new Core();

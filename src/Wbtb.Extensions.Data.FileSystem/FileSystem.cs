@@ -495,6 +495,11 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new PageableData<DaemonTask>(new DaemonTask[] { }, 0, 0, 0);
         }
 
+        IEnumerable<string> IDataPlugin.GetFailingDaemonTasksBuildIds()
+        {
+            return new string[] { };
+        }
+
         #endregion
 
         #region MUTATIONREPORT

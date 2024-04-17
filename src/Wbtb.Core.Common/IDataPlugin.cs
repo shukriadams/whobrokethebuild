@@ -269,6 +269,12 @@ namespace Wbtb.Core.Common
 
         IEnumerable<DaemonTask> GetFailingDaemonTasks();
 
+        /// <summary>
+        /// Gets build ids for all builds that are associated with failing daemontasks.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetFailingDaemonTasksBuildIds();
+
         #endregion
 
         #region MUATIONREPORT

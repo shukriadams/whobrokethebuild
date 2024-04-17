@@ -2220,6 +2220,19 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
+        IEnumerable<string> IDataPlugin.GetFailingDaemonTasksBuildIds() 
+        {
+            string sql = @"
+                SELECT 
+                    DISTINCT(buildid) FROM daemontask WHERE passed = false 
+                ";
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
+            using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                return ListableRecordsHelper.ToStringList(reader, "buildid");
+        }
+
         #endregion
 
         #region MUTATIONREPORT
@@ -2369,15 +2382,8 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("buildinvolvementid", int.Parse(buildInvolvementId));
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader()) 
-                {
-                    IList<string> ids = new List<string>();
-                    while (reader.Read())
-                        ids.Add(reader["buildlogparseresultid"].ToString());
-
-                    return ids;
-                }
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return ListableRecordsHelper.ToStringList(reader, "buildlogparseresultid");
             }
         }
 
