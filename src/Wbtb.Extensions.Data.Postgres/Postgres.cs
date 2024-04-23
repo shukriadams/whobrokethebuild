@@ -1274,7 +1274,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 WHERE
                     hostname = @hostname
                 ORDER BY
-                    startedutc
+                    startedutc DESC
                 LIMIT 
                     @pagesize
                 OFFSET 
@@ -1412,7 +1412,7 @@ namespace Wbtb.Extensions.Data.Postgres
                     AND jobid = @jobid
                     AND status = @build_passing
                 ORDER BY 
-                    startedutc 
+                    startedutc ASC
                 LIMIT 1";
 
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
