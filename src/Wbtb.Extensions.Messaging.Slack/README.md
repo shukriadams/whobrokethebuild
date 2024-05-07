@@ -49,21 +49,20 @@ To inform user that they are involved in a build break/fix
 - the user needs declare their slack id in an `Alert` node, this Slack plugin requries the `SlackId` string value which is the User's public SlackId.
 - the user must also define a Source server identity, this is the identity their commits will have, and this must be bound to an active source server.
 
-    Users:
-      - Key: MyUser
-        Message:
-        - Plugin: myslack
-          SlackId: myslackid
-        SourceServerIdentities:
-        - Name: name_in_commits
-          SourceServerKey: my_sourceServer
+        Users:
+          - Key: MyUser
+            Message:
+            - Plugin: myslack
+              SlackId: myslackid
+            SourceServerIdentities:
+            - Name: name_in_commits
+              SourceServerKey: my_sourceServer
 
-    SourceServers:
-    -   Key: my_sourceServer
+        SourceServers:
+        -   Key: my_sourceServer
 
-    BuildServers:
-    -   Jobs:
-        -   SourceServer: my_sourceServer
-
+        BuildServers:
+        -   Jobs:
+            -   SourceServer: my_sourceServer
 
 Messages sent in this way treat the target as being implicated in the build break.

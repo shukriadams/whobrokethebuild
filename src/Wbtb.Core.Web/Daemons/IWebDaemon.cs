@@ -8,7 +8,7 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="interval">Time in milliseconds</param>
-        public void Start(int interval);
+        /// <param name="interval">Time in milliseconds. Set in config. Overridden by this.Interval if this.Interval returns non-zero. </param>
+        void Start(int interval);
     }
 }

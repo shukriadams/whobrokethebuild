@@ -90,6 +90,17 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (string.IsNullOrEmpty(_config.Address))
                 throw new ConfigurationException("Slack alerts require WBTB Core \"Address\" to be set, these are used to generate links.");
 
+            if (this.ContextPluginConfig.Config.Any(c => c.Key == "Remind")) 
+            {
+                string rawRemind = this.ContextPluginConfig.Config.Any(c => c.Key == "Remind").ToString();
+                int test;
+                if (!int.TryParse(rawRemind, out test))
+                    throw new ConfigurationException("Invalid \"Remind\" value - must be integer. Value will be treated as hours.");
+
+                if (test < 1)
+                    throw new ConfigurationException("Invalid \"Remind\" value - must be integer greater than 0. Value will be treated as hours.");
+            }
+
             return new PluginInitResult
             {
                 Success = true,
@@ -258,6 +269,156 @@ namespace Wbtb.Extensions.Messaging.Slack
             }
         }
 
+        string IMessagingPlugin.RemindBreaking(string user, string group, Build incidentBuild, bool force)
+        {
+            string remindRaw = ContextPluginConfig.Config.First(r => r.Key == "Remind").Value.ToString();
+            if (string.IsNullOrEmpty(remindRaw))
+                return "repeat not enabled in config";
+
+            string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
+            bool mentionUsers = Configuration.GetConfigValue(ContextPluginConfig.Config, "MentionUsersInGroupPosts", "false").ToLower() == "true";
+            bool mute = Configuration.GetConfigValue(ContextPluginConfig.Config, "Mute", "false").ToLower() == "true";
+            if (mute)
+                return "muted";
+
+            if (!incidentBuild.EndedUtc.HasValue)
+                return "incident build not complete";
+
+            int remindInterval = int.Parse(remindRaw);
+            // test if repeatinterval has elapsed
+            int hoursSinceIncident = (int)Math.Round((DateTime.UtcNow - incidentBuild.EndedUtc.Value).TotalHours, 0);
+            int intervalBlock = hoursSinceIncident / remindInterval;
+            if (intervalBlock == 0)
+                return $"Interval not passed yet, current block is {intervalBlock}";
+
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Job job = dataLayer.GetJobById(incidentBuild.JobId);
+
+            // check if alert for this block has already been sent
+            string intervalKey = $"alert_repeat_{incidentBuild.UniquePublicKey}_{intervalBlock}";
+            CachePayload cachedSend = _cache.Get(this, job, incidentBuild, intervalKey);
+            if (cachedSend != null)
+                return $"interval {intervalBlock} already sent";
+
+            int alertMaxLength = 600;
+            if (ContextPluginConfig.Config.Any(r => r.Key == "AlertMaxLength"))
+                int.TryParse(ContextPluginConfig.Config.First(r => r.Key == "AlertMaxLength").Value.ToString(), out alertMaxLength);
+
+            NameValueCollection data = new NameValueCollection();
+            MessageConfiguration targetSlackConfig = null;
+
+            if (!string.IsNullOrEmpty(user))
+            {
+                User userData = _config.Users.Single(u => u.Key == user);
+                targetSlackConfig = userData.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
+            }
+
+            if (!string.IsNullOrEmpty(group))
+            {
+                Group groupData = _config.Groups.Single(u => u.Key == group);
+                targetSlackConfig = groupData.Message.First(c => c.Plugin == this.ContextPluginConfig.Key);
+            }
+
+            if (targetSlackConfig == null)
+                throw new Exception($"Job {job.Key} specified user:{user} and group:{group}, but neither are valid");
+
+            SlackConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(targetSlackConfig.RawJson);
+            string slackId = config.SlackId;
+
+            // if user, we need to get user channel id from user slack id, and post to this
+            if (!config.IsGroup)
+                slackId = this.GetUserChannelId(slackId);
+
+
+            IEnumerable<BuildInvolvement> buildInvolvements = dataLayer.GetBuildInvolvementsByBuild(incidentBuild.Id);
+
+            // get slack id's of users confirmed involved in break
+            List<string> mentions = new List<string>();
+            if (mentionUsers)
+            {
+                foreach (BuildInvolvement bi in buildInvolvements.Where(bi => bi.BlameScore == 100 && !string.IsNullOrEmpty(bi.MappedUserId)))
+                {
+                    User mappedUser = dataLayer.GetUserById(bi.MappedUserId);
+                    MessageConfiguration messageConfig = mappedUser.Message.SingleOrDefault(m => m.Plugin == this.ContextPluginConfig.Key);
+                    if (messageConfig == null)
+                        continue;
+
+                    SlackConfig slackConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<SlackConfig>(messageConfig.RawJson);
+                    mentions.Add($"<@{slackConfig.SlackId}>");
+                }
+            }
+
+            string summary = string.Empty;
+            string description = string.Empty;
+
+            TimeSpan downtime = DateTime.UtcNow - incidentBuild.EndedUtc.Value;
+            summary = $" This is still broken since build {incidentBuild.Key}, and has been down for {downtime.ToHumanString()}";
+            description = "Click link for more info";
+
+            string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
+            StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
+            string ts = string.Empty;
+            string replies = string.Empty;
+            if (storeItem != null)
+            {
+                dynamic storeItemPayload = Newtonsoft.Json.JsonConvert.DeserializeObject(storeItem.Content);
+                replies = (string)storeItemPayload.repies;
+                if (replies == null)
+                    replies = string.Empty;
+            }
+
+            string mentionsFlattened = string.Empty;
+            mentions = mentions.Distinct().ToList();
+            if (mentions.Any())
+                mentionsFlattened = $"\n{string.Join(" ", mentions)}";
+
+            dynamic attachment = new JObject();
+            attachment.fallback = " ";
+            attachment.color = "#D92424";
+            attachment.text = $"```{description}```{mentionsFlattened}";
+            attachment.title_link = _urlHelper.Build(incidentBuild);
+            attachment.title = $"{job.Name} - {summary}";
+
+            var attachments = new JArray(1);
+            attachments[0] = attachment;
+
+            data["token"] = token;
+            data["channel"] = slackId;
+            data["text"] = " ";
+            data["attachments"] = Convert.ToString(attachments);
+
+            dynamic response = response = ExecAPI("chat.postMessage", data);
+
+            if (response.ok.Value)
+            {
+                replies += $",{response.ts.Value}";
+
+                // store message info and proof of sending
+                dataLayer.DeleteStoreItemWithKey(key);
+                dataLayer.SaveStore(new StoreItem
+                {
+                    Plugin = this.ContextPluginConfig.Manifest.Key,
+                    Key = key,
+                    Content = JsonConvert.SerializeObject(new
+                    {
+                        ts = ts, // this ts is always the original incident post ts
+                        replies = replies,
+                        failingDateUtc = DateTime.UtcNow,
+                        failingBuildId = incidentBuild.Id,
+                        status = incidentBuild.Status.ToString()
+                    })
+                });
+
+                return response.ts.Value;
+            }
+            else
+            {
+                // log error
+                // mark message sent as failed, somwhere
+                _log.LogError($"Error posting to slack : {Convert.ToString(response)}");
+                return "failed, check logs";
+            }
+        }
 
         string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild)
         {

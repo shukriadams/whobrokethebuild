@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Core;
+using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {
@@ -42,6 +43,7 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, LogParseDaemon>(null, true);
                     di.Register<IWebDaemon, UserLinkDaemon>(null, true);
                     di.Register<IWebDaemon, RevisionLinkDaemon>(null, true);
+                    di.Register<IWebDaemon, BuildBrokenRemindDaemon>(null, true);
                     di.RegisterSingleton(typeof(DaemonTaskProcesses), new DaemonTaskProcesses());
                     di.RegisterFactory<IHubContext, HubFactory>();
                     di.Register<BuildEventHandlerHelper, BuildEventHandlerHelper>();

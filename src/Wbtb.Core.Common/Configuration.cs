@@ -27,7 +27,10 @@ namespace Wbtb.Core.Common
         /// Global default timer for daemons (seconds, will be converted to ms)
         /// </summary>
         public int DaemonInterval { get; set; }
- 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public int MaxThreadsPerDaemon { get; set; }
 
         /// <summary>
