@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Core;
-using Wbtb.Core.Web.Daemons;
 
 namespace Wbtb.Core.Web
 {

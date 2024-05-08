@@ -24,6 +24,11 @@ namespace Wbtb.Extensions.Messaging.Sandbox
             return "alerted";
         }
 
+        string IMessagingPlugin.RemindBreaking(string user, string group, Wbtb.Core.Common.Build incidentBuild, bool force)
+        {
+            return "alerted";
+        }
+
         string IMessagingPlugin.DeleteAlert(object alertId)
         {
             return "deleted";

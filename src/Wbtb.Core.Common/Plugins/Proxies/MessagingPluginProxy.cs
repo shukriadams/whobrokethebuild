@@ -43,6 +43,20 @@
             });
         }
 
+        string IMessagingPlugin.RemindBreaking(string user, string group, Build incidentBuild, bool force)
+        {
+            return _pluginSender.InvokeMethod<string>(this, new PluginArgs
+            {
+                FunctionName = nameof(IMessagingPlugin.RemindBreaking),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "user", Value = user },
+                    new PluginFunctionParameter { Name = "group", Value = group },
+                    new PluginFunctionParameter { Name = "incidentBuild", Value = incidentBuild },
+                    new PluginFunctionParameter { Name = "force", Value = force },
+                }
+            });
+        }
+
         string IMessagingPlugin.AlertPassing(string user, string group, Build incidentBuild, Build fixingBuild)
         {
             return _pluginSender.InvokeMethod<string>(this, new PluginArgs

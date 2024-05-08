@@ -66,7 +66,6 @@ namespace Wbtb.Core
             // plugins to define their own config structure without requiring updates to WBTB's internal config structure.
             YamlNode rawConfig = ConfigurationHelper.RawConfigToDynamic(rawYml);
 
-
             // removes explicitly disabled data as quickly as possible, this way we don't have to constantly filter out plugins by enabled in following checks
             tempConfig.Plugins = tempConfig.Plugins.Where(p => p.Enable).ToList();
             tempConfig.Groups = tempConfig.Groups.Where(g => g.Enable).ToList();
@@ -105,7 +104,6 @@ namespace Wbtb.Core
         
         public void ConfigValidated(Configuration unsafeConfig)
         {
-            
             SimpleDI di = new SimpleDI();
             di.RegisterSingleton<Configuration>(unsafeConfig);
         }
@@ -197,6 +195,24 @@ namespace Wbtb.Core
 
             if (config.PagesPerPageGroup < 1)
                 throw new ConfigurationException("PagesPerPageGroup cannot be less than 1");
+
+            Regex remindFormat = new Regex(@"\d+", RegexOptions.IgnoreCase);
+            foreach (BuildServer buildserver in config.BuildServers) 
+            {
+                foreach (Job job in buildserver.Jobs) 
+                {
+                    foreach (MessageHandler messageHandler in job.Message) 
+                    {
+                        // ensure remind format valid
+                        if (!string.IsNullOrEmpty(messageHandler.Remind)) 
+                        {
+                            Match match = remindFormat.Match(messageHandler.Remind);
+                            if (!match.Success)
+                                throw new ConfigurationException($"Job \"{job.Name}\" has a message handler with an invalid remind value \"{messageHandler.Remind}\". Value must be an integer, and is always in hours.");
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>

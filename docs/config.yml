@@ -81,6 +81,9 @@ BuildServers:
         Message:
         -   Plugin: myslack
             Group: mygroup
+        -   Plugin: myslack
+            Group: admins
+            Remind: 24
     -   Key: a967dfaaf967
         Name : SkunkWords
         RevisionAtBuildRegex : <current-revision>([\s\S]*?)<current-revision>
