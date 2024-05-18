@@ -20,8 +20,6 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly Cache _cache;
-
         private readonly UrlHelper _urlHelper;
 
         private readonly ILogger _log;
@@ -89,17 +87,6 @@ namespace Wbtb.Extensions.Messaging.Slack
 
             if (string.IsNullOrEmpty(_config.Address))
                 throw new ConfigurationException("Slack alerts require WBTB Core \"Address\" to be set, these are used to generate links.");
-
-            if (this.ContextPluginConfig.Config.Any(c => c.Key == "Remind")) 
-            {
-                string rawRemind = this.ContextPluginConfig.Config.Any(c => c.Key == "Remind").ToString();
-                int test;
-                if (!int.TryParse(rawRemind, out test))
-                    throw new ConfigurationException("Invalid \"Remind\" value - must be integer. Value will be treated as hours.");
-
-                if (test < 1)
-                    throw new ConfigurationException("Invalid \"Remind\" value - must be integer greater than 0. Value will be treated as hours.");
-            }
 
             return new PluginInitResult
             {
@@ -269,12 +256,9 @@ namespace Wbtb.Extensions.Messaging.Slack
             }
         }
 
+
         string IMessagingPlugin.RemindBreaking(string user, string group, Build incidentBuild, bool force)
         {
-            string remindRaw = ContextPluginConfig.Config.First(r => r.Key == "Remind").Value.ToString();
-            if (string.IsNullOrEmpty(remindRaw))
-                return "repeat not enabled in config";
-
             string token = ContextPluginConfig.Config.First(r => r.Key == "Token").Value.ToString();
             bool mentionUsers = Configuration.GetConfigValue(ContextPluginConfig.Config, "MentionUsersInGroupPosts", "false").ToLower() == "true";
             bool mute = Configuration.GetConfigValue(ContextPluginConfig.Config, "Mute", "false").ToLower() == "true";
@@ -284,21 +268,8 @@ namespace Wbtb.Extensions.Messaging.Slack
             if (!incidentBuild.EndedUtc.HasValue)
                 return "incident build not complete";
 
-            int remindInterval = int.Parse(remindRaw);
-            // test if repeatinterval has elapsed
-            int hoursSinceIncident = (int)Math.Round((DateTime.UtcNow - incidentBuild.EndedUtc.Value).TotalHours, 0);
-            int intervalBlock = hoursSinceIncident / remindInterval;
-            if (intervalBlock == 0)
-                return $"Interval not passed yet, current block is {intervalBlock}";
-
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(incidentBuild.JobId);
-
-            // check if alert for this block has already been sent
-            string intervalKey = $"alert_repeat_{incidentBuild.UniquePublicKey}_{intervalBlock}";
-            CachePayload cachedSend = _cache.Get(this, job, incidentBuild, intervalKey);
-            if (cachedSend != null)
-                return $"interval {intervalBlock} already sent";
 
             int alertMaxLength = 600;
             if (ContextPluginConfig.Config.Any(r => r.Key == "AlertMaxLength"))
