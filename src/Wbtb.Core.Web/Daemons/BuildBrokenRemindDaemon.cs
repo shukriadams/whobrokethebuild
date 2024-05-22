@@ -68,11 +68,11 @@ namespace Wbtb.Core.Web
             {
                 try
                 {
-                    Build latestDeltaBuild = dataLayer.GetLastJobDelta(job.Id);
+                    Build latestBuildInJob = dataLayer.GetLatestBuildByJob(job);
                     string alertKey = "";
 
                     // check if alert key has been processed
-                    if (latestDeltaBuild != null && !string.IsNullOrEmpty(latestDeltaBuild.IncidentBuildId) && latestDeltaBuild.Status == BuildStatus.Failed)
+                    if (latestBuildInJob != null && !string.IsNullOrEmpty(latestBuildInJob.IncidentBuildId) && latestBuildInJob.Status == BuildStatus.Failed)
                     {
                         string alertResultsForBuild = string.Empty;
 
@@ -81,21 +81,21 @@ namespace Wbtb.Core.Web
                             int remindInterval = int.Parse(alert.Remind);
 
                             // test if repeatinterval has elapsed
-                            int hoursSinceIncident = (int)Math.Round((DateTime.UtcNow - latestDeltaBuild.EndedUtc.Value).TotalHours, 0);
+                            int hoursSinceIncident = (int)Math.Round((DateTime.UtcNow - latestBuildInJob.EndedUtc.Value).TotalHours, 0);
                             int intervalBlock = hoursSinceIncident / remindInterval;
                             if (intervalBlock == 0)
                                 // interval not yet elapsed
                                 continue;
 
                             // check if alert for this block has already been sent
-                            string intervalKey = $"alert_remind_{latestDeltaBuild.UniquePublicKey}_{alert.Plugin}_{alert.User}_{alert.Group}_{intervalBlock}";
+                            string intervalKey = $"alert_remind_{latestBuildInJob.IncidentBuildId}_{alert.Plugin}_{alert.User}_{alert.Group}_{intervalBlock}";
                             CachePayload cachedSend = _cache.Get(TypeHelper.Name(this), intervalKey);
                             if (cachedSend.Payload != null)
                                 // alread sent
                                 continue;
 
                             IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                            string localResult = messagePlugin.RemindBreaking(alert.User, alert.Group, latestDeltaBuild, false);
+                            string localResult = messagePlugin.RemindBreaking(alert.User, alert.Group, latestBuildInJob, false);
                             alertResultsForBuild += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
 
                             _cache.Write(TypeHelper.Name(this), intervalKey, string.Empty);

@@ -56,13 +56,14 @@ namespace Wbtb.Core.Web.Controllers
 
             foreach(Job job in jobs)
             {
-                ViewJob v = ViewJob.Copy(job);
-                tempjobs.Add(v);
-                v.LatestBuild = dataLayer.GetLatestBuildByJob(job);
-                v.DeltaBuild = ViewBuild.Copy(dataLayer.GetLastJobDelta(job.Id));
-
-                if (v.DeltaBuild != null)
-                    v.DeltaBuild.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(v.DeltaBuild.Id));
+                ViewJob viewJob = ViewJob.Copy(job);
+                tempjobs.Add(viewJob);
+                viewJob.LatestBuild = dataLayer.GetLatestBuildByJob(job);
+                
+                // TODO : this doesn't make sense anymore, getting by deltabuild, or getting involvements 
+                viewJob.DeltaBuild = ViewBuild.Copy(dataLayer.GetLastJobDelta(job.Id));
+                if (viewJob.DeltaBuild != null)
+                    viewJob.DeltaBuild.BuildInvolvements = ViewBuildInvolvement.Copy(dataLayer.GetBuildInvolvementsByBuild(viewJob.DeltaBuild.Id));
             }
 
             IList<ViewJob> viewjobs = new List<ViewJob>();

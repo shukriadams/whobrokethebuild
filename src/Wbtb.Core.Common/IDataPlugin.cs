@@ -155,6 +155,12 @@ namespace Wbtb.Core.Common
 
         IEnumerable<Build> GetBuildsByIncident(string incidentId);
 
+        /// <summary>
+        ///  Gets the latest build from job for a passing/failing streak if there has been change from a different streak. Phase out
+        ///  and replace with getlatestforjob
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <returns></returns>
         Build GetLastJobDelta(string jobId);
 
         /// <summary>

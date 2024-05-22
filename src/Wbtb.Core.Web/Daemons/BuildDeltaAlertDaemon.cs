@@ -82,55 +82,60 @@ namespace Wbtb.Core.Web
                         continue;
                     }
 
-                    // alert fails, we alert only latest fail, if for some reason build failed then fixed itself between alert windows 
-                    // we ignore those.
-                    // note : delta will be null if no build has run or builds have always had same status since job start
-                    Build latestDeltaBuild = dataLayer.GetLastJobDelta(job.Id);
-                    if (latestDeltaBuild != null && !string.IsNullOrEmpty(latestDeltaBuild.IncidentBuildId))
+                    Build latestBuildInJob = dataLayer.GetLatestBuildByJob(job);
+
+                    if (latestBuildInJob != null && latestBuildInJob.Status == BuildStatus.Failed && !string.IsNullOrEmpty(latestBuildInJob.IncidentBuildId))
                     {
-                        Build incidentBuild = dataLayer.GetBuildById(latestDeltaBuild.IncidentBuildId);
-                        Build previousBreakingBuild = dataLayer.GetPrecedingBuildInIncident(latestDeltaBuild);
-                        string currentBuildMutation = _mutationHelper.GetBuildMutation(latestDeltaBuild);
-                        string previousBuildMutation = null;
-                        if (previousBreakingBuild != null)
-                            previousBuildMutation = _mutationHelper.GetBuildMutation(previousBreakingBuild);
+                        Build incidentBuild = dataLayer.GetBuildById(latestBuildInJob.IncidentBuildId);
 
-                        bool hasMutated = previousBuildMutation != null && previousBuildMutation != currentBuildMutation;
+                        bool enableMutations = _config.FeatureToggles.Contains("BUILD_MUTATION");
+                        bool hasMutated = false;
+                        string alertKey = null;
 
-                        // force mutation to false if no toggle
-                        bool ignoreThisError = false;
-                        if (hasMutated && !_config.FeatureToggles.Contains("BUILD_MUTATION"))
-                            ignoreThisError = true;
-
-                        if (!ignoreThisError && latestDeltaBuild.Status == BuildStatus.Failed)
+                        if (enableMutations)
                         {
-                            string alertKey = $"{currentBuildMutation}_{job.Key}_deltaAlert_{latestDeltaBuild.Status}";
+                            string currentBuildMutation = _mutationHelper.GetBuildMutation(latestBuildInJob);
+        
+                            // get mutation of preceding breaking build (in same incident)
+                            Build previousBreakingBuild = dataLayer.GetPrecedingBuildInIncident(latestBuildInJob);
+                            string previousBuildMutation = null;
+                            if (previousBreakingBuild != null)
+                                previousBuildMutation = _mutationHelper.GetBuildMutation(previousBreakingBuild);
 
-                            if (_cache.Get(TypeHelper.Name(this), job, incidentBuild, alertKey).Payload == null) 
+                            // build has mutated of current mutation is different from previous one
+                            hasMutated = previousBuildMutation != null && previousBuildMutation != currentBuildMutation;
+
+                            // if doing mutations, key for "already alerted" is tied
+                            alertKey = $"{latestBuildInJob.Id}_{latestBuildInJob.IncidentBuildId}_{currentBuildMutation}_{job.Key}_deltaAlert_{latestBuildInJob.Status}";
+                        }
+                        else 
+                        {
+                            alertKey = $"{latestBuildInJob.IncidentBuildId}_{job.Key}_deltaAlert_{latestBuildInJob.Status}";
+                        }
+
+                        if (_cache.Get(TypeHelper.Name(this), job, incidentBuild, alertKey).Payload == null) 
+                        {
+                            string result = string.Empty;
+
+                            _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestBuildInJob);
+
+                            foreach (MessageHandler alert in job.Message)
                             {
-                                string result = string.Empty;
-
-                                // handle mutation - needs new args
-                                _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestDeltaBuild);
-
-                                foreach (MessageHandler alert in job.Message)
-                                {
-                                    IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                                    string localResult = messagePlugin.AlertBreaking(alert.User, alert.Group, latestDeltaBuild, hasMutated, false);
-                                    result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
-                                }
-
-                                _cache.Write(TypeHelper.Name(this), job, incidentBuild, alertKey, "sent");
-
-                                dataLayer.SaveStore(new StoreItem
-                                {
-                                    Key = alertKey,
-                                    Plugin = this.GetType().Name,
-                                    Content = $"Date:{DateTime.UtcNow}\n{result}"
-                                });
-
-                                ConsoleHelper.WriteLine(this, $"Alerted job {job.Name} broken by build {incidentBuild.Key} (id:{incidentBuild.Id})");
+                                IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
+                                string localResult = messagePlugin.AlertBreaking(alert.User, alert.Group, latestBuildInJob, hasMutated, false);
+                                result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
                             }
+
+                            _cache.Write(TypeHelper.Name(this), job, incidentBuild, alertKey, "sent");
+
+                            dataLayer.SaveStore(new StoreItem
+                            {
+                                Key = alertKey,
+                                Plugin = this.GetType().Name,
+                                Content = $"Date:{DateTime.UtcNow}\n{result}"
+                            });
+
+                            ConsoleHelper.WriteLine(this, $"Alerted job {job.Name} broken by build {incidentBuild.Key} (id:{incidentBuild.Id})");
                         }
                     }
 
