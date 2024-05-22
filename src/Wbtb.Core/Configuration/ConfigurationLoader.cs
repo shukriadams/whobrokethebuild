@@ -197,20 +197,17 @@ namespace Wbtb.Core
                 throw new ConfigurationException("PagesPerPageGroup cannot be less than 1");
 
             Regex remindFormat = new Regex(@"\d+", RegexOptions.IgnoreCase);
+
             foreach (BuildServer buildserver in config.BuildServers) 
+            foreach (Job job in buildserver.Jobs) 
+            foreach (MessageHandler messageHandler in job.Message) 
             {
-                foreach (Job job in buildserver.Jobs) 
+                // ensure remind format valid
+                if (!string.IsNullOrEmpty(messageHandler.Remind)) 
                 {
-                    foreach (MessageHandler messageHandler in job.Message) 
-                    {
-                        // ensure remind format valid
-                        if (!string.IsNullOrEmpty(messageHandler.Remind)) 
-                        {
-                            Match match = remindFormat.Match(messageHandler.Remind);
-                            if (!match.Success)
-                                throw new ConfigurationException($"Job \"{job.Name}\" has a message handler with an invalid remind value \"{messageHandler.Remind}\". Value must be an integer, and is always in hours.");
-                        }
-                    }
+                    Match match = remindFormat.Match(messageHandler.Remind);
+                    if (!match.Success)
+                        throw new ConfigurationException($"Job \"{job.Name}\" has a message handler with an invalid remind value \"{messageHandler.Remind}\". Value must be an integer, and is always in hours.");
                 }
             }
         }

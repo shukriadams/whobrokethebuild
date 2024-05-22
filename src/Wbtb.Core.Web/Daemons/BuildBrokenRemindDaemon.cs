@@ -1,4 +1,4 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using Wbtb.Core.Common;
 
@@ -89,8 +89,8 @@ namespace Wbtb.Core.Web
 
                             // check if alert for this block has already been sent
                             string intervalKey = $"alert_remind_{latestDeltaBuild.UniquePublicKey}_{alert.Plugin}_{alert.User}_{alert.Group}_{intervalBlock}";
-                            CachePayload cachedSend = _cache.Get(this.GetType().Name, intervalKey);
-                            if (cachedSend != null)
+                            CachePayload cachedSend = _cache.Get(TypeHelper.Name(this), intervalKey);
+                            if (cachedSend.Payload != null)
                                 // alread sent
                                 continue;
 
@@ -98,20 +98,20 @@ namespace Wbtb.Core.Web
                             string localResult = messagePlugin.RemindBreaking(alert.User, alert.Group, latestDeltaBuild, false);
                             alertResultsForBuild += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
 
-                            _cache.Write(this.GetType().Name, intervalKey, string.Empty);
+                            _cache.Write(TypeHelper.Name(this), intervalKey, string.Empty);
                         }
 
                         dataLayer.SaveStore(new StoreItem
                         {
                             Key = alertKey,
-                            Plugin = this.GetType().Name,
+                            Plugin = TypeHelper.Name(this),
                             Content = $"Date:{DateTime.UtcNow}\n{alertResultsForBuild}"
                         });
                     }
                 }
                 catch (Exception ex)
                 {  
-                    _log.Error($"Unexpected error on job {job.Name}.", ex);
+                    _log.LogError($"Unexpected error on job {job.Name}.", ex);
                 }
             }
         }

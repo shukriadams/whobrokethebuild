@@ -207,9 +207,13 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             }
 
             string mentionsFlattened = string.Empty;
-            mentions = mentions.Distinct().ToList();
-            if (mentions.Any())
-                mentionsFlattened = $"\n{string.Join(" ", mentions)}";
+            // mentions work in groups only
+            if (config.IsGroup)
+            { 
+                mentions = mentions.Distinct().ToList();
+                if (mentions.Any())
+                    mentionsFlattened = $"\n{string.Join(" ", mentions)}";
+            }
 
             dynamic attachment = new JObject();
             attachment.fallback = " ";
@@ -347,17 +351,15 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
 
             string key = AlertKey(slackId, job.Key, incidentBuild.IncidentBuildId);
             StoreItem storeItem = dataLayer.GetStoreItemByKey(key);
-            string ts = string.Empty;
-            if (storeItem != null)
-            {
-                dynamic storeItemPayload = Newtonsoft.Json.JsonConvert.DeserializeObject(storeItem.Content);
-                ts = (string)storeItemPayload.ts;
-            }
 
             string mentionsFlattened = string.Empty;
-            mentions = mentions.Distinct().ToList();
-            if (mentions.Any())
-                mentionsFlattened = $"\n{string.Join(" ", mentions)}";
+            // mentions work in groups only
+            if (config.IsGroup) 
+            {
+                mentions = mentions.Distinct().ToList();
+                if (mentions.Any())
+                    mentionsFlattened = $"\n{string.Join(" ", mentions)}";
+            }
 
             dynamic attachment = new JObject();
             attachment.fallback = " ";
@@ -374,8 +376,6 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             data["channel"] = slackId;
             data["text"] = " ";
             data["attachments"] = Convert.ToString(attachments);
-            if (!string.IsNullOrEmpty(ts))
-                data["thread_ts"] = ts;
 
             dynamic response = ExecAPI("chat.postMessage", data, new
             {
