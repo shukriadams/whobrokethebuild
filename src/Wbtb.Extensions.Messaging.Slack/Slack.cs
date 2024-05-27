@@ -565,7 +565,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack: {Convert.ToString(response)}");
+                _log.LogError($"Error posting to slack: {Convert.ToString(response)}, settings are {messageConfiguration.RawJson}");
                 return null;
             }
         }

@@ -83,7 +83,7 @@ namespace Wbtb.Core.CLI
             }
 
             string result = messagingPlugin.TestHandler(messageConfiguration);
-            ConsoleHelper.WriteLine($"Message test executed, result : {result}");
+            ConsoleHelper.WriteLine($"Message test execute, result : {result}");
         }
     }
 }
