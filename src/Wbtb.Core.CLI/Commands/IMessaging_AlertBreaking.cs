@@ -8,7 +8,7 @@ namespace Wbtb.Core.CLI
     {
         public string Describe()
         {
-            return @"Sends a build break warning top the given message provider";
+            return @"Sends a build break warning to the given message provider";
         }
 
         public void Process(CommandLineSwitches switches)

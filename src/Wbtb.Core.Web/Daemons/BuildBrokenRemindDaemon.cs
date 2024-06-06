@@ -76,9 +76,9 @@ namespace Wbtb.Core.Web
                     {
                         string alertResultsForBuild = string.Empty;
 
-                        foreach (MessageHandler alert in job.Message)
+                        foreach (MessageHandler messageHandler in job.Message)
                         {
-                            int remindInterval = int.Parse(alert.Remind);
+                            int remindInterval = int.Parse(messageHandler.Remind);
 
                             // test if repeatinterval has elapsed
                             int hoursSinceIncident = (int)Math.Round((DateTime.UtcNow - latestBuildInJob.EndedUtc.Value).TotalHours, 0);
@@ -88,15 +88,15 @@ namespace Wbtb.Core.Web
                                 continue;
 
                             // check if alert for this block has already been sent
-                            string intervalKey = $"alert_remind_{latestBuildInJob.IncidentBuildId}_{alert.Plugin}_{alert.User}_{alert.Group}_{intervalBlock}";
+                            string intervalKey = $"alert_remind_{latestBuildInJob.IncidentBuildId}_{messageHandler.Plugin}_{messageHandler.User}_{messageHandler.Group}_{intervalBlock}";
                             CachePayload cachedSend = _cache.Get(TypeHelper.Name(this), intervalKey);
                             if (cachedSend.Payload != null)
                                 // alread sent
                                 continue;
 
-                            IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                            string localResult = messagePlugin.RemindBreaking(alert.User, alert.Group, latestBuildInJob, false);
-                            alertResultsForBuild += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
+                            IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(messageHandler.Plugin) as IMessagingPlugin;
+                            string localResult = messagePlugin.RemindBreaking(messageHandler.User, messageHandler.Group, latestBuildInJob, false);
+                            alertResultsForBuild += $"{localResult} for handler {messageHandler.Plugin}, user:{messageHandler.User}|group:{messageHandler.Group}";
 
                             _cache.Write(TypeHelper.Name(this), intervalKey, string.Empty);
                         }

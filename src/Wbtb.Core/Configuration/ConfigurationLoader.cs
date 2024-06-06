@@ -103,7 +103,7 @@ namespace Wbtb.Core
 
             return tempConfig;
         }
-        
+
         public void ConfigValidated(Configuration unsafeConfig)
         {
             SimpleDI di = new SimpleDI();
@@ -129,17 +129,17 @@ namespace Wbtb.Core
                     Directory.CreateDirectory(pluginConfig.Path);
                 }
                 catch (Exception ex)
-                { 
+                {
                     throw new ConfigurationException($"Failed to create plugin directory for {pluginConfig.Key}:{ex}");
                 }
-                
-                try 
+
+                try
                 {
                     string writeTest = Path.Combine(pluginConfig.Path, ".wbtb-writeTst");
                     File.WriteAllText(writeTest, string.Empty);
                     File.Delete(writeTest);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw new ConfigurationException($"Failed write test to {pluginConfig.Key}:{ex}");
                 }
@@ -161,7 +161,7 @@ namespace Wbtb.Core
 
                 bool copy = true;
                 if (File.Exists(tagFile))
-                { 
+                {
                     string deployedTag = File.ReadAllText(tagFile);
                     if (deployedTag == tagFile)
                         copy = false;
@@ -200,18 +200,18 @@ namespace Wbtb.Core
 
             Regex remindFormat = new Regex(@"\d+", RegexOptions.IgnoreCase);
 
-            foreach (BuildServer buildserver in config.BuildServers) 
-            foreach (Job job in buildserver.Jobs) 
-            foreach (MessageHandler messageHandler in job.Message) 
-            {
-                // ensure remind format valid
-                if (!string.IsNullOrEmpty(messageHandler.Remind)) 
-                {
-                    Match match = remindFormat.Match(messageHandler.Remind);
-                    if (!match.Success)
-                        throw new ConfigurationException($"Job \"{job.Name}\" has a message handler with an invalid remind value \"{messageHandler.Remind}\". Value must be an integer, and is always in hours.");
-                }
-            }
+            foreach (BuildServer buildserver in config.BuildServers)
+                foreach (Job job in buildserver.Jobs)
+                    foreach (MessageHandler messageHandler in job.Message)
+                    {
+                        // ensure remind format valid
+                        if (!string.IsNullOrEmpty(messageHandler.Remind))
+                        {
+                            Match match = remindFormat.Match(messageHandler.Remind);
+                            if (!match.Success)
+                                throw new ConfigurationException($"Job \"{job.Name}\" has a message handler with an invalid remind value \"{messageHandler.Remind}\". Value must be an integer, and is always in hours.");
+                        }
+                    }
         }
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace Wbtb.Core
             bool doAPIVersionCheck = currentVersion.CoreVersion.Major > 0 && currentVersion.CoreVersion.Minor > 0 && currentVersion.CoreVersion.Patch > 0;
             if (!doAPIVersionCheck && verbose)
                 ConsoleHelper.WriteLine("Skipping semver checking, dev versioning detected");
-            
+
             foreach (PluginConfig pluginConfig in config.Plugins)
             {
                 if (string.IsNullOrEmpty(pluginConfig.Path))
@@ -239,11 +239,11 @@ namespace Wbtb.Core
                 bool directoryExists = Directory.Exists(pluginConfig.Path);
                 bool isExternal = directoryExists;
 
-                if (!directoryExists) 
+                if (!directoryExists)
                 {
                     // try to autoresolve if running in visual studio
                     // web project starts in the project root
-                    string devPath = Path.Combine($"..{Path.DirectorySeparatorChar}",  pluginConfig.Path, "bin", "Debug", "net6.0");
+                    string devPath = Path.Combine($"..{Path.DirectorySeparatorChar}", pluginConfig.Path, "bin", "Debug", "net6.0");
                     // cli starts in bin/debug/runtime
                     if (!Directory.Exists(devPath))
                         devPath = Path.Combine($"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}", pluginConfig.Path, "bin", "Debug", "net6.0");
@@ -270,7 +270,7 @@ namespace Wbtb.Core
 
                     pluginManifestRaw = File.ReadAllText(pluginYmlManifestPath);
                 }
-                else 
+                else
                 {
                     Assembly pluginAssembly = TypeHelper.GetAssembly(pluginConfig.Path);
                     if (pluginAssembly == null)
@@ -360,7 +360,7 @@ namespace Wbtb.Core
             }
 
             // confirm a datalayer plugin is active
-            IEnumerable<PluginConfig> dataLayers = config.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name(typeof(IDataPlugin)) );
+            IEnumerable<PluginConfig> dataLayers = config.Plugins.Where(p => p.Manifest.Interface == TypeHelper.Name(typeof(IDataPlugin)));
             if (dataLayers.Count() == 0)
                 throw new ConfigurationException("No datalayer plugin defined or enabled");
 
@@ -374,7 +374,8 @@ namespace Wbtb.Core
                         throw new ConfigurationException($"Group \"{group.Key}\" defines a user \"{user}\" that is not also defined under \"Users\".");
 
             foreach (BuildServer buildserver in config.BuildServers)
-                foreach (Job job in buildserver.Jobs){
+                foreach (Job job in buildserver.Jobs)
+                {
 
                     // ensure job alerts are associated with valid plugins, and that plugins validate alert config
                     foreach (MessageHandler alert in job.Message)
@@ -438,7 +439,7 @@ namespace Wbtb.Core
                 }
 
 
-            foreach(SourceServer sourceServer in config.SourceServers)
+            foreach (SourceServer sourceServer in config.SourceServers)
             {
                 if (string.IsNullOrEmpty(sourceServer.Plugin))
                     throw new ConfigurationException($"Sourceserver \"{sourceServer.Key}\" has no Plugin property - a sourceseerver must point to a plugin to communicate with a source control system.");
@@ -504,13 +505,13 @@ namespace Wbtb.Core
             }
         }
 
-        private void ValidateProcessors<T>(Configuration config, Job job, IEnumerable<string> processors, string category) 
+        private void ValidateProcessors<T>(Configuration config, Job job, IEnumerable<string> processors, string category)
         {
             foreach (string processorPlugin in processors)
             {
                 PluginConfig postProcessorPlugin = config.Plugins.FirstOrDefault(r => r.Key == processorPlugin);
                 Type pluginInterfaceType = TypeHelper.GetCommonType(postProcessorPlugin.Manifest.Interface);
-                
+
                 if (postProcessorPlugin == null)
                     throw new ConfigurationException($"Job \"{job.Key}\" defines an {category} processor plugin \"{processorPlugin}\", but no enabled plugin with this key was found.");
 
@@ -525,19 +526,19 @@ namespace Wbtb.Core
         /// <param name="config"></param>
         private void AutofillOptionalValues(Configuration config)
         {
-            foreach (User user in config.Users) 
-            { 
+            foreach (User user in config.Users)
+            {
                 if (string.IsNullOrEmpty(user.Name))
                     user.Name = user.Key;
 
                 // take first three chars of name if intials not set.
-                if (string.IsNullOrEmpty(user.Initials)) 
+                if (string.IsNullOrEmpty(user.Initials))
                 {
                     user.Initials = user.Name.ToUpper().Replace(" ", string.Empty);
                     if (user.Initials.Length > 3)
                         user.Initials = user.Initials.Substring(0, 3);
                 }
-                    
+
             }
 
             foreach (Group group in config.Groups)
@@ -549,7 +550,7 @@ namespace Wbtb.Core
                 if (string.IsNullOrEmpty(buildServer.Name))
                     buildServer.Name = buildServer.Key;
 
-                foreach(Job job in buildServer.Jobs)
+                foreach (Job job in buildServer.Jobs)
                     if (string.IsNullOrEmpty(job.Name))
                         job.Name = job.Key;
             }
@@ -590,12 +591,12 @@ namespace Wbtb.Core
             try
             {
                 deserializer.Deserialize<Configuration>(ymlText);
-                return new ConfigurationValidationError { IsValid = true};
+                return new ConfigurationValidationError { IsValid = true };
             }
-            catch(Exception ex) 
-            { 
-                return new ConfigurationValidationError 
-                { 
+            catch (Exception ex)
+            {
+                return new ConfigurationValidationError
+                {
                     IsValid = false,
                     Message = ex.Message,
                     InnerException = ex
