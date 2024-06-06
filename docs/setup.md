@@ -105,4 +105,4 @@ Jobs are tied to a build server. A job must have a unique `Key`, as well as vali
 
 ## Secrets
 
-Config.yml is stored in plaintext. You can store credentials as env vars on your host/container instance and reference them in config.yml as `"{{env.YOUR_VAR_NAME}}"` (quotes required).
+Config.yml is stored in plaintext. You can store credentials as env vars on your host/container instance and reference them in config.yml as `"{{env.YOUR_VAR_NAME}}"` (quotes required). Spaces are not allowed in secret tokens, `{{env.myvalue}}` is valid, but `{{ env.myvalue}}`, `{{env.myvalue }}` and `{{env.  myvalue}}` are not.
