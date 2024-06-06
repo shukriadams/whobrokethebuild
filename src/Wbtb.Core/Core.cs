@@ -16,7 +16,7 @@ namespace Wbtb.Core
         /// <summary>
         /// Single-call wrapper to start server.
         /// </summary>
-        public void Start(bool persistStateToDatabase=true, bool validate=true)
+        public void Start(bool persistStateToDatabase=true, bool validate=true, bool verbose=true)
         {
             // pre-start stuff
             SimpleDI di = new SimpleDI();
@@ -44,7 +44,7 @@ namespace Wbtb.Core
 
             // fetch latest config from git. Requires env vars set. Do after c
             ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
-            configBootstrapper.EnsureLatest();
+            configBootstrapper.EnsureLatest(verbose);
 
             // NOTE : Always resolve ConfigurationBasic after apply custom env args, this class contains bootstrap settings needed to load app,
             // and these can be influenced by custom args
@@ -53,7 +53,7 @@ namespace Wbtb.Core
 
             // first part of server start, try to load config
             ConfigurationLoader configurationManager = di.Resolve<ConfigurationLoader>();
-            Configuration unvalidatedConfig = configurationManager.LoadUnvalidatedConfig(configPath);
+            Configuration unvalidatedConfig = configurationManager.LoadUnvalidatedConfig(configPath, verbose);
             
             // it's safe to use datarootpath here, this doesn't need to be validated
             string cachePath = Path.Join(unvalidatedConfig.DataRootPath, ".currentConfigHash");
@@ -65,7 +65,8 @@ namespace Wbtb.Core
                     if (File.ReadAllText(cachePath) == unvalidatedConfig.Hash) 
                     {
                         validate = false;
-                        ConsoleHelper.WriteLine("Skipping config validation, config unchanged since last check.");
+                        if (verbose)
+                            ConsoleHelper.WriteLine("Skipping config validation, config unchanged since last check.");
                     }
                         
                 }
@@ -85,7 +86,7 @@ namespace Wbtb.Core
             Directory.CreateDirectory(unvalidatedConfig.PluginDataPersistDirectory);
 
             configurationManager.FetchPlugins(unvalidatedConfig);
-            configurationManager.LoadManifestData(unvalidatedConfig);
+            configurationManager.LoadManifestData(unvalidatedConfig, verbose);
             configurationManager.ConfigValidated(unvalidatedConfig);
             
             try
@@ -107,7 +108,8 @@ namespace Wbtb.Core
             }
             else
             {
-                ConsoleHelper.WriteLine("No plugins running in proxy mode, ignoring MessageQueue status.");
+                if (verbose)
+                    ConsoleHelper.WriteLine("No plugins running in proxy mode, ignoring MessageQueue status.");
             }
 
             Configuration config = di.Resolve<Configuration>();
@@ -145,8 +147,9 @@ namespace Wbtb.Core
                     builder.InjectBuildServers();
 
                     IEnumerable<string> orphans = builder.FindOrphans();
-                    foreach (string orphan in orphans)
-                        ConsoleHelper.WriteLine(orphan);
+                    if (verbose)
+                        foreach (string orphan in orphans)
+                            ConsoleHelper.WriteLine(orphan);
 
                     if (config.FailOnOrphans && orphans.Count() > 0)
                         throw new ConfigurationException("Orphan records detected. Please merge or delete orphans. Disable this check with \"FailOnOrphans: false\" in config.");

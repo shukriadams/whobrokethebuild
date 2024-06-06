@@ -1,5 +1,4 @@
-﻿using System;
-using Wbtb.Core.Common;
+﻿using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
 {
@@ -14,8 +13,8 @@ namespace Wbtb.Core.CLI
         {
             SimpleDI di = new SimpleDI();
             ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
-
-            bool hasChanged = configBootstrapper.EnsureLatest();
+            
+            bool hasChanged = configBootstrapper.EnsureLatest(true);
             string status = hasChanged ? "Config was updated" : "Config unchanged";
             ConsoleHelper.WriteLine(status);
         }

@@ -13,7 +13,7 @@ namespace Wbtb.Core
         /// <summary>
         /// Applies name:value arg in .env file in project root. this is a dev aid.
         /// </summary>
-        public void Apply()
+        public void Apply(bool verbose)
         {
             string envArgFilePath = null;
     
@@ -51,9 +51,11 @@ namespace Wbtb.Core
                     continue;
 
                 Environment.SetEnvironmentVariable(match.Groups[1].Value, match.Groups[2].Value);
-                Console.WriteLine($"WBTB : Set environment variable {match.Groups[1].Value}");
+                if (verbose)
+                    Console.WriteLine($"WBTB : Set environment variable {match.Groups[1].Value}");
             }
                 
         }
     }
 }
+    

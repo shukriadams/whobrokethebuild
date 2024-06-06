@@ -20,7 +20,7 @@ namespace Wbtb.Core
         /// Required first step for working with static config - set's the path config 
         /// </summary>
         /// <param name="path"></param>
-        public Configuration LoadUnvalidatedConfig(string path)
+        public Configuration LoadUnvalidatedConfig(string path, bool verbose)
         {
             if (string.IsNullOrEmpty(path))
                 throw new ConfigurationException("Config path cannot be an empty string");
@@ -47,13 +47,15 @@ namespace Wbtb.Core
                 }
                 else
                 {
-                    ConsoleHelper.WriteLine($"Injecting environment variable for \"{evnVarToken.Groups[1].Value}\".");
+                    if (verbose)
+                        ConsoleHelper.WriteLine($"Injecting environment variable for \"{evnVarToken.Groups[1].Value}\".");
                     rawYml = rawYml.Replace("{{env." + evnVarToken.Groups[1].Value + "}}", envVarValue);
                 }
             }
 
             IDeserializer deserializer = YmlHelper.GetDeserializer();
-            ConsoleHelper.WriteLine("WBTB : initializing config");
+            if (verbose)
+                ConsoleHelper.WriteLine("WBTB : initializing config");
 
             ConfigurationValidationError validation = ValidateYmlParsing(rawYml);
             if (!validation.IsValid)
@@ -216,14 +218,14 @@ namespace Wbtb.Core
         /// Tries to load manifest data from plugins. Also validates manifests and plugin, and fails app start if necessary.
         /// </summary>
         /// <param name="config"></param>
-        public void LoadManifestData(Configuration config)
+        public void LoadManifestData(Configuration config, bool verbose)
         {
             CurrentVersion currentVersion = new CurrentVersion();
             currentVersion.Resolve();
 
             // enforce API version check if semver of current version is not all zero (local dev)
             bool doAPIVersionCheck = currentVersion.CoreVersion.Major > 0 && currentVersion.CoreVersion.Minor > 0 && currentVersion.CoreVersion.Patch > 0;
-            if (!doAPIVersionCheck)
+            if (!doAPIVersionCheck && verbose)
                 ConsoleHelper.WriteLine("Skipping semver checking, dev versioning detected");
             
             foreach (PluginConfig pluginConfig in config.Plugins)

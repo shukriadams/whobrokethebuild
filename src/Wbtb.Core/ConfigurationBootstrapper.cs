@@ -13,15 +13,17 @@ namespace Wbtb.Core
         /// Ensures latest config. Returns true of config has changed
         /// </summary>
         /// <returns></returns>
-        public bool EnsureLatest() 
+        public bool EnsureLatest(bool verbose) 
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL")))
             {
-                ConsoleHelper.WriteLine("GIT-CONFIG : sync disabled, skipping");
+                if (verbose)
+                    ConsoleHelper.WriteLine("GIT-CONFIG : sync disabled, skipping");
                 return false;
             }
 
-            ConsoleHelper.WriteLine("GIT-CONFIG : sync enabled");
+            if (verbose)
+                ConsoleHelper.WriteLine("GIT-CONFIG : sync enabled");
 
             string gitRemote = Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL");
             string localgiturlfile = "./.giturl";
@@ -87,7 +89,8 @@ namespace Wbtb.Core
                 return true;
             }
 
-            ConsoleHelper.WriteLine($"GIT-CONFIG : Config unchanged at hash {targetConfigFileHash}.");
+            if (verbose)
+                ConsoleHelper.WriteLine($"GIT-CONFIG : Config unchanged at hash {targetConfigFileHash}.");
             return false;
         }
     }

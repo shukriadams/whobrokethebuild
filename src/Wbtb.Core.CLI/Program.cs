@@ -16,7 +16,7 @@ namespace Wbtb.Core.CLI
 
                 // load custom env args as early as possible
                 CustomEnvironmentArgs customEnvironmentArgs = new CustomEnvironmentArgs();
-                customEnvironmentArgs.Apply();
+                customEnvironmentArgs.Apply(false);
 
                 bool validate = switches.Contains("validate") && switches.Get("validate") == "true";
                 SimpleDI di = new SimpleDI();
@@ -30,7 +30,8 @@ namespace Wbtb.Core.CLI
 
                 // bind types - dev only! These are needed by all general plugin activity
                 Core core = new Core();
-                core.Start(persistStateToDatabase: false, validate : validate);
+                bool verbose = switches.Contains("verbose");
+                core.Start(persistStateToDatabase: false, validate : validate, verbose);
 
                 // register local commands dynamically
                 IEnumerable<Type> availableCommands = AppDomain.CurrentDomain.GetAssemblies()
@@ -39,7 +40,6 @@ namespace Wbtb.Core.CLI
 
                 foreach(Type availableCommand in availableCommands)
                     di.Register(availableCommand, availableCommand);
-
 
                 string command = string.Empty;
                 if (switches.Contains("c"))

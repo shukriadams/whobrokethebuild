@@ -15,7 +15,7 @@ namespace Wbtb.Core.Web
             // pick up env vars from local .env file as early as possible in app load cycle, the contents of this file can be used to set basic features in application
             // and needs to be loaded before anything else
             CustomEnvironmentArgs customEnvironmentArgs = new CustomEnvironmentArgs();
-            customEnvironmentArgs.Apply();
+            customEnvironmentArgs.Apply(true);
         
             CreateHostBuilder(args).Build().Run();
         }
