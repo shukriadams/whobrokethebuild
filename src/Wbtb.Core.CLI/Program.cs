@@ -52,7 +52,7 @@ namespace Wbtb.Core.CLI
 
                     ConsoleHelper.WriteLine($"ERROR : key --\"command|c\" <COMMAND NAME> required");
                     ConsoleHelper.WriteLine("Available commands :");
-                    foreach (Type availableCommand in availableCommands) 
+                    foreach (Type availableCommand in availableCommands.OrderBy(c => c.Name)) 
                     {
                         ICommand commandInstance = di.Resolve(availableCommand) as ICommand;
                         ConsoleHelper.WriteLine($"Command: {availableCommand.Name} ({commandInstance.Describe()})");
