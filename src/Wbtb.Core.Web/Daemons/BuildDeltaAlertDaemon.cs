@@ -119,11 +119,12 @@ namespace Wbtb.Core.Web
 
                             _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, latestBuildInJob);
 
-                            foreach (MessageHandler alert in job.Message)
+                            // filter out remind handlers, we don't want to send regular alerts to them
+                            foreach (MessageHandler messageHandler in job.Message.Where(handler => string.IsNullOrEmpty(handler.Remind)))
                             {
-                                IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
-                                string localResult = messagePlugin.AlertBreaking(alert.User, alert.Group, latestBuildInJob, hasMutated, false);
-                                result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
+                                IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(messageHandler.Plugin) as IMessagingPlugin;
+                                string localResult = messagePlugin.AlertBreaking(messageHandler.User, messageHandler.Group, latestBuildInJob, hasMutated, false);
+                                result += $"{localResult} for handler {messageHandler.Plugin}, user:{messageHandler.User}|group:{messageHandler.Group}";
                             }
 
                             _cache.Write(TypeHelper.Name(this), job, incidentBuild, alertKey, "sent");
