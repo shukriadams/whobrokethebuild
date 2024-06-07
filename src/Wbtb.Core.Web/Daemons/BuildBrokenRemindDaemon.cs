@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -76,7 +77,7 @@ namespace Wbtb.Core.Web
                     {
                         string alertResultsForBuild = string.Empty;
 
-                        foreach (MessageHandler messageHandler in job.Message)
+                        foreach (MessageHandler messageHandler in job.Message.Where(r => !string.IsNullOrEmpty(r.Remind)))
                         {
                             int remindInterval = int.Parse(messageHandler.Remind);
 
