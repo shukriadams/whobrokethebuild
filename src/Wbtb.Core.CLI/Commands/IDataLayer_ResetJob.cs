@@ -45,7 +45,6 @@ namespace Wbtb.Core.CLI
             }
 
             string jobKey = switches.Get("job");
-            bool hard = switches.Contains("hard");
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             IList<Job> jobs = new List<Job>();
@@ -67,16 +66,13 @@ namespace Wbtb.Core.CLI
             }
 
 
-            if (hard)
-                ConsoleHelper.WriteLine("Performing hard reset");
-            else
-                ConsoleHelper.WriteLine("Performing reset - to force delete all child records under job use --hard switch");
+            ConsoleHelper.WriteLine("Performing hard reset");
 
             ConsoleHelper.WriteLine($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.");
 
             foreach (Job job in jobs) 
             {
-                int deleted = dataLayer.ResetJob(job.Id, hard);
+                int deleted = dataLayer.ResetJob(job.Id, true);
                 int page = 0;
 
                 while (true)

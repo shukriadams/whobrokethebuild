@@ -34,14 +34,7 @@ namespace Wbtb.Core.CLI
 
         public void Process(CommandLineSwitches switches)
         {
-
-            bool hard = switches.Contains("hard");
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
-
-            if (hard)
-                ConsoleHelper.WriteLine("Performing hard reset");
-            else
-                ConsoleHelper.WriteLine("Performing reset - to force delete all child records under build use --hard switch");
 
             IEnumerable<string> buildIds = dataLayer.GetFailingDaemonTasksBuildIds();
             foreach (string buildId in buildIds) 
@@ -50,19 +43,20 @@ namespace Wbtb.Core.CLI
                 if (build == null)
                 {
                     ConsoleHelper.WriteLine($"ERROR : expected build id {build} not found, skipping");
+                    Environment.Exit(1);
+                    return;
                 }
 
-                dataLayer.ResetBuild(build.Id, hard);
+                dataLayer.ResetBuild(build.Id, true);
 
-                // if hard, let build requeue internally
-                if (!hard)
-                    dataLayer.SaveDaemonTask(new DaemonTask
-                    {
-                        BuildId = build.Id,
-                        Stage = 0, //"BuildEnd",
-                        CreatedUtc = DateTime.UtcNow,
-                        Src = this.GetType().Name
-                    });
+                // requeue build internally
+                dataLayer.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = build.Id,
+                    Stage = 0, //"BuildEnd",
+                    CreatedUtc = DateTime.UtcNow,
+                    Src = this.GetType().Name
+                });
             }
 
             Console.Write($"{buildIds.Count()} builds reset.");
