@@ -1,4 +1,5 @@
 ﻿using Wbtb.Core.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 {
@@ -22,6 +23,7 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
         {
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
+            ILogger log = di.Resolve<ILogger>();
             IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
 
@@ -58,7 +60,8 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
                             Result = $"Jenkins error found."
                         };
                     }
-
+                    else
+                        log.LogWarning($"{TypeHelper.Name(this)} aborted mutation report, another report exists");
 
                 }
             }

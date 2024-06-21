@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 using Madscience.Perforce;
+using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 {
@@ -38,6 +39,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 };
 
             SimpleDI di = new SimpleDI();
+            ILogger log = di.Resolve<ILogger>();
             MutationHelper mutationHelper = di.Resolve<MutationHelper>();
             Configuration config = di.Resolve<Configuration>();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
@@ -315,7 +317,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             string mutationId = hasMutated || previousBuildInIncident == null ? build.Id : previousBuildInIncident.Id;
 
             // a build can have only one mutation report, don't generate if on already exists
-            if (data.GetMutationReportByBuild(build.Id) == null) 
+            if (data.GetMutationReportByBuild(build.Id) == null)
                 data.SaveMutationReport(new MutationReport
                 {
                     IncidentId = build.IncidentBuildId,
@@ -328,6 +330,8 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     Status = "Break",
                     Description = description
                 });
+            else
+                log.LogWarning($"{TypeHelper.Name(this)} aborted mutation report, another report exists");
 
             return new PostProcessResult
             {
