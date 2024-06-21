@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using Microsoft.Extensions.Logging;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,7 +84,7 @@ namespace Wbtb.Extensions.Data.Postgres
         public static string InsertWithId<T>(PluginConfig contextPluginConfig, string query, T dataObject, ParameterMapper<T> parameterMapper, NpgsqlConnection connection)
         {
             bool close = false;
-            
+
             try
             {
                 if (connection == null)
@@ -102,6 +103,22 @@ namespace Wbtb.Extensions.Data.Postgres
                         return reader.GetInt32(0).ToString();
                     }
                 }
+            }
+            catch (Exception ex) 
+            {
+                SimpleDI di = new SimpleDI();
+                ILogger log = di.Resolve<ILogger>();
+
+                // 23505: should be postgres unique key constraint errors, log these instead of throwing exceptions, 
+                // the key violations occur frequently when running with high thread concurrency, they should not occur
+                // but the error is still there
+                if (ex.Message.StartsWith("23505:"))
+                {
+                    log.LogError(ex.Message);
+                    return "0";
+                }
+                else
+                    throw;
             }
             finally
             {
