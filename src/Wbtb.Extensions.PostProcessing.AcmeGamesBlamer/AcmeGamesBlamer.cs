@@ -314,18 +314,20 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
             string mutationId = hasMutated || previousBuildInIncident == null ? build.Id : previousBuildInIncident.Id;
 
-            data.SaveMutationReport(new MutationReport
-            {
-                IncidentId = build.IncidentBuildId,
-                BuildId = build.Id,
-                MutationId = mutationId,
-                MutationHash = thisBuildMutationHash,
-                ImplicatedRevisions = implicatedRevisions,
-                Processor = this.GetType().Name,
-                Summary = summary,
-                Status = "Break",
-                Description = description
-            });
+            // a build can have only one mutation report, don't generate if on already exists
+            if (data.GetMutationReportByBuild(build.Id) == null) 
+                data.SaveMutationReport(new MutationReport
+                {
+                    IncidentId = build.IncidentBuildId,
+                    BuildId = build.Id,
+                    MutationId = mutationId,
+                    MutationHash = thisBuildMutationHash,
+                    ImplicatedRevisions = implicatedRevisions,
+                    Processor = this.GetType().Name,
+                    Summary = summary,
+                    Status = "Break",
+                    Description = description
+                });
 
             return new PostProcessResult
             {
