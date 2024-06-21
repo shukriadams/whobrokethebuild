@@ -70,7 +70,6 @@ namespace Wbtb.Core.Web
                 try
                 {
                     Build latestBuildInJob = dataLayer.GetLatestBuildByJob(job);
-                    string alertKey = "";
 
                     // check if alert key has been processed
                     if (latestBuildInJob != null && !string.IsNullOrEmpty(latestBuildInJob.IncidentBuildId) && latestBuildInJob.Status == BuildStatus.Failed)
@@ -80,6 +79,7 @@ namespace Wbtb.Core.Web
                         foreach (MessageHandler messageHandler in job.Message.Where(r => !string.IsNullOrEmpty(r.Remind)))
                         {
                             int remindInterval = int.Parse(messageHandler.Remind);
+                            string alertKey = $"{latestBuildInJob.Id}_{latestBuildInJob.IncidentBuildId}_{job.Key}_remind_{remindInterval}";
 
                             // test if repeatinterval has elapsed
                             int hoursSinceIncident = (int)Math.Round((DateTime.UtcNow - latestBuildInJob.EndedUtc.Value).TotalHours, 0);
@@ -100,14 +100,15 @@ namespace Wbtb.Core.Web
                             alertResultsForBuild += $"{localResult} for handler {messageHandler.Plugin}, user:{messageHandler.User}|group:{messageHandler.Group}";
 
                             _cache.Write(TypeHelper.Name(this), intervalKey, string.Empty);
+
+                            dataLayer.SaveStore(new StoreItem
+                            {
+                                Key = intervalKey,
+                                Plugin = TypeHelper.Name(this),
+                                Content = $"Date:{DateTime.UtcNow}\n{alertResultsForBuild}"
+                            });
                         }
 
-                        dataLayer.SaveStore(new StoreItem
-                        {
-                            Key = alertKey,
-                            Plugin = TypeHelper.Name(this),
-                            Content = $"Date:{DateTime.UtcNow}\n{alertResultsForBuild}"
-                        });
                     }
                 }
                 catch (Exception ex)
