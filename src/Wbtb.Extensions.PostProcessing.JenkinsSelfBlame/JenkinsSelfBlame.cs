@@ -38,21 +38,27 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
                         foreach (var item2 in item.Items)
                             summary += $"{item2.Content}";
 
-                    data.SaveMutationReport(new MutationReport
+                    // a build can have only one mutation report, don't generate if on already exists
+                    if (data.GetMutationReportByBuild(build.Id) == null)
                     {
-                        IncidentId = build.IncidentBuildId,
-                        MutationId = build.Id,
-                        Description = summary,
-                        Processor = this.GetType().Name,
-                        Summary = $"Build broken by internal Jenkins error",
-                        Status = "Break"
-                    });
+                        data.SaveMutationReport(new MutationReport
+                        {
+                            IncidentId = build.IncidentBuildId,
+                            BuildId = build.Id,
+                            MutationId = build.Id,
+                            Description = summary,
+                            Processor = this.GetType().Name,
+                            Summary = $"Build broken by internal Jenkins error",
+                            Status = "Break"
+                        });
 
-                    return new PostProcessResult
-                    {
-                        Passed = true,
-                        Result = $"Jenkins error found."
-                    };
+                        return new PostProcessResult
+                        {
+                            Passed = true,
+                            Result = $"Jenkins error found."
+                        };
+                    }
+
 
                 }
             }
