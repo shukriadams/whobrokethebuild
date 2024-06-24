@@ -63,6 +63,12 @@ namespace Wbtb.Core.Web
             _processRunner.Dispose();
         }
 
+        private string FailingAlertKey(Job job, Build incident)
+        {
+            string incidentMutation = _mutationHelper.GetBuildMutation(incident);
+            return $"{incidentMutation}_{job.Key}_deltaAlert_{incident.Status}";
+        }
+
         /// <summary>
         /// Daemon's main work method
         /// </summary>
@@ -90,7 +96,7 @@ namespace Wbtb.Core.Web
 
                         bool enableMutations = _config.FeatureToggles.Contains("BUILD_MUTATION");
                         bool hasMutated = false;
-                        string alertKey = null;
+                        string alertKey = FailingAlertKey(job, incidentBuild);
 
                         if (enableMutations)
                         {
@@ -104,13 +110,6 @@ namespace Wbtb.Core.Web
 
                             // build has mutated of current mutation is different from previous one
                             hasMutated = previousBuildMutation != null && previousBuildMutation != currentBuildMutation;
-
-                            // if doing mutations, key for "already alerted" is tied
-                            alertKey = $"{latestBuildInJob.Id}_{latestBuildInJob.IncidentBuildId}_{currentBuildMutation}_{job.Key}_deltaAlert_{latestBuildInJob.Status}";
-                        }
-                        else 
-                        {
-                            alertKey = $"{latestBuildInJob.IncidentBuildId}_{job.Key}_deltaAlert_{latestBuildInJob.Status}";
                         }
 
                         if (_cache.Get(TypeHelper.Name(this), job, incidentBuild, alertKey).Payload == null) 
@@ -159,7 +158,7 @@ namespace Wbtb.Core.Web
                         string incidentMutation = _mutationHelper.GetBuildMutation(incident);
 
                         // has fail alert for incident been sent? if not, don't bother alerting fix for it
-                        string failingAlertKey = $"{incidentMutation}_{job.Key}_deltaAlert_{incident.Status}";
+                        string failingAlertKey = FailingAlertKey(job, incident);
                         if (_cache.Get(TypeHelper.Name(this), job, incident, failingAlertKey).Payload == null)
                             continue;
 
