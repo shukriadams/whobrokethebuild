@@ -71,6 +71,7 @@ namespace Wbtb.Core.Web
             if (daemonLevel.HasValue)
                 daemonLevelRaw = (int)daemonLevel;
 
+            // run forever loop on own background thread 
             new Thread(delegate ()
             {
                 while (_running)
@@ -83,13 +84,14 @@ namespace Wbtb.Core.Web
                     try
                     {
                         SimpleDI di = new SimpleDI();
+                        DaemonTaskProcesses daemonProcesses = di.Resolve<DaemonTaskProcesses>();
                         PluginProvider pluginProvider = di.Resolve<PluginProvider>();
                         IDataPlugin dataRead = pluginProvider.GetFirstForInterface<IDataPlugin>();
-                        DaemonTaskProcesses daemonProcesses = di.Resolve<DaemonTaskProcesses>();
                         Configuration configuration = di.Resolve<Configuration>();
                         ILogger log = di.Resolve<ILogger>();
 
                         IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask(daemonLevelRaw);
+                        
                         foreach (DaemonTask task in tasks)
                         {
                             try
@@ -163,16 +165,23 @@ namespace Wbtb.Core.Web
                                 continue;
                             }
 
-                            // if no blocks are marked as fails, wait
                             if (blocking.Any())
                             {
                                 daemonProcesses.MarkBlocked(task, daemon, build, blocking);
                                 continue;
                             }
 
+
+                            // mark task as active so we don't rerun it                            
+                            if (daemonProcesses.IsActive(task))
+                                continue;
+
+                            daemonProcesses.MarkActive(task, daemon, build);
+
+
                             // do each work tick on its own thread
-                            new Thread(delegate ()
-                            {
+                            new Thread(delegate (){
+
                                 using (IDataPlugin dataWrite = pluginProvider.GetFirstForInterface<IDataPlugin>())
                                 {
                                     try
@@ -184,6 +193,7 @@ namespace Wbtb.Core.Web
                                         // DO WORK HERE - work either passes and task can be marked as done,
                                         // or it fails and it's still marked as done but failing done (requiring manual restart)
                                         // or it's forced to exit from a block, in which case, marked as blocked
+
                                         DaemonTaskWorkResult workResult = work(dataRead, dataWrite, task, build, job);
 
                                         if (workResult.ResultType == DaemonTaskWorkResultType.Passed)
@@ -192,9 +202,10 @@ namespace Wbtb.Core.Web
                                             task.HasPassed = true;
                                             task.ProcessedUtc = DateTime.UtcNow;
                                             dataWrite.SaveDaemonTask(task);
+                                            dataWrite.TransactionCommit();
+
                                             daemonProcesses.MarkDone(task);
 
-                                            dataWrite.TransactionCommit();
                                         }
                                         else if (workResult.ResultType == DaemonTaskWorkResultType.Blocked)
                                         {
@@ -212,15 +223,29 @@ namespace Wbtb.Core.Web
                                             // the task from "passing". User intervention is required.
 
                                             // commit transaction, this exception is normal and expected
-                                            dataWrite.TransactionCommit();
-
                                             task.ProcessedUtc = DateTime.UtcNow;
                                             task.HasPassed = false;
                                             task.Result = workResult.Description;
+
                                             dataWrite.SaveDaemonTask(task);
+                                            dataWrite.TransactionCommit();
 
                                             daemonProcesses.MarkDone(task);
                                         }
+
+                                        // force readback, this is most likely unnecessary but is still being tested
+                                        if (task.ProcessedUtc.HasValue) 
+                                        {
+                                            while (true)
+                                            {
+                                                DaemonTask testRead = dataRead.GetDaemonTaskById(task.Id);
+                                                if (testRead == null || testRead.ProcessedUtc.HasValue)
+                                                    break;
+
+                                                Thread.Sleep(500);
+                                            }
+                                        }
+
                                     }
                                     catch (Exception ex)
                                     {
@@ -245,8 +270,7 @@ namespace Wbtb.Core.Web
                                 }
                             }).Start();
 
-                            daemonProcesses.MarkActive(task, daemon, build);
-                        }
+                        } // got each task
                     }
                     finally
                     {
