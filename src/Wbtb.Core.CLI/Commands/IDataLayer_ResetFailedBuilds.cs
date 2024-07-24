@@ -39,27 +39,35 @@ namespace Wbtb.Core.CLI
             IEnumerable<string> buildIds = dataLayer.GetFailingDaemonTasksBuildIds();
             foreach (string buildId in buildIds) 
             {
-                Build build = dataLayer.GetBuildById(buildId);
-                if (build == null)
+                try
                 {
-                    ConsoleHelper.WriteLine($"ERROR : expected build id {build} not found, skipping");
-                    Environment.Exit(1);
-                    return;
+                    Build build = dataLayer.GetBuildById(buildId);
+                    if (build == null)
+                    {
+                        ConsoleHelper.WriteLine($"ERROR : failing build id {build} not found, skipping");
+                        continue;
+                    }
+
+                    // this is a delere where and will not fail on non-existent builds ....
+                    dataLayer.ResetBuild(build.Id, true);
+
+                    // .. but this will.
+                    // requeue build internally
+                    dataLayer.SaveDaemonTask(new DaemonTask
+                    {
+                        BuildId = build.Id,
+                        Stage = 0, //"BuildEnd",
+                        CreatedUtc = DateTime.UtcNow,
+                        Src = this.GetType().Name
+                    });
                 }
-
-                dataLayer.ResetBuild(build.Id, true);
-
-                // requeue build internally
-                dataLayer.SaveDaemonTask(new DaemonTask
+                catch (Exception ex)
                 {
-                    BuildId = build.Id,
-                    Stage = 0, //"BuildEnd",
-                    CreatedUtc = DateTime.UtcNow,
-                    Src = this.GetType().Name
-                });
+                    ConsoleHelper.WriteLine($"Error {ex} processing build id {buildId} ");
+                }
             }
 
-            Console.Write($"{buildIds.Count()} builds reset.");
+            ConsoleHelper.WriteLine($"{buildIds.Count()} builds reset.");
         }
 
         #endregion
