@@ -42,7 +42,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         /// <param name="work"></param>
         /// <param name="tickInterval"></param>
-        public void WatchForAndRunTasksForDaemon(DaemonWork work, int tickInterval)
+        public void WatchForAndRunTasksForDaemon(IWebDaemon daemon, int tickInterval)
         {
             // do each work tick on its own thread
             new Thread(delegate ()
@@ -56,7 +56,7 @@ namespace Wbtb.Core.Web
 
                     try
                     {
-                        work();
+                        daemon.Work();
                     }
                     finally
                     {
@@ -75,7 +75,7 @@ namespace Wbtb.Core.Web
         /// <param name="tickIntervalMilliseconds">Sleep time between ticks where tasks are checked for etc.</param>
         /// <param name="daemon">Daemon instance </param>
         /// <param name="daemonLevel"></param>
-        public void WatchForAndRunTasksForDaemon(DaemonWorkThreaded work, int tickIntervalMilliseconds, IWebDaemon daemon, DaemonTaskTypes? daemonLevel)
+        public void WatchForAndRunTasksForDaemon(IWebDaemon daemon, int tickIntervalMilliseconds, DaemonTaskTypes? daemonLevel)
         {
             int thisTaskLevel = 9999; // pick an absurdly high number to ensure we overshoot
             if (daemonLevel.HasValue)
@@ -204,7 +204,7 @@ namespace Wbtb.Core.Web
                                         // WORK IS DONE HERE - work either passes and task can be marked as done,
                                         // or it fails and it's still marked as done but failing done (requiring manual restart)
                                         // or it's forced to exit from a block, in which case, marked as blocked
-                                        DaemonTaskWorkResult workResult = work(dataRead, dataWrite, task, build, job);
+                                        DaemonTaskWorkResult workResult = daemon.WorkThreaded(dataRead, dataWrite, task, build, job);
 
 
                                         if (workResult.ResultType == DaemonTaskWorkResultType.Passed)

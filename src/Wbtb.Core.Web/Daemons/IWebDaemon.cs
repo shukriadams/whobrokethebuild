@@ -12,5 +12,9 @@ namespace Wbtb.Core.Web
         /// </summary>
         /// <param name="interval">Time in milliseconds. Set in config. Overridden by this.Interval if this.Interval returns non-zero. </param>
         void Start(int interval);
+
+        void Work();
+
+        DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job);
     }
 }

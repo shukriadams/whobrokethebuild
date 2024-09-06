@@ -35,7 +35,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.PostProcess);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, DaemonTaskTypes.PostProcess);
         }
 
         /// <summary>
@@ -45,8 +45,13 @@ namespace Wbtb.Core.Web
         {
             _taskController.Dispose();
         }
+        
+        void IWebDaemon.Work()
+        {
+            throw new NotImplementedException();
+        }
 
-        private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        DaemonTaskWorkResult IWebDaemon.WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
         {
             task.Result = string.Empty;
 

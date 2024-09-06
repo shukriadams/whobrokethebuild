@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -37,7 +38,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.RevisionLink);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, DaemonTaskTypes.RevisionLink);
         }
 
         /// <summary>
@@ -48,7 +49,12 @@ namespace Wbtb.Core.Web
             _taskController.Dispose();
         }
 
-        private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        void IWebDaemon.Work()
+        {
+            throw new NotImplementedException();
+        }
+
+        DaemonTaskWorkResult IWebDaemon.WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
         {
             BuildInvolvement buildInvolvement = dataRead.GetBuildInvolvementById(task.BuildInvolvementId);
             SourceServer sourceServer = dataRead.GetSourceServerByKey(job.SourceServer);

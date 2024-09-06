@@ -44,7 +44,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(new DaemonWork(this.Work), tickInterval);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Wbtb.Core.Web
         /// <summary>
         /// Daemon's main work method
         /// </summary>
-        void Work()
+        void IWebDaemon.Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
@@ -113,6 +113,11 @@ namespace Wbtb.Core.Web
                     _log.LogError($"Unexpected error on job {job.Name}.", ex);
                 }
             }
+        }
+
+        DaemonTaskWorkResult IWebDaemon.WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

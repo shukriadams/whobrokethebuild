@@ -41,7 +41,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.LogParse);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, DaemonTaskTypes.LogParse);
         }
 
         /// <summary>
@@ -52,7 +52,12 @@ namespace Wbtb.Core.Web
             _taskController.Dispose();
         }
 
-        private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job) 
+        void IWebDaemon.Work()
+        { 
+            throw new NotImplementedException();
+        }
+
+        DaemonTaskWorkResult IWebDaemon.WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job) 
         {
             ILogParserPlugin parser = _pluginProvider.GetByKey(task.Args) as ILogParserPlugin;
             if (parser == null)

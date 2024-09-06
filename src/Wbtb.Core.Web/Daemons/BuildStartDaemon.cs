@@ -45,7 +45,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(new DaemonWork(this.Work), tickInterval);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval);
         }
 
         /// <summary>
@@ -56,10 +56,15 @@ namespace Wbtb.Core.Web
             _taskController.Dispose();
         }
 
+        DaemonTaskWorkResult IWebDaemon.WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Daemon's main work method
         /// </summary>
-        private void Work()
+        void IWebDaemon.Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
