@@ -1,4 +1,6 @@
-﻿namespace Wbtb.Core.Web
+﻿using Wbtb.Core.Common;
+
+namespace Wbtb.Core.Web
 {
     /// <summary>
     /// Defines a type run by core web server hat performs daemon process

@@ -36,7 +36,7 @@ namespace Wbtb.Core.Web.Core
 
         public void Start(int tickInterval)
         {
-            _taskController.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.LogImport);
+            _taskController.WatchForAndRunTasksForDaemon(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.LogImport);
         }
 
         /// <summary>

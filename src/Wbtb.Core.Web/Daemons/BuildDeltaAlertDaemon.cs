@@ -52,7 +52,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-             _taskController.Start(new DaemonWork(this.Work), tickInterval);
+             _taskController.WatchForAndRunTasksForDaemon(new DaemonWork(this.Work), tickInterval);
         }
 
         /// <summary>

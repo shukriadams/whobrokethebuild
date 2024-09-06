@@ -44,7 +44,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.Start(new DaemonWork(this.Work), tickInterval);
+            _taskController.WatchForAndRunTasksForDaemon(new DaemonWork(this.Work), tickInterval);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Wbtb.Core.Web
         /// <summary>
         /// Daemon's main work method
         /// </summary>
-        private void Work()
+        void Work()
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 

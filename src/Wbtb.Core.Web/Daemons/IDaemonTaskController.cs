@@ -2,9 +2,9 @@
 {
     public interface IDaemonTaskController
     {
-        void Start(DaemonWorkThreaded work, int tickInterval, IWebDaemon daemon, DaemonTaskTypes? daemonLevel);
+        void WatchForAndRunTasksForDaemon(DaemonWorkThreaded work, int tickInterval, IWebDaemon daemon, DaemonTaskTypes? daemonLevel);
         
-        void Start(DaemonWork work, int tickInterval);
+        void WatchForAndRunTasksForDaemon(DaemonWork work, int tickInterval);
 
         void Dispose();
     }

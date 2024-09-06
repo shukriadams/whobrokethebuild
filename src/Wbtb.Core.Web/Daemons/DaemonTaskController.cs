@@ -42,7 +42,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         /// <param name="work"></param>
         /// <param name="tickInterval"></param>
-        public void Start(DaemonWork work, int tickInterval)
+        public void WatchForAndRunTasksForDaemon(DaemonWork work, int tickInterval)
         {
             // do each work tick on its own thread
             new Thread(delegate ()
@@ -69,17 +69,17 @@ namespace Wbtb.Core.Web
         }
 
         /// <summary>
-        /// Starts a daemon that runs child processes on their own threads.
+        /// Watches for tasks for the given daemonLevel, then executes them on work delegate
         /// </summary>
-        /// <param name="work"></param>
-        /// <param name="tickInterval"></param>
-        /// <param name="daemon"></param>
+        /// <param name="work">Delegate from daemon implementation that will be executed to do work on task. Delegate is used instead of calling method directory so daemon can implement whatever interface it wants  </param>
+        /// <param name="tickIntervalMilliseconds">Sleep time between ticks where tasks are checked for etc.</param>
+        /// <param name="daemon">Daemon instance </param>
         /// <param name="daemonLevel"></param>
-        public void Start(DaemonWorkThreaded work, int tickInterval, IWebDaemon daemon, DaemonTaskTypes? daemonLevel)
+        public void WatchForAndRunTasksForDaemon(DaemonWorkThreaded work, int tickIntervalMilliseconds, IWebDaemon daemon, DaemonTaskTypes? daemonLevel)
         {
-            int daemonLevelRaw = 9999; // pick an absurdly high number to ensure we overshoot
+            int thisTaskLevel = 9999; // pick an absurdly high number to ensure we overshoot
             if (daemonLevel.HasValue)
-                daemonLevelRaw = (int)daemonLevel;
+                thisTaskLevel = (int)daemonLevel;
 
             // run forever loop on own background thread 
             new Thread(delegate ()
@@ -100,7 +100,7 @@ namespace Wbtb.Core.Web
                         Configuration configuration = di.Resolve<Configuration>();
                         ILogger log = di.Resolve<ILogger>();
 
-                        IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask(daemonLevelRaw);
+                        IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask(thisTaskLevel);
                         
                         foreach (DaemonTask task in tasks)
                         {
@@ -146,7 +146,7 @@ namespace Wbtb.Core.Web
                             }
 
                             Build build = dataRead.GetBuildById(task.BuildId);
-                            IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, daemonLevelRaw);
+                            IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, thisTaskLevel);
                             IEnumerable<DaemonTask> failing = blocking.Where(t => t.HasPassed.HasValue && !t.HasPassed.Value);
                             
                             // if previous fails in build, mark this as failed to.
@@ -200,7 +200,7 @@ namespace Wbtb.Core.Web
 
                                         dataWrite.TransactionStart();
 
-                                        
+
                                         // WORK IS DONE HERE - work either passes and task can be marked as done,
                                         // or it fails and it's still marked as done but failing done (requiring manual restart)
                                         // or it's forced to exit from a block, in which case, marked as blocked
@@ -288,7 +288,7 @@ namespace Wbtb.Core.Web
                         _busy = false;
                     }
 
-                    Thread.Sleep(tickInterval);
+                    Thread.Sleep(tickIntervalMilliseconds);
                 }
             }).Start();
         }
