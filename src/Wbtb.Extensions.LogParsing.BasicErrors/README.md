@@ -1,6 +1,6 @@
 # LogParsing.BasicErrors
 
-Very simple log parser, finds all lines with word "error" in it. When other more specific log parsers fail to match, this can be a useful way to get a summary of error state in a build.
+A simple log parser that matches lines with word "error" in it. When other more specific log parsers fail to match, this can be a useful fallback for guessing a summary of errors in a log.
 
 ## Setup
 

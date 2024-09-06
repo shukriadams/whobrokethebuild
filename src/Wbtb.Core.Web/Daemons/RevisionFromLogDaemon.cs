@@ -17,7 +17,7 @@ namespace Wbtb.Core.Web
 
         private readonly ILogger _log;
 
-        private readonly IDaemonProcessRunner _processRunner;
+        private readonly IDaemonTaskController _taskController;
 
         private readonly Configuration _config;
 
@@ -29,10 +29,10 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public RevisionFromLogDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public RevisionFromLogDaemon(ILogger log, IDaemonTaskController processRunner)
         {
             _log = log;
-            _processRunner = processRunner;
+            _taskController = processRunner;
 
             _di = new SimpleDI();
             _config = _di.Resolve<Configuration>();
@@ -45,7 +45,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.RevisionFromLog);
+            _taskController.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.RevisionFromLog);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         public void Dispose()
         {
-            _processRunner.Dispose();
+            _taskController.Dispose();
         }
         
         /// <summary>

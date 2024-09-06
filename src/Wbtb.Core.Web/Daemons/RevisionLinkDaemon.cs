@@ -13,9 +13,7 @@ namespace Wbtb.Core.Web
 
         private ILogger _log;
 
-        private IDaemonProcessRunner _processRunner;
-
-        private readonly Configuration _config;
+        private IDaemonTaskController _taskController;
         
         private readonly PluginProvider _pluginProvider;
         
@@ -25,13 +23,11 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public RevisionLinkDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public RevisionLinkDaemon(ILogger log, IDaemonTaskController processRunner)
         {
             _log = log;
-            _processRunner = processRunner;
-
+            _taskController = processRunner;
             _di = new SimpleDI();
-            _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
         }
 
@@ -41,7 +37,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.RevisionLink);
+            _taskController.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.RevisionLink);
         }
 
         /// <summary>
@@ -49,7 +45,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         public void Dispose()
         {
-            _processRunner.Dispose();
+            _taskController.Dispose();
         }
 
         private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)

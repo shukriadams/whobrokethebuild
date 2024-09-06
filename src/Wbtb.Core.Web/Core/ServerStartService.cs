@@ -30,7 +30,7 @@ namespace Wbtb.Core.Web
                     // register types defined in web project
                     di.RegisterFactory<ILogger, LogProvider>();
                     di.Register<MutationHelper, MutationHelper>();
-                    di.Register<IDaemonProcessRunner, DaemonProcessRunner>();
+                    di.Register<IDaemonTaskController, DaemonTaskController>();
                     di.Register<IWebDaemon, BuildStartDaemon>(null, true);
                     di.Register<IWebDaemon, BuildPostProcessDaemon>(null, true);
                     di.Register<IWebDaemon, BuildEndDaemon>(null, true);
@@ -75,7 +75,7 @@ namespace Wbtb.Core.Web
                         }
                         else
                         {
-                            // start daemons by find all types that implement IWebdaemon, start all
+                            // start daemons by find all types that implement IWebDaemon
                             IEnumerable<IWebDaemon> webDaemons = di.ResolveAll<IWebDaemon>();
                             foreach (IWebDaemon daemon in webDaemons)
                                 daemon.Start(config.DaemonInterval * 1000);
@@ -87,8 +87,8 @@ namespace Wbtb.Core.Web
                         }
                         else
                         {
-                            // signlr, pipe all console write and writelines to signlr hub
-                            // dev stuff, this should be moved somewhere better. 
+                            // Start SignalR hub, this pipes all console Write and WriteLines to connected browsers
+                            // Note : this is dev stuff, it should be moved somewhere better. 
                             IHubContext<ConsoleHub> hub = scope.ServiceProvider.GetService<IHubContext<ConsoleHub>>();
                             using (ConsoleWriter consoleWriter = new ConsoleWriter())
                             {

@@ -16,11 +16,9 @@ namespace Wbtb.Core.Web
 
         private readonly ILogger _log;
 
-        private readonly IDaemonProcessRunner _processRunner;
+        private readonly IDaemonTaskController _taskController;
 
         private readonly PluginProvider _pluginProvider;
-
-        private readonly Configuration _config;
 
         private readonly Cache _cache;
 
@@ -30,13 +28,12 @@ namespace Wbtb.Core.Web
 
         /// Sends alerts when a job is in constant broken status 
         /// </summary>
-        public BuildBrokenRemindDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BuildBrokenRemindDaemon(ILogger log, IDaemonTaskController processRunner)
         {
             _log = log;
-            _processRunner = processRunner;
+            _taskController = processRunner;
 
             _di = new SimpleDI();
-            _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
             _cache = _di.Resolve<Cache>();
         }
@@ -47,7 +44,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+            _taskController.Start(new DaemonWork(this.Work), tickInterval);
         }
 
         /// <summary>
@@ -55,7 +52,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         public void Dispose()
         {
-            _processRunner.Dispose();
+            _taskController.Dispose();
         }
 
         /// <summary>

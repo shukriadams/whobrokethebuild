@@ -12,7 +12,7 @@ namespace Wbtb.Core.Web.Core
 
         private readonly ILogger _log;
 
-        private readonly IDaemonProcessRunner _processRunner;
+        private readonly IDaemonTaskController _taskController;
         
         private readonly PluginProvider _pluginProvider;
 
@@ -22,10 +22,10 @@ namespace Wbtb.Core.Web.Core
 
         #region CTORS
 
-        public LogImportDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public LogImportDaemon(ILogger log, IDaemonTaskController processRunner)
         {
             _log = log;
-            _processRunner = processRunner;
+            _taskController = processRunner;
             _di = new SimpleDI();
             _pluginProvider = _di.Resolve<PluginProvider>();
         }
@@ -36,7 +36,7 @@ namespace Wbtb.Core.Web.Core
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.LogImport);
+            _taskController.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.LogImport);
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Wbtb.Core.Web.Core
         /// </summary>
         public void Dispose()
         {
-            _processRunner.Dispose();
+            _taskController.Dispose();
         }
 
         private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)

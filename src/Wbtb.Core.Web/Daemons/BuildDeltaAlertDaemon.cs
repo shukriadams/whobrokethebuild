@@ -15,7 +15,7 @@ namespace Wbtb.Core.Web
 
         private readonly ILogger _log;
 
-        private readonly IDaemonProcessRunner _processRunner;
+        private readonly IDaemonTaskController _taskController;
 
         private readonly PluginProvider _pluginProvider;
 
@@ -33,10 +33,10 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildDeltaAlertDaemon(ILogger log, IDaemonProcessRunner processRunner, MutationHelper mutationHelper)
+        public BuildDeltaAlertDaemon(ILogger log, IDaemonTaskController processRunner, MutationHelper mutationHelper)
         {
             _log = log;
-            _processRunner = processRunner;
+            _taskController = processRunner;
 
             _di = new SimpleDI();
             _mutationHelper = mutationHelper;
@@ -52,7 +52,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-             _processRunner.Start(new DaemonWork(this.Work), tickInterval);
+             _taskController.Start(new DaemonWork(this.Work), tickInterval);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         public void Dispose()
         {
-            _processRunner.Dispose();
+            _taskController.Dispose();
         }
 
         private string FailingAlertKey(Job job, Build incident)

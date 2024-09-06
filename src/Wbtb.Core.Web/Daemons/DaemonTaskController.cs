@@ -8,13 +8,15 @@ using Wbtb.Core.Common;
 namespace Wbtb.Core.Web
 {
     /// <summary>
-    /// Common runner logic for all daemons. Is reponsible for ticking each daemon on its own thread, and that ticks do not collide. Per tick, daemons
-    /// fullfill daemontasks, these can be executed on their own threads.
+    /// Common runner logic for all daemons. Responsible for ticking each daemon on its own thread, and that ticks do not collide. Per tick, daemons
+    /// fulfill daemontasks, these can be executed on their own threads.
     /// 
-    /// Each instance of a daemon has its own process runniner.
+    /// Each instance of a daemon has its own process runner.
     /// </summary>
-    public class DaemonProcessRunner : IDaemonProcessRunner
+    public class DaemonTaskController : IDaemonTaskController
     {
+        #region FIELDS
+
         /// <summary>
         /// 
         /// </summary>
@@ -22,10 +24,18 @@ namespace Wbtb.Core.Web
 
         private bool _busy;
 
-        public DaemonProcessRunner()
+        #endregion
+
+        #region CTORS
+
+        public DaemonTaskController()
         {
             _running = true;
         }
+
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// Starts a daemon that runs child processes on its own thread.
@@ -190,11 +200,12 @@ namespace Wbtb.Core.Web
 
                                         dataWrite.TransactionStart();
 
-                                        // DO WORK HERE - work either passes and task can be marked as done,
+                                        
+                                        // WORK IS DONE HERE - work either passes and task can be marked as done,
                                         // or it fails and it's still marked as done but failing done (requiring manual restart)
                                         // or it's forced to exit from a block, in which case, marked as blocked
-
                                         DaemonTaskWorkResult workResult = work(dataRead, dataWrite, task, build, job);
+
 
                                         if (workResult.ResultType == DaemonTaskWorkResultType.Passed)
                                         {
@@ -289,5 +300,7 @@ namespace Wbtb.Core.Web
         {
             _running = false;
         }
+
+        #endregion
     }
 }

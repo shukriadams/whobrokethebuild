@@ -59,39 +59,39 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                 foreach (Match match in matches)
                 {
                     CachePayload errorStringCacheLookup = null;
-                    string errorStringKey = $"{Sha256.FromString(match.Value)}_error_instance" ;
+                    string errorStringKey = $"{Sha256.FromString(match.Value)}_error_instance";
                     string pluginKey = this.ContextPluginConfig.Manifest.Key;
                     errorStringCacheLookup = cache.Get(pluginKey, errorStringKey);
-                    PhraseOccurrence cachedOccurence = null;
+                    PhraseOccurrence cachedOccurrence = null;
 
                     if (errorStringCacheLookup.Payload != null) 
                     {
                         try
                         {
-                            cachedOccurence = Newtonsoft.Json.JsonConvert.DeserializeObject<PhraseOccurrence>(errorStringCacheLookup.Payload);
+                            cachedOccurrence = Newtonsoft.Json.JsonConvert.DeserializeObject<PhraseOccurrence>(errorStringCacheLookup.Payload);
                         }
                         catch (Exception ex)
                         {
-                            _log.LogError($"Failed to parse concents of cached error occurrence at key {errorStringKey} : {ex.Message}. File will be overwritten.");
+                            _log.LogError($"Failed to parse content of cached error occurrence at key {errorStringKey} : {ex.Message}. File will be overwritten.");
                         }
                     }
 
-                    if (cachedOccurence == null)
+                    if (cachedOccurrence == null)
                     {
-                        cachedOccurence = new PhraseOccurrence();
-                        cachedOccurence.Phrase = match.Value;
+                        cachedOccurrence = new PhraseOccurrence();
+                        cachedOccurrence.Phrase = match.Value;
                     }
 
                     if (build.Status == BuildStatus.Passed)
                     {
                         // write error string to "safe error" cache
-                        cachedOccurence.Count ++;
-                        cache.Write(pluginKey, errorStringKey, Newtonsoft.Json.JsonConvert.SerializeObject(cachedOccurence));
+                        cachedOccurrence.Count ++;
+                        cache.Write(pluginKey, errorStringKey, Newtonsoft.Json.JsonConvert.SerializeObject(cachedOccurrence));
                         continue;
                     }
 
                     // ignore if error string is already in "safe error" cache
-                    if (cachedOccurence.Count > 2) // 5 is arbitrary score
+                    if (cachedOccurrence.Count > 2) // 5 is arbitrary score
                     {
                         ignoredErrors ++;
                         continue;

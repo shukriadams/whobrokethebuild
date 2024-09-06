@@ -1,6 +1,6 @@
 ﻿namespace Wbtb.Core.Web
 {
-    public interface IDaemonProcessRunner
+    public interface IDaemonTaskController
     {
         void Start(DaemonWorkThreaded work, int tickInterval, IWebDaemon daemon, DaemonTaskTypes? daemonLevel);
         

@@ -10,13 +10,9 @@ namespace Wbtb.Core.Web
 
         private readonly ILogger _log;
 
-        private readonly IDaemonProcessRunner _processRunner;
+        private readonly IDaemonTaskController _taskController;
 
         private readonly PluginProvider _pluginProvider;
-
-        private readonly Configuration _config;
-
-        private readonly BuildEventHandlerHelper _buildLevelPluginHelper;
 
         private readonly SimpleDI _di;
 
@@ -24,15 +20,13 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildPostProcessDaemon(ILogger log, IDaemonProcessRunner processRunner)
+        public BuildPostProcessDaemon(ILogger log, IDaemonTaskController processRunner)
         {
             _log = log;
-            _processRunner = processRunner;
+            _taskController = processRunner;
 
             _di = new SimpleDI();
-            _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
-            _buildLevelPluginHelper = _di.Resolve<BuildEventHandlerHelper>();
         }
 
         #endregion
@@ -41,7 +35,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _processRunner.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.PostProcess);
+            _taskController.Start(new DaemonWorkThreaded(this.WorkThreaded), tickInterval, this, DaemonTaskTypes.PostProcess);
         }
 
         /// <summary>
@@ -49,7 +43,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         public void Dispose()
         {
-            _processRunner.Dispose();
+            _taskController.Dispose();
         }
 
         private DaemonTaskWorkResult WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
