@@ -48,10 +48,10 @@ namespace Wbtb.Core.CLI
                         continue;
                     }
 
-                    // this is a delere where and will not fail on non-existent builds ....
-                    dataLayer.ResetBuild(build.Id, true);
+                    // this is a delete where and will not fail on non-existent builds ....
+                    // Note that hard reset will delete the build, which will cause a constraint error when trying to requeue its daemontask
+                    dataLayer.ResetBuild(build.Id, false);
 
-                    // .. but this will.
                     // requeue build internally
                     dataLayer.SaveDaemonTask(new DaemonTask
                     {
