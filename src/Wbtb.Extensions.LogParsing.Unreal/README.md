@@ -1,18 +1,18 @@
-﻿# CPP log parser
+﻿# Unreal log errors
 
-Parses build logs for CPP errors
+Parses build logs from Unreal engine.
 
 ## Setup
 
-Register plugin, then add to a job under the `LogParserPlugins` node.
+Register plugin, then add to a job under the `LogParsers` node.
 
     Plugins:
-    -   Key: MyCppParser
-        Path: Wbtb.Extensions.LogParsing.Cpp
+    -   Key: MyUnrealParser
+        Path: Wbtb.Extensions.LogParsing.Unreal
         Config:
         -   MaxLogSize: int (maximum log character length to parse. Logs longer than this will return "Log too long, did not parse message.")
 
     Jobs:
     -   Key: MyJob
         LogParsers: 
-        -   MyCppParser
+        -   MyUnrealParser

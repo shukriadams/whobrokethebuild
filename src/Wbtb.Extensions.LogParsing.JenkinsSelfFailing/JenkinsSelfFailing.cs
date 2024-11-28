@@ -21,6 +21,13 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 
         string ILogParserPlugin.Parse(Build build, string raw)
         {
+            int maxLogSize = 0;
+            if (ContextPluginConfig.Config.Any(r => r.Key == "MaxLogSize"))
+                int.TryParse(ContextPluginConfig.Config.First(r => r.Key == "MaxLogSize").Value.ToString(), out maxLogSize);
+
+            if (maxLogSize > 0 && raw.Length > maxLogSize)
+                return $"Log length ({raw.Length}) exceeds max allowed parse length ({maxLogSize}).";
+
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();

@@ -34,6 +34,13 @@ namespace Wbtb.Extensions.LogParsing.AcmeGamesTester
 
         string ILogParserPlugin.Parse(Build build, string raw)
         {
+            int maxLogSize = 0;
+            if (ContextPluginConfig.Config.Any(r => r.Key == "MaxLogSize"))
+                int.TryParse(ContextPluginConfig.Config.First(r => r.Key == "MaxLogSize").Value.ToString(), out maxLogSize);
+
+            if (maxLogSize > 0 && raw.Length > maxLogSize)
+                return $"Log length ({raw.Length}) exceeds max allowed parse length ({maxLogSize}).";
+
             // example of an error :
             // LogLinker: Error: [AssetLog] D:\workdir\IronBird\Content\Acme\Tests\ThingTester.umap: Failed import: class 'AngelGrinder' name '_Sprucker' outer 'BP_Luncher'. There is another object (of 'BP_Luncher' class) at the path."
             // group 1 : filepath
