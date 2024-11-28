@@ -70,11 +70,11 @@ docker tag shukriadams/wbtb:latest shukriadams/wbtb:$TAG
 cd -
 
 if [ $SMOKETEST -eq 1 ]; then
-    docker-compose -f docker-compose.yml down --remove-orphans
-    docker-compose -f docker-compose.yml up -d 
+    docker compose -f docker-compose.yml down --remove-orphans
+    docker compose -f docker-compose.yml up -d 
     sleep 5  # wait a few seconds to make sure app in container has started
     STATUS=$(curl -s -o /dev/null -w "%{http_code}" localhost:49022/error/notready) 
-    docker-compose -f docker-compose.yml down 
+    docker compose -f docker-compose.yml down 
     if [ "$STATUS" != "503" ]; then
         echo "test container returned unexpected value ${STATUS}. Container log is:"
         echo $(docker logs wbbt-test)
