@@ -46,10 +46,10 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             int updatedCount = 0;
             string query = @"SELECT EXISTS (
-                SELECT FROM 
-                    information_schema.tables 
-                WHERE  
-                    table_name   = 'sourceserver');";
+                SELECT FROM
+                    information_schema.tables
+                WHERE
+                    table_name = 'sourceserver');";
 
             bool isInitialized = false;
             using (NpgsqlConnection connection = GetConnection(contextPluginConfig)) 
@@ -259,7 +259,7 @@ namespace Wbtb.Extensions.Data.Postgres
         {
             using (NpgsqlConnection connection = GetConnection(contextPluginConfig))
             {
-                string query = "select * from information_schema.tables";
+                string query = "SELECT * FROM information_schema.tables";
 
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, connection))
                     cmd.ExecuteNonQuery();
