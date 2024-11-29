@@ -21,8 +21,9 @@ namespace Wbtb.Core.Common
         public static void WriteLine(string message, object arg = null)
         {
             // strip out curly braces from messages, these will break console out on C#
-            message = message.Replace("{", " ")
-                .Replace("}", " ");
+            if (message != null)
+                message = message.Replace("{", " ")
+                    .Replace("}", " ");
 
             Console.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} : {message}", arg);
             System.Diagnostics.Debug.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} : {message}", arg);
@@ -37,8 +38,9 @@ namespace Wbtb.Core.Common
         public static void WriteLine(object sourceObject, string message, object arg = null)
         {
             // strip out curly braces from messages, these will break console out on C#
-            message = message.Replace("{", " ")
-                .Replace("}", " ");
+            if (message != null)
+                message = message.Replace("{", " ")
+                    .Replace("}", " ");
 
             Console.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} : {sourceObject.GetType().Name} : {message}", arg);
             System.Diagnostics.Debug.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} : {sourceObject.GetType().Name} : {message}", arg);
