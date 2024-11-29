@@ -199,18 +199,32 @@ namespace Madscience.Perforce
                     {
                         cmd.OutputDataReceived += (sender, e) =>
                         {
-                            if (e.Data == null)
-                                outputWaitHandle.Set();
-                            else
-                                stdOut.Add(e.Data);
+                            try
+                            {
+                                if (e.Data == null)
+                                    outputWaitHandle.Set();
+                                else
+                                    stdOut.Add(e.Data);
+                            }
+                            catch (Exception ex) 
+                            {
+                                stdErr.Add(e.ToString());
+                            }
                         };
 
                         cmd.ErrorDataReceived += (sender, e) =>
                         {
-                            if (e.Data == null)
-                                errorWaitHandle.Set();
-                            else
-                                stdErr.Add(e.Data);
+                            try
+                            {
+                                if (e.Data == null)
+                                    errorWaitHandle.Set();
+                                else
+                                    stdErr.Add(e.Data);
+                            }
+                            catch (Exception ex)
+                            {
+                                stdErr.Add(ex.ToString());
+                            }
                         };
 
                         cmd.Start();
@@ -326,7 +340,7 @@ namespace Madscience.Perforce
             throw new Exception($"Failed to get ticket - {string.Join("\n", result.StdErr)} {string.Join("\n", result.StdOut)}. If trust is already established, ignore this error. ");
         }
 
-        public static  bool IsInstalled() 
+        public static bool IsInstalled() 
         {
             Console.Write("WBTB : Verifying p4 client available locally, you can safely ignore any authentication errors immediately following this line.");
             ShellResult result = Run($"p4");
