@@ -237,7 +237,7 @@ namespace Madscience.Perforce
                             ExitCode = cmd.ExitCode
                         };
                     else
-                        throw new Exception("Time out");
+                        throw new Exception($"Timed out on command : {command} after {timeout} ms");
                 }
             }
             else
