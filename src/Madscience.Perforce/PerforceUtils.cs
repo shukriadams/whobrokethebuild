@@ -336,7 +336,7 @@ namespace Madscience.Perforce
         public static bool IsInstalled() 
         {
             Console.Write("WBTB : Verifying p4 client available locally, you can safely ignore any authentication errors immediately following this line.");
-            ShellResult result = Run($"p4");
+            ShellResult result = Run($"p4 set");
             string stdErr = string.Join("", result.StdErr);
             if (stdErr.Contains("is not recognized as an internal or external command") || stdErr.Contains("'p4' not found"))
                 return false;
