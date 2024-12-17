@@ -141,7 +141,7 @@ namespace Wbtb.Core.Web
 
             RevisionLookup revisionLookup = sourceServerPlugin.GetRevision(sourceServer, revisionCode);
             if (!revisionLookup.Success)
-                return new DaemonTaskWorkResult {ResultType =DaemonTaskWorkResultType.Failed, Description = $"Unable to retrieve revision details for {revisionCode}, error is \"{revisionLookup.Error}\"." };
+                return new DaemonTaskWorkResult {ResultType =DaemonTaskWorkResultType.Failed, Description = $"Unable to retrieve revision details for {revisionCode}, error is \"{revisionLookup.Error}\"" };
 
             // go back in time to some build with a revision in it that we can reference against
             Build previousBuild = build;

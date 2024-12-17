@@ -139,10 +139,11 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             string persistPath = _persistPathHelper.GetPath(this.ContextPluginConfig, "revisions", $"{revisionCode}.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
             string describe = string.Empty;
-
+            string readFromCacheWarning = string.Empty;
             if (File.Exists(persistPath))
             {
                 describe = File.ReadAllText(persistPath);
+                readFromCacheWarning = " Note, revision read from cached. If you had Perforce connection errors, you may need to purge plugin cache.";
             }
             else
             {
@@ -159,10 +160,10 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             }
 
             if (describe == "INVALID REVISION ENCODING")
-                return new RevisionLookup { Error = $"Revision encoding could not be read. Treating \"{revisionCode}\" as an invalid revision number." };
+                return new RevisionLookup { Error = $"Revision encoding could not be read. Treating \"{revisionCode}\" as an invalid revision number.{readFromCacheWarning}" };
 
             if (string.IsNullOrEmpty(describe))
-                return new RevisionLookup { Error = $"Revision was empty, assumed \"{revisionCode}\" is an invalid revision number." };
+                return new RevisionLookup { Error = $"Revision was empty, assumed \"{revisionCode}\" is an invalid revision number.{readFromCacheWarning}" };
 
             Change change = PerforceUtils.ParseDescribe(describe);
 
