@@ -159,10 +159,10 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             }
 
             if (describe == "INVALID REVISION ENCODING")
-                return new RevisionLookup { Error = $"Revision encoding could not be read. Treating {revisionCode} as invalid revision." };
+                return new RevisionLookup { Error = $"Revision encoding could not be read. Treating \"{revisionCode}\" as an invalid revision number." };
 
             if (string.IsNullOrEmpty(describe))
-                return new RevisionLookup { Error = $"Revision was empty, assumed {revisionCode} is an invalid revision" };
+                return new RevisionLookup { Error = $"Revision was empty, assumed \"{revisionCode}\" is an invalid revision number." };
 
             Change change = PerforceUtils.ParseDescribe(describe);
 
