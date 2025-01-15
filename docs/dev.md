@@ -8,54 +8,58 @@
 
 ## Setup
 
-The suggested way to work on this project is in Vagrant. A complete dev environment is defined in source code already. After cloning, from the project root
+### Vagrant
 
-    cd vagrant/<your-vm-flavor>
+You can set up a complete dev environment using Vagrant. After cloning, from the project root
+
+    cd ./vagrant/<your-hypervisor-flavor>
     vagrant up
     vagrant ssh
 
-then once inside the wbtb guest vm
- 
-to set up frontend components (generally required once only when setting up project)
+Once inside the wbtb guest vm, set up frontend components (generally required once only when setting up project)
 
-    cd src/Wbtb.Core.Web/frontend
+    cd ./src/Wbtb.Core.Web/frontend
     sh ./setup.sh
     npm install
     npm run icons
     npm run build
 
-if you update frontend code after this 
+If you update frontend code after this you can rebuild with
 
-    cd src/Wbtb.Core.Web/frontend
+    cd ./src/Wbtb.Core.Web/frontend
     npm run build
 
-to build the server
+To build the server 
 
-    cd src
+    cd ./src
     dotnet restore Wbtb.Core.Web
     dotnet build Wbtb.Core.Web
 
-In most cases, Wbtb will require a separate service, MessageQueue, to be started as a process. You
+In most cases, Wbtb will require a separate service, MessageQueue, to be started as a process. 
 
-    cd src
+    cd ./src
     dotnet restore MessageQueue
     dotnet build MessageQueue
     dotnet run --project MessageQueue
 
 To start the Wbtb server
 
-    cd src
+    cd ./src
     dotnet run --project Wbtb.Core.Web --urls=http://0.0.0.0:5000
 
-The url above may be required in Vagrant, depending on your VM provider platform.
+The url argument above may be required in Vagrant.
 
-## Developer settings
+## Developer config and settings
 
-Normally Wbtb settings are written to a config.yml file in the application execution root. In visual studio you can specify additional config in two ways.
+Wbtb requires a lot of configuration to work, and has several ways to manage this. Its most basic settings can be passed in as environment variables, while others should be defined in a config.yml file. By default, config.yml is expected in the application execution root directory './src/Wbtb.Core.Web/bin/Debug/net6.0/', but you can override this path with the environment variable `WBTB_CONFIG_PATH`.
 
-You can add a `.env` file to the root of the Visual Studio project you're running from (most likely Wbtb.Core.Web/). This file is already listed in the included .gitignore, so it's a good place to put secrets etc that you don't want commited, or overwritten. The file uses a name=value syntax.
+Visual Studio has built in ways of managing environment variables, but you can also place them in a file at the path './src/.env'. This file should contain name=value per line, and is already in .gitignore. 
 
-You can also add a `.giturl` file to the same location, for the repo you keep Wbtb's settings in. This is done because some url's contain `=` characters, which break the `.env` file.
+WBTB also supports getting config.yml from a git repo. You can add a git url string in a file at `./src/.giturl`, or set the git url with the `WBTB_GIT_CONFIG_REPO_URL` environment variable. The URL must be self-authenticating, ie, contain its own auth credentials, WBTB does not currently support SSH authentication. WBTB will attempt to check the repo out to './src/Wbtb.Core.Web/bin/Debug/net6.0/<your-data-root>/ConfigCheckout
+
+## Secrets
+
+WTBB has rudimentary support for secrets using environment variables and config templating. To avoid storing secrets in config.yml, you can instead add the template string "{{env.MY_VALUE}}" (without quotes) anywhere in your config file. If you also define an environment variable 'MY_VALUE', this value will be automatically used with reading the contents of config.yml.
 
 ## Coding and Debugging
 

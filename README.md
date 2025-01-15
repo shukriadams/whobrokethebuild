@@ -49,3 +49,7 @@ Assuming you're running WBTB from the official Docker container image, volume mo
 In progress ....
 
 
+## Development
+
+Please see the [developer documentation](./docs/dev.md).
+
