@@ -36,9 +36,9 @@ namespace Wbtb.Core
 
             Console.WriteLine("custom env variable file found, applying");
 
-            string filecontent = File.ReadAllText(envArgFilePath);
-            filecontent = filecontent.Replace("\r\n", "\n");
-            string[] args = filecontent.Split("\n");
+            string fileContent = File.ReadAllText(envArgFilePath);
+            fileContent = fileContent.Replace("\r\n", "\n");
+            string[] args = fileContent.Split("\n");
             Regex envVarRegex = new Regex(@"(.*)?=(.*)");
 
             foreach(string arg in args)

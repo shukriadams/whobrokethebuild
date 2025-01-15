@@ -23,6 +23,5 @@ namespace Wbtb.Core.Common
                 return defaultValue;
             return var.ToString();
         }
-        
     }
 }

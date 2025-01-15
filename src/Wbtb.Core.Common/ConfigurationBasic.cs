@@ -52,11 +52,20 @@ namespace Wbtb.Core.Common
         public string ConfigPath { get; set; }
 
         /// <summary>
-        /// 
+        /// Path WBTB log most messages to. Logs from plugins and core logic will be written here.
         /// </summary>
         public string LogPath { get; set; }
 
+        /// <summary>
+        /// Path dotnet spams its Windows-style trash logs to. Segregated because impossible to regulate.
+        /// </summary>
         public string DotNetLogPath { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string GitConfigUrl { get; set; }
+
         #endregion
 
         #region CTORS
@@ -66,6 +75,7 @@ namespace Wbtb.Core.Common
             this.MessageQueuePort = 5001;
             this.PersistCalls = true;
 
+            this.GitConfigUrl = EnvironmentVariableHelper.GetString("WBTB_GIT_CONFIG_REPO_URL");
             this.PersistCalls = EnvironmentVariableHelper.GetBool("WBTB_PERSISTCALLS", false);
             this.ProxyMode = EnvironmentVariableHelper.GetString("WBTB_PROXYMODE", "default");
             this.ConfigPath = EnvironmentVariableHelper.GetString(Constants.ENV_VAR_CONFIG_PATH, Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
@@ -75,6 +85,38 @@ namespace Wbtb.Core.Common
             this.BuildLogsDirectory = Path.Join(this.DataRootPath, "BuildLogs");
             this.PluginDataPersistDirectory = Path.Join(this.DataRootPath, "PluginData");
             this.PluginsWorkingDirectory = Path.Join(this.DataRootPath, "PluginsWorking");
+        }
+
+        /// <summary>
+        /// Run this as early in app lifecycle as possible, ideally before any code has a chance to create instances of this class.
+        /// </summary>
+        /// <exception cref="ConfigurationException"></exception>
+        public static void ValidateAndOverrideDefaults() 
+        {
+            string localGitUrlFile = "./.giturl";
+            if (File.Exists(localGitUrlFile))
+            {
+                string urlCheck = File.ReadAllText(localGitUrlFile);
+                if (string.IsNullOrEmpty(urlCheck))
+                    throw new ConfigurationException("GIT-CONFIG : ./.giturl override file exists, but is empty. File should contain git url to sync config from.");
+
+
+                Console.WriteLine($"Git url file found at ${localGitUrlFile}, will use this to fetch config.");
+
+                Environment.SetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL", urlCheck);
+            }
+
+            string gitConfigUrl = EnvironmentVariableHelper.GetString("WBTB_GIT_CONFIG_REPO_URL");
+            
+            if (!string.IsNullOrEmpty(gitConfigUrl)) 
+            {
+                string dataRootPath = EnvironmentVariableHelper.GetString("WBTB_DATA_ROOT", Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data")); ;
+                string gitConfigLocalPath = Path.Join(dataRootPath, "ConfigCheckout", "config.yml");
+
+                Console.WriteLine($"Git config url specified, force setting config path to \"{gitConfigLocalPath}\", assuming a config file will be found at that path.");
+
+                Environment.SetEnvironmentVariable(Constants.ENV_VAR_CONFIG_PATH, gitConfigLocalPath);
+            }
         }
 
         #endregion

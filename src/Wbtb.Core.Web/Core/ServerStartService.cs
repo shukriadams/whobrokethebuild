@@ -30,6 +30,7 @@ namespace Wbtb.Core.Web
                     // register types defined in web project
                     di.RegisterFactory<ILogger, LogProvider>();
                     di.Register<MutationHelper, MutationHelper>();
+                    di.Register<FailingAlertKey, FailingAlertKey>();
                     di.Register<IDaemonTaskController, DaemonTaskController>();
                     di.Register<IWebDaemon, BuildStartDaemon>(null, true);
                     di.Register<IWebDaemon, BuildPostProcessDaemon>(null, true);
@@ -37,7 +38,8 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, RevisionFromLogDaemon>(null, true);
                     di.Register<IWebDaemon, RevisionFromBuildServerDaemon>(null, true);
                     di.Register<IWebDaemon, LogImportDaemon>(null, true);
-                    di.Register<IWebDaemon, BuildDeltaAlertDaemon>(null, true);
+                    di.Register<IWebDaemon, BuildFixedAlertDaemon>(null, true);
+                    di.Register<IWebDaemon, BuildBrokenAlertDaemon>(null, true);
                     di.Register<IWebDaemon, IncidentAssignDaemon>(null, true);
                     di.Register<IWebDaemon, LogParseDaemon>(null, true);
                     di.Register<IWebDaemon, UserLinkDaemon>(null, true);

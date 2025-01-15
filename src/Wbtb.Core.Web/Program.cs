@@ -16,7 +16,10 @@ namespace Wbtb.Core.Web
             // and needs to be loaded before anything else
             CustomEnvironmentArgs customEnvironmentArgs = new CustomEnvironmentArgs();
             customEnvironmentArgs.Apply(true);
-        
+
+            // validate important env vars as early as possible in app lifecylce
+            ConfigurationBasic.ValidateAndOverrideDefaults();
+
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -34,7 +37,7 @@ namespace Wbtb.Core.Web
                     ConfigurationBasic configurationBasic = new ConfigurationBasic();
 
                     if (Directory.Exists(configurationBasic.DotNetLogPath))
-                        throw new ConfigurationException($"The provided logpath {configurationBasic.DotNetLogPath} is invalid - path must be a file, but there is currently a directory at this location.");
+                        throw new ConfigurationException($"The provided log path {configurationBasic.DotNetLogPath} is invalid - path must be a file, but there is currently a directory at this location.");
 
                     Directory.CreateDirectory(Path.GetDirectoryName(configurationBasic.DotNetLogPath));
                     builder.AddFile(configurationBasic.DotNetLogPath, LogLevel.Warning);

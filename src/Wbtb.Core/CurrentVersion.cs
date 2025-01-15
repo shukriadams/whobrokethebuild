@@ -12,10 +12,10 @@ namespace Wbtb.Core
 
         public void Resolve()
         {
-            // read this from currentVersion.txt file in app root
+            // read this from currentVersion.txt file in app root. Content is expected to be "some-hash some-tag"
             string currentVersion = "abc123 0.0.0";
             if (File.Exists("./currentVersion.txt"))
-              currentVersion = File.ReadAllText("./currentVersion.txt");
+                currentVersion = File.ReadAllText("./currentVersion.txt");
 
             Regex regex = new Regex("^(.*)? (.*)?");
             Match match = regex.Match(currentVersion);

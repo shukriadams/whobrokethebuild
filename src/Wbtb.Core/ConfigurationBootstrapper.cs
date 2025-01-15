@@ -15,7 +15,9 @@ namespace Wbtb.Core
         /// <returns></returns>
         public bool EnsureLatest(bool verbose) 
         {
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL")))
+            ConfigurationBasic configurationBasic = new ConfigurationBasic();
+
+            if (string.IsNullOrEmpty(configurationBasic.GitConfigUrl))
             {
                 if (verbose)
                     ConsoleHelper.WriteLine("GIT-CONFIG : sync disabled, skipping");
@@ -25,18 +27,9 @@ namespace Wbtb.Core
             if (verbose)
                 ConsoleHelper.WriteLine("GIT-CONFIG : sync enabled");
 
-            string gitRemote = Environment.GetEnvironmentVariable("WBTB_GIT_CONFIG_REPO_URL");
-            string localgiturlfile = "./.giturl";
-            if (File.Exists(localgiturlfile)) 
-            {
-                gitRemote = File.ReadAllText(localgiturlfile);
-                if (string.IsNullOrEmpty(gitRemote))
-                    throw new Exception("GIT-CONFIG : ./.giturl override exists, but is empty. File should contain git url to sync config from.");
-            }
 
             string localPath = "config.yml";
 
-            ConfigurationBasic configurationBasic = new ConfigurationBasic();
             string cachePath = Path.Join(configurationBasic.DataRootPath, "ConfigCache");
             string checkoutPath = Path.Join(configurationBasic.DataRootPath, "ConfigCheckout");
 
@@ -61,7 +54,7 @@ namespace Wbtb.Core
             {
                 // git clone
                 shell = new Shell();
-                string result = shell.Run($"git clone {gitRemote} {checkoutPath}");
+                string result = shell.Run($"git clone {configurationBasic.GitConfigUrl} {checkoutPath}");
                 ConsoleHelper.WriteLine($"GIT-CONFIG : {result}");
             }
 
@@ -82,15 +75,16 @@ namespace Wbtb.Core
 
             if (targetConfigFileHash != incomingConfigFileHash)
             {
-                File.Copy(configFileLocalPath, Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"), true);
                 shell = new Shell();
                 string commitMessage = shell.Run($"git log --format=%B -n 1 {incomingConfigFileHash}");
                 ConsoleHelper.WriteLine($"GIT-CONFIG : config has changed. Config hash was {targetConfigFileHash}, is now {incomingConfigFileHash} ({commitMessage}).");
+                
                 return true;
             }
 
             if (verbose)
                 ConsoleHelper.WriteLine($"GIT-CONFIG : Config unchanged at hash {targetConfigFileHash}.");
+
             return false;
         }
     }
