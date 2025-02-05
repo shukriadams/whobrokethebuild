@@ -17,6 +17,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         private readonly PersistPathHelper _persistPathHelper;
 
         private readonly SimpleDI _di;
+
         #endregion
 
         #region CTORS
@@ -135,13 +136,12 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
 
-            string filePath = $"./JSON/builds/{remotekey.Value}/build_{build.Key}_revisions.json";
+            var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
             string rawJson = null;
             string persistPath = _persistPathHelper.GetPath(ContextPluginConfig, job.Key, build.Key, "revisions.json");
-
             string path = $"JSON.builds.{remotekey.Value}.build_{build.Key}_revisions.json";
+
             if (ResourceHelper.ResourceExists(this.GetType(), path))
             {
                 rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), path);
@@ -161,6 +161,13 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         IEnumerable<Build> IBuildServerPlugin.GetLatesBuilds(Job job, int take)
         {
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+
+            Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
+            string interval = buildServer.Config.First(r => r.Key == "Interval").Value.ToString();
+            Console.WriteLine($" !!!!!!!!!!!!!! interval : {interval}");
+
+
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
             string resourcePath = $"JSON.builds.{remotekey.Value}.builds.json";
 

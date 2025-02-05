@@ -7,6 +7,14 @@ CREATE SEQUENCE public."store_id_seq"
     CACHE 1;
 ALTER SEQUENCE public."store_id_seq" OWNER TO postgres;
 
+CREATE SEQUENCE public."workprocess_id_seq"
+    INCREMENT 1
+    START 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+ALTER SEQUENCE public."workprocess_id_seq" OWNER TO postgres;
+
 CREATE SEQUENCE public."configurationstate_id_seq"
     INCREMENT 1
     START 1
@@ -113,11 +121,35 @@ ALTER SEQUENCE public."mutationreport_id_seq" OWNER TO postgres;
 
 
 -- CREATE TABLES
+
+
+-- TABLE: Process
+CREATE TABLE public."workprocess"
+(
+    id integer NOT NULL DEFAULT nextval('"workprocess_id_seq"'::regclass),
+    "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    "category" character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    plugin character varying(256) COLLATE pg_catalog."default" NOT NULL,
+    createdutc timestamp(4) without time zone NOT NULL,
+    keptaliveutc timestamp(4) without time zone,
+    content text COLLATE pg_catalog."default",
+    lifespan integer,
+    CONSTRAINT "workprocess_pkey" PRIMARY KEY (id),
+    CONSTRAINT "workprocess_id_unique" UNIQUE ("key")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+ALTER TABLE public."workprocess" OWNER TO postgres;
+
+
 -- TABLE : BuildServer
 CREATE TABLE public."buildserver"
 (
     id integer NOT NULL DEFAULT nextval('"buildserver_id_seq"'::regclass),
     "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    createdutc timestamp(4) without time zone NOT NULL,
     CONSTRAINT "buildserver_pkey" PRIMARY KEY (id),
     CONSTRAINT "buildserver_id_unique" UNIQUE ("key")
 )
@@ -264,7 +296,7 @@ CREATE TABLE public."store"
 (
     id integer NOT NULL DEFAULT nextval('"store_id_seq"'::regclass),
     "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    "plugin" character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    "plugin" character varying(256) COLLATE pg_catalog."default" NOT NULL,
     content text COLLATE pg_catalog."default",
     CONSTRAINT "store_pkey" PRIMARY KEY (id),
     CONSTRAINT "store_key_unique" UNIQUE ("key")

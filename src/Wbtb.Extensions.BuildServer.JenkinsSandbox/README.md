@@ -1,32 +1,23 @@
 
-mocking build server is most important part of wbtb as builds drrive all events.
+A mock build server lets us simulate build events during development time. 
 
 ## How to use
 
-You will need a real version control system
-In core config add 
+You will need to couple this plugin with a version control plugin of some kind, as a build job expects a source control server. WBTB has a built in mock Perforce server that can be used for this.
+
+In config add 
 
     Plugins:
-    -   Id: fakeJenkins
-        Path: C:\projects\wbtb\src\Wbtb.Extensions.BuildServer.JenkinsSandbox   
-        Proxy: false
-    -   Id: WBTB-Perforce
-        Path: C:\projects\wbtb\src\Wbtb.Extensions.SourceServer.Perforce
-        Proxy: false
-        Enable: true
+    -   Key: jenkinsSandbox
+        Path: Wbtb.Extensions.BuildServer.JenkinsSandbox
 
     BuildServers:
-    -   Id: MyJenkins
-        Host: jenkins.myserver.local
-        Plugin: fakeJenkins
-        Enable: true
+    -   Key: MyJenkins
+        Plugin: jenkinsSandbox
+        Config:
+        -   Interval: 1 
         Jobs:
-        -    Id: myjob
-             SourceServer: p4_1
-             Enable: false
+        -    Key: myjob
+             SourceServer: mySourceControlServer
 
-    SourceServers:
-    -   Id: p4_1
-        Host: ssl:p4.myserver.local:1666
-        User: myuser
-        Password: myPassword
+Note the config interval value. This lets us control "time" in our test data

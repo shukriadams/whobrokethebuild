@@ -55,7 +55,7 @@ src/Wbtb.Extensions.PostProcessing.Test/bin
 src/Wbtb.Extensions.PostProcessing.Test/obj
 src/Wbtb.Extensions.PostProcessing.Test2/bin
 src/Wbtb.Extensions.PostProcessing.Test2/obj
-.env
+.env*
 .giturl
 src/Wbtb.Extensions.Auth.ActiveDirectorySandbox/bin
 src/Wbtb.Extensions.Auth.ActiveDirectorySandbox/obj
@@ -82,3 +82,5 @@ src/Wbtb.Extensions.LogParsing.AcmeGamesTester/obj
 src/Wbtb.Extensions.LogParsing.AcmeGamesTester/bin
 *.csproj.user
 src/config.yml
+src/Wbtb.Extensions.Develop.DataOverTime/bin
+src/Wbtb.Extensions.Develop.DataOverTime/obj

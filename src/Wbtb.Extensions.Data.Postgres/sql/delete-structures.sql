@@ -33,6 +33,7 @@ DROP TABLE IF EXISTS public."sourceserver" CASCADE;
 DROP TABLE IF EXISTS public."usr" CASCADE;
 DROP TABLE IF EXISTS public."configurationstate" CASCADE;
 DROP TABLE IF EXISTS public."store" CASCADE;
+DROP TABLE IF EXISTS public."workprocess" CASCADE;
 
 
 -- DROP SEQUENCES
@@ -50,3 +51,4 @@ DROP SEQUENCE IF EXISTS public."store_id_seq";
 DROP SEQUENCE IF EXISTS public."daemontask_id_seq";
 DROP SEQUENCE IF EXISTS public."mutationreport_id_seq";
 DROP SEQUENCE IF EXISTS public."r_buildLogParseResult_buildinvolvement_id_seq";
+DROP SEQUENCE IF EXISTS public."workprocess_id_seq";

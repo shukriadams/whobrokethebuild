@@ -97,5 +97,4 @@ if [ $DOCKERPUSH -eq 1 ]; then
 
     docker login -u $DOCKER_USER -p $DOCKER_PASS 
     docker push shukriadams/wbtb-cli:$TAG  
-
 fi

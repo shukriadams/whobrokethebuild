@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
+﻿namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 {
     /// <summary>
     /// JSON carrier for Jenkins API data
