@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -94,7 +95,9 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         IEnumerable<string> IBuildServerPlugin.ListRemoteJobsCanonical(Core.Common.BuildServer buildServer)
         {
-            string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), "JSON.jobs.json");
+            KeyValuePair<string, object>? internalItem = buildServer.Config.FirstOrDefault(r => r.Key == "Interval");
+            string interval = internalItem == null ? "0" : internalItem.Value.Value.ToString();
+            string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), $"JSON.{interval}.jobs.json");
 
             try
             {
@@ -140,11 +143,14 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
+            KeyValuePair<string, object>? internalItem = job.Config.FirstOrDefault(r => r.Key == "Interval");
+            string interval = internalItem == null ? "0" : internalItem.Value.Value.ToString();
+
 
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
             string rawJson = null;
             string persistPath = _persistPathHelper.GetPath(ContextPluginConfig, job.Key, build.Key, "revisions.json");
-            string path = $"JSON.builds.{remotekey.Value}.build_{build.Key}_revisions.json";
+            string path = $"JSON.{interval}.builds.{remotekey.Value}.build_{build.Key}_revisions.json";
 
             if (ResourceHelper.ResourceExists(this.GetType(), path))
             {
@@ -168,10 +174,10 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
-            string interval = job.Config.First(r => r.Key == "Interval").Value.ToString();
-
+            KeyValuePair<string, object>? internalItem = job.Config.FirstOrDefault(r => r.Key == "Interval");
+            string interval = internalItem == null? "0" : internalItem.Value.Value.ToString();
             var remoteKey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
-            string resourcePath = $"JSON.builds.{remoteKey.Value}.builds.json";
+            string resourcePath = $"JSON._{interval}.builds.{remoteKey.Value}.builds.json";
 
             if (!ResourceHelper.ResourceExists(this.GetType(), resourcePath))
                 throw new Exception($"Failed to import builds, sandbox job {remoteKey.Value} does not exist. Create a static directory, add content and ensure they are marked as embedded resource.");

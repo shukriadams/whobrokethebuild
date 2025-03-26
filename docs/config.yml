@@ -61,6 +61,8 @@ SourceServers:
 BuildServers:
 -   Key: MyJenkins
     Plugin: jenkinsSandbox
+    Config:
+    -   Interval: 0 # jenkins-sandbox uses this to time-gate data
     Jobs:
     -   Key: 248445e2
         Name: Ironbird
