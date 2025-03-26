@@ -149,7 +149,6 @@ CREATE TABLE public."buildserver"
 (
     id integer NOT NULL DEFAULT nextval('"buildserver_id_seq"'::regclass),
     "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    createdutc timestamp(4) without time zone NOT NULL,
     CONSTRAINT "buildserver_pkey" PRIMARY KEY (id),
     CONSTRAINT "buildserver_id_unique" UNIQUE ("key")
 )

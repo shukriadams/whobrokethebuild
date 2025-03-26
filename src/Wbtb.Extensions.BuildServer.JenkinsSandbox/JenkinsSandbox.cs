@@ -59,6 +59,10 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
                 if (!job.Config.Any(c => c.Key == "RemoteKey"))
                     throw new ConfigurationException($"Job {job.Key} on buildServer {contextServer.Key} is missing Config \"RemoteKey\"");
+
+                if (!job.Config.Any(c => c.Key == "Interval"))
+                    throw new ConfigurationException($"Job {job.Key} on buildServer {contextServer.Key} is missing Config \"Interval\". This is for date-over-time. Add default value 0.");
+
             }
 
             return new ReachAttemptResult { Reachable = true };
@@ -164,15 +168,13 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
-            string interval = buildServer.Config.First(r => r.Key == "Interval").Value.ToString();
-            Console.WriteLine($" !!!!!!!!!!!!!! interval : {interval}");
+            string interval = job.Config.First(r => r.Key == "Interval").Value.ToString();
 
-
-            var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
-            string resourcePath = $"JSON.builds.{remotekey.Value}.builds.json";
+            var remoteKey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
+            string resourcePath = $"JSON.builds.{remoteKey.Value}.builds.json";
 
             if (!ResourceHelper.ResourceExists(this.GetType(), resourcePath))
-                throw new Exception($"Failed to import builds, sandbox job {remotekey.Value} does not exist. Create a static directory, add content and ensure they are marked as embedded resource.");
+                throw new Exception($"Failed to import builds, sandbox job {remoteKey.Value} does not exist. Create a static directory, add content and ensure they are marked as embedded resource.");
 
             string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), resourcePath);
             dynamic response = Newtonsoft.Json.JsonConvert.DeserializeObject(rawJson);

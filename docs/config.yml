@@ -69,6 +69,7 @@ BuildServers:
         Config: 
         -   RemoteKey: Project_Ironbird
         -   GameRoot: //mydepot/main/core/PSD/Game
+        -   Interval: 0 # jenkins-sandbox uses this to time-gate data
         LogParsers: 
         -   UnrealParser 
         -   CppParser
@@ -88,6 +89,7 @@ BuildServers:
         SourceServer: myperforce
         Config: 
         -   RemoteKey: Project_Skunkwords
+        -   Interval: 0 # jenkins-sandbox uses this to time-gate data
         LogParsers: 
         -   UnrealParser
         -   CppParser
