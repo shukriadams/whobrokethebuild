@@ -1,0 +1,5 @@
+﻿<current-revision>56337<current-revision>
+
+A C++ error that can't be traced to a file change.
+
+C:\some\path\MyFile.cpp(620,51): error CS0123: The type or namespace name 'Figment' could not be found (did you really forget something?) [D:\workspace\Project\Program\Tools\Resolvernator.csproj]

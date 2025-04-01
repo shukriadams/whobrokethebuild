@@ -1,0 +1,31 @@
+﻿Functional test failure
+
+<current-revision>56343<current-revision>
+
+<p4-cient-state>
+
+Client: ugs_workspace
+Update: 2020/01/05 13:39:16
+Access: 2023/04/12 10:18:31
+Owner:  Ug
+Host:   ugs_pc
+Description:
+        Created by ug.
+
+Root:   C:\work\p4stuff
+Options:        noallwrite noclobber nocompress unlocked nomodtime normdir
+SubmitOptions:  submitunchanged
+LineEnd:        local
+Stream: //mydepot/main
+View:
+        //somedepot/main/important/%%1 //ugs_workspace/%%1
+        //mydepot/main/core/PSD/... //ugs_workspace/PSD/...
+
+<p4-cient-state>
+
+Four errors should appear in log parse
+
+LogLinker: Error: [AssetLog] C:\work\p4stuff\PSD\Source\Programs\BuildTool\PSDToolChain.umap: Failed import: class 'AngelGrinder1' name '_Sprucker1' outer 'BP_Luncher'. There is another object (of 'BP_Luncher' class) at the path.
+LogLinker: Error: [AssetLog] C:\work\p4stuff\PSD\Source\Programs\BuildTool\PSDToolChain.umap: Failed import: class 'AngelGrinder2' name '_Sprucker2' outer 'BP_Luncher'. There is another object (of 'BP_Luncher' class) at the path.
+LogLinker: Error: [AssetLog] C:\work\p4stuff\PSD\Source\Programs\BuildTool\PSDToolChain.umap: Failed import: class 'AngelGrinder3' name '_Sprucker3' outer 'BP_Luncher'. There is another object (of 'BP_Luncher' class) at the path.
+LogLinker: Error: [AssetLog] C:\work\p4stuff\PSD\Source\Programs\BuildTool\PSDToolChain.umap: Failed import: class 'AngelGrinder4' name '_Sprucker4' outer 'BP_Luncher'. There is another object (of 'BP_Luncher' class) at the path.

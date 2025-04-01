@@ -1,0 +1,2 @@
+﻿Example of broken workspace error
+Cannot find path (.*)? '\Engine\Saved\UnrealBuildTool\BuildConfiguration.xml' because it does not exist.
