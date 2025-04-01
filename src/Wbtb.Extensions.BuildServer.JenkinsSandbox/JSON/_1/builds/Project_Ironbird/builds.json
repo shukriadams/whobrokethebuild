@@ -1,0 +1,246 @@
+{
+    "_class": "hudson.model.FreeStyleProject",
+    "allBuilds": [
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 354161,
+            "fullDisplayName": "MyProject - Build #19",
+            "id": "19",
+            "number": 19,
+            "result": "FAILURE",
+            "timestamp": 1600000000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 354161,
+            "fullDisplayName": "MyProject - Build #20",
+            "id": "20",
+            "number": 20,
+            "result": "SUCCESS",
+            "timestamp": 1600001000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 362129,
+            "fullDisplayName": "MyProject - Build #21",
+            "id": "21",
+            "number": 21,
+            "result": "SUCCESS",
+            "timestamp": 1600002000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 207586,
+            "fullDisplayName": "MyProject - Build #22",
+            "id": "22",
+            "number": 22,
+            "result": "FAILURE",
+            "timestamp": 1600003000000,
+            "builtOn": "Agent Three"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 186444,
+            "fullDisplayName": "MyProject - Build #23",
+            "id": "23",
+            "number": 23,
+            "result": "SUCCESS",
+            "timestamp": 1600004000000,
+            "builtOn": "Agent Three"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 215312,
+            "fullDisplayName": "MyProject - Build #24",
+            "id": "24",
+            "number": 24,
+            "result": "SUCCESS",
+            "timestamp": 1600005000000,
+            "builtOn": "Agent Three"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 229911,
+            "fullDisplayName": "MyProject - Build #25",
+            "id": "25",
+            "number": 25,
+            "result": "FAILURE",
+            "timestamp": 1600006000000,
+            "builtOn": "Agent Three"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 208690,
+            "fullDisplayName": "MyProject - Build #26",
+            "id": "26",
+            "number": 26,
+            "result": "SUCCESS",
+            "timestamp": 1600007000000,
+            "builtOn": "Agent Three"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 293946,
+            "fullDisplayName": "MyProject - Build #27",
+            "id": "27",
+            "number": 27,
+            "result": "SUCCESS",
+            "timestamp": 1600008000000,
+            "builtOn": "Agent Three"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 219372,
+            "fullDisplayName": "MyProject - Build #28",
+            "id": "28",
+            "number": 28,
+            "result": "FAILURE",
+            "timestamp": 1600009000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 208837,
+            "fullDisplayName": "MyProject - Build #29",
+            "id": "29",
+            "number": 29,
+            "result": "FAILURE",
+            "timestamp": 1600011000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #33",
+            "id": "33",
+            "number": 33,
+            "result": "FAILURE",
+            "timestamp": 1600012000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #34",
+            "id": "34",
+            "number": 34,
+            "result": "FAILURE",
+            "timestamp": 1600013000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #35",
+            "id": "35",
+            "number": 35,
+            "result": "FAILURE",
+            "timestamp": 1600014000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #36",
+            "id": "36",
+            "number": 36,
+            "result": "FAILURE",
+            "timestamp": 1600015000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #37",
+            "id": "37",
+            "number": 37,
+            "result": "SUCCESS",
+            "timestamp": 1600016000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #38",
+            "id": "38",
+            "number": 38,
+            "result": "FAILURE",
+            "timestamp": 1600017000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #40",
+            "id": "40",
+            "number": 40,
+            "result": "FAILURE",
+            "timestamp": 1600018000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #41",
+            "id": "41",
+            "number": 41,
+            "result": "SUCCESS",
+            "timestamp": 1600019000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #42",
+            "id": "42",
+            "number": 42,
+            "result": "FAILURE",
+            "timestamp": 1600020000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #43",
+            "id": "43",
+            "number": 43,
+            "result": "FAILURE",
+            "timestamp": 1600021000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #44",
+            "id": "44",
+            "number": 44,
+            "result": "FAILURE",
+            "timestamp": 1600022000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "dev_isLatest": false,
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #45",
+            "id": "45",
+            "number": 45,
+            "result": "SUCCESS",
+            "timestamp": 1600023000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #46",
+            "id": "46",
+            "number": 46,
+            "result": "FAILURE",
+            "timestamp": 1600024000000,
+            "builtOn": "Agent Two"
+        }
+    ]
+}

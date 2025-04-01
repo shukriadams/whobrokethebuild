@@ -1,0 +1,4 @@
+﻿build 2 log text!
+
+D:\some\path\file.h(41,23): error C2143: syntax error: missing ';' before '*'
+D:\some\path\anotherfile2.h(121,3): error C921: An entirely made-up error pretend occurred.

@@ -1,0 +1,3 @@
+﻿Passing build, nothing to see here.
+
+<current-revision>56338<current-revision>

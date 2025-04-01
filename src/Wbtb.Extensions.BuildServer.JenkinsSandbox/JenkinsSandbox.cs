@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -60,10 +59,6 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
                 if (!job.Config.Any(c => c.Key == "RemoteKey"))
                     throw new ConfigurationException($"Job {job.Key} on buildServer {contextServer.Key} is missing Config \"RemoteKey\"");
-
-                if (!job.Config.Any(c => c.Key == "Interval"))
-                    throw new ConfigurationException($"Job {job.Key} on buildServer {contextServer.Key} is missing Config \"Interval\". This is for date-over-time. Add default value 0.");
-
             }
 
             return new ReachAttemptResult { Reachable = true };
@@ -95,8 +90,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         IEnumerable<string> IBuildServerPlugin.ListRemoteJobsCanonical(Core.Common.BuildServer buildServer)
         {
-            KeyValuePair<string, object>? internalItem = buildServer.Config.FirstOrDefault(r => r.Key == "Interval");
-            string interval = internalItem == null ? "0" : internalItem.Value.Value.ToString();
+            string interval = GetCurrentInterval();
             string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), $"JSON.{interval}.jobs.json");
 
             try
@@ -139,13 +133,21 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             return dt.AddMilliseconds(Double.Parse(unixTimeStamp));
         }
 
+        private string GetCurrentInterval()
+        {
+            string interval = "0";
+            string intervalPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "interval");
+            if (File.Exists(intervalPath))
+                interval = File.ReadAllText(intervalPath);
+
+            return interval;
+        }
+
         BuildRevisionsRetrieveResult IBuildServerPlugin.GetRevisionsInBuild(Build build)
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
-            KeyValuePair<string, object>? internalItem = job.Config.FirstOrDefault(r => r.Key == "Interval");
-            string interval = internalItem == null ? "0" : internalItem.Value.Value.ToString();
-
+            string interval = GetCurrentInterval();
 
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
             string rawJson = null;
@@ -174,8 +176,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
-            KeyValuePair<string, object>? internalItem = job.Config.FirstOrDefault(r => r.Key == "Interval");
-            string interval = internalItem == null? "0" : internalItem.Value.Value.ToString();
+            string interval = GetCurrentInterval();
             var remoteKey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
             string resourcePath = $"JSON._{interval}.builds.{remoteKey.Value}.builds.json";
 

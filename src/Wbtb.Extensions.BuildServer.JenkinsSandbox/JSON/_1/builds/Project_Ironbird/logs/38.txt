@@ -1,0 +1,9 @@
+﻿A build that failed for no reason.
+
+All three of the following lines should be picked up by by the BasicErr*rs parser:
+Some error occurred.
+Somethingerrorsomething.
+This is an additional line with "error" in it.
+
+This line should not be picked up by the BasicErr*rs parser:
+This is a line with "error" in it, but not an error message. This should not show up in BasicError reporting.

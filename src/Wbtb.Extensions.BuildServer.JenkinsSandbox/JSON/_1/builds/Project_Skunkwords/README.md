@@ -1,0 +1,1 @@
+was passing, now failing, build revision read from logs

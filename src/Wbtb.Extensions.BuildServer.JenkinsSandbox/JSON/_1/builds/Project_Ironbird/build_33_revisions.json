@@ -1,0 +1,16 @@
+﻿{
+  "_class": "hudson.model.FreeStyleBuild",
+  "changeSet": {
+    "_class": "org.jenkinsci.plugins.p4.changes.P4ChangeSet",
+    "items": [
+      {
+        "_class": "org.jenkinsci.plugins.p4.changes.P4ChangeEntry",
+        "commitId": "56333"
+      },
+      {
+        "_class": "org.jenkinsci.plugins.p4.changes.P4ChangeEntry",
+        "commitId": "56334"
+      }
+    ]
+  }
+}

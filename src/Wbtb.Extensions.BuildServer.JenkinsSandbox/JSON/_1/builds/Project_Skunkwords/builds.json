@@ -1,0 +1,75 @@
+{
+    "_class": "hudson.model.FreeStyleProject",
+    "allBuilds": [
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 354161,
+            "fullDisplayName": "MyProject - Build #39",
+            "id": "39",
+            "number": 39,
+            "result": "FAILURE",
+            "timestamp": 1600000000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 354161,
+            "fullDisplayName": "MyProject - Build #40",
+            "id": "40",
+            "number": 40,
+            "result": "SUCCESS",
+            "timestamp": 1600001000000,
+            "builtOn": "Agent One"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 362129,
+            "fullDisplayName": "MyProject - Build #41",
+            "id": "41",
+            "number": 41,
+            "result": "ABORTED",
+            "timestamp": 1600002000000,
+            "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 207586,
+            "fullDisplayName": "MyProject - Build #42",
+            "id": "42",
+            "number": 42,
+            "result": "SUCCESS",
+            "timestamp": 1600003000000,
+            "builtOn": "Agent Three"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 186444,
+            "fullDisplayName": "MyProject - Build #43",
+            "id": "43",
+            "number": 43,
+            "result": "FAILURE",
+            "timestamp": 1600004000000,
+            "builtOn": "Agent Three"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 215312,
+            "fullDisplayName": "MyProject - Build #44",
+            "id": "44",
+            "number": 44,
+            "result": "SUCCESS",
+            "timestamp": 1600005000000,
+            "builtOn": "Agent Three"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 229911,
+            "fullDisplayName": "MyProject - Build #45",
+            "id": "45",
+            "number": 45,
+            "result": null,
+            "timestamp": 1600006000000,
+            "builtOn": "Agent Three"
+        }
+    ]
+}

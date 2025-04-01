@@ -1,0 +1,25 @@
+﻿Failing build, same as previous, do not trip basic e***r or you will change mutation id!
+C++ build error
+
+<p4-cient-state>
+Client: ugs_workspace
+Update: 2020/01/05 13:39:16
+Access: 2023/04/12 10:18:31
+Owner:  Ug
+Host:   ugs_pc
+Description:
+        Created by ug.
+
+Root:   C:\work\p4stuff
+Options:        noallwrite noclobber nocompress unlocked nomodtime normdir
+SubmitOptions:  submitunchanged
+LineEnd:        local
+Stream: //mydepot/main
+View:
+        //somedepot/main/important/%%1 //ugs_workspace/%%1
+        //mydepot/main/core/PSD/... //ugs_workspace/PSD/...
+
+<p4-cient-state>
+<current-revision>56340<current-revision>
+
+C:\work\p4stuff\PSD\Source\Programs\BuildTool\PSDToolChain.cpp(620,51): error CS0246: The type or namespace name 'FileItem' could not be found (are you missing a using directive or an assembly reference?) [D:\workspace\Engine\Source\Programs\UnrealBuildTool\UnrealBuildTool.csproj]

@@ -4,26 +4,6 @@
         {
             "_class": "hudson.model.FreeStyleProject",
             "name": "Project_Ironbird"
-        },
-        {
-            "_class": "hudson.model.FreeStyleProject",
-            "name": "Project_Buzzkill"
-        },
-        {
-            "_class": "hudson.model.FreeStyleProject",
-            "name": "Project_Skunkwords"
-        },
-        {
-            "_class": "hudson.model.FreeStyleProject",
-            "name": "Project_Horizon"
-        },
-        {
-            "_class": "hudson.model.FreeStyleProject",
-            "name": "Project_Tardy"
-        },
-        {
-            "_class": "hudson.model.FreeStyleProject",
-            "name": "Project_Rover"
         }
     ]
 }
