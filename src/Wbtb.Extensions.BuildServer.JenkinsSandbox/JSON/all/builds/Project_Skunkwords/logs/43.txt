@@ -1,0 +1,136 @@
+﻿example of shader compile error in Unreal
+random text
+random text
+random text
+random text
+random text
+<current-revision>308<current-revision>
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+LogCook: Display: Compiling global changed shaders for platform 'Windows'
+LogShaderCompilers: Display: Current jobs: 56, Batch size: 5, Num Already Dispatched: 0
+LogShaderCompilers: Display: Current jobs: 56, Batch size: 5, Num Already Dispatched: 0
+LogShaderCompilers: Warning: 18 Shader compiler errors compiling global shaders for platform PCD3D_SM6:
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 13, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/13:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 13
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 17, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/17:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 17
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 26, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/26:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 26
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 16, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/16:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 16
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 27, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/27:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 27
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 22, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/22:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 22
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 25, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/25:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 25
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 12, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/12:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 12
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 24, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/24:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 24
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 7, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/7:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 7
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 3, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/3:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 3
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 20, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/20:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 20
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 1, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/1:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 1
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 29, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/29:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 29
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 21, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/21:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 21
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 18, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/18:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 18
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 11, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/11:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 11
+
+LogShaderCompilers: Warning: D:/build_directory/sourceWorkspace/Game/Plugins/AcmeGamesShaderPool/Shaders/granules/granules_totalcalls_nullrefs.usf(): Shader RgranulesTotalCallsNuffRefsCS, Permutation 6, VF None:
+	Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/6:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 6
+
+LogShaderCompilers: Error: Errors compiling global shader RgranulesTotalCallsNuffRefsCS  :
+
+LogShaderCompilers: Display: Internal Error!
+	Global/RgranulesTotalCallsNuffRefsCS/13:/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf Type 'RgranulesTotalCallsNuffRefsCS' '/AcmeGamesShaderPool/granules/granules_totalcalls_nullrefs.usf' Entry 'collisions' Permutation 13
+LogOutputDevice: Warning:
+
+Script Stack (0 frames) :
+
+LogWindows: Error: appError called: Fatal error: [File:D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Engine\Private\ShaderCompiler\ShaderCompiler.cpp] [Line: 310]
+Failed to compile global shader RgranulesTotalCallsNuffRefsCS  .  Enable 'r.ShaderDevelopmentMode' in ConsoleVariables.ini for retries.
+
+
+
+
+
+LogWindows: Error: begin: stack for UAT
+LogWindows: Error: === Critical error: ===
+LogWindows: Error:
+LogWindows: Error: Fatal error: [File:D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Engine\Private\ShaderCompiler\ShaderCompiler.cpp] [Line: 310]
+LogWindows: Error: Failed to compile global shader RgranulesTotalCallsNuffRefsCS  .  Enable 'r.ShaderDevelopmentMode' in ConsoleVariables.ini for retries.
+LogWindows: Error:
+LogWindows: Error:
+LogWindows: Error: [Callstack] 0x00007ffe38260d62 UnrealEditor-Engine.dll!ProcessCompiledGlobalShaders() [D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Engine\Private\ShaderCompiler\ShaderCompiler.cpp:8332]
+LogWindows: Error: [Callstack] 0x00007ffe38262735 UnrealEditor-Engine.dll!FShaderCompilingManager::ProcessCompiledShaderMaps() [D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Engine\Private\ShaderCompiler\ShaderCompiler.cpp:4886]
+LogWindows: Error: [Callstack] 0x00007ffe382608b7 UnrealEditor-Engine.dll!FShaderCompilingManager::ProcessAsyncResults() [D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Engine\Private\ShaderCompiler\ShaderCompiler.cpp:5450]
+LogWindows: Error: [Callstack] 0x00007ffe38235ec0 UnrealEditor-Engine.dll!CompileGlobalShaderMapForRemote() [D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Engine\Private\ShaderCompiler\ShaderCompiler.cpp:8064]
+LogWindows: Error: [Callstack] 0x00007ffe38268b02 UnrealEditor-Engine.dll!RecompileShadersForRemote() [D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Engine\Private\ShaderCompiler\ShaderCompiler.cpp:8193]
+LogWindows: Error: [Callstack] 0x00007ffe3404f552 UnrealEditor-UnrealEd.dll!UCookOnTheFlyServer::SaveGlobalShaderMapFiles() [D:\build_directory\sourceWorkspace\Engine\Source\Editor\UnrealEd\Private\CookOnTheFlyServer.cpp:7871]
+LogWindows: Error: [Callstack] 0x00007ffe33ff3ded UnrealEditor-UnrealEd.dll!UCookOnTheFlyServer::BeginCookFinishShaderCodeLibrary() [D:\build_directory\sourceWorkspace\Engine\Source\Editor\UnrealEd\Private\CookOnTheFlyServer.cpp:8066]
+LogWindows: Error: [Callstack] 0x00007ffe340535b7 UnrealEditor-UnrealEd.dll!UCookOnTheFlyServer::StartCookByTheBook() [D:\build_directory\sourceWorkspace\Engine\Source\Editor\UnrealEd\Private\CookOnTheFlyServer.cpp:9461]
+LogWindows: Error: [Callstack] 0x00007ffe33d95023 UnrealEditor-UnrealEd.dll!UCookCommandlet::CookByTheBook() [D:\build_directory\sourceWorkspace\Engine\Source\Editor\UnrealEd\Private\Commandlets\CookCommandlet.cpp:494]
+LogWindows: Error: [Callstack] 0x00007ffe33db4361 UnrealEditor-UnrealEd.dll!UCookCommandlet::Main() [D:\build_directory\sourceWorkspace\Engine\Source\Editor\UnrealEd\Private\Commandlets\CookCommandlet.cpp:242]
+LogWindows: Error: [Callstack] 0x00007ff6d637d0de UnrealEditor-Cmd.exe!FEngineLoop::PreInitPostStartupScreen() [D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Launch\Private\LaunchEngineLoop.cpp:4127]
+LogWindows: Error: [Callstack] 0x00007ff6d637454b UnrealEditor-Cmd.exe!GuardedMain() [D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Launch\Private\Launch.cpp:140]
+LogWindows: Error: [Callstack] 0x00007ff6d637482a UnrealEditor-Cmd.exe!GuardedMainWrapper() [D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Launch\Private\Windows\LaunchWindows.cpp:107]
+LogWindows: Error: [Callstack] 0x00007ff6d63774f0 UnrealEditor-Cmd.exe!LaunchWindowsStartup() [D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Launch\Private\Windows\LaunchWindows.cpp:244]
+LogWindows: Error: [Callstack] 0x00007ff6d638a4c4 UnrealEditor-Cmd.exe!WinMain() [D:\build_directory\sourceWorkspace\Engine\Source\Runtime\Launch\Private\Windows\LaunchWindows.cpp:284]
+LogWindows: Error: [Callstack] 0x00007ff6d638cb76 UnrealEditor-Cmd.exe!__scrt_common_main_seh() [D:\a\_work\1\s\src\vctools\crt\vcstartup\src\startup\exe_common.inl:288]
+LogWindows: Error: [Callstack] 0x00007ffe8dc77614 KERNEL32.DLL!UnknownFunction []
+LogWindows: Error: [Callstack] 0x00007ffe8fba26b1 ntdll.dll!UnknownFunction []
+LogWindows: Error:
+LogWindows: Error: end: stack for UAT
+dbsapi: info: owning process down
+Took 26,507806799999997s to run UnrealEditor-Cmd.exe, ExitCode=3
+Editor terminated with exit code 3 while running Cook for D:\build_directory\sourceWorkspace\Game\ourgame.uproject; see log D:\build_directory\sourceWorkspace\Engine\Programs\AutomationTool\Saved\Logs\Cook-2023.07.17-11.12.58.txt
+AutomationTool executed for 0h 0m 45s

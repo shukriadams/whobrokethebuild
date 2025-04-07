@@ -1,0 +1,15 @@
+{
+    "_class": "hudson.model.FreeStyleProject",
+    "allBuilds": [
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 0,
+            "fullDisplayName": "Project Horizon - Build #1",
+            "id": "1",
+            "number": 1,
+            "result": "PENDING",
+            "timestamp": 1600001000000,
+            "builtOn": "Agent One"
+        }
+    ]
+}

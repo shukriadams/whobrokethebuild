@@ -135,10 +135,10 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         private string GetCurrentInterval()
         {
-            string interval = "0";
-            string intervalPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "interval");
+            string interval = "all";
+            string intervalPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $".interval.{this.GetType().Namespace}.{this.GetType().Name}.txt");
             if (File.Exists(intervalPath))
-                interval = File.ReadAllText(intervalPath);
+                interval = $"_{File.ReadAllText(intervalPath)}"; // prepend with underscore because embedded dirs cannot start with numeric char
 
             return interval;
         }
@@ -178,7 +178,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             Core.Common.BuildServer buildServer = dataLayer.GetBuildServerById(job.BuildServerId);
             string interval = GetCurrentInterval();
             var remoteKey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
-            string resourcePath = $"JSON._{interval}.builds.{remoteKey.Value}.builds.json";
+            string resourcePath = $"JSON.{interval}.builds.{remoteKey.Value}.builds.json";
 
             if (!ResourceHelper.ResourceExists(this.GetType(), resourcePath))
                 throw new Exception($"Failed to import builds, sandbox job {remoteKey.Value} does not exist. Create a static directory, add content and ensure they are marked as embedded resource.");
