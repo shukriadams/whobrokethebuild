@@ -14,10 +14,14 @@ In config add
     BuildServers:
     -   Key: MyJenkins
         Plugin: jenkinsSandbox
-        Config:
-        -   Interval: 1 
         Jobs:
         -    Key: myjob
              SourceServer: mySourceControlServer
 
-Note the config interval value. This lets us control "time" in our test data
+## Intervals
+
+Data can be partitioned by intervals, or pooled into a single interval. The default is pooled, which lives in JSON/all
+
+To use partitioning, create a file in your application binary directory called `.interval.Wbtb.Extensions.BuildServer.JenkinsSandbox.JenkinsSandbox.txt`, and in this add a single digit for the interval 
+you want to read from. Interval directories are in JSON/_<interval>. The leading underscore is there because C# reflection doesn't support directories that start with numeric characters.
+

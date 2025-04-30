@@ -15,10 +15,10 @@ namespace Wbtb.Core.CLI.Commands
             SimpleDI di = new SimpleDI();
             OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
 
-            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.DeleteUser");
+            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.DeleteUser", addDate: false);
             if (!switches.Contains("key"))
             {
-                ConsoleHelper.WriteLine($"ERROR : key required");
+                ConsoleHelper.WriteLine($"ERROR : key required", addDate: false);
                 Environment.Exit(1);
                 return;
             }
@@ -31,7 +31,7 @@ namespace Wbtb.Core.CLI.Commands
             }
             catch (RecordNotFoundException ex)
             {
-                ConsoleHelper.WriteLine(ex.Message);
+                ConsoleHelper.WriteLine(ex.Message, addDate: false);
                 Environment.Exit(1);
             }
         }

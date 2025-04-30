@@ -35,9 +35,9 @@ namespace Wbtb.Core.CLI
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
-            ConsoleHelper.WriteLine("Performing hard reset");
+            ConsoleHelper.WriteLine("Performing hard reset", addDate: false);
 
-            ConsoleHelper.WriteLine($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.");
+            ConsoleHelper.WriteLine($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.", addDate: false);
 
             foreach (Job job in dataLayer.GetJobs())
             {
@@ -61,13 +61,13 @@ namespace Wbtb.Core.CLI
                         });
 
                         Thread.Sleep(10);
-                        ConsoleHelper.WriteLine($"Requeued build {build.Key} for processing.");
+                        ConsoleHelper.WriteLine($"Requeued build {build.Key} for processing.", addDate: false);
                     }
 
                     page++;
                 }
 
-                ConsoleHelper.WriteLine($"Job {job.Name} reset. {deleted} records deleted.");
+                ConsoleHelper.WriteLine($"Job {job.Name} reset. {deleted} records deleted.", addDate: false);
             }
         }
 

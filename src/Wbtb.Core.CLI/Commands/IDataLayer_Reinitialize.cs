@@ -39,16 +39,16 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("confirm"))
             {
-                ConsoleHelper.WriteLine($"WARNING: This will delete _all_ data in backend, as well as destroy and recreate all tables etc. Please add --confirm switch to prove you mean this");
+                ConsoleHelper.WriteLine($"WARNING: This will delete _all_ data in backend, as well as destroy and recreate all tables etc. Please add --confirm switch to prove you mean this", addDate: false);
                 Environment.Exit(1);
                 return;
             }
 
             IDataPlugin data = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             data.DestroyDatastore();
-            ConsoleHelper.WriteLine("Datastore destroyed");
+            ConsoleHelper.WriteLine("Datastore destroyed", addDate: false);
             data.InitializeDatastore();
-            ConsoleHelper.WriteLine("Datastore initialized");
+            ConsoleHelper.WriteLine("Datastore initialized", addDate: false);
         }
 
         #endregion

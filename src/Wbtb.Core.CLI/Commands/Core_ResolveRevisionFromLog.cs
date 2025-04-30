@@ -36,7 +36,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("build"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"--build\" <buildid> required");
+                ConsoleHelper.WriteLine($"ERROR : \"--build\" <buildid> required", addDate: false);
                 Environment.Exit(1);
                 return;
             }
@@ -57,7 +57,7 @@ namespace Wbtb.Core.CLI
 
             if (!build.LogFetched)
             {
-                ConsoleHelper.WriteLine($"ERROR : build {buildid} has no log");
+                ConsoleHelper.WriteLine($"ERROR : build {buildid} has no log", addDate: false);
                 Environment.Exit(1);
                 return;
             }
@@ -65,7 +65,7 @@ namespace Wbtb.Core.CLI
             Job job = dataLayer.GetJobById(build.JobId);
             if (string.IsNullOrEmpty(job.RevisionAtBuildRegex)) 
             {
-                ConsoleHelper.WriteLine($"ERROR : job {job.Name} for build {buildid} has no RevisionAtBuildRegex regex set.");
+                ConsoleHelper.WriteLine($"ERROR : job {job.Name} for build {buildid} has no RevisionAtBuildRegex regex set.", addDate: false);
                 Environment.Exit(1);
                 return;
             }
@@ -79,8 +79,8 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            ConsoleHelper.WriteLine("Found ");
-            ConsoleHelper.WriteLine(match.Groups[1].Value);
+            ConsoleHelper.WriteLine("Found ", addDate: false);
+            ConsoleHelper.WriteLine(match.Groups[1].Value, addDate: false);
         }
 
         #endregion

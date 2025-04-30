@@ -14,7 +14,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("confirm"))
             {
-                ConsoleHelper.WriteLine($"WARNING: This will delete _all_ data in backend. Please add --confirm switch to prove you mean this");
+                ConsoleHelper.WriteLine($"WARNING: This will delete _all_ data in backend. Please add --confirm switch to prove you mean this", addDate: false);
                 Environment.Exit(1);
                 return;
             }
@@ -24,7 +24,7 @@ namespace Wbtb.Core.CLI
             IDataPlugin dataLayerPlugin = pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             int count = dataLayerPlugin.ClearAllTables();
-            ConsoleHelper.WriteLine($"Tables cleared, {count} records removed.");
+            ConsoleHelper.WriteLine($"Tables cleared, {count} records removed.", addDate: false);
         }
     }
 }

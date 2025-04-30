@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -19,7 +17,7 @@ namespace Wbtb.Core.CLI
 
             if (!switches.Contains("job"))
             {
-                ConsoleHelper.WriteLine($"ERROR : --job required");
+                ConsoleHelper.WriteLine($"ERROR : --job required", addDate: false);
                 Environment.Exit(1);
                 return;
             }
@@ -32,7 +30,7 @@ namespace Wbtb.Core.CLI
             }
             catch (RecordNotFoundException ex)
             {
-                ConsoleHelper.WriteLine(ex.Message);
+                ConsoleHelper.WriteLine(ex.Message, addDate: false);
                 Environment.Exit(1);
             }
         }

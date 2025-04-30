@@ -15,11 +15,10 @@ namespace Wbtb.Core.CLI
         public void Process(CommandLineSwitches switches)
         {
             SimpleDI di = new SimpleDI();
-            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             Configuration config = di.Resolve<Configuration>();
             ((IList)config.BuildServers[0].Jobs.First().Config)[2] = new KeyValuePair<string, object>("Interval", "2");
 
-            ConsoleHelper.WriteLine($"Updated!");
+            ConsoleHelper.WriteLine($"Updated!", addDate: false);
         }
     }
 }

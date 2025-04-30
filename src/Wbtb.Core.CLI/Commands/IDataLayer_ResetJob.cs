@@ -37,9 +37,9 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("job"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"--job\" <job> required");
+                ConsoleHelper.WriteLine($"ERROR : \"--job\" <job> required", addDate : false);
                 _consoleHelper.PrintJobs();
-                ConsoleHelper.WriteLine($"use \"--job * \"to wipe all jobs");
+                ConsoleHelper.WriteLine($"use \"--job * \"to wipe all jobs", addDate: false);
                 Environment.Exit(1);
                 return;
             }
@@ -57,7 +57,7 @@ namespace Wbtb.Core.CLI
                 Job job = dataLayer.GetJobByKey(jobKey);
                 if (job == null)
                 {
-                    ConsoleHelper.WriteLine($"ERROR : \"--job\" key {jobKey} does not point to a valid job");
+                    ConsoleHelper.WriteLine($"ERROR : \"--job\" key {jobKey} does not point to a valid job", addDate: false);
                     _consoleHelper.PrintJobs();
                     Environment.Exit(1);
                     return;
@@ -66,9 +66,9 @@ namespace Wbtb.Core.CLI
             }
 
 
-            ConsoleHelper.WriteLine("Performing hard reset");
+            ConsoleHelper.WriteLine("Performing hard reset", addDate: false);
 
-            ConsoleHelper.WriteLine($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.");
+            ConsoleHelper.WriteLine($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.", addDate: false);
 
             foreach (Job job in jobs) 
             {
@@ -92,13 +92,13 @@ namespace Wbtb.Core.CLI
                         });
 
                         Thread.Sleep(10);
-                        ConsoleHelper.WriteLine($"Requeued build {build.Key} for processing.");
+                        ConsoleHelper.WriteLine($"Requeued build {build.Key} for processing.", addDate: false);
                     }
 
                     page++;
                 }
 
-                ConsoleHelper.WriteLine($"Job {job.Name} reset. {deleted} records deleted.");
+                ConsoleHelper.WriteLine($"Job {job.Name} reset. {deleted} records deleted.", addDate: false);
             }
 
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -16,10 +15,10 @@ namespace Wbtb.Core.CLI
             SimpleDI di = new SimpleDI();
             ConfigurationBuilder configurationBuilder = di.Resolve<ConfigurationBuilder>();
 
-            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.ListOrphanedRecords");
+            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.ListOrphanedRecords", addDate: false);
             IEnumerable<string> orphans = configurationBuilder.FindOrphans();
             foreach (string orphan in orphans)
-                ConsoleHelper.WriteLine(orphan);
+                ConsoleHelper.WriteLine(orphan, addDate: false);
         }
     }
 }

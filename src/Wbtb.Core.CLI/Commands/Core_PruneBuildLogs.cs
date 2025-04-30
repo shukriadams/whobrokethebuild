@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Wbtb.Core.Common;
 
@@ -45,11 +44,11 @@ namespace Wbtb.Core.CLI
                     continue;
 
                 File.Delete(existingLogFile);
-                ConsoleHelper.WriteLine($"Removed orphan log {existingLogFile}");
+                ConsoleHelper.WriteLine($"Removed orphan log {existingLogFile}", addDate: false);
                 removed++;
             }
 
-            ConsoleHelper.WriteLine($"Done - deleted {removed} orphan build logs.");
+            ConsoleHelper.WriteLine($"Done - deleted {removed} orphan build logs.", addDate: false);
         }
     }
 }

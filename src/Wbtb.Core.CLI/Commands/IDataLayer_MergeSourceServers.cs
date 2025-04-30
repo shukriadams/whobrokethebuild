@@ -15,17 +15,17 @@ namespace Wbtb.Core.CLI
             SimpleDI di = new SimpleDI();
             OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
 
-            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.MergeSourceServers");
+            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.MergeSourceServers", addDate: false);
             if (!switches.Contains("from"))
             {
-                ConsoleHelper.WriteLine($"ERROR : key \"from\" required");
+                ConsoleHelper.WriteLine($"ERROR : key \"from\" required", addDate: false);
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("to"))
             {
-                ConsoleHelper.WriteLine($"ERROR : key \"to\" required");
+                ConsoleHelper.WriteLine($"ERROR : key \"to\" required", addDate: false);
                 Environment.Exit(1);
                 return;
             }
@@ -39,7 +39,7 @@ namespace Wbtb.Core.CLI
             }
             catch (RecordNotFoundException ex)
             {
-                ConsoleHelper.WriteLine(ex.Message);
+                ConsoleHelper.WriteLine(ex.Message, addDate: false);
                 Environment.Exit(1);
             }
         }

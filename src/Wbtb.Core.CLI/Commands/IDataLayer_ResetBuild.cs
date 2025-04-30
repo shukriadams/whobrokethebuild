@@ -34,7 +34,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("build"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"--build\" <buildid> required");
+                ConsoleHelper.WriteLine($"ERROR : \"--build\" <buildid> required", addDate: false);
                 Environment.Exit(1);
                 return;
             }
@@ -44,13 +44,13 @@ namespace Wbtb.Core.CLI
             Build build = dataLayer.GetBuildByUniquePublicIdentifier(switches.Get("build"));
             if (build == null)
             {
-                ConsoleHelper.WriteLine($"ERROR : \"--build\" id {build} does not point to a valid build");
+                ConsoleHelper.WriteLine($"ERROR : \"--build\" id {build} does not point to a valid build", addDate: false);
                 _consoleHelper.PrintJobs();
                 Environment.Exit(1);
                 return;
             }
 
-            ConsoleHelper.WriteLine("Performing hard reset");
+            ConsoleHelper.WriteLine("Performing hard reset", addDate: false);
 
             int deleted = dataLayer.ResetBuild(build.Id, true);
             // requeue build internally
@@ -62,7 +62,7 @@ namespace Wbtb.Core.CLI
                 Src = this.GetType().Name
             });
 
-            Console.Write($"Build {build.Id} reset. {deleted} records deleted.");
+            ConsoleHelper.WriteLine($"Build {build.Id} reset. {deleted} records deleted.", addDate: false);
         }
 
         #endregion

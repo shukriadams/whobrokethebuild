@@ -16,7 +16,7 @@ namespace Wbtb.Core.CLI
             
             bool hasChanged = configBootstrapper.EnsureLatest(true);
             string status = hasChanged ? "Config was updated" : "Config unchanged";
-            ConsoleHelper.WriteLine(status);
+            ConsoleHelper.WriteLine(status, addDate: false);
         }
     }
 }

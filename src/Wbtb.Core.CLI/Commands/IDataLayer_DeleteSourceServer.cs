@@ -15,7 +15,7 @@ namespace Wbtb.Core.CLI.Commands
             SimpleDI di = new SimpleDI();
             OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
 
-            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.DeleteSourceServer");
+            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.DeleteSourceServer", addDate : false);
             if (!switches.Contains("key"))
             {
                 ConsoleHelper.WriteLine($"ERROR : key required");
@@ -32,7 +32,7 @@ namespace Wbtb.Core.CLI.Commands
             }
             catch (RecordNotFoundException ex)
             {
-                ConsoleHelper.WriteLine(ex.Message);
+                ConsoleHelper.WriteLine(ex.Message, addDate: false);
                 Environment.Exit(1);
             }
         }

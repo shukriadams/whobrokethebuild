@@ -31,7 +31,10 @@ namespace Wbtb.Core.CLI
                 // bind types - dev only! These are needed by all general plugin activity
                 Core core = new Core();
                 bool verbose = switches.Contains("verbose");
-                core.Start(persistStateToDatabase: false, validate : validate, verbose);
+                core.Start(
+                    persistStateToDatabase: false, 
+                    validate : validate, 
+                    verbose : false);
 
                 // register local commands dynamically
                 IEnumerable<Type> availableCommands = AppDomain.CurrentDomain.GetAssemblies()
@@ -49,13 +52,12 @@ namespace Wbtb.Core.CLI
 
                 if (string.IsNullOrEmpty(command)) 
                 {
-
-                    ConsoleHelper.WriteLine($"ERROR : key --\"command|c\" <COMMAND NAME> required");
-                    ConsoleHelper.WriteLine("Available commands :");
+                    ConsoleHelper.WriteLine($"ERROR : key --\"command|c\" <COMMAND NAME> required", addDate : false);
+                    ConsoleHelper.WriteLine("Available commands :", addDate: false);
                     foreach (Type availableCommand in availableCommands.OrderBy(c => c.Name)) 
                     {
                         ICommand commandInstance = di.Resolve(availableCommand) as ICommand;
-                        ConsoleHelper.WriteLine($"Command: {availableCommand.Name} ({commandInstance.Describe()})");
+                        ConsoleHelper.WriteLine($"Command : {availableCommand.Name} ({commandInstance.Describe()})", addDate: false);
                     }
 
                     Environment.Exit(1);
@@ -67,7 +69,7 @@ namespace Wbtb.Core.CLI
                 
                 if (commandType == null)
                 {
-                    ConsoleHelper.WriteLine($"ERROR : command \"{command}\" does not exist.");
+                    ConsoleHelper.WriteLine($"ERROR : command \"{command}\" does not exist.", addDate: false);
                     Environment.Exit(1);
                 }
 
@@ -76,7 +78,7 @@ namespace Wbtb.Core.CLI
             }
             catch (ConfigurationException ex)
             {
-                ConsoleHelper.WriteLine($"CONFIG ERROR : {ex.Message}");
+                ConsoleHelper.WriteLine($"CONFIG ERROR : {ex.Message}", addDate: false);
             }
         }
     }

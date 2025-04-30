@@ -11,16 +11,13 @@ namespace Wbtb.Core.CLI
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly ConsoleCLIHelper _consoleHelper;
-
         #endregion
 
         #region CTORS
 
-        public IDataLayer_ResetFailedBuilds(PluginProvider pluginProvider, ConsoleCLIHelper consoleHelper)
+        public IDataLayer_ResetFailedBuilds(PluginProvider pluginProvider)
         {
             _pluginProvider = pluginProvider;
-            _consoleHelper = consoleHelper;
         }
 
         #endregion
@@ -44,7 +41,7 @@ namespace Wbtb.Core.CLI
                     Build build = dataLayer.GetBuildById(buildId);
                     if (build == null)
                     {
-                        ConsoleHelper.WriteLine($"ERROR : failing build id {build} not found, skipping");
+                        ConsoleHelper.WriteLine($"ERROR : failing build id {build} not found, skipping", addDate: false);
                         continue;
                     }
 
@@ -63,11 +60,11 @@ namespace Wbtb.Core.CLI
                 }
                 catch (Exception ex)
                 {
-                    ConsoleHelper.WriteLine($"Error {ex} processing build id {buildId} ");
+                    ConsoleHelper.WriteLine($"Error {ex} processing build id {buildId} ", addDate: false);
                 }
             }
 
-            ConsoleHelper.WriteLine($"{buildIds.Count()} builds reset.");
+            ConsoleHelper.WriteLine($"{buildIds.Count()} builds reset.", addDate: false);
         }
 
         #endregion

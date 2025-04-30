@@ -65,12 +65,12 @@ namespace Wbtb.Core
                         string devPath = Path.Combine(pluginConfig.Path, "bin", "Debug", "net6.0");
                         if (Directory.Exists(devPath))
                         {
-                            ConsoleHelper.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}");
+                            ConsoleHelper.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}", addDate: false);
                             pluginConfig.Path = devPath;
                         } 
                         else 
                         {
-                            ConsoleHelper.WriteLine($"Plugin '{pluginConfig.Key}' expected at path '{pluginConfig.Path}' but was not found.");
+                            ConsoleHelper.WriteLine($"Plugin '{pluginConfig.Key}' expected at path '{pluginConfig.Path}' but was not found.", addDate: false);
                             pluginConfig.Enable = false;
                             continue;
                         }

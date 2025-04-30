@@ -33,7 +33,8 @@ namespace Wbtb.Core
 
             string rawYml = File.ReadAllText(path);
 
-            ConsoleHelper.WriteLine($"WBTB : Loaded config @ {path}");
+            if (verbose)
+                ConsoleHelper.WriteLine($"WBTB : Loaded config @ {path}", addDate: false);
 
             // substitute templated {...} settings from env variables. this is a security feature so we can store sensitive data as 
             // env vars instead of in config file
@@ -48,14 +49,14 @@ namespace Wbtb.Core
                 else
                 {
                     if (verbose)
-                        ConsoleHelper.WriteLine($"Injecting environment variable for \"{evnVarToken.Groups[1].Value}\".");
+                        ConsoleHelper.WriteLine($"Injecting environment variable for \"{evnVarToken.Groups[1].Value}\".", addDate: false);
                     rawYml = rawYml.Replace("{{env." + evnVarToken.Groups[1].Value + "}}", envVarValue);
                 }
             }
 
             IDeserializer deserializer = YmlHelper.GetDeserializer();
             if (verbose)
-                ConsoleHelper.WriteLine("WBTB : initializing config");
+                ConsoleHelper.WriteLine("WBTB : initializing config", addDate: false);
 
             ConfigurationValidationError validation = ValidateYmlParsing(rawYml);
             if (!validation.IsValid)
@@ -111,7 +112,7 @@ namespace Wbtb.Core
         }
 
         /// <summary>
-        /// move this to independent class, no need to be ehre
+        /// move this to independent class, no need to be here
         /// </summary>
         /// <param name="config"></param>
         public bool FetchPlugins(Configuration config)
@@ -226,7 +227,7 @@ namespace Wbtb.Core
             // enforce API version check if semver of current version is not all zero (local dev)
             bool doAPIVersionCheck = currentVersion.CoreVersion.Major > 0 && currentVersion.CoreVersion.Minor > 0 && currentVersion.CoreVersion.Patch > 0;
             if (!doAPIVersionCheck && verbose)
-                ConsoleHelper.WriteLine("Skipping semver checking, dev versioning detected");
+                ConsoleHelper.WriteLine("Skipping semver checking, dev versioning detected", addDate: false);
 
             foreach (PluginConfig pluginConfig in config.Plugins)
             {
@@ -250,7 +251,9 @@ namespace Wbtb.Core
 
                     if (Directory.Exists(devPath))
                     {
-                        ConsoleHelper.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}");
+                        if (verbose)
+                            ConsoleHelper.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}", addDate : false);
+
                         pluginConfig.Path = devPath;
                         pluginConfig.Proxy = false;
                         isExternal = true;
