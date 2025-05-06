@@ -161,6 +161,51 @@
     </x-card>
 }
 
+
+
+<h2>Log</h2>
+
+@if (!Model.Build.Job.LogParsers.Any())
+{ 
+    <div>
+        Log parsing is not enabled for this job
+    </div>
+} 
+else
+{
+    @if (Model.BuildParseResults.Any())
+    {
+        @foreach (ViewBuildLogParseResult parseResult in Model.BuildParseResults.Where(p => !string.IsNullOrEmpty(p.InnerText)))
+        {
+            <div class="code">
+                <h4>@parseResult.LogParserPlugin</h4>
+                <p>
+                    @ViewHelpers.String(parseResult.ParsedContent)
+                </p>
+            </div>
+        }
+    }
+    else
+    {
+        <text>
+            No log parse results.
+        </text>
+    }
+}
+
+@if (Model.Build.LogFetched)
+{
+    <div>
+        <a href="/build/log/@Model.Build.UniquePublicKey">View full build log</a>
+    </div>
+}
+else
+{
+    <div>
+        Build log has not yet been retrieved.
+    </div>
+}
+
 <h2>Changes</h2>
 <x-list class="buildChanges">
 
@@ -260,48 +305,4 @@
         </x-list-rowlayout>
     }
 
-</x-list>
-
-<h2>Log</h2>
-
-@if (!Model.Build.Job.LogParsers.Any())
-{ 
-    <div>
-        Log parsing is not enabled for this job
-    </div>
-} 
-else
-{
-    @if (Model.BuildParseResults.Any())
-    {
-        @foreach (ViewBuildLogParseResult parseResult in Model.BuildParseResults.Where(p => !string.IsNullOrEmpty(p.InnerText)))
-        {
-            <div class="code">
-                <h4>@parseResult.LogParserPlugin</h4>
-                <p>
-                    @ViewHelpers.String(parseResult.ParsedContent)
-                </p>
-            </div>
-        }
-    }
-    else
-    {
-        <text>
-            No log parse results.
-        </text>
-    }
-}
-
-@if (Model.Build.LogFetched)
-{
-    <div>
-        <a href="/build/log/@Model.Build.UniquePublicKey">View full build log</a>
-    </div>
-}
-else
-{
-    <div>
-        Build log has not yet been retrieved.
-    </div>
-}
-      
+</x-list>      
