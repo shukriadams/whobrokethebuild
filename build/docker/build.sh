@@ -26,6 +26,11 @@ echo "$HASH $TAG" > ./../../src/Wbtb.Core.Web/currentVersion.txt
 
 if [ $BUILD -eq 1 ]; then
 
+    cd ./../src
+    echo "Installing dependencies"
+    sh ./setup-dependencies.sh
+    cd -
+
     echo "Building CLI ..."
     docker run \
         -e TAG=$TAG \

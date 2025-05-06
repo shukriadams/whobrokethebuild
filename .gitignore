@@ -84,3 +84,4 @@ src/Wbtb.Extensions.LogParsing.AcmeGamesTester/bin
 src/config.yml
 src/Wbtb.Extensions.Develop.DataOverTime/bin
 src/Wbtb.Extensions.Develop.DataOverTime/obj
+src/Madscience.Perforce/PerforceConnect.cs

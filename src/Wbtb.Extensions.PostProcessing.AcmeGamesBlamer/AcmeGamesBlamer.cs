@@ -106,7 +106,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
             Client p4client = null;
             if (client != null)
-                p4client = PerforceUtils.ParseClient(client);
+                p4client = PerforceConnect.ParseClient(client);
 
             string breakExtraFlag = string.Empty;
             bool isShaderError = false;

@@ -77,12 +77,13 @@ namespace Wbtb.Extensions.SourceServer.Perforce
                 trust = contextServer.Config.First(c => c.Key == "TrustFingerprint").Value.ToString().ToLower();
 
             // ensure that p4 is available
-            if (!PerforceUtils.IsInstalled())
+            if (!PerforceConnect.IsP4InstalledLocally())
                 return new ReachAttemptResult { Error = "p4 not installed" };
 
             try
             {
-                PerforceUtils.VerifyCredentials(user, password, host, trust);
+                PerforceConnect p4connnect = new PerforceConnect(user, password, host, trust);
+                p4connnect.VerifyCredentials();
                 return new ReachAttemptResult { Reachable = true };
             }
             catch (Exception ex)
@@ -106,13 +107,13 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             string host = contextServer.Config.First(c => c.Key == "Host").Value.ToString();
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();
             string password = contextServer.Config.First(c => c.Key == "Password").Value.ToString();
-            string trust = string.Empty;
+            string fingerprint = string.Empty;
             if (contextServer.Config.Any(c => c.Key == "TrustFingerprint"))
-                trust = contextServer.Config.First(c => c.Key == "TrustFingerprint").Value.ToString().ToLower();
+                fingerprint = contextServer.Config.First(c => c.Key == "TrustFingerprint").Value.ToString().ToLower();
 
             string depotRoot = job.Config.First(c => c.Key == "p4depotRoot").Value.ToString();
-
-            IEnumerable<string> revisionNumbers = PerforceUtils.GetRawChangesBetween(user, password, host, trust, int.Parse(revisionStart), int.Parse(revisionEnd), depotRoot);
+            PerforceConnect p4connect = new PerforceConnect(user, password, host, fingerprint);
+            IEnumerable<string> revisionNumbers = p4connect.GetRawChangesBetween(revisionStart, revisionEnd, depotRoot);
             IList<Revision> changes = new List<Revision>();
             ISourceServerPlugin _this = this;
             foreach (string revisionNumber in revisionNumbers) 
@@ -133,6 +134,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             string user = contextServer.Config.First(c => c.Key == "User").Value.ToString();
             string password = contextServer.Config.First(c => c.Key == "Password").Value.ToString();
             string trust = string.Empty;
+
             if (contextServer.Config.Any(c => c.Key == "TrustFingerprint"))
                 trust = contextServer.Config.First(c => c.Key == "TrustFingerprint").Value.ToString().ToLower();
 
@@ -140,6 +142,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             Directory.CreateDirectory(Path.GetDirectoryName(persistPath));
             string describe = string.Empty;
             string readFromCacheWarning = string.Empty;
+            PerforceConnect p4Connect = new PerforceConnect(user, password, host, trust);
             if (File.Exists(persistPath))
             {
                 describe = File.ReadAllText(persistPath);
@@ -149,7 +152,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             {
                 try
                 {
-                    describe = PerforceUtils.GetRawDescribe(user, password, host, trust, int.Parse(revisionCode));
+                    describe = p4Connect.GetRawDescribe(revisionCode);
                 }
                 catch (Exception ex)
                 {
@@ -165,7 +168,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
             if (string.IsNullOrEmpty(describe))
                 return new RevisionLookup { Error = $"Revision was empty, assumed \"{revisionCode}\" is an invalid revision number.{readFromCacheWarning}" };
 
-            Change change = PerforceUtils.ParseDescribe(describe);
+            Change change = PerforceConnect.ParseDescribe(describe);
 
             return new RevisionLookup { Revision = ChangeToRevision(change), Success = true } ;
         }

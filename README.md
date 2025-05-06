@@ -4,6 +4,8 @@ A server to process build data from CI servers like Jenkins, aiding communicatio
 
 ## Basic Setup
 
+Clone project, run /src/setup-dependencies.sh to install dependencies.
+
 ### Database
 
 WBTB requires a database. Currently only PostgreSQL is supported.
