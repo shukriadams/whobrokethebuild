@@ -19,7 +19,7 @@ namespace Wbtb.Core.Common
         public string Hash { get; set; }
 
         /// <summary>
-        /// 
+        /// If true, config error will be thrown if orphan records detected on startup checks.
         /// </summary>
         public bool FailOnOrphans { get; set; }
 
@@ -29,12 +29,12 @@ namespace Wbtb.Core.Common
         public int DaemonInterval { get; set; }
 
         /// <summary>
-        /// 
+        /// Maximum number of concurrent processes a daemon can run.
         /// </summary>
         public int MaxThreadsPerDaemon { get; set; }
 
         /// <summary>
-        /// Time in seconds after which daemon task will be marked as failed if processing or blocked
+        /// Time (seconds) after which daemon task will be marked as failed if processing or blocked
         /// </summary>
         public int DaemonTaskTimeout { get; set; }
 
