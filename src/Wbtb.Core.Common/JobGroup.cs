@@ -5,8 +5,10 @@ namespace Wbtb.Core.Common
     /// <summary>
     /// A set of jobs for which a combined status can be queried. The group's status will return if 
     /// </summary>
-    public class JobStatusGroup
+    public class JobGroup
     {
+        #region PROPERTIES
+
         /// <summary>
         /// 
         /// </summary>
@@ -15,13 +17,22 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// Unique ids of jobs that are included in group.
         /// </summary>
-        public IEnumerable<string> JobKeys { get; set; }
+        public IEnumerable<string> Jobs { get; set; }
 
         /// <summary>
-        /// Display name of group
+        /// 
         /// </summary>
-        public string Name { get; set; }
+        public JobGroupBehaviour Behaviour { get; set; }
 
-        public JobStatusGroupConditions Behaviour { get; set; }
+        #endregion
+
+        #region CTORS
+
+        public JobGroup()
+        {
+            this.Jobs = new List<string>();
+        }
+
+        #endregion
     }
 }

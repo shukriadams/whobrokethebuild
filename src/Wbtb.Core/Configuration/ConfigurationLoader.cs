@@ -181,7 +181,7 @@ namespace Wbtb.Core
         }
 
         /// <summary>
-        /// Valids config not dependent on manifest data. Manifest data requires plugin fetching, which in turn requires that some base 
+        /// Validates config not dependent on manifest data. Manifest data requires plugin fetching, which in turn requires that some base 
         /// config needs to be in place first.
         /// </summary>
         /// <param name="config"></param>
@@ -452,6 +452,8 @@ namespace Wbtb.Core
                     throw new ConfigurationException($"The plugin \"{sourceServer.Plugin}\" defined by source server \"{sourceServer.Key}\" is not defined as a plugin, or is not enabled.");
             }
 
+            List<string> flattenedJobKeys = new List<string>();
+
             foreach (BuildServer buildServer in config.BuildServers)
             {
                 EnsureIdPresentAndUnique(buildServer.Jobs, "job");
@@ -504,6 +506,18 @@ namespace Wbtb.Core
                     ValidateProcessors<IBuildEventHandler>(config, jobConfig, jobConfig.OnBroken, "OnBroken");
                     ValidateProcessors<IBuildEventHandler>(config, jobConfig, jobConfig.OnFixed, "OnFixed");
                     ValidateProcessors<IBuildEventHandler>(config, jobConfig, jobConfig.OnLogAvailable, "OnLogAvailable");
+
+                    flattenedJobKeys.Add(jobConfig.Key);
+                }
+            }
+
+            foreach (JobGroup jobGroup in config.JobGroups) 
+            {
+                // ensure that jobs in jobGroups exist
+                foreach (string jobKey in jobGroup.Jobs) 
+                {
+                    if (!flattenedJobKeys.Any(k => k == jobKey))
+                        throw new ConfigurationException($"JobGroup \"{jobGroup.Key}\" contains a job key \"{jobKey}\" that is not associated with an existing buildserver job.");
                 }
             }
         }

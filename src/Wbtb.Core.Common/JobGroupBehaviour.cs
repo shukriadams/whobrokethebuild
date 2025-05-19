@@ -1,7 +1,7 @@
 ﻿
 namespace Wbtb.Core.Common
 {
-    public enum JobStatusGroupConditions
+    public enum JobGroupBehaviour
     {
         FailIfAnyFails
     }

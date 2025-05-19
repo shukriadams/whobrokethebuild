@@ -58,6 +58,15 @@ SourceServers:
 -   Key: myperforce
     Plugin: p4Sandbox
 
+JobGroups:
+-   Key: myFailingJobGroup
+    Jobs:
+    -   248445e2
+    -   a967dfaaf967
+-   Key: myPassingJobGroup
+    Jobs:
+    -   a967dfaaf967
+
 BuildServers:
 -   Key: MyJenkins
     Plugin: jenkinsSandbox

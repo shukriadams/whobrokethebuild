@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using Wbtb.Core.Common;
-using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Core.Web
 {

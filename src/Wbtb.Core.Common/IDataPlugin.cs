@@ -181,6 +181,15 @@ namespace Wbtb.Core.Common
 
         Build GetLatestBuildByJob(Job job);
 
+        /// <summary>
+        /// Gets latest build in a job that is confirmed to have either passed or failed. This is the simplest of getting this status for 
+        /// a job. Returns null if job has no confirmed passing or failed builds, egs, if it hasn't run yet. If latest job is still processing 
+        /// aborted etc, returns the status of the latest previous build that either passed / failed.
+        /// </summary>
+        /// <param name="job"></param>
+        /// <returns></returns>
+        Build GetLatestPassOrFailBuildByJob(Job job);
+
         Build GetFirstPassingBuildAfterBuild(Build build);
 
         /// <summary>

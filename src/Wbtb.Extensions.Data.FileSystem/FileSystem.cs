@@ -109,6 +109,11 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Build { };
         }
 
+        Build IDataPlugin.GetLatestPassOrFailBuildByJob(Job job) 
+        {
+            return new Build { };
+        }
+
         Build IDataPlugin.GetBuildByKey(string jobId, string key)
         {
             return new Build { };

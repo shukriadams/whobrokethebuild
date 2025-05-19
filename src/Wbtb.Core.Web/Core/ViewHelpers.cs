@@ -6,6 +6,13 @@ namespace Wbtb.Core.Web
 {
     public static class ViewHelpers
     {
+        #region METHODS
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="status"></param>
+        /// <returns></returns>
         public static HtmlString BadgeClassFromBuildStatus(BuildStatus status) 
         {
             string cssClass = string.Empty;
@@ -19,6 +26,12 @@ namespace Wbtb.Core.Web
             return new HtmlString(cssClass);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
         public static HtmlString PreserveLineBreaks(string content)
         {
             if (content == null)
@@ -31,6 +44,12 @@ namespace Wbtb.Core.Web
             return new HtmlString(content);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="build"></param>
+        /// <returns></returns>
         public static HtmlString BuildDuration(Build build) 
         {
             if (!build.EndedUtc.HasValue)
@@ -39,6 +58,12 @@ namespace Wbtb.Core.Web
             return new HtmlString((build.EndedUtc.Value - build.StartedUtc).ToHumanString());
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public static HtmlString StyleImageUrl(string url) 
         {
             if (string.IsNullOrEmpty(url))
@@ -47,6 +72,12 @@ namespace Wbtb.Core.Web
             return new HtmlString("style=\"background-image: url(" + url +")\"");
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="blameScore"></param>
+        /// <returns></returns>
         public static HtmlString BlameScoreToColor(int? blameScore) 
         {
             string color = "initial";
@@ -58,6 +89,7 @@ namespace Wbtb.Core.Web
 
             return new HtmlString(color);
         }
+
 
         /// <summary>
         /// Converts build status to siumpler css classes. This is a soft conversation - it can handle null builds for less logic in view, and returns empty string in that case.
@@ -84,6 +116,7 @@ namespace Wbtb.Core.Web
             return "build";
         }
         
+
         /// <summary>
         /// Generates best possible user page link from build involveement. Involvement can contain no user info at all, a user string name from source control which isn't directly 
         /// associated with a known user, or a mapped user that is known.
@@ -107,6 +140,12 @@ namespace Wbtb.Core.Web
             return new HtmlString($"<span class=\"\">User not resolved</span>");
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="involvement"></param>
+        /// <returns></returns>
         public static HtmlString BuildInvolvementUserAvatar(BuildInvolvement involvement) 
         {
             if (involvement == null)
@@ -125,6 +164,7 @@ namespace Wbtb.Core.Web
 
             return new HtmlString($"<x-avatar class=\"--round --disabled\"><img /></x-avatar>");
         }
+
 
         /// <summary>
         /// 
@@ -153,6 +193,12 @@ namespace Wbtb.Core.Web
         }
 
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="build"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
         public static HtmlString IncidentLink(Build build, string text = null)
         {
             if (text == null)
@@ -165,6 +211,11 @@ namespace Wbtb.Core.Web
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="build"></param>
+        /// <returns></returns>
         public static HtmlString BuildLink(Build build)
         { 
             if (build == null)
@@ -174,6 +225,11 @@ namespace Wbtb.Core.Web
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="job"></param>
+        /// <returns></returns>
         public static HtmlString JobLink(Job job)
         {
             if (job == null)
@@ -183,12 +239,23 @@ namespace Wbtb.Core.Web
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <param name="jobName"></param>
+        /// <returns></returns>
         public static HtmlString JobLink(string jobId, string jobName)
         {
             return new HtmlString($"<a href=\"/job/{jobId}\">{jobName}</a>");
         }
 
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="build"></param>
+        /// <returns></returns>
         public static HtmlString BuildHostLink(Build build)
         {
             if (build == null)
@@ -246,6 +313,14 @@ namespace Wbtb.Core.Web
             return result;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="length"></param>
+        /// <param name="overflow"></param>
+        /// <returns></returns>
         public static string GistOf(string text, int length, string overflow = "...")
         { 
             if (text.Length < length + overflow.Length)
@@ -254,11 +329,22 @@ namespace Wbtb.Core.Web
             return $"{text.Substring(0, length)}{overflow}";
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="baseUrl"></param>
+        /// <param name="queryStrings"></param>
+        /// <param name="data"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public static HtmlString PagerBar<T>(string baseUrl, string queryStrings, PageableData<T> data, Configuration config)
         {
             Pager pager = new Pager();
             return new HtmlString(pager.Render(data, config.PagesPerPageGroup, baseUrl, queryStrings, "page"));
         }
 
+        #endregion
     }
 }

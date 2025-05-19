@@ -1008,68 +1008,6 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        public Build GetCurrentBuildDelta(string jobId)
-        {
-            string query = @"
-                SELECT 
-	                *
-                FROM
-	                build B
-                WHERE
-	                B.jobid=1
-	                AND B.status = (
-		                -- get current passing or failing status of job 
-		                SELECT 
-			                status 
-		                FROM 
-			                build
-		                WHERE 
-			                status = 3
-			                OR status = 4
-		                ORDER BY 
-			                endedutc DESC
-		                LIMIT 1
-	                ) AND b.endedutc > (
-		                -- get endutc of last build of previous status
-		                SELECT 
-			                endedutc 
-		                FROM 
-			                build
-		                WHERE 
-			                NOT endedutc IS NULL
-		                    AND (status = @passing
-		                    OR status = @failing)
-			                AND NOT status = (
-		                        -- get current passing or failing status of job 
-		                        SELECT 
-			                        status 
-		                        FROM 
-			                        build
-		                        WHERE 
-			                        status = @passing
-			                        OR status = @failing
-		                        ORDER BY 
-			                        endedutc DESC
-		                        LIMIT 1)
-		                ORDER BY 
-			                endedutc DESC
-		                LIMIT 1)
-                ORDER BY 
-	                endedutc ASC
-                LIMIT 1";
-
-            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
-            {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
-                cmd.Parameters.AddWithValue("passing", (int)BuildStatus.Passed);
-                cmd.Parameters.AddWithValue("failing", (int)BuildStatus.Failed);
-
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    return new BuildConvert().ToCommon(reader);
-            }
-        }
-
         Build IDataPlugin.GetBuildByKey(string jobId, string key)
         {
             string query = @"
@@ -1344,6 +1282,33 @@ namespace Wbtb.Extensions.Data.Postgres
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
             {
                 cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new BuildConvert().ToCommon(reader);
+            }
+        }
+
+        Build IDataPlugin.GetLatestPassOrFailBuildByJob(Job job)
+        {
+            string query = @"
+                SELECT 
+                    *
+                FROM
+                    build
+                WHERE
+                    jobid = @jobid
+                    AND (status = @failing OR status = @passing)
+                ORDER BY
+                    startedutc DESC
+                LIMIT
+                    1";
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
+            {
+                cmd.Parameters.AddWithValue("jobid", int.Parse(job.Id));
+                cmd.Parameters.AddWithValue("passing", (int)BuildStatus.Passed);
+                cmd.Parameters.AddWithValue("failing", (int)BuildStatus.Failed);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new BuildConvert().ToCommon(reader);

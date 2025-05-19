@@ -99,6 +99,11 @@ namespace Wbtb.Core.Common
         public IList<Group> Groups { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public IList<JobGroup> JobGroups { get; set; }
+            
+        /// <summary>
         /// Bytes. Imposes limit on log files for parsing.
         /// </summary>
         public long MaxReadableRawLogSize { get; set; }
@@ -167,6 +172,7 @@ namespace Wbtb.Core.Common
             this.SourceServers = new List<SourceServer>();
             this.Users = new List<User>();
             this.Groups = new List<Group>();
+            this.JobGroups = new List<JobGroup>();
             this.FeatureToggles = EnvironmentVariableHelper.GetString("WBTB__FEATURE_TOGGLES", string.Empty).Split(",", StringSplitOptions.RemoveEmptyEntries);
         }
 

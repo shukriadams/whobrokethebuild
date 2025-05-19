@@ -27,7 +27,7 @@ namespace Wbtb.Core.Web
                 {
                     SimpleDI di = new SimpleDI();
 
-                    // register types defined in web project
+                    // register types defined in web project - common types are registered in Core.cs
                     di.RegisterFactory<ILogger, LogProvider>();
                     di.Register<MutationHelper, MutationHelper>();
                     di.Register<FailingAlertKey, FailingAlertKey>();

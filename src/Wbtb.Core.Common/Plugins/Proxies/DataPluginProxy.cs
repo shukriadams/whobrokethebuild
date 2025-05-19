@@ -584,6 +584,17 @@ namespace Wbtb.Core.Common
             });
         }
 
+        Build IDataPlugin.GetLatestPassOrFailBuildByJob(Job job)
+        {
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetLatestPassOrFailBuildByJob),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "job", Value = job }
+                }
+            });
+        }
+
         Build IDataPlugin.GetDeltaBuildAtBuild(Build build)
         {
             return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
