@@ -26,7 +26,7 @@ echo "$HASH $TAG" > ./../../src/Wbtb.Core.Web/currentVersion.txt
 
 if [ $BUILD -eq 1 ]; then
 
-    cd ./../src
+    cd ./../../src
     echo "Installing dependencies"
     sh ./setup-dependencies.sh
     cd -
