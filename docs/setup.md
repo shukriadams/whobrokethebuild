@@ -102,7 +102,15 @@ Jobs are tied to a build server. A job must have a unique `Key`, as well as vali
 
 `Image` gives the job a thumbnail in dashboards. It can be an absolute URL visible to your WBTB server, or you can mount images anywhere into `/var/wbtb/Wbtb.Core.Web/wwwroot` on your container and add their relative paths. For example, an image mapped to `/var/wbtb/Wbtb.Core.Web/wwwroot/images/myimage.jpg` will have have property `Image:/images/myimage.jpg` in config.
 
-
 ## Secrets
 
 Config.yml is stored in plaintext. You can store credentials as env vars on your host/container instance and reference them in config.yml as `"{{env.YOUR_VAR_NAME}}"` (quotes required). Spaces are not allowed in secret tokens, `{{env.myvalue}}` is valid, but `{{ env.myvalue}}`, `{{env.myvalue }}` and `{{env.  myvalue}}` are not.
+
+## Persistent Data
+
+By default, WBTB will store all persistent data in a `data` directory in the application root. If you're running a docker container, you should map this directory to a docker volume.
+
+### Build logs
+
+Build logs live in data/BuildLogs/<job key>/<build id>/. Job key is the key of a given job in WBTB's config, and build number is the immutable build identifier from whatever CI/CD server that job pulls data from.
+

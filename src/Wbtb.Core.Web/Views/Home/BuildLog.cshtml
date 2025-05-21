@@ -11,10 +11,17 @@
     Build : @ViewHelpers.BuildLink(Model.Build)
 </div>
 
+@if (!string.IsNullOrEmpty(Model.Raw))
+{
+    <div>
+        Size : @Model.Raw.Length characters.
+    </div>
+}
+
 @if(!Model.Build.LogFetched)
 {
     <div>
-        A log does not exist for this build. Either log has not been retrieved yet, or the retrieval has failed. Check logs for more info.
+        A log does not exist for this build. Either log has not been retrieved yet, or the retrieval has failed. Check WBTB's own log for more info.
     </div>
 }
 

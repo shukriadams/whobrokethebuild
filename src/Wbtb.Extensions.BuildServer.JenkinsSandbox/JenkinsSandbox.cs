@@ -279,8 +279,9 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             // persist path
             Job job = dataLayer.GetJobById(build.JobId);
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
+            string interval = GetCurrentInterval();
 
-            string log = ResourceHelper.ReadResourceAsString(this.GetType(), $"JSON.builds.{remotekey.Value}.logs.{build.Key}.txt");
+            string log = ResourceHelper.ReadResourceAsString(this.GetType(), $"JSON.{interval}.builds.{remotekey.Value}.logs.{build.Key}.txt");
             return log;
         }
 
@@ -319,11 +320,12 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
+            string interval = GetCurrentInterval();
 
             if (build.Key == "39" && job.Name.ToLower().Contains("skunk"))
                 throw new Exception("Log import failed deliberately on build 39 for skunkwords. This is to test daemontask error handling.");
 
-            if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.builds.{remotekey.Value}.logs.{build.Key}.txt"))
+            if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.{interval}.builds.{remotekey.Value}.logs.{build.Key}.txt"))
                 return new BuildLogRetrieveResult { Result = "Build log does not exist" };
 
             string logContent = GetBuildLog(build);
@@ -340,9 +342,8 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
             var remotekey = job.Config.FirstOrDefault(c => c.Key == "RemoteKey");
-
-
-            string path = $"JSON.builds.{remotekey.Value}.builds.json";
+            string interval = GetCurrentInterval();
+            string path = $"JSON.{interval}.builds.{remotekey.Value}.builds.json";
             string rawJson;
             if (ResourceHelper.ResourceExists(this.GetType(), path))
                 rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), path);

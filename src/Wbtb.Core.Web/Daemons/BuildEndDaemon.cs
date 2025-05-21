@@ -62,7 +62,7 @@ namespace Wbtb.Core.Web
 
             build = buildServerPlugin.TryUpdateBuild(build);
 
-            // build still not done, contine and wait. Todo : Add forced time out on build here.
+            // build still not done, continue and wait. Todo : Add forced time out on build here.
             if (!build.EndedUtc.HasValue)
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = "Build not complete yet" };
 
