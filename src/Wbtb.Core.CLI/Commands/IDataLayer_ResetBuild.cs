@@ -50,19 +50,23 @@ namespace Wbtb.Core.CLI
                 return;
             }
 
-            ConsoleHelper.WriteLine("Performing hard reset", addDate: false);
+            bool hard = true;
+            if (hard)
+                ConsoleHelper.WriteLine("Performing hard reset", addDate: false);
 
-            int deleted = dataLayer.ResetBuild(build.Id, true);
+            int affected = dataLayer.ResetBuild(build.Id, hard);
+
             // requeue build internally
-            dataLayer.SaveDaemonTask(new DaemonTask
-            {
-                BuildId = build.Id,
-                Stage = 0, //"BuildEnd",
-                CreatedUtc = DateTime.UtcNow,
-                Src = this.GetType().Name
-            });
+            if (!hard)
+                dataLayer.SaveDaemonTask(new DaemonTask
+                {
+                    BuildId = build.Id,
+                    Stage = 0, //"BuildEnd",
+                    CreatedUtc = DateTime.UtcNow,
+                    Src = this.GetType().Name
+                });
 
-            ConsoleHelper.WriteLine($"Build {build.Id} reset. {deleted} records deleted.", addDate: false);
+            ConsoleHelper.WriteLine($"Build {build.Id} reset. {affected} records affected.", addDate: false);
         }
 
         #endregion

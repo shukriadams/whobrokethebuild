@@ -138,7 +138,13 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             string interval = "all";
             string intervalPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $".interval.{this.GetType().Namespace}.{this.GetType().Name}.txt");
             if (File.Exists(intervalPath))
-                interval = $"_{File.ReadAllText(intervalPath)}"; // prepend with underscore because embedded dirs cannot start with numeric char
+            {
+                string intervalInFile = File.ReadAllText(intervalPath).Trim();
+                if (intervalInFile == "*")
+                    return interval;
+
+                return $"_{intervalInFile}"; // prepend with underscore because embedded dirs cannot start with numeric char
+            }
 
             return interval;
         }

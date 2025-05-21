@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
@@ -23,12 +25,17 @@ namespace Wbtb.Extensions.LogParsing.Cpp
 
         string ILogParserPlugin.Parse(Build build, string raw)
         {
+
             int maxLogSize = 0;
             if (ContextPluginConfig.Config.Any(r => r.Key == "MaxLogSize"))
                 int.TryParse(ContextPluginConfig.Config.First(r => r.Key == "MaxLogSize").Value.ToString(), out maxLogSize);
 
             if (maxLogSize > 0 && raw.Length > maxLogSize)
                 return $"Log length ({raw.Length}) exceeds max allowed parse length ({maxLogSize}).";
+
+            string chunkDelimiter = string.Empty;
+            if (ContextPluginConfig.Config.Any(r => r.Key == "SectionDelimiter"))
+                chunkDelimiter = ContextPluginConfig.Config.First(r => r.Key == "SectionDelimiter").Value.ToString();
 
             SimpleDI di = new SimpleDI();
             ILogger logger = di.Resolve<ILogger>();
@@ -37,9 +44,9 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             Job job = dataLayer.GetJobById(build.JobId);
 
             // try for cache
-            string hash = Sha256.FromString(MSVCRegex + raw);
+            string hash = Sha256.FromString(MSVCRegex + ClangRegex + raw);
             Cache cache = di.Resolve<Cache>();
-            CachePayload resultLookup = cache.Get(this,job, build, hash);
+            CachePayload resultLookup = cache.Get(this, job, build, hash);
             if (resultLookup.Payload != null)
             {
                 logger.LogInformation($"{this.GetType().Name} found cache hit {resultLookup.Key}.");
@@ -48,82 +55,92 @@ namespace Wbtb.Extensions.LogParsing.Cpp
 
             // force unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
-            string result = null;
-            // Microsoft Visual C parsing
-            // try to parse out C++ compile errors from log, these errors have the form like
-            // D:\some\path\file.h(41,12): error C2143: syntax error: missing ';' before '*'
-            // file path(line number): error code: description
-            //
-            // Groups
-            // 0 : all
-            // 1 : file path
-            // 2 : line nr in file
-            // 3 : error code (optional)
-            // 4 : description
 
-            MatchCollection matches = new Regex(MSVCRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);
-            if (matches.Any())
+            IEnumerable<string> chunks = null;
+            if (string.IsNullOrEmpty(chunkDelimiter))
+                chunks = new List<string> { fullErrorLog };
+            else
+                chunks = fullErrorLog.Split(chunkDelimiter);
+
+            StringBuilder result = new StringBuilder();
+
+            foreach (string chunk in chunks)
             {
-                BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
-
-                foreach (Match match in matches)
+                /*
+                    Microsoft Visual C parsing
+                    try to parse out C++ compile errors from log, these errors have the form like
+                    D:\some\path\file.h(41,12): error C2143: syntax error: missing ';' before '*'
+                    file path(line number): error code: description
+                
+                    Groups
+                    0 : all
+                    1 : file path
+                    2 : line nr in file
+                    3 : error code (optional)
+                    4 : description
+                */
+                MatchCollection matches = new Regex(MSVCRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(chunk);
+                if (matches.Any())
                 {
-                    builder.AddItem(match.Groups[1].Value, "path");
-                    builder.AddItem(match.Groups[2].Value, "line_number");
-                    
-                    if (match.Groups.Count == 4)
+                    BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
+
+                    foreach (Match match in matches)
                     {
-                        builder.AddItem(match.Groups[3].Value, "description");
+                        builder.AddItem(match.Groups[1].Value, "path");
+                        builder.AddItem(match.Groups[2].Value, "line_number");
+
+                        if (match.Groups.Count == 4)
+                        {
+                            builder.AddItem(match.Groups[3].Value, "description");
+                        }
+                        else
+                        {
+                            builder.AddItem(match.Groups[3].Value, "error_code");
+                            builder.AddItem(match.Groups[4].Value, "description");
+                        }
+
+                        builder.NewLine();
                     }
-                    else 
+
+                    result.Append(builder.GetText());
+                }
+
+                /*
+                    Clang parsing
+                    Example :
+                        In file included from ../../Cake/Intermediate/Build/Dev/Cake/Module.Cake.38_of_50.cpp:16:
+                        C:\workspace\Cake\Source\Cake\Private\Jumper\FallingSlate.cpp(1870,57): error: '&&' within '||' [-Werror,-Wlogical-op-parentheses]
+                        if (fml == wtf)
+                                                      ~~ ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                        C:\workspace\Cake\Source\Cake\Private\Jumper\FallingSlate.cpp(1870,57): note: place parentheses around the '&&' expression to silence this warning
+                            if (fml == wtf)
+                              ^
+                            (                                                                                          )
+                        1 error generated.
+
+                */
+                matches = new Regex(ClangRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(chunk);
+                if (matches.Any())
+                {
+                    BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
+
+                    foreach (Match match in matches)
                     {
+                        builder.AddItem(match.Groups[1].Value, "path");
+                        builder.AddItem(match.Groups[2].Value, "line_number");
                         builder.AddItem(match.Groups[3].Value, "error_code");
                         builder.AddItem(match.Groups[4].Value, "description");
+                        builder.NewLine();
                     }
 
-                    builder.NewLine();
+                    result.Append(builder.GetText());
                 }
-
-                result = builder.GetText();
             }
 
-            /*
-                clang parsing
+            string resultFlattened = result.ToString();
+            cache.Write(this, job, build, hash, resultFlattened);
 
-                example :
-                    In file included from ../../Cake/Intermediate/Build/Dev/Cake/Module.Cake.38_of_50.cpp:16:
-                    C:\workspace\Cake\Source\Cake\Private\Jumper\FallingSate.cpp(1870,57): error: '&&' within '||' [-Werror,-Wlogical-op-parentheses]
-                    if (fml == wtf)
-                                                  ~~ ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    C:\workspace\Cake\Source\Cake\Private\Jumper\FallingSate.cpp(1870,57): note: place parentheses around the '&&' expression to silence this warning
-                        if (fml == wtf)
-                          ^
-                        (                                                                                          )
-                    1 error generated.
-
-            */
-            matches = new Regex(ClangRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);
-            if (matches.Any())
-            {
-                BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
-
-                foreach (Match match in matches)
-                {
-                    builder.AddItem(match.Groups[1].Value, "path");
-                    builder.AddItem(match.Groups[2].Value, "line_number");
-                    builder.AddItem(match.Groups[3].Value, "error_code");
-                    builder.AddItem(match.Groups[4].Value, "description");
-                    builder.NewLine();
-                }
-
-                result = builder.GetText();
-            }
-
-            if (result == null)
-                result = string.Empty;
-
-            cache.Write(this, job, build, hash, result);
-            return result;
+            return resultFlattened;
         }
     }
 }

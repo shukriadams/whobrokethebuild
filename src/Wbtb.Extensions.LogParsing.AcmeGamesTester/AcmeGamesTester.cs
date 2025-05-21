@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Text;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
@@ -41,6 +42,10 @@ namespace Wbtb.Extensions.LogParsing.AcmeGamesTester
             if (maxLogSize > 0 && raw.Length > maxLogSize)
                 return $"Log length ({raw.Length}) exceeds max allowed parse length ({maxLogSize}).";
 
+            string chunkDelimiter = string.Empty;
+            if (ContextPluginConfig.Config.Any(r => r.Key == "SectionDelimiter"))
+                chunkDelimiter = ContextPluginConfig.Config.First(r => r.Key == "SectionDelimiter").Value.ToString();
+
             // example of an error :
             // LogLinker: Error: [AssetLog] D:\workdir\IronBird\Content\Acme\Tests\ThingTester.umap: Failed import: class 'AngelGrinder' name '_Sprucker' outer 'BP_Luncher'. There is another object (of 'BP_Luncher' class) at the path."
             // group 1 : filepath
@@ -62,23 +67,33 @@ namespace Wbtb.Extensions.LogParsing.AcmeGamesTester
             if (internaleErrorCacheLookup.Payload != null)
                 return internaleErrorCacheLookup.Payload;
 
-            MatchCollection matches = new Regex(errorRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
-            string result = string.Empty;
-            if (matches.Any())
-            {
-                BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
-                foreach (Match match in matches)
-                {
-                    builder.AddItem(match.Groups[1].Value, "path");
-                    builder.AddItem(match.Groups[2].Value, "description");
-                    builder.NewLine();
-                }
+            IEnumerable<string> chunks = null;
+            if (string.IsNullOrEmpty(chunkDelimiter))
+                chunks = new List<string> { fullErrorLog };
+            else
+                chunks = fullErrorLog.Split(chunkDelimiter);
 
-                result = builder.GetText();
-                cache.Write(this, job, build, errorHash, result);
+            StringBuilder result = new StringBuilder();
+            foreach (string chunk in chunks)
+            {
+                MatchCollection matches = new Regex(errorRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
+                if (matches.Any())
+                {
+                    BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
+                    foreach (Match match in matches)
+                    {
+                        builder.AddItem(match.Groups[1].Value, "path");
+                        builder.AddItem(match.Groups[2].Value, "description");
+                        builder.NewLine();
+                    }
+
+                    result.Append(builder.GetText());
+                }
             }
 
-            return result;
+            string flattened = result.ToString();
+            cache.Write(this, job, build, errorHash, flattened);
+            return flattened;
         }
 
         #endregion

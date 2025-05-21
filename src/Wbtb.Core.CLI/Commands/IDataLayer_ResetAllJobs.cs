@@ -41,7 +41,7 @@ namespace Wbtb.Core.CLI
 
             foreach (Job job in dataLayer.GetJobs())
             {
-                int deleted = dataLayer.ResetJob(job.Id, true);
+                int deleted = dataLayer.ResetJob(job.Id, false);
                 int page = 0;
 
                 while (true)

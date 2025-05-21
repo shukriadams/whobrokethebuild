@@ -6,7 +6,23 @@ random text
 <current-revision>309<current-revision>
 random text
 random text
-random text
-random text
-random text
-random text
+-- LOG SECTION: CHECK OUT
+checkout out test 1
+checkout out test 2
+checkout out test 3
+checkout out test 4
+checkout out test 5
+-- LOG SECTION: COMPILING
+compiling text 1
+compiling text 2
+compiling text 3
+compiling text 4
+compiling text 5
+compiling text 6
+-- LOG SECTION: TESTING
+test text 1
+test text 2
+test text 3
+test text 4
+test text 5
+test text 6

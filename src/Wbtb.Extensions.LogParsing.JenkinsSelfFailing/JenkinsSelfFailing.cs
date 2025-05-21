@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
@@ -28,65 +30,72 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             if (maxLogSize > 0 && raw.Length > maxLogSize)
                 return $"Log length ({raw.Length}) exceeds max allowed parse length ({maxLogSize}).";
 
+            string chunkDelimiter = string.Empty;
+            if (ContextPluginConfig.Config.Any(r => r.Key == "SectionDelimiter"))
+                chunkDelimiter = ContextPluginConfig.Config.First(r => r.Key == "SectionDelimiter").Value.ToString();
+
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
             Cache cache = di.Resolve<Cache>();
 
-            // force unix paths on log, this helps reduce noise when getting distinct lines
-            string fullErrorLog = raw.Replace("\\", "/");
 
             // internal error - try for cache
-            string internalErrorHash = Sha256.FromString(InternalErrorRegex + fullErrorLog);
+            string internalErrorHash = Sha256.FromString(InternalErrorRegex + TimeoutRegex + raw);
             CachePayload internaleErrorCacheLookup = cache.Get(this,job, build, internalErrorHash);
             if (internaleErrorCacheLookup.Payload != null)
                 return internaleErrorCacheLookup.Payload;
 
-            // look for following matches
-            // at org.jenkinsci
-            // at jenkins.
-            // at hudson.
-            // at java
-            MatchCollection matches = new Regex(InternalErrorRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
-            string result = string.Empty;
-            if (matches.Any()) 
+
+            // force unix paths on log, this helps reduce noise when getting distinct lines
+            string fullErrorLog = raw.Replace("\\", "/");
+
+            StringBuilder result = new StringBuilder();
+            IEnumerable<string> chunks = null;
+            if (string.IsNullOrEmpty(chunkDelimiter))
+                chunks = new List<string> { fullErrorLog };
+            else
+                chunks = fullErrorLog.Split(chunkDelimiter);
+
+            foreach (string chunk in chunks)
             {
-                BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
-                foreach(Match match in matches) 
+                // look for following matches
+                // at org.jenkinsci
+                // at jenkins.
+                // at hudson.
+                // at java
+                MatchCollection matches = new Regex(InternalErrorRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(chunk);
+                if (matches.Any())
                 {
-                    builder.AddItem(match.Value, "internalError");
-                    builder.NewLine();
+                    BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
+                    foreach (Match match in matches)
+                    {
+                        builder.AddItem(match.Value, "internalError");
+                        builder.NewLine();
+                    }
+
+                    result.Append(builder.GetText());
                 }
 
-                result =  builder.GetText();
-                cache.Write(this, job, build, internalErrorHash, result);
-                return result;
-            }
-
-
-            // timeout error
-            string timeoutErrorHash = Sha256.FromString(TimeoutRegex + fullErrorLog);
-            CachePayload timeoutLookup = cache.Get(this, job, build, timeoutErrorHash);
-            if (timeoutLookup.Payload != null)
-                return timeoutLookup.Payload;
-
-            matches = new Regex(TimeoutRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
-            result = string.Empty;
-            if (matches.Any())
-            {
-                BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
-                foreach (Match match in matches)
+                matches = new Regex(TimeoutRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(chunk);
+                if (matches.Any())
                 {
-                    builder.AddItem(match.Value, "buildTimeout");
-                    builder.NewLine();
-                }
+                    BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
+                    foreach (Match match in matches)
+                    {
+                        builder.AddItem(match.Value, "buildTimeout");
+                        builder.NewLine();
+                    }
 
-                result = builder.GetText();
-                cache.Write(this, job, build, internalErrorHash, result);
+                    result.Append(builder.GetText());
+                }
             }
 
-            return result;
+            string flattened = result.ToString();
+            cache.Write(this, job, build, internalErrorHash, flattened);
+
+            return flattened;
         }
     }
 }

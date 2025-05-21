@@ -72,7 +72,7 @@ namespace Wbtb.Core.CLI
 
             foreach (Job job in jobs) 
             {
-                int deleted = dataLayer.ResetJob(job.Id, true);
+                int reset = dataLayer.ResetJob(job.Id, false);
                 int page = 0;
 
                 while (true)
@@ -98,7 +98,7 @@ namespace Wbtb.Core.CLI
                     page++;
                 }
 
-                ConsoleHelper.WriteLine($"Job {job.Name} reset. {deleted} records deleted.", addDate: false);
+                ConsoleHelper.WriteLine($"Job {job.Name} reset. {reset} records reset.", addDate: false);
             }
 
         }

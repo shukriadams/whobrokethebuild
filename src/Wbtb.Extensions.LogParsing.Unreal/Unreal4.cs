@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
@@ -47,6 +49,10 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             if (maxLogSize > 0 && raw.Length > maxLogSize)
                 return $"Log length ({raw.Length}) exceeds max allowed parse length ({maxLogSize}).";
 
+            string chunkDelimiter = string.Empty;
+            if (ContextPluginConfig.Config.Any(r => r.Key == "SectionDelimiter"))
+                chunkDelimiter = ContextPluginConfig.Config.First(r => r.Key == "SectionDelimiter").Value.ToString();
+
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
@@ -54,23 +60,33 @@ namespace Wbtb.Extensions.LogParsing.Unreal
 
             string bluePrintRegex4 = @"Blueprint failed to compile: (.*)";
             string bluePrintRegex5 = @"LogBlueprint: Error: \[AssetLog\] .*?: \[Compiler]\ (.*)? from Source: (.*)?";
+            string shaderRegex = @"LogShaderCompilers: Warning:\n*(.*?.usf)\(\): Shader (.*?), .*";
 
-            // try for cache
-            string blueprint4RegexHash = Sha256.FromString(bluePrintRegex4 + raw);
-            string blueprint5RegexHash = Sha256.FromString(bluePrintRegex5 + raw);
-            Cache cache = di.Resolve<Cache>();
-            string bluePrintMatch = null;
-            CachePayload bluePrintMatchLookup = cache.Get(this, job, build, blueprint4RegexHash);
-            if (bluePrintMatchLookup.Payload != null)
-                bluePrintMatch = bluePrintMatchLookup.Payload;
-
-            // force unix paths on log, this helps reduce noise when getting distinct lines
+            // force Unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
 
-            // try blueprint 4x format
-            if (bluePrintMatch == null)
+            IEnumerable<string> chunks = null;
+            if (string.IsNullOrEmpty(chunkDelimiter))
+                chunks = new List<string> { fullErrorLog };
+            else
+                chunks = fullErrorLog.Split(chunkDelimiter);
+
+            // try for cache
+            string shaderRegexHash = Sha256.FromString(bluePrintRegex4 + bluePrintRegex5 + shaderRegex + raw);
+            Cache cache = di.Resolve<Cache>();
+            CachePayload shaderMatchLookup = cache.Get(this, job, build, shaderRegexHash);
+            if (shaderMatchLookup != null)
+                return shaderMatchLookup.Payload;
+
+            StringBuilder allMatches = new StringBuilder();
+
+            foreach (string chunk in chunks) 
             {
-                MatchCollection matches = new Regex(bluePrintRegex4, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);
+                // try for cache
+                string blueprint4RegexHash = Sha256.FromString(bluePrintRegex4 + raw);
+                string blueprint5RegexHash = Sha256.FromString(bluePrintRegex5 + raw);
+
+                MatchCollection matches = new Regex(bluePrintRegex4, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(chunk);
                 if (matches.Any())
                 {
                     BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
@@ -85,15 +101,10 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                         builder.NewLine();
                     }
 
-                    bluePrintMatch = builder.GetText();
-                    cache.Write(this, job, build, blueprint4RegexHash, bluePrintMatch);
+                    allMatches.Append(builder.GetText());
                 }
-            }
 
-            // try blueprint 5x format
-            if (bluePrintMatch == null)
-            {
-                MatchCollection matches = new Regex(bluePrintRegex5, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);
+                matches = new Regex(bluePrintRegex5, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(chunk);
                 if (matches.Any())
                 {
                     BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
@@ -108,32 +119,11 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                         builder.NewLine();
                     }
 
-                    bluePrintMatch = builder.GetText();
-                    cache.Write(this, job, build, blueprint5RegexHash, bluePrintMatch);
+                    allMatches.Append(builder.GetText());
                 }
-            }
 
-            // no blueprint matches found, write both to cache so we don't reprocess
-            if (bluePrintMatch == null) 
-            {
-                bluePrintMatch = string.Empty;
-                cache.Write(this, job, build, blueprint4RegexHash, bluePrintMatch);
-                cache.Write(this, job, build, blueprint5RegexHash, bluePrintMatch);
-            }
-
-            string shaderRegex = @"LogShaderCompilers: Warning:\n*(.*?.usf)\(\): Shader (.*?), .*";
-
-            // try for cache
-            string shaderRegexHash = Sha256.FromString(shaderRegex + raw);
-            string shaderMatch = null;
-            CachePayload shaderMatchLookup = cache.Get(this, job, build, shaderRegexHash);
-            if (shaderMatchLookup != null)
-                shaderMatch = shaderMatchLookup.Payload;
-
-            if (shaderMatch == null)
-            {
-                MatchCollection matches = new Regex(shaderRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(fullErrorLog);
-                shaderMatch = string.Empty;
+                // shaders
+                matches = new Regex(shaderRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled).Matches(chunk);
                 if (matches.Any())
                 {
                     BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig.Manifest.Key);
@@ -147,14 +137,14 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                         builder.AddItem(match.Groups[1].Value, "shader");
                         builder.NewLine();
                     }
-                    
-                    shaderMatch = builder.GetText();
-                }
 
-                cache.Write(this, job, build, shaderRegexHash, shaderMatch);
+                    allMatches.Append(builder.GetText());
+                }
             }
 
-            return bluePrintMatch + shaderMatch;
+            string flattened = allMatches.ToString();
+            cache.Write(this, job, build, shaderRegexHash, flattened);
+            return flattened;
         }
     }
 }
