@@ -18,25 +18,29 @@ Plugins:
 -   Key: CppParser
     Path: Wbtb.Extensions.LogParsing.Cpp
     Config:
-    -   ChunkDelimiter: "-- LOG SECTION:"
+    -   SectionDelimiter: "-- LOG SECTION:"
+    -   MaxLineLength : 10000
 -   Key: BasicErrors
     Path: Wbtb.Extensions.LogParsing.BasicErrors
+-   Key: UnrealParser
+    Path: Wbtb.Extensions.LogParsing.Unreal
+    Config:
+    -   SectionDelimiter: "-- LOG SECTION:"
+    -   MaxLineLength : 10000
+-   Key: JenkinsSelfFailing
+    Path: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
+    Config:
+    -   SectionDelimiter: "-- LOG SECTION:"
+    -   MaxLineLength : 10000
+-   Key: AcmeGamesTester
+    Path: Wbtb.Extensions.LogParsing.AcmeGamesTester
+    Config:
+    -   SectionDelimiter: "-- LOG SECTION:"
+    -   MaxLineLength : 10000
 -   Key: myslack
     Path: Wbtb.Extensions.Messaging.SlackSandbox
     Config:
     -   Token: mytoken
--   Key: UnrealParser
-    Path: Wbtb.Extensions.LogParsing.Unreal
-    Config:
-    -   ChunkDelimiter: "-- LOG SECTION:"
--   Key: JenkinsSelfFailing
-    Path: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
-    Config:
-    -   ChunkDelimiter: "-- LOG SECTION:"
--   Key: AcmeGamesTester
-    Path: Wbtb.Extensions.LogParsing.AcmeGamesTester
-    Config:
-    -   ChunkDelimiter: "-- LOG SECTION:"
 -   Key: JenkinsBlamer
     Path: Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 -   Key: Blamer
