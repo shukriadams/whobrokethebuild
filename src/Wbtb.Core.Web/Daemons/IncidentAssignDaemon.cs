@@ -32,7 +32,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, DaemonTaskTypes.IncidentAssign);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, ProcessStages.IncidentAssign);
         }
 
         /// <summary>

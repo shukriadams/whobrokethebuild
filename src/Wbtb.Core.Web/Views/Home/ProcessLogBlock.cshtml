@@ -84,7 +84,7 @@ else
                     @item.BuildId
                 </x-list-cell>
                 <x-list-cell>
-                    @((DaemonTaskTypes)item.Stage)
+                    @((ProcessStages)item.Stage)
                 </x-list-cell>
             </x-list-row>
         }
@@ -120,7 +120,7 @@ else
                     @item.Task.BuildId
                 </x-list-cell>
                 <x-list-cell>
-                    @((DaemonTaskTypes)item.Task.Stage)
+                    @((ProcessStages)item.Task.Stage)
                     <div>
                         @item.Reason
                     </div>

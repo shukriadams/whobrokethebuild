@@ -55,7 +55,7 @@ namespace Wbtb.Core.CLI
                         dataLayer.SaveDaemonTask(new DaemonTask
                         {
                             BuildId = build.Id,
-                            Stage = 0, //"BuildEnd",
+                            Stage = (int)ProcessStages.BuildEnd,
                             CreatedUtc = DateTime.UtcNow,
                             Src = this.GetType().Name
                         });

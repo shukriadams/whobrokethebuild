@@ -35,10 +35,11 @@ namespace Wbtb.Core.Web
 
                     foreach (Build build in builds.Items)
                     {
+                        
                         dataLayer.SaveDaemonTask(new DaemonTask
                         {
                             BuildId = build.Id,
-                            Stage = 0, //"BuildEnd",
+                            Stage = (int)ProcessStages.BuildEnd, 
                             CreatedUtc = DateTime.UtcNow,
                             Src = this.GetType().Name
                         });
@@ -51,7 +52,7 @@ namespace Wbtb.Core.Web
                 }
 
                 dataLayer.TransactionCommit();
-                log.LogInformation($"Sucessfully reset job {jobid}");
+                log.LogInformation($"Successfully reset job {jobid}");
 
             }
             catch (Exception ex) 

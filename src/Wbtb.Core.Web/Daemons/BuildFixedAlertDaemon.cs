@@ -89,6 +89,8 @@ namespace Wbtb.Core.Web
                     {
                         Build incident = dataLayer.GetBuildById(incidentId);
                         Build fixingBuild = dataLayer.GetFixForIncident(incident);
+
+                        // this daemon alerts fixed builds only, so we don't care about incidents that haven't been fixed
                         if (fixingBuild == null)
                             continue;
 

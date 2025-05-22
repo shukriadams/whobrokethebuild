@@ -43,7 +43,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, DaemonTaskTypes.UserLink);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, ProcessStages.UserLink);
         }
 
         /// <summary>

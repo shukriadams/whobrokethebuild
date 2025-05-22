@@ -37,7 +37,7 @@ namespace Wbtb.Core.Web.Core
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, DaemonTaskTypes.LogImport);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, ProcessStages.LogImport);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Wbtb.Core.Web.Core
                     BuildId = build.Id,
                     Src = this.GetType().Name,
                     Args = logparser,
-                    Stage = (int)DaemonTaskTypes.LogParse
+                    Stage = (int)ProcessStages.LogParse
                 });
 
             // build revision requires source control
@@ -90,7 +90,7 @@ namespace Wbtb.Core.Web.Core
                 {
                     BuildId = build.Id,
                     Src = this.GetType().Name,
-                    Stage = (int)DaemonTaskTypes.RevisionFromLog
+                    Stage = (int)ProcessStages.RevisionFromLog
                 });
 
             ConsoleHelper.WriteLine(this, $"Log imported for build {build.Key} (id:{build.Id})");

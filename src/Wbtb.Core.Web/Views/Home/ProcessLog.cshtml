@@ -107,7 +107,7 @@
                     @ViewHelpers.BuildLink(task.Build)
                 </x-list-cell>
                 <x-list-cell>
-                    @((DaemonTaskTypes)task.Stage)
+                    @((ProcessStages)task.Stage)
                     <div class="quiet">
                         @task.Src
                     </div>

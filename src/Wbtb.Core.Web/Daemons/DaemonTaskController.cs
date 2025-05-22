@@ -75,7 +75,7 @@ namespace Wbtb.Core.Web
         /// <param name="tickIntervalMilliseconds">Sleep time between ticks where tasks are checked for etc.</param>
         /// <param name="daemon">Daemon instance </param>
         /// <param name="daemonLevel"></param>
-        public void WatchForAndRunTasksForDaemon(IWebDaemon daemon, int tickIntervalMilliseconds, DaemonTaskTypes? daemonLevel)
+        public void WatchForAndRunTasksForDaemon(IWebDaemon daemon, int tickIntervalMilliseconds, ProcessStages? daemonLevel)
         {
             int thisTaskLevel = 9999; // pick an absurdly high number to ensure we overshoot
             if (daemonLevel.HasValue)

@@ -108,7 +108,7 @@ namespace Wbtb.Core.Web
 
                             // create next task in chain
                             dataLayer.SaveDaemonTask(new DaemonTask{
-                                Stage = (int)DaemonTaskTypes.BuildEnd,
+                                Stage = (int)ProcessStages.BuildEnd,
                                 Src = this.GetType().Name,
                                 BuildId = buildId
                             });

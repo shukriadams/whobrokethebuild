@@ -38,7 +38,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, DaemonTaskTypes.RevisionLink);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, ProcessStages.RevisionLink);
         }
 
         /// <summary>

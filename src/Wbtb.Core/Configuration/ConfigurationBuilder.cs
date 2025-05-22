@@ -174,7 +174,7 @@ namespace Wbtb.Core
                         // create process order for build
                         _datalayer.SaveDaemonTask(new DaemonTask
                         {
-                            Stage = 0, // BuildEnd
+                            Stage = (int)ProcessStages.BuildEnd,
                             Src = this.GetType().Name,
                             BuildId = build.Id
                         });

@@ -1,8 +1,8 @@
-﻿namespace Wbtb.Core.Web
+﻿namespace Wbtb.Core.Common
 {
-    public enum DaemonTaskTypes : int
+    public enum ProcessStages : int
     {
-        BuildEnd= 0,
+        BuildEnd = 0,
         RevisionFromBuildServer = 1,
         IncidentAssign = 2,
         LogImport = 3,

@@ -35,7 +35,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, DaemonTaskTypes.PostProcess);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, ProcessStages.PostProcess);
         }
 
         /// <summary>

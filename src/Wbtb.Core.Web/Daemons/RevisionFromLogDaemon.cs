@@ -46,7 +46,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, DaemonTaskTypes.RevisionFromLog);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, ProcessStages.RevisionFromLog);
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace Wbtb.Core.Web
                     break;
 
                 // check if previous build is still having its involvements calculated
-                if (dataRead.GetDaemonTasksByBuild(previousBuild.Id).Any(t => t.ProcessedUtc == null && (t.Stage == (int)DaemonTaskTypes.RevisionFromLog|| t.Stage == (int)DaemonTaskTypes.RevisionFromBuildServer)))
+                if (dataRead.GetDaemonTasksByBuild(previousBuild.Id).Any(t => t.ProcessedUtc == null && (t.Stage == (int)ProcessStages.RevisionFromLog|| t.Stage == (int)ProcessStages.RevisionFromBuildServer)))
                     return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Previous build id {previousBuild.Id} still processing build involvements, waiting." };
 
                 buildInvolvementsInPreviousBuild = dataRead.GetBuildInvolvementsByBuild(previousBuild.Id);
@@ -206,7 +206,7 @@ namespace Wbtb.Core.Web
                     BuildId = build.Id,
                     BuildInvolvementId = buildInvolvement.Id,
                     Src = this.GetType().Name,
-                    Stage = (int)DaemonTaskTypes.RevisionLink
+                    Stage = (int)ProcessStages.RevisionLink
                 });
 
                 dataWrite.SaveDaemonTask(new DaemonTask
@@ -214,7 +214,7 @@ namespace Wbtb.Core.Web
                     BuildId = build.Id,
                     Src = this.GetType().Name,
                     BuildInvolvementId = buildInvolvement.Id,
-                    Stage = (int)DaemonTaskTypes.UserLink
+                    Stage = (int)ProcessStages.UserLink
                 });
 
                 ConsoleHelper.WriteLine(this, $"Linked revision {revisionIdToLink} to build {build.Key} (id:{build.Id})");

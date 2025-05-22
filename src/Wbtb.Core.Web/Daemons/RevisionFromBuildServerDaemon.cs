@@ -44,7 +44,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, DaemonTaskTypes.RevisionFromBuildServer);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, ProcessStages.RevisionFromBuildServer);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Wbtb.Core.Web
                      continue;
 
                 // check if previous build is still having its involvements calculated
-                if (dataRead.GetDaemonTasksByBuild(previousBuild.Id).Any(t => t.ProcessedUtc == null && (t.Stage == (int)DaemonTaskTypes.RevisionFromBuildServer) || t.Stage == (int)DaemonTaskTypes.RevisionFromLog))
+                if (dataRead.GetDaemonTasksByBuild(previousBuild.Id).Any(t => t.ProcessedUtc == null && (t.Stage == (int)ProcessStages.RevisionFromBuildServer) || t.Stage == (int)ProcessStages.RevisionFromLog))
                     return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Previous build id {previousBuild.Id} still processing build involvements, waiting." };
 
                 buildInvolvementsInPreviousBuild = dataRead.GetBuildInvolvementsByBuild(previousBuild.Id);
@@ -145,7 +145,7 @@ namespace Wbtb.Core.Web
 
                 dataWrite.SaveDaemonTask(new DaemonTask
                 {
-                    Stage = (int)DaemonTaskTypes.RevisionLink,
+                    Stage = (int)ProcessStages.RevisionLink,
                     BuildId = build.Id,
                     BuildInvolvementId = biID,
                     Src = this.GetType().Name
@@ -153,7 +153,7 @@ namespace Wbtb.Core.Web
 
                 dataWrite.SaveDaemonTask(new DaemonTask
                 {
-                    Stage = (int)DaemonTaskTypes.UserLink,
+                    Stage = (int)ProcessStages.UserLink,
                     BuildId = build.Id,
                     BuildInvolvementId = biID,
                     Src = this.GetType().Name

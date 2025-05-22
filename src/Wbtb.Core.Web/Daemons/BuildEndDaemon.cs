@@ -39,7 +39,7 @@ namespace Wbtb.Core.Web
 
         public void Start(int tickInterval)
         {
-            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval,  DaemonTaskTypes.BuildEnd);
+            _taskController.WatchForAndRunTasksForDaemon(this, tickInterval, ProcessStages.BuildEnd);
         }
 
         /// <summary>
@@ -73,13 +73,13 @@ namespace Wbtb.Core.Web
             {
                 BuildId = build.Id,
                 Src = this.GetType().Name,
-                Stage = (int)DaemonTaskTypes.LogImport,
+                Stage = (int)ProcessStages.LogImport,
             });
 
             if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
                 dataWrite.SaveDaemonTask(new DaemonTask
                 {
-                    Stage = (int)DaemonTaskTypes.RevisionFromBuildServer,
+                    Stage = (int)ProcessStages.RevisionFromBuildServer,
                     Src = this.GetType().Name,
                     BuildId = build.Id
                 });
@@ -90,7 +90,7 @@ namespace Wbtb.Core.Web
                 {
                     BuildId = build.Id,
                     Src = this.GetType().Name,
-                    Stage = (int)DaemonTaskTypes.IncidentAssign
+                    Stage = (int)ProcessStages.IncidentAssign
                 });
 
                 if (job.PostProcessors.Any())
@@ -98,7 +98,7 @@ namespace Wbtb.Core.Web
                     {
                         BuildId = build.Id,
                         Src = this.GetType().Name,
-                        Stage = (int)DaemonTaskTypes.PostProcess
+                        Stage = (int)ProcessStages.PostProcess
                     });
             }
             

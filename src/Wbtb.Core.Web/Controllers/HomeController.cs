@@ -226,7 +226,7 @@ namespace Wbtb.Core.Web.Controllers
             /// if build should have a revision from build but doesn't have it yet, try to explain why
             if (model.Build.Job.CanHaveRevisionInBuildLog && string.IsNullOrEmpty(model.Build.RevisionInBuildLog)) 
             {
-                DaemonTask task = daemonTasks.FirstOrDefault(t => t.Stage == (int)DaemonTaskTypes.RevisionFromLog);
+                DaemonTask task = daemonTasks.FirstOrDefault(t => t.Stage == (int)ProcessStages.RevisionFromLog);
                 if (task == null)
                 {
                     model.Build.RevisionInBuildLog = "No daemon task to read";
