@@ -12,7 +12,7 @@ namespace Wbtb.Core.CLI
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly Wbtb.Core.CLI.ConsoleCLIHelper _consoleHelper;
+        private readonly ConsoleCLIHelper _consoleHelper;
 
         #endregion
 
@@ -65,17 +65,17 @@ namespace Wbtb.Core.CLI
                 jobs.Add(job);
             }
 
-
             ConsoleHelper.WriteLine("Performing hard reset", addDate: false);
 
             ConsoleHelper.WriteLine($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.", addDate: false);
 
+            bool hard = true;
             foreach (Job job in jobs) 
             {
-                int reset = dataLayer.ResetJob(job.Id, false);
+                int reset = dataLayer.ResetJob(job.Id, hard);
                 int page = 0;
 
-                while (true)
+                while (true && !hard)
                 {
                     PageableData<Build> builds = dataLayer.PageBuildsByJob(job.Id, page, 100, true);
                     if (builds.Items.Count == 0)
@@ -97,7 +97,7 @@ namespace Wbtb.Core.CLI
 
                     page++;
                 }
-
+                
                 ConsoleHelper.WriteLine($"Job {job.Name} reset. {reset} records reset.", addDate: false);
             }
 

@@ -623,10 +623,13 @@ namespace Wbtb.Extensions.Data.Postgres
                 USING
                     build
                 WHERE
-                    (mutationreport.incidentid = build.id
-                    OR mutationreport.buildid = build.id
-                    OR mutationreport.mutationid = build.id)
-                    AND build.jobid = @jobid";
+                    build.jobid = @jobid
+                    AND
+                    (
+                        mutationreport.incidentid = build.id
+                        OR mutationreport.buildid = build.id
+                        OR mutationreport.mutationid = build.id
+                    )";
 
                 using (NpgsqlCommand cmd = new NpgsqlCommand(mutationReportReset, conWrap.Connection()))
                 {
@@ -670,6 +673,44 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
+        Build IDataPlugin.GetLastIncidentBefore(Build workingBuild)
+        {
+            string query = @"
+                SELECT
+                    *
+                FROM
+                    build
+                WHERE 
+                    incidentid = (
+                        -- get first preceding record with an incidentid, we assume this is the previous incident
+                        SELECT 
+                            id
+                        FROM
+                            build
+                        WHERE
+                            startedUtc < @fixStart
+                            AND jobid = @jobid
+                        ORDER BY
+                            startedutc DESC
+                        LIMIT
+                            1
+                    )
+                ORDER BY
+                    startedutc ASC
+                LIMIT 
+                    1";
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conWrap.Connection()))
+            {
+                IList<string> buildIds = new List<string>();
+                cmd.Parameters.AddWithValue("jobid", int.Parse(workingBuild.JobId));
+                cmd.Parameters.AddWithValue("fixStart", workingBuild.StartedUtc);
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    return new BuildConvert().ToCommon(reader);
+            }
+        }
 
         Build IDataPlugin.GetFixForIncident(Build incident)
         {
@@ -1990,7 +2031,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlocked(string buildId, int order)
+        IEnumerable<DaemonTask> IDataPlugin.GetBlockedDaemonTasks(string buildId, int order)
         {
             string sql = @"
                 SELECT
@@ -2016,33 +2057,59 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order) 
+
+        IEnumerable<DaemonTask> IDataPlugin.GetDaemonTasks(string buildid, ProcessStages stage) 
         {
             string sql = @"
                 SELECT
-                    DT.*
+                    *
                 FROM
-                    daemontask DT
-                    JOIN build B on B.id = DT.buildid
+                    daemontask
                 WHERE
-                    B.jobid = @jobid
-                    AND 
-                    DT.processedUtc is NULL
-                    AND DT.stage < @order
-                LIMIT 100";
+                    buildid = @buildid
+                    AND stage = @stage";
 
             // note the hard limit, this call scales badly, and generally we don't care about the specifics of blocks once we have too many, as that's a symptom of bigger problems
 
             using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
             using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
             {
-                cmd.Parameters.AddWithValue("jobid", int.Parse(jobid));
-                cmd.Parameters.AddWithValue("order", order);
+                cmd.Parameters.AddWithValue("buildid", int.Parse(buildid));
+                cmd.Parameters.AddWithValue("stage", (int)stage);
 
                 using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     return new DaemonTaskConvert().ToCommonList(reader);
             }
         }
+
+
+        int IDataPlugin.GetUnprocessedTaskCountForJob(string jobId)
+        {
+            string sql = @"
+                SELECT
+                    COUNT(DT.id)
+                FROM
+                    daemontask DT
+                    JOIN build B on B.id = DT.buildid
+                WHERE
+                    B.jobid = @jobid
+                    AND DT.processedUtc is NULL";
+
+            // note the hard limit, this call scales badly, and generally we don't care about the specifics of blocks once we have too many, as that's a symptom of bigger problems
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
+            {
+                cmd.Parameters.AddWithValue("jobid", int.Parse(jobId));
+
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                {
+                    reader.Read();
+                    return reader.GetInt32(0);
+                }
+            }
+        }
+
 
         IEnumerable<DaemonTask> IDataPlugin.GetBlockingDaemonTasks() 
         {

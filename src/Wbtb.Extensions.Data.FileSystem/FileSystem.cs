@@ -184,6 +184,11 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new Build { };
         }
 
+        Build IDataPlugin.GetLastIncidentBefore(Build workingBuild)
+        {
+            return new Build { };
+        }
+
         Build IDataPlugin.GetBreakBuildFixed(Build fix)
         {
             return new Build { };
@@ -475,12 +480,17 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new DaemonTask[] { };
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlocked(string buildId, int order)
+        IEnumerable<DaemonTask> IDataPlugin.GetBlockedDaemonTasks(string buildId, int order)
         {
             return new DaemonTask[] { };
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order)
+        int IDataPlugin.GetUnprocessedTaskCountForJob(string jobId) 
+        {
+            return 0;
+        }
+
+        IEnumerable<DaemonTask> IDataPlugin.GetDaemonTasks(string jobid, ProcessStages order)
         {
             return new DaemonTask[] { };
         }

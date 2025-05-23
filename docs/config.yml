@@ -105,6 +105,8 @@ BuildServers:
         Message:
         -   Plugin: myslack
             Group: mygroup
+        -   Plugin: myslack
+            Group: mygroup
             Remind: 1
     -   Key: a967dfaaf967
         Name : SkunkWords

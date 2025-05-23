@@ -89,7 +89,7 @@ namespace Wbtb.Core.Web
                             string intervalKey = $"alert_remind_{latestBuildInJob.IncidentBuildId}_{messageHandler.Plugin}_{messageHandler.User}_{messageHandler.Group}_{intervalBlock}";
                             CachePayload cachedSend = _cache.Get(TypeHelper.Name(this), intervalKey);
                             if (cachedSend.Payload != null)
-                                // alread sent
+                                // already sent
                                 continue;
 
                             IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(messageHandler.Plugin) as IMessagingPlugin;

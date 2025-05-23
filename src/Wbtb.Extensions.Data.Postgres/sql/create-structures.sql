@@ -294,7 +294,7 @@ ALTER TABLE public."build" OWNER TO postgres;
 CREATE TABLE public."store"
 (
     id integer NOT NULL DEFAULT nextval('"store_id_seq"'::regclass),
-    "key" character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    "key" character varying(256) COLLATE pg_catalog."default" NOT NULL,
     "plugin" character varying(256) COLLATE pg_catalog."default" NOT NULL,
     content text COLLATE pg_catalog."default",
     CONSTRAINT "store_pkey" PRIMARY KEY (id),

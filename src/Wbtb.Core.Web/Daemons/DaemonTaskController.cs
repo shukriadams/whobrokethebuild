@@ -146,7 +146,7 @@ namespace Wbtb.Core.Web
                             }
 
                             Build build = dataRead.GetBuildById(task.BuildId);
-                            IEnumerable<DaemonTask> blocking = dataRead.DaemonTasksBlocked(build.Id, thisTaskLevel);
+                            IEnumerable<DaemonTask> blocking = dataRead.GetBlockedDaemonTasks(build.Id, thisTaskLevel);
                             IEnumerable<DaemonTask> failing = blocking.Where(t => t.HasPassed.HasValue && !t.HasPassed.Value);
                             
                             // if previous fails in build, mark this as failed to.
@@ -154,7 +154,7 @@ namespace Wbtb.Core.Web
                             {
                                 task.ProcessedUtc = DateTime.UtcNow;
                                 task.HasPassed = false;
-                                task.Result = $"Marked as failed because preceeding task(s) failed. Fix then rereset job id {build.JobId}.";
+                                task.Result = $"Marked as failed because preceding task(s) failed. Fix then rereset job id {build.JobId}.";
                                 string failingTaskId = failing.First().Id;
                                 
                                 if (failing.Any(f => string.IsNullOrEmpty(f.FailDaemonTaskId)))
@@ -212,6 +212,7 @@ namespace Wbtb.Core.Web
                                             // note : task.Result can be set by daemon, don't overwrite it
                                             task.HasPassed = true;
                                             task.ProcessedUtc = DateTime.UtcNow;
+                                            task.Result = workResult.Description;
                                             dataWrite.SaveDaemonTask(task);
                                             dataWrite.TransactionCommit();
 

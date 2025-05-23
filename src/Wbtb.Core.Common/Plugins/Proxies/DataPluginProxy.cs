@@ -675,6 +675,17 @@ namespace Wbtb.Core.Common
             });
         }
 
+        Build IDataPlugin.GetLastIncidentBefore(Build workingBuild)
+        {
+            return _pluginSender.InvokeMethod<Build>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetLastIncidentBefore),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "fixingBuildId", Value = workingBuild }
+                }
+            });
+        }
+
         #endregion
 
         #region BUILD LOG PARSE RESULT
@@ -809,11 +820,11 @@ namespace Wbtb.Core.Common
             });
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlocked(string buildId, int order)
+        IEnumerable<DaemonTask> IDataPlugin.GetBlockedDaemonTasks(string buildId, int order)
         {
             return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
             {
-                FunctionName = nameof(IDataPlugin.DaemonTasksBlocked),
+                FunctionName = nameof(IDataPlugin.GetBlockedDaemonTasks),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "buildId", Value = buildId },
                     new PluginFunctionParameter { Name = "order", Value = order }
@@ -821,15 +832,25 @@ namespace Wbtb.Core.Common
             });
         }
 
+        int IDataPlugin.GetUnprocessedTaskCountForJob(string jobId)
+        {
+            return _pluginSender.InvokeMethod<int>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetUnprocessedTaskCountForJob),
+                Arguments = new PluginFunctionParameter[] {
+                    new PluginFunctionParameter { Name = "jobId", Value = jobId },
+                }
+            });
+        }
 
-        IEnumerable<DaemonTask> IDataPlugin.DaemonTasksBlockedForJob(string jobid, int order)
+        IEnumerable<DaemonTask> IDataPlugin.GetDaemonTasks(string jobid, ProcessStages stage)
         {
             return _pluginSender.InvokeMethod<IEnumerable<DaemonTask>>(this, new PluginArgs
             {
-                FunctionName = nameof(IDataPlugin.DaemonTasksBlockedForJob),
+                FunctionName = nameof(IDataPlugin.GetDaemonTasks),
                 Arguments = new PluginFunctionParameter[] {
                     new PluginFunctionParameter { Name = "jobid", Value = jobid },
-                    new PluginFunctionParameter { Name = "order", Value = order }
+                    new PluginFunctionParameter { Name = "stage", Value = stage }
                 }
             });
         }

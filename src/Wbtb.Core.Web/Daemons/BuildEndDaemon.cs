@@ -57,8 +57,8 @@ namespace Wbtb.Core.Web
 
         DaemonTaskWorkResult IWebDaemon.WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job) 
         {
-            BuildServer buildserver = dataRead.GetBuildServerById(job.BuildServerId);
-            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
+            BuildServer buildServer = dataRead.GetBuildServerById(job.BuildServerId);
+            IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
 
             build = buildServerPlugin.TryUpdateBuild(build);
 

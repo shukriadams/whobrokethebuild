@@ -32,6 +32,19 @@ WBTB requires a data backend to function. Currently Postgres is supported. Add t
         -   Password: mypassword
         -   Database: mywbtb
 
+## Logging
+
+WBTB uses Dotnet's logging level system. These can be overridden with env variables
+
+    Logging__LogLevel__Wbtb=YOUR_LEVEL
+
+where YOUR_LEVEL is the standard naming used by Dotnet : `Trace`, `Debug`, `Information`, `Warning`, `Error`, `Critical` and `None`.
+
+Additionally, the underlying Dotnet framework emits its own log entries, these can be overriden with
+
+    Logging__LogLevel__Microsoft=YOUR_LEVEL
+    Logging__LogLevel__Microsoft.Hosting.Lifetime=YOUR_LEVEL
+
 ## Local development
 
 ### Setup

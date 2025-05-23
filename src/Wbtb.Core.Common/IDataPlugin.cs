@@ -205,6 +205,13 @@ namespace Wbtb.Core.Common
 
         Incident GetIncident(string incidentId);
 
+        /// <summary>
+        /// Gets the last incident that occurred before a build.
+        /// </summary>
+        /// <param name="fixingBuild"></param>
+        /// <returns></returns>
+        Build GetLastIncidentBefore(Build workingBuild);
+
         #endregion
 
         #region BUILDLOG
@@ -253,6 +260,8 @@ namespace Wbtb.Core.Common
 
         bool DeleteDaemonTask(DaemonTask record);
 
+        int GetUnprocessedTaskCountForJob(string jobId);
+
         IEnumerable<DaemonTask> GetDaemonTasksByBuild(string buildid);
 
         /// <summary>
@@ -268,15 +277,15 @@ namespace Wbtb.Core.Common
         /// <param name="buildId"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        IEnumerable<DaemonTask> DaemonTasksBlocked(string buildId, int order);
+        IEnumerable<DaemonTask> GetBlockedDaemonTasks(string buildId, int order);
 
         /// <summary>
-        /// Gets unprocessed daemontasks for job. Failed daemontasks are ignored.
+        /// Gets daemontasks for job at the given stage
         /// </summary>
         /// <param name="jobid"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        IEnumerable<DaemonTask> DaemonTasksBlockedForJob(string jobid, int order);
+        IEnumerable<DaemonTask> GetDaemonTasks(string jobid, ProcessStages stage);
 
         PageableData<DaemonTask> PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobId = "");
 

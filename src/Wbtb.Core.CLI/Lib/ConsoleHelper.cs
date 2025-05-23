@@ -20,7 +20,7 @@ namespace Wbtb.Core.CLI
             {
                 ConsoleHelper.WriteLine("Existing jobs are : ");
                 foreach (Job existingJob in jobs)
-                    ConsoleHelper.WriteLine($"Name:{existingJob.Name} id: {existingJob.Id}", addDate : false);
+                    ConsoleHelper.WriteLine($"Name:{existingJob.Name} key: {existingJob.Key}", addDate : false);
             }
         }
     }
