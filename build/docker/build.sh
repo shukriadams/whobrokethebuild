@@ -21,6 +21,9 @@ if [ -z "$TAG" ]; then
     exit 1;
 fi
 
+# always force compose down
+$COMPOSE -f docker-compose.yml down --remove-orphans
+
 # write hhash + tag to currentVersion.txt in source, this will be displayed by web ui
 echo "$HASH $TAG" > ./../../src/Wbtb.Core.Web/currentVersion.txt 
 
@@ -82,7 +85,6 @@ if [ $BUILD -eq 1 ]; then
 fi
 
 if [ $SMOKETEST -eq 1 ]; then
-    $COMPOSE -f docker-compose.yml down --remove-orphans
     $COMPOSE -f docker-compose.yml up -d 
     sleep 5  # wait a few seconds to make sure app in container has started
     STATUS=$(curl -s -o /dev/null -w "%{http_code}" localhost:49022/error/notready) 
