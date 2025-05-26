@@ -129,7 +129,7 @@ namespace Wbtb.Core.Web
                 BuildInvolvement buildInvolvement = buildInvolvementsInThisBuild.FirstOrDefault(bi => bi.RevisionCode == revisionCode);
                 if (buildInvolvement != null)
                 {
-                    task.Result = $"Build involvement id {buildInvolvement.Id} already existed.";
+                    task.AppendResult($"Build involvement id {buildInvolvement.Id} already existed.");
                     continue;
                 }
 
@@ -163,7 +163,7 @@ namespace Wbtb.Core.Web
 
             }
 
-            task.Result = result.Result;
+            task.AppendResult(result.Result);
             return new DaemonTaskWorkResult();
         }
 

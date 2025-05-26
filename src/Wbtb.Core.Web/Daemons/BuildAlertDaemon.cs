@@ -15,8 +15,6 @@ namespace Wbtb.Core.Web
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly Configuration _config;
-
         private readonly Cache _cache;
 
         private readonly BuildEventHandlerHelper _buildLevelPluginHelper;
@@ -38,7 +36,6 @@ namespace Wbtb.Core.Web
 
             _di = new SimpleDI();
             _mutationHelper = mutationHelper;
-            _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
             _failingAlertKey = failingAlertKey;
             _cache = _di.Resolve<Cache>();
@@ -68,18 +65,17 @@ namespace Wbtb.Core.Web
 
             try
             {
-                string alertKey = _failingAlertKey.Get(job, build);
-
-                if (_cache.Get(TypeHelper.Name(this), job, build, alertKey).Payload != null)
-                {
-                    _log.LogTrace($"Latest build {build.UniquePublicKey} id {build.Id}, job {job.Name} has already been alerted as broken, skipping");
-                    return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed, Description = $"bypassed from cache, plugin \"{TypeHelper.Name(this)}\", job \"{job.Key}\", build \"{build.UniquePublicKey}\", key \"{alertKey}\"." };
-                }
-
                 string result = string.Empty;
 
                 if (build.Status == BuildStatus.Failed) 
                 {
+                    string alertKey = _failingAlertKey.Get(job, build);
+                    if (_cache.Get(TypeHelper.Name(this), job, build, alertKey).Payload != null)
+                    {
+                        _log.LogTrace($"Build {build.UniquePublicKey} id {build.Id}, job {job.Name} has already been alerted as broken, skipping");
+                        return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed, Description = $"bypassed from cache, plugin \"{TypeHelper.Name(this)}\", job \"{job.Key}\", build \"{build.UniquePublicKey}\", key \"{alertKey}\"." };
+                    }
+
                     _buildLevelPluginHelper.InvokeEvents("OnBroken", job.OnBroken, build);
 
                     // filter out remind handlers, we don't want to send regular alerts to them
@@ -87,36 +83,44 @@ namespace Wbtb.Core.Web
                     {
                         IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(messageHandler.Plugin) as IMessagingPlugin;
                         string localResult = messagePlugin.AlertBreaking(messageHandler.User, messageHandler.Group, build, false, false);
-                        result += $"{localResult} for handler {messageHandler.Plugin}, user:{messageHandler.User}|group:{messageHandler.Group}";
+                        result += $"{localResult} for handler {messageHandler.Plugin}, user:{messageHandler.User}|group:{messageHandler.Group}\n";
                         _log.LogTrace($"Processed broken message {messagePlugin.ContextPluginConfig.Key}, incident {build.IncidentBuildId}, job {job.Name}, result was {localResult}");
                     }
 
+                    dataLayer.SaveStore(new StoreItem
+                    {
+                        Key = alertKey,
+                        Plugin = this.GetType().Name,
+                        Content = $"Date:{DateTime.UtcNow}\n{result}"
+                    });
+
+                    _cache.Write(TypeHelper.Name(this), job, build, alertKey, "sent");
                     ConsoleHelper.WriteLine(this, $"Alerted job {job.Name} broken by build {build.Key} (id:{build.Id})");
                 }
 
                 if (build.Status == BuildStatus.Passed)
                 {
-                    _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, build);
                     Build incident = dataLayer.GetLastIncidentBefore(build);
+
+                    // has pass alert been sent? if so, don't alert again
+                    string alertKey = $"{incident.Key}_{job.Key}_deltaAlert_{build.Status}";
+                    if (_cache.Get(TypeHelper.Name(this), job, incident, alertKey).Payload != null)
+                    {
+                        _log.LogTrace($"Build {build.UniquePublicKey} id {build.Id}, job {job.Name} has already been alerted as fixed, skipping");
+                        return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed, Description = $"bypassed from cache, plugin \"{TypeHelper.Name(this)}\", job \"{job.Key}\", build \"{build.UniquePublicKey}\", key \"{alertKey}\"." };
+                    }
+
+                    _buildLevelPluginHelper.InvokeEvents("OnFixed", job.OnFixed, build);
                     foreach (MessageHandler alert in job.Message)
                     {
                         IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
                         string localResult = messagePlugin.AlertPassing(alert.User, alert.Group, incident, build);
-                        result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}";
+                        result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}\n";
                         _log.LogTrace($"Processed fixed message {messagePlugin.ContextPluginConfig.Key}, incident {incident.IncidentBuildId}, job {job.Name}, result was {localResult}");
                     }
 
                     ConsoleHelper.WriteLine(this, $"Alerted job {job.Name} passing at build {build.Key} (id:{build.Id}), incident was {incident.Key} (id:{incident.Id})");
                 }
-
-                dataLayer.SaveStore(new StoreItem
-                {
-                    Key = alertKey,
-                    Plugin = this.GetType().Name,
-                    Content = $"Date:{DateTime.UtcNow}\n{result}"
-                });
-
-                _cache.Write(TypeHelper.Name(this), job, build, alertKey, "sent");
 
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed, Description = result };
 

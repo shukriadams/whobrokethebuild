@@ -127,7 +127,7 @@ namespace Wbtb.Core.Web
 
             if (string.IsNullOrEmpty(revisionCode))
             {
-                task.Result = $"Could not read a revision code from log content. This might be due to an error with your revision regex {job.RevisionAtBuildRegex}, but it could be that the revision string was not written to the log.";
+                task.AppendResult($"Could not read a revision code from log content. This might be due to an error with your revision regex {job.RevisionAtBuildRegex}, but it could be that the revision string was not written to the log.");
                 return new DaemonTaskWorkResult();
             }
 
@@ -185,7 +185,7 @@ namespace Wbtb.Core.Web
                 BuildInvolvement buildInvolvement = buildInvolvementsInThisBuild.FirstOrDefault(bi => bi.RevisionCode == revisionIdToLink);
                 if (buildInvolvement != null) 
                 {
-                    task.Result = $"Build involvement id {buildInvolvement.Id} already existed.";
+                    task.AppendResult($"Build involvement id {buildInvolvement.Id} already existed.");
                     continue;
                 }
     

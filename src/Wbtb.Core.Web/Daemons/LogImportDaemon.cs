@@ -66,7 +66,7 @@ namespace Wbtb.Core.Web.Core
             }
 
             BuildLogRetrieveResult result = buildServerPlugin.ImportLog(build);
-            task.Result = result.Result;
+            task.AppendResult(result.Result);
 
             if (!result.Success)
                 return new DaemonTaskWorkResult { ResultType=DaemonTaskWorkResultType.Failed, Description = result.Result };

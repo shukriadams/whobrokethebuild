@@ -49,7 +49,7 @@ namespace Wbtb.Core.Common
         /// <summary>
         /// String describing result of task. For debugging / logging.
         /// </summary>
-        public string Result { get; set; }
+        public string Result { get; set; } = string.Empty;
 
         /// <summary>
         /// Execution order of task.
@@ -77,5 +77,19 @@ namespace Wbtb.Core.Common
         }
 
         #endregion
+
+        #region METHODS
+
+        /// <summary>
+        /// Convenient newline append to result
+        /// </summary>
+        /// <param name="addition"></param>
+        public void AppendResult(object addition) 
+        {
+            this.Result += $"{addition}\n";
+        }
+
+        #endregion
+
     }
 }

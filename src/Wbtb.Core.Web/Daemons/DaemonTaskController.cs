@@ -129,7 +129,7 @@ namespace Wbtb.Core.Web
                                 {
                                     task.ProcessedUtc = DateTime.UtcNow;
                                     task.HasPassed = false;
-                                    task.Result = $"Marked as timed out after {configuration.DaemonTaskTimeout} seconds.";
+                                    task.AppendResult($"Marked as timed out after {configuration.DaemonTaskTimeout} seconds.");
 
                                     try
                                     {
@@ -154,7 +154,7 @@ namespace Wbtb.Core.Web
                             {
                                 task.ProcessedUtc = DateTime.UtcNow;
                                 task.HasPassed = false;
-                                task.Result = $"Marked as failed because preceding task(s) failed. Fix then rereset job id {build.JobId}.";
+                                task.AppendResult($"Marked as failed because preceding task(s) failed. Fix then rereset job id {build.JobId}.");
                                 string failingTaskId = failing.First().Id;
                                 
                                 if (failing.Any(f => string.IsNullOrEmpty(f.FailDaemonTaskId)))
@@ -212,7 +212,7 @@ namespace Wbtb.Core.Web
                                             // note : task.Result can be set by daemon, don't overwrite it
                                             task.HasPassed = true;
                                             task.ProcessedUtc = DateTime.UtcNow;
-                                            task.Result = workResult.Description;
+                                            task.AppendResult(workResult.Description);
                                             dataWrite.SaveDaemonTask(task);
                                             dataWrite.TransactionCommit();
 
@@ -237,7 +237,7 @@ namespace Wbtb.Core.Web
                                             // commit transaction, this exception is normal and expected
                                             task.ProcessedUtc = DateTime.UtcNow;
                                             task.HasPassed = false;
-                                            task.Result = workResult.Description;
+                                            task.AppendResult(workResult.Description);
 
                                             dataWrite.SaveDaemonTask(task);
                                             dataWrite.TransactionCommit();
@@ -269,7 +269,7 @@ namespace Wbtb.Core.Web
                                         {
                                             task.ProcessedUtc = DateTime.UtcNow;
                                             task.HasPassed = false;
-                                            task.Result = ex.ToString();
+                                            task.AppendResult(ex);
                                             dataWrite.SaveDaemonTask(task);
                                         }
                                         catch (WriteCollisionException ex2)

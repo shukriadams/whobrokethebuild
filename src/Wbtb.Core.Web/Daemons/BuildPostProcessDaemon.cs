@@ -53,8 +53,6 @@ namespace Wbtb.Core.Web
 
         DaemonTaskWorkResult IWebDaemon.WorkThreaded(IDataPlugin dataRead, IDataPlugin dataWrite, DaemonTask task, Build build, Job job)
         {
-            task.Result = string.Empty;
-
             foreach (string postProcessor in job.PostProcessors)
             {
                 try
@@ -62,7 +60,7 @@ namespace Wbtb.Core.Web
                     IPostProcessorPlugin processor = _pluginProvider.GetByKey(postProcessor) as IPostProcessorPlugin;
 
                     PostProcessResult result = processor.Process(build);
-                    task.Result += result.Result;
+                    task.AppendResult(result.Result);
                     if (!result.Passed)
                         task.HasPassed = false;
 
@@ -72,10 +70,7 @@ namespace Wbtb.Core.Web
                 {
                     _log.LogError($"Unexpected post processor error at build id \"{build.Id}\", processor \"{postProcessor}\" : {ex}");
                     task.HasPassed = false;
-                    if (task.Result == null)
-                        task.Result = string.Empty;
-
-                    task.Result = $"{task.Result}\n{ex}";
+                    task.AppendResult(ex);
                 }
             }
 
