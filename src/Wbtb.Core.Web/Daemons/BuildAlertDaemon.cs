@@ -73,7 +73,7 @@ namespace Wbtb.Core.Web
                 if (_cache.Get(TypeHelper.Name(this), job, build, alertKey).Payload != null)
                 {
                     _log.LogTrace($"Latest build {build.UniquePublicKey} id {build.Id}, job {job.Name} has already been alerted as broken, skipping");
-                    return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed };
+                    return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed, Description = $"bypassed from cache, plugin \"{TypeHelper.Name(this)}\", job \"{job.Key}\", build \"{build.UniquePublicKey}\", key \"{alertKey}\"." };
                 }
 
                 string result = string.Empty;

@@ -329,7 +329,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
             string interval = GetCurrentInterval();
 
             if (build.Key == "39" && job.Name.ToLower().Contains("skunk"))
-                throw new Exception("Log import failed deliberately on build 39 for skunkwords. This is to test daemontask error handling.");
+                throw new Exception("Log import failed deliberately on build 39 for skunkwords. Do not worry - this is to test daemontask error handling.");
 
             if (!ResourceHelper.ResourceExists(this.GetType(), $"JSON.{interval}.builds.{remotekey.Value}.logs.{build.Key}.txt"))
                 return new BuildLogRetrieveResult { Result = "Build log does not exist" };
