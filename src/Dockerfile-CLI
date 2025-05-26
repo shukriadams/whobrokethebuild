@@ -1,3 +1,4 @@
+# container for wbtb cli only. Can be invoked with wbtb.config to interact with wbtb data backend etc.
 FROM ubuntu:20.04
 
 # squelch tzdata prompt

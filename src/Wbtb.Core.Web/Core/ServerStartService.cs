@@ -49,7 +49,6 @@ namespace Wbtb.Core.Web
                     di.RegisterFactory<IHubContext, HubFactory>();
                     di.Register<BuildEventHandlerHelper, BuildEventHandlerHelper>();
 
-
                     string exitOnConfigErrorLook = Environment.GetEnvironmentVariable("WBTB_EXIT_ON_CONFIG_ERROR");
 
                     if (exitOnConfigErrorLook == "0" || exitOnConfigErrorLook == "false") { 

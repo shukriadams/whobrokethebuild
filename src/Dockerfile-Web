@@ -1,3 +1,4 @@
+# Container for both web server + cli version of wbtb
 FROM ubuntu:20.04
 
 # squelch tzdata prompt
