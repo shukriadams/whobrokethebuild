@@ -101,6 +101,11 @@ namespace Wbtb.Core.Web
                 if (build.Status == BuildStatus.Passed)
                 {
                     Build incident = dataLayer.GetLastIncidentBefore(build);
+                    if (incident == null)
+                    {
+                        _log.LogTrace($"Build {build.UniquePublicKey} id {build.Id}, job {job.Name} is passed, but no incident found, pass alert no needed.");
+                        return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed, Description = $"no incident for pass, ignoring." };
+                    }
 
                     // has pass alert been sent? if so, don't alert again
                     string alertKey = $"{incident.Key}_{job.Key}_deltaAlert_{build.Status}";
@@ -128,7 +133,7 @@ namespace Wbtb.Core.Web
             catch (Exception ex)
             {
                 _log.LogError($"Unexpected error on job {job.Name}.", ex);
-                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = ex.Message };
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = ex.ToString() };
             }
         }
 
