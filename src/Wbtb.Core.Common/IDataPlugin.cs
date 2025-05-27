@@ -24,6 +24,8 @@ namespace Wbtb.Core.Common
 
         void TransactionCancel();
 
+        bool AreConnectionsAvailable();
+
         #endregion
 
         #region STOREITEM

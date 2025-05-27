@@ -23,6 +23,11 @@ namespace Wbtb.Extensions.Data.FileSystem
         {
 
         }
+        
+        bool IDataPlugin.AreConnectionsAvailable()
+        {
+            return true;
+        }
 
         ConfigurationState? IDataPlugin.AddConfigurationState(ConfigurationState configurationState)
         {

@@ -86,17 +86,19 @@ namespace Wbtb.Core.Web
             {
                 while (_running)
                 {
-                    if (_busy)
-                        return;
-
-                    _busy = true;
-
                     try
                     {
+                        if (_busy)
+                            return;
+
+                        _busy = true;
+
                         SimpleDI di = new SimpleDI();
                         DaemonTaskProcesses daemonProcesses = di.Resolve<DaemonTaskProcesses>();
                         PluginProvider pluginProvider = di.Resolve<PluginProvider>();
                         IDataPlugin dataRead = pluginProvider.GetFirstForInterface<IDataPlugin>();
+
+
                         Configuration configuration = di.Resolve<Configuration>();
                         ILogger log = di.Resolve<ILogger>();
 
@@ -107,16 +109,21 @@ namespace Wbtb.Core.Web
                             // check if threads are available, if not, drop all tasks and wait for next controller tick
                             try
                             {
-                                if (daemonProcesses.GetAllActive().Count() >= configuration.MaxThreads)
+                                if (daemonProcesses.GetAllActiveCount() >= configuration.MaxThreads)
                                     break;
 
-                                if (daemonProcesses.GetAllActive().Where(t => t.Daemon == this.GetType()).Count() >= configuration.MaxThreadsPerDaemon)
+                                if (daemonProcesses.GetAllActiveForTypeCount(this.GetType()) >= configuration.MaxThreadsPerDaemon)
                                     break;
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
                                 // the code above is _very_ unstable, getting plenty of thread exceptions that I can't figure out.
                                 // cross thread error on active collections, assume too many processes and try again late
+                                break;
+                            }
+
+                            if (!dataRead.AreConnectionsAvailable())
+                            {
                                 break;
                             }
 
@@ -147,10 +154,10 @@ namespace Wbtb.Core.Web
                             }
 
                             Build build = dataRead.GetBuildById(task.BuildId);
-                            IEnumerable<DaemonTask> blockedTasksForThisBuild = dataRead.GetBlockedDaemonTasks(build.Id, thisTaskLevel);
-                            IEnumerable<DaemonTask> failedTasksForThisBuild = blockedTasksForThisBuild.Where(t => t.HasPassed.HasValue && !t.HasPassed.Value);
+                            IEnumerable<DaemonTask> failedOrBlockedTasksForBuild = dataRead.GetBlockedDaemonTasks(build.Id, thisTaskLevel);
+                            IEnumerable<DaemonTask> failedTasksForThisBuild = failedOrBlockedTasksForBuild.Where(t => t.HasPassed.HasValue && !t.HasPassed.Value);
                             
-                            // if previous fails in build, mark this as failed to.
+                            // if previous daemontasks for this given build failed, mark this as failed too.
                             if (failedTasksForThisBuild.Any())
                             {
                                 task.ProcessedUtc = DateTime.UtcNow;
@@ -176,9 +183,9 @@ namespace Wbtb.Core.Web
                                 continue;
                             }
 
-                            if (blockedTasksForThisBuild.Any())
+                            if (failedOrBlockedTasksForBuild.Any())
                             {
-                                daemonProcesses.MarkBlocked(task, daemon, build, blockedTasksForThisBuild);
+                                daemonProcesses.MarkBlocked(task, daemon, build, failedOrBlockedTasksForBuild);
                                 continue;
                             }
 
@@ -289,9 +296,8 @@ namespace Wbtb.Core.Web
                     finally
                     {
                         _busy = false;
+                        Thread.Sleep(tickIntervalMilliseconds);
                     }
-
-                    Thread.Sleep(tickIntervalMilliseconds);
                 }
             }).Start();
         }

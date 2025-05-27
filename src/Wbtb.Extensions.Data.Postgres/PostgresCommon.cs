@@ -9,6 +9,15 @@ namespace Wbtb.Extensions.Data.Postgres
 {
     public class PostgresCommon
     {
+        private static int connectionCount = 0;
+        
+        private static object threadLock = new object();
+
+        public static int ConnectionCount() 
+        {
+            return connectionCount;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -22,11 +31,25 @@ namespace Wbtb.Extensions.Data.Postgres
             string user = contextPluginConfig.Config.First(c => c.Key == "User").Value.ToString();
             string connectionString = $"Host={host};Username={user};Password={password};Database={database};Include Error Detail=True;";
 
-            NpgsqlConnection connection = new NpgsqlConnection(connectionString);
-            connection.Open();
 
+            NpgsqlConnection connection = new NpgsqlConnection(connectionString);
+            connection.StateChange += (object sender, System.Data.StateChangeEventArgs e) =>{
+                lock(threadLock)
+                    if (e.CurrentState == System.Data.ConnectionState.Closed)
+                    {
+                        connectionCount--;
+                        if (connectionCount < 0)
+                            connectionCount = 0;
+                    }
+            };
+
+            lock (threadLock)
+                connectionCount++;
+
+            connection.Open();
             return connection;
         }
+
 
         public static int DestroyDatastore(PluginConfig contextPluginConfig) 
         {

@@ -18,11 +18,11 @@ namespace Wbtb.Core.Web
 
         public IEnumerable<DaemonTask> BlockingProcesses { get; set; }
 
-        public int ErrorCount { get; set; }
+        public int BlockedCount { get; set; }
 
         public DaemonBlockedProcess() 
         {
-            ErrorCount = 1;
+            BlockedCount = 1;
         }
     }
 }

@@ -19,8 +19,6 @@ namespace Wbtb.Core.Web
         private readonly PluginProvider _pluginProvider;
 
         private readonly Configuration _config;
-        
-        private readonly SimpleDI _di;
 
         #endregion
 
@@ -32,7 +30,6 @@ namespace Wbtb.Core.Web
             _taskController = processRunner;
             _config = config;
             _pluginProvider = pluginProvider;
-            _di = new SimpleDI();
         }
 
         #endregion
@@ -71,7 +68,6 @@ namespace Wbtb.Core.Web
             if (!File.Exists(logPath))
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Log for Build id:{build.Id} at path:{logPath} does not exist on disk." };
 
-            // todo : optimize, have to reread log just to hash is a major performance issue
             string rawLog;
 
             try
@@ -93,9 +89,9 @@ namespace Wbtb.Core.Web
             logParserResult.ParsedContent = result;
             dataWrite.SaveBuildLogParseResult(logParserResult);
 
-            string timestring = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten: true)}";
-            _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timestring}");
-            task.AppendResult($"{logParserResult.LogParserPlugin} {timestring}.");
+            string timeString = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten: true)}";
+            _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timeString}");
+            task.AppendResult($"{logParserResult.LogParserPlugin} {timeString}.");
 
             ConsoleHelper.WriteLine(this, $"Log parsed for build {build.Key} (id:{build.Id})");
             return new DaemonTaskWorkResult(); 

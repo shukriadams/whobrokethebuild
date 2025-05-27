@@ -78,6 +78,14 @@ namespace Wbtb.Core.Common
             });
         }
 
+        bool IDataPlugin.AreConnectionsAvailable()
+        {
+            return _pluginSender.InvokeMethod<bool>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.AreConnectionsAvailable)
+            });
+        }
+
         #endregion
 
         #region STOREITEM

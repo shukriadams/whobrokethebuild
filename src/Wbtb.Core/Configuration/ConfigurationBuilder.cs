@@ -99,8 +99,6 @@ namespace Wbtb.Core
 
         public void InjectBuildServers()
         { 
-            List<string> errors = new List<string>();
-
             foreach(BuildServer buildServerConfig in _config.BuildServers)
             {
                 BuildServer buildserver = _datalayer.GetBuildServerByKey(buildServerConfig.Key);
@@ -159,7 +157,12 @@ namespace Wbtb.Core
                     }
 
                     IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
-                    IEnumerable<Build> builds = buildServerPlugin.GetAllCachedBuilds(job);
+
+                    // NOTE : if ImportCount is not set and WBTB state has accumuluted many builds, this next block will be very slow as it will 
+                    // check each build and queue for reimport if not in db.
+                    IEnumerable<Build> builds = buildServerPlugin.GetAllCachedBuilds(job).Take(job.ImportCount);
+
+                    ConsoleHelper.WriteLine($"Checking {builds.Count()} builds");
 
                     foreach (Build build in builds)
                     {
@@ -182,6 +185,8 @@ namespace Wbtb.Core
                         ConsoleHelper.WriteLine($"Imported build {build.Key} under job {job.Name}");
                     }
                 }
+
+                ConsoleHelper.WriteLine($"Done verifying jobs");
             }
         }
 

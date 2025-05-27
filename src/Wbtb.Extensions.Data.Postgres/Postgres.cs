@@ -114,6 +114,14 @@ namespace Wbtb.Extensions.Data.Postgres
             if (!this.ContextPluginConfig.Config.Any(c => c.Key == "Database"))
                 throw new ConfigurationException("Missing config item \"Database\"");
 
+            if (!this.ContextPluginConfig.Config.Any(c => c.Key == "MaxConnections"))
+                throw new ConfigurationException("Missing config item \"MaxConnections\"");
+
+            int throwaway;
+            string rawMaxConnections = this.ContextPluginConfig.Config.First(c => c.Key == "MaxConnections").Value.ToString();
+            if (!int.TryParse(rawMaxConnections, out throwaway))
+                throw new ConfigurationException("Config item \"MaxConnections\" is not a valid integer.");
+
             return new PluginInitResult{ 
                 SessionId = Guid.NewGuid().ToString(),
                 Success = true
@@ -141,6 +149,24 @@ namespace Wbtb.Extensions.Data.Postgres
         int IDataPlugin.DestroyDatastore() 
         {
             return PostgresCommon.DestroyDatastore(this.ContextPluginConfig);
+        }
+
+        /// <summary>
+        /// Dirty implementation of connection count check, need to find 
+        /// </summary>
+        /// <returns></returns>
+        bool IDataPlugin.AreConnectionsAvailable() 
+        {
+            try
+            {
+                int maxConnections = int.Parse(this.ContextPluginConfig.Config.First(c => c.Key == "MaxConnections").Value.ToString());
+                int currentConnections = PostgresCommon.ConnectionCount();
+                return currentConnections < maxConnections;
+            }
+            catch
+            { 
+                return false;
+            }
         }
 
         #endregion
