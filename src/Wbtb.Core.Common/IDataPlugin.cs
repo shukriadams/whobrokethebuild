@@ -269,7 +269,7 @@ namespace Wbtb.Core.Common
         /// </summary>
         /// <param name="task"></param>
         /// <returns></returns>
-        IEnumerable<DaemonTask> GetPendingDaemonTasksByTask(int stage);
+        IEnumerable<DaemonTask> GetPendingDaemonTasksByLevel(int stage);
 
         /// <summary>
         /// Returns true if there are queued daemontasks for a given build below a task group threshhold

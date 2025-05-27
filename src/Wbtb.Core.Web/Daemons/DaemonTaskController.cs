@@ -40,7 +40,7 @@ namespace Wbtb.Core.Web
         /// <summary>
         /// Starts a daemon that runs child processes on its own thread.
         /// </summary>
-        /// <param name="work"></param>
+        /// <param name="daemon">Daemon this controller will be ticking.</param>
         /// <param name="tickInterval"></param>
         public void WatchForAndRunTasksForDaemon(IWebDaemon daemon, int tickInterval)
         {
@@ -73,7 +73,7 @@ namespace Wbtb.Core.Web
         /// </summary>
         /// <param name="work">Delegate from daemon implementation that will be executed to do work on task. Delegate is used instead of calling method directory so daemon can implement whatever interface it wants  </param>
         /// <param name="tickIntervalMilliseconds">Sleep time between ticks where tasks are checked for etc.</param>
-        /// <param name="daemon">Daemon instance </param>
+        /// <param name="daemon">Daemon this controller will be ticking.</param>
         /// <param name="daemonLevel"></param>
         public void WatchForAndRunTasksForDaemon(IWebDaemon daemon, int tickIntervalMilliseconds, ProcessStages? daemonLevel)
         {
@@ -100,10 +100,11 @@ namespace Wbtb.Core.Web
                         Configuration configuration = di.Resolve<Configuration>();
                         ILogger log = di.Resolve<ILogger>();
 
-                        IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByTask(thisTaskLevel);
+                        IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByLevel(thisTaskLevel);
                         
                         foreach (DaemonTask task in tasks)
                         {
+                            // check if threads are available, if not, drop all tasks and wait for next controller tick
                             try
                             {
                                 if (daemonProcesses.GetAllActive().Count() >= configuration.MaxThreads)
@@ -114,7 +115,7 @@ namespace Wbtb.Core.Web
                             }
                             catch (Exception)
                             {
-                                // this code above is unstable, getting plenty of thread exceptions that I can't figure out.
+                                // the code above is _very_ unstable, getting plenty of thread exceptions that I can't figure out.
                                 // cross thread error on active collections, assume too many processes and try again late
                                 break;
                             }
@@ -122,9 +123,9 @@ namespace Wbtb.Core.Web
                             DaemonActiveProcess activeProcess = daemonProcesses.GetActive(task);
                             if (activeProcess != null)
                             {
-                                // task is already running
-                                
-                                // check if active task has timed out, if so, mark it as failed
+                                // Task is already running
+
+                                // Check if running task has timed out, if so, mark it as failed
                                 if ((DateTime.UtcNow - activeProcess.CreatedUtc).TotalSeconds > configuration.DaemonTaskTimeout)
                                 {
                                     task.ProcessedUtc = DateTime.UtcNow;
@@ -138,7 +139,7 @@ namespace Wbtb.Core.Web
                                     }
                                     catch (WriteCollisionException) 
                                     {
-                                        log.LogWarning($"Write collision trying to mark timedout task id {task.Id}, trying again later Ignored unless flooding.");
+                                        log.LogWarning($"Write collision trying to mark timed out task id {task.Id}, trying again later Ignored unless flooding.");
                                     }
                                 }
 
@@ -188,8 +189,7 @@ namespace Wbtb.Core.Web
 
                             daemonProcesses.MarkActive(task, daemon, build);
 
-
-                            // do each work tick on its own thread
+                            // do the work tasks requires, but on its own thread so the work doesn't block this controller.
                             new Thread(delegate (){
 
                                 using (IDataPlugin dataWrite = pluginProvider.GetFirstForInterface<IDataPlugin>())
@@ -245,7 +245,9 @@ namespace Wbtb.Core.Web
                                             daemonProcesses.MarkDone(task);
                                         }
 
-                                        // force readback, this is most likely unnecessary but is still being tested
+                                        // force readback to ensure the data we just wrote can be read again, this is most likely
+                                        // unnecessary but we need to be sure because when this task is marked as done, dependent tasks
+                                        // need to be able to query it to do their work.
                                         if (task.ProcessedUtc.HasValue) 
                                         {
                                             while (true)

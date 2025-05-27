@@ -2005,7 +2005,7 @@ namespace Wbtb.Extensions.Data.Postgres
             }
         }
 
-        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByTask(int stage) 
+        IEnumerable<DaemonTask> IDataPlugin.GetPendingDaemonTasksByLevel(int stage) 
         {
             string sql = @"
                 SELECT
