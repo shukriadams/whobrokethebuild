@@ -707,7 +707,7 @@ namespace Wbtb.Extensions.Data.Postgres
                 FROM
                     build
                 WHERE 
-                    incidentid = (
+                    incidentbuildid = (
                         -- get first preceding record with an incidentid, we assume this is the previous incident
                         SELECT 
                             id
