@@ -85,7 +85,7 @@ namespace Wbtb.Core.Web.Core
                 });
 
             // build revision requires source control
-            if (!string.IsNullOrEmpty(job.RevisionAtBuildRegex) && !string.IsNullOrEmpty(job.SourceServerId))
+            if (job.LinkRevisions && !string.IsNullOrEmpty(job.RevisionAtBuildRegex) && !string.IsNullOrEmpty(job.SourceServerId))
                 dataWrite.SaveDaemonTask(new DaemonTask
                 {
                     BuildId = build.Id,

@@ -45,6 +45,12 @@ namespace Wbtb.Core.Common
         public string Name { get; set; }
 
         /// <summary>
+        /// If true, revisions will be linked to build event (either via build server or log regex). If false, several processors in the process chain 
+        /// will be bypassed. 
+        /// </summary>
+        public bool LinkRevisions { get; set; } = true;
+
+        /// <summary>
         /// 
         /// </summary>
         public IList<MessageHandler> Message { get; set; }

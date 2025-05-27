@@ -158,7 +158,7 @@ namespace Wbtb.Core
 
                     IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
 
-                    // NOTE : if ImportCount is not set and WBTB state has accumuluted many builds, this next block will be very slow as it will 
+                    // NOTE : if ImportCount is not set and WBTB state has accumulated many builds, this next block will be very slow as it will 
                     // check each build and queue for reimport if not in db.
                     IEnumerable<Build> builds = buildServerPlugin.GetAllCachedBuilds(job).Take(job.ImportCount);
 

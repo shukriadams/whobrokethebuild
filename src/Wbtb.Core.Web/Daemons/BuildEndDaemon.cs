@@ -69,6 +69,8 @@ namespace Wbtb.Core.Web
             dataWrite.SaveBuild(build);
 
             // create tasks for next stage
+
+            // after a build is complete we always want to fetch its log
             dataWrite.SaveDaemonTask(new DaemonTask
             {
                 BuildId = build.Id,
@@ -76,7 +78,9 @@ namespace Wbtb.Core.Web
                 Stage = (int)ProcessStages.LogImport,
             });
 
-            if (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex))
+            // We may want to assign revisions + users to a build, this can either be done as below by using information pulled directly from
+            // the build server, or from the log. If the latter, then the logImport handler will line up the task for us.
+            if (job.LinkRevisions && (!string.IsNullOrEmpty(job.SourceServer) && string.IsNullOrEmpty(job.RevisionAtBuildRegex)))
                 dataWrite.SaveDaemonTask(new DaemonTask
                 {
                     Stage = (int)ProcessStages.RevisionFromBuildServer,
@@ -86,6 +90,7 @@ namespace Wbtb.Core.Web
 
             if (build.Status == BuildStatus.Failed)
             {
+                // these two processors are assigned only on failing builds.
                 dataWrite.SaveDaemonTask(new DaemonTask
                 {
                     BuildId = build.Id,

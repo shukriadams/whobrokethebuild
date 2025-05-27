@@ -118,8 +118,10 @@ namespace Wbtb.Core.Web
             string logText;
             string revisionCode;
 
+            // normally this condition wouldn't trip, as this processor gets assigned only if the build job ass RevisionAtBuildRegex assigned. However,
+            // it's still possible to remove the regex from config after queuing processor, so check once more before processing.
             if (string.IsNullOrEmpty(job.RevisionAtBuildRegex))
-                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = "RevisionAtBuildRegex not set" };
+                return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = "RevisionAtBuildRegex not set" };
 
             string logPath = Build.GetLogPath(_config, job, build);
             logText = File.ReadAllText(logPath);
