@@ -6,11 +6,17 @@ namespace Wbtb.Core.Web
 {
     public class ViewDaemonTask : DaemonTask
     {
+        #region PROPERTIES
+
         public Build Build { get; set; }
 
         public DaemonActiveProcess ActiveProcess { get; set; }
 
         public DaemonBlockedProcess BlockedProcess { get; set; }
+
+        #endregion
+
+        #region METHODS
 
         public static ViewDaemonTask Copy(DaemonTask daemonTask)
         {
@@ -45,5 +51,7 @@ namespace Wbtb.Core.Web
                 items.PageSize,
                 items.TotalItemCount);
         }
+
+        #endregion
     }
 }

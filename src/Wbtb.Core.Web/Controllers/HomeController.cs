@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using Wbtb.Core.Common;
 
@@ -195,6 +196,19 @@ namespace Wbtb.Core.Web.Controllers
             return View(model);
         }
 
+        [ServiceFilter(typeof(ViewStatus))]
+        [Route("/buildById/{publicBuildId}")]
+        public IActionResult BuildById(string buildId) 
+        {
+            PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
+            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            Build build = dataLayer.GetBuildById(buildId);
+            if (build == null)
+                return Responses.NotFoundError($"build {buildId} does not exist");
+
+            return Redirect($"/build/{build.UniquePublicKey}");
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -252,7 +266,7 @@ namespace Wbtb.Core.Web.Controllers
                     bi.MappedUser = ViewUser.Copy(dataLayer.GetUserById(bi.MappedUserId));
             }
 
-            // sort invovlvements by revision date so they look ordered
+            // sort involvements by revision date so they look ordered
             if (!model.BuildInvolvements.Where(bi => bi.Revision == null).Any())
                 model.BuildInvolvements = model.BuildInvolvements.OrderByDescending(bi => bi.Revision.Created);
 

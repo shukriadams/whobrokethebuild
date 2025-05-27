@@ -114,7 +114,7 @@ namespace Wbtb.Core.Web
                             }
                             catch (Exception)
                             {
-                                // this section code above is pure unstable trash
+                                // this code above is unstable, getting plenty of thread exceptions that I can't figure out.
                                 // cross thread error on active collections, assume too many processes and try again late
                                 break;
                             }
@@ -146,19 +146,19 @@ namespace Wbtb.Core.Web
                             }
 
                             Build build = dataRead.GetBuildById(task.BuildId);
-                            IEnumerable<DaemonTask> blocking = dataRead.GetBlockedDaemonTasks(build.Id, thisTaskLevel);
-                            IEnumerable<DaemonTask> failing = blocking.Where(t => t.HasPassed.HasValue && !t.HasPassed.Value);
+                            IEnumerable<DaemonTask> blockedTasksForThisBuild = dataRead.GetBlockedDaemonTasks(build.Id, thisTaskLevel);
+                            IEnumerable<DaemonTask> failedTasksForThisBuild = blockedTasksForThisBuild.Where(t => t.HasPassed.HasValue && !t.HasPassed.Value);
                             
                             // if previous fails in build, mark this as failed to.
-                            if (failing.Any())
+                            if (failedTasksForThisBuild.Any())
                             {
                                 task.ProcessedUtc = DateTime.UtcNow;
                                 task.HasPassed = false;
                                 task.AppendResult($"Marked as failed because preceding task(s) failed. Fix then rereset job id {build.JobId}.");
-                                string failingTaskId = failing.First().Id;
+                                string failingTaskId = failedTasksForThisBuild.First().Id;
                                 
-                                if (failing.Any(f => string.IsNullOrEmpty(f.FailDaemonTaskId)))
-                                    failingTaskId = failing.Where(f => string.IsNullOrEmpty(f.FailDaemonTaskId)).First().Id;
+                                if (failedTasksForThisBuild.Any(f => string.IsNullOrEmpty(f.FailDaemonTaskId)))
+                                    failingTaskId = failedTasksForThisBuild.Where(f => string.IsNullOrEmpty(f.FailDaemonTaskId)).First().Id;
 
                                 task.FailDaemonTaskId = failingTaskId;
                                 
@@ -175,9 +175,9 @@ namespace Wbtb.Core.Web
                                 continue;
                             }
 
-                            if (blocking.Any())
+                            if (blockedTasksForThisBuild.Any())
                             {
-                                daemonProcesses.MarkBlocked(task, daemon, build, blocking);
+                                daemonProcesses.MarkBlocked(task, daemon, build, blockedTasksForThisBuild);
                                 continue;
                             }
 

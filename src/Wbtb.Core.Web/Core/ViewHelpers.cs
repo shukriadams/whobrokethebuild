@@ -212,7 +212,7 @@ namespace Wbtb.Core.Web
 
 
         /// <summary>
-        /// 
+        /// Generates a build link by build's UPID. This is the most common way to generate build links, the link shows the build's CI/CD key. 
         /// </summary>
         /// <param name="build"></param>
         /// <returns></returns>
@@ -222,6 +222,17 @@ namespace Wbtb.Core.Web
                 return new HtmlString(string.Empty);
 
             return new HtmlString($"<a href=\"/build/{build.UniquePublicKey}\">{build.Key}</a>");
+        }
+
+        /// <summary>
+        /// Generates a build link by build internal database id. Not for regular use, implemented mostly for log pages with long lists of build ids where 
+        /// for performance reasons we want to avoid fetching a build object only to generate a link to that build.
+        /// </summary>
+        /// <param name="buildId"></param>
+        /// <returns></returns>
+        public static HtmlString BuildLinkByBuildId(string buildId) 
+        {
+            return new HtmlString($"<a href=\"/buildById/{buildId}\">{buildId}</a>");
         }
 
 

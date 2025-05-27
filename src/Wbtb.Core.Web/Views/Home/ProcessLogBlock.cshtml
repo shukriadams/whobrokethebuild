@@ -81,7 +81,7 @@ else
                     </div>
                 </x-list-cell>
                 <x-list-cell>
-                    @item.BuildId
+                    @ViewHelpers.BuildLinkByBuildId(item.BuildId)
                 </x-list-cell>
                 <x-list-cell>
                     @((ProcessStages)item.Stage)
@@ -117,7 +117,7 @@ else
                     </div>
                 </x-list-cell>
                 <x-list-cell>
-                    @item.Task.BuildId
+                    @ViewHelpers.BuildLinkByBuildId(item.Task.BuildId)
                 </x-list-cell>
                 <x-list-cell>
                     @((ProcessStages)item.Task.Stage)
@@ -159,7 +159,7 @@ else
                     </div>
                 </x-list-cell>
                 <x-list-cell>
-                    @item.BuildId
+                    @ViewHelpers.BuildLinkByBuildId(item.BuildId)
                 </x-list-cell>
                 <x-list-cell>
                     @item.Daemon

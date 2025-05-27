@@ -81,7 +81,7 @@ namespace Wbtb.Core.Common
         #region METHODS
 
         /// <summary>
-        /// Convenient newline append to result
+        /// Convenient newline append to .Result property.
         /// </summary>
         /// <param name="addition"></param>
         public void AppendResult(object addition) 
