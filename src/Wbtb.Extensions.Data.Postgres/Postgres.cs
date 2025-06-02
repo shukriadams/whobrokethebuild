@@ -715,6 +715,7 @@ namespace Wbtb.Extensions.Data.Postgres
                             build
                         WHERE
                             startedUtc < @fixStart
+                            AND NOT incidentbuildid IS NULL
                             AND jobid = @jobid
                         ORDER BY
                             startedutc DESC
