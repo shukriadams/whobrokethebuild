@@ -47,8 +47,7 @@ namespace Wbtb.Core.Web
                     success = new
                     {
                         status = response.Status.Value,
-                        statusString = response.Status.Value.ToString(),
-
+                        statusString = response.Status.Value.ToString()
                     }
                 });
             }
