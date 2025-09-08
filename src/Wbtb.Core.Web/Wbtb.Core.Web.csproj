@@ -60,6 +60,7 @@
 
   <ItemGroup>
     <Folder Include="frontend\components\processLog\" />
+    <Folder Include="Properties\" />
     <Folder Include="Views\Error\" />
   </ItemGroup>
 

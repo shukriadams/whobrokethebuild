@@ -68,44 +68,52 @@ namespace Wbtb.Core.Web
                 {
                     Build latestBuildInJob = dataLayer.GetLatestBuildByJob(job);
 
+                    // no latest build means job hasn't run yet, ignore it
+                    if (latestBuildInJob == null)
+                        continue;
+
+                    // if latest build isn't failing, no need to remind on it
+                    if (latestBuildInJob.Status != BuildStatus.Failed)
+                        continue;
+
+                    // if incident id not set yet, build is still being processed. ignore for now
+                    if (string.IsNullOrEmpty(latestBuildInJob.IncidentBuildId))
+                        continue;
+
                     // check if alert key has been processed
-                    if (latestBuildInJob != null && !string.IsNullOrEmpty(latestBuildInJob.IncidentBuildId) && latestBuildInJob.Status == BuildStatus.Failed)
+                    string alertResultsForBuild = string.Empty;
+
+                    foreach (MessageHandler messageHandler in job.Message.Where(r => !string.IsNullOrEmpty(r.Remind)))
                     {
-                        string alertResultsForBuild = string.Empty;
+                        int remindInterval = int.Parse(messageHandler.Remind);
+                        string alertKey = $"{latestBuildInJob.Id}_{latestBuildInJob.IncidentBuildId}_{job.Key}_remind_{remindInterval}";
 
-                        foreach (MessageHandler messageHandler in job.Message.Where(r => !string.IsNullOrEmpty(r.Remind)))
+                        // test if repeatinterval has elapsed
+                        int hoursSinceIncident = (int)Math.Round((DateTime.UtcNow - latestBuildInJob.EndedUtc.Value).TotalHours, 0);
+                        int intervalBlock = hoursSinceIncident / remindInterval;
+                        if (intervalBlock == 0)
+                            // interval not yet elapsed
+                            continue;
+
+                        // check if alert for this block has already been sent
+                        string intervalKey = $"alert_remind_{latestBuildInJob.IncidentBuildId}_{messageHandler.Plugin}_{messageHandler.User}_{messageHandler.Group}_{intervalBlock}";
+                        CachePayload cachedSend = _cache.Get(TypeHelper.Name(this), intervalKey);
+                        if (cachedSend.Payload != null)
+                            // already sent
+                            continue;
+
+                        IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(messageHandler.Plugin) as IMessagingPlugin;
+                        string localResult = messagePlugin.RemindBreaking(messageHandler.User, messageHandler.Group, latestBuildInJob, false);
+                        alertResultsForBuild += $"{localResult} for handler {messageHandler.Plugin}, user:{messageHandler.User}|group:{messageHandler.Group}";
+
+                        _cache.Write(TypeHelper.Name(this), intervalKey, string.Empty);
+
+                        dataLayer.SaveStore(new StoreItem
                         {
-                            int remindInterval = int.Parse(messageHandler.Remind);
-                            string alertKey = $"{latestBuildInJob.Id}_{latestBuildInJob.IncidentBuildId}_{job.Key}_remind_{remindInterval}";
-
-                            // test if repeatinterval has elapsed
-                            int hoursSinceIncident = (int)Math.Round((DateTime.UtcNow - latestBuildInJob.EndedUtc.Value).TotalHours, 0);
-                            int intervalBlock = hoursSinceIncident / remindInterval;
-                            if (intervalBlock == 0)
-                                // interval not yet elapsed
-                                continue;
-
-                            // check if alert for this block has already been sent
-                            string intervalKey = $"alert_remind_{latestBuildInJob.IncidentBuildId}_{messageHandler.Plugin}_{messageHandler.User}_{messageHandler.Group}_{intervalBlock}";
-                            CachePayload cachedSend = _cache.Get(TypeHelper.Name(this), intervalKey);
-                            if (cachedSend.Payload != null)
-                                // already sent
-                                continue;
-
-                            IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(messageHandler.Plugin) as IMessagingPlugin;
-                            string localResult = messagePlugin.RemindBreaking(messageHandler.User, messageHandler.Group, latestBuildInJob, false);
-                            alertResultsForBuild += $"{localResult} for handler {messageHandler.Plugin}, user:{messageHandler.User}|group:{messageHandler.Group}";
-
-                            _cache.Write(TypeHelper.Name(this), intervalKey, string.Empty);
-
-                            dataLayer.SaveStore(new StoreItem
-                            {
-                                Key = intervalKey,
-                                Plugin = TypeHelper.Name(this),
-                                Content = $"Date:{DateTime.UtcNow}\n{alertResultsForBuild}"
-                            });
-                        }
-
+                            Key = intervalKey,
+                            Plugin = TypeHelper.Name(this),
+                            Content = $"Date:{DateTime.UtcNow}\n{alertResultsForBuild}"
+                        });
                     }
                 }
                 catch (Exception ex)

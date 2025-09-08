@@ -4,6 +4,7 @@
 
 - Dotnet 6.0
 - NodeJS 12 or better
+- A Postgres server, 4 or higher.
 - sh at the command line - this is standard on Linux, and can be easily installed on Windows by installing git-for-windows and including its built-in sh.exe on your PATH.
 
 ## Setup
@@ -55,6 +56,25 @@ To start the Wbtb server
 The url argument above may be required in Vagrant.
 
 ## Developer config and settings
+
+TL;DR: WBTB needs some basic config to work. There is a local developer config in the project, /docs/config.yml, ready to go. There are several ways to to use it, the simplest is :
+
+1. edit the file `src/Wbtb.Core.Web/Properties/launchSettings.json`. To its `environmentVariables` section add `"WBTB_CONFIG_PATH": "<PATH>"` where <PATH> is the absolute path to where that config.yml file is checked out on your system.
+
+2. Create a file `src/Wbtb.Core.Web/.env`, and add the following to it:
+
+    WBTB_HOSTNAME=http://myserver.local
+    WBTB_MAX_THREADS=1
+    WBTB_DAEMON_INTERVAL=1
+    PG_HOST=<POSTGRES SERVER>
+    PG_DATABASE=<POSTGRES DATABASE>
+    PG_USER=<POSTGRES USER>
+    PG_ADMIN_PWD=<POSTGRES PASSWORD>
+    WBTB_SLACK_CHANNEL=123
+
+Replace all values in <..> with your Postgres info. You're now ready to go.
+
+The longer version ....
 
 Wbtb requires a lot of configuration to work, and has several ways to manage this. Its most basic settings can be passed in as environment variables, while others should be defined in a config.yml file. By default, config.yml is expected in the application execution root directory './src/Wbtb.Core.Web/bin/Debug/net6.0/', but you can override this path with the environment variable `WBTB_CONFIG_PATH`. Visual Studio has built in ways of managing environment variables, these will all work. For convenience Wbtb has an additional mechanism - you can place all env vars in a file at the path `./src/Wbtb.Core.Web/.env`. This file should contain one my_var=some_value pair per line, and is already in .gitignore. This is a convenient place to place dev-time connection strings etc.
 

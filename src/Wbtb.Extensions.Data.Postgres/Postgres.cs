@@ -165,7 +165,8 @@ namespace Wbtb.Extensions.Data.Postgres
             }
             catch
             { 
-                return false;
+                // if max connections not set, assume we don't want safety, just go ham on db
+                return true;
             }
         }
 

@@ -11,6 +11,7 @@ Plugins:
     -   Host: {{env.PG_HOST}}
     -   Password: {{env.PG_ADMIN_PWD}}
     -   Database: {{env.PG_DATABASE}}
+    -   MaxConnections: 2
 -   Key: jenkinsSandbox
     Path : Wbtb.Extensions.BuildServer.JenkinsSandbox
 -   Key: p4Sandbox
