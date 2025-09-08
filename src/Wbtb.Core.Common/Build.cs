@@ -113,6 +113,13 @@ namespace Wbtb.Core.Common
             this.UniquePublicKey = Sha256.FromString($"{this.Key}_{job.Key}");
         }
 
+        /// <summary>
+        /// Gets the file path for the given build. WARNING : if doing custom log parsing, make sure to check of maximum log length.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="job"></param>
+        /// <param name="build"></param>
+        /// <returns></returns>
         public static string GetLogPath(Configuration config, Job job, Build build) 
         {
             return Path.Combine(config.BuildLogsDirectory, job.Key, build.Key, $"log.txt");

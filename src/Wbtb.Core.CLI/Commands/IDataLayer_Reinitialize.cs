@@ -31,7 +31,7 @@ namespace Wbtb.Core.CLI
 
         public string Describe()
         {
-            return @"Deleted and recreates all Wbtb database tables. This is a destructive operation.";
+            return @"Deletes and rebuilds entire Wbtb database (all data, all tables, everything). This is a destructive operation. This operation is necessary to apply schema changes.";
         }
 
 

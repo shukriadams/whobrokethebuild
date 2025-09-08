@@ -29,13 +29,18 @@ If you update frontend code after this you can rebuild with
     cd ./src/Wbtb.Core.Web/frontend
     npm run build
 
+Install in-place C# libs with
+    
+    cd ./src
+    sh ./setup-dependencies.sh
+
 To build the server 
 
     cd ./src
     dotnet restore Wbtb.Core.Web
     dotnet build Wbtb.Core.Web
 
-In most cases, Wbtb will require a separate service, MessageQueue, to be started as a process. 
+In most cases, Wbtb will require a separate service, MessageQueue, to be started as a process running in the background. 
 
     cd ./src
     dotnet restore MessageQueue
@@ -51,19 +56,17 @@ The url argument above may be required in Vagrant.
 
 ## Developer config and settings
 
-Wbtb requires a lot of configuration to work, and has several ways to manage this. Its most basic settings can be passed in as environment variables, while others should be defined in a config.yml file. By default, config.yml is expected in the application execution root directory './src/Wbtb.Core.Web/bin/Debug/net6.0/', but you can override this path with the environment variable `WBTB_CONFIG_PATH`.
+Wbtb requires a lot of configuration to work, and has several ways to manage this. Its most basic settings can be passed in as environment variables, while others should be defined in a config.yml file. By default, config.yml is expected in the application execution root directory './src/Wbtb.Core.Web/bin/Debug/net6.0/', but you can override this path with the environment variable `WBTB_CONFIG_PATH`. Visual Studio has built in ways of managing environment variables, these will all work. For convenience Wbtb has an additional mechanism - you can place all env vars in a file at the path `./src/Wbtb.Core.Web/.env`. This file should contain one my_var=some_value pair per line, and is already in .gitignore. This is a convenient place to place dev-time connection strings etc.
 
-Visual Studio has built in ways of managing environment variables, but you can also place them in a file at the path './src/.env'. This file should contain name=value per line, and is already in .gitignore. 
-
-WBTB also supports getting config.yml from a git repo. You can add a git url string in a file at `./src/.giturl`, or set the git url with the `WBTB_GIT_CONFIG_REPO_URL` environment variable. The URL must be self-authenticating, ie, contain its own auth credentials, WBTB does not currently support SSH authentication. WBTB will attempt to check the repo out to './src/Wbtb.Core.Web/bin/Debug/net6.0/<your-data-root>/ConfigCheckout
+Wbtb also supports getting config.yml from a git repo. You can add a git url string in a file at `./src/Wbtb.Core.Web/.giturl`, or set the git url with the `WBTB_GIT_CONFIG_REPO_URL` env var. The URL must be self-authenticating, ie, contain its own auth credentials, Wbtb does not currently support SSH authentication. Wbtb will attempt to check the repo out to './src/Wbtb.Core.Web/bin/Debug/net6.0/<your-data-root>/ConfigCheckout
 
 ## Secrets
 
-WTBB has rudimentary support for secrets using environment variables and config templating. To avoid storing secrets in config.yml, you can instead add the template string "{{env.MY_VALUE}}" (without quotes) anywhere in your config file. If you also define an environment variable 'MY_VALUE', this value will be automatically used with reading the contents of config.yml.
+Wbtb has rudimentary support for secrets using environment variables and config templating. To avoid storing secrets in config.yml, you can add the template string "{{env.MY_VALUE}}" (without quotes) anywhere in your config file. If you also define an environment variable 'MY_VALUE', its value will be automatically used when reading the contents of config.yml.
 
 ## Coding and Debugging
 
-Debugging WBTB is admittedly not always a simple matter of loading the solution in Visual Studio and hitting F5.
+Debugging Wbtb is admittedly not always a simple matter of loading the solution in Visual Studio and hitting F5.
 
 ### Simple setup
 
@@ -97,23 +100,21 @@ Project config must be serializable, as it passed out to plugin executables as J
 
 ## Why not fluent nhibernate or similar
 
-WBTB's core feature is a distrubuted, cross-runtime plugin system. Data objects from frameworks likeNhibernatecannot cross between objects while maintaining their live-updating ability, which is one of the core reasons for using them. 
+WBTB's core feature is a distrubuted, cross-runtime plugin system. Data objects from frameworks like Nhibernatecannot cross between objects while maintaining their live-updating ability, which is one of the core reasons for using them. 
 
 ## Plugins
 
-- Plugins should always be stateless. A plugin is instantiated to invoke a function on it, once the function exists, the plugin instance is assumed destroyed.
+- Plugins should always be stateless. A plugin is instantiated to invoke a function on it, once the function exists, the plugin instance is destroyed. If you want to persist values in a custom plugin across calls, you'll need to store it some place outside of the plugin, like on disk.
 
-- In theory, you can implement a plugin in way you want, as long as it respects WBTB's HTTP and CLI interface requirements (TBD), and has a WBTB manifest yml file in its root directory. If you're working in C# and want to use the WBTB.Common library as a base to get a plugin working quickly, your plugin should implement one of the standard WBTB plugin interfaces, and should have either a parameterless-constructor, or constructor arguments which are registered with WBTB's dependency injection system. You can register your own types in your plugin if you want.
+- In theory, you can implement a plugin in any way you want, as long as it respects WBTB's HTTP and CLI interface requirements (TBD), and has a WBTB manifest yml file in its root directory. If you're working in C# and want to use the WBTB.Common library as a base to get a plugin working quickly, your plugin should implement one of the standard WBTB plugin interfaces, and should have either a parameterless-constructor, or constructor arguments which are registered with WBTB's dependency injection system. You can register your own types in your plugin if you want.
 
 ## Dependencies
 
-Common must have as few dependencies as possible to reduce potential for dependency version conflicts within plugins.
+Common has as few dependencies as possible to reduce potential for dependency version conflicts within plugins.
 
 ## IOC
 
-No ioc in plugins, don't force or make assumptions about how plugins will be written.
-
-plugins get passed an instance of config which they must keep alive themselves
+No ioc in plugins, don't force or make assumptions about how plugins will be written. Plugins get passed an instance of config which they must keep alive themselves
 
 ## Daemon order
 

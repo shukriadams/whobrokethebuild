@@ -23,10 +23,6 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 
         string ILogParserPlugin.Parse(Build build, string raw)
         {
-            int maxLineLength = 0;
-            if (ContextPluginConfig.Config.Any(r => r.Key == "MaxLineLength"))
-                int.TryParse(ContextPluginConfig.Config.First(r => r.Key == "MaxLineLength").Value.ToString(), out maxLineLength);
-
             string chunkDelimiter = string.Empty;
             if (ContextPluginConfig.Config.Any(r => r.Key == "SectionDelimiter"))
                 chunkDelimiter = ContextPluginConfig.Config.First(r => r.Key == "SectionDelimiter").Value.ToString();
@@ -57,18 +53,6 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 
             foreach (string chunk in chunks)
             {
-                // filter out chunks that can poison regex with overly-long sequences
-                if (maxLineLength > 0)
-                {
-                    int maxContinuousLineLengthInChunk = chunk.Split(" ").OrderByDescending(r => r.Length).First().Length;
-                    if (maxContinuousLineLengthInChunk > maxLineLength)
-                    {
-                        BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
-                        builder.AddItem($"Skipping chunk with continuous line length of {maxContinuousLineLengthInChunk}, too long to process.", "log_parse_error");
-                        continue;
-                    }
-                }
-
                 // look for following matches
                 // at org.jenkinsci
                 // at jenkins.

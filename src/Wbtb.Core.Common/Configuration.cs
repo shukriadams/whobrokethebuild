@@ -104,9 +104,14 @@ namespace Wbtb.Core.Common
         public IList<JobGroup> JobGroups { get; set; }
             
         /// <summary>
-        /// Bytes. Imposes limit on log files for parsing.
+        /// Characters. Maximum length a log can be to processed by parsers. Safeguard against regex thread lockups. Logs that are too long are ignored by all parsers.
         /// </summary>
-        public long MaxReadableRawLogSize { get; set; }
+        public long MaxParsableLogSize { get; set; }
+
+        /// <summary>
+        /// Characters. Maximum length a line can be to processed by parsers. Safeguard against regex thread lockups. Lines that exceed this length are ignored by all parsers.
+        /// </summary>
+        public long MaxLineLength { get; set; }
 
         /// <summary>
         /// 
@@ -154,7 +159,7 @@ namespace Wbtb.Core.Common
             this.FailOnOrphans = true;
             this.StandardPageSize = 25;
             this.PagesPerPageGroup = 20;
-            this.MaxReadableRawLogSize = 30000000;
+            this.MaxParsableLogSize = 30000000;
 
             this.LiveConsoleSize = 500;
             this.DaemonInterval = 5;

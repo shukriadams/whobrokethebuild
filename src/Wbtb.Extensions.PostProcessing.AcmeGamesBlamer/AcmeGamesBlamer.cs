@@ -63,7 +63,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             IEnumerable<BuildInvolvement> buildInvolvements = data.GetBuildInvolvementsByBuild(build.Id);
             Build previousBuildInIncident = data.GetPrecedingBuildInIncident(build);
             string previusBuildMutationHash = string.Empty;
-            if (previousBuildInIncident != null) 
+            if (previousBuildInIncident != null)
                 previusBuildMutationHash = mutationHelper.GetBuildMutation(previousBuildInIncident);
 
             // get all revisions associated with this build
@@ -84,8 +84,17 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     Result = "Build not covered by perforce, ignoring."
                 };
 
-            // parse out clientspec from log : note the mandatory <p4-cient-state> wrapper required for clientspec in buildlog
+
             string rawLog = File.ReadAllText(Build.GetLogPath(config, job, build));
+            if (rawLog.Length > config.MaxParsableLogSize)
+                return new PostProcessResult
+                {
+                    // note that we mark parse as passed, because the error cannot be fixed by the user.
+                    Passed = true,
+                    Result = $"Log length exceeds maximum allowed character length of ${config.MaxParsableLogSize}. Log will not be parsed. To bypass this, increase \"{nameof(Configuration.MaxParsableLogSize)}\" in config, restart server and reset this build."
+                };
+
+            // parse out clientspec from log : note the mandatory <p4-cient-state> wrapper required for clientspec in buildlog
             string regex = @"<p4-cient-state>([\s\S]*?)<p4-cient-state>";
             string hash = Sha256.FromString(regex + rawLog);
             Cache cache = di.Resolve<Cache>();

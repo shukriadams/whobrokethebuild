@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
@@ -80,8 +82,27 @@ namespace Wbtb.Core.Web
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Failed to read log for build id:{build.Id} at path:{logPath}. Exception : {ex}" };
             }
 
+            string result = string.Empty;
+
+            // force maximum length on logs parsed, this is necessary to prevent extremely long logs from poisoning regexs in parsers.
+            if (rawLog.Length > _config.MaxParsableLogSize) 
+            {
+                result = $"Log length exceeds maximum allowed character length of ${_config.MaxParsableLogSize}. Log will not be parsed. To bypass this, increase \"{nameof(Configuration.MaxParsableLogSize)}\" in config, restart server and reset this build.";
+            } 
+            else 
+            {
+                // remove long lines from log before parsing
+                IEnumerable<string> lines = rawLog.Split(" ");
+                int unfilteredCount = lines.Count();
+                lines = lines.Where(line => line.Length < _config.MaxLineLength);
+                if (lines.Count() < unfilteredCount)
+                    result = $"{(unfilteredCount - lines.Count())} line(s) removed from log parsing because they exceed maximum continuous length of \"{_config.MaxLineLength}\" charachers.";
+                rawLog = string.Join("", lines);
+
+                // parse happens here
+                result += parser.Parse(build, rawLog);
+            }
             DateTime startUtc = DateTime.UtcNow;
-            string result = parser.Parse(build, rawLog);
 
             BuildLogParseResult logParserResult = new BuildLogParseResult();
             logParserResult.BuildId = build.Id;
