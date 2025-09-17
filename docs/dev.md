@@ -35,37 +35,31 @@ Install in-place C# libs with
     cd ./src
     sh ./setup-dependencies.sh
 
-To build the server 
+To build WBTB
 
     cd ./src
     dotnet restore Wbtb.Core.Web
     dotnet build Wbtb.Core.Web
 
-In most cases, Wbtb will require a separate service, MessageQueue, to be started as a process running in the background. 
-
-    cd ./src
-    dotnet restore MessageQueue
-    dotnet build MessageQueue
-    dotnet run --project MessageQueue
-
-To start the Wbtb server
+To start WBTB (note, see config below)
 
     cd ./src
     dotnet run --project Wbtb.Core.Web --urls=http://0.0.0.0:5000
 
-The url argument above may be required in Vagrant.
+The url argument above may be necessary in Vagrant only. Note that WBTB needs some basic config to run, see next section for that.
 
 ## Developer config and settings
 
-TL;DR: WBTB needs some basic config to work. There is a local developer config in the project, /docs/config.yml, ready to go. There are several ways to to use it, the simplest is :
+TL;DR: WBTB needs some basic config to work. There is a local developer config in the project at /docs/config.yml, ready to go. WBTB can consume config in several ways, the simplest is :
 
-1. edit the file `src/Wbtb.Core.Web/Properties/launchSettings.json`. To its `environmentVariables` section add `"WBTB_CONFIG_PATH": "<PATH>"` where <PATH> is the absolute path to where that config.yml file is checked out on your system.
+1. edit the file `src/Wbtb.Core.Web/Properties/launchSettings.json`. In the `WbtbWeb` node, in `environmentVariables`, add `"WBTB_CONFIG_PATH": "<PATH>"` where <PATH> is the absolute path to where that config.yml file is checked out on your system.
 
 2. Create a file `src/Wbtb.Core.Web/.env`, and add the following to it:
 
     WBTB_HOSTNAME=http://myserver.local
     WBTB_MAX_THREADS=1
     WBTB_DAEMON_INTERVAL=1
+    WBTB_PROXYMODE=direct
     PG_HOST=<POSTGRES SERVER>
     PG_DATABASE=<POSTGRES DATABASE>
     PG_USER=<POSTGRES USER>
@@ -76,7 +70,7 @@ Replace all values in <..> with your Postgres info. You're now ready to go.
 
 The longer version ....
 
-Wbtb requires a lot of configuration to work, and has several ways to manage this. Its most basic settings can be passed in as environment variables, while others should be defined in a config.yml file. By default, config.yml is expected in the application execution root directory './src/Wbtb.Core.Web/bin/Debug/net6.0/', but you can override this path with the environment variable `WBTB_CONFIG_PATH`. Visual Studio has built in ways of managing environment variables, these will all work. For convenience Wbtb has an additional mechanism - you can place all env vars in a file at the path `./src/Wbtb.Core.Web/.env`. This file should contain one my_var=some_value pair per line, and is already in .gitignore. This is a convenient place to place dev-time connection strings etc.
+Wbtb requires a lot of configuration to work, and has several ways to manage this. Its most basic settings can be passed in as environment variables, while others should be defined in a config.yml file. By default, config.yml is expected in the application execution root directory './src/Wbtb.Core.Web/bin/Debug/<CURRENT DOTNET RUNTIME>/', but you can override this path with the environment variable `WBTB_CONFIG_PATH`. Visual Studio has built-in ways of managing environment variables, these will all work. For convenience Wbtb has an additional mechanism - you can place all env vars in a file at the path `./src/Wbtb.Core.Web/.env`. This file should contain one my_var=some_value pair per line, and is already in .gitignore. This is a convenient place to place dev-time values like connection strings etc.
 
 Wbtb also supports getting config.yml from a git repo. You can add a git url string in a file at `./src/Wbtb.Core.Web/.giturl`, or set the git url with the `WBTB_GIT_CONFIG_REPO_URL` env var. The URL must be self-authenticating, ie, contain its own auth credentials, Wbtb does not currently support SSH authentication. Wbtb will attempt to check the repo out to './src/Wbtb.Core.Web/bin/Debug/net6.0/<your-data-root>/ConfigCheckout
 
@@ -96,13 +90,13 @@ Add your plugin to the WBTB solution, and then as Project dependency to Wbtb.Cor
 
 ### Direct messaging setup
 
-Normally plugins communicate via a combination of shell and HTTP. Shell interaction is the riskiest of the two, and is therefore locked down to very simple interactions that are kept stable. HTTP interaction are more suscepitble to variable conditions, and you can run a plugin in the same application context as the core app, but where all communication to plugins still happens over http. Set the environment variable `WBTB_PROXYMODE` to `direct` to enable this.
+When running in production, plugins communicate via a combination of shell and HTTP. HTTP traffic is handled by the MessageQueue app. For convenience this isn't necessary in dev environments, and can be disabled by setting the environment variable `WBTB_PROXYMODE` to `direct`.
 
 ### Diagnostic mode
 
 You can start any C# plugin in diagnostic mode by starting it with the `--diagnostic` switch. This mode is primarily intended to ensure that the plugin application can start properly and enters a state where incoming message can be received. The plugin will automatically invoke its `Diagnose` method, which you can override locally, then exit immediately.
 
-Diagnostic mode requires a running Messagequeue instance for the plugin to connect to. The easiest way to achieve this is manually start a MessageQueue server, then open the solution in another instance of Visual Studio, set `ForceMessageQueue=true` in config.yml and start the server. This will prime the MessageQueue with a valid config.
+Diagnostic mode requires a running Messagequeue instance for the plugin to connect to. The easiest way to achieve this is to manually start the MessageQueue service, then open the solution in another instance of Visual Studio, set `ForceMessageQueue=true` in config.yml, and start the web server. This will prime the MessageQueue with a valid config.
 
 ### Disconnected debugging
 
@@ -124,17 +118,13 @@ WBTB's core feature is a distrubuted, cross-runtime plugin system. Data objects 
 
 ## Plugins
 
-- Plugins should always be stateless. A plugin is instantiated to invoke a function on it, once the function exists, the plugin instance is destroyed. If you want to persist values in a custom plugin across calls, you'll need to store it some place outside of the plugin, like on disk.
+- Plugins should always be stateless. A plugin is instantiated to invoke a function on it, once the function exists, the plugin instance exits and all state is lost. If you want to persist values in a custom plugin across calls, you'll need to store it some place outside of the plugin, like on disk.
 
 - In theory, you can implement a plugin in any way you want, as long as it respects WBTB's HTTP and CLI interface requirements (TBD), and has a WBTB manifest yml file in its root directory. If you're working in C# and want to use the WBTB.Common library as a base to get a plugin working quickly, your plugin should implement one of the standard WBTB plugin interfaces, and should have either a parameterless-constructor, or constructor arguments which are registered with WBTB's dependency injection system. You can register your own types in your plugin if you want.
 
 ## Dependencies
 
 Common has as few dependencies as possible to reduce potential for dependency version conflicts within plugins.
-
-## IOC
-
-No ioc in plugins, don't force or make assumptions about how plugins will be written. Plugins get passed an instance of config which they must keep alive themselves
 
 ## Daemon order
 
