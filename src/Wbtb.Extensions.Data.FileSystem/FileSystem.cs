@@ -520,6 +520,10 @@ namespace Wbtb.Extensions.Data.FileSystem
             return new string[] { };
         }
 
+        int IDataPlugin.GetFailingDaemonTasksCount()
+        {
+            return 0;
+        }
         #endregion
 
         #region MUTATIONREPORT

@@ -902,6 +902,14 @@ namespace Wbtb.Core.Common
             });
         }
 
+        int IDataPlugin.GetFailingDaemonTasksCount()
+        {
+            return _pluginSender.InvokeMethod<int>(this, new PluginArgs
+            {
+                FunctionName = nameof(IDataPlugin.GetFailingDaemonTasksCount)
+            });
+        }
+
         #endregion
 
         #region INCIDENTSUMMARY

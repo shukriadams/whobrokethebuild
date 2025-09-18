@@ -84,6 +84,8 @@ namespace Wbtb.Core
             Directory.CreateDirectory(unvalidatedConfig.BuildLogsDirectory);
             Directory.CreateDirectory(unvalidatedConfig.PluginsWorkingDirectory);
             Directory.CreateDirectory(unvalidatedConfig.PluginDataPersistDirectory);
+            Directory.CreateDirectory(unvalidatedConfig.MetricsPath);
+            
 
             configurationManager.FetchPlugins(unvalidatedConfig);
             configurationManager.LoadManifestData(unvalidatedConfig, verbose);

@@ -57,6 +57,11 @@ namespace Wbtb.Core.Common
         public string LogPath { get; set; }
 
         /// <summary>
+        /// Path WBTB stores cached metrics files. File are generated periodically, then served by the metrics API.
+        /// </summary>
+        public string MetricsPath { get; set; }
+
+        /// <summary>
         /// Path dotnet spams its Windows-style trash logs to. Segregated because impossible to regulate.
         /// </summary>
         public string DotNetLogPath { get; set; }
@@ -82,6 +87,8 @@ namespace Wbtb.Core.Common
             this.DataRootPath = EnvironmentVariableHelper.GetString("WBTB_DATA_ROOT", Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data")); ;
             this.LogPath = EnvironmentVariableHelper.GetString("WBTB_LOG_PATH", Path.Join(this.DataRootPath, "logs", "log.txt"));
             this.DotNetLogPath = EnvironmentVariableHelper.GetString("WBTB_DOTNETLOG_PATH", Path.Join(this.DataRootPath, "logs", "log-sys.txt"));
+            this.MetricsPath = EnvironmentVariableHelper.GetString("WBTB_METRICS_PATH", Path.Join(this.DataRootPath, "Metrics"));
+
             this.BuildLogsDirectory = Path.Join(this.DataRootPath, "BuildLogs");
             this.PluginDataPersistDirectory = Path.Join(this.DataRootPath, "PluginData");
             this.PluginsWorkingDirectory = Path.Join(this.DataRootPath, "PluginsWorking");

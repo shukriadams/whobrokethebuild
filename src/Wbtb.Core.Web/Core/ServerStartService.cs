@@ -47,6 +47,7 @@ namespace Wbtb.Core.Web
                     di.Register<IWebDaemon, BuildBrokenRemindDaemon>(null, true);
                     di.RegisterSingleton(typeof(DaemonTaskProcesses), new DaemonTaskProcesses());
                     di.RegisterFactory<IHubContext, HubFactory>();
+                    di.Register<MetricsHelper, MetricsHelper>();
                     di.Register<BuildEventHandlerHelper, BuildEventHandlerHelper>();
 
                     string exitOnConfigErrorLook = Environment.GetEnvironmentVariable("WBTB_EXIT_ON_CONFIG_ERROR");

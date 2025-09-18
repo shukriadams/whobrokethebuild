@@ -2181,6 +2181,30 @@ namespace Wbtb.Extensions.Data.Postgres
                 return new DaemonTaskConvert().ToCommonList(reader);
         }
 
+        int IDataPlugin.GetFailingDaemonTasksCount()
+        {
+            string sql = @"
+                SELECT 
+                    COUNT(*)
+                FROM 
+                    daemontask WHERE (buildid, processedutc) IN
+                (
+	                SELECT DISTINCT(buildid), MIN(processedutc) FROM daemontask 
+	                WHERE NOT processedutc IS NULL
+	                AND passed = false
+	                GROUP BY buildid
+                )
+                ";
+
+            using (PostgresConnectionWrapper conWrap = new PostgresConnectionWrapper(this))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conWrap.Connection()))
+            using (NpgsqlDataReader reader = cmd.ExecuteReader())
+            {
+                reader.Read();
+                return reader.GetInt32(0);
+            }
+        }
+
         PageableData<DaemonTask> IDataPlugin.PageDaemonTasks(int index, int pageSize, string orderBy = "", string filterBy = "", string jobId = "") 
         {
             /*

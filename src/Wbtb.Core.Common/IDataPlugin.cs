@@ -301,6 +301,11 @@ namespace Wbtb.Core.Common
         /// <returns></returns>
         IEnumerable<string> GetFailingDaemonTasksBuildIds();
 
+        /// <summary>
+        /// Gets a count of builds associated with failing daemontasks. Use this for metrics etc
+        /// </summary>
+        int GetFailingDaemonTasksCount();
+
         #endregion
 
         #region MUATIONREPORT

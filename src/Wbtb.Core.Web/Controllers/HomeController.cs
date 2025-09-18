@@ -360,14 +360,17 @@ namespace Wbtb.Core.Web.Controllers
         public IActionResult ProcessLog(string hostname, int page, string orderBy, string filterby, string jobid)
         {
             Configuration config = _di.Resolve<Configuration>();
-            hostname = HttpUtility.UrlDecode(hostname);
+            hostname = HttpUtility.UrlDecode(hostname);  // todo : < refactor var out
             PluginProvider pluginProvider = _di.Resolve<PluginProvider>();
             DaemonTaskProcesses daemonProcesses = _di.Resolve<DaemonTaskProcesses>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             ProcessPageModel model = new ProcessPageModel();
 
-            // try to assign blocks to acitve processses to make it easier 
-            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page > 0 ? page - 1 : page, config.StandardPageSize, orderBy, filterby, jobid));
+            // convert human-friendly pages to 0-index
+            page = page > 0 ? page - 1 : page;
+
+            model.DaemonTasks = ViewDaemonTask.Copy(dataLayer.PageDaemonTasks(page, config.StandardPageSize, orderBy, filterby, jobid));
+
             foreach (ViewDaemonTask task in model.DaemonTasks.Items) 
             {
                 DaemonBlockedProcess block = model.BlockedProcesses.FirstOrDefault(b => b.Task.Id == task.Id);
@@ -377,8 +380,6 @@ namespace Wbtb.Core.Web.Controllers
                 model.BlockedProcesses.Remove(block);
                 task.BlockedProcess = block;
             }
-
-            
 
             model.DaemonTasks.Items.ToList().ForEach(daemonTask => daemonTask.Build = ViewBuild.Copy(dataLayer.GetBuildById(daemonTask.BuildId)));
             model.BaseUrl = $"/processlog";
