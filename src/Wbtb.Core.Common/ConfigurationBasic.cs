@@ -71,6 +71,11 @@ namespace Wbtb.Core.Common
         /// </summary>
         public string GitConfigUrl { get; set; }
 
+        /// <summary>
+        /// Normally enabled in dev environments. If false, plugins are validated only after config change.
+        /// </summary>
+        public bool ForcePluginValidation { get; set; }
+
         #endregion
 
         #region CTORS
@@ -82,6 +87,7 @@ namespace Wbtb.Core.Common
 
             this.GitConfigUrl = EnvironmentVariableHelper.GetString("WBTB_GIT_CONFIG_REPO_URL");
             this.PersistCalls = EnvironmentVariableHelper.GetBool("WBTB_PERSISTCALLS", false);
+            this.ForcePluginValidation = EnvironmentVariableHelper.GetBool("WBTB_FORCE_PLUGIN_VALIDATION", false);
             this.ProxyMode = EnvironmentVariableHelper.GetString("WBTB_PROXYMODE", "default");
             this.ConfigPath = EnvironmentVariableHelper.GetString(Constants.ENV_VAR_CONFIG_PATH, Path.Join(AppDomain.CurrentDomain.BaseDirectory, "config.yml"));
             this.DataRootPath = EnvironmentVariableHelper.GetString("WBTB_DATA_ROOT", Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Data")); ;

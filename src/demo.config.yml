@@ -30,6 +30,16 @@ Plugins:
     -   MaxLineLength : 10000
 -   Key: MyJustRegexPlease
     Path: Wbtb.Extensions.LogParsing.JustRegexPlease
+    Custom:
+        Name: My Network Smoke Test
+        SectionDelimiter : " ---- my log delimiter -----"  # optional
+        Regex: "^Network smoketest error occurred:"
+        Describes:
+        -   Name : My Ping Errors
+            Regex : "ing_Errors"
+        -   Name : My Timout Errors
+            Regex : "Net_timeouts"
+      
 -   Key: JenkinsSelfFailing
     Path: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
     Config:
@@ -122,6 +132,7 @@ BuildServers:
         LogParsers: 
         -   UnrealParser
         -   CppParser
+        -   MyJustRegexPlease 
         -   JenkinsSelfFailing
         -   BasicErrors
         -   AcmeGamesTester

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Wbtb.Core.Common
+﻿namespace Wbtb.Core.Common
 {
     public interface IPlugin
     {

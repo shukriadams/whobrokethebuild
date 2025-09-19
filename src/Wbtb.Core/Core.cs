@@ -58,7 +58,13 @@ namespace Wbtb.Core
             // it's safe to use datarootpath here, this doesn't need to be validated
             string cachePath = Path.Join(unvalidatedConfig.DataRootPath, ".currentConfigHash");
 
-            if (File.Exists(cachePath)) 
+            // in production environments we don't need to validate config each time we start service, if config
+            // hasn't changed since last validation.
+            if (configBasic.ForcePluginValidation) 
+            {
+                ConsoleHelper.WriteLine("Forcing plugin validation.");
+            }
+            else if (File.Exists(cachePath)) 
             {
                 try
                 {

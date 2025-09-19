@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Wbtb.Core.Common
 {
@@ -59,9 +61,14 @@ namespace Wbtb.Core.Common
         public PluginManifest Manifest { get; set; }
 
         /// <summary>
-        /// Addition key-value config specific to each plugin. These should be set to match what a given plugin expects.
+        /// Key-value config specific to each plugin. These should be set to match what a given plugin expects.
         /// </summary>
         public IEnumerable<KeyValuePair<string, object>> Config { get; set; }
+
+        /// <summary>
+        /// Free-form complex config when key-value Config is not enough.
+        /// </summary>
+        public object ConfigComplex { get; set; }
 
         /// <summary>
         /// namespace+type name of Proxytype for this plugin. 
@@ -81,5 +88,40 @@ namespace Wbtb.Core.Common
 
         #endregion
 
+        #region METHODS
+
+        /// <summary>
+        /// Parses raw JSON of plugin config to some type that can be passed in.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public Response<T> Deserialize<T>(string propertyName)
+        {
+            using var jDoc = JsonDocument.Parse(this.RawJson);
+
+            JsonElement configNode; 
+            bool exists = jDoc.RootElement.TryGetProperty(propertyName, out configNode);
+            if (!exists)
+                return new Response<T> { 
+                    Error = $"Expected config element '{propertyName}' not found" 
+                };
+
+            try
+            {
+                return new Response<T>
+                {
+                    Value = configNode.Deserialize<T>()
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response<T>
+                {
+                    Error = $"Could not interpret JSON {configNode} : {ex}"
+                };
+            }
+        }
+
+        #endregion
     }
 }

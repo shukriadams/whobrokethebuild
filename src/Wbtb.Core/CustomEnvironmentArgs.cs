@@ -34,7 +34,7 @@ namespace Wbtb.Core
             if (envArgFilePath == null)
                 return;
 
-            Console.WriteLine("custom env variable file found, applying");
+            Console.WriteLine($".env file found at {envArgFilePath}");
 
             string fileContent = File.ReadAllText(envArgFilePath);
             fileContent = fileContent.Replace("\r\n", "\n");

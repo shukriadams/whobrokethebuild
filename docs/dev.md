@@ -54,11 +54,12 @@ TL;DR: WBTB needs some basic config to work. There is a local developer config i
 
 1. edit the file `src/Wbtb.Core.Web/Properties/launchSettings.json`. In the `WbtbWeb` node, in `environmentVariables`, add `"WBTB_CONFIG_PATH": "<PATH>"` (keep the double quotes). <PATH> is the absolute path to where that config file is checked out on your system. 
 
-2. Create a file `src/Wbtb.Core.Web/.env`, and add the following to it:
+2. Create a file `src/.env`, and add the following to it:
 
     WBTB_HOSTNAME=http://myserver.local
     WBTB_MAX_THREADS=1
     WBTB_DAEMON_INTERVAL=1
+    WBTB_FORCE_PLUGIN_VALIDATION=true
     WBTB_PROXYMODE=direct
     PG_HOST=<POSTGRES SERVER>
     PG_DATABASE=<POSTGRES DATABASE>
@@ -70,7 +71,17 @@ Replace all values in <..> with your Postgres info. You're now ready to go.
 
 The longer version ....
 
-Wbtb requires a lot of configuration to work, and has several ways to manage this. Its most basic settings can be passed in as environment variables, while others should be defined in a config.yml file. By default, config.yml is expected in the application execution root directory './src/Wbtb.Core.Web/bin/Debug/<CURRENT DOTNET RUNTIME>/', but you can override this path with the environment variable `WBTB_CONFIG_PATH`. Visual Studio has built-in ways of managing environment variables, these will all work. For convenience Wbtb has an additional mechanism - you can place all env vars in a file at the path `./src/Wbtb.Core.Web/.env`. This file should contain one my_var=some_value pair per line, and is already in .gitignore. This is a convenient place to place dev-time values like connection strings etc.
+## Config
+
+Wbtb requires a lot of configuration to work. Config is provided in two ways - env variables, and a single config.yml file. There is some overlap between them. Generally, env variables are used for basic settings that Wbtb needs to start, and config.yml for complex settings Wbtb needs to do work.
+
+## Env variables
+
+All standard ways to set env vars in Dotnet and Visual Studio are valid. Wbtb provides an additional mechanism, where it will automtically look for a .env file in /src/Wbtb.Core.Web` or any parent directory of that, all the way up to the disk root. This file should contain one my_var=some_value pair per line. The file is already in .gitignore, and is a convenient place for dev-time values like connection strings etc.
+
+## Config.yml
+
+Config.yml contains a YML representation of Wbtb's Configuration class. It normally lives in the application execution root directory, `./src/Wbtb.Core.Web/bin/Debug/<CURRENT DOTNET RUNTIME>/` in VStudio. You can override where Wbtb looks for this file by setting the environment variable `WBTB_CONFIG_PATH`. 
 
 Wbtb also supports getting config.yml from a git repo. You can add a git url string in a file at `./src/Wbtb.Core.Web/.giturl`, or set the git url with the `WBTB_GIT_CONFIG_REPO_URL` env var. The URL must be self-authenticating, ie, contain its own auth credentials, Wbtb does not currently support SSH authentication. Wbtb will attempt to check the repo out to './src/Wbtb.Core.Web/bin/Debug/net6.0/<your-data-root>/ConfigCheckout
 
