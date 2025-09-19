@@ -7,17 +7,9 @@
 - A Postgres server, 4 or higher.
 - sh at the command line - this is standard on Linux, and can be easily installed on Windows by installing git-for-windows and including its built-in sh.exe on your PATH.
 
-## Setup
+## Get started
 
-### Vagrant
-
-You can set up a complete dev environment using Vagrant. After cloning, from the project root
-
-    cd ./vagrant/<your-hypervisor-flavor>
-    vagrant up
-    vagrant ssh
-
-Once inside the wbtb guest vm, set up frontend components (generally required once only when setting up project)
+Set up frontend components (generally required once only when setting up project)
 
     cd ./src/Wbtb.Core.Web/frontend
     sh ./setup.sh
@@ -35,41 +27,36 @@ Install in-place C# libs with
     cd ./src
     sh ./setup-dependencies.sh
 
-To build WBTB
+WBTB needs some basic config to work. There is a local developer config in the project at `/src/demo.config.yml`, which will create a project with example builds. Create a file `/src/.env`, and add the following to it:
 
-    cd ./src
-    dotnet restore Wbtb.Core.Web
-    dotnet build Wbtb.Core.Web
-
-To start WBTB (note, see config below)
-
-    cd ./src
-    dotnet run --project Wbtb.Core.Web --urls=http://0.0.0.0:5000
-
-The url argument above may be necessary in Vagrant only. Note that WBTB needs some basic config to run, see next section for that.
-
-## Developer config and settings
-
-TL;DR: WBTB needs some basic config to work. There is a local developer config in the project at `/src/demo.config.yml`, ready to go. WBTB can consume config in several ways, the simplest is :
-
-1. edit the file `src/Wbtb.Core.Web/Properties/launchSettings.json`. In the `WbtbWeb` node, in `environmentVariables`, add `"WBTB_CONFIG_PATH": "<PATH>"` (keep the double quotes). <PATH> is the absolute path to where that config file is checked out on your system. 
-
-2. Create a file `src/.env`, and add the following to it:
-
+    PG_HOST=<POSTGRES SERVER>
+    PG_DATABASE=<POSTGRES DATABASE>
+    PG_USER=<POSTGRES USER>
+    PG_ADMIN_PWD=<POSTGRES PASSWORD>
+    WBTB_CONFIG_PATH=<ABSOLUTE-PATH-TO-DEMO.CONFIG.YML>
     WBTB_HOSTNAME=http://myserver.local
     WBTB_MAX_THREADS=1
     WBTB_DAEMON_INTERVAL=1
     WBTB_FORCE_PLUGIN_VALIDATION=true
     WBTB_PROXYMODE=direct
-    PG_HOST=<POSTGRES SERVER>
-    PG_DATABASE=<POSTGRES DATABASE>
-    PG_USER=<POSTGRES USER>
-    PG_ADMIN_PWD=<POSTGRES PASSWORD>
     WBTB_SLACK_CHANNEL=123
 
-Replace all values in <..> with your Postgres info. You're now ready to go.
+Replace <ABSOLUTE-PATH-TO-DEMO.CONFIG.YML> with the absolute path to this file in your checkout, and all values in <POSTGRES..> with your Postgres info. Leave everything else in place. You're now ready to go.
 
-The longer version ....
+If you're running Visual Studio, you can start the project immediately. Open `\src\Wbtb.sln`, set `Wbtb.Core.Web` as the startup project, and lauch the `WbtbWeb` debug profile.
+
+If you're running from the command line, build WBTB
+
+    cd ./src
+    dotnet restore Wbtb.Core.Web
+    dotnet build Wbtb.Core.Web
+
+To start
+
+    cd ./src
+    dotnet run --project Wbtb.Core.Web --urls=http://0.0.0.0:5000
+
+Open `localhost:5000` in your browser.
 
 ## Config
 

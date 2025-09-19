@@ -1,4 +1,6 @@
-﻿Example a build failure caused by a timeout.
+﻿Build timeout example
+
+Example a build failure caused by a timeout.
 
 Build timed out (after 720 minutes). Marking the build as failed.
 

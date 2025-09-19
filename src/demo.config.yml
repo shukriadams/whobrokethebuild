@@ -31,14 +31,14 @@ Plugins:
 -   Key: MyJustRegexPlease
     Path: Wbtb.Extensions.LogParsing.JustRegexPlease
     Custom:
-        Name: My Network Smoke Test
-        SectionDelimiter : " ---- my log delimiter -----"  # optional
-        Regex: "^Network smoketest error occurred:"
+        Name: Network Smoke Test
+        SectionDelimiter : "<delimiter>"
+        Regex: "##Smoketest_error_alert##"
         Describes:
-        -   Name : My Ping Errors
-            Regex : "ing_Errors"
-        -   Name : My Timout Errors
-            Regex : "Net_timeouts"
+        -   Name : high ping
+            Regex : Ping_error:(\d*)
+        -   Name : time out
+            Regex : Net_timeout:(\d*)
       
 -   Key: JenkinsSelfFailing
     Path: Wbtb.Extensions.LogParsing.JenkinsSelfFailing

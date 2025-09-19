@@ -241,6 +241,16 @@
             "result": "FAILURE",
             "timestamp": 1600024000000,
             "builtOn": "Agent Two"
+        },
+        {
+            "_class": "hudson.model.FreeStyleBuild",
+            "duration": 91994,
+            "fullDisplayName": "MyProject - Build #47",
+            "id": "47",
+            "number": 47,
+            "result": "FAILURE",
+            "timestamp": 1600025000000,
+            "builtOn": "Agent Two"
         }
     ]
 }

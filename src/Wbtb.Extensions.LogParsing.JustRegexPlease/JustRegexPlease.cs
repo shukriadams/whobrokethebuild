@@ -69,8 +69,14 @@ namespace Wbtb.Extensions.LogParsing.JustRegexPlease
             // force unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
 
+            // internal error - try for cache
+            string errorHash = Sha256.FromString(response.Value.Regex + fullErrorLog);
+            CachePayload internaleErrorCacheLookup = cache.Get(this, job, build, errorHash);
+            if (internaleErrorCacheLookup.Payload != null)
+                return internaleErrorCacheLookup.Payload;
 
-            IEnumerable<string> chunks = null;
+            // try to break log up into chunks for better performance
+            IEnumerable<string> chunks;
             if (string.IsNullOrEmpty(response.Value.SectionDelimiter))
                 chunks = new List<string> { fullErrorLog };
             else
@@ -79,32 +85,32 @@ namespace Wbtb.Extensions.LogParsing.JustRegexPlease
             StringBuilder result = new StringBuilder();
             foreach (string chunk in chunks)
             {
-                // internal error - try for cache
-                string errorHash = Sha256.FromString(response.Value.Regex + fullErrorLog);
-                CachePayload internaleErrorCacheLookup = cache.Get(this, job, build, errorHash);
-                if (internaleErrorCacheLookup.Payload != null)
-                    return internaleErrorCacheLookup.Payload;
-
-                MatchCollection matches = new Regex(response.Value.Regex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(fullErrorLog);
+                MatchCollection matches = new Regex(response.Value.Regex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(chunk);
                 if (matches.Any())
                 {
-                    BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
-                    foreach (Match match in matches)
+                    // main regex tripped, try to match descibers now
+                    foreach (Describe describe in response.Value.Describes) 
                     {
-                        builder.AddItem(match.Groups[1].Value, "path");
-                        builder.AddItem(match.Groups[2].Value, "description");
-                        builder.NewLine();
+                        MatchCollection describeMatches = new Regex(describe.Regex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(chunk);
+                        if (describeMatches.Any()) 
+                        {
+                            BuildLogTextBuilder builder = new BuildLogTextBuilder(this.ContextPluginConfig);
+                            foreach (Match match in describeMatches)
+                            {
+                                builder.AddItem(describe.Name, "name");
+                                builder.AddItem(match.Groups[1].Value, "value");
+                                builder.NewLine();
+                            }
+
+                            result.Append(builder.GetText());
+                        }
                     }
-
-                    result.Append(builder.GetText());
-
-                    string flattened = result.ToString();
-                    cache.Write(this, job, build, errorHash, flattened);
-                    return flattened;
                 }
             }
 
-            return string.Empty;
+            string flattened = result.ToString();
+            cache.Write(this, job, build, errorHash, flattened);
+            return flattened;
         }
 
         #endregion

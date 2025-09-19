@@ -160,7 +160,7 @@ namespace Wbtb.Core.Common
             this.StandardPageSize = 25;
             this.PagesPerPageGroup = 20;
             this.MaxParsableLogSize = 30000000;
-
+            this.MaxLineLength = 10000;
             this.LiveConsoleSize = 500;
             this.DaemonInterval = 5;
             this.UnprocessedBuildProcessorLimit = 50;
