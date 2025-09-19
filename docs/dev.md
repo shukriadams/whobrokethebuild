@@ -50,9 +50,9 @@ The url argument above may be necessary in Vagrant only. Note that WBTB needs so
 
 ## Developer config and settings
 
-TL;DR: WBTB needs some basic config to work. There is a local developer config in the project at /docs/config.yml, ready to go. WBTB can consume config in several ways, the simplest is :
+TL;DR: WBTB needs some basic config to work. There is a local developer config in the project at `/src/demo.config.yml`, ready to go. WBTB can consume config in several ways, the simplest is :
 
-1. edit the file `src/Wbtb.Core.Web/Properties/launchSettings.json`. In the `WbtbWeb` node, in `environmentVariables`, add `"WBTB_CONFIG_PATH": "<PATH>"` where <PATH> is the absolute path to where that config.yml file is checked out on your system.
+1. edit the file `src/Wbtb.Core.Web/Properties/launchSettings.json`. In the `WbtbWeb` node, in `environmentVariables`, add `"WBTB_CONFIG_PATH": "<PATH>"` (keep the double quotes). <PATH> is the absolute path to where that config file is checked out on your system. 
 
 2. Create a file `src/Wbtb.Core.Web/.env`, and add the following to it:
 

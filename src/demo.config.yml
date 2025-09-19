@@ -28,6 +28,8 @@ Plugins:
     Config:
     -   SectionDelimiter: "-- LOG SECTION:"
     -   MaxLineLength : 10000
+-   Key: MyJustRegexPlease
+    Path: Wbtb.Extensions.LogParsing.JustRegexPlease
 -   Key: JenkinsSelfFailing
     Path: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
     Config:
@@ -97,6 +99,7 @@ BuildServers:
         LogParsers: 
         -   UnrealParser 
         -   CppParser
+        -   MyJustRegexPlease 
         -   JenkinsSelfFailing
         -   BasicErrors
         -   AcmeGamesTester
