@@ -12,6 +12,8 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
     {
         #region FIELDS
 
+        private readonly Logger _logger;
+
         private readonly Configuration _config;
 
         private readonly PluginProvider _pluginProvider;
@@ -24,12 +26,13 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
 
         #region CTORS
 
-        public Jenkins(Configuration config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper) 
+        public Jenkins(Configuration config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper, Logger logger) 
         {
             _config = config;
             _pluginProvider = pluginProvider;
             _persistPathHelper = persistPathHelper;
             _di = new SimpleDI();
+            _logger = logger;
         }
 
         #endregion
@@ -174,7 +177,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                     {
                         string placeholdertext = "Log no longer available on Jenkins.";
                         File.WriteAllText(persistPath, placeholdertext);
-                        ConsoleHelper.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                        _logger.Status(this, $"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
                         return placeholdertext;
                     }
                     else
@@ -278,7 +281,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                         if (resp.StatusCode != HttpStatusCode.NotFound)
                             throw ex;
 
-                        ConsoleHelper.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                        _logger.Status(this, $"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
                         return new BuildRevisionsRetrieveResult { Result = "Revisions no longer available on server <WBTB_BUILDSERVER_HISTORY_EXPIRED>.", Success = true };
                     }
                     else
@@ -533,7 +536,7 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                     {
                         string placeholdertext = "Log no longer available on server <WBTB_BUILDSERVER_HISTORY_EXPIRED>.";
                         File.WriteAllText(absoluteLogPath, placeholdertext);
-                        ConsoleHelper.WriteLine($"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
+                        _logger.Status(this, $"Jenkins no longer has revision listing for build {build.Id}, forcing empty");
                         return new BuildLogRetrieveResult { Success = true, Result = placeholdertext };
                     }
                     else
@@ -555,12 +558,12 @@ namespace Wbtb.Extensions.BuildServer.Jenkins
                 }
                 catch(Exception exCleanup)
                 {
-                    ConsoleHelper.WriteLine($"Unexpected error trying to rollback log @ {absoluteLogPath}", exCleanup);
+                    _logger.Error(this, $"Unexpected error trying to rollback log @ {absoluteLogPath}", exCleanup);
                 }
 
                 // yeah, what is going on here .....
                 // ignore network errors
-                ConsoleHelper.WriteLine($"Error fetching log for build {build.Id}", ex);
+                _logger.Error(this, $"Error fetching log for build {build.Id}", ex);
                 return new BuildLogRetrieveResult { Result = $"Error fetching log for build {build.Id}, {ex}" };
             }
 

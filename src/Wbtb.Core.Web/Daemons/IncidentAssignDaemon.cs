@@ -12,7 +12,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private ILogger _log;
+        private Logger _log;
 
         private IDaemonTaskController _taskController;
 
@@ -20,7 +20,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public IncidentAssignDaemon(ILogger log, IDaemonTaskController processRunner)
+        public IncidentAssignDaemon(Logger log, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
@@ -103,7 +103,7 @@ namespace Wbtb.Core.Web
 
                 // if reach here, previous build's incident not assigned, but likely because it hasn't been processed yet. 
                 // Mark current as blocked and wait.
-                ConsoleHelper.WriteLine(this, $"Skipping task {task.Id} for build {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned");
+                _log.Status(this, $"Skipping task {task.Id} for build {build.Id}, previous build {previousBuild.Id} is marked as fail but doesn't yet have an incident assigned", 1);
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Previous build id {build.Id}, job id {job.Id} waiting for incident assignment" };
             }
 
@@ -111,7 +111,7 @@ namespace Wbtb.Core.Web
             build.IncidentBuildId = previousBuild.IncidentBuildId;
             dataWrite.SaveBuild(build);
 
-            ConsoleHelper.WriteLine(this, $"Incidents assigned for for build {build.Key} (id:{build.Id})");
+            _log.Status(this, $"Incidents assigned for for build {build.Key} (id:{build.Id})", 1);
             return new DaemonTaskWorkResult();
         }
 

@@ -89,7 +89,7 @@ namespace Wbtb.Core.Common
         private static void PrintJSONToSTDOut(IEnumerable<string> data)
         {
             foreach(string line in data)
-                ConsoleHelper.WriteLine(line);
+                PluginLogger.Write(line);
 
             Environment.Exit(0);
         }
@@ -155,7 +155,7 @@ namespace Wbtb.Core.Common
                 { 
                     string[] manifest = File.ReadAllLines(manifestPath);
                     foreach(string line in manifest)
-                        ConsoleHelper.WriteLine(line);
+                        PluginLogger.Write(line);
                 }
 
                 return;

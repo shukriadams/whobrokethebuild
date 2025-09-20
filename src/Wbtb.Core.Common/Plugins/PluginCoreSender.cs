@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text;
 using System.Net;
-using System.Text.RegularExpressions;
 
 namespace Wbtb.Core.Common
 {
@@ -13,9 +12,12 @@ namespace Wbtb.Core.Common
     {
         private readonly Configuration _config;
 
-        public PluginCoreSender(Configuration config) 
+        private readonly Logger _logger;
+
+        public PluginCoreSender(Configuration config, Logger logger) 
         {
             _config = config;
+            _logger = logger;
         }
 
         /// <summary>
@@ -77,8 +79,8 @@ namespace Wbtb.Core.Common
             }
             catch (Exception ex)
             {
-                ConsoleHelper.WriteLine($"Failed to parse plugin result {innerJson} to type {typeof(TReturnType).Name}.");
-                ConsoleHelper.WriteLine(innerJson, ex);
+                _logger.Error(this, $"Failed to parse plugin result {innerJson} to type {typeof(TReturnType).Name}.");
+                _logger.Error(this, innerJson, ex);
 
                 throw;
             }

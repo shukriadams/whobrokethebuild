@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -85,8 +84,9 @@ namespace Wbtb.Core.Common
 
             this.StdErr.Add(e.Data);
 
+            Logger logger = new Logger();
             if (this.WriteToConsole)
-                ConsoleHelper.WriteLine(e.Data);
+                logger.Status(e.Data);
         }
 
         private void Cmd_OnStdOut(object sender, DataReceivedEventArgs e)
@@ -95,8 +95,9 @@ namespace Wbtb.Core.Common
 
             this.StdOut.Add(e.Data);
 
+            Logger logger = new Logger();
             if (this.WriteToConsole)
-                ConsoleHelper.WriteLine(e.Data);
+                logger.Status(e.Data);
         }
 
         #endregion

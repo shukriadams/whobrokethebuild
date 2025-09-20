@@ -7,18 +7,20 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
 {
     public class ActiveDirectory : Plugin, IAuthenticationPlugin 
     {
-
         #region FIELDS
 
         private readonly Configuration _config;
+
+        private readonly Logger _logger;
 
         #endregion
 
         #region CTORS
 
-        public ActiveDirectory() 
+        public ActiveDirectory(Logger logger, Configuration configuration) 
         {
-            _config = new Configuration();
+            _config = configuration;
+            _logger = logger;
         }
 
         #endregion
@@ -98,16 +100,16 @@ namespace Wbtb.Extensions.Auth.ActiveDirectory
                         
                         if (item.Properties[bindProperty] == null || item.Properties[bindProperty].Count == 0)
                         {
-                            ConsoleHelper.WriteLine("----------------------------------------");
-                            ConsoleHelper.WriteLine($"User without BindProperty \"{bindProperty}\".");
+                            _logger.Warn(this, "----------------------------------------");
+                            _logger.Warn(this, $"User without BindProperty \"{bindProperty}\".");
 
                             foreach (var prop in item.Properties.PropertyNames)
-                                ConsoleHelper.WriteLine($"{prop}:{item.Properties[prop.ToString()][0]}");
+                                _logger.Warn(this, $"{prop}:{item.Properties[prop.ToString()][0]}");
 
                             continue;
                         }
 
-                        ConsoleHelper.WriteLine($"Bind value:{item.Properties[bindProperty][0]}");
+                        _logger.Status(this, $"Bind value:{item.Properties[bindProperty][0]}");
                     }
                 }
             }

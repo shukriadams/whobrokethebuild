@@ -12,7 +12,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private ILogger _log;
+        private Logger _log;
 
         private IDaemonTaskController _taskController;
         
@@ -24,7 +24,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public RevisionLinkDaemon(ILogger log, IDaemonTaskController processRunner)
+        public RevisionLinkDaemon(Logger log, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
@@ -62,7 +62,7 @@ namespace Wbtb.Core.Web
 
             if (!sourceServerPlugin.AttemptReach(sourceServer).Reachable)
             {
-                _log.LogError($"unable to reach source server \"{sourceServer.Name}\", waiting for later.");
+                _log.Error(this, $"unable to reach source server \"{sourceServer.Name}\", waiting for later.");
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"source server {sourceServer.Name} unreachable" };
             }
 
@@ -76,7 +76,7 @@ namespace Wbtb.Core.Web
             buildInvolvement.RevisionId = revisionLookup.Revision.Id;
             dataWrite.SaveBuildInvolement(buildInvolvement);
 
-            ConsoleHelper.WriteLine(this, $"Linked revision {revisionLookup.Revision.Code} to build {build.Key} (id:{build.Id})");
+            _log.Status(this, $"Linked revision {revisionLookup.Revision.Code} to build {build.Key} (id:{build.Id})");
 
             return new DaemonTaskWorkResult();
         }

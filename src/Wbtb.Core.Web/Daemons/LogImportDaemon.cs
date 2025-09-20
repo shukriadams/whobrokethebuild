@@ -11,7 +11,7 @@ namespace Wbtb.Core.Web.Core
     {
         #region FIELDS
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         private readonly IDaemonTaskController _taskController;
         
@@ -23,7 +23,7 @@ namespace Wbtb.Core.Web.Core
 
         #region CTORS
 
-        public LogImportDaemon(ILogger log, IDaemonTaskController processRunner)
+        public LogImportDaemon(Logger log, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
@@ -61,7 +61,7 @@ namespace Wbtb.Core.Web.Core
 
             if (!reach.Reachable)
             {
-                _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                _log.Error(this, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}" };
             }
 
@@ -93,7 +93,7 @@ namespace Wbtb.Core.Web.Core
                     Stage = (int)ProcessStages.RevisionFromLog
                 });
 
-            ConsoleHelper.WriteLine(this, $"Log imported for build {build.Key} (id:{build.Id})");
+            _log.Status(this, $"Log imported for build {build.Key} (id:{build.Id})", 1);
 
             return new DaemonTaskWorkResult { };
         }

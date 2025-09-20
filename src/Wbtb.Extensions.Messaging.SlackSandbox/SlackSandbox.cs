@@ -23,13 +23,13 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         #endregion
 
         #region CTORS
 
-        public SlackSandbox(Configuration config, UrlHelper urlHelper, PluginProvider pluginProvider, ILogger log)
+        public SlackSandbox(Configuration config, UrlHelper urlHelper, PluginProvider pluginProvider, Logger log)
         {
             _config = config;
             _pluginProvider = pluginProvider;
@@ -269,7 +269,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack : {Convert.ToString(response)}");
+                _log.Error(this, $"Error posting to slack : {Convert.ToString(response)}");
                 return null;
             }
         }
@@ -413,7 +413,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack : {Convert.ToString(response)}");
+                _log.Error(this, $"Error posting to slack : {Convert.ToString(response)}");
                 return null;
             }
         }
@@ -542,7 +542,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack : {Convert.ToString(response)}");
+                _log.Error(this, $"Error posting to slack : {Convert.ToString(response)}");
                 return Convert.ToString(response);
             }
         }
@@ -595,7 +595,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
                 {
                     // log error
                     // mark message sent as failed, somwhere
-                    ConsoleHelper.WriteLine(ex);
+                    _log.Error(this, ex);
                     return null;
                 }
             }
@@ -629,7 +629,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             {
                 // log error
                 // mark message sent as failed, somwhere
-                ConsoleHelper.WriteLine(response);
+                _log.Error(this, response);
                 return null;
             }
         }
@@ -647,7 +647,7 @@ namespace Wbtb.Extensions.Messaging.SlackSandbox
             dynamic response = ExecAPI("conversations.list", data, forcedResponse);
             IEnumerable<JToken> channels = Enumerable.ToList(response.channels);
             foreach (JToken channel in channels)
-                ConsoleHelper.WriteLine(channel);
+                Console.WriteLine(channel);
         }
 
         string IMessagingPlugin.DeleteAlert(object alertIdentifier)

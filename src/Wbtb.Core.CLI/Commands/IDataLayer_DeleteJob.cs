@@ -5,6 +5,13 @@ namespace Wbtb.Core.CLI
 {
     internal class IDataLayer_DeleteJob : ICommand
     {
+        private readonly Logger _logger;
+
+        public IDataLayer_DeleteJob(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Deletes a job from database. This is meant for orphan cleanup";
@@ -17,7 +24,7 @@ namespace Wbtb.Core.CLI
 
             if (!switches.Contains("job"))
             {
-                ConsoleHelper.WriteLine($"ERROR : --job required", addDate: false);
+                _logger.Status($"ERROR : --job required");
                 Environment.Exit(1);
                 return;
             }
@@ -30,7 +37,7 @@ namespace Wbtb.Core.CLI
             }
             catch (RecordNotFoundException ex)
             {
-                ConsoleHelper.WriteLine(ex.Message, addDate: false);
+                _logger.Status(ex.Message);
                 Environment.Exit(1);
             }
         }

@@ -6,6 +6,13 @@ namespace Wbtb.Core.CLI
 {
     internal class Core_PruneBuildLogs : ICommand
     {
+        private readonly Logger _logger;
+
+        public Core_PruneBuildLogs(Logger logger) 
+        { 
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Deletes build logs that are no longer associated with a build.";
@@ -44,11 +51,11 @@ namespace Wbtb.Core.CLI
                     continue;
 
                 File.Delete(existingLogFile);
-                ConsoleHelper.WriteLine($"Removed orphan log {existingLogFile}", addDate: false);
+                _logger.Status($"Removed orphan log {existingLogFile}");
                 removed++;
             }
 
-            ConsoleHelper.WriteLine($"Done - deleted {removed} orphan build logs.", addDate: false);
+            _logger.Status($"Done - deleted {removed} orphan build logs.");
         }
     }
 }

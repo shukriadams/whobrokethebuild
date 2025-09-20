@@ -8,6 +8,13 @@ namespace Wbtb.Extensions.Auth.ActiveDirectorySandbox
 
     public class ActiveDirectorySandbox : Plugin, IAuthenticationPlugin
     {
+        private readonly Logger _logger;
+
+        public ActiveDirectorySandbox(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         PluginInitResult IPlugin.InitializePlugin()
         {
             if (!this.ContextPluginConfig.Config.Any(c => c.Key == "Host"))
@@ -47,7 +54,7 @@ namespace Wbtb.Extensions.Auth.ActiveDirectorySandbox
             string rawJson = ResourceHelper.ReadResourceAsString(this.GetType(), "JSON.users.json");
             IEnumerable<ADUser> users = JsonConvert.DeserializeObject<IEnumerable<ADUser>>(rawJson);
             foreach(ADUser user in users)
-                ConsoleHelper.WriteLine(user.Name);
+                Console.WriteLine(user.Name);
 
         }
 

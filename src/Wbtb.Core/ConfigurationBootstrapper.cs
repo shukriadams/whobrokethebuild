@@ -9,6 +9,23 @@ namespace Wbtb.Core
     /// </summary>
     public class ConfigurationBootstrapper
     {
+        #region PROPERTIES
+
+        private readonly Logger _logger;
+
+        #endregion
+
+        #region CTORS
+
+        public ConfigurationBootstrapper(Logger logger) 
+        {
+            _logger = logger;
+        }
+
+        #endregion
+
+        #region METHODS
+
         /// <summary>
         /// Ensures latest config. Returns true of config has changed
         /// </summary>
@@ -19,17 +36,14 @@ namespace Wbtb.Core
 
             if (string.IsNullOrEmpty(configurationBasic.GitConfigUrl))
             {
-                if (verbose)
-                    ConsoleHelper.WriteLine("GIT-CONFIG : sync disabled, skipping");
+                _logger.Status("GIT-CONFIG : sync disabled, skipping", 1);
                 return false;
             }
 
-            if (verbose)
-                ConsoleHelper.WriteLine("GIT-CONFIG : sync enabled");
+            _logger.Status("GIT-CONFIG : sync enabled", 1);
 
 
             string localPath = "config.yml";
-
             string cachePath = Path.Join(configurationBasic.DataRootPath, "ConfigCache");
             string checkoutPath = Path.Join(configurationBasic.DataRootPath, "ConfigCheckout");
 
@@ -55,7 +69,7 @@ namespace Wbtb.Core
                 // git clone
                 shell = new Shell();
                 string result = shell.Run($"git clone {configurationBasic.GitConfigUrl} {checkoutPath}");
-                ConsoleHelper.WriteLine($"GIT-CONFIG : {result}");
+                _logger.Status($"GIT-CONFIG : {result}");
             }
 
             shell = new Shell();
@@ -77,15 +91,16 @@ namespace Wbtb.Core
             {
                 shell = new Shell();
                 string commitMessage = shell.Run($"git log --format=%B -n 1 {incomingConfigFileHash}");
-                ConsoleHelper.WriteLine($"GIT-CONFIG : config has changed. Config hash was {targetConfigFileHash}, is now {incomingConfigFileHash} ({commitMessage}).");
+                _logger.Status($"GIT-CONFIG : config has changed. Config hash was {targetConfigFileHash}, is now {incomingConfigFileHash} ({commitMessage}).");
                 
                 return true;
             }
 
-            if (verbose)
-                ConsoleHelper.WriteLine($"GIT-CONFIG : Config unchanged at hash {targetConfigFileHash}.");
+            _logger.Status($"GIT-CONFIG : Config unchanged at hash {targetConfigFileHash}.", 1);
 
             return false;
         }
+
+        #endregion
     }
 }

@@ -11,16 +11,16 @@ namespace Wbtb.Core.CLI
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly ConsoleHelper _consoleHelper;
+        private readonly Logger _logger;
 
         #endregion
 
         #region CTORS
 
-        public Core_ResolveRevisionFromLog(PluginProvider pluginProvider, ConsoleHelper consoleHelper)
+        public Core_ResolveRevisionFromLog(PluginProvider pluginProvider, Logger logger)
         {
             _pluginProvider = pluginProvider;
-            _consoleHelper = consoleHelper;
+            _logger = logger;
         }
 
         #endregion
@@ -36,7 +36,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("build"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"--build\" <buildid> required", addDate: false);
+                _logger.Status($"ERROR : \"--build\" <buildid> required");
                 Environment.Exit(1);
                 return;
             }
@@ -50,14 +50,14 @@ namespace Wbtb.Core.CLI
 
             if (build == null) 
             {
-                ConsoleHelper.WriteLine($"ERROR : build {buildid} does not exist. Note this is a unique database id, not key/identifier from an external build srver.");
+                _logger.Status($"ERROR : build {buildid} does not exist. Note this is a unique database id, not key/identifier from an external build srver.");
                 Environment.Exit(1);
                 return;
             }
 
             if (!build.LogFetched)
             {
-                ConsoleHelper.WriteLine($"ERROR : build {buildid} has no log", addDate: false);
+                _logger.Status($"ERROR : build {buildid} has no log");
                 Environment.Exit(1);
                 return;
             }
@@ -65,7 +65,7 @@ namespace Wbtb.Core.CLI
             Job job = dataLayer.GetJobById(build.JobId);
             if (string.IsNullOrEmpty(job.RevisionAtBuildRegex)) 
             {
-                ConsoleHelper.WriteLine($"ERROR : job {job.Name} for build {buildid} has no RevisionAtBuildRegex regex set.", addDate: false);
+                _logger.Status($"ERROR : job {job.Name} for build {buildid} has no RevisionAtBuildRegex regex set.");
                 Environment.Exit(1);
                 return;
             }
@@ -75,12 +75,12 @@ namespace Wbtb.Core.CLI
             Match match = new Regex(job.RevisionAtBuildRegex, RegexOptions.IgnoreCase & RegexOptions.Multiline).Match(log);
             if (!match.Success || match.Groups.Count < 2)
             {
-                ConsoleHelper.WriteLine("No revisions found");
+                _logger.Status("No revisions found");
                 return;
             }
 
-            ConsoleHelper.WriteLine("Found ", addDate: false);
-            ConsoleHelper.WriteLine(match.Groups[1].Value, addDate: false);
+            _logger.Status("Found");
+            _logger.Status(match.Groups[1].Value);
         }
 
         #endregion

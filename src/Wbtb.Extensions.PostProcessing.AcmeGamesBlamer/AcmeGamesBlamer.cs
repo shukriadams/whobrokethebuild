@@ -11,6 +11,16 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
     /// </summary>
     public class AcmeGamesBlamer : Plugin, IPostProcessorPlugin
     {
+        private readonly Logger _logger;
+
+        private readonly BuildLogTextParser _buildLogTextParser;
+
+        public AcmeGamesBlamer(Logger logger, BuildLogTextParser buildLogTextParser) 
+        {
+            _logger = logger;
+            _buildLogTextParser = buildLogTextParser;
+        }
+
         PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
@@ -140,11 +150,17 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
-                ParsedBuildLogText parsedText = BuildLogTextParser.Parse(buildLogParseResult.ParsedContent);
-                if (parsedText == null)
+                Response<ParsedBuildLogText> parsedTextResponse = _buildLogTextParser.Parse(buildLogParseResult.ParsedContent);
+                if (parsedTextResponse.Error != null) 
+                {
+                    _logger.Error(this, parsedTextResponse.Error);
+                    continue;
+                }
+
+                if (parsedTextResponse.Value == null)
                     continue;
 
-                foreach (ParsedBuildLogTextLine line in parsedText.Items)
+                foreach (ParsedBuildLogTextLine line in parsedTextResponse.Value.Items)
                 {
                     if (line.Items.Any(l => l.Type == "flag" && l.Content == "shader"))
                         isShaderError = true;
@@ -152,34 +168,34 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     if (line.Items.Any(l => l.Type == "flag" && l.Content == "blueprint"))
                         isBluePrintError = true;
 
-                    if (parsedText.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing" && line.Items.Any(l => l.Type == "internalError"))
+                    if (parsedTextResponse.Value.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing" && line.Items.Any(l => l.Type == "internalError"))
                     {
                         isJenkinsInternalError = true;
                         break;
                     }
 
-                    if (parsedText.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing" && line.Items.Any(l => l.Type == "buildTimeout"))
+                    if (parsedTextResponse.Value.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing" && line.Items.Any(l => l.Type == "buildTimeout"))
                     {
                         isJenkinsBuildTimeout = true;
                         break;
                     }
 
-                    if (parsedText.Type == "Wbtb.Extensions.LogParsing.BasicErrors")
+                    if (parsedTextResponse.Value.Type == "Wbtb.Extensions.LogParsing.BasicErrors")
                         basicErrorParsed += $"{string.Join("\n", line.Items.Select(i => i.Content))}\n";
                     else
                         specificErrorParsed += $"{string.Join(" ", line.Items.Select(i => i.Content))} ";
 
                     foreach (ParsedBuildLogTextLineItem localPathItem in line.Items.Where(l => l.Type == "path")) 
                     {
-                        if (!allowedParsers.Contains(parsedText.Type))
+                        if (!allowedParsers.Contains(parsedTextResponse.Value.Type))
                             continue;
 
                         // force unitpaths, p4 uses these
                         string localFile = localPathItem.Content.Replace("\\", "/");
 
-                        isCPPError = parsedText.Type == "Wbtb.Extensions.LogParsing.Cpp";
+                        isCPPError = parsedTextResponse.Value.Type == "Wbtb.Extensions.LogParsing.Cpp";
 
-                        isFunctionalTestError = parsedText.Type == "Wbtb.Extensions.LogParsing.AcmeGamesTester";
+                        isFunctionalTestError = parsedTextResponse.Value.Type == "Wbtb.Extensions.LogParsing.AcmeGamesTester";
 
                         if (p4client == null)
                             continue;

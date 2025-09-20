@@ -34,9 +34,9 @@ namespace Wbtb.Core.Common
         }
     }
 
-    public static class BuildLogTextParser
+    public class BuildLogTextParser
     {
-        public static string ToInnerText(BuildLogParseResult result) 
+        public string ToInnerText(BuildLogParseResult result) 
         {
             XmlDocument xmlDoc = new XmlDocument();
             try
@@ -50,10 +50,10 @@ namespace Wbtb.Core.Common
             }
         }
 
-        public static ParsedBuildLogText Parse(string markup)
+        public Response<ParsedBuildLogText> Parse(string markup)
         {
             if (string.IsNullOrEmpty(markup))
-                return null;
+                return new Response<ParsedBuildLogText>();
 
             XmlDocument xmlDoc = new XmlDocument();
 
@@ -63,8 +63,7 @@ namespace Wbtb.Core.Common
             }
             catch(Exception ex)
             {
-                ConsoleHelper.WriteLine(ex);
-                return null;
+                return new Response<ParsedBuildLogText> { Error = $"Could not parse markup : {markup}, err {ex}" };
             }
 
             string version = xmlDoc.DocumentElement.HasAttribute("version") ? xmlDoc.DocumentElement.GetAttribute("version") : string.Empty;
@@ -89,7 +88,7 @@ namespace Wbtb.Core.Common
                     });
             }
 
-            return result;
+            return new Response<ParsedBuildLogText> { Value = result };
         }
     }
 }

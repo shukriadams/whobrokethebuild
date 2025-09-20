@@ -5,6 +5,13 @@ namespace Wbtb.Core.CLI.Commands
 {
     internal class IDataLayer_MergeUsers : ICommand
     {
+        private readonly Logger _logger;
+
+        public IDataLayer_MergeUsers(Logger logger) 
+        { 
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Nigrate child records of an orphan user to another user. The orphan user is deleted in the process.";
@@ -15,18 +22,18 @@ namespace Wbtb.Core.CLI.Commands
             SimpleDI di = new SimpleDI();
             OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
 
-            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.MergeUsers", addDate: false);
+            _logger.Status("Executing function IDataLayerPlugin.MergeUsers");
 
             if (!switches.Contains("from"))
             {
-                ConsoleHelper.WriteLine($"ERROR : key \"from\" required", addDate: false);
+                _logger.Status($"ERROR : key \"from\" required");
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("to"))
             {
-                ConsoleHelper.WriteLine($"ERROR : key \"to\" required", addDate: false);
+                _logger.Status($"ERROR : key \"to\" required");
                 Environment.Exit(1);
                 return;
             }
@@ -40,7 +47,7 @@ namespace Wbtb.Core.CLI.Commands
             }
             catch (RecordNotFoundException ex)
             {
-                ConsoleHelper.WriteLine(ex.Message, addDate: false);
+                _logger.Status(ex.Message);
                 Environment.Exit(1);
             }
         }

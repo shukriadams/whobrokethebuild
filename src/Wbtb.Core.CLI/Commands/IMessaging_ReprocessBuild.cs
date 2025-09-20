@@ -7,6 +7,13 @@ namespace Wbtb.Core.CLI
 {
     internal class IMessaging_ReprocessBuild : ICommand
     {
+        private readonly Logger _logger;
+
+        public IMessaging_ReprocessBuild(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Reprocesses message alerts for a given build. Requires that build already has an alert process associated with it. This exists only if the build was the last in the job in a lull window.";
@@ -16,7 +23,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("build"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"build\" <unique public id> required", addDate: false);
+                _logger.Status($"ERROR : \"build\" <unique public id> required");
                 Environment.Exit(1);
                 return;
             }
@@ -29,14 +36,14 @@ namespace Wbtb.Core.CLI
             Build build = dataLayer.GetBuildByUniquePublicIdentifier(buildId);
             if (build == null) 
             {
-                ConsoleHelper.WriteLine($"ERROR : \"--build\" UPID {buildId} does not point to a valid build", addDate: false);
+                _logger.Status($"ERROR : \"--build\" UPID {buildId} does not point to a valid build");
                 Environment.Exit(1);
             }
 
             IEnumerable<DaemonTask> daemonTasks = dataLayer.GetDaemonTasksByBuild(build.Id).Where(dt => dt.Stage == (int)ProcessStages.Alert);
             if (!daemonTasks.Any()) 
             {
-                ConsoleHelper.WriteLine($"No alert tasks found for build UPID {buildId}", addDate: false);
+                _logger.Status($"No alert tasks found for build UPID {buildId}");
                 Environment.Exit(1);
             }
 
@@ -45,10 +52,10 @@ namespace Wbtb.Core.CLI
                 daemonTask.AppendResult($"Queued for reprocess at {DateTime.UtcNow.ToHumanString()}");
                 daemonTask.ProcessedUtc = null;
                 dataLayer.SaveDaemonTask(daemonTask);
-                ConsoleHelper.WriteLine($"Requeued alert on daemontask {daemonTask.Id}", addDate: false);
+                _logger.Status($"Requeued alert on daemontask {daemonTask.Id}");
             }
 
-            ConsoleHelper.WriteLine($"Finished resetting {daemonTasks.Count()} processes", addDate: false);
+            _logger.Status($"Finished resetting {daemonTasks.Count()} processes");
         }
     }
 }

@@ -18,16 +18,19 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
 
         private readonly SimpleDI _di;
 
+        private readonly Logger _logger;
+
         #endregion
 
         #region CTORS
 
-        public JenkinsSandbox(Configuration config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper) 
+        public JenkinsSandbox(Configuration config, PluginProvider pluginProvider, PersistPathHelper persistPathHelper, Logger logger) 
         { 
             _config = config;
             _pluginProvider = pluginProvider;
             _persistPathHelper = persistPathHelper;
             _di = new SimpleDI();
+            _logger = logger;
         }
 
         #endregion
@@ -167,7 +170,7 @@ namespace Wbtb.Extensions.BuildServer.JenkinsSandbox
                 File.WriteAllText(persistPath, rawJson);
             }
             else
-                ConsoleHelper.WriteLine($"Failed to to read revisions for build {build.Key}, job {remotekey.Value}. No data in sandbox");
+                _logger.Status(this, $"Failed to to read revisions for build {build.Key}, job {remotekey.Value}. No data in sandbox");
             
             if (rawJson == null)
                 return new BuildRevisionsRetrieveResult { Result = "revisions not available in sandbox" };

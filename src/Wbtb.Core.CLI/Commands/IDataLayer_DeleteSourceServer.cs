@@ -5,6 +5,13 @@ namespace Wbtb.Core.CLI.Commands
 {
     internal class IDataLayer_DeleteSourceServer : ICommand
     {
+        private readonly Logger _logger;
+
+        public IDataLayer_DeleteSourceServer(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Deletes a source server from database. This is meant for orphan cleanup";
@@ -15,10 +22,10 @@ namespace Wbtb.Core.CLI.Commands
             SimpleDI di = new SimpleDI();
             OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
 
-            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.DeleteSourceServer", addDate : false);
+            _logger.Status("Executing function IDataLayerPlugin.DeleteSourceServer");
             if (!switches.Contains("key"))
             {
-                ConsoleHelper.WriteLine($"ERROR : key required");
+                _logger.Status($"ERROR : key required");
                 Environment.Exit(1);
                 return;
             }
@@ -32,7 +39,7 @@ namespace Wbtb.Core.CLI.Commands
             }
             catch (RecordNotFoundException ex)
             {
-                ConsoleHelper.WriteLine(ex.Message, addDate: false);
+                _logger.Status(ex.Message);
                 Environment.Exit(1);
             }
         }

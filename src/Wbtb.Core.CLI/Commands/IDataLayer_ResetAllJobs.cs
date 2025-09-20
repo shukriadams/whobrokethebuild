@@ -10,16 +10,16 @@ namespace Wbtb.Core.CLI
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly ConsoleHelper _consoleHelper;
+        private readonly Logger _logger;
 
         #endregion
 
         #region CTORS
 
-        public IDataLayer_ResetAllJobs(PluginProvider pluginProvider, ConsoleHelper consoleHelper)
+        public IDataLayer_ResetAllJobs(PluginProvider pluginProvider, Logger logger)
         {
             _pluginProvider = pluginProvider;
-            _consoleHelper = consoleHelper;
+            _logger = logger;
         }
 
         #endregion
@@ -35,9 +35,9 @@ namespace Wbtb.Core.CLI
         {
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
 
-            ConsoleHelper.WriteLine("Performing hard reset", addDate: false);
+            _logger.Status("Performing hard reset");
 
-            ConsoleHelper.WriteLine($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.", addDate: false);
+            _logger.Status($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.");
 
             foreach (Job job in dataLayer.GetJobs())
             {
@@ -61,13 +61,13 @@ namespace Wbtb.Core.CLI
                         });
 
                         Thread.Sleep(10);
-                        ConsoleHelper.WriteLine($"Requeued build {build.Key} for processing.", addDate: false);
+                        _logger.Status($"Requeued build {build.Key} for processing.");
                     }
 
                     page++;
                 }
 
-                ConsoleHelper.WriteLine($"Job {job.Name} reset. {deleted} records deleted.", addDate: false);
+                _logger.Status($"Job {job.Name} reset. {deleted} records deleted.");
             }
         }
 

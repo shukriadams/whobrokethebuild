@@ -13,6 +13,13 @@ namespace Wbtb.Core
     /// </summary>
     public class Core
     {
+        private readonly Logger _logger;
+
+        public Core(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         /// <summary>
         /// Single-call wrapper to start server.
         /// </summary>
@@ -21,6 +28,7 @@ namespace Wbtb.Core
             // pre-start stuff
             SimpleDI di = new SimpleDI();
 
+            di.Register<BuildLogTextParser, BuildLogTextParser>();
             di.Register<UrlHelper, UrlHelper>();
             di.Register<ConfigurationLoader, ConfigurationLoader>();
             di.Register<CurrentVersion, CurrentVersion>();
@@ -62,7 +70,7 @@ namespace Wbtb.Core
             // hasn't changed since last validation.
             if (configBasic.ForcePluginValidation) 
             {
-                ConsoleHelper.WriteLine("Forcing plugin validation.");
+                _logger.Status("Forcing plugin validation.", 1);
             }
             else if (File.Exists(cachePath)) 
             {
@@ -72,13 +80,13 @@ namespace Wbtb.Core
                     {
                         validate = false;
                         if (verbose)
-                            ConsoleHelper.WriteLine("Skipping config validation, config unchanged since last check.");
+                            _logger.Status("Skipping config validation, config unchanged since last check.", 1);
                     }
                         
                 }
                 catch (Exception ex) 
                 {
-                    ConsoleHelper.WriteLine($"Failed to read config hash : {ex.Message}");
+                    _logger.Error(this, $"Failed to read config hash", ex);
                 }
             }
 
@@ -103,7 +111,7 @@ namespace Wbtb.Core
             }
             catch (Exception ex)
             {
-                ConsoleHelper.WriteLine($"Failed to write config hash : {ex.Message}");
+                _logger.Error(this, $"Failed to write config hash", ex);
             }
 
 
@@ -116,8 +124,7 @@ namespace Wbtb.Core
             }
             else
             {
-                if (verbose)
-                    ConsoleHelper.WriteLine("No plugins running in proxy mode, ignoring MessageQueue status.");
+                _logger.Status("No plugins running in proxy mode, ignoring MessageQueue status.", 1);
             }
 
             Configuration config = di.Resolve<Configuration>();
@@ -155,9 +162,8 @@ namespace Wbtb.Core
                     builder.InjectBuildServers();
 
                     IEnumerable<string> orphans = builder.FindOrphans();
-                    if (verbose)
-                        foreach (string orphan in orphans)
-                            ConsoleHelper.WriteLine(orphan);
+                    foreach (string orphan in orphans)
+                        _logger.Status(orphan, 1);
 
                     if (config.FailOnOrphans && orphans.Count() > 0)
                         throw new ConfigurationException("Orphan records detected. Please merge or delete orphans. Disable this check with \"FailOnOrphans: false\" in config.");

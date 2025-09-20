@@ -6,6 +6,13 @@ namespace Wbtb.Core.CLI
 {
     internal class IMessaging_AlertPassing : ICommand
     {
+        private readonly Logger _logger;
+
+        public IMessaging_AlertPassing(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Sends a build pass notice to the given message provider";
@@ -15,21 +22,21 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("build"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"build\" <buildid> required", addDate: false);
+                _logger.Status($"ERROR : \"build\" <buildid> required");
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("plugin"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"plugin\" <pluginkey> required", addDate: false);
+                _logger.Status($"ERROR : \"plugin\" <pluginkey> required");
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("user") && !switches.Contains("group"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"user\"  or \"group\" required", addDate: false);
+                _logger.Status($"ERROR : \"user\"  or \"group\" required");
                 Environment.Exit(1);
                 return;
             }
@@ -49,7 +56,7 @@ namespace Wbtb.Core.CLI
             }
             else 
             {
-                ConsoleHelper.WriteLine("--fixing not set, using --build as fixing build.", addDate: false);
+                _logger.Status("--fixing not set, using --build as fixing build.");
                 fixingBuildId = incidentId;
             }
 
@@ -58,7 +65,7 @@ namespace Wbtb.Core.CLI
                 userKey = switches.Get("user");
                 if (!config.Users.Any(u => u.Key == userKey)) 
                 {
-                    ConsoleHelper.WriteLine($"ERROR : user \"{userKey}\" not found", addDate: false);
+                    _logger.Status($"ERROR : user \"{userKey}\" not found");
                     Environment.Exit(1);
                     return;
                 }
@@ -70,7 +77,7 @@ namespace Wbtb.Core.CLI
                 groupKey = switches.Get("group");
                 if (!config.Groups.Any(g => g.Key == groupKey))
                 {
-                    ConsoleHelper.WriteLine($"ERROR : group \"{groupKey}\" not found", addDate: false);
+                    _logger.Status($"ERROR : group \"{groupKey}\" not found");
                     Environment.Exit(1);
                     return;
                 }
@@ -85,28 +92,28 @@ namespace Wbtb.Core.CLI
 
             if (messagingPlugin == null)
             {
-                ConsoleHelper.WriteLine($"ERROR : plugin \"{pluginKey}\" not found", addDate: false);
+                _logger.Status($"ERROR : plugin \"{pluginKey}\" not found");
                 Environment.Exit(1);
                 return;
             }
 
             if (build == null)
             {
-                ConsoleHelper.WriteLine($"ERROR : build \"{incidentId}\" not found", addDate: false);
+                _logger.Status($"ERROR : build \"{incidentId}\" not found");
                 Environment.Exit(1);
                 return;
             }
 
             if (fixingBuild == null && fixingBuildId != incidentId)
             {
-                ConsoleHelper.WriteLine($"ERROR : fixing build \"{fixingBuild}\" not found", addDate: false);
+                _logger.Status($"ERROR : fixing build \"{fixingBuild}\" not found");
                 Environment.Exit(1);
                 return;
             }
 
             if (string.IsNullOrEmpty(build.IncidentBuildId))
             {
-                ConsoleHelper.WriteLine($"ERROR : cannot mark build \"{build.Id}\" as fixed, build does not have an incident nr. Did this build really fail?", addDate: false);
+                _logger.Status($"ERROR : cannot mark build \"{build.Id}\" as fixed, build does not have an incident nr. Did this build really fail?");
                 Environment.Exit(1);
                 return;
             }
@@ -114,7 +121,7 @@ namespace Wbtb.Core.CLI
             // mark build as fixing itself, it's testing only
             string result = messagingPlugin.AlertPassing(userKey, groupKey, build, fixingBuild);
 
-            ConsoleHelper.WriteLine($"Message test executed, result : {result}", addDate: false);
+            _logger.Status($"Message test executed, result : {result}");
         }
     }
 }

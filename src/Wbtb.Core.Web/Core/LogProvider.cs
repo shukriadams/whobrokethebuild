@@ -20,7 +20,6 @@ namespace Wbtb.Core
             Serilog.Core.Logger fileLogger = new LoggerConfiguration()
                 .MinimumLevel.Override("Wbtb", Serilog.Events.LogEventLevel.Verbose)
                 .WriteTo.File(conf.LogPath, rollingInterval: RollingInterval.Day)
-                .WriteTo.Console()
                 .CreateLogger();
 
             ILoggerFactory loggerFactory = new LoggerFactory().AddSerilog(fileLogger);

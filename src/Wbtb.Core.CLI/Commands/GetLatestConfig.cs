@@ -4,6 +4,13 @@ namespace Wbtb.Core.CLI
 {
     internal class GetLatestConfig: ICommand
     {
+        private readonly Logger _logger;
+
+        public GetLatestConfig(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Force gets the latest config from Git without restarting Wbtb.";
@@ -16,7 +23,7 @@ namespace Wbtb.Core.CLI
             
             bool hasChanged = configBootstrapper.EnsureLatest(true);
             string status = hasChanged ? "Config was updated" : "Config unchanged";
-            ConsoleHelper.WriteLine(status, addDate: false);
+            _logger.Status(status);
         }
     }
 }

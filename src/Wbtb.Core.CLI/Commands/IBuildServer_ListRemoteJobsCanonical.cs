@@ -7,6 +7,13 @@ namespace Wbtb.Core.CLI
 {
     internal class IBuildServer_ListRemoteJobsCanonical : ICommand
     {
+        private readonly Logger _logger;
+
+        public IBuildServer_ListRemoteJobsCanonical(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Lists all jobs on a remote build server. The job identifiers returned can be used for configuration.";
@@ -20,7 +27,7 @@ namespace Wbtb.Core.CLI
 
             if (!switches.Contains("Key"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"Key\" arg required, for buildserver Key to list jobs for", addDate: false);
+                _logger.Status($"ERROR : \"Key\" arg required, for buildserver Key to list jobs for");
                 Environment.Exit(1);
                 return;
             }
@@ -29,17 +36,17 @@ namespace Wbtb.Core.CLI
             BuildServer buildServer = config.BuildServers.FirstOrDefault(r => r.Key == buildServerKey);
             if (buildServer == null)
             {
-                ConsoleHelper.WriteLine($"ERROR : Buildserver with key \"{buildServerKey}\" not found");
+                _logger.Status($"ERROR : Buildserver with key \"{buildServerKey}\" not found");
                 Environment.Exit(1);
             }
 
             IBuildServerPlugin buildServerPlugin = pluginProvider.GetByKey(buildServer.Plugin) as IBuildServerPlugin;
             IEnumerable<string> jobs = buildServerPlugin.ListRemoteJobsCanonical(buildServer);
-            ConsoleHelper.WriteLine($"Found {jobs.Count()} jobs on buildserver \"{buildServer.Key}\".", addDate: false);
+            _logger.Status($"Found {jobs.Count()} jobs on buildserver \"{buildServer.Key}\".");
 
             foreach (string job in jobs)
             {
-                ConsoleHelper.WriteLine($"{job}", addDate: false);
+                _logger.Status($"{job}");
             }
         }
     }

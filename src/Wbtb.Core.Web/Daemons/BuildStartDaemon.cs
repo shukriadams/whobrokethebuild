@@ -13,7 +13,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         private readonly IDaemonTaskController _taskController;
 
@@ -28,7 +28,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildStartDaemon(ILogger log, IDaemonTaskController processRunner)
+        public BuildStartDaemon(Logger log, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
@@ -76,7 +76,7 @@ namespace Wbtb.Core.Web
 
                 if (!reach.Reachable)
                 {
-                    _log.LogError($"Buildserver {buildServer.Key} not reachable, job import aborted {reach.Error}{reach.Exception}");
+                    _log.Error(this, $"Buildserver {buildServer.Key} not reachable, job import aborted {reach.Error}{reach.Exception}");
                     continue;
                 }
 
@@ -113,13 +113,12 @@ namespace Wbtb.Core.Web
                                 BuildId = buildId
                             });
 
-                            _log.LogInformation($"Daemon {this.GetType().Name}: Created build {latestBuild.Key}, id {latestBuild.Id} for job {job.Name}.");
-                            ConsoleHelper.WriteLine(this, $"Created build {latestBuild.Key}, id {latestBuild.Id} for job {job.Name}.");
+                            _log.Status(this, $"Daemon {this.GetType().Name}: Created build {latestBuild.Key}, id {latestBuild.Id} for job {job.Name}.", 1);
                         }
                     }
                     catch (Exception ex)
                     {
-                        _log.LogError($"Unexpected error trying to import builds for \"{job.Name}\" from buildserver \"{buildServer.Name}\" : {ex}");
+                        _log.Error(this, $"Unexpected error trying to import builds for \"{job.Name}\" from buildserver \"{buildServer.Name}\"", ex);
                     }
                 }
             }

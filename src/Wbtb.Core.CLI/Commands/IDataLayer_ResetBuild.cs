@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Core.CLI
@@ -9,16 +10,19 @@ namespace Wbtb.Core.CLI
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly ConsoleCLIHelper _consoleHelper;
+        private readonly Logger _logger;
+
+        private readonly ConsoleCLIHelper _cliHelper;
 
         #endregion
 
         #region CTORS
 
-        public IDataLayer_ResetBuild(PluginProvider pluginProvider, ConsoleCLIHelper consoleHelper)
+        public IDataLayer_ResetBuild(PluginProvider pluginProvider, Logger logger, ConsoleCLIHelper cliHelper)
         {
             _pluginProvider = pluginProvider;
-            _consoleHelper = consoleHelper;
+            _logger = logger;
+            _cliHelper = cliHelper; 
         }
 
         #endregion
@@ -34,7 +38,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("build"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"--build\" <buildid> required", addDate: false);
+                _logger.Status($"ERROR : \"--build\" <buildid> required");
                 Environment.Exit(1);
                 return;
             }
@@ -44,15 +48,15 @@ namespace Wbtb.Core.CLI
             Build build = dataLayer.GetBuildByUniquePublicIdentifier(switches.Get("build"));
             if (build == null)
             {
-                ConsoleHelper.WriteLine($"ERROR : \"--build\" id {build} does not point to a valid build", addDate: false);
-                _consoleHelper.PrintJobs();
+                _logger.Status($"ERROR : \"--build\" id {build} does not point to a valid build");
+                _cliHelper.PrintJobs();
                 Environment.Exit(1);
                 return;
             }
 
             bool hard = true;
             if (hard)
-                ConsoleHelper.WriteLine("Performing hard reset", addDate: false);
+                _logger.Status("Performing hard reset");
 
             int affected = dataLayer.ResetBuild(build.Id, hard);
 
@@ -66,7 +70,7 @@ namespace Wbtb.Core.CLI
                     Src = this.GetType().Name
                 });
 
-            ConsoleHelper.WriteLine($"Build {build.Id} reset. {affected} records affected.", addDate: false);
+            _logger.Status($"Build {build.Id} reset. {affected} records affected.");
         }
 
         #endregion

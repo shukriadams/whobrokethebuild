@@ -20,18 +20,22 @@ namespace Wbtb.Core.CLI
 
                 bool validate = switches.Contains("validate") && switches.Get("validate") == "true";
                 SimpleDI di = new SimpleDI();
+                Logger logger = new Logger { 
+                    AppendDates = false,
+                    AppendCategory = false,
+                    SendToFile = false,
+                };
                 
+                di.RegisterSingleton<Logger>(logger);
                 di.RegisterFactory<ILogger, LogProvider>();
-                di.Register<Logger, Logger>();
                 di.Register<OrphanRecordHelper, OrphanRecordHelper>();
-                di.Register<ConsoleHelper, ConsoleHelper>();
                 di.Register<MutationHelper, MutationHelper>();
                 di.Register<ConsoleCLIHelper, ConsoleCLIHelper>();
-                di.Register<ConsoleCLIHelper, ConsoleCLIHelper>();
+                di.Register<Core, Core>();
 
 
                 // bind types - dev only! These are needed by all general plugin activity
-                Core core = new Core();
+                Core core = di.Resolve<Core>();
                 bool verbose = switches.Contains("verbose");
                 core.Start(
                     persistStateToDatabase: false, 
@@ -54,12 +58,12 @@ namespace Wbtb.Core.CLI
 
                 if (string.IsNullOrEmpty(command)) 
                 {
-                    ConsoleHelper.WriteLine($"ERROR : key --\"command|c\" <COMMAND NAME> required", addDate : false);
-                    ConsoleHelper.WriteLine("Available commands :", addDate: false);
+                    logger.Status($"ERROR : key --\"command|c\" <COMMAND NAME> required");
+                    logger.Status("Available commands:");
                     foreach (Type availableCommand in availableCommands.OrderBy(c => c.Name)) 
                     {
                         ICommand commandInstance = di.Resolve(availableCommand) as ICommand;
-                        ConsoleHelper.WriteLine($"Command : {availableCommand.Name} ({commandInstance.Describe()})", addDate: false);
+                        logger.Status($"Command : {availableCommand.Name} ({commandInstance.Describe()})");
                     }
 
                     Environment.Exit(1);
@@ -71,7 +75,7 @@ namespace Wbtb.Core.CLI
                 
                 if (commandType == null)
                 {
-                    ConsoleHelper.WriteLine($"ERROR : command \"{command}\" does not exist.", addDate: false);
+                    logger.Status($"ERROR : command \"{command}\" does not exist.");
                     Environment.Exit(1);
                 }
 
@@ -80,7 +84,7 @@ namespace Wbtb.Core.CLI
             }
             catch (ConfigurationException ex)
             {
-                ConsoleHelper.WriteLine($"CONFIG ERROR : {ex.Message}", addDate: false);
+                Console.WriteLine($"CONFIG ERROR : {ex.Message}");
             }
         }
     }

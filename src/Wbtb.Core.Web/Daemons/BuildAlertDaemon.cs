@@ -9,7 +9,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         private readonly IDaemonTaskController _taskController;
 
@@ -29,7 +29,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildAlertDaemon(ILogger log, IDaemonTaskController processRunner, FailingAlertKey failingAlertKey, MutationHelper mutationHelper)
+        public BuildAlertDaemon(Logger log, IDaemonTaskController processRunner, FailingAlertKey failingAlertKey, MutationHelper mutationHelper)
         {
             _log = log;
             _taskController = processRunner;
@@ -72,7 +72,7 @@ namespace Wbtb.Core.Web
                     string alertKey = _failingAlertKey.Get(job, build);
                     if (_cache.Get(TypeHelper.Name(this), job, build, alertKey).Payload != null)
                     {
-                        _log.LogTrace($"Build {build.UniquePublicKey} id {build.Id}, job {job.Name} has already been alerted as broken, skipping");
+                        _log.Debug(this, $"Build {build.UniquePublicKey} id {build.Id}, job {job.Name} has already been alerted as broken, skipping");
                         return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed, Description = $"bypassed from cache, plugin \"{TypeHelper.Name(this)}\", job \"{job.Key}\", build \"{build.UniquePublicKey}\", key \"{alertKey}\"." };
                     }
 
@@ -84,7 +84,7 @@ namespace Wbtb.Core.Web
                         IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(messageHandler.Plugin) as IMessagingPlugin;
                         string localResult = messagePlugin.AlertBreaking(messageHandler.User, messageHandler.Group, build, false, false);
                         result += $"{localResult} for handler {messageHandler.Plugin}, user:{messageHandler.User}|group:{messageHandler.Group}\n";
-                        _log.LogTrace($"Processed broken message {messagePlugin.ContextPluginConfig.Key}, incident {build.IncidentBuildId}, job {job.Name}, result was {localResult}");
+                        _log.Debug(this, $"Processed broken message {messagePlugin.ContextPluginConfig.Key}, incident {build.IncidentBuildId}, job {job.Name}, result was {localResult}");
                     }
 
                     dataLayer.SaveStore(new StoreItem
@@ -95,7 +95,7 @@ namespace Wbtb.Core.Web
                     });
 
                     _cache.Write(TypeHelper.Name(this), job, build, alertKey, "sent");
-                    ConsoleHelper.WriteLine(this, $"Alerted job {job.Name} broken by build {build.Key} (id:{build.Id})");
+                    _log.Status($"Alerted job {job.Name} broken by build {build.Key} (id:{build.Id})");
                 }
 
                 if (build.Status == BuildStatus.Passed)
@@ -103,7 +103,7 @@ namespace Wbtb.Core.Web
                     Build incident = dataLayer.GetLastIncidentBefore(build);
                     if (incident == null)
                     {
-                        _log.LogTrace($"Build {build.UniquePublicKey} id {build.Id}, job {job.Name} is passed, but no incident found, pass alert no needed.");
+                        _log.Debug(this, $"Build {build.UniquePublicKey} id {build.Id}, job {job.Name} is passed, but no incident found, pass alert no needed.");
                         return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed, Description = $"no incident for pass, ignoring." };
                     }
 
@@ -111,7 +111,7 @@ namespace Wbtb.Core.Web
                     string alertKey = $"{incident.Key}_{job.Key}_deltaAlert_{build.Status}";
                     if (_cache.Get(TypeHelper.Name(this), job, incident, alertKey).Payload != null)
                     {
-                        _log.LogTrace($"Build {build.UniquePublicKey} id {build.Id}, job {job.Name} has already been alerted as fixed, skipping");
+                        _log.Debug(this, $"Build {build.UniquePublicKey} id {build.Id}, job {job.Name} has already been alerted as fixed, skipping");
                         return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed, Description = $"bypassed from cache, plugin \"{TypeHelper.Name(this)}\", job \"{job.Key}\", build \"{build.UniquePublicKey}\", key \"{alertKey}\"." };
                     }
 
@@ -121,10 +121,10 @@ namespace Wbtb.Core.Web
                         IMessagingPlugin messagePlugin = _pluginProvider.GetByKey(alert.Plugin) as IMessagingPlugin;
                         string localResult = messagePlugin.AlertPassing(alert.User, alert.Group, incident, build);
                         result += $"{localResult} for handler {alert.Plugin}, user:{alert.User}|group:{alert.Group}\n";
-                        _log.LogTrace($"Processed fixed message {messagePlugin.ContextPluginConfig.Key}, incident {incident.IncidentBuildId}, job {job.Name}, result was {localResult}");
+                        _log.Debug(this, $"Processed fixed message {messagePlugin.ContextPluginConfig.Key}, incident {incident.IncidentBuildId}, job {job.Name}, result was {localResult}");
                     }
 
-                    ConsoleHelper.WriteLine(this, $"Alerted job {job.Name} passing at build {build.Key} (id:{build.Id}), incident was {incident.Key} (id:{incident.Id})");
+                    _log.Status(this, $"Alerted job {job.Name} passing at build {build.Key} (id:{build.Id}), incident was {incident.Key} (id:{incident.Id})");
                 }
 
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Passed, Description = result };
@@ -132,7 +132,7 @@ namespace Wbtb.Core.Web
             }
             catch (Exception ex)
             {
-                _log.LogError($"Unexpected error on job {job.Name}.", ex);
+                _log.Error(this, $"Unexpected error on job {job.Name}.", ex);
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = ex.ToString() };
             }
         }

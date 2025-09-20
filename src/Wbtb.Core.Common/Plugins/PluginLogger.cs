@@ -21,7 +21,7 @@ namespace Wbtb.Core.Common
 
         private static void WriteInternal(string text)
         {
-            ConsoleHelper.WriteLine(text);
+            Console.WriteLine(text);
 
             DirectoryInfo currentPath = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             string logPath = Path.Combine(currentPath.FullName, $"{DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}.txt");

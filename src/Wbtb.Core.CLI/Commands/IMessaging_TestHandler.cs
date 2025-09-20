@@ -6,6 +6,13 @@ namespace Wbtb.Core.CLI
 {
     internal class IMessaging_TestHandler : ICommand
     {
+        private readonly Logger _logger;
+
+        public IMessaging_TestHandler(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Sends a test message to a message handler. Use this to test integrations like email, slack etc.";
@@ -14,7 +21,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("user") && !switches.Contains("group"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"user\"  or \"group\" required", addDate: false);
+                _logger.Status($"ERROR : \"user\"  or \"group\" required");
                 Environment.Exit(1);
                 return;
             }
@@ -29,7 +36,7 @@ namespace Wbtb.Core.CLI
 
             if (!switches.Contains("plugin"))
             {
-                ConsoleHelper.WriteLine("ERROR : \"plugin\" required", addDate: false);
+                _logger.Status("ERROR : \"plugin\" required");
                 Environment.Exit(1);
                 return;
             }
@@ -43,7 +50,7 @@ namespace Wbtb.Core.CLI
 
             if (messagingPlugin == null) 
             {
-                ConsoleHelper.WriteLine($"ERROR : plugin \"{pluginKey}\" not found", addDate: false);
+                _logger.Status($"ERROR : plugin \"{pluginKey}\" not found");
                 Environment.Exit(1);
                 return;
             }
@@ -56,7 +63,7 @@ namespace Wbtb.Core.CLI
                 user = dataLayer.GetUserByKey(userKey);
                 if (user == null)
                 {
-                    ConsoleHelper.WriteLine($"ERROR : user \"{userKey}\" not found", addDate: false);
+                    _logger.Status($"ERROR : user \"{userKey}\" not found");
                     Environment.Exit(1);
                     return;
                 }
@@ -68,7 +75,7 @@ namespace Wbtb.Core.CLI
                 group = configuration.Groups.Where(g => g.Key == groupKey).FirstOrDefault();
                 if (group == null)
                 {
-                    ConsoleHelper.WriteLine($"ERROR : group \"{groupKey}\" not found", addDate: false);
+                    _logger.Status($"ERROR : group \"{groupKey}\" not found");
                     Environment.Exit(1);
                     return;
                 }
@@ -77,13 +84,13 @@ namespace Wbtb.Core.CLI
 
             if (messageConfiguration == null) 
             {
-                ConsoleHelper.WriteLine($"Target recipient does not have a message configuration for plugin \"{pluginKey}\".", addDate: false);
+                _logger.Status($"Target recipient does not have a message configuration for plugin \"{pluginKey}\".");
                 Environment.Exit(1);
                 return;
             }
 
             string result = messagingPlugin.TestHandler(messageConfiguration);
-            ConsoleHelper.WriteLine($"Message test execute, result : {result}", addDate: false);
+            _logger.Status($"Message test execute, result : {result}");
         }
     }
 }

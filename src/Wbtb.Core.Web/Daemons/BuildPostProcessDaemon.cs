@@ -8,7 +8,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         private readonly IDaemonTaskController _taskController;
 
@@ -20,7 +20,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildPostProcessDaemon(ILogger log, IDaemonTaskController processRunner)
+        public BuildPostProcessDaemon(Logger log, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
@@ -64,11 +64,11 @@ namespace Wbtb.Core.Web
                     if (!result.Passed)
                         task.HasPassed = false;
 
-                    ConsoleHelper.WriteLine(this, $"Processed build id {build.Id} with plugin {postProcessor}");
+                    _log.Status(this, $"Processed build id {build.Id} with plugin {postProcessor}");
                 }
                 catch (Exception ex)
                 {
-                    _log.LogError($"Unexpected post processor error at build id \"{build.Id}\", processor \"{postProcessor}\" : {ex}");
+                    _log.Error(this, $"Unexpected post processor error at build id \"{build.Id}\", processor \"{postProcessor}\"", ex);
                     task.HasPassed = false;
                     task.AppendResult(ex);
                 }

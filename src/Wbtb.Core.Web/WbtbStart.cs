@@ -43,6 +43,9 @@ namespace Wbtb.Core.Web
             logger.OnWarn = (string message, object arg) => fileLogger.LogWarning(message);
             di.RegisterSingleton<Logger>(logger);
 
+            logger.Status("=====================================================================");
+            logger.Status("Wbtb load started");
+
             logger.Debug(this, "Log configured", 3);
 
             lifetime.ApplicationStarted.Register(() =>{
@@ -68,11 +71,12 @@ namespace Wbtb.Core.Web
                     di.RegisterFactory<IHubContext, HubFactory>();
                     di.Register<MetricsHelper, MetricsHelper>();
                     di.Register<BuildEventHandlerHelper, BuildEventHandlerHelper>();
+                    di.Register<Wbtb.Core.Core, Wbtb.Core.Core>();
 
                     logger.Debug(this, "Web.Core types registered", 3);
 
                     // Wbtb's core has common startup logic for web/CLI apps, such as setting up and validating config
-                    Wbtb.Core.Core core = new Wbtb.Core.Core();
+                    Wbtb.Core.Core core = di.Resolve<Wbtb.Core.Core>();
                     core.Start();
 
                     // config should now be available
@@ -124,7 +128,9 @@ namespace Wbtb.Core.Web
                     // Everything is started. App is now ready to accept incoming requests. If false, HTTP endpoints
                     // will return a "server busy warming up" page.
                     AppState.Ready = true;
-                    logger.Status("Wbtb loading complete");
+                    logger.Status("Wbtb load completed");
+                    logger.Status("=====================================================================");
+
                 }
                 catch (ConfigurationException ex)
                 {

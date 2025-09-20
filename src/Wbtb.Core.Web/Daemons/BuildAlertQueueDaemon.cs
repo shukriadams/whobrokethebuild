@@ -10,7 +10,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         private readonly IDaemonTaskController _taskController;
 
@@ -22,7 +22,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildAlertQueueDaemon(ILogger log, IDaemonTaskController processRunner)
+        public BuildAlertQueueDaemon(Logger log, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
@@ -56,7 +56,7 @@ namespace Wbtb.Core.Web
                     int unprocessedCount = dataLayer.GetUnprocessedTaskCountForJob(job.Id);
                     if (unprocessedCount > 0)
                     {
-                        _log.LogTrace($"Job {job.Name} still has {unprocessedCount} unprocessed tasks, waiting.");
+                        _log.Debug(this, $"Job {job.Name} still has {unprocessedCount} unprocessed tasks, waiting.");
                         continue;
                     }
 
@@ -65,14 +65,14 @@ namespace Wbtb.Core.Web
                     // no build in job, assume job hasn't run yet, ignore it
                     if (latestBuildInJob == null)
                     {
-                        _log.LogTrace($"Job {job.Name} has no latest build, assuming not run yet");
+                        _log.Debug(this, $"Job {job.Name} has no latest build, assuming not run yet");
                         continue;
                     }
 
                     // we want to report passes/fails only
                     if (latestBuildInJob.Status != BuildStatus.Failed && latestBuildInJob.Status != BuildStatus.Passed)
                     {
-                        _log.LogTrace($"Latest build {latestBuildInJob.UniquePublicKey} id {latestBuildInJob.Id}, job {job.Name} has status {latestBuildInJob.Status}, only passing/failing jobs processed by this daemon.");
+                        _log.Debug(this, $"Latest build {latestBuildInJob.UniquePublicKey} id {latestBuildInJob.Id}, job {job.Name} has status {latestBuildInJob.Status}, only passing/failing jobs processed by this daemon.");
                         continue;
                     }
 
@@ -80,7 +80,7 @@ namespace Wbtb.Core.Web
                     // is part of a failure that started on a previous build.
                     if (latestBuildInJob.Status == BuildStatus.Failed && string.IsNullOrEmpty(latestBuildInJob.IncidentBuildId))
                     {
-                        _log.LogTrace($"Latest build {latestBuildInJob.UniquePublicKey} id {latestBuildInJob.Id}, job {job.Name} is failing but has no incidentId assigned yet, waiting");
+                        _log.Debug(this, $"Latest build {latestBuildInJob.UniquePublicKey} id {latestBuildInJob.Id}, job {job.Name} is failing but has no incidentId assigned yet, waiting");
                         continue;
                     }
 
@@ -95,7 +95,7 @@ namespace Wbtb.Core.Web
                     IEnumerable<DaemonTask> alertTasksForJob = dataLayer.GetDaemonTasks(buildToReport.Id, ProcessStages.Alert);
                     if (alertTasksForJob.Any()) 
                     {
-                        _log.LogTrace($"Job {job.Name} already has an alert task for it, skipping.");
+                        _log.Debug(this, $"Job {job.Name} already has an alert task for it, skipping.");
                         continue;
                     }
 
@@ -106,11 +106,11 @@ namespace Wbtb.Core.Web
                         Stage = (int)ProcessStages.Alert
                     });
 
-                    ConsoleHelper.WriteLine($"Queued alert task for build id {latestBuildInJob.Id}, job {job.Name}");
+                    _log.Status(this, $"Queued alert task for build id {latestBuildInJob.Id}, job {job.Name}");
                 }
                 catch (Exception ex)
                 {
-                    _log.LogError($"Unexpected error on job {job.Name}.", ex);
+                    _log.Error(this, $"Unexpected error on job {job.Name}.", ex);
                 }
             }
         }

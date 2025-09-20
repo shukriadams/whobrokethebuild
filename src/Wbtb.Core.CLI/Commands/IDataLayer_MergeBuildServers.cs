@@ -5,6 +5,13 @@ namespace Wbtb.Core.CLI
 {
     internal class IDataLayer_MergeBuildServers : ICommand
     {
+        private readonly Logger _logger;
+
+        public IDataLayer_MergeBuildServers(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Nigrate child records of an orphan build server to another build server. The orphan build server is deleted in the process.";
@@ -15,17 +22,17 @@ namespace Wbtb.Core.CLI
             SimpleDI di = new SimpleDI();
             OrphanRecordHelper orphanRecordHelper = di.Resolve<OrphanRecordHelper>();
 
-            ConsoleHelper.WriteLine("Executing function IDataLayerPlugin.MergeBuildServers", addDate: false);
+            _logger.Status("Executing function IDataLayerPlugin.MergeBuildServers");
             if (!switches.Contains("from"))
             {
-                ConsoleHelper.WriteLine($"ERROR : key \"from\" required", addDate: false);
+                _logger.Status($"ERROR : key \"from\" required");
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("to"))
             {
-                ConsoleHelper.WriteLine($"ERROR : key \"to\" required", addDate: false);
+                _logger.Status($"ERROR : key \"to\" required");
                 Environment.Exit(1);
                 return;
             }
@@ -39,7 +46,7 @@ namespace Wbtb.Core.CLI
             }
             catch (RecordNotFoundException ex)
             {
-                ConsoleHelper.WriteLine(ex.Message, addDate: false);
+                _logger.Status(ex.Message);
                 Environment.Exit(1);
             }
         }

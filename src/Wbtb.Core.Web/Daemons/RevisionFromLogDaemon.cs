@@ -16,7 +16,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         private readonly IDaemonTaskController _taskController;
 
@@ -30,7 +30,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public RevisionFromLogDaemon(ILogger log, IDaemonTaskController processRunner)
+        public RevisionFromLogDaemon(Logger log, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
@@ -104,14 +104,14 @@ namespace Wbtb.Core.Web
 
             if (!reach.Reachable)
             {
-                _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                _log.Error(this, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}" };
             }
 
             reach = sourceServerPlugin.AttemptReach(sourceServer);
             if (!reach.Reachable)
             {
-                _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                _log.Error(this, $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}" };
             }
 
@@ -219,7 +219,7 @@ namespace Wbtb.Core.Web
                     Stage = (int)ProcessStages.UserLink
                 });
 
-                ConsoleHelper.WriteLine(this, $"Linked revision {revisionIdToLink} to build {build.Key} (id:{build.Id})");
+                _log.Status(this, $"Linked revision {revisionIdToLink} to build {build.Key} (id:{build.Id})");
             }
 
             return new DaemonTaskWorkResult { };

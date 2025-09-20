@@ -15,20 +15,27 @@ namespace Wbtb.Core.Web.Controllers
     {
         #region FIELDS
 
-        private readonly Configuration _config;
+        public Configuration Config { get; set; }
 
-        private readonly PluginProvider _pluginProvider;
+        public PluginProvider PluginProvider { get; set; }
 
-        private readonly SimpleDI _di;
+        public Logger Logger { get; set; }
 
         #endregion
 
+        #region CTORS
+
         public InvokeController() 
         {
-            _di = new SimpleDI();
-            _config = _di.Resolve<Configuration>();
-            _pluginProvider = _di.Resolve<PluginProvider>();  
-        } 
+            SimpleDI di = new SimpleDI();
+            Config = di.Resolve<Configuration>();
+            PluginProvider = di.Resolve<PluginProvider>();
+            Logger = di.Resolve<Logger>();
+        }
+
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// Puts a message in queue
@@ -46,7 +53,7 @@ namespace Wbtb.Core.Web.Controllers
                     json = await reader.ReadToEndAsync();
 
                 PluginArgs pluginArgs = JsonConvert.DeserializeObject<PluginArgs>(json);
-                IPlugin plugin = _pluginProvider.GetByKey(pluginArgs.pluginKey);
+                IPlugin plugin = this.PluginProvider.GetByKey(pluginArgs.pluginKey);
                 pluginType = plugin.GetType();
 
                 MethodInfo method = pluginType.GetMethod(pluginArgs.FunctionName);
@@ -64,7 +71,7 @@ namespace Wbtb.Core.Web.Controllers
                         methodArgs.Add(JsonConvert.DeserializeObject(JsonConvert.SerializeObject(incomingparameter.Value), parameter.ParameterType));
                 }
 
-                plugin.ContextPluginConfig = _config.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
+                plugin.ContextPluginConfig = this.Config.Plugins.Single(p => p.Key == pluginArgs.pluginKey);
 
                 // note : we don't support async methods
                 object result = method.Invoke(plugin, methodArgs.ToArray());
@@ -72,11 +79,11 @@ namespace Wbtb.Core.Web.Controllers
             }
             catch (Exception ex)
             {
-                ConsoleHelper.WriteLine(ex);
+                this.Logger.Error(this, ex);
                 return string.Join(string.Empty, PluginOutputEncoder.Encode(ex.ToString(), pluginType));
             }
         }
+
+        #endregion
     }
-
-
 }

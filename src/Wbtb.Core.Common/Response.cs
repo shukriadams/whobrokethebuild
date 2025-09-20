@@ -1,6 +1,6 @@
-﻿namespace Wbtb.Core
+﻿namespace Wbtb.Core.Common
 {
-    public class Response<T>
+    public struct Response<T>
     {
         public string Error { get; set; }
 

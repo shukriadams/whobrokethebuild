@@ -1,4 +1,6 @@
-﻿namespace Wbtb.Core.Common
+﻿using System;
+
+namespace Wbtb.Core.Common
 {
     public abstract class Plugin
     {
@@ -11,7 +13,7 @@
         /// </summary>
         public void Diagnose()
         {
-            ConsoleHelper.WriteLine("Base diagnose mode reached. Override this method in your plugin to add more detailed testing. Use the --help switch for more options.");
+            Console.WriteLine("Base diagnose mode reached. Override this method in your plugin to add more detailed testing. Use the --help switch for more options.");
         }
     }
 }

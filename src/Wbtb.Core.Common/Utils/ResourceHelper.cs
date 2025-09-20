@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Wbtb.Core.Common
 {
@@ -37,7 +38,8 @@ namespace Wbtb.Core.Common
         {
             if (!ResourceHelper.ResourceExists(callerType, resourcePath))
             {
-                ConsoleHelper.WriteLine($"Did not find embedded resource {resourcePath} in assembly defined by type {callerType}");
+                Logger logger = new Logger();
+                logger.Warn(typeof(ResourceHelper), $"Did not find embedded resource {resourcePath} in assembly defined by type {callerType}");
                 return null;
             }
 

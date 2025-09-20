@@ -10,6 +10,14 @@ namespace Wbtb.Core.Web
     [ApiController]
     public class JobController : Controller
     {
+        private readonly Logger _logger;
+
+        public JobController() 
+        {
+            SimpleDI dI = new SimpleDI();
+            _logger = dI.Resolve<Logger>();
+        }
+
         [ServiceFilter(typeof(ViewStatus))]
         [Route("reset/{jobid}")]
         public void Reset(string jobid)
@@ -45,7 +53,7 @@ namespace Wbtb.Core.Web
                         });
 
                         Thread.Sleep(10);
-                        ConsoleHelper.WriteLine($"Requeued build {build.Key} for processing.");
+                        _logger.Status($"Requeued build {build.Key} for processing.");
                     }
 
                     page++;

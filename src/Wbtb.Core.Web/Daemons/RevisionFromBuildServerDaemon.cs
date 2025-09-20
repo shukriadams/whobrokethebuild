@@ -14,13 +14,11 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         private readonly IDaemonTaskController _taskController;
 
         private readonly PluginProvider _pluginProvider;
-
-        private readonly Configuration _config;
 
         private readonly SimpleDI _di;
 
@@ -28,13 +26,12 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public RevisionFromBuildServerDaemon(ILogger log, IDaemonTaskController processRunner)
+        public RevisionFromBuildServerDaemon(Logger log, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
 
             _di = new SimpleDI();
-            _config = _di.Resolve<Configuration>();
             _pluginProvider = _di.Resolve<PluginProvider>();
         }
 
@@ -70,14 +67,14 @@ namespace Wbtb.Core.Web
 
             if (!reach.Reachable)
             {
-                _log.LogError($"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                _log.Warn(this, $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                 return new DaemonTaskWorkResult {ResultType=DaemonTaskWorkResultType.Blocked, Description = $"Buildserver {buildServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}" };
             }
 
             reach = sourceServerPlugin.AttemptReach(sourceServer);
             if (!reach.Reachable)
             {
-                _log.LogError($"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
+                _log.Warn(this, $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}");
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Blocked, Description = $"Sourceserver {sourceServer.Key} not reachable, job import deferred {reach.Error}{reach.Exception}" };
             }
 
@@ -159,7 +156,7 @@ namespace Wbtb.Core.Web
                     Src = this.GetType().Name
                 });
 
-                ConsoleHelper.WriteLine(this, $"Linked revision {revisionCode} to build {build.Key} (id:{build.Id})");
+                _log.Status(this, $"Linked revision {revisionCode} to build {build.Key} (id:{build.Id})");
 
             }
 

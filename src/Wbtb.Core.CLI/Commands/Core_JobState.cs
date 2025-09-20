@@ -5,6 +5,13 @@ namespace Wbtb.Core.CLI
 {
     internal class Core_JobState: ICommand
     {
+        private readonly Logger _logger;
+
+        public Core_JobState(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         public string Describe() 
         {
             return @"Sets a job state to passing or failing. Use this to simulate build breaks/fixes. Failing builds can also be populated with logs from a known build, to test log handling.";
@@ -18,14 +25,14 @@ namespace Wbtb.Core.CLI
 
             if (!switches.Contains("Job"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"Job\" key required", addDate: false);
+                _logger.Status($"ERROR : \"Job\" key required");
                 Environment.Exit(1);
                 return;
             }
 
             if (!switches.Contains("State"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"State\" key required", addDate: false);
+                _logger.Status($"ERROR : \"State\" key required");
                 Environment.Exit(1);
                 return;
             }
@@ -35,7 +42,7 @@ namespace Wbtb.Core.CLI
             string state = switches.Get("state");
             if (state != "pass" && state != "fail")
             {
-                ConsoleHelper.WriteLine($"ERROR : \"State\" must be either \"pass\" or \"fail\".", addDate: false);
+                _logger.Status($"ERROR : \"State\" must be either \"pass\" or \"fail\".");
                 Environment.Exit(1);
                 return;
             }
@@ -44,7 +51,7 @@ namespace Wbtb.Core.CLI
             Job job = dataLayer.GetJobByKey(jobKey);
             if (job == null) 
             {
-                ConsoleHelper.WriteLine($"Job key {jobKey} not valid", addDate: false);
+                _logger.Status($"Job key {jobKey} not valid");
                 Environment.Exit(1);
                 return;
             }
@@ -66,7 +73,7 @@ namespace Wbtb.Core.CLI
                     int buildId = 0;
                     if (!int.TryParse(switches.Get("logbuild"), out buildId)) 
                     {
-                        ConsoleHelper.WriteLine("--logbuild value is not an integer", addDate: false);
+                        _logger.Status("--logbuild value is not an integer");
                         Environment.Exit(1);
                         return;
                     }
@@ -74,23 +81,23 @@ namespace Wbtb.Core.CLI
                     Build logBuild = dataLayer.GetBuildById(switches.Get("logbuild"));
                     if (logBuild == null)
                     {
-                        ConsoleHelper.WriteLine($"Could not find build with id {switches.Get("logbuild")}", addDate: false);
+                        _logger.Status($"Could not find build with id {switches.Get("logbuild")}");
                         Environment.Exit(1);
                         return;
                     }
 
                     if (!logBuild.LogFetched)
                     {
-                        ConsoleHelper.WriteLine($"build with id {switches.Get("logbuild")} has no log", addDate: false);
+                        _logger.Status($"build with id {switches.Get("logbuild")} has no log");
                         Environment.Exit(1);
                         return;
                     }
 
-                    ConsoleHelper.WriteLine($"logpath for forced build will be set to path from build {logBuild.Id}.", addDate: false);
+                    _logger.Status($"logpath for forced build will be set to path from build {logBuild.Id}.");
                 }
                 else 
                 {
-                    ConsoleHelper.WriteLine("--logbuild not set, ignoring. You can force an error log from an existing build with this switch.");
+                    _logger.Status("--logbuild not set, ignoring. You can force an error log from an existing build with this switch.");
                 }
             }
 
@@ -107,7 +114,7 @@ namespace Wbtb.Core.CLI
 
             dataLayer.SaveBuild(build);
 
-            ConsoleHelper.WriteLine($"Set job {job.Key} to {state}", addDate: false);
+            _logger.Status($"Set job {job.Key} to {state}");
         }
     }
 }

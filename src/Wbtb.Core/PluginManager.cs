@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,14 +15,18 @@ namespace Wbtb.Core
         private readonly PluginProvider _pluginProvider;
 
         private readonly Configuration _config;
+
+        private readonly Logger _logger;
+
         #endregion
 
         #region CTORS
 
-        public PluginManager(PluginProvider pluginProvider, Configuration config) 
+        public PluginManager(PluginProvider pluginProvider, Configuration config, Logger logger) 
         {
             _pluginProvider = pluginProvider;
             _config = config;
+            _logger = logger;
         }
 
         #endregion
@@ -65,12 +68,12 @@ namespace Wbtb.Core
                         string devPath = Path.Combine(pluginConfig.Path, "bin", "Debug", "net6.0");
                         if (Directory.Exists(devPath))
                         {
-                            ConsoleHelper.WriteLine($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}", addDate: false);
+                            _logger.Status($"plugin location automatically remapped from {pluginConfig.Path} to {devPath}", 1);
                             pluginConfig.Path = devPath;
                         } 
                         else 
                         {
-                            ConsoleHelper.WriteLine($"Plugin '{pluginConfig.Key}' expected at path '{pluginConfig.Path}' but was not found.", addDate: false);
+                            _logger.Status($"Plugin '{pluginConfig.Key}' expected at path '{pluginConfig.Path}' but was not found.", 1);
                             pluginConfig.Enable = false;
                             continue;
                         }
@@ -81,7 +84,7 @@ namespace Wbtb.Core
                 catch (Exception ex)
                 {
                     // plugin load should not throw unhandled exceptions, if it does, allow app to fail.
-                    ConsoleHelper.WriteLine($"Plugin '{pluginConfig.Key}' threw exception on load {ex}");
+                    _logger.Error(this, $"Plugin '{pluginConfig.Key}' threw exception on load", ex);
                     pluginConfig.Enable = false;
                     throw;
                 }
@@ -139,7 +142,7 @@ namespace Wbtb.Core
                     catch (Exception ex)
                     {
                         // plugin init should not throw unhandled exceptions, if it does, allow app to fail.
-                        ConsoleHelper.WriteLine($"Plugin '{pluginConfig.Key}' failed to load : {ex}");
+                        _logger.Error(this, $"Plugin '{pluginConfig.Key}' failed to load", ex);
                         pluginConfig.Enable = false;
                         throw;
                     }
@@ -162,7 +165,7 @@ namespace Wbtb.Core
 
                         // Todo : need more granularity here, we probably don't want to abort WBTB start just because a service is not available
                         if (reach.Reachable)
-                            ConsoleHelper.WriteLine($"Plugin \"{pluginConfig.Key}\" is reachable.");
+                            _logger.Status($"Plugin \"{pluginConfig.Key}\" is reachable.", 1);
                         else
                             throw new ConfigurationException($"Credentials for plugin \"{pluginConfig.Key}\" failed : {reach.Error}{reach.Exception}.");
                     }
@@ -212,7 +215,7 @@ namespace Wbtb.Core
                     try
                     {
                         sourceServerPlugin.AttemptReach(sourceServer);
-                        ConsoleHelper.WriteLine($"{sourceServer.Name} is contactable");
+                        _logger.Status($"{sourceServer.Name} is contactable");
 
                         // verify config
                         sourceServerPlugin.VerifySourceServerConfig(sourceServer);
@@ -310,7 +313,7 @@ namespace Wbtb.Core
                 ValidateRuntimeState();
 
                 foreach (PluginConfig pluginConfig in _config.Plugins)
-                    ConsoleHelper.WriteLine($"WBTB : initialized plugin {pluginConfig.Key}");
+                    _logger.Status($"WBTB : initialized plugin {pluginConfig.Key}");
 
             }
 
@@ -336,7 +339,7 @@ namespace Wbtb.Core
             if (latestConfigState == null || latestConfigState.Hash != configHash)
             {
                 if (latestConfigState != null)
-                    ConsoleHelper.WriteLine($"ATTENTION - config has changed since last time. If site fails to load due to config errors, check configurationstate table for ref. Storing new hash ({configHash}) of current config");
+                    _logger.Status($"ATTENTION - config has changed since last time. If site fails to load due to config errors, check configurationstate table for ref. Storing new hash ({configHash}) of current config");
 
                 // todo : need user prompt to force add new config state to db
                 dataLayer.AddConfigurationState(new ConfigurationState

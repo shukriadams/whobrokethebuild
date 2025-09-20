@@ -5,6 +5,13 @@ namespace Wbtb.Core.CLI
 {
     internal class IDataLayer_ClearAllTables : ICommand
     {
+        private readonly Logger _logger;
+
+        public IDataLayer_ClearAllTables(Logger logger) 
+        {
+            _logger = logger;
+        }
+
         public string Describe()
         {
             return @"Deletes all data in all tables. This is a destructive reset";
@@ -14,7 +21,7 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("confirm"))
             {
-                ConsoleHelper.WriteLine($"WARNING: This will delete _all_ data in backend. Please add --confirm switch to prove you mean this", addDate: false);
+                _logger.Status($"WARNING: This will delete _all_ data in backend. Please add --confirm switch to prove you mean this");
                 Environment.Exit(1);
                 return;
             }
@@ -24,7 +31,7 @@ namespace Wbtb.Core.CLI
             IDataPlugin dataLayerPlugin = pluginProvider.GetFirstForInterface<IDataPlugin>();
 
             int count = dataLayerPlugin.ClearAllTables();
-            ConsoleHelper.WriteLine($"Tables cleared, {count} records removed.", addDate: false);
+            _logger.Status($"Tables cleared, {count} records removed.");
         }
     }
 }

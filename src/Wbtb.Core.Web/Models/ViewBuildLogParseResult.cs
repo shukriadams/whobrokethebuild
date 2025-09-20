@@ -9,12 +9,14 @@ namespace Wbtb.Core.Web
 
         public static ViewBuildLogParseResult Copy(BuildLogParseResult result)
         {
+            BuildLogTextParser parser = new BuildLogTextParser();
+
             return new ViewBuildLogParseResult
             {
                 BuildId = result.BuildId,
                 BuildInvolvementId = result.BuildInvolvementId,
                 Id = result.Id,
-                InnerText = BuildLogTextParser.ToInnerText(result),
+                InnerText = parser.ToInnerText(result),
                 LogParserPlugin = result.LogParserPlugin,
                 ParsedContent = result.ParsedContent,
                 Signature = result.Signature

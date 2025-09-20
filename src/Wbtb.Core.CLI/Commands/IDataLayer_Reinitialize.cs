@@ -13,16 +13,16 @@ namespace Wbtb.Core.CLI
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly ConsoleHelper _consoleHelper;
+        private readonly Logger _logger;
 
         #endregion
 
         #region CTORS
 
-        public IDataLayer_Reinitialize(PluginProvider pluginProvider, ConsoleHelper consoleHelper)
+        public IDataLayer_Reinitialize(PluginProvider pluginProvider, Logger logger)
         {
             _pluginProvider = pluginProvider;
-            _consoleHelper = consoleHelper;
+            _logger = logger;
         }
 
         #endregion
@@ -39,16 +39,16 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("confirm"))
             {
-                ConsoleHelper.WriteLine($"WARNING: This will delete _all_ data in backend, as well as destroy and recreate all tables etc. Please add --confirm switch to prove you mean this", addDate: false);
+                _logger.Status($"WARNING: This will delete _all_ data in backend, as well as destroy and recreate all tables etc. Please add --confirm switch to prove you mean this");
                 Environment.Exit(1);
                 return;
             }
 
             IDataPlugin data = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             data.DestroyDatastore();
-            ConsoleHelper.WriteLine("Datastore destroyed", addDate: false);
+            _logger.Status("Datastore destroyed");
             data.InitializeDatastore();
-            ConsoleHelper.WriteLine("Datastore initialized", addDate: false);
+            _logger.Status("Datastore initialized");
         }
 
         #endregion

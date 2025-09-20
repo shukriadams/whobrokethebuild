@@ -9,7 +9,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         private readonly IDaemonTaskController _taskController;
 
@@ -23,7 +23,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public BuildEndDaemon(ILogger log, IDaemonTaskController processRunner)
+        public BuildEndDaemon(Logger log, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
@@ -107,7 +107,7 @@ namespace Wbtb.Core.Web
                     });
             }
             
-            ConsoleHelper.WriteLine(this, $"Build {build.Key} (id:{build.Id}) marked as complete, status is {build.Status}");
+            _log.Status(this, $"Build {build.Key} (id:{build.Id}) marked as complete, status is {build.Status}", 1);
 
             return new DaemonTaskWorkResult();
         }

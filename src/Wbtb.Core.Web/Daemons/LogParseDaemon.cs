@@ -14,7 +14,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private ILogger _log;
+        private Logger _log;
 
         private IDaemonTaskController _taskController;
         
@@ -26,7 +26,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public LogParseDaemon(ILogger log, Configuration config, PluginProvider pluginProvider, IDaemonTaskController processRunner)
+        public LogParseDaemon(Logger log, Configuration config, PluginProvider pluginProvider, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
@@ -78,7 +78,7 @@ namespace Wbtb.Core.Web
             }
             catch (Exception ex) 
             {
-                _log.LogError($"Failed to read log for build id:{build.Id} at path:{logPath}.", ex);
+                _log.Error(this, $"Failed to read log for build id:{build.Id} at path:{logPath}.", ex);
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Failed to read log for build id:{build.Id} at path:{logPath}. Exception : {ex}" };
             }
 
@@ -111,10 +111,10 @@ namespace Wbtb.Core.Web
             dataWrite.SaveBuildLogParseResult(logParserResult);
 
             string timeString = $" took {(DateTime.UtcNow - startUtc).ToHumanString(shorten: true)}";
-            _log.LogInformation($"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timeString}");
+            _log.Debug(this, $"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timeString}");
             task.AppendResult($"{logParserResult.LogParserPlugin} {timeString}.");
 
-            ConsoleHelper.WriteLine(this, $"Log parsed for build {build.Key} (id:{build.Id})");
+            _log.Status(this, $"Log parsed for build {build.Key} (id:{build.Id})");
             return new DaemonTaskWorkResult(); 
         }
 

@@ -7,10 +7,13 @@ namespace Wbtb.Core.CLI
     internal class ConsoleCLIHelper
     {
         private readonly IDataPlugin _datalayer;
-        
-        public ConsoleCLIHelper(PluginProvider pluginProvider) 
+
+        private readonly Logger _logger;
+
+        public ConsoleCLIHelper(PluginProvider pluginProvider, Logger logger) 
         {
             _datalayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            _logger = logger;
         }
 
         public void PrintJobs() 
@@ -18,9 +21,9 @@ namespace Wbtb.Core.CLI
             IEnumerable<Job> jobs = _datalayer.GetJobs();
             if (jobs.Any())
             {
-                ConsoleHelper.WriteLine("Existing jobs are : ");
+                _logger.Status("Existing jobs are : ");
                 foreach (Job existingJob in jobs)
-                    ConsoleHelper.WriteLine($"Name:{existingJob.Name} key: {existingJob.Key}", addDate : false);
+                    _logger.Status($"Name:{existingJob.Name} key: {existingJob.Key}");
             }
         }
     }

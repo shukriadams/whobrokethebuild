@@ -10,6 +10,8 @@ namespace Wbtb.Core.CLI
     {
         #region FIELDS
 
+        private readonly Logger _logger;
+
         private readonly PluginProvider _pluginProvider;
 
         private readonly ConsoleCLIHelper _consoleHelper;
@@ -18,10 +20,11 @@ namespace Wbtb.Core.CLI
 
         #region CTORS
 
-        public IDataLayer_ResetJob(PluginProvider pluginProvider, ConsoleCLIHelper consoleHelper) 
+        public IDataLayer_ResetJob(PluginProvider pluginProvider, ConsoleCLIHelper consoleHelper, Logger logger) 
         {
             _pluginProvider = pluginProvider;
             _consoleHelper = consoleHelper;
+            _logger = logger;
         }
 
         #endregion
@@ -37,9 +40,9 @@ namespace Wbtb.Core.CLI
         {
             if (!switches.Contains("job"))
             {
-                ConsoleHelper.WriteLine($"ERROR : \"--job\" <job> required", addDate : false);
+                _logger.Status($"ERROR : \"--job\" <job> required");
                 _consoleHelper.PrintJobs();
-                ConsoleHelper.WriteLine($"use \"--job * \"to wipe all jobs", addDate: false);
+                _logger.Status($"use \"--job * \"to wipe all jobs");
                 Environment.Exit(1);
                 return;
             }
@@ -57,7 +60,7 @@ namespace Wbtb.Core.CLI
                 Job job = dataLayer.GetJobByKey(jobKey);
                 if (job == null)
                 {
-                    ConsoleHelper.WriteLine($"ERROR : \"--job\" key {jobKey} does not point to a valid job", addDate: false);
+                    _logger.Status($"ERROR : \"--job\" key {jobKey} does not point to a valid job");
                     _consoleHelper.PrintJobs();
                     Environment.Exit(1);
                     return;
@@ -65,9 +68,8 @@ namespace Wbtb.Core.CLI
                 jobs.Add(job);
             }
 
-            ConsoleHelper.WriteLine("Performing hard reset", addDate: false);
-
-            ConsoleHelper.WriteLine($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.", addDate: false);
+            _logger.Status("Performing hard reset");
+            _logger.Status($"WARNING - do not reset a job on an actively running server. Stop server, run job, then restart server. Failure to do so can cause concurrency issues in dataset. Rerun this job on a stopped server to reset cleanly.");
 
             bool hard = true;
             foreach (Job job in jobs) 
@@ -92,13 +94,13 @@ namespace Wbtb.Core.CLI
                         });
 
                         Thread.Sleep(10);
-                        ConsoleHelper.WriteLine($"Requeued build {build.Key} for processing.", addDate: false);
+                        _logger.Status($"Requeued build {build.Key} for processing.");
                     }
 
                     page++;
                 }
-                
-                ConsoleHelper.WriteLine($"Job {job.Name} reset. {reset} records reset.", addDate: false);
+
+                _logger.Status($"Job {job.Name} reset. {reset} records reset.");
             }
 
         }

@@ -5,6 +5,16 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 {
     public class JenkinsSelfBlame : Plugin, IPostProcessorPlugin
     {
+        private readonly BuildLogTextParser _buildLogTextParser;
+
+        private readonly Logger _logger;
+
+        public JenkinsSelfBlame(BuildLogTextParser buildLogTextParser, Logger logger)
+        {
+            _buildLogTextParser = buildLogTextParser;
+            _logger = logger;
+        }
+
         PluginInitResult IPlugin.InitializePlugin()
         {
             return new PluginInitResult
@@ -13,6 +23,8 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
                 Success = true
             };
         }
+
+
 
         void IPostProcessorPlugin.VerifyJobConfig(Job job)
         {
@@ -29,14 +41,20 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
             {
-                ParsedBuildLogText parsedText = BuildLogTextParser.Parse(buildLogParseResult.ParsedContent);
-                if (parsedText == null)
+                Response<ParsedBuildLogText> parsedTextResponse = _buildLogTextParser.Parse(buildLogParseResult.ParsedContent);
+                if (!string.IsNullOrEmpty(parsedTextResponse.Error)) 
+                {
+                    _logger.Error(this, parsedTextResponse.Error);
+                    continue;
+                }
+
+                if (parsedTextResponse.Value == null)
                     continue;
 
-                if (parsedText.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing")
+                if (parsedTextResponse.Value.Type == "Wbtb.Extensions.LogParsing.JenkinsSelfFailing")
                 {
                     string summary = string.Empty;
-                    foreach (var item in parsedText.Items)
+                    foreach (var item in parsedTextResponse.Value.Items)
                         foreach (var item2 in item.Items)
                             summary += $"{item2.Content}";
 

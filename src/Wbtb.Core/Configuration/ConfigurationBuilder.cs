@@ -12,16 +12,17 @@ namespace Wbtb.Core
         private readonly Configuration _config;
         private readonly PluginProvider _pluginProvider;
         private readonly IDataPlugin _datalayer;
-
+        private readonly Logger _logger;
         #endregion
 
         #region CTORS
 
-        public ConfigurationBuilder(Configuration config, PluginProvider pluginProvider) 
+        public ConfigurationBuilder(Configuration config, PluginProvider pluginProvider, Logger logger) 
         {
             _config = config;
             _pluginProvider = pluginProvider;
             _datalayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            _logger = logger;
         }
 
         #endregion
@@ -113,7 +114,7 @@ namespace Wbtb.Core
                         _datalayer.SaveBuildServer(previousCheck);
                         buildserver = previousCheck;
 
-                        ConsoleHelper.WriteLine($"BuildServer key changed from {buildServerConfig.KeyPrev} to {buildServerConfig.Key}");
+                        _logger.Status($"BuildServer key changed from {buildServerConfig.KeyPrev} to {buildServerConfig.Key}");
                     }
                 }
 
@@ -127,7 +128,7 @@ namespace Wbtb.Core
                         Description = buildServerConfig.Description
                     });
 
-                    ConsoleHelper.WriteLine($"WBTB : SETUP : Created BuildServer {buildServerConfig.Key}");
+                    _logger.Status($"SETUP : Created BuildServer {buildServerConfig.Key}", 1);
                 } 
 
                 IEnumerable<Job> jobs = _datalayer.GetJobsByBuildServerId(buildserver.Id);
@@ -149,11 +150,12 @@ namespace Wbtb.Core
                             Name = string.IsNullOrEmpty(jobConfig.Name) ? jobConfig.Key : jobConfig.Name,
                             Description = jobConfig.Description
                         });
-                        ConsoleHelper.WriteLine($"WBTB : SETUP : Created Job {jobConfig.Key} under build server {buildServerConfig.Key}");
+
+                        _logger.Status($"SETUP : Created Job {jobConfig.Key} under build server {buildServerConfig.Key}");
                     }
                     else 
                     {
-                        ConsoleHelper.WriteLine($"VERIFIED : job {job.Key} found");
+                        _logger.Status($"VERIFIED : job {job.Key} found");
                     }
 
                     IBuildServerPlugin buildServerPlugin = _pluginProvider.GetByKey(buildserver.Plugin) as IBuildServerPlugin;
@@ -162,7 +164,7 @@ namespace Wbtb.Core
                     // check each build and queue for reimport if not in db.
                     IEnumerable<Build> builds = buildServerPlugin.GetAllCachedBuilds(job).Take(job.ImportCount);
 
-                    ConsoleHelper.WriteLine($"Checking {builds.Count()} builds");
+                    _logger.Status($"Checking {builds.Count()} builds", 1);
 
                     foreach (Build build in builds)
                     {
@@ -182,11 +184,11 @@ namespace Wbtb.Core
                             BuildId = build.Id
                         });
 
-                        ConsoleHelper.WriteLine($"Imported build {build.Key} under job {job.Name}");
+                        _logger.Status($"Imported build {build.Key} under job {job.Name}");
                     }
                 }
 
-                ConsoleHelper.WriteLine($"Done verifying jobs");
+                _logger.Status($"Done verifying jobs", 1);
             }
         }
 
@@ -204,7 +206,7 @@ namespace Wbtb.Core
                         _datalayer.SaveUser(previousCheck);
                         user = previousCheck;
 
-                        ConsoleHelper.WriteLine($"BuildServer key changed from {userConfig.KeyPrev} to {userConfig.Key}");
+                        _logger.Status($"BuildServer key changed from {userConfig.KeyPrev} to {userConfig.Key}");
                     }
                 }
 
@@ -217,7 +219,7 @@ namespace Wbtb.Core
                         Description = userConfig.Description
                     });
 
-                    ConsoleHelper.WriteLine($"WBTB : SETUP : Created User  {userConfig.Key}");
+                    _logger.Status($"SETUP : Created User  {userConfig.Key}");
 
                 }
             }
@@ -237,7 +239,7 @@ namespace Wbtb.Core
                         _datalayer.SaveSourceServer(previousCheck);
                         sourceServer = previousCheck;
 
-                        ConsoleHelper.WriteLine($"BuildServer key changed from {sourceServerConfig.KeyPrev} to {sourceServerConfig.Key}");
+                        _logger.Status($"BuildServer key changed from {sourceServerConfig.KeyPrev} to {sourceServerConfig.Key}");
                     }
                 }
 
@@ -251,7 +253,7 @@ namespace Wbtb.Core
                         Description = sourceServerConfig.Description
                     });
 
-                    ConsoleHelper.WriteLine($"WBTB : SETUP : Created Source Server {sourceServerConfig.Key}");
+                    _logger.Status($"SETUP : Created Source Server {sourceServerConfig.Key}");
                 }
             }
         }

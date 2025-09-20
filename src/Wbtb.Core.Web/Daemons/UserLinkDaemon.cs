@@ -12,7 +12,7 @@ namespace Wbtb.Core.Web
     {
         #region FIELDS
 
-        private ILogger _log;
+        private Logger _log;
 
         private IDaemonTaskController _taskController;
 
@@ -26,7 +26,7 @@ namespace Wbtb.Core.Web
 
         #region CTORS
 
-        public UserLinkDaemon(ILogger log, IDaemonTaskController processRunner)
+        public UserLinkDaemon(Logger log, IDaemonTaskController processRunner)
         {
             _log = log;
             _taskController = processRunner;
@@ -82,7 +82,7 @@ namespace Wbtb.Core.Web
             buildInvolvement.MappedUserId = userInDatabase.Id;
             dataWrite.SaveBuildInvolement(buildInvolvement);
 
-            ConsoleHelper.WriteLine(this, $"Linked user {userInDatabase.Name} to build {build.Key} (id:{build.Id})");
+            _log.Status(this, $"Linked user {userInDatabase.Name} to build {build.Key} (id:{build.Id})");
 
             return new DaemonTaskWorkResult();
         }
