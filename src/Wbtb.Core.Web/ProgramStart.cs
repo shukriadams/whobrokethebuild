@@ -43,8 +43,9 @@ namespace Wbtb.Core.Web
                         throw new ConfigurationException($"The provided log path {configurationBasic.DotNetLogPath} is invalid - path must be a file, but there is currently a directory at this location.");
 
                     Directory.CreateDirectory(Path.GetDirectoryName(configurationBasic.DotNetLogPath));
-                    builder.AddFile(configurationBasic.DotNetLogPath, LogLevel.Warning);
 
+                    // set default log level to warning, else underyling asp frameworks spams log with garbage
+                    builder.AddFile(configurationBasic.DotNetLogPath, LogLevel.Warning); 
                 })
 
                 // hand over too AspStart to continue loading

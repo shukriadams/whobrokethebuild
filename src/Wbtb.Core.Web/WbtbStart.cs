@@ -24,15 +24,30 @@ namespace Wbtb.Core.Web
         /// <param name="lifetime"></param>
         public WbtbStart(IServiceProvider serviceProvider, IHostApplicationLifetime lifetime)
         {
-            bool exitOnConfigError = false;
+            ConfigurationBasic basicConfiguration = new ConfigurationBasic();
+
+            // register types defined in web project - common types are registered in Core.cs
+            SimpleDI di = new SimpleDI();
+
+            di.RegisterFactory<ILogger, LogProvider>();
+            Logger logger = new Logger();
+            ILogger fileLogger = di.Resolve<ILogger>();
+            logger.StatusVerbosityThreshold = basicConfiguration.StatusVerbosityThreshold;
+            logger.DebugVerbosityThreshold = basicConfiguration.DebugVerbosityThreshold;
+            logger.DebugSourceFilters = basicConfiguration.DebugSourceFilters;
+            // log debug out to inf for now because can't figure out where to safetly hardcode serilog
+            // to give us debug output while also not have asp.net spam debug crap
+            logger.OnDebug = (string message) => fileLogger.LogInformation(message);
+            logger.OnError = (string message, object arg, string source) => fileLogger.LogError(message, arg, source);
+            logger.OnStatus = (string message) => fileLogger.LogInformation(message);
+            logger.OnWarn = (string message, object arg) => fileLogger.LogWarning(message);
+            di.RegisterSingleton<Logger>(logger);
+
+            logger.Debug(this, "Log configured", 3);
 
             lifetime.ApplicationStarted.Register(() =>{
                 try
                 {
-                    // register types defined in web project - common types are registered in Core.cs
-                    SimpleDI di = new SimpleDI();
-                    di.RegisterFactory<ILogger, LogProvider>();
-                    di.Register<Logger, Logger>();
                     di.Register<MutationHelper, MutationHelper>();
                     di.Register<FailingAlertKey, FailingAlertKey>();
                     di.Register<IDaemonTaskController, DaemonTaskController>();
@@ -54,16 +69,7 @@ namespace Wbtb.Core.Web
                     di.Register<MetricsHelper, MetricsHelper>();
                     di.Register<BuildEventHandlerHelper, BuildEventHandlerHelper>();
 
-                    // Default behaviour is to not exit on config error, but to rather park application in a 
-                    // mode where endpoints all return "config broken please fix". This can be overridden. 
-                    // Do this before calling core, as it can throw expected ConfigurationExceptions.
-                    // Note that we haven't yet loaded .env file, so this is the one Env var that must be
-                    // set higher up, ie, on the parent process/system level, in VStudio before launching app, etc.
-                    string exitOnConfigErrorLook = Environment.GetEnvironmentVariable("WBTB_EXIT_ON_CONFIG_ERROR");
-                    if (exitOnConfigErrorLook == "1" || exitOnConfigErrorLook == "true") { 
-                        exitOnConfigError = true;
-                        ConsoleHelper.WriteLine("exit on config error is enabled");
-                    }
+                    logger.Debug(this, "Web.Core types registered", 3);
 
                     // Wbtb's core has common startup logic for web/CLI apps, such as setting up and validating config
                     Wbtb.Core.Core core = new Wbtb.Core.Core();
@@ -82,19 +88,21 @@ namespace Wbtb.Core.Web
                     {
                         if (disableDaemons)
                         {
-                            ConsoleHelper.WriteLine("DAEMONS DISABLED");
+                            logger.Status("DAEMONS DISABLED");
                         }
                         else
                         {
                             // start daemons by find all types that implement IWebDaemon
                             IEnumerable<IWebDaemon> webDaemons = di.ResolveAll<IWebDaemon>();
-                            foreach (IWebDaemon daemon in webDaemons)
+                            foreach (IWebDaemon daemon in webDaemons) 
                                 daemon.Start(config.DaemonInterval * 1000);
+
+                            logger.Status("Daemons started", 3);
                         }
 
                         if (disableSockets)
                         {
-                            ConsoleHelper.WriteLine("SOCKETS DISABLED");
+                            logger.Status("SOCKETS DISABLED");
                         }
                         else
                         {
@@ -106,6 +114,7 @@ namespace Wbtb.Core.Web
                                 consoleWriter.WriteEvent += (object sender, ConsoleWriterEventArgs e) => {
                                     hub.Clients.All.SendAsync("ReceiveMessage", "some user", e.Value);
                                 };
+                                logger.Status("sockets started", 3);
 
                                 Console.SetOut(consoleWriter);
                             }
@@ -115,17 +124,17 @@ namespace Wbtb.Core.Web
                     // Everything is started. App is now ready to accept incoming requests. If false, HTTP endpoints
                     // will return a "server busy warming up" page.
                     AppState.Ready = true;
+                    logger.Status("Wbtb loading complete");
                 }
                 catch (ConfigurationException ex)
                 {
                     AppState.ConfigErrors = true;
+                    logger.Error(this, $"WBTB configuration error", ex);
 
-                    ConsoleHelper.WriteLine($"WBTB configuration error : {ex.Message}");
-
-                    if (exitOnConfigError) 
+                    // force exit app if config failed
+                    if (basicConfiguration.ExitOnConfigError) 
                     {
-                        ConsoleHelper.WriteLine("WBTB failed to start - configuration errors were detected :");
-                        // force exit app if config failed
+                        logger.Status("WBTB start interrupted by configuration errors. App exiting.");
                         System.Diagnostics.Process
                             .GetCurrentProcess()
                             .Kill();

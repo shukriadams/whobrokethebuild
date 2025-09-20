@@ -40,6 +40,8 @@ WBTB needs some basic config to work. There is a local developer config in the p
     WBTB_FORCE_PLUGIN_VALIDATION=true
     WBTB_PROXYMODE=direct
     WBTB_SLACK_CHANNEL=123
+    WBTB_LOG_STATUS_VERBOSITY=4
+    WBTB_LOG_DEBUG_VERBOSITY=4
 
 Replace <ABSOLUTE-PATH-TO-DEMO.CONFIG.YML> with the absolute path to this file in your checkout, and all values in <POSTGRES..> with your Postgres info. Leave everything else in place. You're now ready to go.
 
