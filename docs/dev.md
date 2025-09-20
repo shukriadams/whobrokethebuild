@@ -124,9 +124,9 @@ WBTB's core feature is a distrubuted, cross-runtime plugin system. Data objects 
 
 Common has as few dependencies as possible to reduce potential for dependency version conflicts within plugins.
 
-## Daemon order
+## Worker order
 
-Wbtb handles build logic with a series of daemons. Each daemon is a process that runs on its own thread and processes a "stage" in the lifecycle of a build. A given daemon will process a given build or a child record of a build by reading the database for DaemonTask records. Tasks are completed in order, and can be used to queue and track work.
+Wbtb handles build logic with a series of daemon workers. Each daemon is a process that runs on its own thread and processes a "stage" in the lifecycle of a build. A given daemon will process a build by reading the database for DaemonTask records. Tasks are completed in order, and can be used to queue and track work.
 ---------------------------------------------------------
 0
 - build create daemon > runs unrestricted, not tied to any daemontasks. polls build server for new builds, writes those builds to db. creates. OUT : BuildEnd.

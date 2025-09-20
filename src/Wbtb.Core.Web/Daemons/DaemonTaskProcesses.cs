@@ -34,13 +34,13 @@ namespace Wbtb.Core.Web
 
         public bool IsActive(DaemonTask task) 
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 return _activeProcesses.ContainsKey(task.Id);
         }
 
         public DaemonActiveProcess GetActive(DaemonTask task) 
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 if (_activeProcesses.ContainsKey(task.Id))
                     return _activeProcesses[task.Id];
 
@@ -49,7 +49,7 @@ namespace Wbtb.Core.Web
 
         public DaemonBlockedProcess GetBlocked(DaemonTask task)
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 if (_blockedProcesses.ContainsKey(task.Id))
                     return _blockedProcesses[task.Id];
 
@@ -58,7 +58,7 @@ namespace Wbtb.Core.Web
 
         public void MarkActive(DaemonTask task, IWebDaemon daemon, Build build, string description = "") 
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
             {
                 string key = task.Id;
 
@@ -78,7 +78,7 @@ namespace Wbtb.Core.Web
 
         public void MarkBlocked(DaemonTask task, IWebDaemon daemon, Build build, string reason = "")
         {
-            lock (Program.LockInstance) 
+            lock (ProgramStart.LockInstance) 
             {
                 if (_blockedProcesses.ContainsKey(task.Id))
                 {
@@ -103,7 +103,7 @@ namespace Wbtb.Core.Web
 
         public void MarkBlocked(DaemonTask task, IWebDaemon daemon, Build build, IEnumerable<DaemonTask> blocking) 
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
             {
                 if (_blockedProcesses.ContainsKey(task.Id))
                 {
@@ -128,11 +128,11 @@ namespace Wbtb.Core.Web
 
         public void MarkDone(DaemonTask task)
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 if (_blockedProcesses.ContainsKey(task.Id)) 
                     _blockedProcesses.Remove(task.Id);
 
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 if (_activeProcesses.ContainsKey(task.Id)) 
                 {
 
@@ -155,57 +155,57 @@ namespace Wbtb.Core.Web
 
         public bool HasActive(string key)
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 return _activeProcesses.ContainsKey(key);
         }
 
         public bool HasActive(DaemonTask task)
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 return _activeProcesses.ContainsKey(task.Id);
         }
 
         public void ClearActive(DaemonTask task) 
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 if (_activeProcesses.ContainsKey(task.Id))
                     _activeProcesses.Remove(task.Id);
         }
 
         public IEnumerable<DaemonDoneProcess> GetDone() 
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 return _doneProcesses.Where(d => d != null).OrderByDescending(d => d.DoneUTc);
         }
 
         public void ClearActive(string key)
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 if (_activeProcesses.ContainsKey(key))
                     _activeProcesses.Remove(key);
         }
 
         public IEnumerable<DaemonActiveProcess> GetAllActive() 
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 return _activeProcesses.Values;
         }
 
         public int GetAllActiveCount()
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 return _activeProcesses.Count;
         }
 
         public int GetAllActiveForTypeCount(Type type)
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 return _activeProcesses.Where(p => p.Value.Daemon == type).Count();
         }
 
         public IEnumerable<DaemonBlockedProcess> GetAllBlocked()
         {
-            lock (Program.LockInstance)
+            lock (ProgramStart.LockInstance)
                 return _blockedProcesses.Values;
         }
 

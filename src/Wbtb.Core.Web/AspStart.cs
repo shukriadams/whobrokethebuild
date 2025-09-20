@@ -8,11 +8,15 @@ using System;
 
 namespace Wbtb.Core.Web
 {
-    public class Startup
+    /// <summary>
+    /// Microsoft-standard start handler for Asp applications. This is the second type run on app start. It is called by
+    /// Program.cs, and in turn hands over to WbtbStart.
+    /// </summary>
+    public class AspStart
     {
         public IConfiguration Configuration { get; }
 
-        public Startup(IConfiguration configuration)
+        public AspStart(IConfiguration configuration)
         {
             Configuration = configuration;
         }
@@ -26,7 +30,7 @@ namespace Wbtb.Core.Web
             services.AddSignalR();
             services.AddMemoryCache();
             // most WBTB app load logic is in this service, which is called once the underlying ASP application is loaded.
-            services.AddHostedService<ServerStartService>();
+            services.AddHostedService<WbtbStart>();
 
             services.AddScoped<ViewStatus>();
         }

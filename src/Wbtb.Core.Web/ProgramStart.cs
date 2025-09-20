@@ -6,7 +6,10 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Core.Web
 {
-    public class Program
+    /// <summary>
+    /// First type run by the server. Entry point, main, whatever. Hands over to AspStart.
+    /// </summary>
+    public class ProgramStart
     {
         public static object LockInstance = new object();
 
@@ -44,9 +47,9 @@ namespace Wbtb.Core.Web
 
                 })
 
-                // continue laoding
+                // hand over too AspStart to continue loading
                 .ConfigureWebHostDefaults(webBuilder => {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<AspStart>();
                 });
     }
 }

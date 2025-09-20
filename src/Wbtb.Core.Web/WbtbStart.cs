@@ -11,24 +11,28 @@ using Wbtb.Core.Web.Core;
 
 namespace Wbtb.Core.Web
 {
-    public class ServerStartService : BackgroundService
+    /// <summary>
+    /// Wbtb main loading/start class for web server. Registers types, calls wbtb core, starts daemons etc. 
+    /// </summary>
+    public class WbtbStart : BackgroundService
     {
         /// <summary>
-        /// Does the final part of Wbtb server start, after the underlying ASP application is loaded. We need to wait for this because WBTB relies on HTTP requests to do its thing.
+        /// Called when HTTP endpoints have been registered internally by runtime, and app is ready to respond to incoming requests. 
+        /// At this point we are still returing a friendly "server is busy" rersponse.
         /// </summary>
         /// <param name="serviceProvider"></param>
         /// <param name="lifetime"></param>
-        public ServerStartService(IServiceProvider serviceProvider, IHostApplicationLifetime lifetime)
+        public WbtbStart(IServiceProvider serviceProvider, IHostApplicationLifetime lifetime)
         {
-            bool exitOnConfigError = true;
+            bool exitOnConfigError = false;
 
             lifetime.ApplicationStarted.Register(() =>{
                 try
                 {
-                    SimpleDI di = new SimpleDI();
-
                     // register types defined in web project - common types are registered in Core.cs
+                    SimpleDI di = new SimpleDI();
                     di.RegisterFactory<ILogger, LogProvider>();
+                    di.Register<Logger, Logger>();
                     di.Register<MutationHelper, MutationHelper>();
                     di.Register<FailingAlertKey, FailingAlertKey>();
                     di.Register<IDaemonTaskController, DaemonTaskController>();
@@ -50,18 +54,22 @@ namespace Wbtb.Core.Web
                     di.Register<MetricsHelper, MetricsHelper>();
                     di.Register<BuildEventHandlerHelper, BuildEventHandlerHelper>();
 
+                    // Default behaviour is to not exit on config error, but to rather park application in a 
+                    // mode where endpoints all return "config broken please fix". This can be overridden. 
+                    // Do this before calling core, as it can throw expected ConfigurationExceptions.
+                    // Note that we haven't yet loaded .env file, so this is the one Env var that must be
+                    // set higher up, ie, on the parent process/system level, in VStudio before launching app, etc.
                     string exitOnConfigErrorLook = Environment.GetEnvironmentVariable("WBTB_EXIT_ON_CONFIG_ERROR");
-
-                    if (exitOnConfigErrorLook == "0" || exitOnConfigErrorLook == "false") { 
-                        exitOnConfigError = false;
-                        ConsoleHelper.WriteLine("exit on config error is disabled");
+                    if (exitOnConfigErrorLook == "1" || exitOnConfigErrorLook == "true") { 
+                        exitOnConfigError = true;
+                        ConsoleHelper.WriteLine("exit on config error is enabled");
                     }
-                    exitOnConfigError = false;
 
+                    // Wbtb's core has common startup logic for web/CLI apps, such as setting up and validating config
                     Wbtb.Core.Core core = new Wbtb.Core.Core();
                     core.Start();
 
-
+                    // config should now be available
                     Configuration config = di.Resolve<Configuration>();
 
                     string disableDaemonsLook = Environment.GetEnvironmentVariable("WBTB_ENABLE_DAEMONS");
@@ -69,6 +77,7 @@ namespace Wbtb.Core.Web
                     string disableSocketsLook = Environment.GetEnvironmentVariable("WBTB_ENABLE_SOCKETS");
                     bool disableSockets = disableSocketsLook == "0" || disableSocketsLook == "false" || config.EnabledSockets == false;
 
+                    // setup background processes / daemons etc for web
                     using (IServiceScope scope = serviceProvider.CreateScope())
                     {
                         if (disableDaemons)
@@ -100,11 +109,11 @@ namespace Wbtb.Core.Web
 
                                 Console.SetOut(consoleWriter);
                             }
-
                         }
                     }
 
-                    // app is ready to accept incoming requests
+                    // Everything is started. App is now ready to accept incoming requests. If false, HTTP endpoints
+                    // will return a "server busy warming up" page.
                     AppState.Ready = true;
                 }
                 catch (ConfigurationException ex)
@@ -125,6 +134,11 @@ namespace Wbtb.Core.Web
             }); 
         }
 
+        /// <summary>
+        /// Reguired by BackgroundService base class.
+        /// </summary>
+        /// <param name="stoppingToken"></param>
+        /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Task.FromResult<object>(null);

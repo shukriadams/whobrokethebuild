@@ -53,7 +53,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 return new PostProcessResult
                 {
                     Passed = true,
-                    Result = "Job has no source control server defined. A Perforce server is required"
+                    Result = $"Job has no source control server defined. This post-processor ({this.ContextPluginConfig.Key}) requires a source server to work."
                 };
 
             SourceServer sourceServer = data.GetSourceServerById(job.SourceServerId);
@@ -62,26 +62,23 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             IEnumerable<BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
             IEnumerable<BuildInvolvement> buildInvolvements = data.GetBuildInvolvementsByBuild(build.Id);
             Build previousBuildInIncident = data.GetPrecedingBuildInIncident(build);
-            string previusBuildMutationHash = string.Empty;
+            string previousBuildMutationHash = string.Empty;
             if (previousBuildInIncident != null)
-                previusBuildMutationHash = mutationHelper.GetBuildMutation(previousBuildInIncident);
+                previousBuildMutationHash = mutationHelper.GetBuildMutation(previousBuildInIncident);
 
             // get all revisions associated with this build
             IList<Revision> revisionsLinkedToBuild = new List<Revision>();
             foreach (BuildInvolvement buildInvolvement in buildInvolvements.Where(bi => !string.IsNullOrEmpty(bi.RevisionId)))
                 revisionsLinkedToBuild.Add(data.GetRevisionById(buildInvolvement.RevisionId));
 
-            // if log parse results are c++
-
             // ensure current source control is perforce
             // foreach file in buildinvolvements revisions
-            // can we connect revision file path to c++ file
             bool isPerforce = sourceServerPlugin != null && (sourceServerPlugin.Manifest.Key == "Wbtb.Extensions.SourceServer.Perforce" || sourceServerPlugin.Manifest.Key == "Wbtb.Extensions.SourceServer.PerforceSandbox");
             if (!isPerforce)
                 return new PostProcessResult
                 {
                     Passed = true,
-                    Result = "Build not covered by perforce, ignoring."
+                    Result = $"Job does not have Perforce as source control. This post-processor ({this.ContextPluginConfig.Key}) work on Perforce only."
                 };
 
 
@@ -125,15 +122,20 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
             bool isJenkinsInternalError = false;
             bool isJenkinsBuildTimeout = false;
             List<string> blamedUserNames = new List<string>();
-            string[] allowedParsers = { "Wbtb.Extensions.LogParsing.AcmeGamesTester", "Wbtb.Extensions.LogParsing.Unreal4LogParser", "Wbtb.Extensions.LogParsing.Cpp", "Wbtb.Extensions.LogParsing.BasicErrors" };
             string fileCausingBreak = string.Empty;
             string specificErrorParsed = string.Empty;
             string basicErrorParsed = string.Empty;
             string parsedLogError = string.Empty;
             IList<string> implicatedRevisions = new List<string>();
+            string[] allowedParsers = { 
+                "Wbtb.Extensions.LogParsing.AcmeGamesTester", 
+                "Wbtb.Extensions.LogParsing.Unreal4LogParser", 
+                "Wbtb.Extensions.LogParsing.Cpp", 
+                "Wbtb.Extensions.LogParsing.BasicErrors" };
+
 
             string thisBuildMutationHash = mutationHelper.GetBuildMutation(build);
-            bool hasMutated = previusBuildMutationHash != thisBuildMutationHash;
+            bool hasMutated = previousBuildMutationHash != thisBuildMutationHash;
 
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
