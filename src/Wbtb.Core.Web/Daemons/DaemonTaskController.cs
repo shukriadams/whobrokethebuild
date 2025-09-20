@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -24,12 +23,15 @@ namespace Wbtb.Core.Web
 
         private bool _busy;
 
+        private readonly Logger _logger;
+
         #endregion
 
         #region CTORS
 
-        public DaemonTaskController()
+        public DaemonTaskController(Logger logger)
         {
+            _logger = logger;
             _running = true;
         }
 
@@ -56,6 +58,7 @@ namespace Wbtb.Core.Web
 
                     try
                     {
+                        _logger.Debug(daemon, "daemon ticking", 4);
                         daemon.Work();
                     }
                     finally
@@ -92,16 +95,13 @@ namespace Wbtb.Core.Web
                             return;
 
                         _busy = true;
+                        _logger.Debug(daemon, "daemon ticking", 4);
 
                         SimpleDI di = new SimpleDI();
                         DaemonTaskProcesses daemonProcesses = di.Resolve<DaemonTaskProcesses>();
                         PluginProvider pluginProvider = di.Resolve<PluginProvider>();
                         IDataPlugin dataRead = pluginProvider.GetFirstForInterface<IDataPlugin>();
-
-
                         Configuration configuration = di.Resolve<Configuration>();
-                        ILogger log = di.Resolve<ILogger>();
-
                         IEnumerable<DaemonTask> tasks = dataRead.GetPendingDaemonTasksByLevel(thisTaskLevel);
                         
                         foreach (DaemonTask task in tasks)
@@ -110,10 +110,16 @@ namespace Wbtb.Core.Web
                             try
                             {
                                 if (daemonProcesses.GetAllActiveCount() >= configuration.MaxThreads)
+                                {
+                                    _logger.Debug(daemon, "at max threads, waiting", 4);
                                     break;
+                                }
 
-                                if (daemonProcesses.GetAllActiveForTypeCount(this.GetType()) >= configuration.MaxThreadsPerDaemon)
+                                if (daemonProcesses.GetAllActiveForTypeCount(daemon.GetType()) >= configuration.MaxThreadsPerDaemon)
+                                {
+                                    _logger.Debug(daemon, $"at max threads for type {this.GetType()}, waiting", 4);
                                     break;
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -124,6 +130,7 @@ namespace Wbtb.Core.Web
 
                             if (!dataRead.AreConnectionsAvailable())
                             {
+                                _logger.Debug(daemon, $"no database connections available, waiting", 4);
                                 break;
                             }
 
@@ -146,10 +153,11 @@ namespace Wbtb.Core.Web
                                     }
                                     catch (WriteCollisionException) 
                                     {
-                                        log.LogWarning($"Write collision trying to mark timed out task id {task.Id}, trying again later Ignored unless flooding.");
+                                        _logger.Warn(this, $"Write collision trying to mark timed out task id {task.Id}, trying again later Ignored unless flooding.");
                                     }
                                 }
 
+                                _logger.Debug(daemon, $"task {activeProcess.Task} started by another thread, this thread will skip", 4);
                                 continue;
                             }
 
@@ -177,32 +185,41 @@ namespace Wbtb.Core.Web
                                 }
                                 catch (WriteCollisionException)
                                 {
-                                    log.LogWarning($"Write collision trying to mark task id {task.Id} as failed, trying again later. Ignored unless flooding.");
+                                    _logger.Warn(this, $"Write collision trying to mark task id {task.Id} as failed, trying again later. Ignored unless flooding.");
                                 }
 
+                                _logger.Debug(daemon, $"a previous build for job {build.JobId} failed ({string.Join(",", failedTasksForThisBuild.Select(r => r.Id))}), this build marked as downstream failing too.", 4);
                                 continue;
                             }
 
                             if (failedOrBlockedTasksForBuild.Any())
                             {
                                 daemonProcesses.MarkBlocked(task, daemon, build, failedOrBlockedTasksForBuild);
+                                _logger.Debug(daemon, $"a previous build for job {build.JobId} blocked or failed ({string.Join(",", failedOrBlockedTasksForBuild.Select(r => r.Id))}), this build marked as downstream failing too.", 4);
                                 continue;
                             }
 
+                            // is another thread working on this task? hmmm ... we seem to ahve
+                            // a lot of differents to detect concurrent processing. Todo : refactor
+                            if (daemonProcesses.IsActive(task))
+                            {
+                                _logger.Debug(daemon, $"Task {task.Id} is already marked as active, another thread is processing it", 4);
+                                continue;
+                            }
 
                             // mark task as active so we don't rerun it                            
-                            if (daemonProcesses.IsActive(task))
-                                continue;
-
                             daemonProcesses.MarkActive(task, daemon, build);
 
-                            // do the work tasks requires, but on its own thread so the work doesn't block this controller.
+                            // do the work tasks required, but on its own thread so the work doesn't block this controller. Yes,
+                            // we are trying to cram as many threads into the CPU as possible here.
                             new Thread(delegate (){
 
                                 using (IDataPlugin dataWrite = pluginProvider.GetFirstForInterface<IDataPlugin>())
                                 {
                                     try
                                     {
+                                        _logger.Debug(daemon, $"task {task.Id} sub-thread started", 4);
+
                                         Job job = dataRead.GetJobById(build.JobId);
 
                                         dataWrite.TransactionStart();
@@ -220,11 +237,11 @@ namespace Wbtb.Core.Web
                                             task.HasPassed = true;
                                             task.ProcessedUtc = DateTime.UtcNow;
                                             task.AppendResult(workResult.Description);
+                                            
                                             dataWrite.SaveDaemonTask(task);
                                             dataWrite.TransactionCommit();
 
                                             daemonProcesses.MarkDone(task);
-
                                         }
                                         else if (workResult.ResultType == DaemonTaskWorkResultType.Blocked)
                                         {
@@ -234,7 +251,7 @@ namespace Wbtb.Core.Web
                                         else if (workResult.ResultType == DaemonTaskWorkResultType.WriteCollision)
                                         {
                                             dataWrite.TransactionCancel();
-                                            log.LogWarning($"Write collision occurred trying to update {task.Id}, trying again in a while. Ignored unless flooding.");
+                                            _logger.Warn(this, $"Write collision occurred trying to update {task.Id}, trying again in a while. Ignored unless flooding.");
                                         }
                                         else if (workResult.ResultType == DaemonTaskWorkResultType.Failed)
                                         {
@@ -263,14 +280,15 @@ namespace Wbtb.Core.Web
                                                 if (testRead == null || testRead.ProcessedUtc.HasValue)
                                                     break;
 
+                                                _logger.Debug(daemon, $"task {task.Id} failed readback check, trying again ...", 4);
                                                 Thread.Sleep(500);
                                             }
                                         }
-
+                                        _logger.Debug(daemon, $"task {task.Id} sub-thread complete", 4);
                                     }
                                     catch (Exception ex)
                                     {
-                                        log.LogError($"Unexpected error, daemon {daemon.GetType().Name}, task id {task.Id} ", ex);
+                                        _logger.Warn(this, $"Unexpected error, daemon {daemon.GetType().Name}, task id {task.Id} ", ex);
  
                                         dataWrite.TransactionCancel();
                                         
@@ -283,7 +301,7 @@ namespace Wbtb.Core.Web
                                         }
                                         catch (WriteCollisionException ex2)
                                         {
-                                            log.LogError($"nested WriteCollisionException updating error on task {task.Id}, ignoring this and trying again.", ex2);
+                                            _logger.Error(this, $"nested WriteCollisionException updating error on task {task.Id}, ignoring this and trying again.", ex2);
                                         }
 
                                         daemonProcesses.MarkDone(task);

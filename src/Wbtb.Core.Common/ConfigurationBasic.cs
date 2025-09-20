@@ -96,7 +96,9 @@ namespace Wbtb.Core.Common
         /// List of classes to allow debug logging from. Set in env var as comma separated list. If empty, debug from all classes will be permitted. Does
         /// not bypass verbosity level.
         /// </summary>
-        public IEnumerable<string> DebugSourceFilters { get; set; } = new List<string>();
+        public IEnumerable<string> DebugSourceAllow { get; set; } = new List<string>();
+
+        public IEnumerable<string> DebugSourceBlock { get; set; } = new List<string>();
 
         #endregion
 
@@ -109,7 +111,8 @@ namespace Wbtb.Core.Common
             this.ExitOnConfigError = EnvironmentVariableHelper.GetBool("WBTB_EXIT_ON_CONFIG_ERROR", false);
             this.StatusVerbosityThreshold = EnvironmentVariableHelper.GetInt("WBTB_LOG_STATUS_VERBOSITY", 0);
             this.DebugVerbosityThreshold = EnvironmentVariableHelper.GetInt("WBTB_LOG_DEBUG_VERBOSITY", 0);
-            this.DebugSourceFilters = EnvironmentVariableHelper.GetList("WBTB_LOG_DEBUG_SOURCES", this.DebugSourceFilters);
+            this.DebugSourceAllow = EnvironmentVariableHelper.GetList("WBTB_LOG_DEBUG_ALLOW", this.DebugSourceAllow);
+            this.DebugSourceBlock = EnvironmentVariableHelper.GetList("WBTB_LOG_DEBUG_BLOCK", this.DebugSourceBlock);
             this.GitConfigUrl = EnvironmentVariableHelper.GetString("WBTB_GIT_CONFIG_REPO_URL");
             this.PersistCalls = EnvironmentVariableHelper.GetBool("WBTB_PERSISTCALLS", false);
             this.ForcePluginValidation = EnvironmentVariableHelper.GetBool("WBTB_FORCE_PLUGIN_VALIDATION", false);

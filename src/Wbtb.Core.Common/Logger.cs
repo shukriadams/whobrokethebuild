@@ -47,7 +47,9 @@ namespace Wbtb.Core.Common
         /// </summary>
         public int DebugVerbosityThreshold { get; set; }
 
-        public IEnumerable<string> DebugSourceFilters { get; set; } = new List<string>();
+        public IEnumerable<string> DebugSourceBlock { get; set; } = new List<string>();
+
+        public IEnumerable<string> DebugSourceAllow { get; set; } = new List<string>();
 
         public Debug OnDebug { get; set; }
 
@@ -83,8 +85,7 @@ namespace Wbtb.Core.Common
                 source = TypeHelper.Name(sourceType);
 
             if (!string.IsNullOrEmpty(source))
-                source = $". Source:{source}";
-
+                source = $"|Source:{source}";
 
             string dateString = GenerateDateString();
             string category = this.AppendCategory ? "Error : " : string.Empty;
@@ -134,7 +135,7 @@ namespace Wbtb.Core.Common
             string dateString = GenerateDateString();
             string category = this.AppendCategory ? "WARNING : " : string.Empty;
             if (!string.IsNullOrEmpty(source))
-                source = $". Source:{source}";
+                source = $"|Source:{source}";
 
             if (arg == null)
             {
@@ -184,7 +185,7 @@ namespace Wbtb.Core.Common
             string dateString = GenerateDateString();
             string category = this.AppendCategory ? "STATUS : " : string.Empty;
             if (!string.IsNullOrEmpty(source))
-                source = $". Source:{source}";
+                source = $"|Source:{source}";
 
             Console.WriteLine($"{category}{dateString}{message}{source}");
             if (this.SendtoDiagnostics)
@@ -212,7 +213,10 @@ namespace Wbtb.Core.Common
             if (verbosity > this.DebugVerbosityThreshold)
                 return;
 
-            if (!string.IsNullOrEmpty(source) && DebugSourceFilters.Any() && !DebugSourceFilters.Any(f => f == source))
+            if (!string.IsNullOrEmpty(source) && DebugSourceAllow.Any() && !DebugSourceAllow.Any(f => f == source))
+                return;
+
+            if (!string.IsNullOrEmpty(source) && DebugSourceBlock.Any(f => f == source))
                 return;
 
             // strip out curly braces from messages, these will break console out on C#
@@ -223,7 +227,7 @@ namespace Wbtb.Core.Common
             string dateString = GenerateDateString();
             string category = this.AppendCategory ? "DEBUG : " : string.Empty;
             if (!string.IsNullOrEmpty(source))
-                source = $". Source:{source}";
+                source = $"|Source:{source}";
 
             Console.WriteLine($"{category}{dateString}{message}{source}");
             if (this.SendtoDiagnostics)
@@ -234,7 +238,8 @@ namespace Wbtb.Core.Common
                 if (OnDebug == null)
                     WriteInternal($"{category}{message}{source}");
                 else
-                    OnDebug.Invoke($"{message}{source}");
+                    // need to send debug to seri because microsoft . -_-
+                    OnDebug.Invoke($"{category}{message}{source}"); 
             }
         }
 

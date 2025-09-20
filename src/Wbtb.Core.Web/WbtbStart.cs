@@ -34,10 +34,13 @@ namespace Wbtb.Core.Web
             ILogger fileLogger = di.Resolve<ILogger>();
             logger.StatusVerbosityThreshold = basicConfiguration.StatusVerbosityThreshold;
             logger.DebugVerbosityThreshold = basicConfiguration.DebugVerbosityThreshold;
-            logger.DebugSourceFilters = basicConfiguration.DebugSourceFilters;
+            logger.DebugSourceAllow = basicConfiguration.DebugSourceAllow;
+            logger.DebugSourceBlock = basicConfiguration.DebugSourceBlock;
+
             // log debug out to inf for now because can't figure out where to safetly hardcode serilog
             // to give us debug output while also not have asp.net spam debug crap
             logger.OnDebug = (string message) => fileLogger.LogInformation(message);
+
             logger.OnError = (string message, object arg, string source) => fileLogger.LogError(message, arg, source);
             logger.OnStatus = (string message) => fileLogger.LogInformation(message);
             logger.OnWarn = (string message, object arg) => fileLogger.LogWarning(message);

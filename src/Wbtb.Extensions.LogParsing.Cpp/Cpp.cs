@@ -30,7 +30,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
                 chunkDelimiter = ContextPluginConfig.Config.First(r => r.Key == "SectionDelimiter").Value.ToString();
 
             SimpleDI di = new SimpleDI();
-            ILogger logger = di.Resolve<ILogger>();
+            Logger logger = di.Resolve<Logger>();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
@@ -41,7 +41,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             CachePayload resultLookup = cache.Get(this, job, build, hash);
             if (resultLookup.Payload != null)
             {
-                logger.LogInformation($"{this.GetType().Name} found cache hit {resultLookup.Key}.");
+                logger.Status(this, $"{this.GetType().Name} found cache hit {resultLookup.Key}.");
                 return resultLookup.Payload;
             }
 
