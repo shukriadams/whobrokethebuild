@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Wbtb.Core.Common;
 
@@ -7,15 +6,12 @@ namespace Wbtb.Core.Web
 {
     public class BuildEventHandlerHelper
     {
-        private readonly ILogger _logger;
+        private readonly Logger _logger;
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly SimpleDI _di;
-
-        public BuildEventHandlerHelper(PluginProvider pluginProvider, ILogger logger) 
+        public BuildEventHandlerHelper(PluginProvider pluginProvider, Logger logger) 
         {
-            _di = new SimpleDI();
             _pluginProvider = pluginProvider;
             _logger = logger;
         }
@@ -31,7 +27,7 @@ namespace Wbtb.Core.Web
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogInformation($"failed {eventCategory} hook {eventHandlerPlugin } for {build.Id} : {ex}");
+                    _logger.Error(this, $"failed {eventCategory} hook {eventHandlerPlugin } for {build.Id}", ex);
                 }
             }
         }

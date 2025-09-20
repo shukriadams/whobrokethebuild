@@ -27,13 +27,13 @@ namespace Wbtb.Extensions.LogParsing.JustRegexPlease
     {
         #region PROPERTIES
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         #endregion
 
         #region CTORS
 
-        public JustRegexPlease(ILogger log)
+        public JustRegexPlease(Logger log)
         {
             _log = log;
         }

@@ -1,5 +1,4 @@
 ﻿using Wbtb.Core.Common;
-using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 {
@@ -9,9 +8,12 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 
         private readonly Logger _logger;
 
-        public JenkinsSelfBlame(BuildLogTextParser buildLogTextParser, Logger logger)
+        private readonly PluginProvider _pluginProvider;
+
+        public JenkinsSelfBlame(BuildLogTextParser buildLogTextParser, Logger logger, PluginProvider pluginProvider)
         {
             _buildLogTextParser = buildLogTextParser;
+            _pluginProvider = pluginProvider;
             _logger = logger;
         }
 
@@ -24,8 +26,6 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
             };
         }
 
-
-
         void IPostProcessorPlugin.VerifyJobConfig(Job job)
         {
 
@@ -33,10 +33,7 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
 
         PostProcessResult IPostProcessorPlugin.Process(Build build)
         {
-            SimpleDI di = new SimpleDI();
-            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            ILogger log = di.Resolve<ILogger>();
-            IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IDataPlugin data = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             IEnumerable<BuildLogParseResult> logParseResults = data.GetBuildLogParseResultsByBuildId(build.Id);
 
             foreach (BuildLogParseResult buildLogParseResult in logParseResults)
@@ -79,7 +76,7 @@ namespace Wbtb.Extensions.PostProcessing.JenkinsSelfBlame
                         };
                     }
                     else
-                        log.LogWarning($"{TypeHelper.Name(this)} aborted mutation report, another report exists");
+                        _logger.Warn(this, $"Aborted mutation report, another report exists");
 
                 }
             }

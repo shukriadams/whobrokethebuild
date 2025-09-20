@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using Wbtb.Core.Common;
 using Wbtb.Core.Web.Core;
@@ -10,6 +9,18 @@ namespace Wbtb.Core.Web
     [ApiController]
     public class MetricsController : Controller
     {
+        public Logger Logger { get; set; }
+
+        #region CTORS
+
+        public MetricsController()
+        {
+            SimpleDI di = new SimpleDI();
+            Logger = di.Resolve<Logger>();
+        }
+
+        #endregion
+
         #region METHODS
 
         [ServiceFilter(typeof(ViewStatus))]
@@ -17,7 +28,6 @@ namespace Wbtb.Core.Web
         public ActionResult<string> Influx()
         {
             SimpleDI di = new SimpleDI();
-            ILogger log = di.Resolve<ILogger>();
 
             try
             {
@@ -26,7 +36,7 @@ namespace Wbtb.Core.Web
             }
             catch (Exception ex)
             {
-                log.LogError("unexpected error serving influx metrics", ex);
+                Logger.Error(this, "unexpected error serving influx metrics", ex);
                 return "ERROR, check logs";
             }
         }

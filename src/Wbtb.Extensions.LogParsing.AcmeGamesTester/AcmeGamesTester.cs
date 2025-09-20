@@ -9,13 +9,13 @@ namespace Wbtb.Extensions.LogParsing.AcmeGamesTester
     {
         #region PROPERTIES
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         #endregion
 
         #region CTORS
 
-        public AcmeGamesTester(ILogger log)
+        public AcmeGamesTester(Logger log)
         {
             _log = log;
         }

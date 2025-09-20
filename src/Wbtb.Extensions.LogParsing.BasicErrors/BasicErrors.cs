@@ -8,7 +8,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
     {
         #region PROPERTIES
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         private readonly string Regex = @"^.*error.*$";
 
@@ -16,7 +16,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
 
         #region CTORS
 
-        public BasicErrors(ILogger log) 
+        public BasicErrors(Logger log) 
         {
             _log = log;
         }
@@ -72,7 +72,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                         }
                         catch (Exception ex)
                         {
-                            _log.LogError($"Failed to parse content of cached error occurrence at key {errorStringKey} : {ex.Message}. File will be overwritten.");
+                            _log.Error(this, $"Failed to parse content of cached error occurrence at key {errorStringKey}, file will be overwritten.", ex);
                         }
                     }
 

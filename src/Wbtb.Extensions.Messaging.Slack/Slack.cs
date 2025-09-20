@@ -22,13 +22,13 @@ namespace Wbtb.Extensions.Messaging.Slack
 
         private readonly UrlHelper _urlHelper;
 
-        private readonly ILogger _log;
+        private readonly Logger _log;
 
         #endregion
 
         #region CTORS
 
-        public Slack(Configuration config, UrlHelper urlHelper, PluginProvider pluginProvider, ILogger log) 
+        public Slack(Configuration config, UrlHelper urlHelper, PluginProvider pluginProvider, Logger log) 
         {
             _config = config;
             _urlHelper = urlHelper;
@@ -251,7 +251,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack : {Convert.ToString(response)}");
+                _log.Error(this, $"Error posting to slack : {Convert.ToString(response)}");
                 return null;
             }
         }
@@ -386,7 +386,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack : {Convert.ToString(response)}");
+                _log.Error(this, $"Error posting to slack : {Convert.ToString(response)}");
                 return "failed, check logs";
             }
         }
@@ -504,7 +504,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack : {Convert.ToString(response)}");
+                _log.Error(this, $"Error posting to slack : {Convert.ToString(response)}");
                 return Convert.ToString(response);
             }
         }
@@ -565,7 +565,7 @@ namespace Wbtb.Extensions.Messaging.Slack
             {
                 // log error
                 // mark message sent as failed, somwhere
-                _log.LogError($"Error posting to slack: {Convert.ToString(response)}, settings are {messageConfiguration.RawJson}");
+                _log.Error(this, $"Error posting to slack: {Convert.ToString(response)}, settings are {messageConfiguration.RawJson}");
                 return null;
             }
         }

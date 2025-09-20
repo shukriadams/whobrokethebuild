@@ -25,7 +25,6 @@ namespace Wbtb.Core.Web
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
             IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            ILogger log = di.Resolve<ILogger>();
             dataLayer.TransactionStart();
 
             try 
@@ -60,13 +59,13 @@ namespace Wbtb.Core.Web
                 }
 
                 dataLayer.TransactionCommit();
-                log.LogInformation($"Successfully reset job {jobid}");
+                _logger.Status(this, $"Successfully reset job {jobid}");
 
             }
             catch (Exception ex) 
             {
                 dataLayer.TransactionCancel();
-                log.LogError("Unexpected error", ex);
+                _logger.Error(this, "Unexpected error", ex);
             }
 
             Response.Redirect("/processlog");

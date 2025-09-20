@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Wbtb.Core.Common;
+﻿using Wbtb.Core.Common;
 using System;
 using System.Text;
 
@@ -11,13 +10,13 @@ namespace Wbtb.Core.Web.Core
 
         private readonly PluginProvider _pluginProvider;
 
-        private readonly ILogger _logger;
+        private readonly Logger _logger;
 
         #endregion
 
         #region CTORS
 
-        public MetricsHelper(PluginProvider pluginProvider, ILogger logger) 
+        public MetricsHelper(PluginProvider pluginProvider, Logger logger) 
         {
             _pluginProvider = pluginProvider;
             _logger = logger;
@@ -37,13 +36,13 @@ namespace Wbtb.Core.Web.Core
                 int buildErrors = dataLayer.GetFailingDaemonTasksCount();
 
                 s.AppendLine($"whobrokethebuild build_errors_count={buildErrors}u");
-                _logger.LogInformation("Generated metrics");
+                _logger.Status(this, "Generated metrics");
                 return s.ToString();
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(string.Empty, ex);
+                _logger.Error(this, ex);
             }
 
             return string.Empty;

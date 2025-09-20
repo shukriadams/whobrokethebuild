@@ -14,15 +14,18 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
         private readonly PersistPathHelper _persistPathHelper;
         
-        private readonly ILogger _logger;
+        private readonly Logger _logger;
+
+        private readonly PluginProvider _pluginProvider;
 
         #endregion
 
         #region CTORS
 
-        public Perforce(PersistPathHelper persistPathHelper, ILogger log) 
+        public Perforce(PersistPathHelper persistPathHelper, Logger log, PluginProvider pluginProvider) 
         {
             _persistPathHelper = persistPathHelper;
+            _pluginProvider = pluginProvider;
             _logger = log; 
         }
 
@@ -98,9 +101,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
 
         IEnumerable<Revision> ISourceServerPlugin.GetRevisionsBetween(Job job, string revisionStart, string revisionEnd)
         {
-            SimpleDI di = new SimpleDI();
-            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IDataPlugin data = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IDataPlugin data = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Core.Common.SourceServer contextServer = data.GetSourceServerById(job.SourceServerId);
 
 
@@ -122,7 +123,7 @@ namespace Wbtb.Extensions.SourceServer.Perforce
                 if (revisionsLookup.Success)
                     changes.Add(revisionsLookup.Revision);
                 else
-                    _logger.LogError($"Revison lookup for rev {revisionNumber} failed while doing range lookup between {revisionStart} and {revisionEnd} - {revisionsLookup.Error}.");
+                    _logger.Error(this, $"Revison lookup for rev {revisionNumber} failed while doing range lookup between {revisionStart} and {revisionEnd} - {revisionsLookup.Error}.");
             }
 
             return changes;

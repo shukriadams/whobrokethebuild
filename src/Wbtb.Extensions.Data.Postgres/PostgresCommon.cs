@@ -130,14 +130,14 @@ namespace Wbtb.Extensions.Data.Postgres
             catch (Exception ex) 
             {
                 SimpleDI di = new SimpleDI();
-                ILogger log = di.Resolve<ILogger>();
+                Logger log = di.Resolve<Logger>();
 
                 // 23505: should be postgres unique key constraint errors, log these instead of throwing exceptions, 
                 // the key violations occur frequently when running with high thread concurrency, they should not occur
                 // but the error is still there
                 if (ex.Message.StartsWith("23505:"))
                 {
-                    log.LogError(ex.Message);
+                    log.Error(typeof(PostgresCommon), ex);
                     return "0";
                 }
                 else

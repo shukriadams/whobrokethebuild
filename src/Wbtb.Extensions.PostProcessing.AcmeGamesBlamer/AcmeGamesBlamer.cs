@@ -49,7 +49,6 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                 };
 
             SimpleDI di = new SimpleDI();
-            ILogger log = di.Resolve<ILogger>();
             MutationHelper mutationHelper = di.Resolve<MutationHelper>();
             Configuration config = di.Resolve<Configuration>();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
@@ -358,7 +357,7 @@ namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
                     Description = description
                 });
             else
-                log.LogWarning($"{TypeHelper.Name(this)} aborted mutation report, another report exists");
+                _logger.Warn(this, $"Aborted mutation report, another report exists");
 
             return new PostProcessResult
             {
