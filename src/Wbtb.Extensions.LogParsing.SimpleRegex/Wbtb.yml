@@ -1,0 +1,8 @@
+﻿Key: Wbtb.Extensions.LogParsing.SimpleRegex
+Runtime: dotnet
+Main: Wbtb.Extensions.LogParsing.SimpleRegex.dll
+Interface: Wbtb.Core.Common.ILogParserPlugin
+Assembly: Wbtb.Extensions.LogParsing.SimpleRegex
+Concrete: Wbtb.Extensions.LogParsing.SimpleRegex.SimpleRegex
+Version: 0.0.1
+APIVersion: 0.0.1

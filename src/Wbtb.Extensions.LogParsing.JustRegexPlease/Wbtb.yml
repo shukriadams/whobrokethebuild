@@ -1,8 +1,0 @@
-﻿Key: Wbtb.Extensions.LogParsing.JustRegexPlease
-Runtime: dotnet
-Main: Wbtb.Extensions.LogParsing.JustRegexPlease.dll
-Interface: Wbtb.Core.Common.ILogParserPlugin
-Assembly: Wbtb.Extensions.LogParsing.JustRegexPlease
-Concrete: Wbtb.Extensions.LogParsing.JustRegexPlease.JustRegexPlease
-Version: 0.0.1
-APIVersion: 0.0.1

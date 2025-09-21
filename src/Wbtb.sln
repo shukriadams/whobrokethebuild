@@ -68,7 +68,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.LogParsing.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.Develop.DataOverTime", "Wbtb.Extensions.Develop.DataOverTime\Wbtb.Extensions.Develop.DataOverTime.csproj", "{DC48AD50-B8EB-43E9-B55A-3794EA837D7A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.LogParsing.JustRegexPlease", "Wbtb.Extensions.LogParsing.JustRegexPlease\Wbtb.Extensions.LogParsing.JustRegexPlease.csproj", "{CE366639-DAAF-4B8A-A9A3-365DC879BB47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.LogParsing.SimpleRegex", "Wbtb.Extensions.LogParsing.SimpleRegex\Wbtb.Extensions.LogParsing.SimpleRegex.csproj", "{2D3EFA43-6FC3-4628-9772-49B62B179841}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -196,10 +196,10 @@ Global
 		{DC48AD50-B8EB-43E9-B55A-3794EA837D7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC48AD50-B8EB-43E9-B55A-3794EA837D7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC48AD50-B8EB-43E9-B55A-3794EA837D7A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CE366639-DAAF-4B8A-A9A3-365DC879BB47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE366639-DAAF-4B8A-A9A3-365DC879BB47}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE366639-DAAF-4B8A-A9A3-365DC879BB47}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE366639-DAAF-4B8A-A9A3-365DC879BB47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D3EFA43-6FC3-4628-9772-49B62B179841}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D3EFA43-6FC3-4628-9772-49B62B179841}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D3EFA43-6FC3-4628-9772-49B62B179841}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D3EFA43-6FC3-4628-9772-49B62B179841}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

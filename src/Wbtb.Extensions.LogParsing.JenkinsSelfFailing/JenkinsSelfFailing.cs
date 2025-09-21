@@ -9,8 +9,18 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 {
     public class JenkinsSelfFailing : Plugin, ILogParserPlugin
     {
+
+        /// <summary>
+        /// look for following matches for machine connection disruptions
+        /// at org.jenkinsci
+        /// at jenkins.
+        /// at hudson.
+        /// </summary>
         private readonly string InternalErrorRegex = @"\b(at org.jenkinsci.|at jenkins.|at hudson.)\b.*";
 
+        /// <summary>
+        /// Self-timeout
+        /// </summary>
         private readonly string TimeoutRegex = @"Build timed out \(after \d+ minutes\). Marking the build as failed.";
 
         PluginInitResult IPlugin.InitializePlugin()
@@ -53,11 +63,7 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
 
             foreach (string chunk in chunks)
             {
-                // look for following matches
-                // at org.jenkinsci
-                // at jenkins.
-                // at hudson.
-                // at java
+
                 MatchCollection matches = new Regex(InternalErrorRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline).Matches(chunk);
                 if (matches.Any())
                 {

@@ -31,7 +31,7 @@ Plugins:
 -   Key: MyJustRegexPlease
     Path: Wbtb.Extensions.LogParsing.JustRegexPlease
     Custom:
-        Name: Network Smoke Test
+        Key: Network_Smoke_Test
         SectionDelimiter : "<delimiter>"
         Regex: "##Smoketest_error_alert##"
         Describes:
