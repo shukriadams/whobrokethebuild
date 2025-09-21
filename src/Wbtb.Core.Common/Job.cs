@@ -10,39 +10,43 @@ namespace Wbtb.Core.Common
         #region PROPERTIES
 
         /// <summary>
-        /// 
+        /// Internal database id. Never refer to this externally, it can change if database is rebuilt. Use key for external references.
         /// </summary>
         public virtual string Id { get; set; }
 
         /// <summary>
-        /// Semi-immutable id, will be defined in config, and must also be immutabel on build system
+        /// Semi-immutable unique id, in that it's defined in local config and should not change. Try to use a random string instead
+        /// of a human-friendly name, as human-friendly names can change, but key must exist for permalinks and references to live on.
+        /// If for some reason this has to be changed in config, use the CLI to migrate existing recordings to the new key.
+        /// 
+        /// Use Name property for a human-friendly label.
         /// </summary>
         public string Key { get; set; }
 
         /// <summary>
-        /// 
+        /// Cosmetic human-friendly name for job. Can be changed without breaking anything, there is no logic bound to this.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Used only when for Key migrating.
         /// </summary>
         public string KeyPrev { get; set; }
 
         /// <summary>
-        /// /
+        /// Like Name, but longer. Human-friendly 
         /// </summary>
         public string Description { get; set; }
 
         /// <summary>
-        /// Config-defined id of CI server this job is attached to
+        /// Config-defined Key of CI server this job is attached to
         /// </summary>
         public string BuildServer {  get;set;}
 
         /// <summary>
-        /// Id of build server record in db
+        /// Database id of build server. Can change on database rebuild.
         /// </summary>
         public string BuildServerId { get; set; }
-
-        /// <summary>
-        /// Cosmetic local name for build. No logic
-        /// </summary>
-        public string Name { get; set; }
 
         /// <summary>
         /// If true, revisions will be linked to build event (either via build server or log regex). If false, several processors in the process chain 
@@ -61,7 +65,7 @@ namespace Wbtb.Core.Common
         public string SourceServer { get; set; }
 
         /// <summary>
-        /// 
+        /// Database id of SourceServer record.
         /// </summary>
         public string SourceServerId { get; set; }
 

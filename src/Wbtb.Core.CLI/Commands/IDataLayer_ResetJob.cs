@@ -16,15 +16,18 @@ namespace Wbtb.Core.CLI
 
         private readonly ConsoleCLIHelper _consoleHelper;
 
+        private readonly Cache _cache;
+
         #endregion
 
         #region CTORS
 
-        public IDataLayer_ResetJob(PluginProvider pluginProvider, ConsoleCLIHelper consoleHelper, Logger logger) 
+        public IDataLayer_ResetJob(PluginProvider pluginProvider, ConsoleCLIHelper consoleHelper, Logger logger, Cache cache) 
         {
             _pluginProvider = pluginProvider;
             _consoleHelper = consoleHelper;
             _logger = logger;
+            _cache = cache;
         }
 
         #endregion
@@ -49,6 +52,10 @@ namespace Wbtb.Core.CLI
 
             string jobKey = switches.Get("job");
             IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
+            
+            bool wipeCache = switches.Contains("cache");
+            if (wipeCache)
+                _logger.Status(this, "!wiping cached values where possible!");
 
             IList<Job> jobs = new List<Job>();
             if (jobKey == "*")
@@ -76,6 +83,15 @@ namespace Wbtb.Core.CLI
             {
                 int reset = dataLayer.ResetJob(job.Id, hard);
                 int page = 0;
+
+                if (wipeCache)
+                {
+                    foreach (string logParserKey in job.LogParsers)
+                    {
+                        IPlugin parserPlugin = _pluginProvider.GetByKey(logParserKey);
+                        _cache.Clear(parserPlugin.ContextPluginConfig.Manifest.Key, job);
+                    }
+                }
 
                 while (true && !hard)
                 {

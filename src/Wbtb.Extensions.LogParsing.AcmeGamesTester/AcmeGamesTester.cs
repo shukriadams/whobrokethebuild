@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
@@ -54,9 +53,7 @@ namespace Wbtb.Extensions.LogParsing.AcmeGamesTester
             // force unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
 
-            // internal error - try for cache
-            string errorHash = Sha256.FromString(errorRegex + fullErrorLog);
-            CachePayload internaleErrorCacheLookup = cache.Get(this, job, build, errorHash);
+            CachePayload internaleErrorCacheLookup = cache.Get(this, job, build, this.ContextPluginConfig.Key);
             if (internaleErrorCacheLookup.Payload != null)
                 return internaleErrorCacheLookup.Payload;
 
@@ -85,7 +82,7 @@ namespace Wbtb.Extensions.LogParsing.AcmeGamesTester
             }
 
             string flattened = result.ToString();
-            cache.Write(this, job, build, errorHash, flattened);
+            cache.Write(this, job, build, this.ContextPluginConfig.Key, flattened);
             return flattened;
         }
 

@@ -79,6 +79,7 @@ namespace Wbtb.Core.Common
             this.Signature = Guid.NewGuid().ToString();
             this.CreatedUtc = DateTime.UtcNow;
             this.ImplicatedRevisions = new List<string>();
+            this.Description = string.Empty;
         }
 
         #endregion

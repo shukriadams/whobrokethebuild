@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using Wbtb.Core.Common;
-using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.Messaging.Slack
 {

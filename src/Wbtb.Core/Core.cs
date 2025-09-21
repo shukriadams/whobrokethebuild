@@ -50,18 +50,17 @@ namespace Wbtb.Core
             di.Register<JobGroupLogic, JobGroupLogic>();
             di.RegisterFactory<IPluginSender, PluginSenderFactory>();
 
-            // fetch latest config from git. Requires env vars set. Do after c
+            // fetch latest config from git. Requires env vars set.
             ConfigurationBootstrapper configBootstrapper = di.Resolve<ConfigurationBootstrapper>();
             configBootstrapper.EnsureLatest(verbose);
 
             // NOTE : Always resolve ConfigurationBasic after apply custom env args, this class contains bootstrap settings needed to load app,
             // and these can be influenced by custom args
             ConfigurationBasic configBasic = di.Resolve<ConfigurationBasic>();
-            string configPath = configBasic.ConfigPath;
 
             // first part of server start, try to load config
             ConfigurationLoader configurationManager = di.Resolve<ConfigurationLoader>();
-            Configuration unvalidatedConfig = configurationManager.LoadUnvalidatedConfig(configPath, verbose);
+            Configuration unvalidatedConfig = configurationManager.LoadUnvalidatedConfig(configBasic.ConfigPath, verbose);
             
             // it's safe to use datarootpath here, this doesn't need to be validated
             string cachePath = Path.Join(unvalidatedConfig.DataRootPath, ".currentConfigHash");

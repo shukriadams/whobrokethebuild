@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Collections.Specialized;
 using Wbtb.Core.Common;
-using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.Messaging.SlackSandbox
 {

@@ -126,6 +126,13 @@ namespace Wbtb.Core.Common
             this.BuildLogsDirectory = Path.Join(this.DataRootPath, "BuildLogs");
             this.PluginDataPersistDirectory = Path.Join(this.DataRootPath, "PluginData");
             this.PluginsWorkingDirectory = Path.Join(this.DataRootPath, "PluginsWorking");
+
+            // if getting config from git, we currently hardcode and assume config.yml lives where we check the 
+            // config repo out to, and that config.yml is in its root
+            if (!string.IsNullOrEmpty(GitConfigUrl)) 
+            {
+                this.ConfigPath = Path.Join(this.DataRootPath, "ConfigCheckout", "config.yml");
+            }
         }
 
         /// <summary>

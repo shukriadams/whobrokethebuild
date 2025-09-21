@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,9 +35,8 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             Job job = dataLayer.GetJobById(build.JobId);
 
             // try for cache
-            string hash = Sha256.FromString(MSVCRegex + ClangRegex + raw);
             Cache cache = di.Resolve<Cache>();
-            CachePayload resultLookup = cache.Get(this, job, build, hash);
+            CachePayload resultLookup = cache.Get(this, job, build, this.ContextPluginConfig.Key);
             if (resultLookup.Payload != null)
             {
                 logger.Status(this, $"{this.GetType().Name} found cache hit {resultLookup.Key}.");
@@ -130,7 +128,7 @@ namespace Wbtb.Extensions.LogParsing.Cpp
             }
 
             string resultFlattened = result.ToString();
-            cache.Write(this, job, build, hash, resultFlattened);
+            cache.Write(this, job, build, this.ContextPluginConfig.Key, resultFlattened);
 
             return resultFlattened;
         }

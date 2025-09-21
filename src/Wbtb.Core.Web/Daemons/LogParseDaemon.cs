@@ -113,7 +113,7 @@ namespace Wbtb.Core.Web
             _log.Debug(this, $"Parsed log for build id {build.Id} with plugin {logParserResult.LogParserPlugin}{timeString}");
             task.AppendResult($"{logParserResult.LogParserPlugin} {timeString}.");
 
-            _log.Status(this, $"Log parsed for build {build.Key} (id:{build.Id})");
+            _log.Status(this, $"Log parser {parser.ContextPluginConfig.Key} ({parser.ContextPluginConfig.Manifest.Key}) completed build {build.Key} (id:{build.Id}), {timeString}");
             return new DaemonTaskWorkResult(); 
         }
 

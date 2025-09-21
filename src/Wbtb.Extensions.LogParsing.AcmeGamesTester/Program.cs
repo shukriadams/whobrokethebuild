@@ -1,2 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Wbtb.Core.Common;
+
+namespace Wbtb.Extensions.LogParsing.AcmeGamesTester
+{
+    public class Entry
+    {
+        public static void Main(string[] args)
+        {
+            new PluginShellReceiver<AcmeGamesTester>().Process(args);
+        }
+    }
+}

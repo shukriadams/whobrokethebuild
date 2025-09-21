@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.LogParsing.BasicErrors
@@ -12,13 +11,19 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
 
         private readonly string Regex = @"^.*error.*$";
 
+        private readonly Cache _cache;
+
+        private readonly PluginProvider _pluginProvider;
+
         #endregion
 
         #region CTORS
 
-        public BasicErrors(Logger log) 
+        public BasicErrors(Logger log, Cache cache, PluginProvider pluginProvider) 
         {
             _log = log;
+            _cache = cache;
+            _pluginProvider = pluginProvider;
         }
 
         #endregion
@@ -36,15 +41,11 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
 
         string ILogParserPlugin.Parse(Build build,string raw)
         {
-            SimpleDI di = new SimpleDI();
-            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+            IDataPlugin dataLayer = _pluginProvider.GetFirstForInterface<IDataPlugin>();
             Job job = dataLayer.GetJobById(build.JobId);
 
             // try for cache
-            string hash = Sha256.FromString(Regex + raw);
-            Cache cache = di.Resolve<Cache>();
-            CachePayload lookup = cache.Get(this, job, build, hash);
+            CachePayload lookup = _cache.Get(this, job, build, this.ContextPluginConfig.Key);
             if (lookup.Payload != null)
                 return lookup.Payload;
 
@@ -61,7 +62,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                     CachePayload errorStringCacheLookup = null;
                     string errorStringKey = $"{Sha256.FromString(match.Value)}_error_instance";
                     string pluginKey = this.ContextPluginConfig.Manifest.Key;
-                    errorStringCacheLookup = cache.Get(pluginKey, errorStringKey);
+                    errorStringCacheLookup = _cache.Get(pluginKey, errorStringKey);
                     PhraseOccurrence cachedOccurrence = null;
 
                     if (errorStringCacheLookup.Payload != null) 
@@ -86,7 +87,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                     {
                         // write error string to "safe error" cache
                         cachedOccurrence.Count ++;
-                        cache.Write(pluginKey, errorStringKey, Newtonsoft.Json.JsonConvert.SerializeObject(cachedOccurrence));
+                        _cache.Write(pluginKey, errorStringKey, Newtonsoft.Json.JsonConvert.SerializeObject(cachedOccurrence));
                         continue;
                     }
 
@@ -107,7 +108,7 @@ namespace Wbtb.Extensions.LogParsing.BasicErrors
                 result = builder.GetText();
             }
 
-            cache.Write(this, job, build, hash, result);
+            _cache.Write(this, job, build, this.ContextPluginConfig.Key, result);
             return result;
         }
 

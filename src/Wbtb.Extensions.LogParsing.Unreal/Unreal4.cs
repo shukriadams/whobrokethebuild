@@ -65,9 +65,8 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                 chunks = fullErrorLog.Split(chunkDelimiter);
 
             // try for cache
-            string shaderRegexHash = Sha256.FromString(bluePrintRegex4 + bluePrintRegex5 + shaderRegex + raw);
             Cache cache = di.Resolve<Cache>();
-            CachePayload shaderMatchLookup = cache.Get(this, job, build, shaderRegexHash);
+            CachePayload shaderMatchLookup = cache.Get(this, job, build, this.ContextPluginConfig.Key);
             if (shaderMatchLookup != null)
                 return shaderMatchLookup.Payload;
 
@@ -136,7 +135,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             }
 
             string flattened = allMatches.ToString();
-            cache.Write(this, job, build, shaderRegexHash, flattened);
+            cache.Write(this, job, build, this.ContextPluginConfig.Key, flattened);
             return flattened;
         }
     }

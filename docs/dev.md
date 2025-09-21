@@ -34,6 +34,7 @@ WBTB needs some basic config to work. There is a local developer config in the p
     PG_USER=<POSTGRES USER>
     PG_ADMIN_PWD=<POSTGRES PASSWORD>
     WBTB_CONFIG_PATH=<ABSOLUTE-PATH-TO-DEMO.CONFIG.YML>
+    WBTB_DATA_ROOT=<ABSOLUTE-PATH-TO-WORKING-DATA>
     WBTB_HOSTNAME=http://myserver.local
     WBTB_MAX_THREADS=1
     WBTB_DAEMON_INTERVAL=1
@@ -43,9 +44,12 @@ WBTB needs some basic config to work. There is a local developer config in the p
     WBTB_LOG_STATUS_VERBOSITY=4
     WBTB_LOG_DEBUG_VERBOSITY=4
 
-Replace <ABSOLUTE-PATH-TO-DEMO.CONFIG.YML> with the absolute path to this file in your checkout, and all values in <POSTGRES..> with your Postgres info. Leave everything else in place. You're now ready to go.
+- All values in <POSTGRES..> should be replaced with relevant values to your your Postgres instance. 
+- Replace <ABSOLUTE-PATH-TO-DEMO.CONFIG.YML> with the absolute path to this file in your checkout.
+- Replace <ABSOLUTE-PATH-TO-WORKING-DATA> with the absolute path to some location WBTB can create a directory to store work files.
+- Leave everything else in place. You're now ready to go.
 
-If you're running Visual Studio, you can start the project immediately. Open `\src\Wbtb.sln`, set `Wbtb.Core.Web` as the startup project, and lauch the `WbtbWeb` debug profile.
+If you're running Visual Studio, you can start the project immediately. Open `\src\Wbtb.sln`, set `Wbtb.Core.Web` as the startup project, and launch the `WbtbWeb` debug profile.
 
 If you're running from the command line, build WBTB
 
@@ -62,7 +66,7 @@ Open `localhost:5000` in your browser.
 
 ## Config
 
-Wbtb requires a lot of configuration to work. Config is provided in two ways - env variables, and a single config.yml file. There is some overlap between them. Generally, env variables are used for basic settings that Wbtb needs to start, and config.yml for complex settings Wbtb needs to do work.
+Wbtb requires a lot of configuration to work. Config is provided in two ways - env variables, and a single config.yml file. Generally, env variables are used for basic settings that Wbtb needs get into a state where it can read config.yml. Env vars are also used for secrets and template overrides (see later).
 
 ## Env variables
 
@@ -70,9 +74,15 @@ All standard ways to set env vars in Dotnet and Visual Studio are valid. Wbtb pr
 
 ## Config.yml
 
-Config.yml contains a YML representation of Wbtb's Configuration class. It normally lives in the application execution root directory, `./src/Wbtb.Core.Web/bin/Debug/<CURRENT DOTNET RUNTIME>/` in VStudio. You can override where Wbtb looks for this file by setting the environment variable `WBTB_CONFIG_PATH`. 
+Config.yml contains a YML representation of Wbtb's Configuration class. By default it lives in the application execution root directory, `./src/Wbtb.Core.Web/bin/Debug/<CURRENT DOTNET RUNTIME>/` if you're running from VStudio. You can override this location by setting the environment variable `WBTB_CONFIG_PATH`.
 
-Wbtb also supports getting config.yml from a git repo. You can add a git url string in a file at `./src/Wbtb.Core.Web/.giturl`, or set the git url with the `WBTB_GIT_CONFIG_REPO_URL` env var. The URL must be self-authenticating, ie, contain its own auth credentials, Wbtb does not currently support SSH authentication. Wbtb will attempt to check the repo out to './src/Wbtb.Core.Web/bin/Debug/net6.0/<your-data-root>/ConfigCheckout
+### Config in git
+
+Wbtb also supports getting config.yml from a git repo. There are two ways to set the Git url - the first is using the env var  `WBTB_GIT_CONFIG_REPO_URL`. Some git urls break the .env file encoding, to bypasss that you can put the url in a file at `./src/Wbtb.Core.Web/.giturl`.
+
+- The URL must be self-authenticating, ie, contain its own auth credentials, Wbtb does not currently support SSH authentication. 
+- The file `config.ym` must be in the root directory of your git repo.
+- Wbtb will attempt to check the repo out to `<your-data-root>/ConfigCheckout`, and will automatically ignore `WBTB_CONFIG_PATH` and use the git checkout location instead.
 
 ## Secrets
 

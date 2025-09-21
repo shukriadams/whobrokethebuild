@@ -44,10 +44,7 @@ namespace Wbtb.Core
 
 
             string localPath = "config.yml";
-            string cachePath = Path.Join(configurationBasic.DataRootPath, "ConfigCache");
             string checkoutPath = Path.Join(configurationBasic.DataRootPath, "ConfigCheckout");
-
-            Directory.CreateDirectory(cachePath);
 
             // ensure git is available
             Shell shell = new Shell();

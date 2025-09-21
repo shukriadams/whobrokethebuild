@@ -43,19 +43,17 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             Job job = dataLayer.GetJobById(build.JobId);
             Cache cache = di.Resolve<Cache>();
 
-
             // internal error - try for cache
-            string internalErrorHash = Sha256.FromString(InternalErrorRegex + TimeoutRegex + raw);
-            CachePayload internaleErrorCacheLookup = cache.Get(this,job, build, internalErrorHash);
+            CachePayload internaleErrorCacheLookup = cache.Get(this,job, build, this.ContextPluginConfig.Key);
             if (internaleErrorCacheLookup.Payload != null)
                 return internaleErrorCacheLookup.Payload;
-
 
             // force unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
 
             StringBuilder result = new StringBuilder();
             IEnumerable<string> chunks = null;
+
             if (string.IsNullOrEmpty(chunkDelimiter))
                 chunks = new List<string> { fullErrorLog };
             else
@@ -92,7 +90,7 @@ namespace Wbtb.Extensions.LogParsing.JenkinsSelfFailing
             }
 
             string flattened = result.ToString();
-            cache.Write(this, job, build, internalErrorHash, flattened);
+            cache.Write(this, job, build, this.ContextPluginConfig.Key, flattened);
 
             return flattened;
         }

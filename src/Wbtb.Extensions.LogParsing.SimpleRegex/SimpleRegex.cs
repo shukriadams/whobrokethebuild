@@ -51,8 +51,7 @@ namespace Wbtb.Extensions.LogParsing.SimpleRegex
             string fullErrorLog = raw.Replace("\\", "/");
 
             // internal error - try for cache
-            string errorHash = Sha256.FromString(response.Value.Regex + fullErrorLog);
-            CachePayload internaleErrorCacheLookup = cache.Get(this, job, build, errorHash);
+            CachePayload internaleErrorCacheLookup = cache.Get(this, job, build, this.ContextPluginConfig.Key);
             if (internaleErrorCacheLookup.Payload != null)
                 return internaleErrorCacheLookup.Payload;
 
@@ -92,7 +91,7 @@ namespace Wbtb.Extensions.LogParsing.SimpleRegex
             }
 
             string flattened = result.ToString();
-            cache.Write(this, job, build, errorHash, flattened);
+            cache.Write(this, job, build, this.ContextPluginConfig.Key, flattened);
             return flattened;
         }
 

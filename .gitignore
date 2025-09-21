@@ -1,6 +1,7 @@
 .vagrant/
 .tmp/
 .vs/
+.data/
 .env*
 .giturl
 .checkout

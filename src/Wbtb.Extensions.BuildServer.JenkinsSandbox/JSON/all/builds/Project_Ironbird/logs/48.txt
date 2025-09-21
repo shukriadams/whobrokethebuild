@@ -1,0 +1,63 @@
+﻿Smoke test error example
+
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+<delimiter>
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+<delimiter>
+
+##Smoketest_error_alert##
+
+Ping_error:800
+Net_timeouts:45
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+<delimiter>
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+random text
+<delimiter>
