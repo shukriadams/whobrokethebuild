@@ -7,7 +7,7 @@ Log parser using only user-defined regexes. A regex can be provided to identify 
 Register plugin, then add to a job under the `LogParsers` node.
 
     Plugins:
-    -   Key: MySmokeTest                                            # required string key, can be used by post-processors as identification hook.
+    -   Key: MySmokeTest                                            
         Path: Wbtb.Extensions.LogParsing.SimpleRegex
         Custom:
             Key: myNetworkSmokeTest                                 
@@ -22,5 +22,6 @@ Register plugin, then add to a job under the `LogParsers` node.
     Jobs:
     -   Key: MyJob
         LogParsers: 
-        -   MyRegexPlease
+        -   MySmokeTest
 
+ The content of the `Custom:` node in plugin config must be deserializable to the local `Wbtb.Extensions.LogParsing.SimpleRegex.SimpleRegexConfig` type. 

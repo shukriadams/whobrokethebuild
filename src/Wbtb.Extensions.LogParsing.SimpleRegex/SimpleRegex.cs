@@ -4,22 +4,6 @@ using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.LogParsing.SimpleRegex
 {
-    public class Describe 
-    {
-        public string Name { get; set; }
-        public string Regex { get; set; }
-    }
-
-    /// <summary>
-    /// Locally defined wrapper for expected plugin config
-    /// </summary>
-    public class ThisPluginConfig
-    {
-        public IList<Describe> Describes { get; set; } = new List<Describe>();
-        public string SectionDelimiter { get; set; }
-        public string Regex { get; set; }
-    }
-
     public class SimpleRegex : Plugin, ILogParserPlugin
     {
         #region PROPERTIES
@@ -41,9 +25,9 @@ namespace Wbtb.Extensions.LogParsing.SimpleRegex
 
         PluginInitResult IPlugin.InitializePlugin()
         {
-            Response<ThisPluginConfig> response = this.ContextPluginConfig.Deserialize<ThisPluginConfig>("Custom");
+            Response<SimpleRegexConfig> response = this.ContextPluginConfig.Deserialize<SimpleRegexConfig>("Custom");
             if (response.Error != null)
-                throw new ConfigurationException($"Could not deserialize plugin config {this.ContextPluginConfig.Key} to type {TypeHelper.Name<ThisPluginConfig>()} : {response.Error}");
+                throw new ConfigurationException($"Could not deserialize plugin config {this.ContextPluginConfig.Key} to type {TypeHelper.Name<SimpleRegexConfig>()} : {response.Error}");
 
             return new PluginInitResult
             {
@@ -55,7 +39,7 @@ namespace Wbtb.Extensions.LogParsing.SimpleRegex
 
         string ILogParserPlugin.Parse(Build build, string raw)
         {
-            Response<ThisPluginConfig> response = this.ContextPluginConfig.Deserialize<ThisPluginConfig>("Custom");
+            Response<SimpleRegexConfig> response = this.ContextPluginConfig.Deserialize<SimpleRegexConfig>("Custom");
 
             SimpleDI di = new SimpleDI();
             PluginProvider pluginProvider = di.Resolve<PluginProvider>();
@@ -96,7 +80,8 @@ namespace Wbtb.Extensions.LogParsing.SimpleRegex
                         {
                             foreach (Match match in describeMatches)
                             {
-                                builder.AddItem(describe.Name, match.Groups[1].Value);
+                                builder.AddItem(describe.Name, "name");
+                                builder.AddItem(match.Groups[1].Value, "value");
                                 builder.NewLine();
                             }
                         }

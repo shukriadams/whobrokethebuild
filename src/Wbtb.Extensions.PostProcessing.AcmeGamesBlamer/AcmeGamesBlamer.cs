@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Wbtb.Core.Common;
 using Madscience.Perforce;
-using Microsoft.Extensions.Logging;
 
 namespace Wbtb.Extensions.PostProcessing.AcmeGamesBlamer
 {

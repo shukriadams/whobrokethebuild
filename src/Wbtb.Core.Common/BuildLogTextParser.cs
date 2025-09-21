@@ -1,39 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace Wbtb.Core.Common
 {
-    public class ParsedBuildLogTextLineItem
-    {
-        public string Content { get; set; }
-        public string Type { get; set; }
-    }
-
-    public class ParsedBuildLogTextLine
-    {
-        public IList<ParsedBuildLogTextLineItem> Items { get; set; }
-
-        public ParsedBuildLogTextLine()
-        {
-            this.Items = new List<ParsedBuildLogTextLineItem>();
-        }
-    }
-
-    public class ParsedBuildLogText 
-    {
-        public IList<ParsedBuildLogTextLine> Items { get; set; }
-        public string Type { get; set; }
-        public string Version { get; set; }
-
-        public ParsedBuildLogText()
-        {
-            this.Type = string.Empty;
-            this.Version = string.Empty;
-            this.Items = new List<ParsedBuildLogTextLine>();
-        }
-    }
-
+    /// <summary>
+    /// Todo : refactor this class, merge into BuildLogParseResult etc, it is always used in the context of 
+    /// other classes.
+    /// </summary>
     public class BuildLogTextParser
     {
         public string ToInnerText(BuildLogParseResult result) 
@@ -67,11 +40,13 @@ namespace Wbtb.Core.Common
             }
 
             string version = xmlDoc.DocumentElement.HasAttribute("version") ? xmlDoc.DocumentElement.GetAttribute("version") : string.Empty;
+            string key = xmlDoc.DocumentElement.HasAttribute("key") ? xmlDoc.DocumentElement.GetAttribute("key") : string.Empty;
             string type = xmlDoc.DocumentElement.HasAttribute("type") ? xmlDoc.DocumentElement.GetAttribute("type") : string.Empty;
 
             ParsedBuildLogText result = new ParsedBuildLogText 
             {
                 Version = version,
+                Key = key,
                 Type = type
             };
 

@@ -70,6 +70,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.Develop.Dat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.LogParsing.SimpleRegex", "Wbtb.Extensions.LogParsing.SimpleRegex\Wbtb.Extensions.LogParsing.SimpleRegex.csproj", "{2D3EFA43-6FC3-4628-9772-49B62B179841}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.PostProcessing.SimpleHooks", "Wbtb.Extensions.PostProcessing.SimpleHooks\Wbtb.Extensions.PostProcessing.SimpleHooks.csproj", "{B1F7D58F-962A-4335-A349-EC6EBD82D7D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -200,6 +202,10 @@ Global
 		{2D3EFA43-6FC3-4628-9772-49B62B179841}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D3EFA43-6FC3-4628-9772-49B62B179841}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D3EFA43-6FC3-4628-9772-49B62B179841}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1F7D58F-962A-4335-A349-EC6EBD82D7D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1F7D58F-962A-4335-A349-EC6EBD82D7D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1F7D58F-962A-4335-A349-EC6EBD82D7D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1F7D58F-962A-4335-A349-EC6EBD82D7D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

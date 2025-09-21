@@ -28,10 +28,9 @@ Plugins:
     Config:
     -   SectionDelimiter: "-- LOG SECTION:"
     -   MaxLineLength : 10000
--   Key: MyJustRegexPlease
-    Path: Wbtb.Extensions.LogParsing.JustRegexPlease
+-   Key: NetworkSmokeTest
+    Path: Wbtb.Extensions.LogParsing.SimpleRegex
     Custom:
-        Key: Network_Smoke_Test
         SectionDelimiter : "<delimiter>"
         Regex: "##Smoketest_error_alert##"
         Describes:
@@ -39,7 +38,11 @@ Plugins:
             Regex : Ping_error:(\d*)
         -   Name : time out
             Regex : Net_timeout:(\d*)
-      
+-   Key: NetworkSmokeTestBlamer
+    Path: Wbtb.Extensions.PostProcessing.SimpleHooks
+    Custom:
+        KeyHook: NetworkSmokeTest
+        Description: Network Smoke Test Failed
 -   Key: JenkinsSelfFailing
     Path: Wbtb.Extensions.LogParsing.JenkinsSelfFailing
     Config:
@@ -109,13 +112,14 @@ BuildServers:
         LogParsers: 
         -   UnrealParser 
         -   CppParser
-        -   MyJustRegexPlease 
+        -   NetworkSmokeTest 
         -   JenkinsSelfFailing
         -   BasicErrors
         -   AcmeGamesTester
         PostProcessors:
-        -   Blamer
         -   JenkinsBlamer
+        -   NetworkSmokeTestBlamer
+        -   Blamer
         Message:
         -   Plugin: myslack
             Group: mygroup
@@ -132,7 +136,6 @@ BuildServers:
         LogParsers: 
         -   UnrealParser
         -   CppParser
-        -   MyJustRegexPlease 
         -   JenkinsSelfFailing
         -   BasicErrors
         -   AcmeGamesTester

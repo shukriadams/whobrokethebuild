@@ -32,7 +32,12 @@ namespace Wbtb.Core.Common
         public BuildLogTextBuilder(PluginConfig parserPluginConfig)
         {
             _closed = false;
-            _s.Append($"<x-logParse type='{EscapeXmlString(parserPluginConfig.Manifest.Key)}' version='{EscapeXmlString(parserPluginConfig.Manifest.Version)}'>");
+            _s.Append($"<x-logParse");
+            _s.Append($" type='{EscapeXmlString(parserPluginConfig.Manifest.Key)}' ");
+            _s.Append($" key='{EscapeXmlString(parserPluginConfig.Key)}' ");
+            _s.Append($" version='{EscapeXmlString(parserPluginConfig.Manifest.Version)}' ");
+            _s.Append(">");
+
         }
 
         #endregion
