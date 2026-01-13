@@ -141,9 +141,9 @@ namespace Wbtb.Core.Common
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="singleton"></param>
-        public void RegisterSingleton<T>(object singleton)
+        public void RegisterSingleton<T>(object singleton, bool overwrite = false)
         {
-            RegisterSingleton(typeof(T), singleton);
+            RegisterSingleton(typeof(T), singleton, overwrite);
         }
 
         /// <summary>
@@ -152,12 +152,19 @@ namespace Wbtb.Core.Common
         /// <param name="service"></param>
         /// <param name="singleton"></param>
         /// <exception cref="Exception"></exception>
-        public void RegisterSingleton(Type service, object singleton)
+        public void RegisterSingleton(Type service, object singleton, bool overwrite = false)
         {
             lock (_register)
             { 
-                if (_register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true)).Any())
-                    throw new Exception($"Cannot bind service type {TypeHelper.Name(service)}, a binding for this already exists.");
+                Registration registration = _register.Where(r => TypeHelper.Name(r.Service, true) == TypeHelper.Name(service, true)).FirstOrDefault();
+                if (registration != null)
+                {
+                    if (overwrite)
+                        _register.Remove(registration);
+                    else
+                        throw new Exception(
+                            $"Cannot bind service type {TypeHelper.Name(service)}, a binding for this already exists.");
+                }
 
                 _register.Add(new Registration { Service = service, Singleton = singleton });
             }

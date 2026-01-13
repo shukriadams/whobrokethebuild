@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Wbtb.Core.Common
 {
-    public class PluginProvider
+    public class PluginProvider : IPluginProvider
     {
         #region FIELDS
 

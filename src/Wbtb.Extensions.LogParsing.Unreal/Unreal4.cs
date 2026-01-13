@@ -16,12 +16,53 @@ namespace Wbtb.Extensions.LogParsing.Unreal
     /// In this case the file path is <workspace>/Game/content/some/dir/BP_somefile.uasset
     /// 
     /// Shader paths are also straight forward - the shader path in the error log corresponds to the actual file path. We identifiy shader extensions from the .usf extension.
-    /// 
-    /// 
-    /// 
     /// </summary>
     public class Unreal4 : Plugin, ILogParserPlugin
     {
+        #region FIELDS
+
+        private IDataPlugin _dataLayer;
+        
+        private Cache _cache;
+        
+        
+        
+        #endregion
+        
+        #region CTORS
+        
+        /// <summary>
+        ///
+        /// </summary>
+        public Unreal4()
+        {
+            SimpleDI di = new SimpleDI();
+            IPluginProvider pluginProvider = di.Resolve<IPluginProvider>();
+
+            _cache = di.Resolve<Cache>();
+            _dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+
+            this.ContextPluginConfig = new PluginConfig();
+        }
+
+        #endregion
+        
+        #region METHODS
+        
+        /// <summary>
+        /// Inject method for dependencies.
+        /// </summary>
+        /// <param name="pluginProvider"></param>
+        /// <param name="cache"></param>
+        public void Inject(IDataPlugin dataLayer, Cache cache)
+        {
+            if (dataLayer != null)
+                _dataLayer = dataLayer;
+            
+            if (cache != null)
+                _cache = cache;
+        }
+        
         private static string Find(string text, string regexPattern, RegexOptions options = RegexOptions.None, string defaultValue = "")
         {
             Match match = new Regex(regexPattern, options).Match(text);
@@ -46,11 +87,10 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             if (ContextPluginConfig.Config.Any(r => r.Key == "SectionDelimiter"))
                 chunkDelimiter = ContextPluginConfig.Config.First(r => r.Key == "SectionDelimiter").Value.ToString();
 
-            SimpleDI di = new SimpleDI();
-            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Job job = dataLayer.GetJobById(build.JobId);
-
+            Job job = _dataLayer.GetJobById(build.JobId);
+            if (job == null)
+                return $"Job {build.JobId} not found";
+            
             string bluePrintRegex4 = @"Blueprint failed to compile: (.*)";
             string bluePrintRegex5 = @"LogBlueprint: Error: \[AssetLog\] .*?: \[Compiler]\ (.*)? from Source: (.*)?";
             string shaderRegex = @"LogShaderCompilers: Warning:\n*(.*?.usf)\(\): Shader (.*?), .*";
@@ -58,16 +98,15 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             // force Unix paths on log, this helps reduce noise when getting distinct lines
             string fullErrorLog = raw.Replace("\\", "/");
 
-            IEnumerable<string> chunks = null;
+            IEnumerable<string> chunks;
             if (string.IsNullOrEmpty(chunkDelimiter))
                 chunks = new List<string> { fullErrorLog };
             else
                 chunks = fullErrorLog.Split(chunkDelimiter);
 
             // try for cache
-            Cache cache = di.Resolve<Cache>();
-            CachePayload shaderMatchLookup = cache.Get(this, job, build, this.ContextPluginConfig.Key);
-            if (shaderMatchLookup != null)
+            CachePayload shaderMatchLookup = _cache.Get(this, job, build, this.ContextPluginConfig.Key);
+            if (shaderMatchLookup.Payload != null)
                 return shaderMatchLookup.Payload;
 
             StringBuilder allMatches = new StringBuilder();
@@ -135,8 +174,10 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             }
 
             string flattened = allMatches.ToString();
-            cache.Write(this, job, build, this.ContextPluginConfig.Key, flattened);
+            _cache.Write(this, job, build, this.ContextPluginConfig.Key, flattened);
             return flattened;
         }
+        
+        #endregion
     }
 }

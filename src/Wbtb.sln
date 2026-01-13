@@ -74,6 +74,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wbtb.Extensions.PostProcess
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wbtb.Extensions.LogParsing.Unreal.Tests", "Wbtb.Extensions.LogParsing.Unreal.Tests\Wbtb.Extensions.LogParsing.Unreal.Tests.csproj", "{FFD1BBB8-93E7-4706-BD13-6C07B3E86B8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wbtb.Core.Common.Testing", "Wbtb.Core.Common.Testing\Wbtb.Core.Common.Testing.csproj", "{6FC5F81D-F74D-4106-B412-62E5623863D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -212,6 +214,10 @@ Global
 		{FFD1BBB8-93E7-4706-BD13-6C07B3E86B8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFD1BBB8-93E7-4706-BD13-6C07B3E86B8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFD1BBB8-93E7-4706-BD13-6C07B3E86B8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FC5F81D-F74D-4106-B412-62E5623863D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FC5F81D-F74D-4106-B412-62E5623863D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FC5F81D-F74D-4106-B412-62E5623863D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FC5F81D-F74D-4106-B412-62E5623863D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
 ﻿using System;
+using Wbtb.Core.Common;
 
 namespace Wbtb.Extensions.LogParsing.Unreal
 {
@@ -6,7 +7,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            new PluginShellReceiver<Unreal4>().Process(args);
         }
     }
 }
