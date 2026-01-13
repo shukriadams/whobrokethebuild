@@ -22,6 +22,34 @@ namespace Wbtb.Extensions.LogParsing.Unreal
     /// </summary>
     public class Unreal4 : Plugin, ILogParserPlugin
     {
+        #region FIELDS
+
+        private IDataPlugin _dataLayer;
+
+        private Cache _cache;
+
+        #endregion
+
+        #region CTORS
+
+        /// <summary>
+        ///
+        /// </summary>
+        public Unreal4()
+        {
+            SimpleDI di = new SimpleDI();
+            IPluginProvider pluginProvider = di.Resolve<IPluginProvider>();
+
+            _cache = di.Resolve<Cache>();
+            _dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
+
+            this.ContextPluginConfig = new PluginConfig();
+        }
+
+        #endregion
+        
+        #region METHODS
+        
         private static string Find(string text, string regexPattern, RegexOptions options = RegexOptions.None, string defaultValue = "")
         {
             Match match = new Regex(regexPattern, options).Match(text);
@@ -46,11 +74,10 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             if (ContextPluginConfig.Config.Any(r => r.Key == "SectionDelimiter"))
                 chunkDelimiter = ContextPluginConfig.Config.First(r => r.Key == "SectionDelimiter").Value.ToString();
 
-            SimpleDI di = new SimpleDI();
-            PluginProvider pluginProvider = di.Resolve<PluginProvider>();
-            IDataPlugin dataLayer = pluginProvider.GetFirstForInterface<IDataPlugin>();
-            Job job = dataLayer.GetJobById(build.JobId);
-
+            Job job = _dataLayer.GetJobById(build.JobId);
+            if (job == null)
+                return $"Job {build.JobId} not found";
+            
             string bluePrintRegex4 = @"Blueprint failed to compile: (.*)";
             string bluePrintRegex5 = @"LogBlueprint: Error: \[AssetLog\] .*?: \[Compiler]\ (.*)? from Source: (.*)?";
             string shaderRegex = @"LogShaderCompilers: Warning:\n*(.*?.usf)\(\): Shader (.*?), .*";
@@ -65,8 +92,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
                 chunks = fullErrorLog.Split(chunkDelimiter);
 
             // try for cache
-            Cache cache = di.Resolve<Cache>();
-            CachePayload shaderMatchLookup = cache.Get(this, job, build, this.ContextPluginConfig.Key);
+            CachePayload shaderMatchLookup = _cache.Get(this, job, build, this.ContextPluginConfig.Key);
             if (shaderMatchLookup.Payload != null)
                 return shaderMatchLookup.Payload;
 
@@ -135,8 +161,10 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             }
 
             string flattened = allMatches.ToString();
-            cache.Write(this, job, build, this.ContextPluginConfig.Key, flattened);
+            _cache.Write(this, job, build, this.ContextPluginConfig.Key, flattened);
             return flattened;
         }
+        
+        #endregion
     }
 }
