@@ -70,18 +70,20 @@ namespace Wbtb.Core.Web
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Log for Build id:{build.Id} at path:{logPath} does not exist on disk." };
 
             string rawLog;
+            string result;
 
             try
             {
-                rawLog = File.ReadAllText(logPath);
+                if (!TryReadLinesFilteredToString(logPath, out rawLog, out result))
+                {
+                    _log.Error(this, $"Failed to read log for build id:{build.Id} at path:{logPath}.");
+                }
             }
             catch (Exception ex) 
             {
                 _log.Error(this, $"Failed to read log for build id:{build.Id} at path:{logPath}.", ex);
                 return new DaemonTaskWorkResult { ResultType = DaemonTaskWorkResultType.Failed, Description = $"Failed to read log for build id:{build.Id} at path:{logPath}. Exception : {ex}" };
             }
-
-            string result = string.Empty;
 
             // force maximum length on logs parsed, this is necessary to prevent extremely long logs from poisoning regexs in parsers.
             if (rawLog.Length > _config.MaxParsableLogSize) 
@@ -90,14 +92,6 @@ namespace Wbtb.Core.Web
             } 
             else 
             {
-                // remove long lines from log before parsing
-                IEnumerable<string> lines = rawLog.Split(" ");
-                int unfilteredCount = lines.Count();
-                lines = lines.Where(line => line.Length < _config.MaxLineLength);
-                if (lines.Count() < unfilteredCount)
-                    result = $"{(unfilteredCount - lines.Count())} line(s) removed from log parsing because they exceed maximum continuous length of \"{_config.MaxLineLength}\" charachers.";
-                rawLog = string.Join("", lines);
-
                 // parse happens here
                 result += parser.Parse(build, rawLog);
             }
@@ -115,6 +109,42 @@ namespace Wbtb.Core.Web
 
             _log.Status(this, $"Log parser {parser.ContextPluginConfig.Key} ({parser.ContextPluginConfig.Manifest.Key}) completed build {build.Key} (id:{build.Id}), {timeString}");
             return new DaemonTaskWorkResult(); 
+        }
+        
+        private bool TryReadLinesFilteredToString(string filePath, out string rawLog, out string result)
+        {
+            // We create a string builder with a preallocated size of the length of the full file
+            var length = new System.IO.FileInfo(filePath).Length;
+            if (length > int.MaxValue)
+            {
+                result = string.Empty;
+                rawLog = string.Empty;
+                return false;
+            }
+            var rawLogBuilder = new System.Text.StringBuilder(Convert.ToInt32(length));
+            
+            var filteredCount = 0;
+
+            using (var reader = new StreamReader(filePath))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (line.Length >= _config.MaxLineLength)
+                    {
+                        filteredCount++;
+                        continue;
+                    }
+                    
+                    rawLogBuilder.AppendLine(line);
+                }
+            }
+
+            result = filteredCount > 0 ? $"{filteredCount} line(s) removed from log parsing because they exceed maximum continuous length of \"{_config.MaxLineLength}\" characters." : string.Empty;
+
+            rawLog = rawLogBuilder.ToString();
+
+            return true;
         }
 
         #endregion
