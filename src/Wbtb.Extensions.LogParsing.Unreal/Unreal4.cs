@@ -67,7 +67,7 @@ namespace Wbtb.Extensions.LogParsing.Unreal
             // try for cache
             Cache cache = di.Resolve<Cache>();
             CachePayload shaderMatchLookup = cache.Get(this, job, build, this.ContextPluginConfig.Key);
-            if (shaderMatchLookup != null)
+            if (shaderMatchLookup.Payload != null)
                 return shaderMatchLookup.Payload;
 
             StringBuilder allMatches = new StringBuilder();
