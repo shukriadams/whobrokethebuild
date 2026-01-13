@@ -2,7 +2,6 @@
 .tmp/
 .vs/
 .data/
-.idea/
 .env*
 .giturl
 .checkout
@@ -21,5 +20,4 @@ src/Wbtb.Extensions.PostProcessing.Test3/wbtb/log.txt
 src/Wbtb.Core.Web/currentVersion.txt
 src/Wbtb.Core.Web/frontend/package-lock.json
 src/Madscience.Perforce/PerforceConnect.cs
-
 src/Wbtb.sln.DotSettings.user
