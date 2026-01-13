@@ -91,12 +91,12 @@ namespace Wbtb.Core.Web
             else 
             {
                 // remove long lines from log before parsing
-                IEnumerable<string> lines = rawLog.Split(" ");
+                IEnumerable<string> lines = rawLog.Split("\n");
                 int unfilteredCount = lines.Count();
                 lines = lines.Where(line => line.Length < _config.MaxLineLength);
                 if (lines.Count() < unfilteredCount)
                     result = $"{(unfilteredCount - lines.Count())} line(s) removed from log parsing because they exceed maximum continuous length of \"{_config.MaxLineLength}\" charachers.";
-                rawLog = string.Join("", lines);
+                rawLog = string.Join("\n", lines);
 
                 // parse happens here
                 result += parser.Parse(build, rawLog);
