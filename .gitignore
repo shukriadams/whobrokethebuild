@@ -2,6 +2,7 @@
 .tmp/
 .vs/
 .data/
+.idea/
 .env*
 .giturl
 .checkout
