@@ -4,6 +4,7 @@
 .data/
 .env*
 .giturl
+.idea/
 .checkout
 *.pyc
 bin/
@@ -21,3 +22,4 @@ src/Wbtb.Core.Web/currentVersion.txt
 src/Wbtb.Core.Web/frontend/package-lock.json
 src/Madscience.Perforce/PerforceConnect.cs
 src/Wbtb.sln.DotSettings.user
+
