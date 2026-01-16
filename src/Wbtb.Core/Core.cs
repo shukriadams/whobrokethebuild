@@ -43,6 +43,7 @@ namespace Wbtb.Core
             di.Register<GitHelper, GitHelper>();
             di.Register<ConfigurationBuilder, ConfigurationBuilder>();
             di.Register<PluginProvider, PluginProvider>();
+            di.Register<IPluginProvider, PluginProvider>();
             di.Register<PluginManager, PluginManager>();
             di.Register<FileSystemHelper, FileSystemHelper>();
             di.Register<CustomEnvironmentArgs, CustomEnvironmentArgs>();
