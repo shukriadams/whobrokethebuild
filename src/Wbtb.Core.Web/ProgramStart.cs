@@ -15,12 +15,14 @@ namespace Wbtb.Core.Web
 
         public static void Main(string[] args)
         {
-            // pick up env vars from local .env file as early as possible in app load cycle, the contents of this file can be used to set basic features in application
+            // pick up env vars from local .env file as early as possible in app load cycle, 
+            // the contents of this file can be used to set basic functionality of this app,
             // and needs to be loaded before anything else
             CustomEnvironmentArgs customEnvironmentArgs = new CustomEnvironmentArgs();
             customEnvironmentArgs.Apply(true);
 
-            // validate important env vars as early as possible in app lifecylce
+            // validate important env vars, this needs to be done as early in app
+            // lifecycle as possible so we can fail on errors
             ConfigurationBasic.ValidateAndOverrideDefaults();
 
             CreateHostBuilder(args).Build().Run();
@@ -48,7 +50,7 @@ namespace Wbtb.Core.Web
                     builder.AddFile(configurationBasic.DotNetLogPath, LogLevel.Warning); 
                 })
 
-                // hand over too AspStart to continue loading
+                // hand over to AspStart to continue loading
                 .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<AspStart>();
                 });
